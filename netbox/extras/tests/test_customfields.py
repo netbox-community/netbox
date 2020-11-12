@@ -550,6 +550,10 @@ class CustomFieldModelTest(TestCase):
         cf2.content_types.set([ContentType.objects.get_for_model(Rack)])
 
     def test_cf_data(self):
+        """
+        Check that custom field data is present on the instance immediately after being set and after being fetched
+        from the database.
+        """
         site = Site(name='Test Site', slug='test-site')
 
         # Check custom field data on new instance
@@ -570,9 +574,26 @@ class CustomFieldModelTest(TestCase):
         # Set custom field data
         site.cf['foo'] = 'abc'
         site.cf['bar'] = 'def'
-
         with self.assertRaises(ValidationError):
             site.clean()
 
         del(site.cf['bar'])
+        site.clean()
+
+    def test_missing_required_field(self):
+        """
+        Check that a ValidationError is raised if any required custom fields are not present.
+        """
+        cf3 = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='baz', required=True)
+        cf3.save()
+        cf3.content_types.set([ContentType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+
+        # Set custom field data with a required field omitted
+        site.cf['foo'] = 'abc'
+        with self.assertRaises(ValidationError):
+            site.clean()
+
+        site.cf['baz'] = 'def'
         site.clean()

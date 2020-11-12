@@ -1,8 +1,4 @@
-import re
-from datetime import datetime
-
 from django.contrib.contenttypes.models import ContentType
-from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CreateOnlyDefault, Field
 
 from extras.choices import *
@@ -65,63 +61,6 @@ class CustomFieldsDataField(Field):
         # If updating an existing instance, start with existing custom_field_data
         if self.parent.instance:
             data = {**self.parent.instance.custom_field_data, **data}
-
-        custom_fields = {field.name: field for field in self._get_custom_fields()}
-
-        for field_name, value in data.items():
-
-            try:
-                cf = custom_fields[field_name]
-            except KeyError:
-                raise ValidationError(f"Invalid custom field name: {field_name}")
-
-            # Data validation
-            if value not in [None, '']:
-
-                # Validate text field
-                if cf.type == CustomFieldTypeChoices.TYPE_TEXT and cf.validation_regex:
-                    if not re.match(cf.validation_regex, value):
-                        raise ValidationError(f"{field_name}: Value must match regex {cf.validation_regex}")
-
-                # Validate integer
-                if cf.type == CustomFieldTypeChoices.TYPE_INTEGER:
-                    try:
-                        int(value)
-                    except ValueError:
-                        raise ValidationError(f"Invalid value for integer field {field_name}: {value}")
-                    if cf.validation_minimum is not None and value < cf.validation_minimum:
-                        raise ValidationError(f"{field_name}: Value must be at least {cf.validation_minimum}")
-                    if cf.validation_maximum is not None and value > cf.validation_maximum:
-                        raise ValidationError(f"{field_name}: Value must not exceed {cf.validation_maximum}")
-
-                # Validate boolean
-                if cf.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
-                    raise ValidationError(f"Invalid value for boolean field {field_name}: {value}")
-
-                # Validate date
-                if cf.type == CustomFieldTypeChoices.TYPE_DATE:
-                    try:
-                        datetime.strptime(value, '%Y-%m-%d')
-                    except ValueError:
-                        raise ValidationError(
-                            f"Invalid date for field {field_name}: {value}. (Required format is YYYY-MM-DD.)"
-                        )
-
-                # Validate selected choice
-                if cf.type == CustomFieldTypeChoices.TYPE_SELECT:
-                    if value not in cf.choices:
-                        raise ValidationError(f"Invalid choice for field {field_name}: {value}")
-
-            elif cf.required:
-                raise ValidationError(f"Required field {field_name} cannot be empty.")
-
-        # Check for missing required fields
-        missing_fields = []
-        for field_name, field in custom_fields.items():
-            if field.required and field_name not in data:
-                missing_fields.append(field_name)
-        if missing_fields:
-            raise ValidationError("Missing required fields: {}".format(u", ".join(missing_fields)))
 
         return data
 

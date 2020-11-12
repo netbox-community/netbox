@@ -1,4 +1,6 @@
+import re
 from collections import OrderedDict
+from datetime import datetime
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -8,10 +10,10 @@ from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
-from utilities.validators import validate_regex
 from extras.choices import *
 from extras.utils import FeatureQuery
+from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from utilities.validators import validate_regex
 
 
 class CustomFieldModel(models.Model):
@@ -44,14 +46,21 @@ class CustomFieldModel(models.Model):
         ])
 
     def clean(self):
+        custom_fields = {cf.name: cf for cf in CustomField.objects.get_for_model(self)}
 
-        # Validate custom field data
-        custom_field_names = CustomField.objects.get_for_model(self).values_list('name', flat=True)
-        for field_name in self.custom_field_data:
-            if field_name not in custom_field_names:
-                raise ValidationError({
-                    'custom_field_data': f'Unknown custom field: {field_name}'
-                })
+        # Validate all field values
+        for field_name, value in self.custom_field_data.items():
+            if field_name not in custom_fields:
+                raise ValidationError(f"Unknown field name '{field_name}' in custom field data.")
+            try:
+                custom_fields[field_name].validate(value)
+            except ValidationError as e:
+                raise ValidationError(f"Invalid value for custom field '{field_name}': {e.message}")
+
+        # Check for missing required values
+        for cf in custom_fields.values():
+            if cf.required and cf.name not in self.custom_field_data:
+                raise ValidationError(f"Missing required custom field '{cf.name}'.")
 
 
 class CustomFieldManager(models.Manager):
@@ -270,3 +279,46 @@ class CustomField(models.Model):
             field.help_text = self.description
 
         return field
+
+    def validate(self, value):
+        """
+        Validate a value according to the field's type validation rules.
+        """
+        if value not in [None, '']:
+
+            # Validate text field
+            if self.type == CustomFieldTypeChoices.TYPE_TEXT and self.validation_regex:
+                if not re.match(self.validation_regex, value):
+                    raise ValidationError(f"Value must match regex '{self.validation_regex}'")
+
+            # Validate integer
+            if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+                try:
+                    int(value)
+                except ValueError:
+                    raise ValidationError("Value must be an integer.")
+                if self.validation_minimum is not None and value < self.validation_minimum:
+                    raise ValidationError(f"Value must be at least {self.validation_minimum}")
+                if self.validation_maximum is not None and value > self.validation_maximum:
+                    raise ValidationError(f"Value must not exceed {self.validation_maximum}")
+
+            # Validate boolean
+            if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
+                raise ValidationError("Value must be true or false.")
+
+            # Validate date
+            if self.type == CustomFieldTypeChoices.TYPE_DATE:
+                try:
+                    datetime.strptime(value, '%Y-%m-%d')
+                except ValueError:
+                    raise ValidationError("Date values must be in the format YYYY-MM-DD.")
+
+            # Validate selected choice
+            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                if value not in self.choices:
+                    raise ValidationError(
+                        f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
+                    )
+
+        elif self.required:
+            raise ValidationError("Required field cannot be empty.")
