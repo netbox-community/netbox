@@ -998,8 +998,8 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
 class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = IPAddress
     field_order = [
-        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'assigned_to_interface', 'tenant_group',
-        'tenant',
+        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'role',
+        'assigned_to_interface', 'tenant_group', 'tenant',
     ]
     q = forms.CharField(
         required=False,
@@ -1029,8 +1029,13 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
+        label='Assigned VRF',
         null_option='Global'
+    )
+    present_in_vrf_id = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Present in VRF'
     )
     status = forms.MultipleChoiceField(
         choices=IPAddressStatusChoices,

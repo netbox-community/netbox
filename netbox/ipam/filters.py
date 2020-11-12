@@ -386,6 +386,17 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         to_field_name='rd',
         label='VRF (RD)',
     )
+    present_in_vrf_id = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
+        label='VRF'
+    )
+    present_in_vrf = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
+        to_field_name='rd',
+        label='VRF (RD)',
+    )
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -475,6 +486,14 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         if not value:
             return queryset
         return queryset.filter(address__net_mask_length=value)
+
+    def filter_present_in_vrf(self, queryset, name, vrf):
+        if vrf is None:
+            return queryset.none
+        return queryset.filter(
+            Q(vrf=vrf) |
+            Q(vrf__export_targets__in=vrf.import_targets.all())
+        )
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{'{}__in'.format(name): value})
