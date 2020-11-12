@@ -155,6 +155,8 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
         from circuits.models import CircuitTermination
 
+        super().clean()
+
         # Validate that termination A exists
         if not hasattr(self, 'termination_a_type'):
             raise ValidationError('Termination A type has not been specified')

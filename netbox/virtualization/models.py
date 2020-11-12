@@ -172,6 +172,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
         return reverse('virtualization:cluster', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
         if self.pk and self.site:
@@ -317,7 +318,6 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         super().validate_unique(exclude)
 
     def clean(self):
-
         super().clean()
 
         # Validate primary IP addresses

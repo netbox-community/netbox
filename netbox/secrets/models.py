@@ -74,7 +74,8 @@ class UserKey(models.Model):
     def __str__(self):
         return self.user.username
 
-    def clean(self, *args, **kwargs):
+    def clean(self):
+        super().clean()
 
         if self.public_key:
 
@@ -104,8 +105,6 @@ class UserKey(models.Model):
                         pubkey_length
                     )
                 })
-
-        super().clean()
 
     def save(self, *args, **kwargs):
 

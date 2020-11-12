@@ -256,6 +256,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:aggregate', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         if self.prefix:
 
@@ -442,6 +443,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:prefix', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         if self.prefix:
 
@@ -721,6 +723,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         ).exclude(pk=self.pk)
 
     def clean(self):
+        super().clean()
 
         if self.address:
 
@@ -970,6 +973,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:vlan', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         # Validate VLAN group
         if self.group and self.group.site != self.site:
@@ -1078,6 +1082,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         return self.device or self.virtual_machine
 
     def clean(self):
+        super().clean()
 
         # A Service must belong to a Device *or* to a VirtualMachine
         if self.device and self.virtual_machine:

@@ -1,9 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.forms import SiteCSVForm
-from dcim.models import Site
+from dcim.models import Site, Rack
 from extras.choices import *
 from extras.models import CustomField
 from utilities.testing import APITestCase, TestCase
@@ -534,3 +535,44 @@ class CustomFieldImportTest(TestCase):
         form = SiteCSVForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('cf_select', form.errors)
+
+
+class CustomFieldModelTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cf1 = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='foo')
+        cf1.save()
+        cf1.content_types.set([ContentType.objects.get_for_model(Site)])
+
+        cf2 = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='bar')
+        cf2.save()
+        cf2.content_types.set([ContentType.objects.get_for_model(Rack)])
+
+    def test_cf_data(self):
+        site = Site(name='Test Site', slug='test-site')
+
+        # Check custom field data on new instance
+        site.cf['foo'] = 'abc'
+        self.assertEqual(site.cf['foo'], 'abc')
+
+        # Check custom field data from database
+        site.save()
+        site = Site.objects.get(name='Test Site')
+        self.assertEqual(site.cf['foo'], 'abc')
+
+    def test_invalid_data(self):
+        """
+        Setting custom field data for a non-applicable (or non-existent) CustomField should raise a ValidationError.
+        """
+        site = Site(name='Test Site', slug='test-site')
+
+        # Set custom field data
+        site.cf['foo'] = 'abc'
+        site.cf['bar'] = 'def'
+
+        with self.assertRaises(ValidationError):
+            site.clean()
+
+        del(site.cf['bar'])
+        site.clean()

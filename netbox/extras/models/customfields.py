@@ -43,6 +43,16 @@ class CustomFieldModel(models.Model):
             (field, self.custom_field_data.get(field.name)) for field in fields
         ])
 
+    def clean(self):
+
+        # Validate custom field data
+        custom_field_names = CustomField.objects.get_for_model(self).values_list('name', flat=True)
+        for field_name in self.custom_field_data:
+            if field_name not in custom_field_names:
+                raise ValidationError({
+                    'custom_field_data': f'Unknown custom field: {field_name}'
+                })
+
 
 class CustomFieldManager(models.Manager):
     use_in_migrations = True

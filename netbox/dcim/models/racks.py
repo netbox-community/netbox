@@ -296,6 +296,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return reverse('dcim:rack', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         # Validate outer dimensions and unit
         if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
@@ -602,6 +603,7 @@ class RackReservation(ChangeLoggedModel, CustomFieldModel):
         return reverse('dcim:rackreservation', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         if hasattr(self, 'rack') and self.units:
 

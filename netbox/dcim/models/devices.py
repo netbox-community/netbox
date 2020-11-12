@@ -254,6 +254,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         return yaml.dump(dict(data), sort_keys=False)
 
     def clean(self):
+        super().clean()
 
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
@@ -634,7 +635,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         super().validate_unique(exclude)
 
     def clean(self):
-
         super().clean()
 
         # Validate site/rack combination
@@ -917,6 +917,7 @@ class VirtualChassis(ChangeLoggedModel, CustomFieldModel):
         return reverse('dcim:virtualchassis', kwargs={'pk': self.pk})
 
     def clean(self):
+        super().clean()
 
         # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
         # VirtualChassis.)

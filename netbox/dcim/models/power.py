@@ -64,6 +64,7 @@ class PowerPanel(ChangeLoggedModel, CustomFieldModel):
         )
 
     def clean(self):
+        super().clean()
 
         # RackGroup must belong to assigned Site
         if self.rack_group and self.rack_group.site != self.site:
@@ -172,6 +173,7 @@ class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldMo
         )
 
     def clean(self):
+        super().clean()
 
         # Rack must belong to same Site as PowerPanel
         if self.rack and self.rack.site != self.power_panel.site:
