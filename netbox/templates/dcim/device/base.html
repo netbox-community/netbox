@@ -42,31 +42,31 @@
                 </button>
                 <ul class="dropdown-menu">
                     {% if perms.dcim.add_consoleport %}
-                        <li><a href="{% url 'dcim:consoleport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
+                        <li><a href="{% url 'dcim:consoleport_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_consoleports' pk=device.pk %}">Console Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_consoleserverport %}
-                        <li><a href="{% url 'dcim:consoleserverport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
+                        <li><a href="{% url 'dcim:consoleserverport_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=device.pk %}">Console Server Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_powerport %}
-                        <li><a href="{% url 'dcim:powerport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
+                        <li><a href="{% url 'dcim:powerport_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_powerports' pk=device.pk %}">Power Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_poweroutlet %}
-                        <li><a href="{% url 'dcim:poweroutlet_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
+                        <li><a href="{% url 'dcim:poweroutlet_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=device.pk %}">Power Outlets</a></li>
                     {% endif %}
                     {% if perms.dcim.add_interface %}
-                        <li><a href="{% url 'dcim:interface_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
+                        <li><a href="{% url 'dcim:interface_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_interfaces' pk=device.pk %}">Interfaces</a></li>
                     {% endif %}
                     {% if perms.dcim.add_frontport %}
-                        <li><a href="{% url 'dcim:frontport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
+                        <li><a href="{% url 'dcim:frontport_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_frontports' pk=device.pk %}">Front Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_rearport %}
-                        <li><a href="{% url 'dcim:rearport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
+                        <li><a href="{% url 'dcim:rearport_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_rearports' pk=device.pk %}">Rear Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_devicebay %}
-                        <li><a href="{% url 'dcim:devicebay_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
+                        <li><a href="{% url 'dcim:devicebay_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_devicebays' pk=device.pk %}">Device Bays</a></li>
                     {% endif %}
                     {% if perms.dcim.add_inventoryitem %}
-                        <li><a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_inventoryitems">Inventory Items</a></li>
+                        <li><a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={% url 'dcim:device_inventory' pk=device.pk %}">Inventory Items</a></li>
                     {% endif %}
                 </ul>
             </div>
