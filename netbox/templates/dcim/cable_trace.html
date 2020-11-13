@@ -7,76 +7,106 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-5 col-sm-12 cable-trace">
-            {% with traced_path=path.origin.trace %}
-                {% for near_end, cable, far_end in traced_path %}
+        <div class="col-md-5 col-sm-12">
+            <div class="cable-trace">
+                {% with traced_path=path.origin.trace %}
+                    {% for near_end, cable, far_end in traced_path %}
 
-                    {# Near end #}
-                    {% if near_end.device %}
-                        {% include 'dcim/trace/device.html' with device=near_end.device %}
-                        {% include 'dcim/trace/termination.html' with termination=near_end %}
-                    {% elif near_end.power_panel %}
-                        {% include 'dcim/trace/powerpanel.html' with powerpanel=near_end.power_panel %}
-                        {% include 'dcim/trace/termination.html' with termination=far_end%}
-                    {% elif near_end.circuit %}
-                        {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
-                        {% include 'dcim/trace/termination.html' with termination=near_end %}
-                    {% else %}
-                        <h3 class="text-danger text-center">Split Paths!</h3>
-                        {# TODO: Present the user with successive paths to choose from #}
-                    {% endif %}
-
-                    {# Cable #}
-                    {% if cable %}
-                        {% include 'dcim/trace/cable.html' %}
-                    {% endif %}
-
-                    {# Far end #}
-                    {% if far_end.device %}
-                        {% include 'dcim/trace/termination.html' with termination=far_end %}
-                        {% if forloop.last %}
-                            {% include 'dcim/trace/device.html' with device=far_end.device %}
+                        {# Near end #}
+                        {% if near_end.device %}
+                            {% include 'dcim/trace/device.html' with device=near_end.device %}
+                            {% include 'dcim/trace/termination.html' with termination=near_end %}
+                        {% elif near_end.power_panel %}
+                            {% include 'dcim/trace/powerpanel.html' with powerpanel=near_end.power_panel %}
+                            {% include 'dcim/trace/termination.html' with termination=far_end%}
+                        {% elif near_end.circuit %}
+                            {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
+                            {% include 'dcim/trace/termination.html' with termination=near_end %}
+                        {% else %}
+                            <h3 class="text-danger text-center">Split Paths!</h3>
+                            {# TODO: Present the user with successive paths to choose from #}
                         {% endif %}
-                    {% elif far_end.power_panel %}
-                        {% include 'dcim/trace/termination.html' with termination=far_end %}
-                        {% include 'dcim/trace/powerpanel.html' with powerpanel=far_end.power_panel %}
-                    {% elif far_end.circuit %}
-                        {% include 'dcim/trace/termination.html' with termination=far_end %}
-                        {% if forloop.last %}
-                            {% include 'dcim/trace/circuit.html' with circuit=far_end.circuit %}
+
+                        {# Cable #}
+                        {% if cable %}
+                            {% include 'dcim/trace/cable.html' %}
                         {% endif %}
-                    {% endif %}
 
-                    {% if forloop.last %}
-                        <div class="trace-end">
-                            <h3{% if far_end %} class="text-success"{% endif %}>Trace completed</h3>
-                            <h5>Total segments: {{ traced_path|length }}</h5>
-                            <h5>Total length:
-                                {% if total_length %}
-                                    {{ total_length|floatformat:"-2" }} Meters
-                                {% else %}
-                                    <span class="text-muted">N/A</span>
-                                {% endif %}
-                            <h5>
-                        </div>
-                    {% endif %}
+                        {# Far end #}
+                        {% if far_end.device %}
+                            {% include 'dcim/trace/termination.html' with termination=far_end %}
+                            {% if forloop.last %}
+                                {% include 'dcim/trace/device.html' with device=far_end.device %}
+                            {% endif %}
+                        {% elif far_end.power_panel %}
+                            {% include 'dcim/trace/termination.html' with termination=far_end %}
+                            {% include 'dcim/trace/powerpanel.html' with powerpanel=far_end.power_panel %}
+                        {% elif far_end.circuit %}
+                            {% include 'dcim/trace/termination.html' with termination=far_end %}
+                            {% if forloop.last %}
+                                {% include 'dcim/trace/circuit.html' with circuit=far_end.circuit %}
+                            {% endif %}
+                        {% endif %}
 
-                {% endfor %}
-            {% endwith %}
+                        {% if forloop.last %}
+                            <div class="trace-end">
+                                <h3{% if far_end %} class="text-success"{% endif %}>Trace completed</h3>
+                                <h5>Total segments: {{ traced_path|length }}</h5>
+                                <h5>Total length:
+                                    {% if total_length %}
+                                        {{ total_length|floatformat:"-2" }} Meters
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </h5>
+                            </div>
+                        {% endif %}
+
+                    {% endfor %}
+                {% endwith %}
+            </div>
         </div>
         <div class="col-md-7 col-sm-12">
 
-            <h4 class="text-center">Related Paths</h4>
-            <ul class="nav nav-pills nav-stacked">
-                {% for cablepath in related_paths %}
-                    <li role="presentation"{% if cablepath.pk == path.pk %} class="active"{% endif %}>
-                        <a href="?cablepath_id={{ cablepath.pk }}">
-                            From {{ cablepath.origin }} ({{ cablepath.origin.parent }})
-                            to {{ cablepath.destination }} ({{ cablepath.destination.parent }})
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                  <strong>Related Paths</strong>
+                </div>
+                <table class="table table-hover panel-body">
+                    <thead>
+                        <tr>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Segments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cablepath in related_paths %}
+                            <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
+                                <td>
+                                    <a href="?cablepath_id={{ cablepath.pk }}">
+                                        {{ cablepath.origin.parent }} / {{ cablepath.origin }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if cablepath.destination %}
+                                        {{ cablepath.destination }} ({{ cablepath.destination.parent }})
+                                    {% else %}
+                                        <span class="text-muted">Incomplete</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">
+                                    {{ cablepath.segment_count }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <td colspan="3" class="text-muted">
+                                None found
+                            </td>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>

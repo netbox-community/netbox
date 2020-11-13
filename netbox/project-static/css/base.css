@@ -230,6 +230,7 @@ table.report th a {
 /* Cable tracing */
 .cable-trace {
     max-width: 600px;
+    margin: 16px auto;
     text-align: center;
 }
 .cable-trace .node {
