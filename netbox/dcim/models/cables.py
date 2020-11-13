@@ -379,6 +379,11 @@ class CablePath(models.Model):
         model = self.origin._meta.model
         model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
 
+    @property
+    def segment_count(self):
+        total_length = 1 + len(self.path) + (1 if self.destination else 0)
+        return int(total_length / 3)
+
     def get_path(self):
         """
         Return the path as a list of prefetched objects.
