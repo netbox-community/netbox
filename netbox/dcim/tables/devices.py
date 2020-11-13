@@ -259,8 +259,7 @@ class DeviceConsolePortTable(ConsolePortTable):
     actions = ButtonsColumn(
         model=ConsolePort,
         buttons=('edit', 'delete'),
-        prepend_template=CONSOLEPORT_BUTTONS,
-        return_url_extra='%23tab_consoleports'
+        prepend_template=CONSOLEPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -294,8 +293,7 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
     actions = ButtonsColumn(
         model=ConsoleServerPort,
         buttons=('edit', 'delete'),
-        prepend_template=CONSOLESERVERPORT_BUTTONS,
-        return_url_extra='%23tab_consoleserverports'
+        prepend_template=CONSOLESERVERPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -332,8 +330,7 @@ class DevicePowerPortTable(PowerPortTable):
     actions = ButtonsColumn(
         model=PowerPort,
         buttons=('edit', 'delete'),
-        prepend_template=POWERPORT_BUTTONS,
-        return_url_extra='%23tab_powerports'
+        prepend_template=POWERPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -376,8 +373,7 @@ class DevicePowerOutletTable(PowerOutletTable):
     actions = ButtonsColumn(
         model=PowerOutlet,
         buttons=('edit', 'delete'),
-        prepend_template=POWEROUTLET_BUTTONS,
-        return_url_extra='%23tab_poweroutlets'
+        prepend_template=POWEROUTLET_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -437,8 +433,7 @@ class DeviceInterfaceTable(InterfaceTable):
     actions = ButtonsColumn(
         model=Interface,
         buttons=('edit', 'delete'),
-        prepend_template=INTERFACE_BUTTONS,
-        return_url_extra='%23tab_interfaces'
+        prepend_template=INTERFACE_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -485,8 +480,7 @@ class DeviceFrontPortTable(FrontPortTable):
     actions = ButtonsColumn(
         model=FrontPort,
         buttons=('edit', 'delete'),
-        prepend_template=FRONTPORT_BUTTONS,
-        return_url_extra='%23tab_frontports'
+        prepend_template=FRONTPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -524,8 +518,7 @@ class DeviceRearPortTable(RearPortTable):
     actions = ButtonsColumn(
         model=RearPort,
         buttons=('edit', 'delete'),
-        prepend_template=REARPORT_BUTTONS,
-        return_url_extra='%23tab_rearports'
+        prepend_template=REARPORT_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -567,8 +560,7 @@ class DeviceDeviceBayTable(DeviceBayTable):
     actions = ButtonsColumn(
         model=DeviceBay,
         buttons=('edit', 'delete'),
-        prepend_template=DEVICEBAY_BUTTONS,
-        return_url_extra='%23tab_devicebays'
+        prepend_template=DEVICEBAY_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
@@ -608,8 +600,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
     )
     actions = ButtonsColumn(
         model=InventoryItem,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_inventoryitems'
+        buttons=('edit', 'delete')
     )
 
     class Meta(DeviceComponentTable.Meta):
