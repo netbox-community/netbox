@@ -253,7 +253,8 @@ class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
 
 class DeviceConsolePortTable(ConsolePortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="mdi mdi-console"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-console"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=ConsolePort,
@@ -286,7 +287,9 @@ class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
 
 class DeviceConsoleServerPortTable(ConsoleServerPortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="mdi mdi-console-network-outline"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-console-network-outline"></i> '
+                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=ConsoleServerPort,
@@ -322,7 +325,9 @@ class PowerPortTable(DeviceComponentTable, PathEndpointTable):
 
 class DevicePowerPortTable(PowerPortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="mdi mdi-power-plug-outline"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-power-plug-outline"></i> <a href="{{ record.get_absolute_url }}">'
+                      '{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=PowerPort,
@@ -365,7 +370,8 @@ class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
 
 class DevicePowerOutletTable(PowerOutletTable):
     name = tables.TemplateColumn(
-        template_code='<i class="mdi mdi-power-socket"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-power-socket"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=PowerOutlet,
@@ -421,7 +427,8 @@ class DeviceInterfaceTable(InterfaceTable):
     name = tables.TemplateColumn(
         template_code='<i class="mdi mdi-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}drag-horizontal-variant'
                       '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}ethernet'
-                      '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+                      '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     lag = tables.Column(
         linkify=True,
@@ -472,7 +479,8 @@ class FrontPortTable(DeviceComponentTable, CableTerminationTable):
 class DeviceFrontPortTable(FrontPortTable):
     name = tables.TemplateColumn(
         template_code='<i class="mdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
-                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=FrontPort,
@@ -510,7 +518,8 @@ class RearPortTable(DeviceComponentTable, CableTerminationTable):
 class DeviceRearPortTable(RearPortTable):
     name = tables.TemplateColumn(
         template_code='<i class="fmdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
-                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=RearPort,
@@ -552,7 +561,8 @@ class DeviceBayTable(DeviceComponentTable):
 class DeviceDeviceBayTable(DeviceBayTable):
     name = tables.TemplateColumn(
         template_code='<i class="mdi mdi-circle{% if record.installed_device %}slice-8{% else %}outline{% endif %}'
-                      '"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+                      '"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=DeviceBay,
@@ -593,7 +603,8 @@ class InventoryItemTable(DeviceComponentTable):
 class DeviceInventoryItemTable(InventoryItemTable):
     name = tables.TemplateColumn(
         template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
-                      '{{ value }}</a>'
+                      '{{ value }}</a>',
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = ButtonsColumn(
         model=InventoryItem,
