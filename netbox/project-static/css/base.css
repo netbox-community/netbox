@@ -393,6 +393,9 @@ textarea {
     position: relative;
     top: 2px;
 }
+.btn .mdi {
+    margin: 0 -2px;
+}
 .btn .mdi::before {
     font-size: 20px;
     line-height: 14px;

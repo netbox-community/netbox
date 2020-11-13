@@ -93,9 +93,11 @@ CONSOLEPORT_BUTTONS = """
     <a href="{% url 'dcim:consoleport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:consoleport_connect' termination_a_id=record.pk termination_b_type='console-server-port' %}?return_url={% url 'dcim:device_consoleports' pk=device.pk %}">Console Server Port</a></li>
@@ -111,9 +113,11 @@ CONSOLESERVERPORT_BUTTONS = """
     <a href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:consoleserverport_connect' termination_a_id=record.pk termination_b_type='console-port' %}?return_url={% url 'dcim:device_consoleserverports' pk=device.pk %}">Console Port</a></li>
@@ -129,9 +133,11 @@ POWERPORT_BUTTONS = """
     <a href="{% url 'dcim:powerport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:powerport_connect' termination_a_id=record.pk termination_b_type='power-outlet' %}?return_url={% url 'dcim:device_powerports' pk=device.pk %}">Power Outlet</a></li>
@@ -146,8 +152,10 @@ POWEROUTLET_BUTTONS = """
     <a href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=record.pk termination_b_type='power-port' %}?return_url={% url 'dcim:device_poweroutlets' pk=device.pk %}" title="Connect" class="btn btn-success btn-xs">
-        <i class="mdi mdi-lan-connect" aria-hidden="true"></i>
+        <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
     </a>
 {% endif %}
 """
@@ -162,6 +170,8 @@ INTERFACE_BUTTONS = """
     <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif record.is_connectable and perms.dcim.add_cable %}
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
@@ -181,9 +191,11 @@ FRONTPORT_BUTTONS = """
     <a href="{% url 'dcim:frontport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:frontport_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={% url 'dcim:device_frontports' pk=device.pk %}">Interface</a></li>
@@ -202,9 +214,11 @@ REARPORT_BUTTONS = """
     <a href="{% url 'dcim:rearport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={% url 'dcim:device_rearports' pk=device.pk %}">Interface</a></li>
@@ -220,7 +234,7 @@ DEVICEBAY_BUTTONS = """
 {% if perms.dcim.change_devicebay %}
     {% if record.installed_device %}
         <a href="{% url 'dcim:devicebay_depopulate' pk=record.pk %}?return_url={% url 'dcim:device_devicebays' pk=device.pk %}" class="btn btn-danger btn-xs">
-            <i class="mdi mdi-close-thick" aria-hidden="true" title="Remove device"></i>
+            <i class="mdi mdi-minus-thick" aria-hidden="true" title="Remove device"></i>
         </a>
     {% else %}
         <a href="{% url 'dcim:devicebay_populate' pk=record.pk %}?return_url={% url 'dcim:device_devicebays' pk=device.pk %}" class="btn btn-success btn-xs">
