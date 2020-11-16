@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.10 (FUTURE)
+
+### Enhancements
+
+* [#5337](https://github.com/netbox-community/netbox/issues/5337) - Add "splice" type for pass-through ports
+
+---
+
 ## v2.9.9 (2020-11-09)
 
 ### Enhancements
@@ -16,7 +24,6 @@
 * [#5324](https://github.com/netbox-community/netbox/issues/5324) - Add missing template extension tags for plugins for VM interface view
 * [#5328](https://github.com/netbox-community/netbox/issues/5328) - Fix CreatedUpdatedFilterTest when running in non-UTC timezone
 * [#5331](https://github.com/netbox-community/netbox/issues/5331) - Fix filtering of sites by null region
-
 
 ---
 
