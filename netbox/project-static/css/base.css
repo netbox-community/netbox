@@ -248,6 +248,9 @@ table.report th a {
     width: 60%;
     z-index: 2;
 }
+.cable-trace .active {
+    border: 3px solid #30C030;
+}
 .cable-trace .cable {
     border-left-style: solid;
     border-left-width: 4px;
