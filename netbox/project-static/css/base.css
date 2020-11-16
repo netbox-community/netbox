@@ -128,9 +128,6 @@ ul.dropdown-menu div.buttons {
     padding-right: 10px;
     padding-top: 2px;
 }
-ul.dropdown-menu div.buttons a {
-    width: 26px;
-}
 ul.dropdown-menu > li > a {
     clear: left;
 }
@@ -411,10 +408,7 @@ textarea {
     top: 3px;
 }
 .dropdown-menu .mdi {
-    width: 18px;
-}
-.dropdown-menu .mdi::before {
-    position: relative;
+    margin-left: 2px;
 }
 .nav .mdi::before {
     left: -2px;
