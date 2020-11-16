@@ -511,7 +511,7 @@ class RearPortTable(DeviceComponentTable, CableTerminationTable):
 
 class DeviceRearPortTable(RearPortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fmdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
+        template_code='<i class="mdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
                       '<a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         attrs={'td': {'class': 'text-nowrap'}}
     )
