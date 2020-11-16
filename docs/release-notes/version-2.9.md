@@ -6,6 +6,10 @@
 
 * [#5337](https://github.com/netbox-community/netbox/issues/5337) - Add "splice" type for pass-through ports
 
+### Bug Fixes
+
+* [#5345](https://github.com/netbox-community/netbox/issues/5345) - Fix non-deterministic ordering of prefixes and IP addresses
+
 ---
 
 ## v2.9.9 (2020-11-09)
