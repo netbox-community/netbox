@@ -741,7 +741,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         display_field='display_name',
         query_params={
             'site_id': '$site',
-            'group_id': '$rack',
+            'group_id': '$rack_group',
         }
     )
     units = NumericArrayField(
