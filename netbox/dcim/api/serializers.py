@@ -747,7 +747,7 @@ class CablePathSerializer(serializers.ModelSerializer):
     class Meta:
         model = CablePath
         fields = [
-            'id', 'origin_type', 'origin', 'destination_type', 'destination', 'path', 'is_active',
+            'id', 'origin_type', 'origin', 'destination_type', 'destination', 'path', 'is_active', 'is_split',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)

@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                 ('destination_id', models.PositiveIntegerField(blank=True, null=True)),
                 ('path', dcim.fields.PathField(base_field=models.CharField(max_length=40), size=None)),
                 ('is_active', models.BooleanField(default=False)),
+                ('is_split', models.BooleanField(default=False)),
                 ('destination_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype')),
                 ('origin_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype')),
             ],

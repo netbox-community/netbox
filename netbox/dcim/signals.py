@@ -7,17 +7,19 @@ from django.dispatch import receiver
 
 from .choices import CableStatusChoices
 from .models import Cable, CablePath, Device, PathEndpoint, VirtualChassis
-from .utils import trace_path
 
 
 def create_cablepath(node):
     """
     Create CablePaths for all paths originating from the specified node.
     """
-    path, destination, is_active = trace_path(node)
-    if path:
-        cp = CablePath(origin=node, path=path, destination=destination, is_active=is_active)
-        cp.save()
+    cp = CablePath.from_origin(node)
+    if cp:
+        try:
+            cp.save()
+        except Exception as e:
+            print(node, node.pk)
+            raise e
 
 
 def rebuild_paths(obj):
@@ -116,13 +118,14 @@ def nullify_connected_endpoints(instance, **kwargs):
 
     # Delete and retrace any dependent cable paths
     for cablepath in CablePath.objects.filter(path__contains=instance):
-        path, destination, is_active = trace_path(cablepath.origin)
-        if path:
+        cp = CablePath.from_origin(cablepath.origin)
+        if cp:
             CablePath.objects.filter(pk=cablepath.pk).update(
-                path=path,
-                destination_type=ContentType.objects.get_for_model(destination) if destination else None,
-                destination_id=destination.pk if destination else None,
-                is_active=is_active
+                path=cp.path,
+                destination_type=ContentType.objects.get_for_model(cp.destination) if cp.destination else None,
+                destination_id=cp.destination.pk if cp.destination else None,
+                is_active=cp.is_active,
+                is_split=cp.is_split
             )
         else:
             cablepath.delete()

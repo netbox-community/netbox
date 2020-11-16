@@ -22,9 +22,6 @@
                         {% elif near_end.circuit %}
                             {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
                             {% include 'dcim/trace/termination.html' with termination=near_end %}
-                        {% else %}
-                            <h3 class="text-danger text-center">Split Paths!</h3>
-                            {# TODO: Present the user with successive paths to choose from #}
                         {% endif %}
 
                         {# Cable #}
@@ -49,17 +46,36 @@
                         {% endif %}
 
                         {% if forloop.last %}
-                            <div class="trace-end">
-                                <h3{% if far_end %} class="text-success"{% endif %}>Trace completed</h3>
-                                <h5>Total segments: {{ traced_path|length }}</h5>
-                                <h5>Total length:
-                                    {% if total_length %}
-                                        {{ total_length|floatformat:"-2" }} Meters
-                                    {% else %}
-                                        <span class="text-muted">N/A</span>
-                                    {% endif %}
-                                </h5>
-                            </div>
+                            {% if path.is_split %}
+                                <div class="trace-end">
+                                    <h3 class="text-danger">Path split!</h3>
+                                    <p>Select a node below to continue:</p>
+                                    <ul class="text-left">
+                                        {% for next_node in path.get_split_nodes %}
+                                            {% if next_node.cable %}
+                                                <li>
+                                                    <a href="{% url 'dcim:frontport_trace' pk=next_node.pk %}">{{ next_node }}</a>
+                                                    (Cable <a href="{{ next_node.cable.get_absolute_url }}">{{ next_node.cable }}</a>)
+                                                </li>
+                                            {% else %}
+                                                <li class="text-muted">{{ next_node }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <div class="trace-end">
+                                    <h3{% if far_end %} class="text-success"{% endif %}>Trace completed</h3>
+                                    <h5>Total segments: {{ traced_path|length }}</h5>
+                                    <h5>Total length:
+                                        {% if total_length %}
+                                            {{ total_length|floatformat:"-2" }} Meters
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                            {% endif %}
                         {% endif %}
 
                     {% endfor %}

@@ -11,7 +11,7 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
-from dcim.utils import decompile_path_node
+from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
 from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import ColorField
@@ -218,23 +218,14 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
                 f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
             )
 
-        # Check that a RearPort with multiple positions isn't connected to an endpoint
-        # or a RearPort with a different number of positions.
-        for term_a, term_b in [
-            (self.termination_a, self.termination_b),
-            (self.termination_b, self.termination_a)
-        ]:
-            if isinstance(term_a, RearPort) and term_a.positions > 1:
-                if not isinstance(term_b, (FrontPort, RearPort, CircuitTermination)):
-                    raise ValidationError(
-                        "Rear ports with multiple positions may only be connected to other pass-through ports"
-                    )
-                if isinstance(term_b, RearPort) and term_b.positions > 1 and term_a.positions != term_b.positions:
-                    raise ValidationError(
-                        f"{term_a} of {term_a.device} has {term_a.positions} position(s) but "
-                        f"{term_b} of {term_b.device} has {term_b.positions}. "
-                        f"Both terminations must have the same number of positions."
-                    )
+        # Check that two connected RearPorts have the same number of positions
+        if isinstance(self.termination_a, RearPort) and isinstance(self.termination_b, RearPort):
+            if self.termination_a.positions != self.termination_b.positions:
+                raise ValidationError(
+                    f"{self.termination_a} has {self.termination_a.positions} position(s) but "
+                    f"{self.termination_b} has {self.termination_b.positions}. "
+                    f"Both terminations must have the same number of positions."
+                )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:
@@ -365,12 +356,16 @@ class CablePath(models.Model):
     is_active = models.BooleanField(
         default=False
     )
+    is_split = models.BooleanField(
+        default=False
+    )
 
     class Meta:
         unique_together = ('origin_type', 'origin_id')
 
     def __str__(self):
-        return f"Path #{self.pk}: {self.origin} to {self.destination} ({len(self.path)} nodes)"
+        status = ' (active)' if self.is_active else ' (split)' if self.is_split else ''
+        return f"Path #{self.pk}: {self.origin} to {self.destination} via {len(self.path)} nodes{status}"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -383,6 +378,68 @@ class CablePath(models.Model):
     def segment_count(self):
         total_length = 1 + len(self.path) + (1 if self.destination else 0)
         return int(total_length / 3)
+
+    @classmethod
+    def from_origin(cls, origin):
+        """
+        Create a new CablePath instance as traced from the given path origin.
+        """
+        if origin is None or origin.cable is None:
+            return None
+
+        destination = None
+        path = []
+        position_stack = []
+        is_active = True
+        is_split = False
+
+        node = origin
+        while node.cable is not None:
+            if node.cable.status != CableStatusChoices.STATUS_CONNECTED:
+                is_active = False
+
+            # Follow the cable to its far-end termination
+            path.append(object_to_path_node(node.cable))
+            peer_termination = node.get_cable_peer()
+
+            # Follow a FrontPort to its corresponding RearPort
+            if isinstance(peer_termination, FrontPort):
+                path.append(object_to_path_node(peer_termination))
+                node = peer_termination.rear_port
+                if node.positions > 1:
+                    position_stack.append(peer_termination.rear_port_position)
+                path.append(object_to_path_node(node))
+
+            # Follow a RearPort to its corresponding FrontPort
+            elif isinstance(peer_termination, RearPort):
+                path.append(object_to_path_node(peer_termination))
+                if peer_termination.positions == 1:
+                    node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=1)
+                    path.append(object_to_path_node(node))
+                elif position_stack:
+                    position = position_stack.pop()
+                    node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=position)
+                    path.append(object_to_path_node(node))
+                else:
+                    # No position indicated: path has split, so we stop at the RearPort
+                    is_split = True
+                    break
+
+            # Anything else marks the end of the path
+            else:
+                destination = peer_termination
+                break
+
+        if destination is None:
+            is_active = False
+
+        return cls(
+            origin=origin,
+            destination=destination,
+            path=path,
+            is_active=is_active,
+            is_split=is_split
+        )
 
     def get_path(self):
         """
@@ -422,3 +479,11 @@ class CablePath(models.Model):
             decompile_path_node(self.path[i])[1] for i in range(0, len(self.path), 3)
         ]
         return Cable.objects.filter(id__in=cable_ids).aggregate(total=Sum('_abs_length'))['total']
+
+    def get_split_nodes(self):
+        """
+
+        :return:
+        """
+        rearport = path_node_to_object(self.path[-1])
+        return FrontPort.objects.filter(rear_port=rearport)
