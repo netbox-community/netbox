@@ -10,16 +10,16 @@
 ### Ubuntu
 
 ```no-highlight
-# apt-get install -y redis-server
+sudo apt install -y redis-server
 ```
 
 ### CentOS
 
 ```no-highlight
-# yum install -y epel-release
-# yum install -y redis
-# systemctl start redis
-# systemctl enable redis
+sudo yum install -y epel-release
+sudo yum install -y redis
+sudo systemctl start redis
+sudo systemctl enable redis
 ```
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/redis/redis.conf`, however in most cases the default configuration is sufficient.

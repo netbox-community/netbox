@@ -9,13 +9,13 @@ This guide explains how to implement LDAP authentication using an external serve
 On Ubuntu:
 
 ```no-highlight
-# apt-get install -y libldap2-dev libsasl2-dev libssl-dev
+sudo apt install -y libldap2-dev libsasl2-dev libssl-dev
 ```
 
 On CentOS:
 
 ```no-highlight
-# yum install -y openldap-devel
+sudo yum install -y openldap-devel
 ```
 
 ### Install django-auth-ldap
@@ -23,15 +23,14 @@ On CentOS:
 Activate the Python virtual environment and install the `django-auth-ldap` package using pip:
 
 ```no-highlight
-# cd /opt/netbox/
-# source venv/bin/activate
-(venv) # pip3 install django-auth-ldap
+source /opt/netbox/venv/bin/activate
+pip3 install django-auth-ldap
 ```
 
 Once installed, add the package to `local_requirements.txt` to ensure it is re-installed during future rebuilds of the virtual environment:
 
 ```no-highlight
-(venv) # echo django-auth-ldap >> local_requirements.txt
+sudo echo django-auth-ldap >> /opt/netbox/local_requirements.txt
 ```
 
 ## Configuration
@@ -42,7 +41,7 @@ First, enable the LDAP authentication backend in `configuration.py`. (Be sure to
 REMOTE_AUTH_BACKEND = 'netbox.authentication.LDAPBackend'
 ```
 
-Next, create a file in the same directory as `configuration.py` (typically `netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](http://django-auth-ldap.readthedocs.io/).
+Next, create a file in the same directory as `configuration.py` (typically `/opt/netbox/netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](http://django-auth-ldap.readthedocs.io/).
 
 ### General Server Configuration
 
