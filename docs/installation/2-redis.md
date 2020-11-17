@@ -16,7 +16,6 @@ sudo apt install -y redis-server
 ### CentOS
 
 ```no-highlight
-sudo yum install -y epel-release
 sudo yum install -y redis
 sudo systemctl start redis
 sudo systemctl enable redis

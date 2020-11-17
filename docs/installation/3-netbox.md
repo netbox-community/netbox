@@ -18,8 +18,7 @@ sudo apt install -y python3.6 python3-pip python3-venv python3-dev build-essenti
 ### CentOS
 
 ```no-highlight
-sudo yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
-sudo easy_install-3.6 pip
+sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
 ```
 
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:
@@ -37,10 +36,10 @@ This documentation provides two options for installing NetBox: from a downloadab
 Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox` as the NetBox root.
 
 ```no-highlight
-# wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
-# tar -xzf vX.Y.Z.tar.gz -C /opt
-# ln -s /opt/netbox-X.Y.Z/ /opt/netbox
-# ls -l /opt | grep netbox
+$ sudo wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
+$ sudo tar -xzf vX.Y.Z.tar.gz -C /opt
+$ sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
+$ ls -l /opt | grep netbox
 lrwxrwxrwx  1 root root         13 Jul 20 13:44 netbox -> netbox-2.9.0/
 drwxr-xr-x  2 root root       4096 Jul 20 13:44 netbox-2.9.0
 ```
@@ -73,7 +72,7 @@ sudo yum install -y git
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
 
 ```no-highlight
-sudo git clone -b master https://github.com/netbox-community/netbox.git .
+$ sudo git clone -b master https://github.com/netbox-community/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.

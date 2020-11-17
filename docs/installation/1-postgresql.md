@@ -9,7 +9,7 @@ This section entails the installation and configuration of a local PostgreSQL da
 
 #### Ubuntu
 
-If a recent enough version of PostgreSQL is not available through your distribution's package manager, you'll need to install it from an official [PostgreSQL repository](https://wiki.postgresql.org/wiki/Apt).
+Install the PostgreSQL server and client development libraries using `apt`.
 
 ```no-highlight
 sudo apt update
@@ -18,15 +18,14 @@ sudo apt install -y postgresql libpq-dev
 
 #### CentOS
 
-CentOS 7 does not ship with a recent enough version of PostgreSQL, so it will need to be installed from an external repository. The instructions below show the installation of PostgreSQL 9.6, however you may opt to install a more recent version.
+PostgreSQL 9.6 and later are available natively on CentOS 8.2. If using an earlier CentOS release, you may need to [install it from an RPM](https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/).
 
 ```no-highlight
-sudo yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-sudo yum install -y postgresql96 postgresql96-server postgresql96-devel
-sudo /usr/pgsql-9.6/bin/postgresql96-setup initdb
+sudo yum install -y postgresql-server libpq-devel
+sudo postgresql-setup --initdb
 ```
 
-CentOS users should modify the PostgreSQL configuration to accept password-based authentication by replacing `ident` with `md5` for all host entries within `/var/lib/pgsql/9.6/data/pg_hba.conf`. For example:
+CentOS configures ident host-based authentication for PostgreSQL by default. Because NetBox will need to authenticate using a username and password, modify `/var/lib/pgsql/data/pg_hba.conf` to support MD5 authentication by changing `ident` to `md5` for the lines below:
 
 ```no-highlight
 host    all             all             127.0.0.1/32            md5
@@ -36,8 +35,8 @@ host    all             all             ::1/128                 md5
 Then, start the service and enable it to run at boot:
 
 ```no-highlight
-sudo systemctl start postgresql-9.6
-sudo systemctl enable postgresql-9.6
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 ```
 
 ## Database Creation
