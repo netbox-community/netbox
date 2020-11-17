@@ -470,6 +470,13 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
+    group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
     role = DynamicModelChoiceField(
         queryset=RackRole.objects.all(),
         required=False

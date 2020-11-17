@@ -11,6 +11,7 @@
 * [#5235](https://github.com/netbox-community/netbox/issues/5235) - Fix exception when editing IP address with a NAT IP assigned to a non-racked device
 * [#5345](https://github.com/netbox-community/netbox/issues/5345) - Fix non-deterministic ordering of prefixes and IP addresses
 * [#5350](https://github.com/netbox-community/netbox/issues/5350) - Filter available racks by selected group when creating a rack reservation
+* [#5355](https://github.com/netbox-community/netbox/issues/5355) - Limit rack groups by selected site when editing a rack
 
 ---
 
