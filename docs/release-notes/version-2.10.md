@@ -10,7 +10,7 @@
 
 #### Route Targets ([#259](https://github.com/netbox-community/netbox/issues/259))
 
-This release introduces support for model L3VPN route targets, which can be used to control the redistribution of routing information among VRFs. Each VRF may be assigned one or more route targets in the import or export direction (or both). Like VRFs, route targets may be assigned to tenants and may have tags applied to them.
+This release introduces support for modeling L3VPN route targets, which can be used to control the redistribution of advertised prefixes among VRFs. Each VRF may be assigned one or more route targets in the import and/or export direction. Like VRFs, route targets may be assigned to tenants and support tag assignment.
 
 #### REST API Bulk Deletion ([#3436](https://github.com/netbox-community/netbox/issues/3436))
 
@@ -36,9 +36,27 @@ http://netbox/api/dcim/sites/ \
 --data '[{"id": 10, "description": "Foo"}, {"id": 11, "description": "Bar"}]'
 ```
 
+#### Reimplementation of Custom Fields ([#4878](https://github.com/netbox-community/netbox/issues/4878))
+
+NetBox v2.10 introduces a completely overhauled approach to custom fields. Whereas previous versions used CustomFieldValue instances to store values, custom field data is now stored directly on each model instance as JSON data and may be accessed using the `cf` property:
+
+```python
+>>> site = Site.objects.first()
+>>> site.cf
+{'site_code': 'US-RAL01'}
+>>> site.cf['foo'] = 'ABC'
+>>> site.full_clean()
+>>> site.save()
+>>> site = Site.objects.first()
+>>> site.cf
+{'foo': 'ABC', 'site_code': 'US-RAL01'}
+```
+
+Additionally, custom selection field choices are now defined on the CustomField model within the admin UI, which greatly simplifies working with choice values.
+
 #### Improved Cable Trace Performance ([#4900](https://github.com/netbox-community/netbox/issues/4900))
 
-All end-to-end cable paths are now cached using the new CablePath model. This allows NetBox to now immediately return the complete path originating from any endpoint directly from the database, rather than having to trace each cable recursively. It also resolves some systemic validation issues with the original implementation.
+All end-to-end cable paths are now cached using the new CablePath backend model. This allows NetBox to now immediately return the complete path originating from any endpoint directly from the database, rather than having to trace each cable recursively. It also resolves some systemic validation issues present in the original implementation.
 
 **Note:** As part of this change, cable traces will no longer traverse circuits: A circuit termination will be considered the origin or destination of an end-to-end path.
 
@@ -47,22 +65,21 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * [#609](https://github.com/netbox-community/netbox/issues/609) - Add min/max value and regex validation for custom fields
 * [#1503](https://github.com/netbox-community/netbox/issues/1503) - Allow assigment of secrets to virtual machines
 * [#1692](https://github.com/netbox-community/netbox/issues/1692) - Allow assigment of inventory items to parent items in web UI
-* [#2179](https://github.com/netbox-community/netbox/issues/2179) - Support the assignment of multiple port numbers for services
+* [#2179](https://github.com/netbox-community/netbox/issues/2179) - Support the use of multiple port numbers when defining a service
 * [#4897](https://github.com/netbox-community/netbox/issues/4897) - Allow filtering by content type identified as `<app>.<model>` string
 * [#4918](https://github.com/netbox-community/netbox/issues/4918) - Add a REST API endpoint (`/api/status/`) which returns NetBox's current operational status
 * [#4956](https://github.com/netbox-community/netbox/issues/4956) - Include inventory items on primary device view
-* [#4967](https://github.com/netbox-community/netbox/issues/4967) - Adds tenancy to Aggregate model
+* [#4967](https://github.com/netbox-community/netbox/issues/4967) - Support tenant assignment for aggregates
 * [#5003](https://github.com/netbox-community/netbox/issues/5003) - CSV import now accepts slug values for choice fields
-* [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
-* [#5154](https://github.com/netbox-community/netbox/issues/5154) - Utilize all horizontal space for web UI
-* [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for content types
+* [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom field support for cables, power panels, rack reservations, and virtual chassis
+* [#5154](https://github.com/netbox-community/netbox/issues/5154) - The web interface now consumes the entire browser window
+* [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for retrieving content types (`/api/extras/content-types/`)
 
 ### Other Changes
 
 * [#1846](https://github.com/netbox-community/netbox/issues/1846) - Enable MPTT for InventoryItem hierarchy
 * [#4349](https://github.com/netbox-community/netbox/issues/4349) - Dropped support for embedded graphs
-* [#4360](https://github.com/netbox-community/netbox/issues/4360) - Remove support for the Django template language from export templates
-* [#4878](https://github.com/netbox-community/netbox/issues/4878) - Custom field data is now stored directly on each object
+* [#4360](https://github.com/netbox-community/netbox/issues/4360) - Dropped support for the Django template language from export templates
 * [#4941](https://github.com/netbox-community/netbox/issues/4941) - `commit` argument is now required argument in a custom script's `run()` method
 * [#5011](https://github.com/netbox-community/netbox/issues/5011) - Standardized name field lengths across all models
 * [#5139](https://github.com/netbox-community/netbox/issues/5139) - Omit utilization statistics from RIR list
