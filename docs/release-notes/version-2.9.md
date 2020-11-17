@@ -1,5 +1,19 @@
 # NetBox v2.9
 
+## v2.9.10 (FUTURE)
+
+### Enhancements
+
+* [#5337](https://github.com/netbox-community/netbox/issues/5337) - Add "splice" type for pass-through ports
+
+### Bug Fixes
+
+* [#5235](https://github.com/netbox-community/netbox/issues/5235) - Fix exception when editing IP address with a NAT IP assigned to a non-racked device
+* [#5345](https://github.com/netbox-community/netbox/issues/5345) - Fix non-deterministic ordering of prefixes and IP addresses
+* [#5350](https://github.com/netbox-community/netbox/issues/5350) - Filter available racks by selected group when creating a rack reservation
+
+---
+
 ## v2.9.9 (2020-11-09)
 
 ### Enhancements
@@ -16,7 +30,6 @@
 * [#5324](https://github.com/netbox-community/netbox/issues/5324) - Add missing template extension tags for plugins for VM interface view
 * [#5328](https://github.com/netbox-community/netbox/issues/5328) - Fix CreatedUpdatedFilterTest when running in non-UTC timezone
 * [#5331](https://github.com/netbox-community/netbox/issues/5331) - Fix filtering of sites by null region
-
 
 ---
 

@@ -90,7 +90,9 @@ class RoleViewSet(ModelViewSet):
 #
 
 class PrefixViewSet(CustomFieldModelViewSet):
-    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags')
+    queryset = Prefix.objects.prefetch_related(
+        'site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags'
+    ).order_by(*Prefix._meta.ordering)
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilterSet
 
@@ -260,7 +262,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 class IPAddressViewSet(CustomFieldModelViewSet):
     queryset = IPAddress.objects.prefetch_related(
         'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags', 'assigned_object'
-    )
+    ).order_by(*IPAddress._meta.ordering)
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filters.IPAddressFilterSet
 

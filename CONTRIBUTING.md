@@ -103,13 +103,17 @@ any work that's already in progress.
 be assigned to you so that others are aware it's being worked on. A maintainer
 will then mark the issue as "accepted."
 
-* Any pull request which does _not_ relate to an accepted issue will be closed.
+* Any pull request which does _not_ relate to an **accepted** issue will be closed.
 
-* All major new functionality must include relevant tests where applicable.
+* All new functionality must include relevant tests where applicable.
 
 * When submitting a pull request, please be sure to work off of the `develop`
 branch, rather than `master`. The `develop` branch is used for ongoing
 development, while `master` is used for tagging stable releases.
+
+* In most cases, it is not necessary to add a changelog entry: A maintainer will
+take care of this when the PR is merged. (This helps avoid merge conflicts
+resulting from multiple PRs being submitted simultaneously.)
 
 * All code submissions should meet the following criteria (CI will enforce
 these checks):
