@@ -12,6 +12,7 @@
 * [#5345](https://github.com/netbox-community/netbox/issues/5345) - Fix non-deterministic ordering of prefixes and IP addresses
 * [#5350](https://github.com/netbox-community/netbox/issues/5350) - Filter available racks by selected group when creating a rack reservation
 * [#5355](https://github.com/netbox-community/netbox/issues/5355) - Limit rack groups by selected site when editing a rack
+* [#5356](https://github.com/netbox-community/netbox/issues/5356) - Populate manufacturer field when adding a device component template
 
 ---
 

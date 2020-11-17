@@ -1034,7 +1034,10 @@ class ComponentTemplateCreateForm(ComponentForm):
     """
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'device_types': 'device_type'
+        }
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
