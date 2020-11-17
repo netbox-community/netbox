@@ -461,21 +461,9 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_connection_via_single_position_rearport(self):
+    def test_rearport_connections(self):
         """
-        A RearPort with one position can be connected to anything.
-
-            [CableTermination X]---[RP(pos=1) FP]---[CableTermination Y]
-
-        is allowed anywhere
-
-            [CableTermination X]---[CableTermination Y]
-
-        is allowed.
-
-        A RearPort with multiple positions may not be directly connected to a path endpoint or another RearPort
-        with a different number of positions. RearPorts with a single position on the other hand may be connected
-        to such CableTerminations. Check that this is indeed allowed.
+        Test various combinations of RearPort connections.
         """
         # Connecting a single-position RearPort to a multi-position RearPort is ok
         Cable(termination_a=self.rear_port1, termination_b=self.rear_port2).full_clean()
@@ -486,67 +474,21 @@ class CableTestCase(TestCase):
         # Connecting a single-position RearPort to a CircuitTermination is ok
         Cable(termination_a=self.rear_port1, termination_b=self.circuittermination1).full_clean()
 
-    def test_connection_via_multi_position_rearport(self):
-        """
-        A RearPort with multiple positions may not be directly connected to a path endpoint or another RearPort
-        with a different number of positions.
-
-        The following scenario's are allowed (with x>1):
-
-            ~----------+   +---------~
-                       |   |
-             RP2(pos=x)|---|RP(pos=x)
-                       |   |
-            ~----------+   +---------~
-
-            ~----------+   +---------~
-                       |   |
-             RP2(pos=x)|---|RP(pos=1)
-                       |   |
-            ~----------+   +---------~
-
-            ~----------+   +------------------~
-                       |   |
-             RP2(pos=x)|---|CircuitTermination
-                       |   |
-            ~----------+   +------------------~
-
-        These scenarios are NOT allowed (with x>1):
-
-            ~----------+   +----------~
-                       |   |
-             RP2(pos=x)|---|RP(pos!=x)
-                       |   |
-            ~----------+   +----------~
-
-            ~----------+   +----------~
-                       |   |
-             RP2(pos=x)|---|Interface
-                       |   |
-            ~----------+   +----------~
-
-        These scenarios are tested in this order below.
-        """
         # Connecting a multi-position RearPort to another RearPort with the same number of positions is ok
         Cable(termination_a=self.rear_port3, termination_b=self.rear_port4).full_clean()
 
-        # Connecting a multi-position RearPort to a single-position RearPort is ok
-        Cable(termination_a=self.rear_port2, termination_b=self.rear_port1).full_clean()
+        # Connecting a multi-position RearPort to an Interface is ok
+        Cable(termination_a=self.rear_port2, termination_b=self.interface3).full_clean()
 
         # Connecting a multi-position RearPort to a CircuitTermination is ok
         Cable(termination_a=self.rear_port2, termination_b=self.circuittermination1).full_clean()
 
+        # Connecting a two-position RearPort to a three-position RearPort is NOT ok
         with self.assertRaises(
             ValidationError,
                 msg='Connecting a 2-position RearPort to a 3-position RearPort should fail'
         ):
             Cable(termination_a=self.rear_port2, termination_b=self.rear_port3).full_clean()
-
-        with self.assertRaises(
-            ValidationError,
-                msg='Connecting a multi-position RearPort to an Interface should fail'
-        ):
-            Cable(termination_a=self.rear_port2, termination_b=self.interface3).full_clean()
 
     def test_cable_cannot_terminate_to_a_virtual_interface(self):
         """

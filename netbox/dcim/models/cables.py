@@ -218,14 +218,15 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
                 f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
             )
 
-        # Check that two connected RearPorts have the same number of positions
+        # Check that two connected RearPorts have the same number of positions (if both are >1)
         if isinstance(self.termination_a, RearPort) and isinstance(self.termination_b, RearPort):
-            if self.termination_a.positions != self.termination_b.positions:
-                raise ValidationError(
-                    f"{self.termination_a} has {self.termination_a.positions} position(s) but "
-                    f"{self.termination_b} has {self.termination_b.positions}. "
-                    f"Both terminations must have the same number of positions."
-                )
+            if self.termination_a.positions > 1 and self.termination_b.positions > 1:
+                if self.termination_a.positions != self.termination_b.positions:
+                    raise ValidationError(
+                        f"{self.termination_a} has {self.termination_a.positions} position(s) but "
+                        f"{self.termination_b} has {self.termination_b.positions}. "
+                        f"Both terminations must have the same number of positions (if greater than one)."
+                    )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:
@@ -482,8 +483,7 @@ class CablePath(models.Model):
 
     def get_split_nodes(self):
         """
-
-        :return:
+        Return all available next segments in a split cable path.
         """
         rearport = path_node_to_object(self.path[-1])
         return FrontPort.objects.filter(rear_port=rearport)
