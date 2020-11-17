@@ -1,6 +1,6 @@
 # NetBox v2.10
 
-## v2.10-beta1 (FUTURE)
+## v2.10-beta1 (2020-11-17)
 
 **NOTE:** This release completely removes support for embedded graphs.
 
