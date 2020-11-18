@@ -70,7 +70,6 @@ nav:
     - Development:
         - Introduction: 'development/index.md'
         - Style Guide: 'development/style-guide.md'
-        - Utility Views: 'development/utility-views.md'
         - Extending Models: 'development/extending-models.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'

@@ -18,7 +18,7 @@ NetBox follows the [benevolent dictator](http://oss-watch.ac.uk/resources/benevo
 
 All development of the current NetBox release occurs in the `develop` branch; releases are packaged from the `master` branch. The `master` branch should _always_ represent the current stable release in its entirety, such that installing NetBox by either downloading a packaged release or cloning the `master` branch provides the same code base.
 
-NetBox components are arranged into functional subsections called _apps_ (a carryover from Django verancular). Each app holds the models, views, and templates relevant to a particular function:
+NetBox components are arranged into functional subsections called _apps_ (a carryover from Django vernacular). Each app holds the models, views, and templates relevant to a particular function:
 
 * `circuits`: Communications circuits and providers (not to be confused with power circuits)
 * `dcim`: Datacenter infrastructure management (sites, racks, and devices)
@@ -26,5 +26,6 @@ NetBox components are arranged into functional subsections called _apps_ (a carr
 * `ipam`: IP address management (VRFs, prefixes, IP addresses, and VLANs)
 * `secrets`: Encrypted storage of sensitive data (e.g. login credentials)
 * `tenancy`: Tenants (such as customers) to which NetBox objects may be assigned
+* `users`: Authentication and user preferences
 * `utilities`: Resources which are not user-facing (extendable classes, etc.)
 * `virtualization`: Virtual machines and clusters
