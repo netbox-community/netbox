@@ -20,20 +20,20 @@
                                     <tr>
                                         <td>Site</td>
                                         <td>
-                                            {% if device.site.region %}
-                                                <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a> /
+                                            {% if object.site.region %}
+                                                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                                             {% endif %}
-                                            <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
+                                            <a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Rack</td>
                                         <td>
-                                            {% if device.rack %}
-                                                {% if device.rack.group %}
-                                                    <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a> /
+                                            {% if object.rack %}
+                                                {% if object.rack.group %}
+                                                    <a href="{{ object.rack.group.get_absolute_url }}">{{ object.rack.group }}</a> /
                                                 {% endif %}
-                                                <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a>
+                                                <a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack }}</a>
                                             {% else %}
                                                 <span class="text-muted">None</span>
                                             {% endif %}
@@ -42,16 +42,16 @@
                                     <tr>
                                         <td>Position</td>
                                         <td>
-                                            {% if device.parent_bay %}
-                                                {% with device.parent_bay.device as parent %}
-                                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> / {{ device.parent_bay }}
+                                            {% if object.parent_bay %}
+                                                {% with object.parent_bay.device as parent %}
+                                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> / {{ object.parent_bay }}
                                                     {% if parent.position %}
                                                         (U{{ parent.position }} / {{ parent.get_face_display }})
                                                     {% endif %}
                                                 {% endwith %}
-                                            {% elif device.rack and device.position %}
-                                                <span>U{{ device.position }} / {{ device.get_face_display }}</span>
-                                            {% elif device.rack and device.device_type.u_height %}
+                                            {% elif object.rack and object.position %}
+                                                <span>U{{ object.position }} / {{ object.get_face_display }}</span>
+                                            {% elif object.rack and object.device_type.u_height %}
                                                 <span class="label label-warning">Not racked</span>
                                             {% else %}
                                                 <span class="text-muted">&mdash;</span>
@@ -61,11 +61,11 @@
                                     <tr>
                                         <td>Tenant</td>
                                         <td>
-                                            {% if device.tenant %}
-                                                {% if device.tenant.group %}
-                                                    <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a> /
+                                            {% if object.tenant %}
+                                                {% if object.tenant.group %}
+                                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                                                 {% endif %}
-                                                <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
+                                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                                             {% else %}
                                                 <span class="text-muted">None</span>
                                             {% endif %}
@@ -74,16 +74,16 @@
                                     <tr>
                                         <td>Device Type</td>
                                         <td>
-                                            <span><a href="{% url 'dcim:devicetype' pk=device.device_type.pk %}">{{ device.device_type.display_name }}</a> ({{ device.device_type.u_height }}U)</span>
+                                            <span><a href="{% url 'dcim:devicetype' pk=object.device_type.pk %}">{{ object.device_type.display_name }}</a> ({{ object.device_type.u_height }}U)</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Serial Number</td>
-                                        <td><span>{{ device.serial|placeholder }}</span></td>
+                                        <td><span>{{ object.serial|placeholder }}</span></td>
                                     </tr>
                                     <tr>
                                         <td>Asset Tag</td>
-                                        <td><span>{{ device.asset_tag|placeholder }}</span></td>
+                                        <td><span>{{ object.asset_tag|placeholder }}</span></td>
                                     </tr>
                                 </table>
                             </div>
@@ -100,18 +100,18 @@
                                             <th>Priority</th>
                                         </tr>
                                         {% for vc_member in vc_members %}
-                                            <tr{% if vc_member == device %} class="info"{% endif %}>
+                                            <tr{% if vc_member == object %} class="info"{% endif %}>
                                                 <td>
                                                     <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                                                 </td>
                                                 <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
-                                                <td>{% if device.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}</td>
+                                                <td>{% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}</td>
                                                 <td>{{ vc_member.vc_priority|default:"" }}</td>
                                             </tr>
                                         {% endfor %}
                                     </table>
                                     <div class="panel-footer text-right noprint">
-                                        <a href="{{ device.virtual_chassis.get_absolute_url }}" class="btn btn-primary btn-xs">
+                                        <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary btn-xs">
                                             <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> View Virtual Chassis
                                         </a>
                                     </div>
@@ -125,14 +125,14 @@
                                     <tr>
                                         <td>Role</td>
                                         <td>
-                                            <a href="{% url 'dcim:device_list' %}?role={{ device.device_role.slug }}">{{ device.device_role }}</a>
+                                            <a href="{% url 'dcim:device_list' %}?role={{ object.device_role.slug }}">{{ object.device_role }}</a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Platform</td>
                                         <td>
-                                            {% if device.platform %}
-                                               <a href="{{ device.platform.get_absolute_url }}">{{ device.platform }}</a>
+                                            {% if object.platform %}
+                                               <a href="{{ object.platform.get_absolute_url }}">{{ object.platform }}</a>
                                             {% else %}
                                                 <span class="text-muted">None</span>
                                             {% endif %}
@@ -141,18 +141,18 @@
                                     <tr>
                                         <td>Status</td>
                                         <td>
-                                            <span class="label label-{{ device.get_status_class }}">{{ device.get_status_display }}</span>
+                                            <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Primary IPv4</td>
                                         <td>
-                                            {% if device.primary_ip4 %}
-                                                <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a>
-                                                {% if device.primary_ip4.nat_inside %}
-                                                    <span>(NAT for {{ device.primary_ip4.nat_inside.address.ip }})</span>
-                                                {% elif device.primary_ip4.nat_outside %}
-                                                    <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
+                                            {% if object.primary_ip4 %}
+                                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
+                                                {% if object.primary_ip4.nat_inside %}
+                                                    <span>(NAT for {{ object.primary_ip4.nat_inside.address.ip }})</span>
+                                                {% elif object.primary_ip4.nat_outside %}
+                                                    <span>(NAT: {{ object.primary_ip4.nat_outside.address.ip }})</span>
                                                 {% endif %}
                                             {% else %}
                                                 <span class="text-muted">&mdash;</span>
@@ -162,46 +162,46 @@
                                     <tr>
                                         <td>Primary IPv6</td>
                                         <td>
-                                            {% if device.primary_ip6 %}
-                                                <a href="{% url 'ipam:ipaddress' pk=device.primary_ip6.pk %}">{{ device.primary_ip6.address.ip }}</a>
-                                                {% if device.primary_ip6.nat_inside %}
-                                                    <span>(NAT for {{ device.primary_ip6.nat_inside.address.ip }})</span>
-                                                {% elif device.primary_ip6.nat_outside %}
-                                                    <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
+                                            {% if object.primary_ip6 %}
+                                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
+                                                {% if object.primary_ip6.nat_inside %}
+                                                    <span>(NAT for {{ object.primary_ip6.nat_inside.address.ip }})</span>
+                                                {% elif object.primary_ip6.nat_outside %}
+                                                    <span>(NAT: {{ object.primary_ip6.nat_outside.address.ip }})</span>
                                                 {% endif %}
                                             {% else %}
                                                 <span class="text-muted">&mdash;</span>
                                             {% endif %}
                                         </td>
                                     </tr>
-                                    {% if device.cluster %}
+                                    {% if object.cluster %}
                                         <tr>
                                             <td>Cluster</td>
                                             <td>
-                                                {% if device.cluster.group %}
-                                                    <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a> /
+                                                {% if object.cluster.group %}
+                                                    <a href="{{ object.cluster.group.get_absolute_url }}">{{ object.cluster.group }}</a> /
                                                 {% endif %}
-                                                <a href="{{ device.cluster.get_absolute_url }}">{{ device.cluster }}</a>
+                                                <a href="{{ object.cluster.get_absolute_url }}">{{ object.cluster }}</a>
                                             </td>
                                         </tr>
                                     {% endif %}
                                 </table>
                             </div>
-                            {% include 'inc/custom_fields_panel.html' with obj=device %}
-                            {% include 'extras/inc/tags_panel.html' with tags=device.tags.all url='dcim:device_list' %}
+                            {% include 'inc/custom_fields_panel.html' with obj=object %}
+                            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:device_list' %}
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <strong>Comments</strong>
                                 </div>
                                 <div class="panel-body rendered-markdown">
-                                    {% if device.comments %}
-                                        {{ device.comments|render_markdown }}
+                                    {% if object.comments %}
+                                        {{ object.comments|render_markdown }}
                                     {% else %}
                                         <span class="text-muted">None</span>
                                     {% endif %}
                                 </div>
                             </div>
-                            {% plugin_left_page device %}
+                            {% plugin_left_page object %}
                         </div>
                         <div class="col-md-6">
                             {% if power_ports and poweroutlets %}
@@ -255,7 +255,7 @@
                                     {% include 'secrets/inc/assigned_secrets.html' %}
                                     {% if perms.secrets.add_secret %}
                                         <div class="panel-footer text-right noprint">
-                                            <a href="{% url 'secrets:secret_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
+                                            <a href="{% url 'secrets:secret_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-xs btn-primary">
                                                 <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add secret
                                             </a>
                                         </div>
@@ -279,7 +279,7 @@
                                 {% endif %}
                                 {% if perms.ipam.add_service %}
                                     <div class="panel-footer text-right noprint">
-                                        <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
+                                        <a href="{% url 'dcim:device_service_assign' device=object.pk %}" class="btn btn-xs btn-primary">
                                             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign service
                                         </a>
                                     </div>
@@ -289,10 +289,10 @@
                                 <div class="panel-heading">
                                     <strong>Images</strong>
                                 </div>
-                                {% include 'inc/image_attachments.html' with images=device.images.all %}
+                                {% include 'inc/image_attachments.html' with images=object.images.all %}
                                 {% if perms.extras.add_imageattachment %}
                                     <div class="panel-footer text-right noprint">
-                                        <a href="{% url 'dcim:device_add_image' object_id=device.pk %}" class="btn btn-primary btn-xs">
+                                        <a href="{% url 'dcim:device_add_image' object_id=object.pk %}" class="btn btn-primary btn-xs">
                                             <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                                             Attach an image
                                         </a>
@@ -325,12 +325,12 @@
                                     <div class="panel-body text-muted">None found</div>
                                 {% endif %}
                             </div>
-                            {% plugin_right_page device %}
+                            {% plugin_right_page object %}
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            {% plugin_full_width_page device %}
+                            {% plugin_full_width_page object %}
                         </div>
                     </div>
                 </div>

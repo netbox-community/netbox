@@ -13,25 +13,25 @@
                     <tr>
                         <td>Device</td>
                         <td>
-                            <a href="{{ instance.device.get_absolute_url }}">{{ instance.device }}</a>
+                            <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td>{{ instance.name }}</td>
+                        <td>{{ object.name }}</td>
                     </tr>
                     <tr>
                         <td>Label</td>
-                        <td>{{ instance.label|placeholder }}</td>
+                        <td>{{ object.label|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Type</td>
-                        <td>{{ instance.get_type_display }}</td>
+                        <td>{{ object.get_type_display }}</td>
                     </tr>
                     <tr>
                         <td>Enabled</td>
                         <td>
-                            {% if instance.enabled %}
+                            {% if object.enabled %}
                                 <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
                             {% else %}
                                 <span class="text-danger"><i class="mdi mdi-close"></i></span>
@@ -41,8 +41,8 @@
                     <tr>
                         <td>LAG</td>
                         <td>
-                            {% if instance.lag%}
-                                <a href="{{ instance.lag.get_absolute_url }}">{{ instance.lag }}</a>
+                            {% if object.lag%}
+                                <a href="{{ object.lag.get_absolute_url }}">{{ object.lag }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -50,44 +50,44 @@
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>{{ instance.description|placeholder }} </td>
+                        <td>{{ object.description|placeholder }} </td>
                     </tr>
                     <tr>
                         <td>MTU</td>
-                        <td>{{ instance.mtu|placeholder }}</td>
+                        <td>{{ object.mtu|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>MAC Address</td>
-                        <td><span class="text-monospace">{{ instance.mac_address|placeholder }}</span></td>
+                        <td><span class="text-monospace">{{ object.mac_address|placeholder }}</span></td>
                     </tr>
                     <tr>
                         <td>802.1Q Mode</td>
-                        <td>{{ instance.get_mode_display }}</td>
+                        <td>{{ object.get_mode_display }}</td>
                     </tr>
                 </table>
             </div>
-            {% include 'extras/inc/tags_panel.html' with tags=instance.tags.all %}
-            {% plugin_left_page instance %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
+            {% plugin_left_page object %}
         </div>
         <div class="col-md-6">
-            {% if instance.is_connectable %}
+            {% if object.is_connectable %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <strong>Connection</strong>
                     </div>
-                    {% if instance.cable %}
+                    {% if object.cable %}
                         <table class="table table-hover panel-body attr-table">
                             <tr>
                                 <td>Cable</td>
                                 <td>
-                                    <a href="{{ instance.cable.get_absolute_url }}">{{ instance.cable }}</a>
-                                    <a href="{% url 'dcim:interface_trace' pk=instance.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                    <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
+                                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
                                         <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                     </a>
                                 </td>
                             </tr>
-                            {% if instance.connected_endpoint.device %}
-                                {% with iface=instance.connected_endpoint %}
+                            {% if object.connected_endpoint.device %}
+                                {% with iface=object.connected_endpoint %}
                                     <tr>
                                         <td>Device</td>
                                         <td>
@@ -141,8 +141,8 @@
                                         <td>{{ iface.get_mode_display }}</td>
                                     </tr>
                                 {% endwith %}
-                            {% elif instance.connected_endpoint.circuit %}
-                                {% with ct=instance.connected_endpoint %}
+                            {% elif object.connected_endpoint.circuit %}
+                                {% with ct=object.connected_endpoint %}
                                     <tr>
                                         <td>Provider</td>
                                         <td><a href="{{ ct.circuit.provider.get_absolute_url }}">{{ ct.circuit.provider }}</a></td>
@@ -160,7 +160,7 @@
                             <tr>
                                 <td>Path Status</td>
                                 <td>
-                                    {% if instance.path.is_active %}
+                                    {% if object.path.is_active %}
                                         <span class="label label-success">Reachable</span>
                                     {% else %}
                                         <span class="label label-danger">Not Reachable</span>
@@ -177,10 +177,10 @@
                                         <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=instance.pk termination_b_type='interface' %}?return_url={{ instance.get_absolute_url }}">Interface</a></li>
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=instance.pk termination_b_type='front-port' %}?return_url={{ instance.get_absolute_url }}">Front Port</a></li>
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=instance.pk termination_b_type='rear-port' %}?return_url={{ instance.get_absolute_url }}">Rear Port</a></li>
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=instance.pk termination_b_type='circuit-termination' %}?return_url={{ instance.get_absolute_url }}">Circuit Termination</a></li>
+                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='interface' %}?return_url={{ object.get_absolute_url }}">Interface</a></li>
+                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='front-port' %}?return_url={{ object.get_absolute_url }}">Front Port</a></li>
+                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='rear-port' %}?return_url={{ object.get_absolute_url }}">Rear Port</a></li>
+                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='circuit-termination' %}?return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
                                     </ul>
                                 </span>
                             {% endif %}
@@ -188,7 +188,7 @@
                     {% endif %}
                 </div>
             {% endif %}
-            {% if instance.is_lag %}
+            {% if object.is_lag %}
                 <div class="panel panel-default">
                     <div class="panel-heading"><strong>LAG Members</strong></div>
                     <table class="table table-hover table-headings panel-body">
@@ -200,7 +200,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for member in instance.member_interfaces.all %}
+                            {% for member in object.member_interfaces.all %}
                                 <tr>
                                     <td>
                                         <a href="{{ member.device.get_absolute_url }}">{{ member.device }}</a>
@@ -221,7 +221,7 @@
                     </table>
                 </div>
             {% endif %}
-            {% plugin_right_page instance %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
@@ -236,7 +236,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% plugin_full_width_page instance %}
+            {% plugin_full_width_page object %}
         </div>
     </div>
 {% endblock %}

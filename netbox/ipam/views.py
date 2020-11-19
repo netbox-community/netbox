@@ -830,14 +830,6 @@ class ServiceListView(generic.ObjectListView):
 class ServiceView(generic.ObjectView):
     queryset = Service.objects.prefetch_related('ipaddresses')
 
-    def get(self, request, pk):
-
-        service = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'ipam/service.html', {
-            'service': service,
-        })
-
 
 class ServiceEditView(generic.ObjectEditView):
     queryset = Service.objects.prefetch_related('ipaddresses')

@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block header %}
-    <h1>{% block title %}Cable Trace for {{ obj|meta:"verbose_name"|bettertitle }} {{ obj }}{% endblock %}</h1>
+    <h1>{% block title %}Cable Trace for {{ object|meta:"verbose_name"|bettertitle }} {{ object }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}

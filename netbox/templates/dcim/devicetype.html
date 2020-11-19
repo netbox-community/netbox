@@ -4,15 +4,15 @@
 {% load helpers %}
 {% load plugins %}
 
-{% block title %}{{ devicetype.manufacturer }} {{ devicetype.model }}{% endblock %}
+{% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
 
 {% block header %}
     <div class="row noprint">
         <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
-                <li><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ devicetype.manufacturer.slug }}">{{ devicetype.manufacturer }}</a></li>
-                <li>{{ devicetype.model }}</li>
+                <li><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></li>
+                <li>{{ object.model }}</li>
             </ol>
         </div>
     </div>
@@ -25,28 +25,28 @@
                 </button>
                 <ul class="dropdown-menu">
                     {% if perms.dcim.add_consoleporttemplate %}
-                        <li><a href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
+                        <li><a href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_consoleserverporttemplate %}
-                        <li><a href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
+                        <li><a href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_powerporttemplate %}
-                        <li><a href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
+                        <li><a href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_poweroutlettemplate %}
-                        <li><a href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
+                        <li><a href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
                     {% endif %}
                     {% if perms.dcim.add_interfacetemplate %}
-                        <li><a href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
+                        <li><a href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
                     {% endif %}
                     {% if perms.dcim.add_frontporttemplate %}
-                        <li><a href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
+                        <li><a href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_rearporttemplate %}
-                        <li><a href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
+                        <li><a href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
                     {% endif %}
                     {% if perms.dcim.add_devicebaytemplate %}
-                        <li><a href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
+                        <li><a href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -61,18 +61,18 @@
             {% delete_button devicetype use_pk=True %}
         {% endif %}
     </div>
-    <h1>{{ devicetype.manufacturer }} {{ devicetype.model }}</h1>
+    <h1>{{ object.manufacturer }} {{ object.model }}</h1>
     {% include 'inc/created_updated.html' with obj=devicetype %}
     <div class="pull-right noprint">
         {% custom_links devicetype %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ devicetype.get_absolute_url }}">Device Type</a>
+            <a href="{{ object.get_absolute_url }}">Device Type</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:devicetype_changelog' pk=devicetype.pk %}">Change Log</a>
+                <a href="{% url 'dcim:devicetype_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -88,27 +88,27 @@
                 <table class="table table-hover panel-body attr-table">
                     <tr>
                         <td>Manufacturer</td>
-                        <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ devicetype.manufacturer.slug }}">{{ devicetype.manufacturer }}</a></td>
+                        <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></td>
                     </tr>
                     <tr>
                         <td>Model Name</td>
                         <td>
-                            {{ devicetype.model }}<br/>
-                            <small class="text-muted">{{ devicetype.slug }}</small>
+                            {{ object.model }}<br/>
+                            <small class="text-muted">{{ object.slug }}</small>
                         </td>
                     </tr>
                     <tr>
                         <td>Part Number</td>
-                        <td>{{ devicetype.part_number|placeholder }}</td>
+                        <td>{{ object.part_number|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Height (U)</td>
-                        <td>{{ devicetype.u_height }}</td>
+                        <td>{{ object.u_height }}</td>
                     </tr>
                     <tr>
                         <td>Full Depth</td>
                         <td>
-                            {% if devicetype.is_full_depth %}
+                            {% if object.is_full_depth %}
                                 <i class="mdi mdi-check-bold text-success" title="Yes"></i>
                             {% else %}
                                 <i class="mdi mdi-close-thick text-danger" title="No"></i>
@@ -118,15 +118,15 @@
                     <tr>
                         <td>Parent/Child</td>
                         <td>
-                            {{ devicetype.get_subdevice_role_display|placeholder }}
+                            {{ object.get_subdevice_role_display|placeholder }}
                         </td>
                     </tr>
                     <tr>
                         <td>Front Image</td>
                         <td>
-                            {% if devicetype.front_image %}
-                                <a href="{{ devicetype.front_image.url }}">
-                                    <img src="{{ devicetype.front_image.url }}" alt="{{ devicetype.front_image.name }}" class="img-responsive" />
+                            {% if object.front_image %}
+                                <a href="{{ object.front_image.url }}">
+                                    <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-responsive" />
                                 </a>
                             {% else %}
                                 <span class="text-muted">&mdash;</span>
@@ -136,9 +136,9 @@
                     <tr>
                         <td>Rear Image</td>
                         <td>
-                            {% if devicetype.rear_image %}
-                                <a href="{{ devicetype.rear_image.url }}">
-                                    <img src="{{ devicetype.rear_image.url }}" alt="{{ devicetype.rear_image.name }}" class="img-responsive" />
+                            {% if object.rear_image %}
+                                <a href="{{ object.rear_image.url }}">
+                                    <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-responsive" />
                                 </a>
                             {% else %}
                                 <span class="text-muted">&mdash;</span>
@@ -147,7 +147,7 @@
                     </tr>
                     <tr>
                         <td>Instances</td>
-                        <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ instance_count }}</a></td>
+                        <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ object.pk }}">{{ instance_count }}</a></td>
                     </tr>
                 </table>
             </div>
@@ -155,14 +155,14 @@
         </div>
         <div class="col-md-6">
             {% include 'inc/custom_fields_panel.html' with obj=devicetype %}
-            {% include 'extras/inc/tags_panel.html' with tags=devicetype.tags.all url='dcim:devicetype_list' %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:devicetype_list' %}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Comments</strong>
                 </div>
                 <div class="panel-body rendered-markdown">
-                    {% if devicetype.comments %}
-                        {{ devicetype.comments|render_markdown }}
+                    {% if object.comments %}
+                        {{ object.comments|render_markdown }}
                     {% else %}
                         <span class="text-muted">None</span>
                     {% endif %}

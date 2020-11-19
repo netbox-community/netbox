@@ -70,7 +70,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $.ajax({
-        url: "{% url 'dcim-api:device-napalm' pk=device.pk %}?method=get_facts&method=get_environment",
+        url: "{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_facts&method=get_environment",
         dataType: 'json',
         success: function(json) {
             if (!json['get_facts']['error']) {

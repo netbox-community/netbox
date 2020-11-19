@@ -156,8 +156,7 @@ class ObjectConfigContextView(generic.ObjectView):
             format = 'json'
 
         return render(request, 'extras/object_configcontext.html', {
-            model_name: obj,
-            'obj': obj,
+            'object': obj,
             'rendered_context': obj.get_config_context(),
             'source_contexts': source_contexts,
             'format': format,

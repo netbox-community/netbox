@@ -413,14 +413,6 @@ class RackReservationListView(generic.ObjectListView):
 class RackReservationView(generic.ObjectView):
     queryset = RackReservation.objects.prefetch_related('rack')
 
-    def get(self, request, pk):
-
-        rackreservation = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/rackreservation.html', {
-            'rackreservation': rackreservation,
-        })
-
 
 class RackReservationEditView(generic.ObjectEditView):
     queryset = RackReservation.objects.all()
@@ -568,7 +560,7 @@ class DeviceTypeView(generic.ObjectView):
             devicebay_table.columns.show('pk')
 
         return render(request, 'dcim/devicetype.html', {
-            'devicetype': devicetype,
+            'object': devicetype,
             'instance_count': instance_count,
             'consoleport_table': consoleport_table,
             'consoleserverport_table': consoleserverport_table,
@@ -1023,7 +1015,7 @@ class DeviceView(generic.ObjectView):
         )[:10]
 
         return render(request, 'dcim/device/device.html', {
-            'device': device,
+            'object': device,
             'services': services,
             'secrets': secrets,
             'vc_members': vc_members,
@@ -1050,7 +1042,7 @@ class DeviceConsolePortsView(generic.ObjectView):
             consoleport_table.columns.show('pk')
 
         return render(request, 'dcim/device/consoleports.html', {
-            'device': device,
+            'object': device,
             'consoleport_table': consoleport_table,
             'active_tab': 'console-ports',
         })
@@ -1077,7 +1069,7 @@ class DeviceConsoleServerPortsView(generic.ObjectView):
             consoleserverport_table.columns.show('pk')
 
         return render(request, 'dcim/device/consoleserverports.html', {
-            'device': device,
+            'object': device,
             'consoleserverport_table': consoleserverport_table,
             'active_tab': 'console-server-ports',
         })
@@ -1101,7 +1093,7 @@ class DevicePowerPortsView(generic.ObjectView):
             powerport_table.columns.show('pk')
 
         return render(request, 'dcim/device/powerports.html', {
-            'device': device,
+            'object': device,
             'powerport_table': powerport_table,
             'active_tab': 'power-ports',
         })
@@ -1125,7 +1117,7 @@ class DevicePowerOutletsView(generic.ObjectView):
             poweroutlet_table.columns.show('pk')
 
         return render(request, 'dcim/device/poweroutlets.html', {
-            'device': device,
+            'object': device,
             'poweroutlet_table': poweroutlet_table,
             'active_tab': 'power-outlets',
         })
@@ -1151,7 +1143,7 @@ class DeviceInterfacesView(generic.ObjectView):
             interface_table.columns.show('pk')
 
         return render(request, 'dcim/device/interfaces.html', {
-            'device': device,
+            'object': device,
             'interface_table': interface_table,
             'active_tab': 'interfaces',
         })
@@ -1175,7 +1167,7 @@ class DeviceFrontPortsView(generic.ObjectView):
             frontport_table.columns.show('pk')
 
         return render(request, 'dcim/device/frontports.html', {
-            'device': device,
+            'object': device,
             'frontport_table': frontport_table,
             'active_tab': 'front-ports',
         })
@@ -1197,7 +1189,7 @@ class DeviceRearPortsView(generic.ObjectView):
             rearport_table.columns.show('pk')
 
         return render(request, 'dcim/device/rearports.html', {
-            'device': device,
+            'object': device,
             'rearport_table': rearport_table,
             'active_tab': 'rear-ports',
         })
@@ -1221,7 +1213,7 @@ class DeviceDeviceBaysView(generic.ObjectView):
             devicebay_table.columns.show('pk')
 
         return render(request, 'dcim/device/devicebays.html', {
-            'device': device,
+            'object': device,
             'devicebay_table': devicebay_table,
             'active_tab': 'device-bays',
         })
@@ -1245,7 +1237,7 @@ class DeviceInventoryView(generic.ObjectView):
             inventoryitem_table.columns.show('pk')
 
         return render(request, 'dcim/device/inventory.html', {
-            'device': device,
+            'object': device,
             'inventoryitem_table': inventoryitem_table,
             'active_tab': 'inventory',
         })
@@ -1254,14 +1246,12 @@ class DeviceInventoryView(generic.ObjectView):
 class DeviceStatusView(generic.ObjectView):
     additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
+    template_name = 'dcim/device/status.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/device/status.html', {
-            'device': device,
+    def get_extra_context(self):
+        return {
             'active_tab': 'status',
-        })
+        }
 
 
 class DeviceLLDPNeighborsView(generic.ObjectView):
@@ -1276,7 +1266,7 @@ class DeviceLLDPNeighborsView(generic.ObjectView):
         )
 
         return render(request, 'dcim/device/lldp_neighbors.html', {
-            'device': device,
+            'object': device,
             'interfaces': interfaces,
             'active_tab': 'lldp-neighbors',
         })
@@ -1285,15 +1275,12 @@ class DeviceLLDPNeighborsView(generic.ObjectView):
 class DeviceConfigView(generic.ObjectView):
     additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
+    template_name = 'dcim/device/config.html'
 
-    def get(self, request, pk):
-
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/device/config.html', {
-            'device': device,
+    def get_extra_context(self):
+        return {
             'active_tab': 'config',
-        })
+        }
 
 
 class DeviceConfigContextView(ObjectConfigContextView):
@@ -1629,7 +1616,7 @@ class InterfaceView(generic.ObjectView):
         )
 
         return render(request, 'dcim/interface.html', {
-            'instance': interface,
+            'object': interface,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })
@@ -2093,14 +2080,6 @@ class CableListView(generic.ObjectListView):
 class CableView(generic.ObjectView):
     queryset = Cable.objects.all()
 
-    def get(self, request, pk):
-
-        cable = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/cable.html', {
-            'cable': cable,
-        })
-
 
 class PathTraceView(generic.ObjectView):
     """
@@ -2136,7 +2115,7 @@ class PathTraceView(generic.ObjectView):
                 path = related_paths.first()
 
         return render(request, 'dcim/cable_trace.html', {
-            'obj': obj,
+            'object': obj,
             'path': path,
             'related_paths': related_paths,
             'total_length': path.get_total_length() if path else None,
@@ -2588,7 +2567,7 @@ class PowerPanelView(generic.ObjectView):
         powerfeed_table.exclude = ['power_panel']
 
         return render(request, 'dcim/powerpanel.html', {
-            'powerpanel': powerpanel,
+            'object': powerpanel,
             'powerfeed_table': powerfeed_table,
         })
 
@@ -2639,14 +2618,6 @@ class PowerFeedListView(generic.ObjectListView):
 
 class PowerFeedView(generic.ObjectView):
     queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
-
-    def get(self, request, pk):
-
-        powerfeed = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/powerfeed.html', {
-            'powerfeed': powerfeed,
-        })
 
 
 class PowerFeedEditView(generic.ObjectEditView):

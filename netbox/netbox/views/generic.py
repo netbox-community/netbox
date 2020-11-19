@@ -48,14 +48,21 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
         model_opts = self.queryset.model._meta
         return f'{model_opts.app_label}/{model_opts.model_name}.html'
 
-    def get(self, request, pk):
+    def get_extra_context(self):
         """
-        Generic GET handler for accessing an object by PK
+        Return any additional context data for the template.
         """
-        instance = get_object_or_404(self.queryset, pk=pk)
+        return {}
+
+    def get(self, request, *args, **kwargs):
+        """
+        Generic GET handler for accessing an object by PK or slug
+        """
+        obj = get_object_or_404(self.queryset, **kwargs)
 
         return render(request, self.get_template_name(), {
-            'instance': instance,
+            'object': obj,
+            **self.get_extra_context(),
         })
 
 
