@@ -981,7 +981,6 @@ class DeviceView(generic.ObjectView):
     queryset = Device.objects.prefetch_related(
         'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
     )
-    template_name = 'dcim/device/device.html'
 
     def get_extra_context(self, request, instance):
         # VirtualChassis members
