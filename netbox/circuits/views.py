@@ -26,11 +26,9 @@ class ProviderListView(generic.ObjectListView):
 class ProviderView(generic.ObjectView):
     queryset = Provider.objects.all()
 
-    def get(self, request, slug):
-
-        provider = get_object_or_404(self.queryset, slug=slug)
+    def get_extra_context(self, request, instance):
         circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            provider=provider
+            provider=instance
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         ).annotate_sites()
@@ -44,10 +42,9 @@ class ProviderView(generic.ObjectView):
         }
         RequestConfig(request, paginate).configure(circuits_table)
 
-        return render(request, 'circuits/provider.html', {
-            'object': provider,
+        return {
             'circuits_table': circuits_table,
-        })
+        }
 
 
 class ProviderEditView(generic.ObjectEditView):
@@ -124,30 +121,30 @@ class CircuitListView(generic.ObjectListView):
 class CircuitView(generic.ObjectView):
     queryset = Circuit.objects.all()
 
-    def get(self, request, pk):
-        circuit = get_object_or_404(self.queryset, pk=pk)
+    def get_extra_context(self, request, instance):
 
+        # A-side termination
         termination_a = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
             'site__region'
         ).filter(
-            circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
+            circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
         if termination_a and termination_a.connected_endpoint:
             termination_a.ip_addresses = termination_a.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
+        # Z-side termination
         termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
             'site__region'
         ).filter(
-            circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
+            circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()
         if termination_z and termination_z.connected_endpoint:
             termination_z.ip_addresses = termination_z.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
-        return render(request, 'circuits/circuit.html', {
-            'object': circuit,
+        return {
             'termination_a': termination_a,
             'termination_z': termination_z,
-        })
+        }
 
 
 class CircuitEditView(generic.ObjectEditView):
