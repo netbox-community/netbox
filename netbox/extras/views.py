@@ -228,7 +228,10 @@ class ObjectChangeView(generic.ObjectView):
 class ObjectChangeLogView(View):
     """
     Present a history of changes made to a particular object.
+
+    base_template: The name of the template to extend. If not provided, "<app>/<model>.html" will be used.
     """
+    base_template = None
 
     def get(self, request, model, **kwargs):
 
@@ -259,19 +262,13 @@ class ObjectChangeLogView(View):
         RequestConfig(request, paginate).configure(objectchanges_table)
 
         # Check whether a header template exists for this model
-        base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
-        try:
-            template.loader.get_template(base_template)
-            object_var = model._meta.model_name
-        except template.TemplateDoesNotExist:
-            base_template = 'base.html'
-            object_var = 'obj'
+        if self.base_template is None:
+            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
 
         return render(request, 'extras/object_changelog.html', {
-            object_var: obj,
-            'instance': obj,  # We'll eventually standardize on 'instance` for the object variable name
+            'object': obj,
             'table': objectchanges_table,
-            'base_template': base_template,
+            'base_template': self.base_template,
             'active_tab': 'changelog',
         })
 

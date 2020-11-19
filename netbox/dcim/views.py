@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.views import ObjectConfigContextView
+from extras.views import ObjectChangeLogView, ObjectConfigContextView
 from ipam.models import IPAddress, Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
@@ -1285,6 +1285,10 @@ class DeviceConfigView(generic.ObjectView):
 
 class DeviceConfigContextView(ObjectConfigContextView):
     queryset = Device.objects.annotate_config_context_data()
+    base_template = 'dcim/device/base.html'
+
+
+class DeviceChangeLogView(ObjectChangeLogView):
     base_template = 'dcim/device/base.html'
 
 
