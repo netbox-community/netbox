@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.views import ObjectConfigContextView
+from extras.views import ObjectChangeLogView, ObjectConfigContextView
 from ipam.models import IPAddress, Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
@@ -152,16 +152,14 @@ class SiteListView(generic.ObjectListView):
 class SiteView(generic.ObjectView):
     queryset = Site.objects.prefetch_related('region', 'tenant__group')
 
-    def get(self, request, slug):
-
-        site = get_object_or_404(self.queryset, slug=slug)
+    def get_extra_context(self, request, instance):
         stats = {
-            'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=site).count(),
-            'device_count': Device.objects.restrict(request.user, 'view').filter(site=site).count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=site).count(),
-            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=site).count(),
-            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=site).count(),
-            'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=site).count(),
+            'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
+            'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
+            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=instance).count(),
+            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).count(),
+            'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance).count(),
         }
         rack_groups = RackGroup.objects.add_related_count(
             RackGroup.objects.all(),
@@ -169,13 +167,12 @@ class SiteView(generic.ObjectView):
             'group',
             'rack_count',
             cumulative=True
-        ).restrict(request.user, 'view').filter(site=site)
+        ).restrict(request.user, 'view').filter(site=instance)
 
-        return render(request, 'dcim/site.html', {
-            'site': site,
+        return {
             'stats': stats,
             'rack_groups': rack_groups,
-        })
+        }
 
 
 class SiteEditView(generic.ObjectEditView):
@@ -338,36 +335,37 @@ class RackElevationListView(generic.ObjectListView):
 class RackView(generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role')
 
-    def get(self, request, pk):
-        rack = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         # Get 0U and child devices located within the rack
         nonracked_devices = Device.objects.filter(
-            rack=rack,
+            rack=instance,
             position__isnull=True
         ).prefetch_related('device_type__manufacturer')
 
-        peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=rack.site)
+        peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
-        if rack.group:
-            peer_racks = peer_racks.filter(group=rack.group)
+        if instance.group:
+            peer_racks = peer_racks.filter(group=instance.group)
         else:
             peer_racks = peer_racks.filter(group__isnull=True)
-        next_rack = peer_racks.filter(name__gt=rack.name).order_by('name').first()
-        prev_rack = peer_racks.filter(name__lt=rack.name).order_by('-name').first()
+        next_rack = peer_racks.filter(name__gt=instance.name).order_by('name').first()
+        prev_rack = peer_racks.filter(name__lt=instance.name).order_by('-name').first()
 
-        reservations = RackReservation.objects.restrict(request.user, 'view').filter(rack=rack)
-        power_feeds = PowerFeed.objects.restrict(request.user, 'view').filter(rack=rack).prefetch_related('power_panel')
+        reservations = RackReservation.objects.restrict(request.user, 'view').filter(rack=instance)
+        power_feeds = PowerFeed.objects.restrict(request.user, 'view').filter(rack=instance).prefetch_related(
+            'power_panel'
+        )
 
-        return render(request, 'dcim/rack.html', {
-            'rack': rack,
-            'device_count': Device.objects.restrict(request.user, 'view').filter(rack=rack).count(),
+        device_count = Device.objects.restrict(request.user, 'view').filter(rack=instance).count()
+
+        return {
+            'device_count': device_count,
             'reservations': reservations,
             'power_feeds': power_feeds,
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
-        })
+        }
 
 
 class RackEditView(generic.ObjectEditView):
@@ -412,14 +410,6 @@ class RackReservationListView(generic.ObjectListView):
 
 class RackReservationView(generic.ObjectView):
     queryset = RackReservation.objects.prefetch_related('rack')
-
-    def get(self, request, pk):
-
-        rackreservation = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/rackreservation.html', {
-            'rackreservation': rackreservation,
-        })
 
 
 class RackReservationEditView(generic.ObjectEditView):
@@ -519,42 +509,40 @@ class DeviceTypeListView(generic.ObjectListView):
 class DeviceTypeView(generic.ObjectView):
     queryset = DeviceType.objects.prefetch_related('manufacturer')
 
-    def get(self, request, pk):
-
-        devicetype = get_object_or_404(self.queryset, pk=pk)
-        instance_count = Device.objects.restrict(request.user).filter(device_type=devicetype).count()
+    def get_extra_context(self, request, instance):
+        instance_count = Device.objects.restrict(request.user).filter(device_type=instance).count()
 
         # Component tables
         consoleport_table = tables.ConsolePortTemplateTable(
-            ConsolePortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
+            ConsolePortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
             orderable=False
         )
         consoleserverport_table = tables.ConsoleServerPortTemplateTable(
-            ConsoleServerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
+            ConsoleServerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
             orderable=False
         )
         powerport_table = tables.PowerPortTemplateTable(
-            PowerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
+            PowerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
             orderable=False
         )
         poweroutlet_table = tables.PowerOutletTemplateTable(
-            PowerOutletTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
+            PowerOutletTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
             orderable=False
         )
         interface_table = tables.InterfaceTemplateTable(
-            list(InterfaceTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype)),
+            list(InterfaceTemplate.objects.restrict(request.user, 'view').filter(device_type=instance)),
             orderable=False
         )
         front_port_table = tables.FrontPortTemplateTable(
-            FrontPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
+            FrontPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
             orderable=False
         )
         rear_port_table = tables.RearPortTemplateTable(
-            RearPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
+            RearPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
             orderable=False
         )
         devicebay_table = tables.DeviceBayTemplateTable(
-            DeviceBayTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
+            DeviceBayTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
             orderable=False
         )
         if request.user.has_perm('dcim.change_devicetype'):
@@ -567,8 +555,7 @@ class DeviceTypeView(generic.ObjectView):
             rear_port_table.columns.show('pk')
             devicebay_table.columns.show('pk')
 
-        return render(request, 'dcim/devicetype.html', {
-            'devicetype': devicetype,
+        return {
             'instance_count': instance_count,
             'consoleport_table': consoleport_table,
             'consoleserverport_table': consoleserverport_table,
@@ -578,7 +565,7 @@ class DeviceTypeView(generic.ObjectView):
             'front_port_table': front_port_table,
             'rear_port_table': rear_port_table,
             'devicebay_table': devicebay_table,
-        })
+        }
 
 
 class DeviceTypeEditView(generic.ObjectEditView):
@@ -995,50 +982,45 @@ class DeviceView(generic.ObjectView):
         'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
     )
 
-    def get(self, request, pk):
-
-        device = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         # VirtualChassis members
-        if device.virtual_chassis is not None:
+        if instance.virtual_chassis is not None:
             vc_members = Device.objects.restrict(request.user, 'view').filter(
-                virtual_chassis=device.virtual_chassis
+                virtual_chassis=instance.virtual_chassis
             ).order_by('vc_position')
         else:
             vc_members = []
 
         # Services
-        services = Service.objects.restrict(request.user, 'view').filter(device=device)
+        services = Service.objects.restrict(request.user, 'view').filter(device=instance)
 
         # Secrets
-        secrets = Secret.objects.restrict(request.user, 'view').filter(device=device)
+        secrets = Secret.objects.restrict(request.user, 'view').filter(device=instance)
 
         # Find up to ten devices in the same site with the same functional role for quick reference.
         related_devices = Device.objects.restrict(request.user, 'view').filter(
-            site=device.site, device_role=device.device_role
+            site=instance.site, device_role=instance.device_role
         ).exclude(
-            pk=device.pk
+            pk=instance.pk
         ).prefetch_related(
             'rack', 'device_type__manufacturer'
         )[:10]
 
-        return render(request, 'dcim/device/device.html', {
-            'device': device,
+        return {
             'services': services,
             'secrets': secrets,
             'vc_members': vc_members,
             'related_devices': related_devices,
             'active_tab': 'device',
-        })
+        }
 
 
 class DeviceConsolePortsView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/consoleports.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+    def get_extra_context(self, request, instance):
+        consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
             'cable', '_path__destination',
         )
         consoleport_table = tables.DeviceConsolePortTable(
@@ -1049,21 +1031,19 @@ class DeviceConsolePortsView(generic.ObjectView):
         if request.user.has_perm('dcim.change_consoleport') or request.user.has_perm('dcim.delete_consoleport'):
             consoleport_table.columns.show('pk')
 
-        return render(request, 'dcim/device/consoleports.html', {
-            'device': device,
+        return {
             'consoleport_table': consoleport_table,
             'active_tab': 'console-ports',
-        })
+        }
 
 
 class DeviceConsoleServerPortsView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/consoleserverports.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
-            device=device
+            device=instance
         ).prefetch_related(
             'cable', '_path__destination',
         )
@@ -1076,20 +1056,18 @@ class DeviceConsoleServerPortsView(generic.ObjectView):
                 request.user.has_perm('dcim.delete_consoleserverport'):
             consoleserverport_table.columns.show('pk')
 
-        return render(request, 'dcim/device/consoleserverports.html', {
-            'device': device,
+        return {
             'consoleserverport_table': consoleserverport_table,
             'active_tab': 'console-server-ports',
-        })
+        }
 
 
 class DevicePowerPortsView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/powerports.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+    def get_extra_context(self, request, instance):
+        powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
             'cable', '_path__destination',
         )
         powerport_table = tables.DevicePowerPortTable(
@@ -1100,20 +1078,18 @@ class DevicePowerPortsView(generic.ObjectView):
         if request.user.has_perm('dcim.change_powerport') or request.user.has_perm('dcim.delete_powerport'):
             powerport_table.columns.show('pk')
 
-        return render(request, 'dcim/device/powerports.html', {
-            'device': device,
+        return {
             'powerport_table': powerport_table,
             'active_tab': 'power-ports',
-        })
+        }
 
 
 class DevicePowerOutletsView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/poweroutlets.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+    def get_extra_context(self, request, instance):
+        poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
             'cable', 'power_port', '_path__destination',
         )
         poweroutlet_table = tables.DevicePowerOutletTable(
@@ -1124,20 +1100,18 @@ class DevicePowerOutletsView(generic.ObjectView):
         if request.user.has_perm('dcim.change_poweroutlet') or request.user.has_perm('dcim.delete_poweroutlet'):
             poweroutlet_table.columns.show('pk')
 
-        return render(request, 'dcim/device/poweroutlets.html', {
-            'device': device,
+        return {
             'poweroutlet_table': poweroutlet_table,
             'active_tab': 'power-outlets',
-        })
+        }
 
 
 class DeviceInterfacesView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/interfaces.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
+    def get_extra_context(self, request, instance):
+        interfaces = instance.vc_interfaces.restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', 'cable', '_path__destination', 'tags',
@@ -1150,20 +1124,18 @@ class DeviceInterfacesView(generic.ObjectView):
         if request.user.has_perm('dcim.change_interface') or request.user.has_perm('dcim.delete_interface'):
             interface_table.columns.show('pk')
 
-        return render(request, 'dcim/device/interfaces.html', {
-            'device': device,
+        return {
             'interface_table': interface_table,
             'active_tab': 'interfaces',
-        })
+        }
 
 
 class DeviceFrontPortsView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/frontports.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        frontports = FrontPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+    def get_extra_context(self, request, instance):
+        frontports = FrontPort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
             'rear_port', 'cable',
         )
         frontport_table = tables.DeviceFrontPortTable(
@@ -1174,20 +1146,18 @@ class DeviceFrontPortsView(generic.ObjectView):
         if request.user.has_perm('dcim.change_frontport') or request.user.has_perm('dcim.delete_frontport'):
             frontport_table.columns.show('pk')
 
-        return render(request, 'dcim/device/frontports.html', {
-            'device': device,
+        return {
             'frontport_table': frontport_table,
             'active_tab': 'front-ports',
-        })
+        }
 
 
 class DeviceRearPortsView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/rearports.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        rearports = RearPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related('cable')
+    def get_extra_context(self, request, instance):
+        rearports = RearPort.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related('cable')
         rearport_table = tables.DeviceRearPortTable(
             data=rearports,
             user=request.user,
@@ -1196,20 +1166,18 @@ class DeviceRearPortsView(generic.ObjectView):
         if request.user.has_perm('dcim.change_rearport') or request.user.has_perm('dcim.delete_rearport'):
             rearport_table.columns.show('pk')
 
-        return render(request, 'dcim/device/rearports.html', {
-            'device': device,
+        return {
             'rearport_table': rearport_table,
             'active_tab': 'rear-ports',
-        })
+        }
 
 
 class DeviceDeviceBaysView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/devicebays.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        devicebays = DeviceBay.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+    def get_extra_context(self, request, instance):
+        devicebays = DeviceBay.objects.restrict(request.user, 'view').filter(device=instance).prefetch_related(
             'installed_device__device_type__manufacturer',
         )
         devicebay_table = tables.DeviceDeviceBayTable(
@@ -1220,21 +1188,19 @@ class DeviceDeviceBaysView(generic.ObjectView):
         if request.user.has_perm('dcim.change_devicebay') or request.user.has_perm('dcim.delete_devicebay'):
             devicebay_table.columns.show('pk')
 
-        return render(request, 'dcim/device/devicebays.html', {
-            'device': device,
+        return {
             'devicebay_table': devicebay_table,
             'active_tab': 'device-bays',
-        })
+        }
 
 
 class DeviceInventoryView(generic.ObjectView):
     queryset = Device.objects.all()
+    template_name = 'dcim/device/inventory.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         inventoryitems = InventoryItem.objects.restrict(request.user, 'view').filter(
-            device=device
+            device=instance
         ).prefetch_related('manufacturer')
         inventoryitem_table = tables.DeviceInventoryItemTable(
             data=inventoryitems,
@@ -1244,60 +1210,58 @@ class DeviceInventoryView(generic.ObjectView):
         if request.user.has_perm('dcim.change_inventoryitem') or request.user.has_perm('dcim.delete_inventoryitem'):
             inventoryitem_table.columns.show('pk')
 
-        return render(request, 'dcim/device/inventory.html', {
-            'device': device,
+        return {
             'inventoryitem_table': inventoryitem_table,
             'active_tab': 'inventory',
-        })
+        }
 
 
 class DeviceStatusView(generic.ObjectView):
     additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
+    template_name = 'dcim/device/status.html'
 
-    def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/device/status.html', {
-            'device': device,
+    def get_extra_context(self, request, instance):
+        return {
             'active_tab': 'status',
-        })
+        }
 
 
 class DeviceLLDPNeighborsView(generic.ObjectView):
     additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
+    template_name = 'dcim/device/lldp_neighbors.html'
 
-    def get(self, request, pk):
-
-        device = get_object_or_404(self.queryset, pk=pk)
-        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related('_path__destination').exclude(
+    def get_extra_context(self, request, instance):
+        interfaces = instance.vc_interfaces.restrict(request.user, 'view').prefetch_related(
+            '_path__destination'
+        ).exclude(
             type__in=NONCONNECTABLE_IFACE_TYPES
         )
 
-        return render(request, 'dcim/device/lldp_neighbors.html', {
-            'device': device,
+        return {
             'interfaces': interfaces,
             'active_tab': 'lldp-neighbors',
-        })
+        }
 
 
 class DeviceConfigView(generic.ObjectView):
     additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
+    template_name = 'dcim/device/config.html'
 
-    def get(self, request, pk):
-
-        device = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/device/config.html', {
-            'device': device,
+    def get_extra_context(self, request, instance):
+        return {
             'active_tab': 'config',
-        })
+        }
 
 
 class DeviceConfigContextView(ObjectConfigContextView):
     queryset = Device.objects.annotate_config_context_data()
+    base_template = 'dcim/device/base.html'
+
+
+class DeviceChangeLogView(ObjectChangeLogView):
     base_template = 'dcim/device/base.html'
 
 
@@ -1604,35 +1568,31 @@ class InterfaceListView(generic.ObjectListView):
 class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
 
-    def get(self, request, pk):
-
-        interface = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         # Get assigned IP addresses
         ipaddress_table = InterfaceIPAddressTable(
-            data=interface.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
-        if interface.untagged_vlan is not None:
-            vlans.append(interface.untagged_vlan)
+        if instance.untagged_vlan is not None:
+            vlans.append(instance.untagged_vlan)
             vlans[0].tagged = False
-        for vlan in interface.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
+        for vlan in instance.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
             vlan.tagged = True
             vlans.append(vlan)
         vlan_table = InterfaceVLANTable(
-            interface=interface,
+            interface=instance,
             data=vlans,
             orderable=False
         )
 
-        return render(request, 'dcim/interface.html', {
-            'instance': interface,
+        return {
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
-        })
+        }
 
 
 class InterfaceCreateView(generic.ComponentCreateView):
@@ -2093,20 +2053,13 @@ class CableListView(generic.ObjectListView):
 class CableView(generic.ObjectView):
     queryset = Cable.objects.all()
 
-    def get(self, request, pk):
-
-        cable = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/cable.html', {
-            'cable': cable,
-        })
-
 
 class PathTraceView(generic.ObjectView):
     """
     Trace a cable path beginning from the given path endpoint (origin).
     """
     additional_permissions = ['dcim.view_cable']
+    template_name = 'dcim/cable_trace.html'
 
     def dispatch(self, request, *args, **kwargs):
         model = kwargs.pop('model')
@@ -2114,13 +2067,12 @@ class PathTraceView(generic.ObjectView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, pk):
-        obj = get_object_or_404(self.queryset, pk=pk)
+    def get_extra_context(self, request, instance):
         related_paths = []
 
         # If tracing a PathEndpoint, locate the CablePath (if one exists) by its origin
-        if isinstance(obj, PathEndpoint):
-            path = obj._path
+        if isinstance(instance, PathEndpoint):
+            path = instance._path
 
         # Otherwise, find all CablePaths which traverse the specified object
         else:
@@ -2135,12 +2087,11 @@ class PathTraceView(generic.ObjectView):
             else:
                 path = related_paths.first()
 
-        return render(request, 'dcim/cable_trace.html', {
-            'obj': obj,
+        return {
             'path': path,
             'related_paths': related_paths,
             'total_length': path.get_total_length() if path else None,
-        })
+        }
 
 
 class CableCreateView(generic.ObjectEditView):
@@ -2347,14 +2298,12 @@ class VirtualChassisListView(generic.ObjectListView):
 class VirtualChassisView(generic.ObjectView):
     queryset = VirtualChassis.objects.all()
 
-    def get(self, request, pk):
-        virtualchassis = get_object_or_404(self.queryset, pk=pk)
-        members = Device.objects.restrict(request.user).filter(virtual_chassis=virtualchassis)
+    def get_extra_context(self, request, instance):
+        members = Device.objects.restrict(request.user).filter(virtual_chassis=instance)
 
-        return render(request, 'dcim/virtualchassis.html', {
-            'virtualchassis': virtualchassis,
+        return {
             'members': members,
-        })
+        }
 
 
 class VirtualChassisCreateView(generic.ObjectEditView):
@@ -2577,20 +2526,17 @@ class PowerPanelListView(generic.ObjectListView):
 class PowerPanelView(generic.ObjectView):
     queryset = PowerPanel.objects.prefetch_related('site', 'rack_group')
 
-    def get(self, request, pk):
-
-        powerpanel = get_object_or_404(self.queryset, pk=pk)
-        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=powerpanel).prefetch_related('rack')
+    def get_extra_context(self, request, instance):
+        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=instance).prefetch_related('rack')
         powerfeed_table = tables.PowerFeedTable(
             data=power_feeds,
             orderable=False
         )
         powerfeed_table.exclude = ['power_panel']
 
-        return render(request, 'dcim/powerpanel.html', {
-            'powerpanel': powerpanel,
+        return {
             'powerfeed_table': powerfeed_table,
-        })
+        }
 
 
 class PowerPanelEditView(generic.ObjectEditView):
@@ -2639,14 +2585,6 @@ class PowerFeedListView(generic.ObjectListView):
 
 class PowerFeedView(generic.ObjectView):
     queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
-
-    def get(self, request, pk):
-
-        powerfeed = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'dcim/powerfeed.html', {
-            'powerfeed': powerfeed,
-        })
 
 
 class PowerFeedEditView(generic.ObjectEditView):

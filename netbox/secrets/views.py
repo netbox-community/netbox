@@ -66,14 +66,6 @@ class SecretListView(generic.ObjectListView):
 class SecretView(generic.ObjectView):
     queryset = Secret.objects.all()
 
-    def get(self, request, pk):
-
-        secret = get_object_or_404(self.queryset, pk=pk)
-
-        return render(request, 'secrets/secret.html', {
-            'secret': secret,
-        })
-
 
 class SecretEditView(generic.ObjectEditView):
     queryset = Secret.objects.all()

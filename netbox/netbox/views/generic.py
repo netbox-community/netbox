@@ -32,9 +32,11 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
     """
     Retrieve a single object for display.
 
-    queryset: The base queryset for retrieving the object.
+    queryset: The base queryset for retrieving the object
+    template_name: Name of the template to use
     """
     queryset = None
+    template_name = None
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -43,19 +45,29 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
         """
         Return self.template_name if set. Otherwise, resolve the template path by model app_label and name.
         """
-        if hasattr(self, 'template_name'):
+        if self.template_name is not None:
             return self.template_name
         model_opts = self.queryset.model._meta
         return f'{model_opts.app_label}/{model_opts.model_name}.html'
 
-    def get(self, request, pk):
+    def get_extra_context(self, request, instance):
         """
-        Generic GET handler for accessing an object by PK
+        Return any additional context data for the template.
+
+        request: The current request
+        instance: The object being viewed
         """
-        instance = get_object_or_404(self.queryset, pk=pk)
+        return {}
+
+    def get(self, request, *args, **kwargs):
+        """
+        Generic GET handler for accessing an object by PK or slug
+        """
+        instance = get_object_or_404(self.queryset, **kwargs)
 
         return render(request, self.get_template_name(), {
-            'instance': instance,
+            'object': instance,
+            **self.get_extra_context(request, instance),
         })
 
 

@@ -92,23 +92,17 @@ class ClusterListView(generic.ObjectListView):
 class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
-    def get(self, request, pk):
-        self.queryset = self.queryset.prefetch_related(
-            Prefetch('virtual_machines', queryset=VirtualMachine.objects.restrict(request.user))
-        )
-
-        cluster = get_object_or_404(self.queryset, pk=pk)
-        devices = Device.objects.restrict(request.user, 'view').filter(cluster=cluster).prefetch_related(
+    def get_extra_context(self, request, instance):
+        devices = Device.objects.restrict(request.user, 'view').filter(cluster=instance).prefetch_related(
             'site', 'rack', 'tenant', 'device_type__manufacturer'
         )
         device_table = DeviceTable(list(devices), orderable=False)
         if request.user.has_perm('virtualization.change_cluster'):
             device_table.columns.show('pk')
 
-        return render(request, 'virtualization/cluster.html', {
-            'cluster': cluster,
+        return {
             'device_table': device_table,
-        })
+        }
 
 
 class ClusterEditView(generic.ObjectEditView):
@@ -237,12 +231,10 @@ class VirtualMachineListView(generic.ObjectListView):
 class VirtualMachineView(generic.ObjectView):
     queryset = VirtualMachine.objects.prefetch_related('tenant__group')
 
-    def get(self, request, pk):
-        virtualmachine = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         # Interfaces
         vminterfaces = VMInterface.objects.restrict(request.user, 'view').filter(
-            virtual_machine=virtualmachine
+            virtual_machine=instance
         ).prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user))
         )
@@ -253,20 +245,19 @@ class VirtualMachineView(generic.ObjectView):
 
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(
-            virtual_machine=virtualmachine
+            virtual_machine=instance
         ).prefetch_related(
             Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user))
         )
 
         # Secrets
-        secrets = Secret.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
+        secrets = Secret.objects.restrict(request.user, 'view').filter(virtual_machine=instance)
 
-        return render(request, 'virtualization/virtualmachine.html', {
-            'virtualmachine': virtualmachine,
+        return {
             'vminterface_table': vminterface_table,
             'services': services,
             'secrets': secrets,
-        })
+        }
 
 
 class VirtualMachineConfigContextView(ObjectConfigContextView):
@@ -318,35 +309,31 @@ class VMInterfaceListView(generic.ObjectListView):
 class VMInterfaceView(generic.ObjectView):
     queryset = VMInterface.objects.all()
 
-    def get(self, request, pk):
-
-        vminterface = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         # Get assigned IP addresses
         ipaddress_table = InterfaceIPAddressTable(
-            data=vminterface.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
-        if vminterface.untagged_vlan is not None:
-            vlans.append(vminterface.untagged_vlan)
+        if instance.untagged_vlan is not None:
+            vlans.append(instance.untagged_vlan)
             vlans[0].tagged = False
-        for vlan in vminterface.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
+        for vlan in instance.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
             vlan.tagged = True
             vlans.append(vlan)
         vlan_table = InterfaceVLANTable(
-            interface=vminterface,
+            interface=instance,
             data=vlans,
             orderable=False
         )
 
-        return render(request, 'virtualization/vminterface.html', {
-            'vminterface': vminterface,
+        return {
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
-        })
+        }
 
 
 # TODO: This should not use ComponentCreateView

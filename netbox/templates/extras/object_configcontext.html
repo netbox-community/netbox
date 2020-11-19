@@ -23,8 +23,8 @@
                     <strong>Local Context</strong>
                 </div>
                 <div class="panel-body">
-                    {% if obj.local_context_data %}
-                        {% include 'extras/inc/configcontext_data.html' with data=obj.local_context_data format=format %}
+                    {% if object.local_context_data %}
+                        {% include 'extras/inc/configcontext_data.html' with data=object.local_context_data format=format %}
                     {% else %}
                         <span class="text-muted">None</span>
                     {% endif %}

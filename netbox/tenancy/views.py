@@ -64,27 +64,24 @@ class TenantListView(generic.ObjectListView):
 class TenantView(generic.ObjectView):
     queryset = Tenant.objects.prefetch_related('group')
 
-    def get(self, request, slug):
-
-        tenant = get_object_or_404(self.queryset, slug=slug)
+    def get_extra_context(self, request, instance):
         stats = {
-            'site_count': Site.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'rack_count': Rack.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
-            'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'site_count': Site.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'rack_count': Rack.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
         }
 
-        return render(request, 'tenancy/tenant.html', {
-            'tenant': tenant,
+        return {
             'stats': stats,
-        })
+        }
 
 
 class TenantEditView(generic.ObjectEditView):

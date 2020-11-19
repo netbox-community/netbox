@@ -1,7 +1,7 @@
 {% extends 'dcim/device/base.html' %}
 {% load static %}
 
-{% block title %}{{ device }} - Config{% endblock %}
+{% block title %}{{ object }} - Config{% endblock %}
 
 {% block content %}
     {% include 'inc/ajax_loader.html' %}
@@ -36,7 +36,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $.ajax({
-        url: "{% url 'dcim-api:device-napalm' pk=device.pk %}?method=get_config",
+        url: "{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_config",
         dataType: 'json',
         success: function(json) {
             $('#running_config').html($.trim(json['get_config']['running']));
