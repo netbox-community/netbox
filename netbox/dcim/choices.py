@@ -278,6 +278,15 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # USB
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_MINIA = 'usb-mini-a'
+    TYPE_USB_MICROA = 'usb-micro-a'
+    TYPE_USB_B = 'usb-b'
+    TYPE_USB_MINIB = 'usb-mini-b'
+    TYPE_USB_MICROB = 'usb-micro-b'
+    TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    TYPE_USB_C = 'usb-c'
 
     CHOICES = (
         ('IEC 60320', (
@@ -366,6 +375,16 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        )),
+        ('USB', (
+            (TYPE_USB_A, 'USB-A'),
+            (TYPE_USB_MINIA, 'USB Mini-A'),
+            (TYPE_USB_MICROA, 'USB Micro-A'),
+            (TYPE_USB_B, 'USB-B'),
+            (TYPE_USB_MINIB, 'USB Mini-B'),
+            (TYPE_USB_MICROB, 'USB Micro-B'),
+            (TYPE_USB_3_MICROB, 'USB 3.0 Micro-B'),
+            (TYPE_USB_C, 'USB-C'),
         )),
     )
 
@@ -458,6 +477,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_O = 'ita-o'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
+    # USB
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_MICROB = 'usb-micro-b'
+    TYPE_USB_C = 'usb-c'
 
     CHOICES = (
         ('IEC 60320', (
@@ -545,6 +568,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        )),
+        ('USB', (
+            (TYPE_USB_A, 'USB-A'),
+            (TYPE_USB_MICROB, 'USB Micro-B'),
+            (TYPE_USB_C, 'USB-C'),
         )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
