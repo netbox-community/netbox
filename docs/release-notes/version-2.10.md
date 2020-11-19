@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10-beta2 (FUTURE)
+
+### Bug Fixes
+
+* [#5358](https://github.com/netbox-community/netbox/issues/5358) - Fix user table configuration for VM interfaces
+
+---
+
 ## v2.10-beta1 (2020-11-17)
 
 **NOTE:** This release completely removes support for embedded graphs.

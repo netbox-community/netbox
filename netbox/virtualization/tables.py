@@ -161,8 +161,8 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'tags', 'ip_addresses',
-            'untagged_vlan', 'tagged_vlans',
+            'pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'description')
 
@@ -180,4 +180,6 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
             'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags', 'ip_addresses',
             'untagged_vlan', 'tagged_vlans', 'actions',
         )
-        default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'actions')
+        default_columns = (
+            'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses', 'actions',
+        )

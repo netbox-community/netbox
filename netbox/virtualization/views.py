@@ -246,7 +246,7 @@ class VirtualMachineView(generic.ObjectView):
         ).prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user))
         )
-        vminterface_table = tables.VirtualMachineVMInterfaceTable(vminterfaces, orderable=False)
+        vminterface_table = tables.VirtualMachineVMInterfaceTable(vminterfaces, user=request.user, orderable=False)
         if request.user.has_perm('virtualization.change_vminterface') or \
                 request.user.has_perm('virtualization.delete_vminterface'):
             vminterface_table.columns.show('pk')
