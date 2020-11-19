@@ -37,7 +37,7 @@
         {% endif %}
     </div>
     <h1>{% block title %}Tag: {{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=tag %}
+    {% include 'inc/created_updated.html' %}
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ object.get_absolute_url }}">Tag</a>

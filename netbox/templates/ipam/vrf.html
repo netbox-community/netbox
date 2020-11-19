@@ -38,7 +38,7 @@
         {% endif %}
     </div>
     <h1>{% block title %}VRF {{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=object %}
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
         {% custom_links object %}
     </div>

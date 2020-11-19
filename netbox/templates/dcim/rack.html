@@ -52,7 +52,7 @@
         {% endif %}
     </div>
     <h1>{% block title %}Rack {{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=object %}
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
         <button class="btn btn-sm btn-default toggle-images" selected="selected">
             <span class="mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
