@@ -185,7 +185,7 @@ class UserKeyView(LoginRequiredMixin, View):
             userkey = None
 
         return render(request, self.template_name, {
-            'userkey': userkey,
+            'object': userkey,
             'active_tab': 'userkey',
         })
 
@@ -205,7 +205,7 @@ class UserKeyEditView(LoginRequiredMixin, View):
         form = UserKeyForm(instance=self.userkey)
 
         return render(request, self.template_name, {
-            'userkey': self.userkey,
+            'object': self.userkey,
             'form': form,
             'active_tab': 'userkey',
         })
