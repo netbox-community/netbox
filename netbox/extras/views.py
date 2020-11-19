@@ -261,9 +261,15 @@ class ObjectChangeLogView(View):
         }
         RequestConfig(request, paginate).configure(objectchanges_table)
 
-        # Check whether a header template exists for this model
+        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
+        # fall back to using base.html.
         if self.base_template is None:
             self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
+            # TODO: This can be removed once an object view has been established for every model.
+            try:
+                template.loader.get_template(self.base_template)
+            except template.TemplateDoesNotExist:
+                self.base_template = 'base.html'
 
         return render(request, 'extras/object_changelog.html', {
             'object': obj,
