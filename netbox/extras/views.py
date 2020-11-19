@@ -109,7 +109,7 @@ class ConfigContextView(generic.ObjectView):
             format = 'json'
 
         return render(request, 'extras/configcontext.html', {
-            'configcontext': configcontext,
+            'object': configcontext,
             'format': format,
         })
 
@@ -215,7 +215,7 @@ class ObjectChangeView(generic.ObjectView):
             diff_added = diff_removed = objectchange.object_data
 
         return render(request, 'extras/objectchange.html', {
-            'objectchange': objectchange,
+            'object': objectchange,
             'diff_added': diff_added,
             'diff_removed': diff_removed,
             'next_change': next_change,

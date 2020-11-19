@@ -106,7 +106,7 @@ class ClusterView(generic.ObjectView):
             device_table.columns.show('pk')
 
         return render(request, 'virtualization/cluster.html', {
-            'cluster': cluster,
+            'object': cluster,
             'device_table': device_table,
         })
 
@@ -262,7 +262,7 @@ class VirtualMachineView(generic.ObjectView):
         secrets = Secret.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
 
         return render(request, 'virtualization/virtualmachine.html', {
-            'virtualmachine': virtualmachine,
+            'object': virtualmachine,
             'vminterface_table': vminterface_table,
             'services': services,
             'secrets': secrets,
@@ -343,7 +343,7 @@ class VMInterfaceView(generic.ObjectView):
         )
 
         return render(request, 'virtualization/vminterface.html', {
-            'vminterface': vminterface,
+            'object': vminterface,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })

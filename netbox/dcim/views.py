@@ -172,7 +172,7 @@ class SiteView(generic.ObjectView):
         ).restrict(request.user, 'view').filter(site=site)
 
         return render(request, 'dcim/site.html', {
-            'site': site,
+            'object': site,
             'stats': stats,
             'rack_groups': rack_groups,
         })
@@ -360,7 +360,7 @@ class RackView(generic.ObjectView):
         power_feeds = PowerFeed.objects.restrict(request.user, 'view').filter(rack=rack).prefetch_related('power_panel')
 
         return render(request, 'dcim/rack.html', {
-            'rack': rack,
+            'object': rack,
             'device_count': Device.objects.restrict(request.user, 'view').filter(rack=rack).count(),
             'reservations': reservations,
             'power_feeds': power_feeds,
@@ -2335,7 +2335,7 @@ class VirtualChassisView(generic.ObjectView):
         members = Device.objects.restrict(request.user).filter(virtual_chassis=virtualchassis)
 
         return render(request, 'dcim/virtualchassis.html', {
-            'virtualchassis': virtualchassis,
+            'object': virtualchassis,
             'members': members,
         })
 

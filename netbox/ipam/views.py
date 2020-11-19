@@ -43,7 +43,7 @@ class VRFView(generic.ObjectView):
         )
 
         return render(request, 'ipam/vrf.html', {
-            'vrf': vrf,
+            'object': vrf,
             'prefix_count': prefix_count,
             'import_targets_table': import_targets_table,
             'export_targets_table': export_targets_table,
@@ -106,7 +106,7 @@ class RouteTargetView(generic.ObjectView):
         )
 
         return render(request, 'ipam/routetarget.html', {
-            'routetarget': routetarget,
+            'object': routetarget,
             'importing_vrfs_table': importing_vrfs_table,
             'exporting_vrfs_table': exporting_vrfs_table,
         })
@@ -241,7 +241,7 @@ class AggregateView(generic.ObjectView):
         }
 
         return render(request, 'ipam/aggregate.html', {
-            'aggregate': aggregate,
+            'object': aggregate,
             'prefix_table': prefix_table,
             'permissions': permissions,
             'show_available': request.GET.get('show_available', 'true') == 'true',
@@ -358,7 +358,7 @@ class PrefixView(generic.ObjectView):
         duplicate_prefix_table.exclude = ('vrf',)
 
         return render(request, 'ipam/prefix.html', {
-            'prefix': prefix,
+            'object': prefix,
             'aggregate': aggregate,
             'parent_prefix_table': parent_prefix_table,
             'duplicate_prefix_table': duplicate_prefix_table,
@@ -399,7 +399,7 @@ class PrefixPrefixesView(generic.ObjectView):
         }
 
         return render(request, 'ipam/prefix_prefixes.html', {
-            'prefix': prefix,
+            'object': prefix,
             'first_available_prefix': prefix.get_first_available_prefix(),
             'prefix_table': prefix_table,
             'permissions': permissions,
@@ -443,7 +443,7 @@ class PrefixIPAddressesView(generic.ObjectView):
         }
 
         return render(request, 'ipam/prefix_ipaddresses.html', {
-            'prefix': prefix,
+            'object': prefix,
             'first_available_ip': prefix.get_first_available_ip(),
             'ip_table': ip_table,
             'permissions': permissions,
@@ -539,7 +539,7 @@ class IPAddressView(generic.ObjectView):
         RequestConfig(request, paginate).configure(related_ips_table)
 
         return render(request, 'ipam/ipaddress.html', {
-            'ipaddress': ipaddress,
+            'object': ipaddress,
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
             'more_duplicate_ips': duplicate_ips.count() > 10,
@@ -739,7 +739,7 @@ class VLANView(generic.ObjectView):
         prefix_table.exclude = ('vlan',)
 
         return render(request, 'ipam/vlan.html', {
-            'vlan': vlan,
+            'object': vlan,
             'prefix_table': prefix_table,
         })
 
@@ -759,7 +759,7 @@ class VLANInterfacesView(generic.ObjectView):
         RequestConfig(request, paginate).configure(members_table)
 
         return render(request, 'ipam/vlan_interfaces.html', {
-            'vlan': vlan,
+            'object': vlan,
             'members_table': members_table,
             'active_tab': 'interfaces',
         })
@@ -780,7 +780,7 @@ class VLANVMInterfacesView(generic.ObjectView):
         RequestConfig(request, paginate).configure(members_table)
 
         return render(request, 'ipam/vlan_vminterfaces.html', {
-            'vlan': vlan,
+            'object': vlan,
             'members_table': members_table,
             'active_tab': 'vminterfaces',
         })

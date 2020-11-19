@@ -45,7 +45,7 @@ class ProviderView(generic.ObjectView):
         RequestConfig(request, paginate).configure(circuits_table)
 
         return render(request, 'circuits/provider.html', {
-            'provider': provider,
+            'object': provider,
             'circuits_table': circuits_table,
         })
 
@@ -144,7 +144,7 @@ class CircuitView(generic.ObjectView):
             termination_z.ip_addresses = termination_z.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         return render(request, 'circuits/circuit.html', {
-            'circuit': circuit,
+            'object': circuit,
             'termination_a': termination_a,
             'termination_z': termination_z,
         })

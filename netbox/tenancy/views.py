@@ -82,7 +82,7 @@ class TenantView(generic.ObjectView):
         }
 
         return render(request, 'tenancy/tenant.html', {
-            'tenant': tenant,
+            'object': tenant,
             'stats': stats,
         })
 

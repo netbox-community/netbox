@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons devicetype %}
+        {% plugin_buttons object %}
         {% if perms.dcim.change_devicetype %}
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -52,19 +52,19 @@
             </div>
         {% endif %}
         {% if perms.dcim.add_devicetype %}
-            {% clone_button devicetype %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.dcim.change_devicetype %}
-            {% edit_button devicetype use_pk=True %}
+            {% edit_button object use_pk=True %}
         {% endif %}
         {% if perms.dcim.delete_devicetype %}
-            {% delete_button devicetype use_pk=True %}
+            {% delete_button object use_pk=True %}
         {% endif %}
     </div>
     <h1>{{ object.manufacturer }} {{ object.model }}</h1>
-    {% include 'inc/created_updated.html' with obj=devicetype %}
+    {% include 'inc/created_updated.html' with obj=object %}
     <div class="pull-right noprint">
-        {% custom_links devicetype %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
@@ -151,10 +151,10 @@
                     </tr>
                 </table>
             </div>
-            {% plugin_left_page devicetype %}
+            {% plugin_left_page object %}
         </div>
         <div class="col-md-6">
-            {% include 'inc/custom_fields_panel.html' with obj=devicetype %}
+            {% include 'inc/custom_fields_panel.html' with obj=object %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:devicetype_list' %}
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -168,12 +168,12 @@
                     {% endif %}
                 </div>
             </div>
-            {% plugin_right_page devicetype %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% plugin_full_width_page devicetype %}
+            {% plugin_full_width_page object %}
         </div>
     </div>
     <div class="row">

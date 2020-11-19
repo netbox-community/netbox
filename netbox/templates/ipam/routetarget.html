@@ -9,7 +9,7 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:routetarget_list' %}">Route Targets</a></li>
-                <li>{{ routetarget }}</li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -26,29 +26,29 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons routetarget %}
+        {% plugin_buttons object %}
         {% if perms.ipam.add_routetarget %}
-            {% clone_button routetarget %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.ipam.change_routetarget %}
-            {% edit_button routetarget %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.ipam.delete_routetarget %}
-            {% delete_button routetarget %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}Route target {{ routetarget }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=routetarget %}
+    <h1>{% block title %}Route target {{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=object %}
     <div class="pull-right noprint">
-        {% custom_links routetarget %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ routetarget.get_absolute_url }}">Route Target</a>
+            <a href="{{ object.get_absolute_url }}">Route Target</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:routetarget_changelog' pk=routetarget.pk %}">Change Log</a>
+                <a href="{% url 'ipam:routetarget_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -64,13 +64,13 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Name</td>
-                    <td>{{ routetarget.name }}</td>
+                    <td>{{ object.name }}</td>
                 </tr>
                 <tr>
                     <td>Tenant</td>
                     <td>
-                        {% if routetarget.tenant %}
-                            <a href="{{ routetarget.tenant.get_absolute_url }}">{{ routetarget.tenant }}</a>
+                        {% if object.tenant %}
+                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -82,19 +82,19 @@
                 </tr>
 		    </table>
         </div>
-        {% include 'extras/inc/tags_panel.html' with tags=routetarget.tags.all url='ipam:routetarget_list' %}
-        {% include 'inc/custom_fields_panel.html' with obj=routetarget %}
-        {% plugin_left_page routetarget %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:routetarget_list' %}
+        {% include 'inc/custom_fields_panel.html' with obj=object %}
+        {% plugin_left_page object %}
 	</div>
 	<div class="col-md-6">
         {% include 'panel_table.html' with table=importing_vrfs_table heading="Importing VRFs" %}
         {% include 'panel_table.html' with table=exporting_vrfs_table heading="Exporting VRFs" %}
-        {% plugin_right_page routetarget %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page routetarget %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}
