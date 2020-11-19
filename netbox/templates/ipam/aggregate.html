@@ -106,7 +106,7 @@
         {% plugin_left_page object %}
     </div>
     <div class="col-md-6">
-        {% include 'inc/custom_fields_panel.html' with obj=object %}
+        {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:aggregate_list' %}
         {% plugin_right_page object %}
     </div>
