@@ -13,6 +13,7 @@
 * [#5350](https://github.com/netbox-community/netbox/issues/5350) - Filter available racks by selected group when creating a rack reservation
 * [#5355](https://github.com/netbox-community/netbox/issues/5355) - Limit rack groups by selected site when editing a rack
 * [#5356](https://github.com/netbox-community/netbox/issues/5356) - Populate manufacturer field when adding a device component template
+* [#5360](https://github.com/netbox-community/netbox/issues/5360) - Clear VLAN assignments when setting interface mode to none
 
 ---
 
