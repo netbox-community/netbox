@@ -12,15 +12,24 @@ from rq import Worker
 
 from extras import filters
 from extras.choices import JobResultStatusChoices
-from extras.models import ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag
+from extras.models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from netbox.api.views import ModelViewSet
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from utilities.exceptions import RQWorkerNotRunningException
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import copy_safe_request
 from . import serializers
+
+
+class ExtrasRootView(APIRootView):
+    """
+    Extras API root view
+    """
+    def get_view_name(self):
+        return 'Extras'
 
 
 class ConfigContextQuerySetMixin:
@@ -46,17 +55,16 @@ class ConfigContextQuerySetMixin:
         return self.queryset.annotate_config_context_data()
 
 
-class ExtrasRootView(APIRootView):
-    """
-    Extras API root view
-    """
-    def get_view_name(self):
-        return 'Extras'
-
-
 #
 # Custom fields
 #
+
+class CustomFieldViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = CustomField.objects.all()
+    serializer_class = serializers.CustomFieldSerializer
+    filterset_class = filters.CustomFieldFilterSet
+
 
 class CustomFieldModelViewSet(ModelViewSet):
     """

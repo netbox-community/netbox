@@ -2,7 +2,7 @@ import django_filters
 from django.contrib.auth.models import User
 from django.db.models import Count
 
-from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
+from extras.filters import CustomFieldModelFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
@@ -80,7 +80,7 @@ class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -179,7 +179,7 @@ class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -325,7 +325,7 @@ class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class DeviceTypeFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class DeviceTypeFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -504,7 +504,7 @@ class DeviceFilterSet(
     BaseFilterSet,
     TenancyFilterSet,
     LocalConfigContextFilterSet,
-    CustomFieldFilterSet,
+    CustomFieldModelFilterSet,
     CreatedUpdatedFilterSet
 ):
     q = django_filters.CharFilter(
@@ -1246,7 +1246,7 @@ class PowerFeedFilterSet(
     BaseFilterSet,
     CableTerminationFilterSet,
     PathEndpointFilterSet,
-    CustomFieldFilterSet,
+    CustomFieldModelFilterSet,
     CreatedUpdatedFilterSet
 ):
     q = django_filters.CharFilter(

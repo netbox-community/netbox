@@ -10,7 +10,7 @@ from dcim.api.nested_serializers import (
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.choices import *
 from extras.models import (
-    ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
+    ConfigContext, CustomField, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.utils import FeatureQuery
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
@@ -22,6 +22,27 @@ from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
 from virtualization.models import Cluster, ClusterGroup
 from .nested_serializers import *
+
+
+#
+# Custom fields
+#
+
+class CustomFieldSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
+    content_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
+        many=True
+    )
+    type = ChoiceField(choices=CustomFieldTypeChoices)
+    filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
+
+    class Meta:
+        model = CustomField
+        fields = [
+            'id', 'url', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
+            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
+        ]
 
 
 #

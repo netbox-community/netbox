@@ -11,7 +11,7 @@ from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
-from extras.models import ConfigContext, ExportTemplate, ImageAttachment, Tag
+from extras.models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, Tag
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
@@ -28,6 +28,53 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
+
+
+class CustomFieldTest(APIViewTestCases.APIViewTestCase):
+    model = CustomField
+    brief_fields = ['id', 'name', 'url']
+    create_data = [
+        {
+            'content_types': ['dcim.site'],
+            'name': 'cf4',
+            'type': 'date',
+        },
+        {
+            'content_types': ['dcim.site'],
+            'name': 'cf5',
+            'type': 'url',
+        },
+        {
+            'content_types': ['dcim.site'],
+            'name': 'cf6',
+            'type': 'select',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        custom_fields = (
+            CustomField(
+                name='cf1',
+                type='text'
+            ),
+            CustomField(
+                name='cf2',
+                type='integer'
+            ),
+            CustomField(
+                name='cf3',
+                type='boolean'
+            ),
+        )
+        CustomField.objects.bulk_create(custom_fields)
+        for cf in custom_fields:
+            cf.content_types.add(site_ct)
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):

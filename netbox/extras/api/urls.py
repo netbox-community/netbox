@@ -5,6 +5,9 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.ExtrasRootView
 
+# Custom fields
+router.register('custom-fields', views.CustomFieldViewSet)
+
 # Export templates
 router.register('export-templates', views.ExportTemplateViewSet)
 
