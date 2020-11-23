@@ -20,7 +20,7 @@ class TestAggregate(TestCase):
             Prefix(prefix=netaddr.IPNetwork('10.32.0.0/12')),
             Prefix(prefix=netaddr.IPNetwork('10.48.0.0/12')),
         ))
-        self.assertEqual(aggregate.get_utilization(), (4194304, 16777216)
+        self.assertEqual(aggregate.get_utilization(), (4194304, 16777216))
 
         # 50% utilization
         Prefix.objects.bulk_create((
