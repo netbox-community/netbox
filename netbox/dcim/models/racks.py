@@ -542,9 +542,9 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
                 available_units.remove(u)
 
         occupied_unit_count = self.u_height - len(available_units)
-        percentage = int(float(occupied_unit_count) / self.u_height * 100)
 
-        return percentage
+        # Return the numerator and denominator as percentage is to be calculated later where needed
+        return (occupied_unit_count, self.u_height)
 
     def get_power_utilization(self):
         """
@@ -562,8 +562,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         if power_stats:
             allocated_draw_total = sum(x['allocated_draw_total'] or 0 for x in power_stats)
             available_power_total = sum(x['available_power'] for x in power_stats)
-            return int(allocated_draw_total / available_power_total * 100) or 0
-        return 0
+            return int(allocated_draw_total / available_power_total * 100) or (0, 0)
+        return (0, 0)
 
 
 @extras_features('custom_links', 'export_templates', 'webhooks')
