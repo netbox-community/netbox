@@ -16,7 +16,7 @@ __all__ = (
     'ContentTypeFilterSet',
     'CreatedUpdatedFilterSet',
     'CustomFieldFilter',
-    'CustomFieldFilterSet',
+    'CustomFieldModelFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
     'LocalConfigContextFilterSet',
@@ -58,7 +58,7 @@ class CustomFieldFilter(django_filters.Filter):
         return queryset.filter(**kwargs)
 
 
-class CustomFieldFilterSet(django_filters.FilterSet):
+class CustomFieldModelFilterSet(django_filters.FilterSet):
     """
     Dynamically add a Filter for each CustomField applicable to the parent model.
     """
