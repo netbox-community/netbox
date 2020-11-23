@@ -82,6 +82,7 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom field support for cables, power panels, rack reservations, and virtual chassis
 * [#5154](https://github.com/netbox-community/netbox/issues/5154) - The web interface now consumes the entire browser window
 * [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for retrieving content types (`/api/extras/content-types/`)
+* [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
 
 ### Other Changes
 
@@ -97,6 +98,8 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 
 * Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints (bulk update and delete)
 * Added the `/extras/content-types/` endpoint for Django ContentTypes
+* Added the `/extras/custom-fields/` endpoint for custom fields
+* Removed the `/extras/_custom_field_choices/` endpoint (replaced by new custom fields endpoint)
 * Added the `/status/` endpoint to convey NetBox's current status
 * circuits.CircuitTermination:
   * Added the `/trace/` endpoint
