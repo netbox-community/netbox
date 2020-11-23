@@ -6,11 +6,20 @@ from users.api.nested_serializers import NestedUserSerializer
 
 __all__ = [
     'NestedConfigContextSerializer',
+    'NestedCustomFieldSerializer',
     'NestedExportTemplateSerializer',
     'NestedImageAttachmentSerializer',
     'NestedJobResultSerializer',
     'NestedTagSerializer',
 ]
+
+
+class NestedCustomFieldSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
+
+    class Meta:
+        model = models.CustomField
+        fields = ['id', 'url', 'name']
 
 
 class NestedConfigContextSerializer(WritableNestedSerializer):

@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from extras.choices import *
 from extras.utils import FeatureQuery
 from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
 
@@ -63,7 +64,7 @@ class CustomFieldModel(models.Model):
                 raise ValidationError(f"Missing required custom field '{cf.name}'.")
 
 
-class CustomFieldManager(models.Manager):
+class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
     use_in_migrations = True
 
     def get_for_model(self, model):
@@ -193,7 +194,7 @@ class CustomField(models.Model):
             })
 
         # A selection field must have at least two choices defined
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT and len(self.choices) < 2:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.choices and len(self.choices) < 2:
             raise ValidationError({
                 'choices': "Selection fields must specify at least two choices."
             })

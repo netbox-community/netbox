@@ -74,6 +74,13 @@ class CustomFieldModelFilterSet(django_filters.FilterSet):
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
 
 
+class CustomFieldFilterSet(django_filters.FilterSet):
+
+    class Meta:
+        model = CustomField
+        fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'default', 'weight']
+
+
 class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
