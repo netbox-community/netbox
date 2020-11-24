@@ -377,6 +377,9 @@ table.report th a {
 ul.nav-tabs, ul.nav-pills {
     margin-bottom: 20px;
 }
+ul.nav-tabs li a {
+    padding: 8px 10px;
+}
 /* Fix progress bar margin inside table cells */
 td .progress {
     margin-bottom: 0;
