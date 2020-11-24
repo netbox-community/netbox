@@ -997,6 +997,121 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': DeviceStatusChoices.STATUS_DECOMMISSIONING,
         }
 
+    def test_device_consoleports(self):
+        device = Device.objects.first()
+        console_ports = (
+            ConsolePort(device=device, name='Console Port 1'),
+            ConsolePort(device=device, name='Console Port 2'),
+            ConsolePort(device=device, name='Console Port 3'),
+        )
+        ConsolePort.objects.bulk_create(console_ports)
+
+        url = reverse('dcim:device_consoleports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_consoleserverports(self):
+        device = Device.objects.first()
+        console_server_ports = (
+            ConsoleServerPort(device=device, name='Console Server Port 1'),
+            ConsoleServerPort(device=device, name='Console Server Port 2'),
+            ConsoleServerPort(device=device, name='Console Server Port 3'),
+        )
+        ConsoleServerPort.objects.bulk_create(console_server_ports)
+
+        url = reverse('dcim:device_consoleserverports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_powerports(self):
+        device = Device.objects.first()
+        power_ports = (
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+            PowerPort(device=device, name='Power Port 3'),
+        )
+        PowerPort.objects.bulk_create(power_ports)
+
+        url = reverse('dcim:device_powerports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_poweroutlets(self):
+        device = Device.objects.first()
+        power_outlets = (
+            PowerOutlet(device=device, name='Power Outlet 1'),
+            PowerOutlet(device=device, name='Power Outlet 2'),
+            PowerOutlet(device=device, name='Power Outlet 3'),
+        )
+        PowerOutlet.objects.bulk_create(power_outlets)
+
+        url = reverse('dcim:device_poweroutlets', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_interfaces(self):
+        device = Device.objects.first()
+        interfaces = (
+            Interface(device=device, name='Interface 1'),
+            Interface(device=device, name='Interface 2'),
+            Interface(device=device, name='Interface 3'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        url = reverse('dcim:device_interfaces', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_rearports(self):
+        device = Device.objects.first()
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+
+        url = reverse('dcim:device_rearports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_frontports(self):
+        device = Device.objects.first()
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPort(device=device, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
+            FrontPort(device=device, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
+            FrontPort(device=device, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+        )
+        FrontPort.objects.bulk_create(front_ports)
+
+        url = reverse('dcim:device_frontports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_devicebays(self):
+        device = Device.objects.first()
+        device_bays = (
+            DeviceBay(device=device, name='Device Bay 1'),
+            DeviceBay(device=device, name='Device Bay 2'),
+            DeviceBay(device=device, name='Device Bay 3'),
+        )
+        DeviceBay.objects.bulk_create(device_bays)
+
+        url = reverse('dcim:device_devicebays', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_inventory(self):
+        device = Device.objects.first()
+        inventory_items = (
+            InventoryItem(device=device, name='Inventory Item 1'),
+            InventoryItem(device=device, name='Inventory Item 2'),
+            InventoryItem(device=device, name='Inventory Item 3'),
+        )
+        for item in inventory_items:
+            item.save()
+
+        url = reverse('dcim:device_inventory', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsolePort
