@@ -289,7 +289,6 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
 
-
     CHOICES = (
         ('IEC 60320', (
             (TYPE_IEC_C6, 'C6'),
