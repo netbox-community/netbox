@@ -68,8 +68,8 @@ nav:
         - Working with Secrets: 'rest-api/working-with-secrets.md'
     - Development:
         - Introduction: 'development/index.md'
+        - Getting Started: 'development/getting-started.md'
         - Style Guide: 'development/style-guide.md'
-        - Utility Views: 'development/utility-views.md'
         - Extending Models: 'development/extending-models.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'

@@ -453,18 +453,6 @@ class VMInterface(BaseInterface):
                                  "virtual machine, or it must be global".format(self.untagged_vlan)
             })
 
-    def save(self, *args, **kwargs):
-
-        # Remove untagged VLAN assignment for non-802.1Q interfaces
-        if self.mode is None:
-            self.untagged_vlan = None
-
-        # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
-            self.tagged_vlans.clear()
-
-        return super().save(*args, **kwargs)
-
     def to_objectchange(self, action):
         # Annotate the parent VirtualMachine
         return ObjectChange(

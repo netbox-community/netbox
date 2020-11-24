@@ -93,6 +93,10 @@ appropriate labels will be applied for categorization.
 
 ## Submitting Pull Requests
 
+* If you're interested in contributing to NetBox, be sure to check out our
+[getting started](https://netbox.readthedocs.io/en/stable/development/getting-started/)
+documentation for tips on setting up your development environment.
+
 * Be sure to open an issue **before** starting work on a pull request, and
 discuss your idea with the NetBox maintainers before beginning work. This will
 help prevent wasting time on something that might we might not be able to
