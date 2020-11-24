@@ -51,6 +51,15 @@ def migrate_customfieldvalues(apps, schema_editor):
         model.objects.filter(pk=cfv.obj_id).update(**cf_data)
 
 
+def fix_filter_logic_values(apps, schema_editor):
+    """
+    Fix invalid values for CustomField.filter_logic (see #5376)
+    """
+    CustomField = apps.get_model('extras', 'CustomField')
+
+    CustomField.objects.filter(filter_logic="integer").update(filter_logic="loose")
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -69,5 +78,8 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=migrate_customfieldvalues
+        ),
+        migrations.RunPython(
+            code=fix_filter_logic_values
         ),
     ]

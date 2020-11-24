@@ -10,6 +10,7 @@
 
 * [#5358](https://github.com/netbox-community/netbox/issues/5358) - Fix user table configuration for VM interfaces
 * [#5374](https://github.com/netbox-community/netbox/issues/5374) - Fix exception thrown when tracing mid-point
+* [#5376](https://github.com/netbox-community/netbox/issues/5376) - Correct invalid custom field filter logic values
 
 ---
 
