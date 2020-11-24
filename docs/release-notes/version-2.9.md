@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#5319](https://github.com/netbox-community/netbox/issues/5319) - Add USB types for power ports and outlets
 * [#5337](https://github.com/netbox-community/netbox/issues/5337) - Add "splice" type for pass-through ports
 
 ### Bug Fixes

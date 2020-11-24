@@ -378,15 +378,15 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_ITA_O, 'ITA Type O'),
         )),
         ('USB', (
-            (TYPE_USB_A, 'USB-A'),
-            (TYPE_USB_B, 'USB-B'),
-            (TYPE_USB_C, 'USB-C'),
-            (TYPE_USB_MINI_A, 'USB Mini-A'),
-            (TYPE_USB_MINI_B, 'USB Mini-B'),
-            (TYPE_USB_MICRO_A, 'USB Micro-A'),
-            (TYPE_USB_MICRO_B, 'USB Micro-B'),
-            (TYPE_USB_3_B, 'USB 3.0 B'),
-            (TYPE_USB_3_MICROB, 'USB 3.0 Micro-B'),
+            (TYPE_USB_A, 'USB Type A'),
+            (TYPE_USB_B, 'USB Type B'),
+            (TYPE_USB_C, 'USB Type C'),
+            (TYPE_USB_MINI_A, 'USB Mini A'),
+            (TYPE_USB_MINI_B, 'USB Mini B'),
+            (TYPE_USB_MICRO_A, 'USB Micro A'),
+            (TYPE_USB_MICRO_B, 'USB Micro B'),
+            (TYPE_USB_3_B, 'USB 3.0 Type B'),
+            (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
     )
 
@@ -572,9 +572,9 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_O, 'ITA Type O'),
         )),
         ('USB', (
-            (TYPE_USB_A, 'USB-A'),
-            (TYPE_USB_MICROB, 'USB Micro-B'),
-            (TYPE_USB_C, 'USB-C'),
+            (TYPE_USB_A, 'USB Type A'),
+            (TYPE_USB_MICROB, 'USB Micro B'),
+            (TYPE_USB_C, 'USB Type C'),
         )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
