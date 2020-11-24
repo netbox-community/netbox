@@ -2076,7 +2076,7 @@ class PathTraceView(generic.ObjectView):
 
         # Otherwise, find all CablePaths which traverse the specified object
         else:
-            related_paths = CablePath.objects.filter(path__contains=obj).prefetch_related('origin')
+            related_paths = CablePath.objects.filter(path__contains=instance).prefetch_related('origin')
             # Check for specification of a particular path (when tracing pass-through ports)
             try:
                 path_id = int(request.GET.get('cablepath_id'))
