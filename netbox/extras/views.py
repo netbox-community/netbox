@@ -1,7 +1,7 @@
 from django import template
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
@@ -9,14 +9,11 @@ from django_rq.queues import get_connection
 from django_tables2 import RequestConfig
 from rq import Worker
 
-from dcim.models import DeviceRole, Platform, Region, Site
 from netbox.views import generic
-from tenancy.models import Tenant, TenantGroup
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import copy_safe_request, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
-from virtualization.models import Cluster, ClusterGroup
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
 from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag
