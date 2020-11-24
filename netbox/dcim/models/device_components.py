@@ -589,6 +589,18 @@ class BaseInterface(models.Model):
     class Meta:
         abstract = True
 
+    def save(self, *args, **kwargs):
+
+        # Remove untagged VLAN assignment for non-802.1Q interfaces
+        if not self.mode:
+            self.untagged_vlan = None
+
+        # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
+        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
+            self.tagged_vlans.clear()
+
+        return super().save(*args, **kwargs)
+
 
 @extras_features('graphs', 'export_templates', 'webhooks')
 class Interface(CableTermination, ComponentModel, BaseInterface):
@@ -723,18 +735,6 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
                 'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
                                  "device, or it must be global".format(self.untagged_vlan)
             })
-
-    def save(self, *args, **kwargs):
-
-        # Remove untagged VLAN assignment for non-802.1Q interfaces
-        if self.mode is None:
-            self.untagged_vlan = None
-
-        # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
-            self.tagged_vlans.clear()
-
-        return super().save(*args, **kwargs)
 
     @property
     def connected_endpoint(self):

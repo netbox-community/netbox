@@ -1,5 +1,24 @@
 # NetBox v2.9
 
+## v2.9.10 (2020-11-24)
+
+### Enhancements
+
+* [#5319](https://github.com/netbox-community/netbox/issues/5319) - Add USB types for power ports and outlets
+* [#5337](https://github.com/netbox-community/netbox/issues/5337) - Add "splice" type for pass-through ports
+
+### Bug Fixes
+
+* [#5235](https://github.com/netbox-community/netbox/issues/5235) - Fix exception when editing IP address with a NAT IP assigned to a non-racked device
+* [#5309](https://github.com/netbox-community/netbox/issues/5309) - Avoid extraneous database queries when manipulating objects
+* [#5345](https://github.com/netbox-community/netbox/issues/5345) - Fix non-deterministic ordering of prefixes and IP addresses
+* [#5350](https://github.com/netbox-community/netbox/issues/5350) - Filter available racks by selected group when creating a rack reservation
+* [#5355](https://github.com/netbox-community/netbox/issues/5355) - Limit rack groups by selected site when editing a rack
+* [#5356](https://github.com/netbox-community/netbox/issues/5356) - Populate manufacturer field when adding a device component template
+* [#5360](https://github.com/netbox-community/netbox/issues/5360) - Clear VLAN assignments when setting interface mode to none
+
+---
+
 ## v2.9.9 (2020-11-09)
 
 ### Enhancements
@@ -16,7 +35,6 @@
 * [#5324](https://github.com/netbox-community/netbox/issues/5324) - Add missing template extension tags for plugins for VM interface view
 * [#5328](https://github.com/netbox-community/netbox/issues/5328) - Fix CreatedUpdatedFilterTest when running in non-UTC timezone
 * [#5331](https://github.com/netbox-community/netbox/issues/5331) - Fix filtering of sites by null region
-
 
 ---
 

@@ -470,6 +470,13 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
+    group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
     role = DynamicModelChoiceField(
         queryset=RackRole.objects.all(),
         required=False
@@ -741,7 +748,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         display_field='display_name',
         query_params={
             'site_id': '$site',
-            'group_id': '$rack',
+            'group_id': '$rack_group',
         }
     )
     units = NumericArrayField(
@@ -1027,7 +1034,10 @@ class ComponentTemplateCreateForm(ComponentForm):
     """
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'device_types': 'device_type'
+        }
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),

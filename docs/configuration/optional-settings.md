@@ -277,7 +277,7 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 
 Default: False
 
-Setting this to True will display a "maintenance mode" banner at the top of every page.
+Setting this to True will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
 
 ---
 
