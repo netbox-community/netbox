@@ -2,6 +2,10 @@
 
 ## v2.10-beta2 (FUTURE)
 
+### Enhancements
+
+* [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
+
 ### Bug Fixes
 
 * [#5358](https://github.com/netbox-community/netbox/issues/5358) - Fix user table configuration for VM interfaces
@@ -82,7 +86,6 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom field support for cables, power panels, rack reservations, and virtual chassis
 * [#5154](https://github.com/netbox-community/netbox/issues/5154) - The web interface now consumes the entire browser window
 * [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for retrieving content types (`/api/extras/content-types/`)
-* [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
 
 ### Other Changes
 
