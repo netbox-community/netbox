@@ -997,6 +997,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': DeviceStatusChoices.STATUS_DECOMMISSIONING,
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_consoleports(self):
         device = Device.objects.first()
         console_ports = (
@@ -1009,6 +1010,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_consoleports', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_consoleserverports(self):
         device = Device.objects.first()
         console_server_ports = (
@@ -1021,6 +1023,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_consoleserverports', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_powerports(self):
         device = Device.objects.first()
         power_ports = (
@@ -1033,6 +1036,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_powerports', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_poweroutlets(self):
         device = Device.objects.first()
         power_outlets = (
@@ -1045,6 +1049,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_poweroutlets', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_interfaces(self):
         device = Device.objects.first()
         interfaces = (
@@ -1057,6 +1062,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_interfaces', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_rearports(self):
         device = Device.objects.first()
         rear_ports = (
@@ -1069,6 +1075,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_rearports', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_frontports(self):
         device = Device.objects.first()
         rear_ports = (
@@ -1087,6 +1094,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_frontports', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_devicebays(self):
         device = Device.objects.first()
         device_bays = (
@@ -1099,6 +1107,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_devicebays', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_inventory(self):
         device = Device.objects.first()
         inventory_items = (
