@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.11 (FUTURE)
+
+### Bug Fixes
+
+* [#5383](https://github.com/netbox-community/netbox/issues/5383) - Fix setting user password via REST API
+
+---
+
 ## v2.9.10 (2020-11-24)
 
 ### Enhancements
