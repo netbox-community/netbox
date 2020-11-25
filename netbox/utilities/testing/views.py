@@ -126,20 +126,25 @@ class TestCase(_TestCase):
             err_message = f"Expected HTTP status {expected_status}; received {response.status_code}: {err}"
         self.assertEqual(response.status_code, expected_status, err_message)
 
-    def assertInstanceEqual(self, instance, data, api=False):
+    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
         """
         Compare a model instance to a dictionary, checking that its attribute values match those specified
         in the dictionary.
 
-        :instance: Python object instance
-        :data: Dictionary of test data used to define the instance
-        :api: Set to True is the data is a JSON representation of the instance
+        :param instance: Python object instance
+        :param data: Dictionary of test data used to define the instance
+        :param exclude: List of fields to exclude from comparison (e.g. passwords, which get hashed)
+        :param api: Set to True is the data is a JSON representation of the instance
         """
-        model_dict = self.model_to_dict(instance, fields=data.keys(), api=api)
+        if exclude is None:
+            exclude = []
 
-        # Omit any dictionary keys which are not instance attributes
+        fields = [k for k in data.keys() if k not in exclude]
+        model_dict = self.model_to_dict(instance, fields=fields, api=api)
+
+        # Omit any dictionary keys which are not instance attributes or have been excluded
         relevant_data = {
-            k: v for k, v in data.items() if hasattr(instance, k)
+            k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude
         }
 
         self.assertDictEqual(model_dict, relevant_data)
