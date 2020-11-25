@@ -94,14 +94,14 @@ class ContentTypeField(RelatedField):
     def to_internal_value(self, data):
         try:
             app_label, model = data.split('.')
-            return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
+            return self.queryset.get(app_label=app_label, model=model)
         except ObjectDoesNotExist:
             self.fail('does_not_exist', content_type=data)
-        except (TypeError, ValueError):
+        except (AttributeError, TypeError, ValueError):
             self.fail('invalid')
 
     def to_representation(self, obj):
-        return "{}.{}".format(obj.app_label, obj.model)
+        return f"{obj.app_label}.{obj.model}"
 
 
 class TimeZoneField(serializers.Field):

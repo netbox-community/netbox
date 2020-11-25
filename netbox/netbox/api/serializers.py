@@ -6,11 +6,10 @@ from rest_framework.exceptions import ValidationError
 from utilities.utils import dict_to_filter_params
 
 
-# TODO: We should probably take a fresh look at exactly what we're doing with this. There might be a more elegant
-# way to enforce model validation on the serializer.
 class ValidatedModelSerializer(serializers.ModelSerializer):
     """
-    Extends the built-in ModelSerializer to enforce calling clean() on the associated model during validation.
+    Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during
+    validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
     """
     def validate(self, data):
 
@@ -31,8 +30,7 @@ class ValidatedModelSerializer(serializers.ModelSerializer):
             instance = self.instance
             for k, v in attrs.items():
                 setattr(instance, k, v)
-        instance.clean()
-        instance.validate_unique()
+        instance.full_clean()
 
         return data
 
