@@ -1,12 +1,12 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
 from extras.models import Graph
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.utils import get_subquery
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
@@ -20,7 +20,9 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 #
 
 class ProviderListView(ObjectListView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+    queryset = Provider.objects.annotate(
+        count_circuits=get_subquery(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
     table = tables.ProviderTable
@@ -72,14 +74,18 @@ class ProviderBulkImportView(BulkImportView):
 
 
 class ProviderBulkEditView(BulkEditView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+    queryset = Provider.objects.annotate(
+        count_circuits=get_subquery(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
 
 
 class ProviderBulkDeleteView(BulkDeleteView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+    queryset = Provider.objects.annotate(
+        count_circuits=get_subquery(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
 
@@ -89,7 +95,9 @@ class ProviderBulkDeleteView(BulkDeleteView):
 #
 
 class CircuitTypeListView(ObjectListView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
+    queryset = CircuitType.objects.annotate(
+        circuit_count=get_subquery(Circuit, 'type')
+    )
     table = tables.CircuitTypeTable
 
 
@@ -109,7 +117,9 @@ class CircuitTypeBulkImportView(BulkImportView):
 
 
 class CircuitTypeBulkDeleteView(BulkDeleteView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
+    queryset = CircuitType.objects.annotate(
+        circuit_count=get_subquery(Circuit, 'type')
+    )
     table = tables.CircuitTypeTable
 
 

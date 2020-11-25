@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -15,14 +14,14 @@ from rq import Worker
 from extras import filters
 from extras.choices import JobResultStatusChoices
 from extras.models import (
-    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
+    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
 )
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.metadata import ContentTypeMetadata
-from utilities.utils import copy_safe_request
+from utilities.utils import copy_safe_request, get_subquery
 from . import serializers
 
 
@@ -149,8 +148,8 @@ class ExportTemplateViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        tagged_items=get_subquery(TaggedItem, 'tag')
+    )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet
 
