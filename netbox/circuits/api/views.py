@@ -10,6 +10,7 @@ from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph
 from utilities.api import ModelViewSet
+from utilities.utils import get_subquery
 from . import serializers
 
 
@@ -27,8 +28,8 @@ class CircuitsRootView(APIRootView):
 
 class ProviderViewSet(CustomFieldModelViewSet):
     queryset = Provider.objects.prefetch_related('tags').annotate(
-        circuit_count=Count('circuits')
-    ).order_by(*Provider._meta.ordering)
+        circuit_count=get_subquery(Circuit, 'provider')
+    )
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilterSet
 
@@ -49,8 +50,8 @@ class ProviderViewSet(CustomFieldModelViewSet):
 
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.annotate(
-        circuit_count=Count('circuits')
-    ).order_by(*CircuitType._meta.ordering)
+        circuit_count=get_subquery(Circuit, 'type')
+    )
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filters.CircuitTypeFilterSet
 
