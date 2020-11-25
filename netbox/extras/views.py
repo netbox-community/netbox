@@ -1,7 +1,7 @@
 from django import template
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Prefetch, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
@@ -13,7 +13,7 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import copy_safe_request, shallow_compare_dict
+from utilities.utils import copy_safe_request, get_subquery, shallow_compare_dict
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
     ContentTypePermissionRequiredMixin,
@@ -21,7 +21,7 @@ from utilities.views import (
 from virtualization.models import Cluster, ClusterGroup
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag
+from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
 
@@ -32,8 +32,8 @@ from .scripts import get_scripts, run_script
 
 class TagListView(ObjectListView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=get_subquery(TaggedItem, 'tag')
+    )
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
     table = tables.TagTable
@@ -57,16 +57,16 @@ class TagBulkImportView(BulkImportView):
 
 class TagBulkEditView(BulkEditView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=get_subquery(TaggedItem, 'tag')
+    )
     table = tables.TagTable
     form = forms.TagBulkEditForm
 
 
 class TagBulkDeleteView(BulkDeleteView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=get_subquery(TaggedItem, 'tag')
+    )
     table = tables.TagTable
 
 
