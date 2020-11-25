@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_yasg.utils import swagger_auto_schema
@@ -44,8 +43,8 @@ class VRFViewSet(CustomFieldModelViewSet):
 
 class RIRViewSet(ModelViewSet):
     queryset = RIR.objects.annotate(
-        aggregate_count=Count('aggregates')
-    ).order_by(*RIR._meta.ordering)
+        aggregate_count=get_subquery(Aggregate, 'rir')
+    )
     serializer_class = serializers.RIRSerializer
     filterset_class = filters.RIRFilterSet
 
@@ -261,7 +260,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 
 class VLANGroupViewSet(ModelViewSet):
     queryset = VLANGroup.objects.prefetch_related('site').annotate(
-        vlan_count=Count('vlans')
+        vlan_count=get_subquery(VLAN, 'group')
     ).order_by(*VLANGroup._meta.ordering)
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filters.VLANGroupFilterSet
