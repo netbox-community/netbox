@@ -149,7 +149,7 @@ class ExportTemplateViewSet(ModelViewSet):
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
         tagged_items=get_subquery(TaggedItem, 'tag')
-    ).order_by(*Tag._meta.ordering)
+    )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet
 

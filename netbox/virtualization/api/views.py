@@ -48,7 +48,7 @@ class ClusterViewSet(CustomFieldModelViewSet):
     ).annotate(
         device_count=get_subquery(Device, 'cluster'),
         virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
-    ).order_by(*Cluster._meta.ordering)
+    )
     serializer_class = serializers.ClusterSerializer
     filterset_class = filters.ClusterFilterSet
 

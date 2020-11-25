@@ -109,7 +109,7 @@ class SiteViewSet(CustomFieldModelViewSet):
         vlan_count=get_subquery(VLAN, 'site'),
         circuit_count=get_subquery(Circuit, 'terminations__site'),
         virtualmachine_count=get_subquery(VirtualMachine, 'cluster__site'),
-    ).order_by(*Site._meta.ordering)
+    )
     serializer_class = serializers.SiteSerializer
     filterset_class = filters.SiteFilterSet
 
@@ -162,7 +162,7 @@ class RackViewSet(CustomFieldModelViewSet):
     ).annotate(
         device_count=get_subquery(Device, 'rack'),
         powerfeed_count=get_subquery(PowerFeed, 'rack')
-    ).order_by(*Rack._meta.ordering)
+    )
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilterSet
 
@@ -237,7 +237,7 @@ class ManufacturerViewSet(ModelViewSet):
         devicetype_count=get_subquery(DeviceType, 'manufacturer'),
         inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
         platform_count=get_subquery(Platform, 'manufacturer')
-    ).order_by(*Manufacturer._meta.ordering)
+    )
     serializer_class = serializers.ManufacturerSerializer
     filterset_class = filters.ManufacturerFilterSet
 
@@ -314,7 +314,7 @@ class DeviceRoleViewSet(ModelViewSet):
     queryset = DeviceRole.objects.annotate(
         device_count=get_subquery(Device, 'device_role'),
         virtualmachine_count=get_subquery(VirtualMachine, 'role')
-    ).order_by(*DeviceRole._meta.ordering)
+    )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilterSet
 
@@ -327,7 +327,7 @@ class PlatformViewSet(ModelViewSet):
     queryset = Platform.objects.annotate(
         device_count=get_subquery(Device, 'platform'),
         virtualmachine_count=get_subquery(VirtualMachine, 'platform')
-    ).order_by(*Platform._meta.ordering)
+    )
     serializer_class = serializers.PlatformSerializer
     filterset_class = filters.PlatformFilterSet
 

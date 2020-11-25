@@ -32,7 +32,7 @@ class VRFViewSet(CustomFieldModelViewSet):
     queryset = VRF.objects.prefetch_related('tenant').prefetch_related('tags').annotate(
         ipaddress_count=get_subquery(IPAddress, 'vrf'),
         prefix_count=get_subquery(Prefix, 'vrf')
-    ).order_by(*VRF._meta.ordering)
+    )
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilterSet
 
@@ -67,7 +67,7 @@ class RoleViewSet(ModelViewSet):
     queryset = Role.objects.annotate(
         prefix_count=get_subquery(Prefix, 'role'),
         vlan_count=get_subquery(VLAN, 'role')
-    ).order_by(*Role._meta.ordering)
+    )
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilterSet
 
@@ -79,7 +79,7 @@ class RoleViewSet(ModelViewSet):
 class PrefixViewSet(CustomFieldModelViewSet):
     queryset = Prefix.objects.prefetch_related(
         'site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags'
-    ).order_by(*Prefix._meta.ordering)
+    )
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilterSet
 
@@ -249,7 +249,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 class IPAddressViewSet(CustomFieldModelViewSet):
     queryset = IPAddress.objects.prefetch_related(
         'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags', 'assigned_object'
-    ).order_by(*IPAddress._meta.ordering)
+    )
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filters.IPAddressFilterSet
 
@@ -261,7 +261,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 class VLANGroupViewSet(ModelViewSet):
     queryset = VLANGroup.objects.prefetch_related('site').annotate(
         vlan_count=get_subquery(VLAN, 'group')
-    ).order_by(*VLANGroup._meta.ordering)
+    )
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filters.VLANGroupFilterSet
 
@@ -275,7 +275,7 @@ class VLANViewSet(CustomFieldModelViewSet):
         'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
         prefix_count=get_subquery(Prefix, 'vlan')
-    ).order_by(*VLAN._meta.ordering)
+    )
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilterSet
 
