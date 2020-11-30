@@ -93,6 +93,7 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 ### Other Changes
 
 * [#1846](https://github.com/netbox-community/netbox/issues/1846) - Enable MPTT for InventoryItem hierarchy
+* [#2755](https://github.com/netbox-community/netbox/issues/2755) - Switched from Font Awesome/Glyphicons to Material Design icons
 * [#4349](https://github.com/netbox-community/netbox/issues/4349) - Dropped support for embedded graphs
 * [#4360](https://github.com/netbox-community/netbox/issues/4360) - Dropped support for the Django template language from export templates
 * [#4941](https://github.com/netbox-community/netbox/issues/4941) - `commit` argument is now required argument in a custom script's `run()` method
