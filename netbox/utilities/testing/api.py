@@ -93,6 +93,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['view']
             )
@@ -160,6 +161,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk__in': [instance1.pk, instance2.pk]},
                 actions=['view']
             )
@@ -193,6 +195,7 @@ class APIViewTestCases:
             """
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -216,6 +219,7 @@ class APIViewTestCases:
             """
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -229,7 +233,8 @@ class APIViewTestCases:
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.create_data))
             for i, obj in enumerate(response.data):
                 for field in self.create_data[i]:
-                    self.assertIn(field, obj, f"Bulk create field '{field}' missing from object {i} in response")
+                    if field not in self.validation_excluded_fields:
+                        self.assertIn(field, obj, f"Bulk create field '{field}' missing from object {i} in response")
             for i, obj in enumerate(response.data):
                 self.assertInstanceEqual(
                     self._get_queryset().get(pk=obj['id']),
@@ -265,6 +270,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -290,6 +296,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -332,6 +339,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()
@@ -348,6 +356,7 @@ class APIViewTestCases:
             """
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()
