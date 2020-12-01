@@ -2,7 +2,6 @@ from django import forms
 from django.contrib import admin
 
 from utilities.forms import LaxURLField
-from .choices import CustomFieldTypeChoices
 from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
 
 
@@ -76,6 +75,7 @@ class CustomFieldForm(forms.ModelForm):
         model = CustomField
         exclude = []
         widgets = {
+            'default': forms.TextInput(),
             'validation_regex': forms.Textarea(
                 attrs={
                     'cols': 80,

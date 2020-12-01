@@ -78,7 +78,7 @@ class CustomFieldFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = CustomField
-        fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'default', 'weight']
+        fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight']
 
 
 class ExportTemplateFilterSet(BaseFilterSet):
