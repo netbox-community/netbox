@@ -2,12 +2,12 @@ import base64
 import logging
 
 from django.contrib import messages
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from netbox.views import generic
+from utilities.utils import get_subquery
 from . import filters, forms, tables
 from .models import SecretRole, Secret, SessionKey, UserKey
 
@@ -27,7 +27,9 @@ def get_session_key(request):
 #
 
 class SecretRoleListView(generic.ObjectListView):
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets')).order_by(*SecretRole._meta.ordering)
+    queryset = SecretRole.objects.annotate(
+        secret_count=get_subquery(Secret, 'role')
+    )
     table = tables.SecretRoleTable
 
 
@@ -47,7 +49,9 @@ class SecretRoleBulkImportView(generic.BulkImportView):
 
 
 class SecretRoleBulkDeleteView(generic.BulkDeleteView):
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets')).order_by(*SecretRole._meta.ordering)
+    queryset = SecretRole.objects.annotate(
+        secret_count=get_subquery(Secret, 'role')
+    )
     table = tables.SecretRoleTable
 
 

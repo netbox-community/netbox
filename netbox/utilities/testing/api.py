@@ -174,6 +174,7 @@ class APIViewTestCases:
 
     class CreateObjectViewTestCase(APITestCase):
         create_data = []
+        validation_excluded_fields = []
 
         def test_create_object_without_permission(self):
             """
@@ -205,6 +206,7 @@ class APIViewTestCases:
             self.assertInstanceEqual(
                 self._get_queryset().get(pk=response.data['id']),
                 self.create_data[0],
+                exclude=self.validation_excluded_fields,
                 api=True
             )
 
@@ -232,12 +234,14 @@ class APIViewTestCases:
                 self.assertInstanceEqual(
                     self._get_queryset().get(pk=obj['id']),
                     self.create_data[i],
+                    exclude=self.validation_excluded_fields,
                     api=True
                 )
 
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
         bulk_update_data = None
+        validation_excluded_fields = []
 
         def test_update_object_without_permission(self):
             """
@@ -270,7 +274,12 @@ class APIViewTestCases:
             response = self.client.patch(url, update_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
-            self.assertInstanceEqual(instance, update_data, api=True)
+            self.assertInstanceEqual(
+                instance,
+                update_data,
+                exclude=self.validation_excluded_fields,
+                api=True
+            )
 
         def test_bulk_update_objects(self):
             """

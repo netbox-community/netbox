@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -12,15 +11,17 @@ from rq import Worker
 
 from extras import filters
 from extras.choices import JobResultStatusChoices
-from extras.models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag
+from extras.models import (
+    ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
+)
+from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
-from netbox.api.views import ModelViewSet
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
+from netbox.api.views import ModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.querysets import RestrictedQuerySet
-from utilities.utils import copy_safe_request
+from utilities.utils import copy_safe_request, get_subquery
 from . import serializers
 
 
@@ -101,8 +102,8 @@ class ExportTemplateViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        tagged_items=get_subquery(TaggedItem, 'tag')
+    )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet
 

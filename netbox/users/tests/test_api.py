@@ -21,15 +21,19 @@ class UserTest(APIViewTestCases.APIViewTestCase):
     model = User
     view_namespace = 'users'
     brief_fields = ['id', 'url', 'username']
+    validation_excluded_fields = ['password']
     create_data = [
         {
             'username': 'User_4',
+            'password': 'password4',
         },
         {
             'username': 'User_5',
+            'password': 'password5',
         },
         {
             'username': 'User_6',
+            'password': 'password6',
         },
     ]
 

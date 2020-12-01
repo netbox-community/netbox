@@ -1,4 +1,4 @@
-from django.db.models import Count, Prefetch
+from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
@@ -139,7 +139,9 @@ class RouteTargetBulkDeleteView(generic.BulkDeleteView):
 #
 
 class RIRListView(generic.ObjectListView):
-    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates')).order_by(*RIR._meta.ordering)
+    queryset = RIR.objects.annotate(
+        aggregate_count=get_subquery(Aggregate, 'rir')
+    )
     filterset = filters.RIRFilterSet
     filterset_form = forms.RIRFilterForm
     table = tables.RIRTable
@@ -162,7 +164,9 @@ class RIRBulkImportView(generic.BulkImportView):
 
 
 class RIRBulkDeleteView(generic.BulkDeleteView):
-    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates')).order_by(*RIR._meta.ordering)
+    queryset = RIR.objects.annotate(
+        aggregate_count=get_subquery(Aggregate, 'rir')
+    )
     filterset = filters.RIRFilterSet
     table = tables.RIRTable
 
@@ -174,7 +178,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
 class AggregateListView(generic.ObjectListView):
     queryset = Aggregate.objects.annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
-    ).order_by(*Aggregate._meta.ordering)
+    )
     filterset = filters.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
@@ -628,9 +632,9 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
 #
 
 class VLANGroupListView(generic.ObjectListView):
-    queryset = VLANGroup.objects.annotate(
-        vlan_count=Count('vlans')
-    ).order_by(*VLANGroup._meta.ordering)
+    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+        vlan_count=get_subquery(VLAN, 'group')
+    )
     filterset = filters.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
@@ -653,8 +657,8 @@ class VLANGroupBulkImportView(generic.BulkImportView):
 
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.prefetch_related('site').annotate(
-        vlan_count=Count('vlans')
-    ).order_by(*VLANGroup._meta.ordering)
+        vlan_count=get_subquery(VLAN, 'group')
+    )
     filterset = filters.VLANGroupFilterSet
     table = tables.VLANGroupTable
 

@@ -1,7 +1,7 @@
 from django import template
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q
+from django.db.models import Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
@@ -12,11 +12,11 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import copy_safe_request, shallow_compare_dict
+from utilities.utils import copy_safe_request, get_subquery, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag
+from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
 
@@ -27,8 +27,8 @@ from .scripts import get_scripts, run_script
 
 class TagListView(generic.ObjectListView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=get_subquery(TaggedItem, 'tag')
+    )
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
     table = tables.TagTable
@@ -52,16 +52,16 @@ class TagBulkImportView(generic.BulkImportView):
 
 class TagBulkEditView(generic.BulkEditView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=get_subquery(TaggedItem, 'tag')
+    )
     table = tables.TagTable
     form = forms.TagBulkEditForm
 
 
 class TagBulkDeleteView(generic.BulkDeleteView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=get_subquery(TaggedItem, 'tag')
+    )
     table = tables.TagTable
 
 
