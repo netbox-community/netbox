@@ -22,9 +22,10 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, NumericArrayField, SelectWithPK,
-    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
+    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -3758,10 +3759,9 @@ class CableCSVForm(CSVModelForm):
         to_field_name='name',
         help_text='Side A device'
     )
-    side_a_type = CSVModelChoiceField(
+    side_a_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        to_field_name='model',
         help_text='Side A type'
     )
     side_a_name = forms.CharField(
@@ -3774,10 +3774,9 @@ class CableCSVForm(CSVModelForm):
         to_field_name='name',
         help_text='Side B device'
     )
-    side_b_type = CSVModelChoiceField(
+    side_b_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        to_field_name='model',
         help_text='Side B type'
     )
     side_b_name = forms.CharField(
