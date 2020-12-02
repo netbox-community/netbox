@@ -15,6 +15,10 @@
 * [#5376](https://github.com/netbox-community/netbox/issues/5376) - Correct invalid custom field filter logic values
 * [#5395](https://github.com/netbox-community/netbox/issues/5395) - Fix cable tracing for rear ports with no corresponding front port
 
+### Other Changes
+
+* [#4711](https://github.com/netbox-community/netbox/issues/4711) - Renamed Webhook `obj_type` to `content_types`
+
 ---
 
 ## v2.10-beta1 (2020-11-17)
