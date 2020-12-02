@@ -796,6 +796,30 @@ class CablePathTestCase(TestCase):
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
+    def test_207_rearport_without_frontport(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [RP2]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
+        frontport1 = FrontPort.objects.create(
+            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        )
+
+        # Create cables
+        cable1 = Cable(termination_a=interface1, termination_b=frontport1)
+        cable1.save()
+        cable2 = Cable(termination_a=rearport1, termination_b=rearport2)
+        cable2.save()
+        self.assertPathExists(
+            origin=interface1,
+            destination=None,
+            path=(cable1, frontport1, rearport1, cable2, rearport2),
+            is_active=False
+        )
+        self.assertEqual(CablePath.objects.count(), 1)
+
     def test_301_create_path_via_existing_cable(self):
         """
         [IF1] --C1-- [FP1] [RP2] --C2-- [RP2] [FP2] --C3-- [IF2]

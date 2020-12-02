@@ -411,19 +411,25 @@ class CablePath(models.Model):
                     position_stack.append(peer_termination.rear_port_position)
                 path.append(object_to_path_node(node))
 
-            # Follow a RearPort to its corresponding FrontPort
+            # Follow a RearPort to its corresponding FrontPort (if any)
             elif isinstance(peer_termination, RearPort):
                 path.append(object_to_path_node(peer_termination))
+
+                # Determine the peer FrontPort's position
                 if peer_termination.positions == 1:
-                    node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=1)
-                    path.append(object_to_path_node(node))
+                    position = 1
                 elif position_stack:
                     position = position_stack.pop()
-                    node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=position)
-                    path.append(object_to_path_node(node))
                 else:
                     # No position indicated: path has split, so we stop at the RearPort
                     is_split = True
+                    break
+
+                try:
+                    node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=position)
+                    path.append(object_to_path_node(node))
+                except ObjectDoesNotExist:
+                    # No corresponding FrontPort found for the RearPort
                     break
 
             # Anything else marks the end of the path
