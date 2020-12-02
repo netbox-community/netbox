@@ -9,7 +9,7 @@
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:device_list' %}">Devices</a></li>
                 <li><a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a></li>
-                <li><a href="{% url object|viewname:"list" %}?device_id={{ object.device.pk }}">{{ object|meta:"verbose_name_plural"|bettertitle }}</a></li>
+                <li><a href="{% url breadcrumb_url pk=object.device.pk %}">{{ object|meta:"verbose_name_plural"|bettertitle }}</a></li>
                 <li>{{ object }}</li>
             </ol>
         </div>
