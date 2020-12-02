@@ -211,9 +211,6 @@ TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get('SENTINEL_TIMEOUT', 10)
 TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
 TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
-# TODO: Remove in v2.10 (see #5171)
-if 'DEFAULT_TIMEOUT' in TASKS_REDIS:
-    warnings.warn('DEFAULT_TIMEOUT is no longer supported under REDIS configuration. Set RQ_DEFAULT_TIMEOUT instead.')
 
 # Caching
 if 'caching' not in REDIS:
