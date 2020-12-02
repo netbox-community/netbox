@@ -5,7 +5,6 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.choices import InterfaceModeChoices
 from dcim.models import BaseInterface, Device
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.querysets import ConfigContextModelQuerySet
@@ -449,8 +448,8 @@ class VMInterface(BaseInterface):
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({
-                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
-                                 "virtual machine, or it must be global".format(self.untagged_vlan)
+                'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
+                                 f"interface's parent virtual machine, or it must be global"
             })
 
     def to_objectchange(self, action):

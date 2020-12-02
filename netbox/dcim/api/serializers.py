@@ -584,22 +584,15 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
             'count_ipaddresses',
         ]
 
-    # TODO: This validation should be handled by Interface.clean()
     def validate(self, data):
 
-        # All associated VLANs be global or assigned to the parent device's site.
+        # Validate many-to-many VLAN assignments
         device = self.instance.device if self.instance else data.get('device')
-        untagged_vlan = data.get('untagged_vlan')
-        if untagged_vlan and untagged_vlan.site not in [device.site, None]:
-            raise serializers.ValidationError({
-                'untagged_vlan': "VLAN {} must belong to the same site as the interface's parent device, or it must be "
-                                 "global.".format(untagged_vlan)
-            })
         for vlan in data.get('tagged_vlans', []):
             if vlan.site not in [device.site, None]:
                 raise serializers.ValidationError({
-                    'tagged_vlans': "VLAN {} must belong to the same site as the interface's parent device, or it must "
-                                    "be global.".format(vlan)
+                    'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent device, or "
+                                    f"it must be global."
                 })
 
         return super().validate(data)

@@ -89,13 +89,12 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class InterfaceCommonForm:
+class InterfaceCommonForm(forms.Form):
 
     def clean(self):
-
         super().clean()
 
-        # Validate VLAN assignments
+        parent_field = 'device' if 'device' in self.cleaned_data else 'virtual_machine'
         tagged_vlans = self.cleaned_data['tagged_vlans']
 
         # Untagged interfaces cannot be assigned tagged VLANs
@@ -110,13 +109,13 @@ class InterfaceCommonForm:
 
         # Validate tagged VLANs; must be a global VLAN or in the same site
         elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED:
-            valid_sites = [None, self.cleaned_data['device'].site]
+            valid_sites = [None, self.cleaned_data[parent_field].site]
             invalid_vlans = [str(v) for v in tagged_vlans if v.site not in valid_sites]
 
             if invalid_vlans:
                 raise forms.ValidationError({
-                    'tagged_vlans': "The tagged VLANs ({}) must belong to the same site as the interface's parent "
-                                    "device/VM, or they must be global".format(', '.join(invalid_vlans))
+                    'tagged_vlans': f"The tagged VLANs ({', '.join(invalid_vlans)}) must belong to the same site as "
+                                    f"the interface's parent device/VM, or they must be global"
                 })
 
 
@@ -2682,7 +2681,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
+class InterfaceForm(BootstrapMixin, InterfaceCommonForm, forms.ModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,

@@ -116,3 +116,16 @@ class VMInterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
             'id', 'url', 'virtual_machine', 'name', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
             'untagged_vlan', 'tagged_vlans', 'tags',
         ]
+
+    def validate(self, data):
+
+        # Validate many-to-many VLAN assignments
+        virtual_machine = self.instance.virtual_machine if self.instance else data.get('virtual_machine')
+        for vlan in data.get('tagged_vlans', []):
+            if vlan.site not in [virtual_machine.site, None]:
+                raise serializers.ValidationError({
+                    'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent virtual "
+                                    f"machine, or it must be global."
+                })
+
+        return super().validate(data)
