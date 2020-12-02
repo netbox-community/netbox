@@ -135,13 +135,20 @@ class CSVModelChoiceField(forms.ModelChoiceField):
     def to_python(self, value):
         try:
             return super().to_python(value)
-        except MultipleObjectsReturned as e:
+        except MultipleObjectsReturned:
             raise forms.ValidationError(
                 f'"{value}" is not a unique value for this field; multiple objects were found'
             )
 
 
 class CSVContentTypeField(CSVModelChoiceField):
+    """
+    Reference a ContentType in the form <app>.<model>
+    """
+    STATIC_CHOICES = True
+
+    def prepare_value(self, value):
+        return f'{value.app_label}.{value.model}'
 
     def to_python(self, value):
         try:

@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
+* [#5399](https://github.com/netbox-community/netbox/issues/5399) - Show options for cable endpoint types during bulk import
 
 ### Bug Fixes
 
