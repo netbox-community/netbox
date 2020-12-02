@@ -856,6 +856,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
     )
     status = CSVChoiceField(
         choices=IPAddressStatusChoices,
+        required=False,
         help_text='Operational status'
     )
     role = CSVChoiceField(
@@ -888,7 +889,10 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = IPAddress
-        fields = IPAddress.csv_headers
+        fields = [
+            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
+            'dns_name', 'description',
+        ]
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)

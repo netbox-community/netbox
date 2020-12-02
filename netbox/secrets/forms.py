@@ -143,16 +143,22 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class SecretCSVForm(CustomFieldModelCSVForm):
-    assigned_object_type = CSVModelChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=SECRET_ASSIGNMENT_MODELS,
-        to_field_name='model',
-        help_text='Side A type'
-    )
     role = CSVModelChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='name',
         help_text='Assigned role'
+    )
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned device'
+    )
+    virtual_machine = CSVModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned VM'
     )
     plaintext = forms.CharField(
         help_text='Plaintext secret data'
@@ -160,14 +166,33 @@ class SecretCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Secret
-        fields = Secret.csv_headers
+        fields = ['role', 'name', 'plaintext', 'device', 'virtual_machine']
         help_texts = {
             'name': 'Name or username',
         }
 
+    def clean(self):
+        super().clean()
+
+        device = self.cleaned_data.get('device')
+        virtual_machine = self.cleaned_data.get('virtual_machine')
+
+        # Validate device OR VM is assigned
+        if not device and not virtual_machine:
+            raise forms.ValidationError("Secret must be assigned to a device or a virtual machine")
+        if device and virtual_machine:
+            raise forms.ValidationError("Secret cannot be assigned to both a device and a virtual machine")
+
     def save(self, *args, **kwargs):
+
+        # Set device/VM assignment
+        self.instance.assigned_object = self.cleaned_data['device'] or self.cleaned_data['virtual_machine']
+
         s = super().save(*args, **kwargs)
+
+        # Set plaintext on instance
         s.plaintext = str(self.cleaned_data['plaintext'])
+
         return s
 
 

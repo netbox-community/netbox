@@ -103,10 +103,10 @@ class SecretTestCase(
 
         device = Device.objects.get(name='Device 1')
         csv_data = (
-            "assigned_object_type,assigned_object_id,role,name,plaintext",
-            f"device,{device.pk},Secret Role 1,Secret 4,abcdefghij",
-            f"device,{device.pk},Secret Role 1,Secret 5,abcdefghij",
-            f"device,{device.pk},Secret Role 1,Secret 6,abcdefghij",
+            "device,role,name,plaintext",
+            f"{device.name},Secret Role 1,Secret 4,abcdefghij",
+            f"{device.name},Secret Role 1,Secret 5,abcdefghij",
+            f"{device.name},Secret Role 1,Secret 6,abcdefghij",
         )
 
         # Set the session_key cookie on the request
