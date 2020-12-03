@@ -3,7 +3,7 @@
 This documentation provides example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4), though any HTTP server which supports WSGI should be compatible.
 
 !!! info
-    For the sake of brevity, only Ubuntu 18.04 instructions are provided here, these tasks not unique to NetBox and should carry over to other distributions with mininal changes. Please consult your distribution's documentation for assistance if needed.
+    For the sake of brevity, only Ubuntu 18.04 instructions are provided here, these tasks are not unique to NetBox and should carry over to other distributions with minimal changes. Please consult your distribution's documentation for assistance if needed.
 
 ## Obtain an SSL Certificate
 
