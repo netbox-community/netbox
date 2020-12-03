@@ -4,15 +4,33 @@ If you encounter any issues installing or using NetBox, try one of the
 following resources to get assistance. Please **do not** open a GitHub issue
 except to report bugs or request features.
 
+### GitHub Discussions
+
+GitHub's discussions are the best place to get help or propose rough ideas for
+new functionality. Their integration with GitHub allows for easily cross-
+referencing and converting posts to issues as needed. There are several
+categories for discussions:
+
+* **General** - General community discussion
+* **Ideas** - Ideas for new functionality that isn't yet ready for a formal
+  feature request
+* **Q&A** - Request help with installing or using NetBox
+* **Show and tell** - Share a plugin, script, or something else you've made
+  using NetBox
+
 ### Mailing List
 
-We have established a Google Groups Mailing List for issues and general
-discussion. This is the best forum for obtaining assistance with NetBox
-installation. You can find us [here](https://groups.google.com/g/netbox-discuss).
+We also have a Google Groups [mailing list](https://groups.google.com/g/netbox-discuss)
+for general discussion, however we're encouraging people to use GitHub
+discussions where possible, as it's much easier for newcomers to review past
+discussions.
 
 ### Slack
 
-For real-time discussion, you can join the #netbox Slack channel on [NetworkToCode](https://slack.networktocode.com/).
+For real-time chat, you can join the **#netbox** Slack channel on [NetworkToCode](https://slack.networktocode.com/).
+Unfortunately, the Slack channel does not provide long-term retention of chat
+history, so try to avoid it for any discussions would benefit from being
+preserved for future reference.
 
 ## Reporting Bugs
 
@@ -171,7 +189,7 @@ overlooked.
 
 * Official channels for communication include:
 
-    * GitHub issues/pull requests
+    * GitHub issues, pull requests, and discussions
     * The [netbox-discuss](https://groups.google.com/g/netbox-discuss) mailing list
     * The **#netbox** channel on [NetworkToCode Slack](https://networktocode.slack.com/)
 

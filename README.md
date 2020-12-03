@@ -12,8 +12,8 @@ complete list of requirements, see `requirements.txt`. The code is available [on
 
 The complete documentation for NetBox can be found at [Read the Docs](http://netbox.readthedocs.io/en/stable/).
 
-Questions? Comments? Please subscribe to [the netbox-discuss mailing list](https://groups.google.com/g/netbox-discuss),
-or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode.slack.com/)!
+Questions? Comments? Please start a [discussion on GitHub](https://github.com/netbox-community/netbox/discussions),
+or join us in the **#netbox** Slack channel on [NetworkToCode](https://networktocode.slack.com/)!
 
 ### Build Status
 
