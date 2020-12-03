@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#5383](https://github.com/netbox-community/netbox/issues/5383) - Fix setting user password via REST API
+* [#5396](https://github.com/netbox-community/netbox/issues/5396) - Fix uniqueness constraint for virtual machine names
 
 ---
 
