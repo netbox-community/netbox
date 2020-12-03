@@ -28,12 +28,20 @@ class SecretRoleTable(BaseTable):
 
 class SecretTable(BaseTable):
     pk = ToggleColumn()
-    device = tables.LinkColumn()
+    id = tables.Column(
+        linkify=True
+    )
+    device = tables.Column(
+        linkify=True
+    )
+    role = tables.Column(
+        linkify=True
+    )
     tags = TagColumn(
         url_name='secrets:secret_list'
     )
 
     class Meta(BaseTable.Meta):
         model = Secret
-        fields = ('pk', 'device', 'role', 'name', 'last_updated', 'hash', 'tags')
-        default_columns = ('pk', 'device', 'role', 'name', 'last_updated')
+        fields = ('pk', 'id', 'device', 'role', 'name', 'last_updated', 'hash', 'tags')
+        default_columns = ('pk', 'id', 'device', 'role', 'name', 'last_updated')
