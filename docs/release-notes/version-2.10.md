@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10-beta3 (FUTURE)
+
+### Bug Fixes
+
+* [#5417](https://github.com/netbox-community/netbox/issues/5417) - Fix exception when viewing a device installed within a device bay
+
+---
+
 ## v2.10-beta2 (2020-12-03)
 
 ### Enhancements
