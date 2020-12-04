@@ -3502,12 +3502,16 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
             'rack_id': '$termination_b_rack',
         }
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Cable
         fields = [
             'termination_b_region', 'termination_b_site', 'termination_b_rack', 'termination_b_device',
-            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
             'status': StaticSelect2,
@@ -3635,12 +3639,16 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
             'circuit_id': '$termination_b_circuit'
         }
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Cable
         fields = [
             'termination_b_provider', 'termination_b_region', 'termination_b_site', 'termination_b_circuit',
-            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
 
     def clean_termination_b_id(self):
@@ -3688,12 +3696,16 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
             'power_panel_id': '$termination_b_powerpanel'
         }
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Cable
         fields = [
             'termination_b_rackgroup', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'label',
-            'color', 'length', 'length_unit',
+            'color', 'length', 'length_unit', 'tags',
         ]
 
     def clean_termination_b_id(self):

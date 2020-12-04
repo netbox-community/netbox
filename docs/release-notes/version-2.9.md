@@ -8,6 +8,7 @@
 * [#5396](https://github.com/netbox-community/netbox/issues/5396) - Fix uniqueness constraint for virtual machine names
 * [#5407](https://github.com/netbox-community/netbox/issues/5407) - Add direct link to secret on secrets list
 * [#5408](https://github.com/netbox-community/netbox/issues/5408) - Fix updating secrets without setting new plaintext
+* [#5410](https://github.com/netbox-community/netbox/issues/5410) - Restore tags field on cable connection forms
 
 ---
 
