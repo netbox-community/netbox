@@ -2,6 +2,10 @@
 
 ## v2.10-beta3 (FUTURE)
 
+### Enhancements
+
+* [#5411](https://github.com/netbox-community/netbox/issues/5411) - Include cable tags in trace view
+
 ### Bug Fixes
 
 * [#5417](https://github.com/netbox-community/netbox/issues/5417) - Fix exception when viewing a device installed within a device bay
