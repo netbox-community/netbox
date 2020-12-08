@@ -14,6 +14,7 @@ from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
     ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from virtualization.tables import VirtualMachineTable
 from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -103,11 +104,18 @@ class ClusterView(ObjectView):
     queryset = Cluster.objects.all()
 
     def get(self, request, pk):
+        virtual_machines = VirtualMachine.objects.restrict(request.user)
+
         self.queryset = self.queryset.prefetch_related(
-            Prefetch('virtual_machines', queryset=VirtualMachine.objects.restrict(request.user))
+            Prefetch('virtual_machines', queryset=virtual_machines)
         )
 
         cluster = get_object_or_404(self.queryset, pk=pk)
+
+        virtual_machine_table = VirtualMachineTable(list(virtual_machines.filter(cluster=cluster)), orderable=False)
+        if request.user.has_perm('virtualization.change_cluster'):
+            virtual_machine_table.columns.show('pk')
+
         devices = Device.objects.restrict(request.user, 'view').filter(cluster=cluster).prefetch_related(
             'site', 'rack', 'tenant', 'device_type__manufacturer'
         )
@@ -118,6 +126,7 @@ class ClusterView(ObjectView):
         return render(request, 'virtualization/cluster.html', {
             'cluster': cluster,
             'device_table': device_table,
+            'virtual_machine_table': virtual_machine_table,
         })
 
 
@@ -228,6 +237,47 @@ class ClusterRemoveDevicesView(ObjectEditView):
             'parent_obj': cluster,
             'table': device_table,
             'obj_type_plural': 'devices',
+            'return_url': cluster.get_absolute_url(),
+        })
+
+
+class ClusterAddVirtualMachinesView(ObjectEditView):
+    queryset = Cluster.objects.all()
+    form = forms.ClusterAddVirtualMachinesForm
+    template_name = 'virtualization/cluster_add_virtualmachines.html'
+
+    def get(self, request, pk):
+        cluster = get_object_or_404(self.queryset, pk=pk)
+        form = self.form(cluster, initial=request.GET)
+
+        return render(request, self.template_name, {
+            'cluster': cluster,
+            'form': form,
+            'return_url': reverse('virtualization:cluster', kwargs={'pk': pk}),
+        })
+
+    def post(self, request, pk):
+        cluster = get_object_or_404(self.queryset, pk=pk)
+        form = self.form(cluster, request.POST)
+
+        if form.is_valid():
+
+            virtualmachine_pks = form.cleaned_data['virtualmachines']
+            with transaction.atomic():
+
+                # Assign the selected VirtualMachines to the Cluster
+                for virtualmachine in VirtualMachine.objects.filter(pk__in=virtualmachine_pks):
+                    virtualmachine.cluster = cluster
+                    virtualmachine.save()
+
+            messages.success(request, "Added {} virtual machines to cluster {}".format(
+                len(virtualmachine_pks), cluster
+            ))
+            return redirect(cluster.get_absolute_url())
+
+        return render(request, self.template_name, {
+            'cluster': cluster,
+            'form': form,
             'return_url': cluster.get_absolute_url(),
         })
 

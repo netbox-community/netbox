@@ -151,8 +151,25 @@
                 </form>
             {% endif %}
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Virtual Machines</strong>
+            </div>
+            {% include 'responsive_table.html' with table=virtual_machine_table %}
+            {% if perms.virtualization.change_cluster %}
+                <div class="panel-footer noprint">
+                    <div class="pull-right">
+                        <a href="{% url 'virtualization:cluster_add_virtualmachines' pk=cluster.pk %}?site={{ cluster.site.pk }}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Add virtual machines
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            {% endif %}
+        </div>
         {% plugin_right_page cluster %}
-	</div>
+    </div>
 </div>
 <div class="row">
     <div class="col-md-12">

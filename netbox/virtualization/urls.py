@@ -38,6 +38,7 @@ urlpatterns = [
     path('clusters/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cluster_changelog', kwargs={'model': Cluster}),
     path('clusters/<int:pk>/devices/add/', views.ClusterAddDevicesView.as_view(), name='cluster_add_devices'),
     path('clusters/<int:pk>/devices/remove/', views.ClusterRemoveDevicesView.as_view(), name='cluster_remove_devices'),
+    path('clusters/<int:pk>/virtual-machines/add/', views.ClusterAddVirtualMachinesView.as_view(), name='cluster_add_virtualmachines'),
 
     # Virtual machines
     path('virtual-machines/', views.VirtualMachineListView.as_view(), name='virtualmachine_list'),

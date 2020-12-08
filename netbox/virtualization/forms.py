@@ -276,6 +276,28 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
+class ClusterAddVirtualMachinesForm(BootstrapMixin, forms.Form):
+    virtualmachines = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+    )
+
+    class Meta:
+        fields = [
+            'virtualmachines',
+        ]
+
+    def __init__(self, cluster, *args, **kwargs):
+
+        self.cluster = cluster
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['virtualmachines'].choices = []
+
+    def clean(self):
+        super().clean()
+
+
 #
 # Virtual Machines
 #
