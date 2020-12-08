@@ -19,8 +19,8 @@ or join us in the **#netbox** Slack channel on [NetworkToCode](https://networkto
 
 |             | status |
 |-------------|------------|
-| **master** | [![Build Status](https://travis-ci.org/netbox-community/netbox.svg?branch=master)](https://travis-ci.com/netbox-community/netbox/) |
-| **develop** | [![Build Status](https://travis-ci.org/netbox-community/netbox.svg?branch=develop)](https://travis-ci.com/netbox-community/netbox/) |
+| **master** | ![Build status](https://github.com/netbox-community/netbox/workflows/ci.yml/badge.svg?branch=master) |
+| **develop** | ![Build status](https://github.com/netbox-community/netbox/workflows/ci.yml/badge.svg?branch=develop) |
 
 ### Screenshots
 
