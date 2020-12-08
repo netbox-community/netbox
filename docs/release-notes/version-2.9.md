@@ -2,6 +2,10 @@
 
 ## v2.9.11 (FUTURE)
 
+### Enhancements
+
+* [#5424](https://github.com/netbox-community/netbox/issues/5424) - Allow passing Python code to `nbshell` using `--command`
+
 ### Bug Fixes
 
 * [#5383](https://github.com/netbox-community/netbox/issues/5383) - Fix setting user password via REST API
