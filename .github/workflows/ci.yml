@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6]
+        python-version: [3.6, 3.7]
     services:
       redis:
         image: redis
@@ -33,14 +33,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
+    - name: Install dependencies & set up configuration
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pycodestyle coverage
-
-    - name: Link test configuration file
-      run: ln -s configuration.testing.py netbox/netbox/configuration.py
+        ln -s configuration.testing.py netbox/netbox/configuration.py
 
     - name: Check PEP8 compliance
       run: pycodestyle --ignore=W504,E501 netbox/
