@@ -6,6 +6,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, F, Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -341,7 +342,20 @@ class RackElevationListView(ObjectListView):
             'reverse': reverse,
             'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
+            'show_images': request.user.config.get('rack_elevation.show_images', False)
         })
+
+    def post(self, request):
+        # Update the user's rack_elevation configuration
+        if "show_images" in request.POST:
+            value = False
+            if request.POST.get("show_images") == 'true' or request.POST.get("show_images") == 'True':
+                value = True
+            preference_name = "rack_elevation.show_images"
+            request.user.config.set(preference_name, value, commit=True)
+            return HttpResponse("Your preferences have been updated.")
+        else:
+            return HttpResponse("No valid parameters was provided")
 
 
 class RackView(ObjectView):
@@ -376,6 +390,7 @@ class RackView(ObjectView):
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
+            'show_images': request.user.config.get('rack_elevation.show_images', False)
         })
 
 
