@@ -37,18 +37,21 @@ or join us in the **#netbox** Slack channel on [NetworkToCode](https://networkto
 ## Installation
 
 Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for
-instructions on installing NetBox. To upgrade NetBox, please download the [latest release](https://github.com/netbox-community/netbox/releases)
-and run `upgrade.sh`.
+instructions on installing NetBox. To upgrade NetBox, please download the
+[latest release](https://github.com/netbox-community/netbox/releases) and
+run `upgrade.sh`.
 
 ## Providing Feedback
 
-Feature requests and bug reports must be submitted as GiHub issues. (Please be
-sure to use the [appropriate template](https://github.com/netbox-community/netbox/issues/new/choose).)
-For general discussion, please consider joining our [mailing list](https://groups.google.com/g/netbox-discuss).
+The best platform for general feedback, assistance, and other discussion is our
+[GitHub discussions](https://github.com/netbox-community/netbox/discussions).
+To report a bug or request a specific feature, please open a GitHub issue using
+the [appropriate template](https://github.com/netbox-community/netbox/issues/new/choose).
 
 If you are interested in contributing to the development of NetBox, please read
 our [contributing guide](CONTRIBUTING.md) prior to beginning any work.
 
 ## Related projects
 
-Please see [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for a list of relevant community projects.
+Please see [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions)
+for a list of relevant community projects.
