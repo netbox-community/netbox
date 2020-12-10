@@ -30,9 +30,15 @@ class SecretRoleTable(BaseTable):
 
 class SecretTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(  # Provides a link to the secret
+        linkify=True
+    )
     assigned_object = tables.Column(
         linkify=True,
         verbose_name='Assigned object'
+    )
+    role = tables.Column(
+        linkify=True
     )
     tags = TagColumn(
         url_name='secrets:secret_list'
@@ -40,5 +46,5 @@ class SecretTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Secret
-        fields = ('pk', 'assigned_object', 'role', 'name', 'last_updated', 'hash', 'tags')
-        default_columns = ('pk', 'assigned_object', 'role', 'name', 'last_updated')
+        fields = ('pk', 'id', 'assigned_object', 'role', 'name', 'last_updated', 'hash', 'tags')
+        default_columns = ('pk', 'id', 'assigned_object', 'role', 'name', 'last_updated')
