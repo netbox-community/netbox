@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5424](https://github.com/netbox-community/netbox/issues/5424) - Allow passing Python code to `nbshell` using `--command`
+* [#5439](https://github.com/netbox-community/netbox/issues/5439) - Add CS and SN fiber port types
 
 ### Bug Fixes
 
