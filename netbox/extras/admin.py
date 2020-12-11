@@ -114,7 +114,7 @@ class CustomFieldAdmin(admin.ModelAdmin):
         }),
         ('Choices', {
             'description': 'A selection field must have two or more choices assigned to it.',
-            'fields': ('choices',)
+            'fields': ('choices','multiple_selection')
         })
     )
 

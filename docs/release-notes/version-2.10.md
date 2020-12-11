@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5411](https://github.com/netbox-community/netbox/issues/5411) - Include cable tags in trace view
+* [#2522](https://github.com/netbox-community/netbox/issues/2522) - Add ability to create multi selection custom fields
 
 ### Bug Fixes
 

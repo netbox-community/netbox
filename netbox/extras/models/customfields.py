@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 
 from extras.choices import *
 from extras.utils import FeatureQuery
-from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2Multiple, StaticSelect2, add_blank_choice
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
@@ -151,6 +151,10 @@ class CustomField(models.Model):
         null=True,
         help_text='Comma-separated list of available choices (for selection fields)'
     )
+    multiple_selection = models.BooleanField(
+        default=False,
+        help_text='Allow multiple choice selection'
+    )
 
     objects = CustomFieldManager()
 
@@ -201,6 +205,12 @@ class CustomField(models.Model):
         if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
             raise ValidationError({
                 'choices': "Choices may be set only for custom selection fields."
+            })
+
+        # Multiple selection can only be set for selection fields
+        if self.multiple_selection and self.type != CustomFieldTypeChoices.TYPE_SELECT:
+            raise ValidationError({
+                'multiple_selection': "Multiple selection can only be set for selection fields."
             })
 
         # A selection field must have at least two choices defined
@@ -262,9 +272,13 @@ class CustomField(models.Model):
             if set_initial and default_choice:
                 initial = default_choice
 
-            field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
+            # Use multiple choice field if multi_selection is enabled
+            default_field_class = forms.MultipleChoiceField if self.multiple_selection else forms.ChoiceField
+            select_widget = StaticSelect2Multiple() if self.multiple_selection else StaticSelect2()
+
+            field_class = CSVChoiceField if for_csv_import else default_field_class
             field = field_class(
-                choices=choices, required=required, initial=initial, widget=StaticSelect2()
+                choices=choices, required=required, initial=initial, widget=select_widget
             )
 
         # URL
@@ -324,10 +338,14 @@ class CustomField(models.Model):
 
             # Validate selected choice
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
-                if value not in self.choices:
-                    raise ValidationError(
-                        f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
-                    )
+                if not isinstance(value, list):
+                    value = [value]
+
+                for val in value:
+                    if val not in self.choices:
+                        raise ValidationError(
+                            f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
+                        )
 
         elif self.required:
             raise ValidationError("Required field cannot be empty.")
