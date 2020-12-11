@@ -1,19 +1,23 @@
 # NetBox v2.9
 
-## v2.9.11 (FUTURE)
+## v2.9.11 (2020-12-11)
 
 ### Enhancements
 
 * [#5424](https://github.com/netbox-community/netbox/issues/5424) - Allow passing Python code to `nbshell` using `--command`
+* [#5439](https://github.com/netbox-community/netbox/issues/5439) - Add CS and SN fiber port types
 
 ### Bug Fixes
 
 * [#5383](https://github.com/netbox-community/netbox/issues/5383) - Fix setting user password via REST API
 * [#5396](https://github.com/netbox-community/netbox/issues/5396) - Fix uniqueness constraint for virtual machine names
+* [#5387](https://github.com/netbox-community/netbox/issues/5387) - Fix error when rendering config contexts when objects have multiple tags assigned
 * [#5407](https://github.com/netbox-community/netbox/issues/5407) - Add direct link to secret on secrets list
 * [#5408](https://github.com/netbox-community/netbox/issues/5408) - Fix updating secrets without setting new plaintext
 * [#5410](https://github.com/netbox-community/netbox/issues/5410) - Restore tags field on cable connection forms
+* [#5433](https://github.com/netbox-community/netbox/issues/5433) - Exclude SVG files from front/rear image upload for device types (currently unsupported)
 * [#5436](https://github.com/netbox-community/netbox/issues/5436) - Show assigned IP addresses in interfaces list
+* [#5446](https://github.com/netbox-community/netbox/issues/5446) - Fix validation for plugin version and required settings
 
 ---
 

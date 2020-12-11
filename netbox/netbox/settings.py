@@ -609,7 +609,7 @@ for plugin_name in PLUGINS:
     # Validate user-provided configuration settings and assign defaults
     if plugin_name not in PLUGINS_CONFIG:
         PLUGINS_CONFIG[plugin_name] = {}
-    plugin_config.validate(PLUGINS_CONFIG[plugin_name])
+    plugin_config.validate(PLUGINS_CONFIG[plugin_name], VERSION)
 
     # Add middleware
     plugin_middleware = plugin_config.middleware
