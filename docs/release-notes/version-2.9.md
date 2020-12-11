@@ -14,6 +14,7 @@
 * [#5408](https://github.com/netbox-community/netbox/issues/5408) - Fix updating secrets without setting new plaintext
 * [#5410](https://github.com/netbox-community/netbox/issues/5410) - Restore tags field on cable connection forms
 * [#5436](https://github.com/netbox-community/netbox/issues/5436) - Show assigned IP addresses in interfaces list
+* [#5387](https://github.com/netbox-community/netbox/issues/5387) - Fix error when rendering config contexts when objects have multiple tags assigned
 
 ---
 

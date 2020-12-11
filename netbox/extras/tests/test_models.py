@@ -363,3 +363,46 @@ class ConfigContextTest(TestCase):
         annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 1)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
+
+    def test_multiple_tags_return_distinct_objects_with_seperate_config_contexts(self):
+        """
+        Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
+        This is combatted by by appending distinct() to the config context querysets. This test creates a config
+        context assigned to two tags and ensures objects related by those same two tags result in only a single
+        config context record being returned.
+
+        This test case is seperate from the above in that it deals with multiple config context objects in play.
+
+        See https://github.com/netbox-community/netbox/issues/5387
+        """
+        tag_context_1 = ConfigContext.objects.create(
+            name="tag-1",
+            weight=100,
+            data={
+                "tag": 1
+            }
+        )
+        tag_context_1.tags.add(self.tag)
+        tag_context_2 = ConfigContext.objects.create(
+            name="tag-2",
+            weight=100,
+            data={
+                "tag": 1
+            }
+        )
+        tag_context_2.tags.add(self.tag2)
+
+        device = Device.objects.create(
+            name="Device 3",
+            site=self.site,
+            tenant=self.tenant,
+            platform=self.platform,
+            device_role=self.devicerole,
+            device_type=self.devicetype
+        )
+        device.tags.add(self.tag)
+        device.tags.add(self.tag2)
+
+        annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
+        self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 2)
+        self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
