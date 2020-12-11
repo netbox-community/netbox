@@ -319,10 +319,10 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
-                name=self.name, tenant__isnull=True
+                name=self.name, cluster=self.cluster, tenant__isnull=True
         ):
             raise ValidationError({
-                'name': 'A virtual machine with this name already exists.'
+                'name': 'A virtual machine with this name already exists in the assigned cluster.'
             })
 
         super().validate_unique(exclude)

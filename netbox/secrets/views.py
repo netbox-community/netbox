@@ -2,11 +2,11 @@ import base64
 import logging
 
 from django.contrib import messages
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
+from utilities.utils import get_subquery
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
@@ -29,7 +29,9 @@ def get_session_key(request):
 #
 
 class SecretRoleListView(ObjectListView):
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets')).order_by(*SecretRole._meta.ordering)
+    queryset = SecretRole.objects.annotate(
+        secret_count=get_subquery(Secret, 'role')
+    )
     table = tables.SecretRoleTable
 
 
@@ -49,7 +51,9 @@ class SecretRoleBulkImportView(BulkImportView):
 
 
 class SecretRoleBulkDeleteView(BulkDeleteView):
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets')).order_by(*SecretRole._meta.ordering)
+    queryset = SecretRole.objects.annotate(
+        secret_count=get_subquery(Secret, 'role')
+    )
     table = tables.SecretRoleTable
 
 
@@ -104,13 +108,14 @@ class SecretEditView(ObjectEditView):
 
         if form.is_valid():
             logger.debug("Form validation was successful")
+            secret = form.save(commit=False)
 
-            # We must have a session key in order to create a secret or update the plaintext of an existing secret
-            if (form.cleaned_data['plaintext'] or secret.pk is None) and session_key is None:
+            # We must have a session key in order to set the plaintext of a Secret
+            if form.cleaned_data['plaintext'] and session_key is None:
                 logger.debug("Unable to proceed: No session key was provided with the request")
                 form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
 
-            else:
+            elif form.cleaned_data['plaintext']:
                 master_key = None
                 try:
                     sk = SessionKey.objects.get(userkey__user=request.user)
@@ -121,19 +126,18 @@ class SecretEditView(ObjectEditView):
 
                 if master_key is not None:
                     logger.debug("Successfully resolved master key for encryption")
-                    secret = form.save(commit=False)
-                    if form.cleaned_data['plaintext']:
-                        secret.plaintext = str(form.cleaned_data['plaintext'])
+                    secret.plaintext = str(form.cleaned_data['plaintext'])
                     secret.encrypt(master_key)
-                    secret.save()
-                    form.save_m2m()
 
-                    msg = '{} secret'.format('Created' if not form.instance.pk else 'Modified')
-                    logger.info(f"{msg} {secret} (PK: {secret.pk})")
-                    msg = '{} <a href="{}">{}</a>'.format(msg, secret.get_absolute_url(), escape(secret))
-                    messages.success(request, mark_safe(msg))
+            secret.save()
+            form.save_m2m()
 
-                    return redirect(self.get_return_url(request, secret))
+            msg = '{} secret'.format('Created' if not form.instance.pk else 'Modified')
+            logger.info(f"{msg} {secret} (PK: {secret.pk})")
+            msg = f'{msg} <a href="{secret.get_absolute_url()}">{escape(secret)}</a>'
+            messages.success(request, mark_safe(msg))
+
+            return redirect(self.get_return_url(request, secret))
 
         else:
             logger.debug("Form validation failed")

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
-from django.db.models import Count, F, Prefetch
+from django.db.models import F, Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -263,7 +263,9 @@ class RackGroupBulkDeleteView(BulkDeleteView):
 #
 
 class RackRoleListView(ObjectListView):
-    queryset = RackRole.objects.annotate(rack_count=Count('racks')).order_by(*RackRole._meta.ordering)
+    queryset = RackRole.objects.annotate(
+        rack_count=get_subquery(Rack, 'role')
+    )
     table = tables.RackRoleTable
 
 
@@ -283,7 +285,9 @@ class RackRoleBulkImportView(BulkImportView):
 
 
 class RackRoleBulkDeleteView(BulkDeleteView):
-    queryset = RackRole.objects.annotate(rack_count=Count('racks')).order_by(*RackRole._meta.ordering)
+    queryset = RackRole.objects.annotate(
+        rack_count=get_subquery(Rack, 'role')
+    )
     table = tables.RackRoleTable
 
 
@@ -295,8 +299,8 @@ class RackListView(ObjectListView):
     queryset = Rack.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'devices__device_type'
     ).annotate(
-        device_count=Count('devices')
-    ).order_by(*Rack._meta.ordering)
+        device_count=get_subquery(Device, 'rack')
+    )
     filterset = filters.RackFilterSet
     filterset_form = forms.RackFilterForm
     table = tables.RackDetailTable
@@ -507,8 +511,8 @@ class ManufacturerBulkImportView(BulkImportView):
 
 class ManufacturerBulkDeleteView(BulkDeleteView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=Count('device_types')
-    ).order_by(*Manufacturer._meta.ordering)
+        devicetype_count=get_subquery(DeviceType, 'manufacturer')
+    )
     table = tables.ManufacturerTable
 
 
@@ -518,8 +522,8 @@ class ManufacturerBulkDeleteView(BulkDeleteView):
 
 class DeviceTypeListView(ObjectListView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=Count('instances')
-    ).order_by(*DeviceType._meta.ordering)
+        instance_count=get_subquery(Device, 'device_type')
+    )
     filterset = filters.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
@@ -628,8 +632,8 @@ class DeviceTypeImportView(ObjectImportView):
 
 class DeviceTypeBulkEditView(BulkEditView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=Count('instances')
-    ).order_by(*DeviceType._meta.ordering)
+        instance_count=get_subquery(Device, 'device_type')
+    )
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
     form = forms.DeviceTypeBulkEditForm
@@ -637,8 +641,8 @@ class DeviceTypeBulkEditView(BulkEditView):
 
 class DeviceTypeBulkDeleteView(BulkDeleteView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=Count('instances')
-    ).order_by(*DeviceType._meta.ordering)
+        instance_count=get_subquery(Device, 'device_type')
+    )
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
 
@@ -2198,8 +2202,8 @@ class InterfaceConnectionsListView(ObjectListView):
 
 class VirtualChassisListView(ObjectListView):
     queryset = VirtualChassis.objects.prefetch_related('master').annotate(
-        member_count=Count('members', distinct=True)
-    ).order_by(*VirtualChassis._meta.ordering)
+        member_count=get_subquery(Device, 'virtual_chassis')
+    )
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
@@ -2430,8 +2434,8 @@ class PowerPanelListView(ObjectListView):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'rack_group'
     ).annotate(
-        powerfeed_count=Count('powerfeeds')
-    ).order_by(*PowerPanel._meta.ordering)
+        powerfeed_count=get_subquery(PowerFeed, 'power_panel')
+    )
     filterset = filters.PowerPanelFilterSet
     filterset_form = forms.PowerPanelFilterForm
     table = tables.PowerPanelTable
@@ -2482,8 +2486,8 @@ class PowerPanelBulkDeleteView(BulkDeleteView):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'rack_group'
     ).annotate(
-        rack_count=Count('powerfeeds')
-    ).order_by(*PowerPanel._meta.ordering)
+        powerfeed_count=get_subquery(PowerFeed, 'power_panel')
+    )
     filterset = filters.PowerPanelFilterSet
     table = tables.PowerPanelTable
 
