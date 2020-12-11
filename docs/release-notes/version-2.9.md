@@ -16,6 +16,7 @@
 * [#5410](https://github.com/netbox-community/netbox/issues/5410) - Restore tags field on cable connection forms
 * [#5433](https://github.com/netbox-community/netbox/issues/5433) - Exclude SVG files from front/rear image upload for device types (currently unsupported)
 * [#5436](https://github.com/netbox-community/netbox/issues/5436) - Show assigned IP addresses in interfaces list
+* [#5446](https://github.com/netbox-community/netbox/issues/5446) - Fix validation for plugin version and required settings
 
 ---
 
