@@ -15,6 +15,8 @@
                                 <i class="mdi mdi-close-thick text-danger" title="False"></i>
                             {% elif field.type == 'url' and value %}
                                 <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
+                            {% elif field.type == 'select' and field.multiple_selection == True and value is not None %}
+                                {{ value|join:", " }}
                             {% elif value is not None %}
                                 {{ value }}
                             {% elif field.required %}

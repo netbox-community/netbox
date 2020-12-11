@@ -90,6 +90,38 @@ class CustomFieldTest(TestCase):
         # Delete the custom field
         cf.delete()
 
+    def test_multiple_select_field(self):
+        obj_type = ContentType.objects.get_for_model(Site)
+
+        # Create a custom field
+        cf = CustomField(
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            name='my_field',
+            required=False,
+            choices=['Option A', 'Option B', 'Option C'],
+            multiple_selection=True
+        )
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Assign a value to the first Site
+        site = Site.objects.first()
+        site.custom_field_data[cf.name] = ['Option A', 'Option B']
+        site.save()
+
+        # Retrieve the stored value
+        site.refresh_from_db()
+        self.assertEqual(site.custom_field_data[cf.name], ['Option A', 'Option B'])
+
+        # Delete the stored value
+        site.custom_field_data.pop(cf.name)
+        site.save()
+        site.refresh_from_db()
+        self.assertIsNone(site.custom_field_data.get(cf.name))
+
+        # Delete the custom field
+        cf.delete()
+
 
 class CustomFieldManagerTest(TestCase):
 

@@ -62,6 +62,7 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 
 ### Enhancements
 
+* [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add ability to create multi selection custom fields
 * [#609](https://github.com/netbox-community/netbox/issues/609) - Add min/max value and regex validation for custom fields
 * [#1503](https://github.com/netbox-community/netbox/issues/1503) - Allow assigment of secrets to virtual machines
 * [#1692](https://github.com/netbox-community/netbox/issues/1692) - Allow assigment of inventory items to parent items in web UI
