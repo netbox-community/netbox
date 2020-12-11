@@ -922,7 +922,14 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
             'front_image', 'rear_image', 'comments', 'tags',
         ]
         widgets = {
-            'subdevice_role': StaticSelect2()
+            'subdevice_role': StaticSelect2(),
+            # Exclude SVG images (unsupported by PIL)
+            'front_image': forms.FileInput(attrs={
+                'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
+            }),
+            'rear_image': forms.FileInput(attrs={
+                'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
+            })
         }
 
 
