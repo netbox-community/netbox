@@ -14,6 +14,7 @@
 * [#5407](https://github.com/netbox-community/netbox/issues/5407) - Add direct link to secret on secrets list
 * [#5408](https://github.com/netbox-community/netbox/issues/5408) - Fix updating secrets without setting new plaintext
 * [#5410](https://github.com/netbox-community/netbox/issues/5410) - Restore tags field on cable connection forms
+* [#5433](https://github.com/netbox-community/netbox/issues/5433) - Exclude SVG files from front/rear image upload for device types (currently unsupported)
 * [#5436](https://github.com/netbox-community/netbox/issues/5436) - Show assigned IP addresses in interfaces list
 
 ---
