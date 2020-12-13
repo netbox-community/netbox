@@ -245,7 +245,7 @@ def utilization_graph(data_input, warning_threshold=75, danger_threshold=90):
         'warning_threshold': warning_threshold,
         'danger_threshold': danger_threshold,
         'utilization_count': data_input[0],
-        'num_available': data_input[1],
+        'total_count': data_input[1],
     }
 
 
