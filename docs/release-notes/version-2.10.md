@@ -1,5 +1,11 @@
 # NetBox v2.10
 
+## v2.10.1 (Future Release)
+
+### Bug Fixes
+
+* [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
+
 ## v2.10.0 (2020-12-14)
 
 **NOTE:** This release completely removes support for embedded graphs.
