@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.10-beta2'
+VERSION = '2.10.0'
 
 # Hostname
 HOSTNAME = platform.node()

@@ -1,39 +1,6 @@
 # NetBox v2.10
 
-## v2.10-beta3 (FUTURE)
-
-### Enhancements
-
-* [#5411](https://github.com/netbox-community/netbox/issues/5411) - Include cable tags in trace view
-
-### Bug Fixes
-
-* [#5417](https://github.com/netbox-community/netbox/issues/5417) - Fix exception when viewing a device installed within a device bay
-
----
-
-## v2.10-beta2 (2020-12-03)
-
-### Enhancements
-
-* [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
-* [#5399](https://github.com/netbox-community/netbox/issues/5399) - Show options for cable endpoint types during bulk import
-
-### Bug Fixes
-
-* [#5176](https://github.com/netbox-community/netbox/issues/5176) - Enforce content type restrictions when creating objects via the REST API
-* [#5358](https://github.com/netbox-community/netbox/issues/5358) - Fix user table configuration for VM interfaces
-* [#5374](https://github.com/netbox-community/netbox/issues/5374) - Fix exception thrown when tracing mid-point
-* [#5376](https://github.com/netbox-community/netbox/issues/5376) - Correct invalid custom field filter logic values
-* [#5395](https://github.com/netbox-community/netbox/issues/5395) - Fix cable tracing for rear ports with no corresponding front port
-
-### Other Changes
-
-* [#4711](https://github.com/netbox-community/netbox/issues/4711) - Renamed Webhook `obj_type` to `content_types`
-
----
-
-## v2.10-beta1 (2020-11-17)
+## v2.10.0 (2020-12-14)
 
 **NOTE:** This release completely removes support for embedded graphs.
 
@@ -107,6 +74,9 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom field support for cables, power panels, rack reservations, and virtual chassis
 * [#5154](https://github.com/netbox-community/netbox/issues/5154) - The web interface now consumes the entire browser window
 * [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for retrieving content types (`/api/extras/content-types/`)
+* [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
+* [#5399](https://github.com/netbox-community/netbox/issues/5399) - Show options for cable endpoint types during bulk import
+* [#5411](https://github.com/netbox-community/netbox/issues/5411) - Include cable tags in trace view
 
 ### Other Changes
 
@@ -114,6 +84,7 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 * [#2755](https://github.com/netbox-community/netbox/issues/2755) - Switched from Font Awesome/Glyphicons to Material Design icons
 * [#4349](https://github.com/netbox-community/netbox/issues/4349) - Dropped support for embedded graphs
 * [#4360](https://github.com/netbox-community/netbox/issues/4360) - Dropped support for the Django template language from export templates
+* [#4711](https://github.com/netbox-community/netbox/issues/4711) - Renamed Webhook `obj_type` to `content_types`
 * [#4941](https://github.com/netbox-community/netbox/issues/4941) - `commit` argument is now required argument in a custom script's `run()` method
 * [#5011](https://github.com/netbox-community/netbox/issues/5011) - Standardized name field lengths across all models
 * [#5139](https://github.com/netbox-community/netbox/issues/5139) - Omit utilization statistics from RIR list
