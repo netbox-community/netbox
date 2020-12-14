@@ -56,7 +56,7 @@
                         <ul class="list-group">
                             {% for class_name, script in module_scripts.items %}
                                 <a href="#script.{{ class_name }}" class="list-group-item">
-                                    <i class="fa fa-list-alt"></i> {{ script.name }}
+                                    <i class="mdi mdi-file-chart-outline"></i> {{ script.name }}
                                     <div class="pull-right">
                                         {% include 'extras/inc/job_label.html' with result=script.result %}
                                     </div>

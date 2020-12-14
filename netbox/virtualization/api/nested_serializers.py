@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.models import Interface
-from utilities.api import WritableNestedSerializer
+from netbox.api import WritableNestedSerializer
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 __all__ = [

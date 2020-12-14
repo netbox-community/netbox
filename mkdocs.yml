@@ -49,7 +49,6 @@ nav:
         - Custom Links: 'additional-features/custom-links.md'
         - Custom Scripts: 'additional-features/custom-scripts.md'
         - Export Templates: 'additional-features/export-templates.md'
-        - Graphs: 'additional-features/graphs.md'
         - NAPALM: 'additional-features/napalm.md'
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
         - Reports: 'additional-features/reports.md'
@@ -76,6 +75,7 @@ nav:
         - User Preferences: 'development/user-preferences.md'
         - Release Checklist: 'development/release-checklist.md'
     - Release Notes:
+        - Version 2.10: 'release-notes/version-2.10.md'
         - Version 2.9: 'release-notes/version-2.9.md'
         - Version 2.8: 'release-notes/version-2.8.md'
         - Version 2.7: 'release-notes/version-2.7.md'

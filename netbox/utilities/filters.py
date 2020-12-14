@@ -1,4 +1,5 @@
 import django_filters
+from django_filters.constants import EMPTY_VALUES
 from copy import deepcopy
 from dcim.forms import MACAddressField
 from django import forms
@@ -83,7 +84,6 @@ class NullableCharFieldFilter(django_filters.CharFilter):
     """
     Allow matching on null field values by passing a special string used to signify NULL.
     """
-
     def filter(self, qs, value):
         if value != settings.FILTERS_NULL_CHOICE_VALUE:
             return super().filter(qs, value)
@@ -104,6 +104,36 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
         kwargs.setdefault('queryset', Tag.objects.all())
 
         super().__init__(*args, **kwargs)
+
+
+class NumericArrayFilter(django_filters.NumberFilter):
+    """
+    Filter based on the presence of an integer within an ArrayField.
+    """
+    def filter(self, qs, value):
+        if value:
+            value = [value]
+        return super().filter(qs, value)
+
+
+class ContentTypeFilter(django_filters.CharFilter):
+    """
+    Allow specifying a ContentType by <app_label>.<model> (e.g. "dcim.site").
+    """
+    def filter(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
+
+        try:
+            app_label, model = value.lower().split('.')
+        except ValueError:
+            return qs.none()
+        return qs.filter(
+            **{
+                f'{self.field_name}__app_label': app_label,
+                f'{self.field_name}__model': model
+            }
+        )
 
 
 #

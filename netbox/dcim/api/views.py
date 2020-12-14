@@ -17,21 +17,20 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 from circuits.models import Circuit
 from dcim import filters
 from dcim.models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
-from extras.models import Graph
 from ipam.models import Prefix, VLAN
-from utilities.api import (
-    get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
-)
+from netbox.api.views import ModelViewSet
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.exceptions import ServiceUnavailable
+from netbox.api.metadata import ContentTypeMetadata
+from utilities.api import get_serializer_for_model
 from utilities.utils import get_subquery
-from utilities.metadata import ContentTypeMetadata
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -47,7 +46,7 @@ class DCIMRootView(APIRootView):
 
 # Mixins
 
-class CableTraceMixin(object):
+class PathEndpointMixin(object):
 
     @action(detail=True, url_path='trace')
     def trace(self, request, pk):
@@ -59,7 +58,10 @@ class CableTraceMixin(object):
         # Initialize the path array
         path = []
 
-        for near_end, cable, far_end in obj.trace()[0]:
+        for near_end, cable, far_end in obj.trace():
+            if near_end is None:
+                # Split paths
+                break
 
             # Serialize each object
             serializer_a = get_serializer_for_model(near_end, prefix='Nested')
@@ -77,6 +79,20 @@ class CableTraceMixin(object):
             path.append((x, y, z))
 
         return Response(path)
+
+
+class PassThroughPortMixin(object):
+
+    @action(detail=True, url_path='paths')
+    def paths(self, request, pk):
+        """
+        Return all CablePaths which traverse a given pass-through port.
+        """
+        obj = get_object_or_404(self.queryset, pk=pk)
+        cablepaths = CablePath.objects.filter(path__contains=obj).prefetch_related('origin', 'destination')
+        serializer = serializers.CablePathSerializer(cablepaths, context={'request': request}, many=True)
+
+        return Response(serializer.data)
 
 
 #
@@ -112,16 +128,6 @@ class SiteViewSet(CustomFieldModelViewSet):
     )
     serializer_class = serializers.SiteSerializer
     filterset_class = filters.SiteFilterSet
-
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular site.
-        """
-        site = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='site')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
-        return Response(serializer.data)
 
 
 #
@@ -363,17 +369,6 @@ class DeviceViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
 
         return serializers.DeviceWithConfigContextSerializer
 
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular Device.
-        """
-        device = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='device')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
-
-        return Response(serializer.data)
-
     @swagger_auto_schema(
         manual_parameters=[
             Parameter(
@@ -494,59 +489,47 @@ class DeviceViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
 # Device components
 #
 
-class ConsolePortViewSet(CableTraceMixin, ModelViewSet):
-    queryset = ConsolePort.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
+class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
+    queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsolePortFilterSet
 
 
-class ConsoleServerPortViewSet(CableTraceMixin, ModelViewSet):
-    queryset = ConsoleServerPort.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
+class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
+    queryset = ConsoleServerPort.objects.prefetch_related(
+        'device', '_path__destination', 'cable', '_cable_peer', 'tags'
+    )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filters.ConsoleServerPortFilterSet
 
 
-class PowerPortViewSet(CableTraceMixin, ModelViewSet):
-    queryset = PowerPort.objects.prefetch_related(
-        'device', '_connected_poweroutlet__device', '_connected_powerfeed', 'cable', 'tags'
-    )
+class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
+    queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerPortFilterSet
 
 
-class PowerOutletViewSet(CableTraceMixin, ModelViewSet):
-    queryset = PowerOutlet.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
+class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
+    queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filters.PowerOutletFilterSet
 
 
-class InterfaceViewSet(CableTraceMixin, ModelViewSet):
+class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', '_connected_interface', '_connected_circuittermination', 'cable', 'ip_addresses', 'tags'
-    ).filter(
-        device__isnull=False
+        'device', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilterSet
 
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular interface.
-        """
-        interface = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='interface')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
-        return Response(serializer.data)
 
-
-class FrontPortViewSet(CableTraceMixin, ModelViewSet):
+class FrontPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filters.FrontPortFilterSet
 
 
-class RearPortViewSet(CableTraceMixin, ModelViewSet):
+class RearPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
     serializer_class = serializers.RearPortSerializer
     filterset_class = filters.RearPortFilterSet
@@ -569,32 +552,26 @@ class InventoryItemViewSet(ModelViewSet):
 #
 
 class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = ConsolePort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        connected_endpoint__isnull=False
+    queryset = ConsolePort.objects.prefetch_related('device', '_path').filter(
+        _path__destination_id__isnull=False
     )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsoleConnectionFilterSet
 
 
 class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = PowerPort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        _connected_poweroutlet__isnull=False
+    queryset = PowerPort.objects.prefetch_related('device', '_path').filter(
+        _path__destination_id__isnull=False
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerConnectionFilterSet
 
 
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = Interface.objects.prefetch_related(
-        'device', '_connected_interface__device'
-    ).filter(
+    queryset = Interface.objects.prefetch_related('device', '_path').filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _connected_interface__isnull=False,
-        pk__lt=F('_connected_interface')
+        _path__destination_id__isnull=False,
+        pk__lt=F('_path__destination_id')
     )
     serializer_class = serializers.InterfaceConnectionSerializer
     filterset_class = filters.InterfaceConnectionFilterSet
@@ -643,8 +620,10 @@ class PowerPanelViewSet(ModelViewSet):
 # Power feeds
 #
 
-class PowerFeedViewSet(CustomFieldModelViewSet):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack', 'tags')
+class PowerFeedViewSet(PathEndpointMixin, CustomFieldModelViewSet):
+    queryset = PowerFeed.objects.prefetch_related(
+        'power_panel', 'rack', '_path__destination', 'cable', '_cable_peer', 'tags'
+    )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filters.PowerFeedFilterSet
 
@@ -699,7 +678,7 @@ class ConnectedDeviceViewSet(ViewSet):
             device__name=peer_device_name,
             name=peer_interface_name
         )
-        local_interface = peer_interface._connected_interface
+        local_interface = peer_interface.connected_endpoint
 
         if local_interface is None:
             return Response()

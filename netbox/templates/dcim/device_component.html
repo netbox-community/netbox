@@ -8,33 +8,35 @@
         <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:device_list' %}">Devices</a></li>
-                <li><a href="{{ instance.device.get_absolute_url }}">{{ instance.device }}</a></li>
-                <li><a href="{% url instance|viewname:"list" %}?device_id={{ instance.device.pk }}">{{ instance|meta:"verbose_name_plural"|bettertitle }}</a></li>
-                <li>{{ instance }}</li>
+                <li><a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a></li>
+                {% if breadcrumb_url %}
+                    <li><a href="{% url breadcrumb_url pk=object.device.pk %}">{{ object|meta:"verbose_name_plural"|bettertitle }}</a></li>
+                {% endif %}
+                <li>{{ object }}</li>
             </ol>
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons instance %}
-        {% if request.user|can_change:instance %}
-            <a href="{% url instance|viewname:"edit" pk=instance.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+        {% plugin_buttons object %}
+        {% if request.user|can_change:object %}
+            <a href="{% url object|viewname:"edit" pk=object.pk %}" class="btn btn-warning">
+                <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
             </a>
         {% endif %}
-        {% if request.user|can_delete:instance %}
-            <a href="{% url instance|viewname:"delete" pk=instance.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span> Delete
+        {% if request.user|can_delete:object %}
+            <a href="{% url object|viewname:"delete" pk=object.pk %}" class="btn btn-danger">
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
             </a>
         {% endif %}
     </div>
-    <h1>{% block title %}{{ instance.device }} / {{ instance }}{% endblock %}</h1>
+    <h1>{% block title %}{{ object.device }} / {{ object }}{% endblock %}</h1>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ instance.get_absolute_url }}">{{ instance|meta:"verbose_name"|bettertitle }}</a>
+            <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url instance|viewname:"changelog" pk=instance.pk %}">Change Log</a>
+                <a href="{% url object|viewname:"changelog" pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>

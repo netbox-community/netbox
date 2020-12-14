@@ -100,7 +100,7 @@ class TestCase(_TestCase):
         """
         for name in names:
             ct, action = resolve_permission_ct(name)
-            obj_perm = ObjectPermission(actions=[action])
+            obj_perm = ObjectPermission(name=name, actions=[action])
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ct)
@@ -245,6 +245,7 @@ class ViewTestCases:
 
             # Add model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['view']
             )
             obj_perm.save()
@@ -260,6 +261,7 @@ class ViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['view']
             )
@@ -312,6 +314,7 @@ class ViewTestCases:
 
             # Assign unconstrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -336,6 +339,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': 0},  # Dummy permission to deny all
                 actions=['add']
             )
@@ -396,6 +400,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -419,6 +424,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['change']
             )
@@ -472,6 +478,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()
@@ -496,6 +503,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['delete']
             )
@@ -549,6 +557,7 @@ class ViewTestCases:
 
             # Add model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['view']
             )
             obj_perm.save()
@@ -570,6 +579,7 @@ class ViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['view']
             )
@@ -619,6 +629,7 @@ class ViewTestCases:
 
             # Assign non-constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add'],
             )
             obj_perm.save()
@@ -642,6 +653,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add'],
                 constraints={'pk': 0}  # Dummy constraint to deny all
             )
@@ -697,6 +709,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -719,6 +732,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': 0},  # Dummy permission to deny all
                 actions=['add']
             )
@@ -775,6 +789,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -804,6 +819,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={attr_name: value},
                 actions=['change']
             )
@@ -856,6 +872,7 @@ class ViewTestCases:
 
             # Assign unconstrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()
@@ -878,6 +895,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': 0},  # Dummy permission to deny all
                 actions=['delete']
             )
@@ -935,6 +953,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -958,6 +977,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'name__regex': '[^X]$'},
                 actions=['change']
             )

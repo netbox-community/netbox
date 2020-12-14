@@ -14,7 +14,7 @@
                         <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
                         {% include 'panel_table.html' with table=obj_type.table %}
                         <a href="{{ obj_type.url }}" class="btn btn-primary pull-right">
-                            <span class="fa fa-arrow-right" aria-hidden="true"></span>
+                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span>
                             {% if obj_type.table.page.has_next %}
                                 See all {{ obj_type.table.page.paginator.count }} results
                             {% else %}
@@ -56,7 +56,7 @@
                         </div>
                         <div class="panel-footer text-right">
                             <button type="submit" class="btn btn-primary">
-                                <span class="fa fa-search" aria-hidden="true"></span> Search
+                                <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
                             </button>
                         </div>
                     </div>

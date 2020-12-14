@@ -1,4 +1,4 @@
-{% extends 'utilities/obj_list.html' %}
+{% extends 'generic/object_list.html' %}
 {% load helpers %}
 
 {% block buttons %}
@@ -11,7 +11,7 @@
             <ul class="dropdown-menu" aria-labelledby="max_length">
                 {% for i in "4,8,12,16,20,24,28,32,40,48,56,64"|split %}
                     <li><a href="{% url 'ipam:prefix_list' %}{% querystring request mask_length__lte=i page=1 %}">
-                        {{ i }} {% if request.GET.mask_length__lte == i %}<i class="fa fa-check"></i>{% endif %}
+                        {{ i }} {% if request.GET.mask_length__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}
                     </a></li>
                 {% endfor %}
             </ul>

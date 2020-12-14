@@ -1,11 +1,10 @@
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
-from rest_framework import status
 
 from users.models import ObjectPermission
-from utilities.testing import APIViewTestCases, APITestCase, disable_warnings
+from utilities.testing import APIViewTestCases, APITestCase
+from utilities.utils import deepmerge
 
 
 class AppTest(APITestCase):
@@ -99,7 +98,7 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
 
         object_type = ContentType.objects.get(app_label='dcim', model='device')
 
-        for i in range(0, 3):
+        for i in range(3):
             objectpermission = ObjectPermission(
                 name=f'Permission {i+1}',
                 actions=['view', 'add', 'change', 'delete'],
@@ -136,3 +135,60 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
                 'constraints': {'name': 'TEST6'},
             },
         ]
+
+        cls.bulk_update_data = {
+            'description': 'New description',
+        }
+
+
+class UserConfigTest(APITestCase):
+
+    def test_get(self):
+        """
+        Retrieve user configuration via GET request.
+        """
+        userconfig = self.user.config
+        url = reverse('users-api:userconfig-list')
+
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data, {})
+
+        data = {
+            "a": 123,
+            "b": 456,
+            "c": 789,
+        }
+        userconfig.data = data
+        userconfig.save()
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data, data)
+
+    def test_patch(self):
+        """
+        Set user config via PATCH requests.
+        """
+        userconfig = self.user.config
+        url = reverse('users-api:userconfig-list')
+
+        data = {
+            "a": {
+                "a1": "X",
+                "a2": "Y",
+            },
+            "b": {
+                "b1": "Z",
+            }
+        }
+        response = self.client.patch(url, data=data, format='json', **self.header)
+        self.assertDictEqual(response.data, data)
+        userconfig.refresh_from_db()
+        self.assertDictEqual(userconfig.data, data)
+
+        update_data = {
+            "c": 123
+        }
+        response = self.client.patch(url, data=update_data, format='json', **self.header)
+        new_data = deepmerge(data, update_data)
+        self.assertDictEqual(response.data, new_data)
+        userconfig.refresh_from_db()
+        self.assertDictEqual(userconfig.data, new_data)

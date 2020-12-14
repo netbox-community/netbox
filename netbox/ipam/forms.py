@@ -1,5 +1,4 @@
 from django import forms
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import (
@@ -10,13 +9,13 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
-    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, ReturnURLForm,
-    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, NumericArrayField,
+    ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
 PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([
     (i, i) for i in range(PREFIX_LENGTH_MIN, PREFIX_LENGTH_MAX + 1)
@@ -32,6 +31,14 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 #
 
 class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    import_targets = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False
+    )
+    export_targets = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -40,7 +47,8 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = VRF
         fields = [
-            'name', 'rd', 'enforce_unique', 'description', 'tenant_group', 'tenant', 'tags',
+            'name', 'rd', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tenant_group', 'tenant',
+            'tags',
         ]
         labels = {
             'rd': "RD",
@@ -90,10 +98,90 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
 
 class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VRF
-    field_order = ['q', 'tenant_group', 'tenant']
+    field_order = ['q', 'import_target', 'export_target', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    import_target = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+    export_target = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
+#
+# Route targets
+#
+
+class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = RouteTarget
+        fields = [
+            'name', 'description', 'tenant_group', 'tenant', 'tags',
+        ]
+
+
+class RouteTargetCSVForm(CustomFieldModelCSVForm):
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
+
+    class Meta:
+        model = RouteTarget
+        fields = RouteTarget.csv_headers
+
+
+class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'tenant', 'description',
+        ]
+
+
+class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+    model = RouteTarget
+    field_order = ['q', 'name', 'tenant_group', 'tenant', 'importing_vrfs', 'exporting_vrfs']
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    importing_vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Imported by VRF'
+    )
+    exporting_vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Exported by VRF'
     )
     tag = TagFilterField(model)
 
@@ -137,9 +225,10 @@ class RIRFilterForm(BootstrapMixin, forms.Form):
 # Aggregates
 #
 
-class AggregateForm(BootstrapMixin, CustomFieldModelForm):
+class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
-        queryset=RIR.objects.all()
+        queryset=RIR.objects.all(),
+        label='RIR'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -149,7 +238,7 @@ class AggregateForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Aggregate
         fields = [
-            'prefix', 'rir', 'date_added', 'description', 'tags',
+            'prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant', 'tags',
         ]
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
@@ -166,6 +255,12 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Assigned RIR'
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
 
     class Meta:
         model = Aggregate
@@ -181,6 +276,10 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=RIR.objects.all(),
         required=False,
         label='RIR'
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
     )
     date_added = forms.DateField(
         required=False
@@ -199,7 +298,7 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         }
 
 
-class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Aggregate
     q = forms.CharField(
         required=False,
@@ -434,8 +533,8 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Prefix
     field_order = [
-        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'status', 'region', 'site', 'role', 'tenant_group',
-        'tenant', 'is_pool', 'expand',
+        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region', 'site',
+        'role', 'tenant_group', 'tenant', 'is_pool', 'expand',
     ]
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()
@@ -468,8 +567,13 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
+        label='Assigned VRF',
         null_option='Global'
+    )
+    present_in_vrf_id = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Present in VRF'
     )
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
@@ -752,6 +856,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
     )
     status = CSVChoiceField(
         choices=IPAddressStatusChoices,
+        required=False,
         help_text='Operational status'
     )
     role = CSVChoiceField(
@@ -784,7 +889,10 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = IPAddress
-        fields = IPAddress.csv_headers
+        fields = [
+            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
+            'dns_name', 'description',
+        ]
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -895,8 +1003,8 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
 class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = IPAddress
     field_order = [
-        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'assigned_to_interface', 'tenant_group',
-        'tenant',
+        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'role',
+        'assigned_to_interface', 'tenant_group', 'tenant',
     ]
     q = forms.CharField(
         required=False,
@@ -926,8 +1034,13 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
+        label='Assigned VRF',
         null_option='Global'
+    )
+    present_in_vrf_id = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Present in VRF'
     )
     status = forms.MultipleChoiceField(
         choices=IPAddressStatusChoices,
@@ -1207,9 +1320,12 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 #
 
 class ServiceForm(BootstrapMixin, CustomFieldModelForm):
-    port = forms.IntegerField(
-        min_value=SERVICE_PORT_MIN,
-        max_value=SERVICE_PORT_MAX
+    ports = NumericArrayField(
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -1219,7 +1335,7 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'port', 'ipaddresses', 'description', 'tags',
+            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'tags',
         ]
         help_texts = {
             'ipaddresses': "IP address assignment is optional. If no IPs are selected, the service is assumed to be "
@@ -1296,11 +1412,11 @@ class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         required=False,
         widget=StaticSelect2()
     )
-    port = forms.IntegerField(
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(65535),
-        ],
+    ports = NumericArrayField(
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
         required=False
     )
     description = forms.CharField(

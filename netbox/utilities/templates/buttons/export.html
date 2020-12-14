@@ -1,7 +1,7 @@
 {% if export_templates %}
     <div class="btn-group">
         <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="fa fa-upload" aria-hidden="true"></span>
+            <span class="mdi mdi-database-export" aria-hidden="true"></span>
             Export <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
@@ -14,6 +14,6 @@
     </div>
 {% else %}
     <a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export" class="btn btn-success">
-        <span class="fa fa-upload" aria-hidden="true"></span> Export
+        <span class="mdi mdi-database-export" aria-hidden="true"></span> Export
     </a>
 {% endif %}

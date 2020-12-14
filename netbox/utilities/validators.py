@@ -1,6 +1,7 @@
 import re
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import _lazy_re_compile, BaseValidator, URLValidator
 
 
@@ -29,3 +30,14 @@ class ExclusionValidator(BaseValidator):
 
     def compare(self, a, b):
         return a in b
+
+
+def validate_regex(value):
+    """
+    Checks that the value is a valid regular expression. (Don't confuse this with RegexValidator, which *uses* a regex
+    to validate a value.)
+    """
+    try:
+        re.compile(value)
+    except re.error:
+        raise ValidationError(f"{value} is not a valid regular expression.")

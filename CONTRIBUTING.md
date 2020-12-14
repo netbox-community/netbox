@@ -15,8 +15,6 @@ categories for discussions:
 * **Ideas** - Ideas for new functionality that isn't yet ready for a formal
   feature request
 * **Q&A** - Request help with installing or using NetBox
-* **Show and tell** - Share a plugin, script, or something else you've made
-  using NetBox
 
 ### Mailing List
 

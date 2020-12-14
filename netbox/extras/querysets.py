@@ -1,26 +1,8 @@
-from collections import OrderedDict
-
 from django.db.models import OuterRef, Subquery, Q
 
 from extras.models.tags import TaggedItem
 from utilities.query_functions import EmptyGroupByJSONBAgg, OrderableJSONBAgg
 from utilities.querysets import RestrictedQuerySet
-
-
-class CustomFieldQueryset:
-    """
-    Annotate custom fields on objects within a QuerySet.
-    """
-    def __init__(self, queryset, custom_fields):
-        self.queryset = queryset
-        self.model = queryset.model
-        self.custom_fields = custom_fields
-
-    def __iter__(self):
-        for obj in self.queryset:
-            values_dict = {cfv.field_id: cfv.value for cfv in obj.custom_field_values.all()}
-            obj.custom_fields = OrderedDict([(field, values_dict.get(field.pk)) for field in self.custom_fields])
-            yield obj
 
 
 class ConfigContextQuerySet(RestrictedQuerySet):

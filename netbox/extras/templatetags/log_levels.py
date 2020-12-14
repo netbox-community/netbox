@@ -13,5 +13,5 @@ def log_level(level):
     """
     return {
         'name': LogLevelChoices.as_dict()[level],
-        'class': dict(LogLevelChoices.CLASS_MAP)[level]
+        'class': LogLevelChoices.CSS_CLASSES.get(level)
     }

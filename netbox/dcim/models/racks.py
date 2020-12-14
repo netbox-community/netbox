@@ -1,9 +1,9 @@
 from collections import OrderedDict
-from itertools import count, groupby
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -22,7 +22,8 @@ from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.mptt import TreeManager
-from utilities.utils import serialize_object
+from utilities.utils import array_to_string, serialize_object
+from .device_components import PowerOutlet, PowerPort
 from .devices import Device
 from .power import PowerFeed
 
@@ -46,9 +47,11 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
     campus. If a Site instead represents a single building, a RackGroup might represent a single room or floor.
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        max_length=100
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.CASCADE,
@@ -117,10 +120,11 @@ class RackRole(ChangeLoggedModel):
     Racks can be organized by functional role, similar to Devices.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     color = ColorField(
@@ -160,7 +164,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     Each Rack is assigned to a Site and (optionally) a RackGroup.
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     _name = NaturalOrderingField(
         target_field='name',
@@ -261,11 +265,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
@@ -282,14 +281,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         'outer_depth', 'outer_unit',
     ]
 
-    STATUS_CLASS_MAP = {
-        RackStatusChoices.STATUS_RESERVED: 'warning',
-        RackStatusChoices.STATUS_AVAILABLE: 'success',
-        RackStatusChoices.STATUS_PLANNED: 'info',
-        RackStatusChoices.STATUS_ACTIVE: 'primary',
-        RackStatusChoices.STATUS_DEPRECATED: 'danger',
-    }
-
     class Meta:
         ordering = ('site', 'group', '_name', 'pk')  # (site, group, name) may be non-unique
         unique_together = (
@@ -305,6 +296,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return reverse('dcim:rack', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         # Validate outer dimensions and unit
         if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
@@ -385,7 +377,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return self.name
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return RackStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_rack_units(self, user=None, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
         """
@@ -550,24 +542,26 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the utilization rate of power in the rack and return it as a percentage.
         """
-        power_stats = PowerFeed.objects.filter(
-            rack=self
-        ).annotate(
-            allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
-        ).values(
-            'allocated_draw_total',
-            'available_power'
+        powerfeeds = PowerFeed.objects.filter(rack=self)
+        available_power_total = sum(pf.available_power for pf in powerfeeds)
+        if not available_power_total:
+            return 0
+
+        pf_powerports = PowerPort.objects.filter(
+            _cable_peer_type=ContentType.objects.get_for_model(PowerFeed),
+            _cable_peer_id__in=powerfeeds.values_list('id', flat=True)
         )
+        poweroutlets = PowerOutlet.objects.filter(power_port_id__in=pf_powerports)
+        allocated_draw_total = PowerPort.objects.filter(
+            _cable_peer_type=ContentType.objects.get_for_model(PowerOutlet),
+            _cable_peer_id__in=poweroutlets.values_list('id', flat=True)
+        ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
 
-        if power_stats:
-            allocated_draw_total = sum(x['allocated_draw_total'] or 0 for x in power_stats)
-            available_power_total = sum(x['available_power'] for x in power_stats)
-            return int(allocated_draw_total / available_power_total * 100) or 0
-        return 0
+        return int(allocated_draw_total / available_power_total * 100)
 
 
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class RackReservation(ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class RackReservation(ChangeLoggedModel, CustomFieldModel):
     """
     One or more reserved units within a Rack.
     """
@@ -609,6 +603,7 @@ class RackReservation(ChangeLoggedModel):
         return reverse('dcim:rackreservation', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         if hasattr(self, 'rack') and self.units:
 
@@ -647,9 +642,4 @@ class RackReservation(ChangeLoggedModel):
 
     @property
     def unit_list(self):
-        """
-        Express the assigned units as a string of summarized ranges. For example:
-            [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
-        """
-        group = (list(x) for _, x in groupby(sorted(self.units), lambda x, c=count(): next(c) - x))
-        return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+        return array_to_string(self.units)

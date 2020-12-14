@@ -1,4 +1,4 @@
-{% with custom_fields=obj.get_custom_fields %}
+{% with custom_fields=object.get_custom_fields %}
     {% if custom_fields %}
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -10,9 +10,9 @@
                         <td><span title="{{ field.description }}">{{ field }}</span></td>
                         <td>
                             {% if field.type == 'boolean' and value == True %}
-                                <i class="glyphicon glyphicon-ok text-success" title="True"></i>
+                                <i class="mdi mdi-check-bold text-success" title="True"></i>
                             {% elif field.type == 'boolean' and value == False %}
-                                <i class="glyphicon glyphicon-remove text-danger" title="False"></i>
+                                <i class="mdi mdi-close-thick text-danger" title="False"></i>
                             {% elif field.type == 'url' and value %}
                                 <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
                             {% elif value is not None %}

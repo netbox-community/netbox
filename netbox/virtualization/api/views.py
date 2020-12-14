@@ -1,13 +1,7 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.serializers import RenderedGraphSerializer
-from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
-from extras.models import Graph
-from utilities.api import ModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet, ModelViewSet
 from utilities.utils import get_subquery
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -90,13 +84,3 @@ class VMInterfaceViewSet(ModelViewSet):
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filters.VMInterfaceFilterSet
-
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular VM interface.
-        """
-        vminterface = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='vminterface')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': vminterface})
-        return Response(serializer.data)

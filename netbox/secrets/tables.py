@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, TagColumn, ToggleColumn
 from .models import SecretRole, Secret
 
 
@@ -11,7 +11,9 @@ from .models import SecretRole, Secret
 class SecretRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    secret_count = tables.Column(
+    secret_count = LinkedCountColumn(
+        viewname='secrets:secret_list',
+        url_params={'role': 'slug'},
         verbose_name='Secrets'
     )
     actions = ButtonsColumn(SecretRole, pk_field='slug')
@@ -28,11 +30,12 @@ class SecretRoleTable(BaseTable):
 
 class SecretTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
+    id = tables.Column(  # Provides a link to the secret
         linkify=True
     )
-    device = tables.Column(
-        linkify=True
+    assigned_object = tables.Column(
+        linkify=True,
+        verbose_name='Assigned object'
     )
     role = tables.Column(
         linkify=True
@@ -43,5 +46,5 @@ class SecretTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Secret
-        fields = ('pk', 'id', 'device', 'role', 'name', 'last_updated', 'hash', 'tags')
-        default_columns = ('pk', 'id', 'device', 'role', 'name', 'last_updated')
+        fields = ('pk', 'id', 'assigned_object', 'role', 'name', 'last_updated', 'hash', 'tags')
+        default_columns = ('pk', 'id', 'assigned_object', 'role', 'name', 'last_updated')

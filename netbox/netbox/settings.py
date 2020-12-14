@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.9.12-dev'
+VERSION = '2.10-beta2'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -135,24 +135,6 @@ if RELEASE_CHECK_URL:
 if RELEASE_CHECK_TIMEOUT < 3600:
     raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
-# TODO: Remove in v2.10
-# Backward compatibility for REMOTE_AUTH_DEFAULT_PERMISSIONS
-if type(REMOTE_AUTH_DEFAULT_PERMISSIONS) is not dict:
-    try:
-        REMOTE_AUTH_DEFAULT_PERMISSIONS = {perm: None for perm in REMOTE_AUTH_DEFAULT_PERMISSIONS}
-        warnings.warn(
-            "REMOTE_AUTH_DEFAULT_PERMISSIONS should be a dictionary. Backward compatibility will be removed in v2.10."
-        )
-    except TypeError:
-        raise ImproperlyConfigured("REMOTE_AUTH_DEFAULT_PERMISSIONS must be a dictionary.")
-# Backward compatibility for REMOTE_AUTH_BACKEND
-if REMOTE_AUTH_BACKEND == 'utilities.auth_backends.RemoteUserBackend':
-    warnings.warn(
-        "RemoteUserBackend has moved! Please update your configuration to:\n"
-        "    REMOTE_AUTH_BACKEND='netbox.authentication.RemoteUserBackend'"
-    )
-    REMOTE_AUTH_BACKEND = 'netbox.authentication.RemoteUserBackend'
-
 
 #
 # Database
@@ -229,9 +211,6 @@ TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get('SENTINEL_TIMEOUT', 10)
 TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
 TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
-# TODO: Remove in v2.10 (see #5171)
-if 'DEFAULT_TIMEOUT' in TASKS_REDIS:
-    warnings.warn('DEFAULT_TIMEOUT is no longer supported under REDIS configuration. Set RQ_DEFAULT_TIMEOUT instead.')
 
 # Caching
 if 'caching' not in REDIS:
@@ -327,11 +306,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'utilities.middleware.ExceptionHandlingMiddleware',
-    'utilities.middleware.RemoteUserMiddleware',
-    'utilities.middleware.LoginRequiredMiddleware',
-    'utilities.middleware.APIVersionMiddleware',
-    'extras.middleware.ObjectChangeMiddleware',
+    'netbox.middleware.ExceptionHandlingMiddleware',
+    'netbox.middleware.RemoteUserMiddleware',
+    'netbox.middleware.LoginRequiredMiddleware',
+    'netbox.middleware.APIVersionMiddleware',
+    'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
@@ -350,7 +329,7 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'utilities.context_processors.settings_and_registry',
+                'netbox.context_processors.settings_and_registry',
             ],
         },
     },
@@ -444,14 +423,15 @@ CACHEOPS = {
     'auth.*': {'ops': ('fetch', 'get')},
     'auth.permission': {'ops': 'all'},
     'circuits.*': {'ops': 'all'},
-    'dcim.region': None,  # MPTT models are exempt due to raw sql
-    'dcim.rackgroup': None,  # MPTT models are exempt due to raw sql
+    'dcim.inventoryitem': None,  # MPTT models are exempt due to raw SQL
+    'dcim.region': None,  # MPTT models are exempt due to raw SQL
+    'dcim.rackgroup': None,  # MPTT models are exempt due to raw SQL
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},
     'secrets.*': {'ops': 'all'},
     'users.*': {'ops': 'all'},
-    'tenancy.tenantgroup': None,  # MPTT models are exempt due to raw sql
+    'tenancy.tenantgroup': None,  # MPTT models are exempt due to raw SQL
     'tenancy.*': {'ops': 'all'},
     'virtualization.*': {'ops': 'all'},
 }
@@ -482,23 +462,30 @@ REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'netbox.api.TokenAuthentication',
+        'netbox.api.authentication.TokenAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'netbox.api.OptionalLimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
-        'netbox.api.TokenPermissions',
+        'netbox.api.authentication.TokenPermissions',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'netbox.api.FormlessBrowsableAPIRenderer',
+        'netbox.api.renderers.FormlessBrowsableAPIRenderer',
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
-    'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
+    'SCHEMA_COERCE_METHOD_NAMES': {
+        # Default mappings
+        'retrieve': 'read',
+        'destroy': 'delete',
+        # Custom operations
+        'bulk_destroy': 'bulk_delete',
+    },
+    'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
 }
 
 
@@ -509,9 +496,10 @@ REST_FRAMEWORK = {
 SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'utilities.custom_inspectors.NetBoxSwaggerAutoSchema',
     'DEFAULT_FIELD_INSPECTORS': [
+        'utilities.custom_inspectors.CustomFieldsDataFieldInspector',
         'utilities.custom_inspectors.JSONFieldInspector',
         'utilities.custom_inspectors.NullableBooleanFieldInspector',
-        'utilities.custom_inspectors.CustomChoiceFieldInspector',
+        'utilities.custom_inspectors.ChoiceFieldInspector',
         'utilities.custom_inspectors.SerializedPKRelatedFieldInspector',
         'drf_yasg.inspectors.CamelCaseJSONFilter',
         'drf_yasg.inspectors.ReferencingSerializerInspector',
