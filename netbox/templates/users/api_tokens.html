@@ -54,7 +54,7 @@
                         <br /><br /><div id="qrcode_{{ token.pk }}" style="width:100px; height:100px;"></div>
                         <script type="text/javascript">
                             var qrcode = new QRCode(document.getElementById("qrcode_{{ token.pk }}"), {width : 100,height : 100});
-                            qrcode.makeCode(window.location.hostname+" | {{ token.key }}");
+                            qrcode.makeCode(location.protocol+"//"+window.location.hostname+" | {{ token.key }}");
                         </script>
                     </div>
                 </div>
