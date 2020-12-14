@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
+from netbox.api import WritableNestedSerializer
 from tenancy.models import Tenant, TenantGroup
-from utilities.api import WritableNestedSerializer
 
 __all__ = [
     'NestedTenantGroupSerializer',

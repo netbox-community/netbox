@@ -15,3 +15,4 @@
 ---
 
 {!docs/models/ipam/vrf.md!}
+{!docs/models/ipam/routetarget.md!}

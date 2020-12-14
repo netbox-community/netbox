@@ -7,40 +7,39 @@ This section of the documentation discusses installing and configuring the NetBo
 Begin by installing all system packages required by NetBox and its dependencies.
 
 !!! note
-    NetBox v2.8.0 and later require Python 3.6 or 3.7. This documentation assumes Python 3.6.
+    NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8. This documentation assumes Python 3.6.
 
 ### Ubuntu
 
 ```no-highlight
-# apt-get install -y python3.6 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
+sudo apt install -y python3.6 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
 ```
 
 ### CentOS
 
 ```no-highlight
-# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
-# easy_install-3.6 pip
+sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
 ```
 
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:
 
 ```no-highlight
-# pip3 install --upgrade pip
+sudo pip3 install --upgrade pip
 ```
 
 ## Download NetBox
 
-This documentation provides two options for installing NetBox: from a downloadable archive, or from the git repository. Installing from a package (option A below) requires manually fetching and decompressing the archive for every future update, whereas installation via git (option B) allows for seamless upgrades by re-pulling the `master` branch.
+This documentation provides two options for installing NetBox: from a downloadable archive, or from the git repository. Installing from a package (option A below) requires manually fetching and extracting the archive for every future update, whereas installation via git (option B) allows for seamless upgrades by re-pulling the `master` branch.
 
 ### Option A: Download a Release Archive
 
 Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox` as the NetBox root.
 
 ```no-highlight
-# wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
-# tar -xzf vX.Y.Z.tar.gz -C /opt
-# ln -s /opt/netbox-X.Y.Z/ /opt/netbox
-# ls -l /opt | grep netbox
+$ sudo wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
+$ sudo tar -xzf vX.Y.Z.tar.gz -C /opt
+$ sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
+$ ls -l /opt | grep netbox
 lrwxrwxrwx  1 root root         13 Jul 20 13:44 netbox -> netbox-2.9.0/
 drwxr-xr-x  2 root root       4096 Jul 20 13:44 netbox-2.9.0
 ```
@@ -53,7 +52,7 @@ drwxr-xr-x  2 root root       4096 Jul 20 13:44 netbox-2.9.0
 Create the base directory for the NetBox installation. For this guide, we'll use `/opt/netbox`.
 
 ```no-highlight
-# mkdir -p /opt/netbox/ && cd /opt/netbox/
+sudo mkdir -p /opt/netbox/ && cd /opt/netbox/
 ```
 
 If `git` is not already installed, install it:
@@ -61,19 +60,19 @@ If `git` is not already installed, install it:
 #### Ubuntu
 
 ```no-highlight
-# apt-get install -y git
+sudo apt install -y git
 ```
 
 #### CentOS
 
 ```no-highlight
-# yum install -y git
+sudo yum install -y git
 ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
 
 ```no-highlight
-# git clone -b master https://github.com/netbox-community/netbox.git .
+$ sudo git clone -b master https://github.com/netbox-community/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
@@ -93,16 +92,16 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
 #### Ubuntu
 
 ```
-# adduser --system --group netbox
-# chown --recursive netbox /opt/netbox/netbox/media/
+sudo adduser --system --group netbox
+sudo chown --recursive netbox /opt/netbox/netbox/media/
 ```
 
 #### CentOS
 
 ```
-# groupadd --system netbox
-# adduser --system -g netbox netbox
-# chown --recursive netbox /opt/netbox/netbox/media/
+sudo groupadd --system netbox
+sudo adduser --system -g netbox netbox
+sudo chown --recursive netbox /opt/netbox/netbox/media/
 ```
 
 ## Configuration
@@ -110,8 +109,8 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
 Move into the NetBox configuration directory and make a copy of `configuration.example.py` named `configuration.py`. This file will hold all of your local configuration parameters.
 
 ```no-highlight
-# cd /opt/netbox/netbox/netbox/
-# cp configuration.example.py configuration.py
+cd /opt/netbox/netbox/netbox/
+sudo cp configuration.example.py configuration.py
 ```
 
 Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](/configuration/), but only the following four are required for new installations:
@@ -154,7 +153,7 @@ DATABASE = {
 
 Redis is a in-memory key-value store used by NetBox for caching and background task queuing. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](/configuration/required-settings/#redis) for more detail on individual parameters.
 
-Note that NetBox requires the specification of two separate Redis databases: `tasks` and `caching`. These may both be provided by the same Redis service, however each should have a unique database ID.
+Note that NetBox requires the specification of two separate Redis databases: `tasks` and `caching`. These may both be provided by the same Redis service, however each should have a unique numeric database ID.
 
 ```python
 REDIS = {
@@ -182,7 +181,7 @@ This parameter must be assigned a randomly-generated key employed as a salt for 
 A simple Python script named `generate_secret_key.py` is provided in the parent directory to assist in generating a suitable key:
 
 ```no-highlight
-# python3 ../generate_secret_key.py
+python3 ../generate_secret_key.py
 ```
 
 !!! warning
@@ -199,7 +198,7 @@ All Python packages required by NetBox are listed in `requirements.txt` and will
 The [NAPALM automation](https://napalm-automation.net/) library allows NetBox to fetch live data from devices and return it to a requester via its REST API. The `NAPALM_USERNAME` and `NAPALM_PASSWORD` configuration parameters define the credentials to be used when connecting to a device.
 
 ```no-highlight
-# echo napalm >> /opt/netbox/local_requirements.txt
+sudo echo napalm >> /opt/netbox/local_requirements.txt
 ```
 
 ### Remote File Storage
@@ -207,7 +206,7 @@ The [NAPALM automation](https://napalm-automation.net/) library allows NetBox to
 By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](/configuration/optional-settings/#storage_backend) in `configuration.py`.
 
 ```no-highlight
-# echo django-storages >> /opt/netbox/local_requirements.txt
+sudo echo django-storages >> /opt/netbox/local_requirements.txt
 ```
 
 ## Run the Upgrade Script
@@ -220,7 +219,7 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 * Aggregate static resource files on disk
 
 ```no-highlight
-# /opt/netbox/upgrade.sh
+sudo /opt/netbox/upgrade.sh
 ```
 
 !!! note
@@ -231,7 +230,7 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 NetBox does not come with any predefined user accounts. You'll need to create a super user (administrative account) to be able to log into NetBox. First, enter the Python virtual environment created by the upgrade script:
 
 ```no-highlight
-# source /opt/netbox/venv/bin/activate
+source /opt/netbox/venv/bin/activate
 ```
 
 Once the virtual environment has been activated, you should notice the string `(venv)` prepended to your console prompt.
@@ -239,8 +238,8 @@ Once the virtual environment has been activated, you should notice the string `(
 Next, we'll create a superuser account using the `createsuperuser` Django management command (via `manage.py`). Specifying an email address for the user is not required, but be sure to use a very strong password.
 
 ```no-highlight
-(venv) # cd /opt/netbox/netbox
-(venv) # python3 manage.py createsuperuser
+(venv) $ cd /opt/netbox/netbox
+(venv) $ python3 manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
 Password:
@@ -250,28 +249,33 @@ Superuser created successfully.
 
 ## Test the Application
 
-At this point, we should be able to run NetBox. We can check by starting a development instance:
+At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance:
 
 ```no-highlight
-(venv) # python3 manage.py runserver 0.0.0.0:8000 --insecure
+(venv) $ python3 manage.py runserver 0.0.0.0:8000 --insecure
 Performing system checks...
 
 System check identified no issues (0 silenced).
-November 28, 2018 - 09:33:45
-Django version 2.0.9, using settings 'netbox.settings'
+November 17, 2020 - 16:08:13
+Django version 3.1.3, using settings 'netbox.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
 
-Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Note that this built-in web service is for development and testing purposes only. **It is not suited for production use.**
+Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
+
+!!! warning
+    The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
 
-Note that the initial UI will be locked down for non-authenticated users.
+Note that the initial user interface will be locked down for non-authenticated users.
 
 ![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_ui_guest.png)
 
-Try logging in as the super user we just created. Once authenticated, you'll be able to access all areas of the UI:
+Try logging in using the superuser account we just created. Once authenticated, you'll be able to access all areas of the UI:
 
 ![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)
+
+Type `Ctrl+c` to stop the development server.

@@ -59,12 +59,6 @@ POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 # Cabling and connections
 #
 
-# Console/power/interface connection statuses
-CONNECTION_STATUS_CHOICES = [
-    [False, 'Not Connected'],
-    [True, 'Connected'],
-]
-
 # Cable endpoint types
 CABLE_TERMINATION_MODELS = Q(
     Q(app_label='circuits', model__in=(
@@ -83,12 +77,13 @@ CABLE_TERMINATION_MODELS = Q(
 )
 
 COMPATIBLE_TERMINATION_TYPES = {
+    'circuittermination': ['interface', 'frontport', 'rearport', 'circuittermination'],
     'consoleport': ['consoleserverport', 'frontport', 'rearport'],
     'consoleserverport': ['consoleport', 'frontport', 'rearport'],
-    'powerport': ['poweroutlet', 'powerfeed'],
-    'poweroutlet': ['powerport'],
     'interface': ['interface', 'circuittermination', 'frontport', 'rearport'],
     'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
+    'powerfeed': ['powerport'],
+    'poweroutlet': ['powerport'],
+    'powerport': ['poweroutlet', 'powerfeed'],
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
-    'circuittermination': ['interface', 'frontport', 'rearport', 'circuittermination'],
 }

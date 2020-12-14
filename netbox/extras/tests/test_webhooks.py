@@ -39,7 +39,7 @@ class WebhookTest(APITestCase):
             Webhook(name='Site Delete Webhook', type_delete=True, payload_url=DUMMY_URL, secret=DUMMY_SECRET),
         ))
         for webhook in webhooks:
-            webhook.obj_type.set([site_ct])
+            webhook.content_types.set([site_ct])
 
     def test_enqueue_webhook_create(self):
         # Create an object via the REST API

@@ -1,11 +1,11 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, TagColumn, ToggleColumn
 from .models import Tenant, TenantGroup
 
 MPTT_LINK = """
 {% if record.get_children %}
-    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i>
+    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="mdi mdi-chevron-right"></i>
 {% else %}
     <span style="padding-left: {{ record.get_ancestors|length }}9px">
 {% endif %}
@@ -32,7 +32,9 @@ class TenantGroupTable(BaseTable):
         template_code=MPTT_LINK,
         orderable=False
     )
-    tenant_count = tables.Column(
+    tenant_count = LinkedCountColumn(
+        viewname='tenancy:tenant_list',
+        url_params={'group': 'slug'},
         verbose_name='Tenants'
     )
     actions = ButtonsColumn(TenantGroup, pk_field='slug')

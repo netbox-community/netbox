@@ -4,9 +4,9 @@ from circuits.models import Circuit
 from dcim.models import Device, Rack, Site
 from extras.api.views import CustomFieldModelViewSet
 from ipam.models import IPAddress, Prefix, VLAN, VRF
+from netbox.api.views import ModelViewSet
 from tenancy import filters
 from tenancy.models import Tenant, TenantGroup
-from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers

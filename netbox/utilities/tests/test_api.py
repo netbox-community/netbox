@@ -131,7 +131,7 @@ class APIDocsTestCase(TestCase):
         content_type = ContentType.objects.get_for_model(Site)
         self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='test')
         self.cf_text.save()
-        self.cf_text.obj_type.set([content_type])
+        self.cf_text.content_types.set([content_type])
         self.cf_text.save()
 
     def test_api_docs(self):

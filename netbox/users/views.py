@@ -185,7 +185,7 @@ class UserKeyView(LoginRequiredMixin, View):
             userkey = None
 
         return render(request, self.template_name, {
-            'userkey': userkey,
+            'object': userkey,
             'active_tab': 'userkey',
         })
 
@@ -205,7 +205,7 @@ class UserKeyEditView(LoginRequiredMixin, View):
         form = UserKeyForm(instance=self.userkey)
 
         return render(request, self.template_name, {
-            'userkey': self.userkey,
+            'object': self.userkey,
             'form': form,
             'active_tab': 'userkey',
         })
@@ -293,7 +293,7 @@ class TokenEditView(LoginRequiredMixin, View):
 
         form = TokenForm(instance=token)
 
-        return render(request, 'utilities/obj_edit.html', {
+        return render(request, 'generic/object_edit.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
@@ -322,7 +322,7 @@ class TokenEditView(LoginRequiredMixin, View):
             else:
                 return redirect('user:token_list')
 
-        return render(request, 'utilities/obj_edit.html', {
+        return render(request, 'generic/object_edit.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
@@ -340,7 +340,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
         }
         form = ConfirmationForm(initial=initial_data)
 
-        return render(request, 'utilities/obj_delete.html', {
+        return render(request, 'generic/object_delete.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
@@ -356,7 +356,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
             messages.success(request, "Token deleted")
             return redirect('user:token_list')
 
-        return render(request, 'utilities/obj_delete.html', {
+        return render(request, 'generic/object_delete.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,

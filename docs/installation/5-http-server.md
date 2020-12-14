@@ -1,9 +1,9 @@
 # HTTP Server Setup
 
-This documentation provides example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4), though any HTTP server which supports WSGI should be compatible.
+This documentation provides example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/current/), though any HTTP server which supports WSGI should be compatible.
 
 !!! info
-    For the sake of brevity, only Ubuntu 18.04 instructions are provided here, these tasks are not unique to NetBox and should carry over to other distributions with minimal changes. Please consult your distribution's documentation for assistance if needed.
+    For the sake of brevity, only Ubuntu 20.04 instructions are provided here. These tasks are not unique to NetBox and should carry over to other distributions with minimal changes. Please consult your distribution's documentation for assistance if needed.
 
 ## Obtain an SSL Certificate
 
@@ -12,7 +12,7 @@ To enable HTTPS access to NetBox, you'll need a valid SSL certificate. You can p
 The command below can be used to generate a self-signed certificate for testing purposes, however it is strongly recommended to use a certificate from a trusted authority in production. Two files will be created: the public certificate (`netbox.crt`) and the private key (`netbox.key`). The certificate is published to the world, whereas the private key must be kept secret at all times.
 
 ```no-highlight
-# openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 -keyout /etc/ssl/private/netbox.key \
 -out /etc/ssl/certs/netbox.crt
 ```
@@ -26,27 +26,26 @@ The above command will prompt you for additional details of the certificate; all
 Begin by installing nginx:
 
 ```no-highlight
-# apt-get install -y nginx
+sudo apt install -y nginx
 ```
 
 Once nginx is installed, copy the nginx configuration file provided by NetBox to `/etc/nginx/sites-available/netbox`. Be sure to replace `netbox.example.com` with the domain name or IP address of your installation. (This should match the value configured for `ALLOWED_HOSTS` in `configuration.py`.)
 
 ```no-highlight
-# cp /opt/netbox/contrib/nginx.conf /etc/nginx/sites-available/netbox
+sudo cp /opt/netbox/contrib/nginx.conf /etc/nginx/sites-available/netbox
 ```
 
 Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
 
 ```no-highlight
-# cd /etc/nginx/sites-enabled/
-# rm default
-# ln -s /etc/nginx/sites-available/netbox
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/netbox /etc/nginx/sites-enabled/netbox
 ```
 
 Finally, restart the `nginx` service to use the new configuration.
 
 ```no-highlight
-# service nginx restart
+sudo systemctl restart nginx
 ```
 
 ### Option B: Apache
@@ -54,26 +53,26 @@ Finally, restart the `nginx` service to use the new configuration.
 Begin by installing Apache:
 
 ```no-highlight
-# apt-get install -y apache2
+sudo apt install -y apache2
 ```
 
 Next, copy the default configuration file to `/etc/apache2/sites-available/`. Be sure to modify the `ServerName` parameter appropriately.
 
 ```no-highlight
-# cp /opt/netbox/contrib/apache.conf /etc/apache2/sites-available/netbox.conf
+sudo cp /opt/netbox/contrib/apache.conf /etc/apache2/sites-available/netbox.conf
 ```
 
 Finally, ensure that the required Apache modules are enabled, enable the `netbox` site, and reload Apache:
 
 ```no-highlight
-# a2enmod ssl proxy proxy_http headers
-# a2ensite netbox
-# service apache2 restart
+sudo a2enmod ssl proxy proxy_http headers
+sudo a2ensite netbox
+sudo systemctl restart apache2
 ```
 
 ## Confirm Connectivity
 
-At this point, you should be able to connect to the HTTP service at the server name or IP address you provided.
+At this point, you should be able to connect to the HTTPS service at the server name or IP address you provided.
 
 !!! info
     Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You may want to make adjustments to better suit your production environment.
@@ -91,5 +90,5 @@ If you are unable to connect to the HTTP server, check that:
 If you are able to connect but receive a 502 (bad gateway) error, check the following:
 
 * The WSGI worker processes (gunicorn) are running (`systemctl status netbox` should show a status of "active (running)")
-* nginx/Apache is configured to connect to the port on which gunicorn is listening (default is 8001).
+* Nginx/Apache is configured to connect to the port on which gunicorn is listening (default is 8001).
 * SELinux is not preventing the reverse proxy connection. You may need to allow HTTP network connections with the command `setsebool -P httpd_can_network_connect 1`

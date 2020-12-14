@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
+from netbox.api.views import ModelViewSet
 from secrets import filters
 from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from . import serializers
 
@@ -46,9 +46,7 @@ class SecretRoleViewSet(ModelViewSet):
 #
 
 class SecretViewSet(ModelViewSet):
-    queryset = Secret.objects.prefetch_related(
-        'device__primary_ip4', 'device__primary_ip6', 'role', 'tags',
-    )
+    queryset = Secret.objects.prefetch_related('role', 'tags')
     serializer_class = serializers.SecretSerializer
     filterset_class = filters.SecretFilterSet
 

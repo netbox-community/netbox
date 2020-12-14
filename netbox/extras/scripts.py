@@ -428,19 +428,6 @@ def run_script(data, request, commit=True, *args, **kwargs):
     # Add the current request as a property of the script
     script.request = request
 
-    # TODO: Drop backward-compatibility for absent 'commit' argument in v2.10
-    # Determine whether the script accepts a 'commit' argument (this was introduced in v2.7.8)
-    kwargs = {
-        'data': data
-    }
-    if 'commit' in inspect.signature(script.run).parameters:
-        kwargs['commit'] = commit
-    else:
-        warnings.warn(
-            f"The run() method of script {script} should support a 'commit' argument. This will be required beginning "
-            f"with NetBox v2.10."
-        )
-
     def _run_script():
         """
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
@@ -448,7 +435,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
         """
         try:
             with transaction.atomic():
-                script.output = script.run(**kwargs)
+                script.output = script.run(data=data, commit=commit)
                 job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
 
                 if not commit:
