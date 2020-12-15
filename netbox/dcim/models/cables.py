@@ -147,7 +147,8 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         return instance
 
     def __str__(self):
-        return self.label or '#{}'.format(self._pk)
+        pk = self.pk or self._pk
+        return self.label or f'#{pk}'
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
