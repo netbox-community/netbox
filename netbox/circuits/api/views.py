@@ -1,4 +1,5 @@
 from django.db.models import Prefetch
+from django.db.models.functions import Coalesce
 from rest_framework.routers import APIRootView
 
 from circuits import filters
@@ -24,7 +25,7 @@ class CircuitsRootView(APIRootView):
 
 class ProviderViewSet(CustomFieldModelViewSet):
     queryset = Provider.objects.prefetch_related('tags').annotate(
-        circuit_count=get_subquery(Circuit, 'provider')
+        circuit_count=Coalesce(get_subquery(Circuit, 'provider'), 0)
     )
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilterSet
@@ -36,7 +37,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.annotate(
-        circuit_count=get_subquery(Circuit, 'type')
+        circuit_count=Coalesce(get_subquery(Circuit, 'type'), 0)
     )
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filters.CircuitTypeFilterSet
