@@ -27,8 +27,8 @@ class VRFSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     import_targets = NestedRouteTargetSerializer(required=False, allow_null=True, many=True)
     export_targets = NestedRouteTargetSerializer(required=False, allow_null=True, many=True)
-    ipaddress_count = serializers.IntegerField(read_only=True)
-    prefix_count = serializers.IntegerField(read_only=True)
+    ipaddress_count = serializers.IntegerField(read_only=True, default=0)
+    prefix_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = VRF
@@ -59,7 +59,7 @@ class RouteTargetSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 
 class RIRSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
-    aggregate_count = serializers.IntegerField(read_only=True)
+    aggregate_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = RIR
@@ -87,8 +87,8 @@ class AggregateSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 
 class RoleSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
-    prefix_count = serializers.IntegerField(read_only=True)
-    vlan_count = serializers.IntegerField(read_only=True)
+    prefix_count = serializers.IntegerField(read_only=True, default=0)
+    vlan_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Role
@@ -98,7 +98,7 @@ class RoleSerializer(ValidatedModelSerializer):
 class VLANGroupSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     site = NestedSiteSerializer(required=False, allow_null=True)
-    vlan_count = serializers.IntegerField(read_only=True)
+    vlan_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = VLANGroup
@@ -126,7 +126,7 @@ class VLANSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
-    prefix_count = serializers.IntegerField(read_only=True)
+    prefix_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = VLAN

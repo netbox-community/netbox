@@ -17,7 +17,7 @@ from .nested_serializers import *
 
 class SecretRoleSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
-    secret_count = serializers.IntegerField(read_only=True)
+    secret_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = SecretRole

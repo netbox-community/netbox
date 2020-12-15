@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#5450](https://github.com/netbox-community/netbox/issues/5450) - API serializer foreign count fields do not have a default value
 * [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
 * [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
 

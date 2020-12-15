@@ -17,7 +17,7 @@ from .nested_serializers import *
 
 class ProviderSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
-    circuit_count = serializers.IntegerField(read_only=True)
+    circuit_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Provider
@@ -33,7 +33,7 @@ class ProviderSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 
 class CircuitTypeSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
-    circuit_count = serializers.IntegerField(read_only=True)
+    circuit_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = CircuitType

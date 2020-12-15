@@ -20,7 +20,7 @@ from .nested_serializers import *
 
 class ClusterTypeSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
-    cluster_count = serializers.IntegerField(read_only=True)
+    cluster_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = ClusterType
@@ -29,7 +29,7 @@ class ClusterTypeSerializer(ValidatedModelSerializer):
 
 class ClusterGroupSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
-    cluster_count = serializers.IntegerField(read_only=True)
+    cluster_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = ClusterGroup
@@ -42,8 +42,8 @@ class ClusterSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
-    device_count = serializers.IntegerField(read_only=True)
-    virtualmachine_count = serializers.IntegerField(read_only=True)
+    device_count = serializers.IntegerField(read_only=True, default=0)
+    virtualmachine_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Cluster

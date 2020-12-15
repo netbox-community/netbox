@@ -15,7 +15,7 @@ __all__ = [
 
 class NestedTenantGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
-    tenant_count = serializers.IntegerField(read_only=True)
+    tenant_count = serializers.IntegerField(read_only=True, default=0)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
