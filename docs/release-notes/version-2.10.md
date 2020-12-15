@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* [#5444](https://github.com/netbox-community/netbox/issues/5444) - Don't force overwriting of `mgmt_only` when bulk editing interfaces
+* [#5444](https://github.com/netbox-community/netbox/issues/5444) - Don't force overwriting of boolean fields when bulk editing interfaces
 * [#5450](https://github.com/netbox-community/netbox/issues/5450) - API serializer foreign count fields do not have a default value
 * [#5453](https://github.com/netbox-community/netbox/issues/5453) - Correct change log representation when creating a cable
 * [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
