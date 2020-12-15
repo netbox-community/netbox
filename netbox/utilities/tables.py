@@ -297,13 +297,16 @@ class CustomFieldColumn(tables.Column):
     """
 
     def render(self, record, bound_column, value):
-        if value:
-            if isinstance(value, list):
+        if isinstance(value, list):
+            if len(value):
                 template = ''
                 for v in value:
                     template += f'<span class="label label-default">{v}</span> '
             else:
-                template = value
-            return mark_safe(template)
-        return self.default
+                template = '<span class="text-muted">&mdash;</span>'
+        elif value:
+            template = value
+        else:
+            return self.default
+        return mark_safe(template)
 
