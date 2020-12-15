@@ -46,13 +46,13 @@ class CustomFieldModelForm(forms.ModelForm):
             # Annotate the field in the list of CustomField form fields
             self.custom_fields.append(field_name)
 
-    def save(self, commit=True):
+    def clean(self):
 
         # Save custom field data on instance
         for cf_name in self.custom_fields:
             self.instance.custom_field_data[cf_name[3:]] = self.cleaned_data.get(cf_name)
 
-        return super().save(commit)
+        return super().clean()
 
 
 class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):
