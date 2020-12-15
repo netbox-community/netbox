@@ -35,7 +35,7 @@
                                 <br /><small class="text-muted">{{ rack.facility_id }}</small>
                             {% endif %}
                         </div>
-                        {% include 'dcim/inc/rack_elevation.html' with face=rack_face %}
+                        {% include 'dcim/inc/rack_elevation.html' with object=rack face=rack_face %}
                         <div class="clearfix"></div>
                         <div class="text-center">
                             <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>

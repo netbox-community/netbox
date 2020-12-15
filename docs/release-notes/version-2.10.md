@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
+* [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
 
 ## v2.10.0 (2020-12-14)
 
