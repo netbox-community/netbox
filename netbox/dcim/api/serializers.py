@@ -85,7 +85,7 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
 class RegionSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     parent = NestedRegionSerializer(required=False, allow_null=True)
-    site_count = serializers.IntegerField(read_only=True, default=0)
+    site_count = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
@@ -99,12 +99,12 @@ class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     region = NestedRegionSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
-    circuit_count = serializers.IntegerField(read_only=True, default=0)
-    device_count = serializers.IntegerField(read_only=True, default=0)
-    prefix_count = serializers.IntegerField(read_only=True, default=0)
-    rack_count = serializers.IntegerField(read_only=True, default=0)
-    virtualmachine_count = serializers.IntegerField(read_only=True, default=0)
-    vlan_count = serializers.IntegerField(read_only=True, default=0)
+    circuit_count = serializers.IntegerField(read_only=True)
+    device_count = serializers.IntegerField(read_only=True)
+    prefix_count = serializers.IntegerField(read_only=True)
+    rack_count = serializers.IntegerField(read_only=True)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
+    vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Site
@@ -124,7 +124,7 @@ class RackGroupSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
     site = NestedSiteSerializer()
     parent = NestedRackGroupSerializer(required=False, allow_null=True)
-    rack_count = serializers.IntegerField(read_only=True, default=0)
+    rack_count = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
@@ -134,7 +134,7 @@ class RackGroupSerializer(ValidatedModelSerializer):
 
 class RackRoleSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
-    rack_count = serializers.IntegerField(read_only=True, default=0)
+    rack_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RackRole
@@ -151,8 +151,8 @@ class RackSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False)
     width = ChoiceField(choices=RackWidthChoices, required=False)
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
-    device_count = serializers.IntegerField(read_only=True, default=0)
-    powerfeed_count = serializers.IntegerField(read_only=True, default=0)
+    device_count = serializers.IntegerField(read_only=True)
+    powerfeed_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Rack
@@ -244,9 +244,9 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
 
 class ManufacturerSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:manufacturer-detail')
-    devicetype_count = serializers.IntegerField(read_only=True, default=0)
-    inventoryitem_count = serializers.IntegerField(read_only=True, default=0)
-    platform_count = serializers.IntegerField(read_only=True, default=0)
+    devicetype_count = serializers.IntegerField(read_only=True)
+    inventoryitem_count = serializers.IntegerField(read_only=True)
+    platform_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Manufacturer
@@ -259,7 +259,7 @@ class DeviceTypeSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer()
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
-    device_count = serializers.IntegerField(read_only=True, default=0)
+    device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceType
@@ -380,8 +380,8 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 
 class DeviceRoleSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
-    device_count = serializers.IntegerField(read_only=True, default=0)
-    virtualmachine_count = serializers.IntegerField(read_only=True, default=0)
+    device_count = serializers.IntegerField(read_only=True)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceRole
@@ -393,8 +393,8 @@ class DeviceRoleSerializer(ValidatedModelSerializer):
 class PlatformSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True)
-    device_count = serializers.IntegerField(read_only=True, default=0)
-    virtualmachine_count = serializers.IntegerField(read_only=True, default=0)
+    device_count = serializers.IntegerField(read_only=True)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Platform
@@ -573,7 +573,7 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         many=True
     )
     cable = NestedCableSerializer(read_only=True)
-    count_ipaddresses = serializers.IntegerField(read_only=True, default=0)
+    count_ipaddresses = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Interface
@@ -805,7 +805,7 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
 class VirtualChassisSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer(required=False)
-    member_count = serializers.IntegerField(read_only=True, default=0)
+    member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualChassis
@@ -824,7 +824,7 @@ class PowerPanelSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
         allow_null=True,
         default=None
     )
-    powerfeed_count = serializers.IntegerField(read_only=True, default=0)
+    powerfeed_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PowerPanel

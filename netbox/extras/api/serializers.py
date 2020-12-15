@@ -66,7 +66,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 
 class TagSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
-    tagged_items = serializers.IntegerField(read_only=True, default=0)
+    tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Tag
