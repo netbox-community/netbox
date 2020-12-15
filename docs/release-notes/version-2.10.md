@@ -6,6 +6,7 @@
 
 * [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
 * [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
+* [#5463](https://github.com/netbox-community/netbox/issues/5463) - Back-to-back Circuit Termination throws AttributeError exception
 
 ## v2.10.0 (2020-12-14)
 
