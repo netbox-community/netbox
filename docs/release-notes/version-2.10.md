@@ -1,12 +1,16 @@
 # NetBox v2.10
 
-## v2.10.1 (Future Release)
+## v2.10.1 (FUTURE)
 
 ### Bug Fixes
 
 * [#5450](https://github.com/netbox-community/netbox/issues/5450) - API serializer foreign count fields do not have a default value
+* [#5453](https://github.com/netbox-community/netbox/issues/5453) - Correct change log representation when creating a cable
 * [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
 * [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
+* [#5463](https://github.com/netbox-community/netbox/issues/5463) - Back-to-back Circuit Termination throws AttributeError exception
+
+---
 
 ## v2.10.0 (2020-12-14)
 

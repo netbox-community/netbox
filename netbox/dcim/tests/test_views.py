@@ -302,6 +302,14 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_list_rack_elevations(self):
+        """
+        Test viewing the list of rack elevations.
+        """
+        response = self.client.get(reverse('dcim:rack_elevation_list'))
+        self.assertHttpStatus(response, 200)
+
 
 class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Manufacturer
