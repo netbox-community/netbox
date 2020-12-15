@@ -9,6 +9,7 @@
 * [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
 * [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
 * [#5463](https://github.com/netbox-community/netbox/issues/5463) - Back-to-back Circuit Termination throws AttributeError exception
+* [#5465](https://github.com/netbox-community/netbox/issues/5465) - Correct return URL when disconnecting a cable from a device
 
 ---
 
