@@ -109,6 +109,15 @@ class APIViewTestCases:
             url = self._get_detail_url(instance2)
             self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_404_NOT_FOUND)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_options_object(self):
+            """
+            Make an OPTIONS request for a single object.
+            """
+            url = self._get_detail_url(self._get_queryset().first())
+            response = self.client.options(url, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
     class ListObjectsViewTestCase(APITestCase):
         brief_fields = []
 
@@ -173,6 +182,14 @@ class APIViewTestCases:
             response = self.client.get(self._get_list_url(), **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             self.assertEqual(len(response.data['results']), 2)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_options_objects(self):
+            """
+            Make an OPTIONS request for a list endpoint.
+            """
+            response = self.client.options(self._get_list_url(), **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
 
     class CreateObjectViewTestCase(APITestCase):
         create_data = []

@@ -12,6 +12,7 @@
 * [#5463](https://github.com/netbox-community/netbox/issues/5463) - Back-to-back Circuit Termination throws AttributeError exception
 * [#5465](https://github.com/netbox-community/netbox/issues/5465) - Correct return URL when disconnecting a cable from a device
 * [#5466](https://github.com/netbox-community/netbox/issues/5466) - Fix validation for required custom fields
+* [#5470](https://github.com/netbox-community/netbox/issues/5470) - Fix exception when making `OPTIONS` request for a REST API list endpoint
 
 ---
 
