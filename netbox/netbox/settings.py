@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.10.0'
+VERSION = '2.10.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -467,6 +467,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
         'netbox.api.authentication.TokenPermissions',

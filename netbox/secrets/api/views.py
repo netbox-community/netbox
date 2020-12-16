@@ -1,6 +1,7 @@
 import base64
 
 from Crypto.PublicKey import RSA
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseBadRequest
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -35,7 +36,7 @@ class SecretsRootView(APIRootView):
 
 class SecretRoleViewSet(ModelViewSet):
     queryset = SecretRole.objects.annotate(
-        secret_count=get_subquery(Secret, 'role')
+        secret_count=Coalesce(get_subquery(Secret, 'role'), 0)
     )
     serializer_class = serializers.SecretRoleSerializer
     filterset_class = filters.SecretRoleFilterSet

@@ -2839,7 +2839,7 @@ class InterfaceBulkCreateForm(
 
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
-        'label', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode'
+        'label', 'type', 'lag', 'mac_address', 'mtu', 'description', 'mode'
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
@@ -2854,6 +2854,15 @@ class InterfaceBulkEditForm(
         required=False,
         disabled=True,
         widget=forms.HiddenInput()
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
+    mgmt_only = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+        label='Management only'
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),

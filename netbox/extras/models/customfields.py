@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, date
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -317,10 +317,11 @@ class CustomField(models.Model):
 
             # Validate date
             if self.type == CustomFieldTypeChoices.TYPE_DATE:
-                try:
-                    datetime.strptime(value, '%Y-%m-%d')
-                except ValueError:
-                    raise ValidationError("Date values must be in the format YYYY-MM-DD.")
+                if type(value) is not date:
+                    try:
+                        datetime.strptime(value, '%Y-%m-%d')
+                    except ValueError:
+                        raise ValidationError("Date values must be in the format YYYY-MM-DD.")
 
             # Validate selected choice
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:

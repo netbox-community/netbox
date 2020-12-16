@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_yasg.utils import swagger_auto_schema
@@ -32,8 +33,8 @@ class VRFViewSet(CustomFieldModelViewSet):
     queryset = VRF.objects.prefetch_related('tenant').prefetch_related(
         'import_targets', 'export_targets', 'tags'
     ).annotate(
-        ipaddress_count=get_subquery(IPAddress, 'vrf'),
-        prefix_count=get_subquery(Prefix, 'vrf')
+        ipaddress_count=Coalesce(get_subquery(IPAddress, 'vrf'), 0),
+        prefix_count=Coalesce(get_subquery(Prefix, 'vrf'), 0)
     )
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilterSet
@@ -55,7 +56,7 @@ class RouteTargetViewSet(CustomFieldModelViewSet):
 
 class RIRViewSet(ModelViewSet):
     queryset = RIR.objects.annotate(
-        aggregate_count=get_subquery(Aggregate, 'rir')
+        aggregate_count=Coalesce(get_subquery(Aggregate, 'rir'), 0)
     )
     serializer_class = serializers.RIRSerializer
     filterset_class = filters.RIRFilterSet
@@ -77,8 +78,8 @@ class AggregateViewSet(CustomFieldModelViewSet):
 
 class RoleViewSet(ModelViewSet):
     queryset = Role.objects.annotate(
-        prefix_count=get_subquery(Prefix, 'role'),
-        vlan_count=get_subquery(VLAN, 'role')
+        prefix_count=Coalesce(get_subquery(Prefix, 'role'), 0),
+        vlan_count=Coalesce(get_subquery(VLAN, 'role'), 0)
     )
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilterSet
@@ -272,7 +273,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 
 class VLANGroupViewSet(ModelViewSet):
     queryset = VLANGroup.objects.prefetch_related('site').annotate(
-        vlan_count=get_subquery(VLAN, 'group')
+        vlan_count=Coalesce(get_subquery(VLAN, 'group'), 0)
     )
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filters.VLANGroupFilterSet
@@ -286,7 +287,7 @@ class VLANViewSet(CustomFieldModelViewSet):
     queryset = VLAN.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
-        prefix_count=get_subquery(Prefix, 'vlan')
+        prefix_count=Coalesce(get_subquery(Prefix, 'vlan'), 0)
     )
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilterSet

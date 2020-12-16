@@ -1,3 +1,4 @@
+from django.db.models.functions import Coalesce
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
@@ -22,7 +23,7 @@ class VirtualizationRootView(APIRootView):
 
 class ClusterTypeViewSet(ModelViewSet):
     queryset = ClusterType.objects.annotate(
-        cluster_count=get_subquery(Cluster, 'type')
+        cluster_count=Coalesce(get_subquery(Cluster, 'type'), 0)
     )
     serializer_class = serializers.ClusterTypeSerializer
     filterset_class = filters.ClusterTypeFilterSet
@@ -30,7 +31,7 @@ class ClusterTypeViewSet(ModelViewSet):
 
 class ClusterGroupViewSet(ModelViewSet):
     queryset = ClusterGroup.objects.annotate(
-        cluster_count=get_subquery(Cluster, 'group')
+        cluster_count=Coalesce(get_subquery(Cluster, 'group'), 0)
     )
     serializer_class = serializers.ClusterGroupSerializer
     filterset_class = filters.ClusterGroupFilterSet
@@ -40,8 +41,8 @@ class ClusterViewSet(CustomFieldModelViewSet):
     queryset = Cluster.objects.prefetch_related(
         'type', 'group', 'tenant', 'site', 'tags'
     ).annotate(
-        device_count=get_subquery(Device, 'cluster'),
-        virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
+        device_count=Coalesce(get_subquery(Device, 'cluster'), 0),
+        virtualmachine_count=Coalesce(get_subquery(VirtualMachine, 'cluster'), 0)
     )
     serializer_class = serializers.ClusterSerializer
     filterset_class = filters.ClusterFilterSet

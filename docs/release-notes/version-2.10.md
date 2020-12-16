@@ -1,5 +1,21 @@
 # NetBox v2.10
 
+## v2.10.1 (2020-12-15)
+
+### Bug Fixes
+
+* [#5444](https://github.com/netbox-community/netbox/issues/5444) - Don't force overwriting of boolean fields when bulk editing interfaces
+* [#5450](https://github.com/netbox-community/netbox/issues/5450) - API serializer foreign count fields do not have a default value
+* [#5453](https://github.com/netbox-community/netbox/issues/5453) - Correct change log representation when creating a cable
+* [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
+* [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
+* [#5463](https://github.com/netbox-community/netbox/issues/5463) - Back-to-back Circuit Termination throws AttributeError exception
+* [#5465](https://github.com/netbox-community/netbox/issues/5465) - Correct return URL when disconnecting a cable from a device
+* [#5466](https://github.com/netbox-community/netbox/issues/5466) - Fix validation for required custom fields
+* [#5470](https://github.com/netbox-community/netbox/issues/5470) - Fix exception when making `OPTIONS` request for a REST API list endpoint
+
+---
+
 ## v2.10.0 (2020-12-14)
 
 **NOTE:** This release completely removes support for embedded graphs.

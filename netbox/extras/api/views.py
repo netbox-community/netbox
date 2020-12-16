@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.functions import Coalesce
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -102,7 +103,7 @@ class ExportTemplateViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=get_subquery(TaggedItem, 'tag')
+        tagged_items=Coalesce(get_subquery(TaggedItem, 'tag'), 0)
     )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet
