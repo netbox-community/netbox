@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#5473](https://github.com/netbox-community/netbox/issues/5473) - Fix alignment of rack names in elevations list
+* [#5478](https://github.com/netbox-community/netbox/issues/5478) - Fix display of route target description
 
 ---
 
