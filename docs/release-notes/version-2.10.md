@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.2 (FUTURE)
+
+### Bug Fixes
+
+* [#5473](https://github.com/netbox-community/netbox/issues/5473) - Fix alignment of rack names in elevations list
+
+---
+
 ## v2.10.1 (2020-12-15)
 
 ### Bug Fixes
