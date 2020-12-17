@@ -2,6 +2,10 @@
 
 ## v2.10.2 (FUTURE)
 
+### Enhancements
+
+* [#5489](https://github.com/netbox-community/netbox/issues/5489) - Add filters for type and width to racks list
+
 ### Bug Fixes
 
 * [#5468](https://github.com/netbox-community/netbox/issues/5468) - Fix unlocking secrets from device/VM view

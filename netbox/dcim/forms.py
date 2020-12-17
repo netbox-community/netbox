@@ -690,6 +690,16 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
+    type = forms.MultipleChoiceField(
+        choices=RackTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    width = forms.MultipleChoiceField(
+        choices=RackWidthChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     role = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         to_field_name='slug',
