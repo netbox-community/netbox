@@ -5,6 +5,7 @@ from itertools import count, groupby
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
@@ -79,7 +80,7 @@ def get_subquery(model, field):
         ).values('c')
     )
 
-    return subquery
+    return Coalesce(subquery, 0)
 
 
 def serialize_object(obj, extra=None, exclude=None):

@@ -1,4 +1,3 @@
-from django.db.models.functions import Coalesce
 from rest_framework.routers import APIRootView
 
 from circuits.models import Circuit
@@ -47,13 +46,13 @@ class TenantViewSet(CustomFieldModelViewSet):
     ).annotate(
         circuit_count=get_subquery(Circuit, 'tenant'),
         device_count=get_subquery(Device, 'tenant'),
-        ipaddress_count=Coalesce(get_subquery(IPAddress, 'tenant'), 0),
-        prefix_count=Coalesce(get_subquery(Prefix, 'tenant'), 0),
-        rack_count=Coalesce(get_subquery(Rack, 'tenant'), 0),
-        site_count=Coalesce(get_subquery(Site, 'tenant'), 0),
-        virtualmachine_count=Coalesce(get_subquery(VirtualMachine, 'tenant'), 0),
-        vlan_count=Coalesce(get_subquery(VLAN, 'tenant'), 0),
-        vrf_count=Coalesce(get_subquery(VRF, 'tenant'), 0)
+        ipaddress_count=get_subquery(IPAddress, 'tenant'),
+        prefix_count=get_subquery(Prefix, 'tenant'),
+        rack_count=get_subquery(Rack, 'tenant'),
+        site_count=get_subquery(Site, 'tenant'),
+        virtualmachine_count=get_subquery(VirtualMachine, 'tenant'),
+        vlan_count=get_subquery(VLAN, 'tenant'),
+        vrf_count=get_subquery(VRF, 'tenant')
     )
     serializer_class = serializers.TenantSerializer
     filterset_class = filters.TenantFilterSet
