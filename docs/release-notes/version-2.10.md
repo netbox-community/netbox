@@ -9,6 +9,7 @@
 * [#5478](https://github.com/netbox-community/netbox/issues/5478) - Fix display of route target description
 * [#5484](https://github.com/netbox-community/netbox/issues/5484) - Fix "tagged" indication in VLAN members list
 * [#5486](https://github.com/netbox-community/netbox/issues/5486) - Optimize retrieval of config context data for device/VM REST API views
+* [#5487](https://github.com/netbox-community/netbox/issues/5487) - Support filtering rack type/width with multiple values
 
 ---
 
