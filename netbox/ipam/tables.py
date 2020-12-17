@@ -104,7 +104,7 @@ VLANGROUP_ADD_VLAN = """
 """
 
 VLAN_MEMBER_TAGGED = """
-{% if record.untagged_vlan_id == vlan.pk %}
+{% if record.untagged_vlan_id == object.pk %}
     <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
 {% else %}
     <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
