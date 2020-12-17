@@ -6,7 +6,7 @@ from django_tables2 import RequestConfig
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -18,7 +18,7 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 class ProviderListView(generic.ObjectListView):
     queryset = Provider.objects.annotate(
-        count_circuits=get_subquery(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider')
     )
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
@@ -67,7 +67,7 @@ class ProviderBulkImportView(generic.BulkImportView):
 
 class ProviderBulkEditView(generic.BulkEditView):
     queryset = Provider.objects.annotate(
-        count_circuits=get_subquery(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider')
     )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
@@ -76,7 +76,7 @@ class ProviderBulkEditView(generic.BulkEditView):
 
 class ProviderBulkDeleteView(generic.BulkDeleteView):
     queryset = Provider.objects.annotate(
-        count_circuits=get_subquery(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider')
     )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
@@ -88,7 +88,7 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 
 class CircuitTypeListView(generic.ObjectListView):
     queryset = CircuitType.objects.annotate(
-        circuit_count=get_subquery(Circuit, 'type')
+        circuit_count=count_related(Circuit, 'type')
     )
     table = tables.CircuitTypeTable
 
@@ -110,7 +110,7 @@ class CircuitTypeBulkImportView(generic.BulkImportView):
 
 class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = CircuitType.objects.annotate(
-        circuit_count=get_subquery(Circuit, 'type')
+        circuit_count=count_related(Circuit, 'type')
     )
     table = tables.CircuitTypeTable
 

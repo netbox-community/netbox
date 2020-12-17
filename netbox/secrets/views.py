@@ -7,7 +7,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from netbox.views import generic
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from . import filters, forms, tables
 from .models import SecretRole, Secret, SessionKey, UserKey
 
@@ -28,7 +28,7 @@ def get_session_key(request):
 
 class SecretRoleListView(generic.ObjectListView):
     queryset = SecretRole.objects.annotate(
-        secret_count=get_subquery(Secret, 'role')
+        secret_count=count_related(Secret, 'role')
     )
     table = tables.SecretRoleTable
 
@@ -50,7 +50,7 @@ class SecretRoleBulkImportView(generic.BulkImportView):
 
 class SecretRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = SecretRole.objects.annotate(
-        secret_count=get_subquery(Secret, 'role')
+        secret_count=count_related(Secret, 'role')
     )
     table = tables.SecretRoleTable
 

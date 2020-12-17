@@ -21,7 +21,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.views import ModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.utils import copy_safe_request, get_subquery
+from utilities.utils import copy_safe_request, count_related
 from . import serializers
 
 
@@ -102,7 +102,7 @@ class ExportTemplateViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=get_subquery(TaggedItem, 'tag')
+        tagged_items=count_related(TaggedItem, 'tag')
     )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet

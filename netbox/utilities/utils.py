@@ -66,7 +66,7 @@ def dynamic_import(name):
     return mod
 
 
-def get_subquery(model, field):
+def count_related(model, field):
     """
     Return a Subquery suitable for annotating a child object count.
     """

@@ -12,7 +12,7 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import copy_safe_request, get_subquery, shallow_compare_dict
+from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
@@ -27,7 +27,7 @@ from .scripts import get_scripts, run_script
 
 class TagListView(generic.ObjectListView):
     queryset = Tag.objects.annotate(
-        items=get_subquery(TaggedItem, 'tag')
+        items=count_related(TaggedItem, 'tag')
     )
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
@@ -52,7 +52,7 @@ class TagBulkImportView(generic.BulkImportView):
 
 class TagBulkEditView(generic.BulkEditView):
     queryset = Tag.objects.annotate(
-        items=get_subquery(TaggedItem, 'tag')
+        items=count_related(TaggedItem, 'tag')
     )
     table = tables.TagTable
     form = forms.TagBulkEditForm
@@ -60,7 +60,7 @@ class TagBulkEditView(generic.BulkEditView):
 
 class TagBulkDeleteView(generic.BulkDeleteView):
     queryset = Tag.objects.annotate(
-        items=get_subquery(TaggedItem, 'tag')
+        items=count_related(TaggedItem, 'tag')
     )
     table = tables.TagTable
 

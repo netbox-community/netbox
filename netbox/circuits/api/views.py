@@ -6,7 +6,7 @@ from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
 from dcim.api.views import PathEndpointMixin
 from extras.api.views import CustomFieldModelViewSet
 from netbox.api.views import ModelViewSet
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from . import serializers
 
 
@@ -24,7 +24,7 @@ class CircuitsRootView(APIRootView):
 
 class ProviderViewSet(CustomFieldModelViewSet):
     queryset = Provider.objects.prefetch_related('tags').annotate(
-        circuit_count=get_subquery(Circuit, 'provider')
+        circuit_count=count_related(Circuit, 'provider')
     )
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilterSet
@@ -36,7 +36,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.annotate(
-        circuit_count=get_subquery(Circuit, 'type')
+        circuit_count=count_related(Circuit, 'type')
     )
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filters.CircuitTypeFilterSet

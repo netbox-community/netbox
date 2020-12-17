@@ -30,7 +30,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
 from utilities.api import get_serializer_for_model
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -119,12 +119,12 @@ class SiteViewSet(CustomFieldModelViewSet):
     queryset = Site.objects.prefetch_related(
         'region', 'tenant', 'tags'
     ).annotate(
-        device_count=get_subquery(Device, 'site'),
-        rack_count=get_subquery(Rack, 'site'),
-        prefix_count=get_subquery(Prefix, 'site'),
-        vlan_count=get_subquery(VLAN, 'site'),
-        circuit_count=get_subquery(Circuit, 'terminations__site'),
-        virtualmachine_count=get_subquery(VirtualMachine, 'cluster__site')
+        device_count=count_related(Device, 'site'),
+        rack_count=count_related(Rack, 'site'),
+        prefix_count=count_related(Prefix, 'site'),
+        vlan_count=count_related(VLAN, 'site'),
+        circuit_count=count_related(Circuit, 'terminations__site'),
+        virtualmachine_count=count_related(VirtualMachine, 'cluster__site')
     )
     serializer_class = serializers.SiteSerializer
     filterset_class = filters.SiteFilterSet
@@ -152,7 +152,7 @@ class RackGroupViewSet(ModelViewSet):
 
 class RackRoleViewSet(ModelViewSet):
     queryset = RackRole.objects.annotate(
-        rack_count=get_subquery(Rack, 'role')
+        rack_count=count_related(Rack, 'role')
     )
     serializer_class = serializers.RackRoleSerializer
     filterset_class = filters.RackRoleFilterSet
@@ -166,8 +166,8 @@ class RackViewSet(CustomFieldModelViewSet):
     queryset = Rack.objects.prefetch_related(
         'site', 'group__site', 'role', 'tenant', 'tags'
     ).annotate(
-        device_count=get_subquery(Device, 'rack'),
-        powerfeed_count=get_subquery(PowerFeed, 'rack')
+        device_count=count_related(Device, 'rack'),
+        powerfeed_count=count_related(PowerFeed, 'rack')
     )
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilterSet
@@ -240,9 +240,9 @@ class RackReservationViewSet(ModelViewSet):
 
 class ManufacturerViewSet(ModelViewSet):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=get_subquery(DeviceType, 'manufacturer'),
-        inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
-        platform_count=get_subquery(Platform, 'manufacturer')
+        devicetype_count=count_related(DeviceType, 'manufacturer'),
+        inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
+        platform_count=count_related(Platform, 'manufacturer')
     )
     serializer_class = serializers.ManufacturerSerializer
     filterset_class = filters.ManufacturerFilterSet
@@ -254,7 +254,7 @@ class ManufacturerViewSet(ModelViewSet):
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
     queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
-        device_count=get_subquery(Device, 'device_type')
+        device_count=count_related(Device, 'device_type')
     )
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filters.DeviceTypeFilterSet
@@ -318,8 +318,8 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 
 class DeviceRoleViewSet(ModelViewSet):
     queryset = DeviceRole.objects.annotate(
-        device_count=get_subquery(Device, 'device_role'),
-        virtualmachine_count=get_subquery(VirtualMachine, 'role')
+        device_count=count_related(Device, 'device_role'),
+        virtualmachine_count=count_related(VirtualMachine, 'role')
     )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilterSet
@@ -331,8 +331,8 @@ class DeviceRoleViewSet(ModelViewSet):
 
 class PlatformViewSet(ModelViewSet):
     queryset = Platform.objects.annotate(
-        device_count=get_subquery(Device, 'platform'),
-        virtualmachine_count=get_subquery(VirtualMachine, 'platform')
+        device_count=count_related(Device, 'platform'),
+        virtualmachine_count=count_related(VirtualMachine, 'platform')
     )
     serializer_class = serializers.PlatformSerializer
     filterset_class = filters.PlatformFilterSet
@@ -596,7 +596,7 @@ class CableViewSet(ModelViewSet):
 
 class VirtualChassisViewSet(ModelViewSet):
     queryset = VirtualChassis.objects.prefetch_related('tags').annotate(
-        member_count=get_subquery(Device, 'virtual_chassis')
+        member_count=count_related(Device, 'virtual_chassis')
     )
     serializer_class = serializers.VirtualChassisSerializer
     filterset_class = filters.VirtualChassisFilterSet
@@ -610,7 +610,7 @@ class PowerPanelViewSet(ModelViewSet):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'rack_group'
     ).annotate(
-        powerfeed_count=get_subquery(PowerFeed, 'power_panel')
+        powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     serializer_class = serializers.PowerPanelSerializer
     filterset_class = filters.PowerPanelFilterSet
