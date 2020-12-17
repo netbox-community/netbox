@@ -52,7 +52,7 @@ class ClusterViewSet(CustomFieldModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )
