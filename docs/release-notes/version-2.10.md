@@ -9,6 +9,7 @@
 
 ### Bug Fixes
 
+* [#5254](https://github.com/netbox-community/netbox/issues/5254) - Require plugin authors to set zip_safe=False
 * [#5468](https://github.com/netbox-community/netbox/issues/5468) - Fix unlocking secrets from device/VM view
 * [#5473](https://github.com/netbox-community/netbox/issues/5473) - Fix alignment of rack names in elevations list
 * [#5478](https://github.com/netbox-community/netbox/issues/5478) - Fix display of route target description
