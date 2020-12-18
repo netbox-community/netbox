@@ -17,6 +17,7 @@
 * [#5486](https://github.com/netbox-community/netbox/issues/5486) - Optimize retrieval of config context data for device/VM REST API views
 * [#5487](https://github.com/netbox-community/netbox/issues/5487) - Support filtering rack type/width with multiple values
 * [#5498](https://github.com/netbox-community/netbox/issues/5498) - Fix filtering rack reservations by username
+* [#5499](https://github.com/netbox-community/netbox/issues/5499) - Fix filtering of displayed device/VM interfaces by regex
 
 ---
 

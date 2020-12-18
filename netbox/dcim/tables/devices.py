@@ -447,7 +447,8 @@ class DeviceInterfaceTable(InterfaceTable):
             'connection', 'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': lambda record: record.cable.get_status_class() if record.cable else '',
+            'data-name': lambda record: record.name,
         }
 
 
