@@ -208,6 +208,14 @@ def split(string, sep=','):
     return string.split(sep)
 
 
+@register.filter()
+def as_range(n):
+    """
+    Return a range of n items.
+    """
+    return range(n)
+
+
 #
 # Tags
 #
