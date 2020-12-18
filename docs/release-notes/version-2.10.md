@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5489](https://github.com/netbox-community/netbox/issues/5489) - Add filters for type and width to racks list
+* [#5496](https://github.com/netbox-community/netbox/issues/5496) - Add form field to filter rack reservation by user
 
 ### Bug Fixes
 
