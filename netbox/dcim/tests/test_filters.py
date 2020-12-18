@@ -514,9 +514,8 @@ class RackReservationTestCase(TestCase):
         users = User.objects.all()[:2]
         params = {'user_id': [users[0].pk, users[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        # TODO: Filtering by username is broken
-        # params = {'user': [users[0].username, users[1].username]}
-        # self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]

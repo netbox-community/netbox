@@ -302,7 +302,7 @@ class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
         label='User (ID)',
     )
     user = django_filters.ModelMultipleChoiceFilter(
-        field_name='user',
+        field_name='user__username',
         queryset=User.objects.all(),
         to_field_name='username',
         label='User (name)',
