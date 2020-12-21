@@ -213,6 +213,10 @@ def as_range(n):
     """
     Return a range of n items.
     """
+    try:
+        int(n)
+    except TypeError:
+        return list()
     return range(n)
 
 
