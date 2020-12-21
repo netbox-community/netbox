@@ -2,6 +2,7 @@ import django_filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.forms import DateField, IntegerField, NullBooleanField
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
@@ -38,24 +39,21 @@ class CustomFieldFilter(django_filters.Filter):
     """
     def __init__(self, custom_field, *args, **kwargs):
         self.custom_field = custom_field
+
+        if custom_field.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            self.field_class = IntegerField
+        elif custom_field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            self.field_class = NullBooleanField
+        elif custom_field.type == CustomFieldTypeChoices.TYPE_DATE:
+            self.field_class = DateField
+
         super().__init__(*args, **kwargs)
 
-    def filter(self, queryset, value):
+        self.field_name = f'custom_field_data__{self.field_name}'
 
-        # Skip filter on empty value
-        if value is None or not value.strip():
-            return queryset
-
-        # Apply the assigned filter logic (exact or loose)
-        if (
-            self.custom_field.type in EXACT_FILTER_TYPES or
-            self.custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_EXACT
-        ):
-            kwargs = {f'custom_field_data__{self.field_name}': value}
-        else:
-            kwargs = {f'custom_field_data__{self.field_name}__icontains': value}
-
-        return queryset.filter(**kwargs)
+        if custom_field.type not in EXACT_FILTER_TYPES:
+            if custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
+                self.lookup_expr = 'icontains'
 
 
 class CustomFieldModelFilterSet(django_filters.FilterSet):

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 from rest_framework import status
 
+from dcim.filters import SiteFilterSet
 from dcim.forms import SiteCSVForm
 from dcim.models import Site, Rack
 from extras.choices import *
@@ -597,3 +598,102 @@ class CustomFieldModelTest(TestCase):
 
         site.cf['baz'] = 'def'
         site.clean()
+
+
+class CustomFieldFilterTest(TestCase):
+    queryset = Site.objects.all()
+    filterset = SiteFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        obj_type = ContentType.objects.get_for_model(Site)
+
+        # Integer filtering
+        cf = CustomField(name='cf1', type=CustomFieldTypeChoices.TYPE_INTEGER)
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Boolean filtering
+        cf = CustomField(name='cf2', type=CustomFieldTypeChoices.TYPE_BOOLEAN)
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Exact text filtering
+        cf = CustomField(name='cf3', type=CustomFieldTypeChoices.TYPE_TEXT,
+                         filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT)
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Loose text filtering
+        cf = CustomField(name='cf4', type=CustomFieldTypeChoices.TYPE_TEXT,
+                         filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE)
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Date filtering
+        cf = CustomField(name='cf5', type=CustomFieldTypeChoices.TYPE_DATE)
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Exact URL filtering
+        cf = CustomField(name='cf6', type=CustomFieldTypeChoices.TYPE_URL,
+                         filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT)
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Loose URL filtering
+        cf = CustomField(name='cf7', type=CustomFieldTypeChoices.TYPE_URL,
+                         filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE)
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Selection filtering
+        cf = CustomField(name='cf8', type=CustomFieldTypeChoices.TYPE_URL, choices=['Foo', 'Bar', 'Baz'])
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        Site.objects.bulk_create([
+            Site(name='Site 1', slug='site-1', custom_field_data={
+                'cf1': 100,
+                'cf2': True,
+                'cf3': 'foo',
+                'cf4': 'foo',
+                'cf5': '2016-06-26',
+                'cf6': 'http://foo.example.com/',
+                'cf7': 'http://foo.example.com/',
+                'cf8': 'Foo',
+            }),
+            Site(name='Site 2', slug='site-2', custom_field_data={
+                'cf1': 200,
+                'cf2': False,
+                'cf3': 'foobar',
+                'cf4': 'foobar',
+                'cf5': '2016-06-27',
+                'cf6': 'http://bar.example.com/',
+                'cf7': 'http://bar.example.com/',
+                'cf8': 'Bar',
+            }),
+            Site(name='Site 3', slug='site-3', custom_field_data={
+            }),
+        ])
+
+    def test_filter_integer(self):
+        self.assertEqual(self.filterset({'cf_cf1': 100}, self.queryset).qs.count(), 1)
+
+    def test_filter_boolean(self):
+        self.assertEqual(self.filterset({'cf_cf2': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf2': False}, self.queryset).qs.count(), 1)
+
+    def test_filter_text(self):
+        self.assertEqual(self.filterset({'cf_cf3': 'foo'}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4': 'foo'}, self.queryset).qs.count(), 2)
+
+    def test_filter_date(self):
+        self.assertEqual(self.filterset({'cf_cf5': '2016-06-26'}, self.queryset).qs.count(), 1)
+
+    def test_filter_url(self):
+        self.assertEqual(self.filterset({'cf_cf6': 'http://foo.example.com/'}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf7': 'example.com'}, self.queryset).qs.count(), 2)
+
+    def test_filter_select(self):
+        self.assertEqual(self.filterset({'cf_cf8': 'Foo'}, self.queryset).qs.count(), 1)
