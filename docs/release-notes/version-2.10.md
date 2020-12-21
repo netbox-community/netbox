@@ -16,6 +16,7 @@
 * [#5484](https://github.com/netbox-community/netbox/issues/5484) - Fix "tagged" indication in VLAN members list
 * [#5486](https://github.com/netbox-community/netbox/issues/5486) - Optimize retrieval of config context data for device/VM REST API views
 * [#5487](https://github.com/netbox-community/netbox/issues/5487) - Support filtering rack type/width with multiple values
+* [#5488](https://github.com/netbox-community/netbox/issues/5488) - Fix caching error when viewing cable trace after toggling cable status
 * [#5498](https://github.com/netbox-community/netbox/issues/5498) - Fix filtering rack reservations by username
 * [#5499](https://github.com/netbox-community/netbox/issues/5499) - Fix filtering of displayed device/VM interfaces by regex
 * [#5507](https://github.com/netbox-community/netbox/issues/5507) - Fix custom field data assignment via UI for IP addresses, secrets
