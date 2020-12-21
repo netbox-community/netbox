@@ -224,6 +224,12 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         choices=RackStatusChoices,
         null_value=None
     )
+    type = django_filters.MultipleChoiceFilter(
+        choices=RackTypeChoices
+    )
+    width = django_filters.MultipleChoiceFilter(
+        choices=RackWidthChoices
+    )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RackRole.objects.all(),
         label='Role (ID)',
@@ -242,8 +248,8 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'asset_tag', 'type', 'width', 'u_height', 'desc_units',
-            'outer_width', 'outer_depth', 'outer_unit',
+            'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
+            'outer_unit',
         ]
 
     def search(self, queryset, name, value):
@@ -296,7 +302,7 @@ class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
         label='User (ID)',
     )
     user = django_filters.ModelMultipleChoiceFilter(
-        field_name='user',
+        field_name='user__username',
         queryset=User.objects.all(),
         to_field_name='username',
         label='User (name)',

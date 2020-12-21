@@ -21,7 +21,7 @@ from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelForm,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
     NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
@@ -690,6 +690,16 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
+    type = forms.MultipleChoiceField(
+        choices=RackTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    width = forms.MultipleChoiceField(
+        choices=RackWidthChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     role = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         to_field_name='slug',
@@ -850,7 +860,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFor
 
 class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
     model = RackReservation
-    field_order = ['q', 'region', 'site', 'group_id', 'tenant_group', 'tenant']
+    field_order = ['q', 'region', 'site', 'group_id', 'user_id', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -873,6 +883,15 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
         required=False,
         label='Rack group',
         null_option='None'
+    )
+    user_id = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        display_field='username',
+        label='User',
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
     )
     tag = TagFilterField(model)
 

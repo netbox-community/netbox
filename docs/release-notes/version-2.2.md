@@ -196,7 +196,7 @@ Our second-most popular feature request has arrived! NetBox now supports the cre
 
 #### Custom Validation Reports ([#1511](https://github.com/netbox-community/netbox/issues/1511))
 
-Users can now create custom reports which are run to validate data in NetBox. Reports work very similar to Python unit tests: Each report inherits from NetBox's Report class and contains one or more test method. Reports can be run and retrieved via the web UI, API, or CLI. See [the docs](http://netbox.readthedocs.io/en/stable/miscellaneous/reports/) for more info.
+Users can now create custom reports which are run to validate data in NetBox. Reports work very similar to Python unit tests: Each report inherits from NetBox's Report class and contains one or more test method. Reports can be run and retrieved via the web UI, API, or CLI. See [the docs](https://netbox.readthedocs.io/en/stable/miscellaneous/reports/) for more info.
 
 ### Enhancements
 

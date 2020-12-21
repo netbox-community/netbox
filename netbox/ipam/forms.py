@@ -774,6 +774,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
                 self.initial['primary_for_parent'] = True
 
     def clean(self):
+        super().clean()
 
         # Cannot select both a device interface and a VM interface
         if self.cleaned_data.get('interface') and self.cleaned_data.get('vminterface'):

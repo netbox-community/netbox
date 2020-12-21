@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.functions import Coalesce
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -22,7 +21,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.views import ModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.utils import copy_safe_request, get_subquery
+from utilities.utils import copy_safe_request, count_related
 from . import serializers
 
 
@@ -103,7 +102,7 @@ class ExportTemplateViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=Coalesce(get_subquery(TaggedItem, 'tag'), 0)
+        tagged_items=count_related(TaggedItem, 'tag')
     )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet

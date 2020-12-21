@@ -1,5 +1,29 @@
 # NetBox v2.10
 
+## v2.10.2 (2020-12-21)
+
+### Enhancements
+
+* [#5489](https://github.com/netbox-community/netbox/issues/5489) - Add filters for type and width to racks list
+* [#5496](https://github.com/netbox-community/netbox/issues/5496) - Add form field to filter rack reservation by user
+
+### Bug Fixes
+
+* [#5254](https://github.com/netbox-community/netbox/issues/5254) - Require plugin authors to set zip_safe=False
+* [#5468](https://github.com/netbox-community/netbox/issues/5468) - Fix unlocking secrets from device/VM view
+* [#5473](https://github.com/netbox-community/netbox/issues/5473) - Fix alignment of rack names in elevations list
+* [#5478](https://github.com/netbox-community/netbox/issues/5478) - Fix display of route target description
+* [#5484](https://github.com/netbox-community/netbox/issues/5484) - Fix "tagged" indication in VLAN members list
+* [#5486](https://github.com/netbox-community/netbox/issues/5486) - Optimize retrieval of config context data for device/VM REST API views
+* [#5487](https://github.com/netbox-community/netbox/issues/5487) - Support filtering rack type/width with multiple values
+* [#5488](https://github.com/netbox-community/netbox/issues/5488) - Fix caching error when viewing cable trace after toggling cable status
+* [#5498](https://github.com/netbox-community/netbox/issues/5498) - Fix filtering rack reservations by username
+* [#5499](https://github.com/netbox-community/netbox/issues/5499) - Fix filtering of displayed device/VM interfaces by regex
+* [#5507](https://github.com/netbox-community/netbox/issues/5507) - Fix custom field data assignment via UI for IP addresses, secrets
+* [#5510](https://github.com/netbox-community/netbox/issues/5510) - Fix filtering by boolean custom fields
+
+---
+
 ## v2.10.1 (2020-12-15)
 
 ### Bug Fixes

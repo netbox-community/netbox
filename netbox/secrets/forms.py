@@ -122,6 +122,7 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
             self.fields['plaintext'].required = True
 
     def clean(self):
+        super().clean()
 
         if not self.cleaned_data['device'] and not self.cleaned_data['virtual_machine']:
             raise forms.ValidationError("Secrets must be assigned to a device or virtual machine.")

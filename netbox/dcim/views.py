@@ -20,7 +20,7 @@ from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
-from utilities.utils import csv_format, get_subquery
+from utilities.utils import csv_format, count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -254,7 +254,7 @@ class RackGroupBulkDeleteView(generic.BulkDeleteView):
 
 class RackRoleListView(generic.ObjectListView):
     queryset = RackRole.objects.annotate(
-        rack_count=get_subquery(Rack, 'role')
+        rack_count=count_related(Rack, 'role')
     )
     table = tables.RackRoleTable
 
@@ -276,7 +276,7 @@ class RackRoleBulkImportView(generic.BulkImportView):
 
 class RackRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = RackRole.objects.annotate(
-        rack_count=get_subquery(Rack, 'role')
+        rack_count=count_related(Rack, 'role')
     )
     table = tables.RackRoleTable
 
@@ -289,7 +289,7 @@ class RackListView(generic.ObjectListView):
     queryset = Rack.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'devices__device_type'
     ).annotate(
-        device_count=get_subquery(Device, 'rack')
+        device_count=count_related(Device, 'rack')
     )
     filterset = filters.RackFilterSet
     filterset_form = forms.RackFilterForm
@@ -470,9 +470,9 @@ class RackReservationBulkDeleteView(generic.BulkDeleteView):
 
 class ManufacturerListView(generic.ObjectListView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=get_subquery(DeviceType, 'manufacturer'),
-        inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
-        platform_count=get_subquery(Platform, 'manufacturer')
+        devicetype_count=count_related(DeviceType, 'manufacturer'),
+        inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
+        platform_count=count_related(Platform, 'manufacturer')
     )
     table = tables.ManufacturerTable
 
@@ -494,7 +494,7 @@ class ManufacturerBulkImportView(generic.BulkImportView):
 
 class ManufacturerBulkDeleteView(generic.BulkDeleteView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=get_subquery(DeviceType, 'manufacturer')
+        devicetype_count=count_related(DeviceType, 'manufacturer')
     )
     table = tables.ManufacturerTable
 
@@ -505,7 +505,7 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceTypeListView(generic.ObjectListView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=get_subquery(Device, 'device_type')
+        instance_count=count_related(Device, 'device_type')
     )
     filterset = filters.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
@@ -612,7 +612,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
 
 class DeviceTypeBulkEditView(generic.BulkEditView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=get_subquery(Device, 'device_type')
+        instance_count=count_related(Device, 'device_type')
     )
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
@@ -621,7 +621,7 @@ class DeviceTypeBulkEditView(generic.BulkEditView):
 
 class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=get_subquery(Device, 'device_type')
+        instance_count=count_related(Device, 'device_type')
     )
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
@@ -913,8 +913,8 @@ class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceRoleListView(generic.ObjectListView):
     queryset = DeviceRole.objects.annotate(
-        device_count=get_subquery(Device, 'device_role'),
-        vm_count=get_subquery(VirtualMachine, 'role')
+        device_count=count_related(Device, 'device_role'),
+        vm_count=count_related(VirtualMachine, 'role')
     )
     table = tables.DeviceRoleTable
 
@@ -945,8 +945,8 @@ class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
 
 class PlatformListView(generic.ObjectListView):
     queryset = Platform.objects.annotate(
-        device_count=get_subquery(Device, 'platform'),
-        vm_count=get_subquery(VirtualMachine, 'platform')
+        device_count=count_related(Device, 'platform'),
+        vm_count=count_related(VirtualMachine, 'platform')
     )
     table = tables.PlatformTable
 
@@ -2335,7 +2335,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
 
 class VirtualChassisListView(generic.ObjectListView):
     queryset = VirtualChassis.objects.prefetch_related('master').annotate(
-        member_count=get_subquery(Device, 'virtual_chassis')
+        member_count=count_related(Device, 'virtual_chassis')
     )
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
@@ -2565,7 +2565,7 @@ class PowerPanelListView(generic.ObjectListView):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'rack_group'
     ).annotate(
-        powerfeed_count=get_subquery(PowerFeed, 'power_panel')
+        powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     filterset = filters.PowerPanelFilterSet
     filterset_form = forms.PowerPanelFilterForm
@@ -2615,7 +2615,7 @@ class PowerPanelBulkDeleteView(generic.BulkDeleteView):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'rack_group'
     ).annotate(
-        powerfeed_count=get_subquery(PowerFeed, 'power_panel')
+        powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     filterset = filters.PowerPanelFilterSet
     table = tables.PowerPanelTable

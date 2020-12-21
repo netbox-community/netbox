@@ -1,11 +1,10 @@
 // Inteface filtering
 $('input.interface-filter').on('input', function() {
-    var filter = new RegExp(this.value);
-    var interface;
+    let filter = new RegExp(this.value);
+    let interface;
 
     for (interface of $('table > tbody > tr')) {
-        // Slice off 'interface_' at the start of the ID
-        if (filter.test(interface.id.slice(10))) {
+        if (filter.test(interface.getAttribute('data-name'))) {
             // Match the toggle in case the filter now matches the interface
             $(interface).find('input:checkbox[name=pk]').prop('checked', $('input.toggle').prop('checked'));
             $(interface).show();

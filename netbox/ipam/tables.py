@@ -18,13 +18,11 @@ UTILIZATION_GRAPH = """
 """
 
 PREFIX_LINK = """
-{% if record.children %}
-    <span class="text-nowrap" style="padding-left: {{ record.parents }}0px "><i class="mdi mdi-chevron-right"></i></a>
-{% else %}
-    <span class="text-nowrap" style="padding-left: {{ record.parents }}9px">
-{% endif %}
-    <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% if parent.tenant %}&tenant_group={{ parent.tenant.group.pk }}&tenant={{ parent.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
-</span>
+{% load helpers %}
+{% for i in record.parents|as_range %}
+    <i class="mdi mdi-circle-small"></i>
+{% endfor %}
+<a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% if parent.tenant %}&tenant_group={{ parent.tenant.group.pk }}&tenant={{ parent.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 """
 
 PREFIX_ROLE_LINK = """
@@ -104,7 +102,7 @@ VLANGROUP_ADD_VLAN = """
 """
 
 VLAN_MEMBER_TAGGED = """
-{% if record.untagged_vlan_id == vlan.pk %}
+{% if record.untagged_vlan_id == object.pk %}
     <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
 {% else %}
     <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
