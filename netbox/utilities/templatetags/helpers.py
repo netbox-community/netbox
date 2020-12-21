@@ -36,11 +36,15 @@ def render_markdown(value):
     """
     Render text as Markdown
     """
+    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
+
+    # Fix for angle brackets markdown
+    value = re.sub(fr"<(?={schemes}:)(.*?)>", "[\\1](\\1)", value, flags=re.MULTILINE|re.IGNORECASE)
+
     # Strip HTML tags
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
     pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
