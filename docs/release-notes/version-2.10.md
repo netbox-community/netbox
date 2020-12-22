@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.3 (FUTURE)
+
+### Bug Fixes
+
+* [#5518](https://github.com/netbox-community/netbox/issues/5518) - Fix persistent vertical scrollbar
+
+---
+
 ## v2.10.2 (2020-12-21)
 
 ### Enhancements
