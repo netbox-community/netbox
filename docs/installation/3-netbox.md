@@ -83,7 +83,7 @@ Checking connectivity... done.
 ```
 
 !!! note
-    Installation via git also allows you to easily try out development versions of NetBox. The `develop` branch contains all work underway for the next minor release, and the `develop-x.y` branch (if present) tracks progress on the next major release. 
+    Installation via git also allows you to easily try out development versions of NetBox. The `develop` branch contains all work underway for the next minor release, and the `feature` branch tracks progress on the next major release. 
 
 ## Create the NetBox System User
 
