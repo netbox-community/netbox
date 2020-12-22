@@ -326,22 +326,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
                         'group': "Rack group must be from the same site, {}.".format(self.site)
                     })
 
-    def save(self, *args, **kwargs):
-
-        # Record the original site assignment for this rack.
-        _site_id = None
-        if self.pk:
-            _site_id = Rack.objects.get(pk=self.pk).site_id
-
-        super().save(*args, **kwargs)
-
-        # Update racked devices if the assigned Site has been changed.
-        if _site_id is not None and self.site_id != _site_id:
-            devices = Device.objects.filter(rack=self)
-            for device in devices:
-                device.site = self.site
-                device.save()
-
     def to_csv(self):
         return (
             self.site.name,

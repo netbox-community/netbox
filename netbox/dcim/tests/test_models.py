@@ -7,6 +7,39 @@ from dcim.models import *
 from tenancy.models import Tenant
 
 
+class RackGroupTestCase(TestCase):
+
+    def test_change_rackgroup_site(self):
+        """
+        Check that all child RackGroups and Racks get updated when a RackGroup is moved to a new Site. Topology:
+        Site A
+          - RackGroup A1
+            - RackGroup A2
+              - Rack 2
+            - Rack 1
+        """
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+
+        rackgroup_a1 = RackGroup(site=site_a, name='RackGroup A1', slug='rackgroup-a1')
+        rackgroup_a1.save()
+        rackgroup_a2 = RackGroup(site=site_a, parent=rackgroup_a1, name='RackGroup A2', slug='rackgroup-a2')
+        rackgroup_a2.save()
+
+        rack1 = Rack.objects.create(site=site_a, group=rackgroup_a1, name='Rack 1')
+        rack2 = Rack.objects.create(site=site_a, group=rackgroup_a2, name='Rack 2')
+
+        # Move RackGroup A1 to Site B
+        rackgroup_a1.site = site_b
+        rackgroup_a1.save()
+
+        # Check that all objects within RackGroup A1 now belong to Site B
+        self.assertEqual(RackGroup.objects.get(pk=rackgroup_a1.pk).site, site_b)
+        self.assertEqual(RackGroup.objects.get(pk=rackgroup_a2.pk).site, site_b)
+        self.assertEqual(Rack.objects.get(pk=rack1.pk).site, site_b)
+        self.assertEqual(Rack.objects.get(pk=rack2.pk).site, site_b)
+
+
 class RackTestCase(TestCase):
 
     def setUp(self):
@@ -153,6 +186,34 @@ class RackTestCase(TestCase):
             face='',
         )
         self.assertTrue(pdu)
+
+    def test_change_rack_site(self):
+        """
+        Check that child Devices get updated when a Rack is moved to a new Site.
+        """
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Device Role 1', slug='device-role-1', color='ff0000'
+        )
+
+        # Create Rack1 in Site A
+        rack1 = Rack.objects.create(site=site_a, name='Rack 1')
+
+        # Create Device1 in Rack1
+        device1 = Device.objects.create(site=site_a, rack=rack1, device_type=device_type, device_role=device_role)
+
+        # Move Rack1 to Site B
+        rack1.site = site_b
+        rack1.save()
+
+        # Check that Device1 is now assigned to Site B
+        self.assertEqual(Device.objects.get(pk=device1.pk).site, site_b)
 
 
 class DeviceTestCase(TestCase):
