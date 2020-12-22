@@ -1,5 +1,7 @@
+import json
 from django.contrib.auth.models import Group, User
 from django.db.models import Count
+from django.http import HttpResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -73,8 +75,16 @@ class UserConfigViewSet(ViewSet):
         Update the UserConfig for the currently authenticated User.
         """
         # TODO: How can we validate this data?
+
+        parsed_dict = {}
+        for item in request.data.items():
+            try:
+                parsed_dict[item[0]] = json.loads(item[1])
+            except:
+                parsed_dict[item[0]] = item[1]
+
         userconfig = self.get_queryset().first()
-        userconfig.data = deepmerge(userconfig.data, request.data)
+        userconfig.data = deepmerge(userconfig.data, parsed_dict)
         userconfig.save()
 
         return Response(userconfig.data)

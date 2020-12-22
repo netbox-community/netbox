@@ -56,7 +56,7 @@
     <div class="pull-right noprint">
         <input type="hidden" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
         <button id="toggle_device_images" class="btn btn-default toggle-images" {% if show_images %} selected="selected" {% endif %}>
-            <span class="mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
+            <span class="mdi mdi-checkbox-{% if show_images %}marked{% else %}blank{% endif %}-circle-outline" aria-hidden="true"></span> Show Images
         </button>
         {% custom_links object %}
     </div>

@@ -6,7 +6,7 @@
 <div class="btn-toolbar pull-right noprint" role="toolbar">
     <input type="hidden" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <button id="toggle_device_images" class="btn btn-default toggle-images" {% if show_images %} selected="selected" {% endif %}>
-        <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
+        <span class="mdi mdi-checkbox-{% if show_images %}marked{% else %}blank{% endif %}-circle-outline" aria-hidden="true"></span> Show Images
     </button>
     <div class="btn-group" role="group">
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-default{% if rack_face == 'front' %} active{% endif %}">Front</a>

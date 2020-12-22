@@ -20,13 +20,13 @@ function setImages(visible){
 $('#toggle_device_images').click(function() {
     var selected = $(this).attr('selected');
     $.ajax({
-        url: "/dcim/rack-elevations/",
-        type: 'POST',
+        url: "/api/users/config/",
+        type: 'PATCH',
+        headers:{"X-CSRFToken": $("#csrfmiddlewaretoken").val()},
         data: {
-            'show_images': !selected,
-            'csrfmiddlewaretoken': $("#csrfmiddlewaretoken").val()
+            'rack_elevation': JSON.stringify({'show_images': !selected})
         },
-        datatype: "json"
+        datatype: "application/json"
       });
 
     setImages(!selected);
