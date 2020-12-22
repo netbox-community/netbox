@@ -34,6 +34,12 @@ class Migration(migrations.Migration):
                 size=None
             ),
         ),
+        # Introduce new default field (to be renamed later)
+        migrations.AddField(
+            model_name='customfield',
+            name='default2',
+            field=models.JSONField(blank=True, null=True),
+        ),
         # Rename obj_type to content_types
         migrations.RenameField(
             model_name='customfield',

@@ -26,15 +26,8 @@ class CustomFieldDefaultValues:
         # Populate the default value for each CustomField
         value = {}
         for field in fields:
-            if field.default:
-                if field.type == CustomFieldTypeChoices.TYPE_INTEGER:
-                    field_value = int(field.default)
-                elif field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-                    # TODO: Fix default value assignment for boolean custom fields
-                    field_value = False if field.default.lower() == 'false' else bool(field.default)
-                else:
-                    field_value = field.default
-                value[field.name] = field_value
+            if field.default is not None:
+                value[field.name] = field.default
             else:
                 value[field.name] = None
 

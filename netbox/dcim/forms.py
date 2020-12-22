@@ -21,10 +21,11 @@ from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, NumericArrayField, SelectWithPK,
-    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
+    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -88,13 +89,12 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class InterfaceCommonForm:
+class InterfaceCommonForm(forms.Form):
 
     def clean(self):
-
         super().clean()
 
-        # Validate VLAN assignments
+        parent_field = 'device' if 'device' in self.cleaned_data else 'virtual_machine'
         tagged_vlans = self.cleaned_data['tagged_vlans']
 
         # Untagged interfaces cannot be assigned tagged VLANs
@@ -109,13 +109,13 @@ class InterfaceCommonForm:
 
         # Validate tagged VLANs; must be a global VLAN or in the same site
         elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED:
-            valid_sites = [None, self.cleaned_data['device'].site]
+            valid_sites = [None, self.cleaned_data[parent_field].site]
             invalid_vlans = [str(v) for v in tagged_vlans if v.site not in valid_sites]
 
             if invalid_vlans:
                 raise forms.ValidationError({
-                    'tagged_vlans': "The tagged VLANs ({}) must belong to the same site as the interface's parent "
-                                    "device/VM, or they must be global".format(', '.join(invalid_vlans))
+                    'tagged_vlans': f"The tagged VLANs ({', '.join(invalid_vlans)}) must belong to the same site as "
+                                    f"the interface's parent device/VM, or they must be global"
                 })
 
 
@@ -690,6 +690,16 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
+    type = forms.MultipleChoiceField(
+        choices=RackTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    width = forms.MultipleChoiceField(
+        choices=RackWidthChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     role = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         to_field_name='slug',
@@ -850,7 +860,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFor
 
 class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
     model = RackReservation
-    field_order = ['q', 'region', 'site', 'group_id', 'tenant_group', 'tenant']
+    field_order = ['q', 'region', 'site', 'group_id', 'user_id', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -873,6 +883,15 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
         required=False,
         label='Rack group',
         null_option='None'
+    )
+    user_id = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        display_field='username',
+        label='User',
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
     )
     tag = TagFilterField(model)
 
@@ -922,7 +941,14 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
             'front_image', 'rear_image', 'comments', 'tags',
         ]
         widgets = {
-            'subdevice_role': StaticSelect2()
+            'subdevice_role': StaticSelect2(),
+            # Exclude SVG images (unsupported by PIL)
+            'front_image': forms.FileInput(attrs={
+                'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
+            }),
+            'rear_image': forms.FileInput(attrs={
+                'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
+            })
         }
 
 
@@ -2681,7 +2707,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
+class InterfaceForm(BootstrapMixin, InterfaceCommonForm, forms.ModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
@@ -2832,7 +2858,7 @@ class InterfaceBulkCreateForm(
 
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
-        'label', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode'
+        'label', 'type', 'lag', 'mac_address', 'mtu', 'description', 'mode'
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
@@ -2847,6 +2873,15 @@ class InterfaceBulkEditForm(
         required=False,
         disabled=True,
         widget=forms.HiddenInput()
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
+    mgmt_only = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+        label='Management only'
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -3758,10 +3793,9 @@ class CableCSVForm(CSVModelForm):
         to_field_name='name',
         help_text='Side A device'
     )
-    side_a_type = CSVModelChoiceField(
+    side_a_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        to_field_name='model',
         help_text='Side A type'
     )
     side_a_name = forms.CharField(
@@ -3774,10 +3808,9 @@ class CableCSVForm(CSVModelForm):
         to_field_name='name',
         help_text='Side B device'
     )
-    side_b_type = CSVModelChoiceField(
+    side_b_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        to_field_name='model',
         help_text='Side B type'
     )
     side_b_name = forms.CharField(
@@ -3811,58 +3844,36 @@ class CableCSVForm(CSVModelForm):
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
 
-    # TODO: Merge the clean() methods for either end
-    def clean_side_a_name(self):
+    def _clean_side(self, side):
+        """
+        Derive a Cable's A/B termination objects.
 
-        device = self.cleaned_data.get('side_a_device')
-        content_type = self.cleaned_data.get('side_a_type')
-        name = self.cleaned_data.get('side_a_name')
+        :param side: 'a' or 'b'
+        """
+        assert side in 'ab', f"Invalid side designation: {side}"
+
+        device = self.cleaned_data.get(f'side_{side}_device')
+        content_type = self.cleaned_data.get(f'side_{side}_type')
+        name = self.cleaned_data.get(f'side_{side}_name')
         if not device or not content_type or not name:
             return None
 
         model = content_type.model_class()
         try:
-            termination_object = model.objects.get(
-                device=device,
-                name=name
-            )
+            termination_object = model.objects.get(device=device, name=name)
             if termination_object.cable is not None:
-                raise forms.ValidationError(
-                    "Side A: {} {} is already connected".format(device, termination_object)
-                )
+                raise forms.ValidationError(f"Side {side.upper()}: {device} {termination_object} is already connected")
         except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                "A side termination not found: {} {}".format(device, name)
-            )
+            raise forms.ValidationError(f"{side.upper()} side termination not found: {device} {name}")
 
-        self.instance.termination_a = termination_object
+        setattr(self.instance, f'termination_{side}', termination_object)
         return termination_object
+
+    def clean_side_a_name(self):
+        return self._clean_side('a')
 
     def clean_side_b_name(self):
-
-        device = self.cleaned_data.get('side_b_device')
-        content_type = self.cleaned_data.get('side_b_type')
-        name = self.cleaned_data.get('side_b_name')
-        if not device or not content_type or not name:
-            return None
-
-        model = content_type.model_class()
-        try:
-            termination_object = model.objects.get(
-                device=device,
-                name=name
-            )
-            if termination_object.cable is not None:
-                raise forms.ValidationError(
-                    "Side B: {} {} is already connected".format(device, termination_object)
-                )
-        except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                "B side termination not found: {} {}".format(device, name)
-            )
-
-        self.instance.termination_b = termination_object
-        return termination_object
+        return self._clean_side('b')
 
     def clean_length_unit(self):
         # Avoid trying to save as NULL

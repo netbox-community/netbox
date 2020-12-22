@@ -93,6 +93,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['view']
             )
@@ -107,6 +108,15 @@ class APIViewTestCases:
             # Try GET to non-permitted object
             url = self._get_detail_url(instance2)
             self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_404_NOT_FOUND)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_options_object(self):
+            """
+            Make an OPTIONS request for a single object.
+            """
+            url = self._get_detail_url(self._get_queryset().first())
+            response = self.client.options(url, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
 
     class ListObjectsViewTestCase(APITestCase):
         brief_fields = []
@@ -160,6 +170,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk__in': [instance1.pk, instance2.pk]},
                 actions=['view']
             )
@@ -172,8 +183,17 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             self.assertEqual(len(response.data['results']), 2)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_options_objects(self):
+            """
+            Make an OPTIONS request for a list endpoint.
+            """
+            response = self.client.options(self._get_list_url(), **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
     class CreateObjectViewTestCase(APITestCase):
         create_data = []
+        validation_excluded_fields = []
 
         def test_create_object_without_permission(self):
             """
@@ -192,6 +212,7 @@ class APIViewTestCases:
             """
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -205,6 +226,7 @@ class APIViewTestCases:
             self.assertInstanceEqual(
                 self._get_queryset().get(pk=response.data['id']),
                 self.create_data[0],
+                exclude=self.validation_excluded_fields,
                 api=True
             )
 
@@ -214,6 +236,7 @@ class APIViewTestCases:
             """
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -227,17 +250,20 @@ class APIViewTestCases:
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.create_data))
             for i, obj in enumerate(response.data):
                 for field in self.create_data[i]:
-                    self.assertIn(field, obj, f"Bulk create field '{field}' missing from object {i} in response")
+                    if field not in self.validation_excluded_fields:
+                        self.assertIn(field, obj, f"Bulk create field '{field}' missing from object {i} in response")
             for i, obj in enumerate(response.data):
                 self.assertInstanceEqual(
                     self._get_queryset().get(pk=obj['id']),
                     self.create_data[i],
+                    exclude=self.validation_excluded_fields,
                     api=True
                 )
 
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
         bulk_update_data = None
+        validation_excluded_fields = []
 
         def test_update_object_without_permission(self):
             """
@@ -261,6 +287,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -270,7 +297,12 @@ class APIViewTestCases:
             response = self.client.patch(url, update_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
-            self.assertInstanceEqual(instance, update_data, api=True)
+            self.assertInstanceEqual(
+                instance,
+                update_data,
+                exclude=self.validation_excluded_fields,
+                api=True
+            )
 
         def test_bulk_update_objects(self):
             """
@@ -281,6 +313,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -323,6 +356,7 @@ class APIViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()
@@ -339,6 +373,7 @@ class APIViewTestCases:
             """
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()

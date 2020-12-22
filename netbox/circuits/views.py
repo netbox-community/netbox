@@ -1,12 +1,12 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.utils import count_related
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -17,7 +17,9 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 #
 
 class ProviderListView(generic.ObjectListView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+    queryset = Provider.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
     table = tables.ProviderTable
@@ -64,14 +66,18 @@ class ProviderBulkImportView(generic.BulkImportView):
 
 
 class ProviderBulkEditView(generic.BulkEditView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+    queryset = Provider.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
 
 
 class ProviderBulkDeleteView(generic.BulkDeleteView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+    queryset = Provider.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
 
@@ -81,7 +87,9 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 #
 
 class CircuitTypeListView(generic.ObjectListView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
+    queryset = CircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
     table = tables.CircuitTypeTable
 
 
@@ -101,7 +109,9 @@ class CircuitTypeBulkImportView(generic.BulkImportView):
 
 
 class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
+    queryset = CircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
     table = tables.CircuitTypeTable
 
 
@@ -129,7 +139,7 @@ class CircuitView(generic.ObjectView):
         ).filter(
             circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
-        if termination_a and termination_a.connected_endpoint:
+        if termination_a and termination_a.connected_endpoint and hasattr(termination_a.connected_endpoint, 'ip_addresses'):
             termination_a.ip_addresses = termination_a.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         # Z-side termination
@@ -138,7 +148,7 @@ class CircuitView(generic.ObjectView):
         ).filter(
             circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()
-        if termination_z and termination_z.connected_endpoint:
+        if termination_z and termination_z.connected_endpoint and hasattr(termination_z.connected_endpoint, 'ip_addresses'):
             termination_z.ip_addresses = termination_z.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         return {

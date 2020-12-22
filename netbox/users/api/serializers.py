@@ -19,9 +19,23 @@ class UserSerializer(ValidatedModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'url', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined',
-            'groups',
+            'id', 'url', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active',
+            'date_joined', 'groups',
         )
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        """
+        Extract the password from validated data and set it separately to ensure proper hash generation.
+        """
+        password = validated_data.pop('password')
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
+
+        return user
 
 
 class GroupSerializer(ValidatedModelSerializer):

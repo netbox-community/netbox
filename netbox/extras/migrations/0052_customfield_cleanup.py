@@ -8,6 +8,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='CustomField',
+            name='default',
+        ),
+        migrations.RenameField(
+            model_name='CustomField',
+            old_name='default2',
+            new_name='default'
+        ),
         migrations.DeleteModel(
             name='CustomFieldChoice',
         ),

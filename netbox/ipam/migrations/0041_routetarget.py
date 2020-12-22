@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('tenancy', '0010_custom_field_data'),
-        ('extras', '0052_delete_customfieldchoice_customfieldvalue'),
+        ('extras', '0052_customfield_cleanup'),
         ('ipam', '0040_service_drop_port'),
     ]
 

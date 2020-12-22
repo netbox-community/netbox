@@ -31,8 +31,7 @@ class Webhook(models.Model):
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
-    # TODO: Rename obj_type to content_types (see #4711)
-    obj_type = models.ManyToManyField(
+    content_types = models.ManyToManyField(
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',

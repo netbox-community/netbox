@@ -45,9 +45,15 @@ INTERFACE_IPADDRESSES = """
 """
 
 INTERFACE_TAGGED_VLANS = """
-{% for vlan in record.tagged_vlans.unrestricted %}
-    <a href="{{ vlan.get_absolute_url }}">{{ vlan }}</a><br />
-{% endfor %}
+{% if record.mode == 'tagged' %}
+    {% for vlan in record.tagged_vlans.all %}
+        <a href="{{ vlan.get_absolute_url }}">{{ vlan }}</a><br />
+    {% endfor %}
+{% elif record.mode == 'tagged-all' %}
+  All
+{% else %}
+  &mdash;
+{% endif %}
 """
 
 MPTT_LINK = """

@@ -21,15 +21,19 @@ class UserTest(APIViewTestCases.APIViewTestCase):
     model = User
     view_namespace = 'users'
     brief_fields = ['id', 'url', 'username']
+    validation_excluded_fields = ['password']
     create_data = [
         {
             'username': 'User_4',
+            'password': 'password4',
         },
         {
             'username': 'User_5',
+            'password': 'password5',
         },
         {
             'username': 'User_6',
+            'password': 'password6',
         },
     ]
 
@@ -94,7 +98,7 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
 
         object_type = ContentType.objects.get(app_label='dcim', model='device')
 
-        for i in range(0, 3):
+        for i in range(3):
             objectpermission = ObjectPermission(
                 name=f'Permission {i+1}',
                 actions=['view', 'add', 'change', 'delete'],

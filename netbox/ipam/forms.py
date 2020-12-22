@@ -774,6 +774,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
                 self.initial['primary_for_parent'] = True
 
     def clean(self):
+        super().clean()
 
         # Cannot select both a device interface and a VM interface
         if self.cleaned_data.get('interface') and self.cleaned_data.get('vminterface'):
@@ -856,6 +857,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
     )
     status = CSVChoiceField(
         choices=IPAddressStatusChoices,
+        required=False,
         help_text='Operational status'
     )
     role = CSVChoiceField(
@@ -888,7 +890,10 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = IPAddress
-        fields = IPAddress.csv_headers
+        fields = [
+            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
+            'dns_name', 'description',
+        ]
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)

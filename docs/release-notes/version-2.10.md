@@ -1,21 +1,46 @@
 # NetBox v2.10
 
-## v2.10-beta2 (FUTURE)
+## v2.10.2 (2020-12-21)
 
 ### Enhancements
 
-* [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
+* [#5489](https://github.com/netbox-community/netbox/issues/5489) - Add filters for type and width to racks list
+* [#5496](https://github.com/netbox-community/netbox/issues/5496) - Add form field to filter rack reservation by user
 
 ### Bug Fixes
 
-* [#5176](https://github.com/netbox-community/netbox/issues/5176) - Enforce content type restrictions when creating objects via the REST API
-* [#5358](https://github.com/netbox-community/netbox/issues/5358) - Fix user table configuration for VM interfaces
-* [#5374](https://github.com/netbox-community/netbox/issues/5374) - Fix exception thrown when tracing mid-point
-* [#5376](https://github.com/netbox-community/netbox/issues/5376) - Correct invalid custom field filter logic values
+* [#5254](https://github.com/netbox-community/netbox/issues/5254) - Require plugin authors to set zip_safe=False
+* [#5468](https://github.com/netbox-community/netbox/issues/5468) - Fix unlocking secrets from device/VM view
+* [#5473](https://github.com/netbox-community/netbox/issues/5473) - Fix alignment of rack names in elevations list
+* [#5478](https://github.com/netbox-community/netbox/issues/5478) - Fix display of route target description
+* [#5484](https://github.com/netbox-community/netbox/issues/5484) - Fix "tagged" indication in VLAN members list
+* [#5486](https://github.com/netbox-community/netbox/issues/5486) - Optimize retrieval of config context data for device/VM REST API views
+* [#5487](https://github.com/netbox-community/netbox/issues/5487) - Support filtering rack type/width with multiple values
+* [#5488](https://github.com/netbox-community/netbox/issues/5488) - Fix caching error when viewing cable trace after toggling cable status
+* [#5498](https://github.com/netbox-community/netbox/issues/5498) - Fix filtering rack reservations by username
+* [#5499](https://github.com/netbox-community/netbox/issues/5499) - Fix filtering of displayed device/VM interfaces by regex
+* [#5507](https://github.com/netbox-community/netbox/issues/5507) - Fix custom field data assignment via UI for IP addresses, secrets
+* [#5510](https://github.com/netbox-community/netbox/issues/5510) - Fix filtering by boolean custom fields
 
 ---
 
-## v2.10-beta1 (2020-11-17)
+## v2.10.1 (2020-12-15)
+
+### Bug Fixes
+
+* [#5444](https://github.com/netbox-community/netbox/issues/5444) - Don't force overwriting of boolean fields when bulk editing interfaces
+* [#5450](https://github.com/netbox-community/netbox/issues/5450) - API serializer foreign count fields do not have a default value
+* [#5453](https://github.com/netbox-community/netbox/issues/5453) - Correct change log representation when creating a cable
+* [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
+* [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
+* [#5463](https://github.com/netbox-community/netbox/issues/5463) - Back-to-back Circuit Termination throws AttributeError exception
+* [#5465](https://github.com/netbox-community/netbox/issues/5465) - Correct return URL when disconnecting a cable from a device
+* [#5466](https://github.com/netbox-community/netbox/issues/5466) - Fix validation for required custom fields
+* [#5470](https://github.com/netbox-community/netbox/issues/5470) - Fix exception when making `OPTIONS` request for a REST API list endpoint
+
+---
+
+## v2.10.0 (2020-12-14)
 
 **NOTE:** This release completely removes support for embedded graphs.
 
@@ -89,12 +114,17 @@ All end-to-end cable paths are now cached using the new CablePath backend model.
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom field support for cables, power panels, rack reservations, and virtual chassis
 * [#5154](https://github.com/netbox-community/netbox/issues/5154) - The web interface now consumes the entire browser window
 * [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for retrieving content types (`/api/extras/content-types/`)
+* [#5274](https://github.com/netbox-community/netbox/issues/5274) - Add REST API support for custom fields
+* [#5399](https://github.com/netbox-community/netbox/issues/5399) - Show options for cable endpoint types during bulk import
+* [#5411](https://github.com/netbox-community/netbox/issues/5411) - Include cable tags in trace view
 
 ### Other Changes
 
 * [#1846](https://github.com/netbox-community/netbox/issues/1846) - Enable MPTT for InventoryItem hierarchy
+* [#2755](https://github.com/netbox-community/netbox/issues/2755) - Switched from Font Awesome/Glyphicons to Material Design icons
 * [#4349](https://github.com/netbox-community/netbox/issues/4349) - Dropped support for embedded graphs
 * [#4360](https://github.com/netbox-community/netbox/issues/4360) - Dropped support for the Django template language from export templates
+* [#4711](https://github.com/netbox-community/netbox/issues/4711) - Renamed Webhook `obj_type` to `content_types`
 * [#4941](https://github.com/netbox-community/netbox/issues/4941) - `commit` argument is now required argument in a custom script's `run()` method
 * [#5011](https://github.com/netbox-community/netbox/issues/5011) - Standardized name field lengths across all models
 * [#5139](https://github.com/netbox-community/netbox/issues/5139) - Omit utilization statistics from RIR list

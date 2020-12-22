@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
-from django.db.models import Count, F, Prefetch
+from django.db.models import F, Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
@@ -20,7 +20,7 @@ from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
-from utilities.utils import csv_format, get_subquery
+from utilities.utils import csv_format, count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -253,7 +253,9 @@ class RackGroupBulkDeleteView(generic.BulkDeleteView):
 #
 
 class RackRoleListView(generic.ObjectListView):
-    queryset = RackRole.objects.annotate(rack_count=Count('racks')).order_by(*RackRole._meta.ordering)
+    queryset = RackRole.objects.annotate(
+        rack_count=count_related(Rack, 'role')
+    )
     table = tables.RackRoleTable
 
 
@@ -273,7 +275,9 @@ class RackRoleBulkImportView(generic.BulkImportView):
 
 
 class RackRoleBulkDeleteView(generic.BulkDeleteView):
-    queryset = RackRole.objects.annotate(rack_count=Count('racks')).order_by(*RackRole._meta.ordering)
+    queryset = RackRole.objects.annotate(
+        rack_count=count_related(Rack, 'role')
+    )
     table = tables.RackRoleTable
 
 
@@ -282,9 +286,11 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 #
 
 class RackListView(generic.ObjectListView):
-    queryset = Rack.objects.annotate(
-        device_count=Count('devices')
-    ).order_by(*Rack._meta.ordering)
+    queryset = Rack.objects.prefetch_related(
+        'site', 'group', 'tenant', 'role', 'devices__device_type'
+    ).annotate(
+        device_count=count_related(Device, 'rack')
+    )
     filterset = filters.RackFilterSet
     filterset_form = forms.RackFilterForm
     table = tables.RackDetailTable
@@ -467,9 +473,9 @@ class RackReservationBulkDeleteView(generic.BulkDeleteView):
 
 class ManufacturerListView(generic.ObjectListView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=get_subquery(DeviceType, 'manufacturer'),
-        inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
-        platform_count=get_subquery(Platform, 'manufacturer')
+        devicetype_count=count_related(DeviceType, 'manufacturer'),
+        inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
+        platform_count=count_related(Platform, 'manufacturer')
     )
     table = tables.ManufacturerTable
 
@@ -491,8 +497,8 @@ class ManufacturerBulkImportView(generic.BulkImportView):
 
 class ManufacturerBulkDeleteView(generic.BulkDeleteView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=Count('device_types')
-    ).order_by(*Manufacturer._meta.ordering)
+        devicetype_count=count_related(DeviceType, 'manufacturer')
+    )
     table = tables.ManufacturerTable
 
 
@@ -501,9 +507,9 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
 #
 
 class DeviceTypeListView(generic.ObjectListView):
-    queryset = DeviceType.objects.annotate(
-        instance_count=Count('instances')
-    ).order_by(*DeviceType._meta.ordering)
+    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+        instance_count=count_related(Device, 'device_type')
+    )
     filterset = filters.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
@@ -609,8 +615,8 @@ class DeviceTypeImportView(generic.ObjectImportView):
 
 class DeviceTypeBulkEditView(generic.BulkEditView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=Count('instances')
-    ).order_by(*DeviceType._meta.ordering)
+        instance_count=count_related(Device, 'device_type')
+    )
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
     form = forms.DeviceTypeBulkEditForm
@@ -618,8 +624,8 @@ class DeviceTypeBulkEditView(generic.BulkEditView):
 
 class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
-        instance_count=Count('instances')
-    ).order_by(*DeviceType._meta.ordering)
+        instance_count=count_related(Device, 'device_type')
+    )
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
 
@@ -910,8 +916,8 @@ class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceRoleListView(generic.ObjectListView):
     queryset = DeviceRole.objects.annotate(
-        device_count=get_subquery(Device, 'device_role'),
-        vm_count=get_subquery(VirtualMachine, 'role')
+        device_count=count_related(Device, 'device_role'),
+        vm_count=count_related(VirtualMachine, 'role')
     )
     table = tables.DeviceRoleTable
 
@@ -942,8 +948,8 @@ class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
 
 class PlatformListView(generic.ObjectListView):
     queryset = Platform.objects.annotate(
-        device_count=get_subquery(Device, 'platform'),
-        vm_count=get_subquery(VirtualMachine, 'platform')
+        device_count=count_related(Device, 'platform'),
+        vm_count=count_related(VirtualMachine, 'platform')
     )
     table = tables.PlatformTable
 
@@ -1331,6 +1337,11 @@ class ConsolePortListView(generic.ObjectListView):
 class ConsolePortView(generic.ObjectView):
     queryset = ConsolePort.objects.all()
 
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_consoleports'
+        }
+
 
 class ConsolePortCreateView(generic.ComponentCreateView):
     queryset = ConsolePort.objects.all()
@@ -1390,6 +1401,11 @@ class ConsoleServerPortListView(generic.ObjectListView):
 
 class ConsoleServerPortView(generic.ObjectView):
     queryset = ConsoleServerPort.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_consoleserverports'
+        }
 
 
 class ConsoleServerPortCreateView(generic.ComponentCreateView):
@@ -1451,6 +1467,11 @@ class PowerPortListView(generic.ObjectListView):
 class PowerPortView(generic.ObjectView):
     queryset = PowerPort.objects.all()
 
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_powerports'
+        }
+
 
 class PowerPortCreateView(generic.ComponentCreateView):
     queryset = PowerPort.objects.all()
@@ -1510,6 +1531,11 @@ class PowerOutletListView(generic.ObjectListView):
 
 class PowerOutletView(generic.ObjectView):
     queryset = PowerOutlet.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_poweroutlets'
+        }
 
 
 class PowerOutletCreateView(generic.ComponentCreateView):
@@ -1595,6 +1621,7 @@ class InterfaceView(generic.ObjectView):
         return {
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
+            'breadcrumb_url': 'dcim:device_interfaces'
         }
 
 
@@ -1657,6 +1684,11 @@ class FrontPortListView(generic.ObjectListView):
 class FrontPortView(generic.ObjectView):
     queryset = FrontPort.objects.all()
 
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_frontports'
+        }
+
 
 class FrontPortCreateView(generic.ComponentCreateView):
     queryset = FrontPort.objects.all()
@@ -1717,6 +1749,11 @@ class RearPortListView(generic.ObjectListView):
 class RearPortView(generic.ObjectView):
     queryset = RearPort.objects.all()
 
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_rearports'
+        }
+
 
 class RearPortCreateView(generic.ComponentCreateView):
     queryset = RearPort.objects.all()
@@ -1776,6 +1813,11 @@ class DeviceBayListView(generic.ObjectListView):
 
 class DeviceBayView(generic.ObjectView):
     queryset = DeviceBay.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_devicebays'
+        }
 
 
 class DeviceBayCreateView(generic.ComponentCreateView):
@@ -1897,6 +1939,11 @@ class InventoryItemListView(generic.ObjectListView):
 
 class InventoryItemView(generic.ObjectView):
     queryset = InventoryItem.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'breadcrumb_url': 'dcim:device_inventory'
+        }
 
 
 class InventoryItemEditView(generic.ObjectEditView):
@@ -2290,9 +2337,9 @@ class InterfaceConnectionsListView(generic.ObjectListView):
 #
 
 class VirtualChassisListView(generic.ObjectListView):
-    queryset = VirtualChassis.objects.annotate(
-        member_count=Count('members', distinct=True)
-    ).order_by(*VirtualChassis._meta.ordering)
+    queryset = VirtualChassis.objects.prefetch_related('master').annotate(
+        member_count=count_related(Device, 'virtual_chassis')
+    )
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
@@ -2518,9 +2565,11 @@ class VirtualChassisBulkDeleteView(generic.BulkDeleteView):
 #
 
 class PowerPanelListView(generic.ObjectListView):
-    queryset = PowerPanel.objects.annotate(
-        powerfeed_count=Count('powerfeeds')
-    ).order_by(*PowerPanel._meta.ordering)
+    queryset = PowerPanel.objects.prefetch_related(
+        'site', 'rack_group'
+    ).annotate(
+        powerfeed_count=count_related(PowerFeed, 'power_panel')
+    )
     filterset = filters.PowerPanelFilterSet
     filterset_form = forms.PowerPanelFilterForm
     table = tables.PowerPanelTable
@@ -2569,8 +2618,8 @@ class PowerPanelBulkDeleteView(generic.BulkDeleteView):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'rack_group'
     ).annotate(
-        rack_count=Count('powerfeeds')
-    ).order_by(*PowerPanel._meta.ordering)
+        powerfeed_count=count_related(PowerFeed, 'power_panel')
+    )
     filterset = filters.PowerPanelFilterSet
     table = tables.PowerPanelTable
 

@@ -584,22 +584,15 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
             'count_ipaddresses',
         ]
 
-    # TODO: This validation should be handled by Interface.clean()
     def validate(self, data):
 
-        # All associated VLANs be global or assigned to the parent device's site.
+        # Validate many-to-many VLAN assignments
         device = self.instance.device if self.instance else data.get('device')
-        untagged_vlan = data.get('untagged_vlan')
-        if untagged_vlan and untagged_vlan.site not in [device.site, None]:
-            raise serializers.ValidationError({
-                'untagged_vlan': "VLAN {} must belong to the same site as the interface's parent device, or it must be "
-                                 "global.".format(untagged_vlan)
-            })
         for vlan in data.get('tagged_vlans', []):
             if vlan.site not in [device.site, None]:
                 raise serializers.ValidationError({
-                    'tagged_vlans': "VLAN {} must belong to the same site as the interface's parent device, or it must "
-                                    "be global.".format(vlan)
+                    'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent device, or "
+                                    f"it must be global."
                 })
 
         return super().validate(data)
@@ -773,11 +766,10 @@ class CablePathSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=serializers.ListField)
     def get_path(self, obj):
         ret = []
-        for node in obj.path:
-            ct_id, object_id = decompile_path_node(node)
-            ct = ContentType.objects.get_for_id(ct_id)
-            # TODO: Return the object URL
-            ret.append(f'{ct.app_label}.{ct.model}:{object_id}')
+        for node in obj.get_path():
+            serializer = get_serializer_for_model(node, prefix='Nested')
+            context = {'request': self.context['request']}
+            ret.append(serializer(node, context=context).data)
         return ret
 
 

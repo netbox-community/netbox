@@ -1,9 +1,8 @@
-from django.db.models import Count
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet, ModelViewSet
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from . import serializers
@@ -23,16 +22,16 @@ class VirtualizationRootView(APIRootView):
 
 class ClusterTypeViewSet(ModelViewSet):
     queryset = ClusterType.objects.annotate(
-        cluster_count=Count('clusters')
-    ).order_by(*ClusterType._meta.ordering)
+        cluster_count=count_related(Cluster, 'type')
+    )
     serializer_class = serializers.ClusterTypeSerializer
     filterset_class = filters.ClusterTypeFilterSet
 
 
 class ClusterGroupViewSet(ModelViewSet):
     queryset = ClusterGroup.objects.annotate(
-        cluster_count=Count('clusters')
-    ).order_by(*ClusterGroup._meta.ordering)
+        cluster_count=count_related(Cluster, 'group')
+    )
     serializer_class = serializers.ClusterGroupSerializer
     filterset_class = filters.ClusterGroupFilterSet
 
@@ -41,9 +40,9 @@ class ClusterViewSet(CustomFieldModelViewSet):
     queryset = Cluster.objects.prefetch_related(
         'type', 'group', 'tenant', 'site', 'tags'
     ).annotate(
-        device_count=get_subquery(Device, 'cluster'),
-        virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
-    ).order_by(*Cluster._meta.ordering)
+        device_count=count_related(Device, 'cluster'),
+        virtualmachine_count=count_related(VirtualMachine, 'cluster')
+    )
     serializer_class = serializers.ClusterSerializer
     filterset_class = filters.ClusterFilterSet
 
@@ -52,7 +51,7 @@ class ClusterViewSet(CustomFieldModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )

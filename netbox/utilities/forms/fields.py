@@ -6,12 +6,11 @@ from io import StringIO
 import django_filters
 from django import forms
 from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count
 from django.forms import BoundField
 from django.urls import reverse
 
-from utilities.api import get_serializer_for_model
 from utilities.choices import unpack_grouped_choices
 from utilities.validators import EnhancedURLValidator
 from . import widgets
@@ -21,6 +20,7 @@ from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 __all__ = (
     'CommentField',
     'CSVChoiceField',
+    'CSVContentTypeField',
     'CSVDataField',
     'CSVModelChoiceField',
     'DynamicModelChoiceField',
@@ -135,10 +135,30 @@ class CSVModelChoiceField(forms.ModelChoiceField):
     def to_python(self, value):
         try:
             return super().to_python(value)
-        except MultipleObjectsReturned as e:
+        except MultipleObjectsReturned:
             raise forms.ValidationError(
                 f'"{value}" is not a unique value for this field; multiple objects were found'
             )
+
+
+class CSVContentTypeField(CSVModelChoiceField):
+    """
+    Reference a ContentType in the form <app>.<model>
+    """
+    STATIC_CHOICES = True
+
+    def prepare_value(self, value):
+        return f'{value.app_label}.{value.model}'
+
+    def to_python(self, value):
+        try:
+            app_label, model = value.split('.')
+        except ValueError:
+            raise forms.ValidationError(f'Object type must be specified as "<app>.<model>"')
+        try:
+            return self.queryset.get(app_label=app_label, model=model)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(f'Invalid object type')
 
 
 class ExpandableNameField(forms.CharField):

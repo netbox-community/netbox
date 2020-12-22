@@ -1,4 +1,4 @@
-from django.db.models import Count, Prefetch
+from django.db.models import Prefetch
 from rest_framework.routers import APIRootView
 
 from circuits import filters
@@ -6,6 +6,7 @@ from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
 from dcim.api.views import PathEndpointMixin
 from extras.api.views import CustomFieldModelViewSet
 from netbox.api.views import ModelViewSet
+from utilities.utils import count_related
 from . import serializers
 
 
@@ -23,8 +24,8 @@ class CircuitsRootView(APIRootView):
 
 class ProviderViewSet(CustomFieldModelViewSet):
     queryset = Provider.objects.prefetch_related('tags').annotate(
-        circuit_count=Count('circuits')
-    ).order_by(*Provider._meta.ordering)
+        circuit_count=count_related(Circuit, 'provider')
+    )
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilterSet
 
@@ -35,8 +36,8 @@ class ProviderViewSet(CustomFieldModelViewSet):
 
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.annotate(
-        circuit_count=Count('circuits')
-    ).order_by(*CircuitType._meta.ordering)
+        circuit_count=count_related(Circuit, 'type')
+    )
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filters.CircuitTypeFilterSet
 

@@ -887,6 +887,8 @@ class PortTypeChoices(ChoiceSet):
     TYPE_LSH = 'lsh'
     TYPE_LSH_APC = 'lsh-apc'
     TYPE_SPLICE = 'splice'
+    TYPE_CS = 'cs'
+    TYPE_SN = 'sn'
 
     CHOICES = (
         (
@@ -914,6 +916,8 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_SC, 'SC'),
                 (TYPE_SC_APC, 'SC/APC'),
                 (TYPE_ST, 'ST'),
+                (TYPE_CS, 'CS'),
+                (TYPE_SN, 'SN'),
                 (TYPE_SPLICE, 'Splice'),
             )
         )

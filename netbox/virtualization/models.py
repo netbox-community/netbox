@@ -5,7 +5,6 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.choices import InterfaceModeChoices
 from dcim.models import BaseInterface, Device
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.querysets import ConfigContextModelQuerySet
@@ -309,10 +308,10 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
-                name=self.name, tenant__isnull=True
+                name=self.name, cluster=self.cluster, tenant__isnull=True
         ):
             raise ValidationError({
-                'name': 'A virtual machine with this name already exists.'
+                'name': 'A virtual machine with this name already exists in the assigned cluster.'
             })
 
         super().validate_unique(exclude)
@@ -449,8 +448,8 @@ class VMInterface(BaseInterface):
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({
-                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
-                                 "virtual machine, or it must be global".format(self.untagged_vlan)
+                'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
+                                 f"interface's parent virtual machine, or it must be global"
             })
 
     def to_objectchange(self, action):

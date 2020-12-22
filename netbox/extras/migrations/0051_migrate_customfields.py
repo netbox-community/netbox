@@ -16,6 +16,28 @@ def deserialize_value(field, value):
     return value
 
 
+def migrate_customfield_defaults(apps, schema_editor):
+    """
+    Copy old serialized defaults to native JSON types.
+    """
+    CustomField = apps.get_model('extras', 'CustomField')
+
+    for customfield in CustomField.objects.exclude(default=''):
+        try:
+            if customfield.type == CustomFieldTypeChoices.TYPE_INTEGER:
+                value = int(customfield.default)
+            elif customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+                value = customfield.default in ['true', 'yes', '1']
+            else:
+                value = customfield.default
+        except ValueError:
+            raise ValueError(
+                f'Invalid default value "{customfield.default}" found for {customfield.type} '
+                f'custom field {customfield.name}'
+            )
+        CustomField.objects.filter(pk=customfield.pk).update(default2=value)
+
+
 def migrate_customfieldchoices(apps, schema_editor):
     """
     Collect all CustomFieldChoices for each applicable CustomField, and save them locally as an array on
@@ -73,6 +95,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(
+            code=migrate_customfield_defaults
+        ),
         migrations.RunPython(
             code=migrate_customfieldchoices
         ),

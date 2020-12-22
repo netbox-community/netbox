@@ -302,6 +302,14 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_list_rack_elevations(self):
+        """
+        Test viewing the list of rack elevations.
+        """
+        response = self.client.get(reverse('dcim:rack_elevation_list'))
+        self.assertHttpStatus(response, 200)
+
 
 class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Manufacturer
@@ -1668,9 +1676,9 @@ class CableTestCase(
 
         cls.csv_data = (
             "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
-            "Device 3,interface,Interface 1,Device 4,interface,Interface 1",
-            "Device 3,interface,Interface 2,Device 4,interface,Interface 2",
-            "Device 3,interface,Interface 3,Device 4,interface,Interface 3",
+            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1",
+            "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
+            "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
         )
 
         cls.bulk_edit_data = {

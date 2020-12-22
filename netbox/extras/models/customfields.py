@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, date
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -115,10 +115,11 @@ class CustomField(models.Model):
         help_text='Loose matches any instance of a given string; exact '
                   'matches the entire field.'
     )
-    default = models.CharField(
-        max_length=100,
+    default = models.JSONField(
         blank=True,
-        help_text='Default value for the field. Use "true" or "false" for booleans.'
+        null=True,
+        help_text='Default value for the field (must be a JSON value). Encapsulate '
+                  'strings with double quotes (e.g. "Foo").'
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
@@ -171,6 +172,15 @@ class CustomField(models.Model):
                 obj.save()
 
     def clean(self):
+        # Validate the field's default value (if any)
+        if self.default is not None:
+            try:
+                self.validate(self.default)
+            except ValidationError as err:
+                raise ValidationError({
+                    'default': f'Invalid default value "{self.default}": {err.message}'
+                })
+
         # Minimum/maximum values can be set only for numeric fields
         if self.validation_minimum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
             raise ValidationError({
@@ -232,8 +242,6 @@ class CustomField(models.Model):
                 (True, 'True'),
                 (False, 'False'),
             )
-            if initial is not None:
-                initial = bool(initial)
             field = forms.NullBooleanField(
                 required=required, initial=initial, widget=StaticSelect2(choices=choices)
             )
@@ -309,10 +317,11 @@ class CustomField(models.Model):
 
             # Validate date
             if self.type == CustomFieldTypeChoices.TYPE_DATE:
-                try:
-                    datetime.strptime(value, '%Y-%m-%d')
-                except ValueError:
-                    raise ValidationError("Date values must be in the format YYYY-MM-DD.")
+                if type(value) is not date:
+                    try:
+                        datetime.strptime(value, '%Y-%m-%d')
+                    except ValueError:
+                        raise ValidationError("Date values must be in the format YYYY-MM-DD.")
 
             # Validate selected choice
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:

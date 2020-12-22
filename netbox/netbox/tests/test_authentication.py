@@ -212,6 +212,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
+            name='Test permission',
             constraints={'site__name': 'Site 1'},
             actions=['view']
         )
@@ -239,6 +240,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
+            name='Test permission',
             constraints={'site__name': 'Site 1'},
             actions=['view']
         )
@@ -266,6 +268,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
+            name='Test permission',
             constraints={'site__name': 'Site 1'},
             actions=['add']
         )
@@ -295,6 +298,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
+            name='Test permission',
             constraints={'site__name': 'Site 1'},
             actions=['change']
         )
@@ -330,6 +334,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
+            name='Test permission',
             constraints={'site__name': 'Site 1'},
             actions=['delete']
         )

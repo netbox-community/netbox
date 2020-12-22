@@ -23,7 +23,7 @@ from secrets.tables import SecretTable
 from tenancy.filters import TenantFilterSet
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from virtualization.filters import ClusterFilterSet, VirtualMachineFilterSet
 from virtualization.models import Cluster, VirtualMachine
 from virtualization.tables import ClusterTable, VirtualMachineDetailTable
@@ -33,8 +33,8 @@ SEARCH_TYPES = OrderedDict((
     # Circuits
     ('provider', {
         'queryset': Provider.objects.annotate(
-            count_circuits=Count('circuits')
-        ).order_by(*Provider._meta.ordering),
+            count_circuits=count_related(Circuit, 'provider')
+        ),
         'filterset': ProviderFilterSet,
         'table': ProviderTable,
         'url': 'circuits:provider_list',
@@ -61,17 +61,21 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:rack_list',
     }),
     ('rackgroup', {
-        'queryset': RackGroup.objects.prefetch_related('site').annotate(
-            rack_count=Count('racks')
-        ).order_by(*RackGroup._meta.ordering),
+        'queryset': RackGroup.objects.add_related_count(
+            RackGroup.objects.all(),
+            Rack,
+            'group',
+            'rack_count',
+            cumulative=True
+        ).prefetch_related('site'),
         'filterset': RackGroupFilterSet,
         'table': RackGroupTable,
         'url': 'dcim:rackgroup_list',
     }),
     ('devicetype', {
         'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(
-            instance_count=Count('instances')
-        ).order_by(*DeviceType._meta.ordering),
+            instance_count=count_related(Device, 'device_type')
+        ),
         'filterset': DeviceTypeFilterSet,
         'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',
@@ -86,8 +90,8 @@ SEARCH_TYPES = OrderedDict((
     }),
     ('virtualchassis', {
         'queryset': VirtualChassis.objects.prefetch_related('master').annotate(
-            member_count=Count('members', distinct=True)
-        ).order_by(*VirtualChassis._meta.ordering),
+            member_count=count_related(Device, 'virtual_chassis')
+        ),
         'filterset': VirtualChassisFilterSet,
         'table': VirtualChassisTable,
         'url': 'dcim:virtualchassis_list',
@@ -107,8 +111,8 @@ SEARCH_TYPES = OrderedDict((
     # Virtualization
     ('cluster', {
         'queryset': Cluster.objects.prefetch_related('type', 'group').annotate(
-            device_count=get_subquery(Device, 'cluster'),
-            vm_count=get_subquery(VirtualMachine, 'cluster')
+            device_count=count_related(Device, 'cluster'),
+            vm_count=count_related(VirtualMachine, 'cluster')
         ),
         'filterset': ClusterFilterSet,
         'table': ClusterTable,

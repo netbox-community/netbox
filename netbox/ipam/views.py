@@ -1,4 +1,4 @@
-from django.db.models import Count, Prefetch
+from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
@@ -6,7 +6,7 @@ from django_tables2 import RequestConfig
 from dcim.models import Device, Interface
 from netbox.views import generic
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
 from . import filters, forms, tables
 from .constants import *
@@ -139,7 +139,9 @@ class RouteTargetBulkDeleteView(generic.BulkDeleteView):
 #
 
 class RIRListView(generic.ObjectListView):
-    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates')).order_by(*RIR._meta.ordering)
+    queryset = RIR.objects.annotate(
+        aggregate_count=count_related(Aggregate, 'rir')
+    )
     filterset = filters.RIRFilterSet
     filterset_form = forms.RIRFilterForm
     table = tables.RIRTable
@@ -162,7 +164,9 @@ class RIRBulkImportView(generic.BulkImportView):
 
 
 class RIRBulkDeleteView(generic.BulkDeleteView):
-    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates')).order_by(*RIR._meta.ordering)
+    queryset = RIR.objects.annotate(
+        aggregate_count=count_related(Aggregate, 'rir')
+    )
     filterset = filters.RIRFilterSet
     table = tables.RIRTable
 
@@ -174,7 +178,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
 class AggregateListView(generic.ObjectListView):
     queryset = Aggregate.objects.annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
-    ).order_by(*Aggregate._meta.ordering)
+    )
     filterset = filters.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
@@ -273,8 +277,8 @@ class AggregateBulkDeleteView(generic.BulkDeleteView):
 
 class RoleListView(generic.ObjectListView):
     queryset = Role.objects.annotate(
-        prefix_count=get_subquery(Prefix, 'role'),
-        vlan_count=get_subquery(VLAN, 'role')
+        prefix_count=count_related(Prefix, 'role'),
+        vlan_count=count_related(VLAN, 'role')
     )
     table = tables.RoleTable
 
@@ -628,9 +632,9 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
 #
 
 class VLANGroupListView(generic.ObjectListView):
-    queryset = VLANGroup.objects.annotate(
-        vlan_count=Count('vlans')
-    ).order_by(*VLANGroup._meta.ordering)
+    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+        vlan_count=count_related(VLAN, 'group')
+    )
     filterset = filters.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
@@ -653,8 +657,8 @@ class VLANGroupBulkImportView(generic.BulkImportView):
 
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.prefetch_related('site').annotate(
-        vlan_count=Count('vlans')
-    ).order_by(*VLANGroup._meta.ordering)
+        vlan_count=count_related(VLAN, 'group')
+    )
     filterset = filters.VLANGroupFilterSet
     table = tables.VLANGroupTable
 

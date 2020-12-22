@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.10-beta2'
+VERSION = '2.10.3-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -211,9 +211,6 @@ TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get('SENTINEL_TIMEOUT', 10)
 TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
 TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
-# TODO: Remove in v2.10 (see #5171)
-if 'DEFAULT_TIMEOUT' in TASKS_REDIS:
-    warnings.warn('DEFAULT_TIMEOUT is no longer supported under REDIS configuration. Set RQ_DEFAULT_TIMEOUT instead.')
 
 # Caching
 if 'caching' not in REDIS:
@@ -470,6 +467,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
         'netbox.api.authentication.TokenPermissions',
@@ -612,7 +610,7 @@ for plugin_name in PLUGINS:
     # Validate user-provided configuration settings and assign defaults
     if plugin_name not in PLUGINS_CONFIG:
         PLUGINS_CONFIG[plugin_name] = {}
-    plugin_config.validate(PLUGINS_CONFIG[plugin_name])
+    plugin_config.validate(PLUGINS_CONFIG[plugin_name], VERSION)
 
     # Add middleware
     plugin_middleware = plugin_config.middleware

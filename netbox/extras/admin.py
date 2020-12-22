@@ -2,7 +2,6 @@ from django import forms
 from django.contrib import admin
 
 from utilities.forms import LaxURLField
-from .choices import CustomFieldTypeChoices
 from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
 
 
@@ -30,8 +29,8 @@ class WebhookForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if 'obj_type' in self.fields:
-            order_content_types(self.fields['obj_type'])
+        if 'content_types' in self.fields:
+            order_content_types(self.fields['content_types'])
 
 
 @admin.register(Webhook)
@@ -41,12 +40,12 @@ class WebhookAdmin(admin.ModelAdmin):
         'ssl_verification',
     ]
     list_filter = [
-        'enabled', 'type_create', 'type_update', 'type_delete', 'obj_type',
+        'enabled', 'type_create', 'type_update', 'type_delete', 'content_types',
     ]
     form = WebhookForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'obj_type', 'enabled')
+            'fields': ('name', 'content_types', 'enabled')
         }),
         ('Events', {
             'fields': ('type_create', 'type_update', 'type_delete')
@@ -63,7 +62,7 @@ class WebhookAdmin(admin.ModelAdmin):
     )
 
     def models(self, obj):
-        return ', '.join([ct.name for ct in obj.obj_type.all()])
+        return ', '.join([ct.name for ct in obj.content_types.all()])
 
 
 #
@@ -76,6 +75,7 @@ class CustomFieldForm(forms.ModelForm):
         model = CustomField
         exclude = []
         widgets = {
+            'default': forms.TextInput(),
             'validation_regex': forms.Textarea(
                 attrs={
                     'cols': 80,

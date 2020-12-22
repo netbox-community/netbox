@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
@@ -11,7 +11,7 @@ from ipam.models import IPAddress, Service
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
 from secrets.models import Secret
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -21,7 +21,9 @@ from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterf
 #
 
 class ClusterTypeListView(generic.ObjectListView):
-    queryset = ClusterType.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterType._meta.ordering)
+    queryset = ClusterType.objects.annotate(
+        cluster_count=count_related(Cluster, 'type')
+    )
     table = tables.ClusterTypeTable
 
 
@@ -41,7 +43,9 @@ class ClusterTypeBulkImportView(generic.BulkImportView):
 
 
 class ClusterTypeBulkDeleteView(generic.BulkDeleteView):
-    queryset = ClusterType.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterType._meta.ordering)
+    queryset = ClusterType.objects.annotate(
+        cluster_count=count_related(Cluster, 'type')
+    )
     table = tables.ClusterTypeTable
 
 
@@ -50,7 +54,9 @@ class ClusterTypeBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ClusterGroupListView(generic.ObjectListView):
-    queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterGroup._meta.ordering)
+    queryset = ClusterGroup.objects.annotate(
+        cluster_count=count_related(Cluster, 'group')
+    )
     table = tables.ClusterGroupTable
 
 
@@ -70,7 +76,9 @@ class ClusterGroupBulkImportView(generic.BulkImportView):
 
 
 class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterGroup._meta.ordering)
+    queryset = ClusterGroup.objects.annotate(
+        cluster_count=count_related(Cluster, 'group')
+    )
     table = tables.ClusterGroupTable
 
 
@@ -81,8 +89,8 @@ class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
 class ClusterListView(generic.ObjectListView):
     permission_required = 'virtualization.view_cluster'
     queryset = Cluster.objects.annotate(
-        device_count=get_subquery(Device, 'cluster'),
-        vm_count=get_subquery(VirtualMachine, 'cluster')
+        device_count=count_related(Device, 'cluster'),
+        vm_count=count_related(VirtualMachine, 'cluster')
     )
     table = tables.ClusterTable
     filterset = filters.ClusterFilterSet

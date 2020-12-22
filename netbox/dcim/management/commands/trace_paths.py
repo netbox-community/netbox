@@ -30,6 +30,13 @@ class Command(BaseCommand):
             help="Do not prompt user for any input/confirmation"
         )
 
+    def draw_progress_bar(self, percentage):
+        """
+        Draw a simple progress bar 20 increments wide illustrating the specified percentage.
+        """
+        bar_size = int(percentage / 5)
+        self.stdout.write(f"\r  [{'#' * bar_size}{' ' * (20-bar_size)}] {int(percentage)}%", ending='')
+
     def handle(self, *model_names, **options):
 
         # If --force was passed, first delete all existing CablePaths
@@ -67,15 +74,15 @@ class Command(BaseCommand):
                 origins = origins.filter(_path__isnull=True)
             origins_count = origins.count()
             if not origins_count:
-                print(f'Found no missing {model._meta.verbose_name} paths; skipping')
+                self.stdout.write(f'Found no missing {model._meta.verbose_name} paths; skipping')
                 continue
-            print(f'Retracing {origins_count} cabled {model._meta.verbose_name_plural}...')
+            self.stdout.write(f'Retracing {origins_count} cabled {model._meta.verbose_name_plural}...')
             i = 0
             for i, obj in enumerate(origins, start=1):
                 create_cablepath(obj)
-                # TODO: Come up with a better progress indicator
-                if not i % 1000:
-                    self.stdout.write(f'  {i}')
-            self.stdout.write(self.style.SUCCESS(f'  Retraced {i} {model._meta.verbose_name_plural}'))
+                if not i % 100:
+                    self.draw_progress_bar(i * 100 / origins_count)
+            self.draw_progress_bar(100)
+            self.stdout.write(self.style.SUCCESS(f'\n  Retraced {i} {model._meta.verbose_name_plural}'))
 
         self.stdout.write(self.style.SUCCESS('Finished.'))
