@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#5311](https://github.com/netbox-community/netbox/issues/5311) - Update child objects when a rack group is moved to a new site
 * [#5518](https://github.com/netbox-community/netbox/issues/5518) - Fix persistent vertical scrollbar
 
 ---
