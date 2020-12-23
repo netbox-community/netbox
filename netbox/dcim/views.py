@@ -337,7 +337,7 @@ class RackElevationListView(generic.ObjectListView):
             'reverse': reverse,
             'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
-            'show_images': request.user.config.get('rack_elevation.show_images', True)
+            'show_images': user_config.get('rack_elevation.show_images', True)
         })
 
 
@@ -376,7 +376,7 @@ class RackView(generic.ObjectView):
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
-            'show_images': request.user.config.get('rack_elevation.show_images', True)
+            'show_images': user_config.get('rack_elevation.show_images', True)
         }
 
 
