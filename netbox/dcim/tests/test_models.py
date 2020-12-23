@@ -29,6 +29,8 @@ class RackGroupTestCase(TestCase):
         rack1 = Rack.objects.create(site=site_a, group=rackgroup_a1, name='Rack 1')
         rack2 = Rack.objects.create(site=site_a, group=rackgroup_a2, name='Rack 2')
 
+        powerpanel1 = PowerPanel.objects.create(site=site_a, rack_group=rackgroup_a1, name='Power Panel 1')
+
         # Move RackGroup A1 to Site B
         rackgroup_a1.site = site_b
         rackgroup_a1.save()
@@ -38,6 +40,7 @@ class RackGroupTestCase(TestCase):
         self.assertEqual(RackGroup.objects.get(pk=rackgroup_a2.pk).site, site_b)
         self.assertEqual(Rack.objects.get(pk=rack1.pk).site, site_b)
         self.assertEqual(Rack.objects.get(pk=rack2.pk).site, site_b)
+        self.assertEqual(PowerPanel.objects.get(pk=powerpanel1.pk).site, site_b)
 
 
 class RackTestCase(TestCase):

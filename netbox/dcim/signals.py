@@ -2,13 +2,12 @@ import logging
 
 from cacheops import invalidate_obj
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.db import transaction
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
-from .models import Cable, CablePath, Device, PathEndpoint, Rack, RackGroup, VirtualChassis
+from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, RackGroup, VirtualChassis
 
 
 def create_cablepath(node):
@@ -54,6 +53,9 @@ def handle_rackgroup_site_change(instance, created, **kwargs):
         for rack in Rack.objects.filter(group=instance).exclude(site=instance.site):
             rack.site = instance.site
             rack.save()
+        for powerpanel in PowerPanel.objects.filter(rack_group=instance).exclude(site=instance.site):
+            powerpanel.site = instance.site
+            powerpanel.save()
 
 
 @receiver(post_save, sender=Rack)
