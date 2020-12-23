@@ -328,6 +328,8 @@ class RackElevationListView(generic.ObjectListView):
         if rack_face not in DeviceFaceChoices.values():
             rack_face = DeviceFaceChoices.FACE_FRONT
 
+        user_config = request.user.config if request.user.is_authenticated else {}
+
         return render(request, 'dcim/rack_elevation_list.html', {
             'paginator': paginator,
             'page': page,
@@ -365,7 +367,8 @@ class RackView(generic.ObjectView):
 
         device_count = Device.objects.restrict(request.user, 'view').filter(rack=instance).count()
 
-        print(request.user.config.get('rack_elevation.show_images'))
+        user_config = request.user.config if request.user.is_authenticated else {}
+
         return {
             'device_count': device_count,
             'reservations': reservations,
