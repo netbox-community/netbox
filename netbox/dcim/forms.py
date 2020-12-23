@@ -1781,9 +1781,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'group_id': '$rack_group',
         }
     )
-    position = forms.TypedChoiceField(
+    position = forms.IntegerField(
         required=False,
-        empty_value=None,
         help_text="The lowest-numbered unit occupied by the device",
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
@@ -1856,6 +1855,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                                   "config context",
         }
         widgets = {
+            'face': StaticSelect2(),
             'status': StaticSelect2(),
             'primary_ip4': StaticSelect2(),
             'primary_ip6': StaticSelect2(),
@@ -1902,6 +1902,13 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 Q(manufacturer__isnull=True) | Q(manufacturer=self.instance.device_type.manufacturer)
             )
 
+            # Disable rack assignment if this is a child device installed in a parent device
+            if self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
+                self.fields['site'].disabled = True
+                self.fields['rack'].disabled = True
+                self.initial['site'] = self.instance.parent_bay.device.site_id
+                self.initial['rack'] = self.instance.parent_bay.device.rack_id
+
         else:
 
             # An object that doesn't exist yet can't have any IPs assigned to it
@@ -1911,31 +1918,9 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
         # Rack position
-        pk = self.instance.pk if self.instance.pk else None
-        try:
-            if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
-                position_choices = Rack.objects.get(pk=self.data['rack']) \
-                    .get_rack_units(face=self.data.get('face'), exclude=pk)
-            elif self.initial.get('rack') and str(self.initial.get('face')):
-                position_choices = Rack.objects.get(pk=self.initial['rack']) \
-                    .get_rack_units(face=self.initial.get('face'), exclude=pk)
-            else:
-                position_choices = []
-        except Rack.DoesNotExist:
-            position_choices = []
-        self.fields['position'].choices = [('', '---------')] + [
-            (p['id'], {
-                'label': p['name'],
-                'disabled': bool(p['device'] and p['id'] != self.initial.get('position')),
-            }) for p in position_choices
-        ]
-
-        # Disable rack assignment if this is a child device installed in a parent device
-        if pk and self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
-            self.fields['site'].disabled = True
-            self.fields['rack'].disabled = True
-            self.initial['site'] = self.instance.parent_bay.device.site_id
-            self.initial['rack'] = self.instance.parent_bay.device.rack_id
+        position = self.data.get('position') or self.initial.get('position')
+        if position:
+            self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
 class BaseDeviceCSVForm(CustomFieldModelCSVForm):
