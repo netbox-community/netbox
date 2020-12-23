@@ -80,7 +80,7 @@ class UserConfigViewSet(ViewSet):
         for item in request.data.items():
             try:
                 parsed_dict[item[0]] = json.loads(item[1])
-            except ValueErrror as e:
+            except (ValueError, TypeError):
                 parsed_dict[item[0]] = item[1]
 
         userconfig = self.get_queryset().first()
