@@ -1,9 +1,11 @@
 import datetime
 import json
 from collections import OrderedDict
+from itertools import count, groupby
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
@@ -64,7 +66,7 @@ def dynamic_import(name):
     return mod
 
 
-def get_subquery(model, field):
+def count_related(model, field):
     """
     Return a Subquery suitable for annotating a child object count.
     """
@@ -78,7 +80,7 @@ def get_subquery(model, field):
         ).values('c')
     )
 
-    return subquery
+    return Coalesce(subquery, 0)
 
 
 def serialize_object(obj, extra=None, exclude=None):
@@ -91,11 +93,9 @@ def serialize_object(obj, extra=None, exclude=None):
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
 
-    # Include any custom fields
-    if hasattr(obj, 'get_custom_fields'):
-        data['custom_fields'] = {
-            field: str(value) for field, value in obj.cf.items()
-        }
+    # Include custom_field_data as "custom_fields"
+    if hasattr(obj, 'custom_field_data'):
+        data['custom_fields'] = data.pop('custom_field_data')
 
     # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
@@ -282,6 +282,16 @@ def curry(_curried_func, *args, **kwargs):
     def _curried(*moreargs, **morekwargs):
         return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
     return _curried
+
+
+def array_to_string(array):
+    """
+    Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.
+    For example:
+        [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
+    """
+    group = (list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x))
+    return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
 
 
 #

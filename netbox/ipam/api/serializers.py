@@ -3,21 +3,17 @@ from collections import OrderedDict
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
-from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
-from utilities.api import (
-    ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer,
-    get_serializer_for_model,
-)
+from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
 
@@ -29,14 +25,31 @@ from .nested_serializers import *
 class VRFSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    import_targets = NestedRouteTargetSerializer(required=False, allow_null=True, many=True)
+    export_targets = NestedRouteTargetSerializer(required=False, allow_null=True, many=True)
     ipaddress_count = serializers.IntegerField(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VRF
         fields = [
-            'id', 'url', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags', 'display_name',
-            'custom_fields', 'created', 'last_updated', 'ipaddress_count', 'prefix_count',
+            'id', 'url', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets',
+            'tags', 'display_name', 'custom_fields', 'created', 'last_updated', 'ipaddress_count', 'prefix_count',
+        ]
+
+
+#
+# Route targets
+#
+
+class RouteTargetSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:routetarget-detail')
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = RouteTarget
+        fields = [
+            'id', 'url', 'name', 'tenant', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -57,11 +70,12 @@ class AggregateSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:aggregate-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = NestedRIRSerializer()
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Aggregate
         fields = [
-            'id', 'url', 'family', 'prefix', 'rir', 'date_added', 'description', 'tags', 'custom_fields', 'created',
+            'id', 'url', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'tags', 'custom_fields', 'created',
             'last_updated',
         ]
         read_only_fields = ['family']
@@ -283,6 +297,6 @@ class ServiceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Service
         fields = [
-            'id', 'url', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description', 'tags',
+            'id', 'url', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]

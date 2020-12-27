@@ -13,86 +13,86 @@
                     <tr>
                         <td>Device</td>
                         <td>
-                            <a href="{{ instance.device.get_absolute_url }}">{{ instance.device }}</a>
+                            <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td>{{ instance.name }}</td>
+                        <td>{{ object.name }}</td>
                     </tr>
                     <tr>
                         <td>Label</td>
-                        <td>{{ instance.label|placeholder }}</td>
+                        <td>{{ object.label|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Type</td>
-                        <td>{{ instance.get_type_display }}</td>
+                        <td>{{ object.get_type_display }}</td>
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>{{ instance.description|placeholder }}</td>
+                        <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Maximum Draw</td>
-                        <td>{{ instance.maximum_draw|placeholder }}</td>
+                        <td>{{ object.maximum_draw|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Allocated Draw</td>
-                        <td>{{ instance.allocated_draw|placeholder }}</td>
+                        <td>{{ object.allocated_draw|placeholder }}</td>
                     </tr>
                 </table>
             </div>
-            {% include 'extras/inc/tags_panel.html' with tags=instance.tags.all %}
-            {% plugin_left_page instance %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
+            {% plugin_left_page object %}
         </div>
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Connection</strong>
                 </div>
-                {% if instance.cable %}
+                {% if object.cable %}
                     <table class="table table-hover panel-body attr-table">
-                        {% if instance.connected_endpoint %}
+                        <tr>
+                            <td>Cable</td>
+                            <td>
+                                <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
+                                <a href="{% url 'dcim:powerport_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                    <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% if object.connected_endpoint %}
                             <tr>
                                 <td>Device</td>
                                 <td>
-                                    <a href="{{ instance.connected_endpoint.device.get_absolute_url }}">{{ instance.connected_endpoint.device }}</a>
+                                    <a href="{{ object.connected_endpoint.device.get_absolute_url }}">{{ object.connected_endpoint.device }}</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Name</td>
                                 <td>
-                                    <a href="{{ instance.connected_endpoint.get_absolute_url }}">{{ instance.connected_endpoint.name }}</a>
+                                    <a href="{{ object.connected_endpoint.get_absolute_url }}">{{ object.connected_endpoint.name }}</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Type</td>
-                                <td>{{ instance.connected_endpoint.get_type_display|placeholder }}</td>
+                                <td>{{ object.connected_endpoint.get_type_display|placeholder }}</td>
                             </tr>
                             <tr>
                                 <td>Description</td>
-                                <td>{{ instance.connected_endpoint.description|placeholder }}</td>
+                                <td>{{ object.connected_endpoint.description|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <td>Path Status</td>
+                                <td>
+                                    {% if object.path.is_active %}
+                                        <span class="label label-success">Reachable</span>
+                                    {% else %}
+                                        <span class="label label-danger">Not Reachable</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endif %}
-                        <tr>
-                            <td>Cable</td>
-                            <td>
-                                <a href="{{ instance.cable.get_absolute_url }}">{{ instance.cable }}</a>
-                                <a href="{% url 'dcim:powerport_trace' pk=instance.pk %}" class="btn btn-primary btn-xs" title="Trace">
-                                    <i class="fa fa-share-alt" aria-hidden="true"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Connection Status</td>
-                            <td>
-                                {% if instance.connection_status %}
-                                    <span class="label label-success">{{ instance.get_connection_status_display }}</span>
-                                {% else %}
-                                    <span class="label label-info">{{ instance.get_connection_status_display }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
                     </table>
                 {% else %}
                     <div class="panel-body text-muted">
@@ -100,23 +100,23 @@
                         {% if perms.dcim.add_cable %}
                             <span class="dropdown pull-right">
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
+                                    <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
-                                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=instance.pk termination_b_type='power-outlet' %}?return_url={{ instance.get_absolute_url }}">Power Outlet</a></li>
-                                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=instance.pk termination_b_type='power-feed' %}?return_url={{ instance.get_absolute_url }}">Power Feed</a></li>
+                                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=object.pk termination_b_type='power-outlet' %}?return_url={{ object.get_absolute_url }}">Power Outlet</a></li>
+                                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=object.pk termination_b_type='power-feed' %}?return_url={{ object.get_absolute_url }}">Power Feed</a></li>
                                 </ul>
                             </span>
                         {% endif %}
                     </div>
                 {% endif %}
             </div>
-            {% plugin_right_page instance %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% plugin_full_width_page instance %}
+            {% plugin_full_width_page object %}
         </div>
     </div>
 {% endblock %}

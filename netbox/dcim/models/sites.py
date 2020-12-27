@@ -39,10 +39,11 @@ class Region(MPTTModel, ChangeLoggedModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -91,14 +92,14 @@ class Region(MPTTModel, ChangeLoggedModel):
 # Sites
 #
 
-@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     _name = NaturalOrderingField(
@@ -107,6 +108,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     status = models.CharField(
@@ -183,11 +185,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
@@ -203,14 +200,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
     ]
-
-    STATUS_CLASS_MAP = {
-        SiteStatusChoices.STATUS_PLANNED: 'info',
-        SiteStatusChoices.STATUS_STAGING: 'primary',
-        SiteStatusChoices.STATUS_ACTIVE: 'success',
-        SiteStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-        SiteStatusChoices.STATUS_RETIRED: 'danger',
-    }
 
     class Meta:
         ordering = ('_name',)
@@ -243,4 +232,4 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return SiteStatusChoices.CSS_CLASSES.get(self.status)

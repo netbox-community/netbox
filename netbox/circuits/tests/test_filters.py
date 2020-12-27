@@ -3,7 +3,7 @@ from django.test import TestCase
 from circuits.choices import *
 from circuits.filters import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.models import Region, Site
+from dcim.models import Cable, Region, Site
 from tenancy.models import Tenant, TenantGroup
 
 
@@ -50,8 +50,8 @@ class ProviderTestCase(TestCase):
         Circuit.objects.bulk_create(circuits)
 
         CircuitTermination.objects.bulk_create((
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A', port_speed=1000),
-            CircuitTermination(circuit=circuits[1], site=sites[0], term_side='A', port_speed=1000),
+            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[1], site=sites[0], term_side='A'),
         ))
 
     def test_id(self):
@@ -176,9 +176,9 @@ class CircuitTestCase(TestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = ((
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A', port_speed=1000),
-            CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A', port_speed=1000),
-            CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A', port_speed=1000),
+            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A'),
+            CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A'),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -286,6 +286,8 @@ class CircuitTerminationTestCase(TestCase):
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
+        Cable(termination_a=circuit_terminations[0], termination_b=circuit_terminations[1]).save()
+
     def test_term_side(self):
         params = {'term_side': 'A'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
@@ -312,4 +314,14 @@ class CircuitTerminationTestCase(TestCase):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_cabled(self):
+        params = {'cabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)

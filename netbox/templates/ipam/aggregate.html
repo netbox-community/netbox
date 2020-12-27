@@ -9,8 +9,8 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
-                <li><a href="{% url 'ipam:aggregate_list' %}?rir={{ aggregate.rir.slug }}">{{ aggregate.rir }}</a></li>
-                <li>{{ aggregate }}</li>
+                <li><a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a></li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -19,7 +19,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search aggregates" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -27,30 +27,30 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons aggregate %}
+        {% plugin_buttons object %}
         {% if perms.ipam.add_aggregate %}
-            {% clone_button aggregate %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.ipam.change_aggregate %}
-            {% edit_button aggregate %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.ipam.delete_aggregate %}
-            {% delete_button aggregate %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}{{ aggregate }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=aggregate %}
+    <h1>{% block title %}{{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     {% include 'ipam/inc/toggle_available.html' %}
     <div class="pull-right noprint">
-        {% custom_links aggregate %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ aggregate.get_absolute_url }}">Aggregate</a>
+            <a href="{{ object.get_absolute_url }}">Aggregate</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:aggregate_changelog' pk=aggregate.pk %}">Change Log</a>
+                <a href="{% url 'ipam:aggregate_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -66,41 +66,54 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Family</td>
-                    <td>IPv{{ aggregate.family }}</td>
+                    <td>IPv{{ object.family }}</td>
                 </tr>
                 <tr>
                     <td>RIR</td>
                     <td>
-                        <a href="{% url 'ipam:aggregate_list' %}?rir={{ aggregate.rir.slug }}">{{ aggregate.rir }}</a>
+                        <a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Utilization</td>
                     <td>
-                        {{ aggregate.get_utilization }}%
+                        {{ object.get_utilization }}%
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if object.tenant %}
+                            {% if prefix.object.group %}
+                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                            {% endif %}
+                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>Date Added</td>
-                    <td>{{ aggregate.date_added|placeholder }}</td>
+                    <td>{{ object.date_added|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>{{ aggregate.description|placeholder }}</td>
+                    <td>{{ object.description|placeholder }}</td>
                 </tr>
             </table>
         </div>
-        {% plugin_left_page aggregate %}
+        {% plugin_left_page object %}
     </div>
     <div class="col-md-6">
-        {% include 'inc/custom_fields_panel.html' with obj=aggregate %}
-        {% include 'extras/inc/tags_panel.html' with tags=aggregate.tags.all url='ipam:aggregate_list' %}
-        {% plugin_right_page aggregate %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:aggregate_list' %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page aggregate %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 <div class="row">

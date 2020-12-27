@@ -13,33 +13,33 @@
                     <tr>
                         <td>Device</td>
                         <td>
-                            <a href="{{ instance.device.get_absolute_url }}">{{ instance.device }}</a>
+                            <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td>{{ instance.name }}</td>
+                        <td>{{ object.name }}</td>
                     </tr>
                     <tr>
                         <td>Label</td>
-                        <td>{{ instance.label|placeholder }}</td>
+                        <td>{{ object.label|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>{{ instance.description|placeholder }}</td>
+                        <td>{{ object.description|placeholder }}</td>
                     </tr>
                 </table>
             </div>
-            {% include 'extras/inc/tags_panel.html' with tags=instance.tags.all %}
-            {% plugin_left_page instance %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
+            {% plugin_left_page object %}
         </div>
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Installed Device</strong>
                 </div>
-                {% if instance.installed_device %}
-                    {% with device=instance.installed_device %}
+                {% if object.installed_device %}
+                    {% with device=object.installed_device %}
                         <table class="table table-hover panel-body attr-table">
                             <tr>
                                 <td>Device</td>
@@ -59,12 +59,12 @@
                     </div>
                 {% endif %}
             </div>
-            {% plugin_right_page instance %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% plugin_full_width_page instance %}
+            {% plugin_full_width_page object %}
         </div>
     </div>
 {% endblock %}

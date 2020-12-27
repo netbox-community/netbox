@@ -86,21 +86,19 @@ class PluginTest(TestCase):
         """
         self.assertIn('extras.tests.dummy_plugin.*', settings.CACHEOPS)
 
-    @override_settings(VERSION='0.9')
     def test_min_version(self):
         """
         Check enforcement of minimum NetBox version.
         """
         with self.assertRaises(ImproperlyConfigured):
-            dummy_config.validate({})
+            dummy_config.validate({}, '0.9')
 
-    @override_settings(VERSION='10.0')
     def test_max_version(self):
         """
         Check enforcement of maximum NetBox version.
         """
         with self.assertRaises(ImproperlyConfigured):
-            dummy_config.validate({})
+            dummy_config.validate({}, '10.0')
 
     def test_required_settings(self):
         """
@@ -110,11 +108,11 @@ class PluginTest(TestCase):
             required_settings = ['foo']
 
         # Validation should pass when all required settings are present
-        DummyConfigWithRequiredSettings.validate({'foo': True})
+        DummyConfigWithRequiredSettings.validate({'foo': True}, settings.VERSION)
 
         # Validation should fail when a required setting is missing
         with self.assertRaises(ImproperlyConfigured):
-            DummyConfigWithRequiredSettings.validate({})
+            DummyConfigWithRequiredSettings.validate({}, settings.VERSION)
 
     def test_default_settings(self):
         """
@@ -127,10 +125,10 @@ class PluginTest(TestCase):
 
         # Populate the default value if setting has not been specified
         user_config = {}
-        DummyConfigWithDefaultSettings.validate(user_config)
+        DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
         self.assertEqual(user_config['bar'], 123)
 
         # Don't overwrite specified values
         user_config = {'bar': 456}
-        DummyConfigWithDefaultSettings.validate(user_config)
+        DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
         self.assertEqual(user_config['bar'], 456)

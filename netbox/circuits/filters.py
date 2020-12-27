@@ -1,8 +1,9 @@
 import django_filters
 from django.db.models import Q
 
+from dcim.filters import CableTerminationFilterSet, PathEndpointFilterSet
 from dcim.models import Region, Site
-from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
+from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
     BaseFilterSet, NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter
@@ -18,7 +19,7 @@ __all__ = (
 )
 
 
-class ProviderFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class ProviderFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -72,7 +73,7 @@ class CircuitTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class CircuitFilterSet(BaseFilterSet, CustomFieldFilterSet, TenancyFilterSet, CreatedUpdatedFilterSet):
+class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -144,7 +145,7 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldFilterSet, TenancyFilterSet, Cr
         ).distinct()
 
 
-class CircuitTerminationFilterSet(BaseFilterSet):
+class CircuitTerminationFilterSet(BaseFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

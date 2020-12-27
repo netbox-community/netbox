@@ -1,0 +1,99 @@
+{% extends 'dcim/device/base.html' %}
+
+{% block title %}{{ object }} - LLDP Neighbors{% endblock %}
+
+{% block content %}
+    {% include 'inc/ajax_loader.html' %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>LLDP Neighbors</strong>
+        </div>
+        <table class="table table-hover panel-body">
+            <thead>
+                <tr>
+                    <th>Interface</th>
+                    <th>Configured Device</th>
+                    <th>Configured Interface</th>
+                    <th>LLDP Device</th>
+                    <th>LLDP Interface</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for iface in interfaces %}
+                    <tr id="{{ iface.name }}">
+                        <td>{{ iface }}</td>
+                        {% if iface.connected_endpoint.device %}
+                            <td class="configured_device" data="{{ iface.connected_endpoint.device }}">
+                                <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
+                            </td>
+                            <td class="configured_interface" data="{{ iface.connected_endpoint }}">
+                                <span title="{{ iface.connected_endpoint.get_type_display }}">{{ iface.connected_endpoint }}</span>
+                            </td>
+                        {% elif iface.connected_endpoint.circuit %}
+                            {% with circuit=iface.connected_endpoint.circuit %}
+                                <td colspan="2">
+                                    <i class="mdi mdi-lightning-bolt" title="Circuit"></i>
+                                    <a href="{{ circuit.get_absolute_url }}">{{ circuit.provider }} {{ circuit }}</a>
+                                </td>
+                            {% endwith %}
+                        {% else %}
+                            <td colspan="2">None</td>
+                        {% endif %}
+                        <td class="device"></td>
+                        <td class="interface"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $.ajax({
+        url: "{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_lldp_neighbors_detail",
+        dataType: 'json',
+        success: function(json) {
+            $.each(json['get_lldp_neighbors_detail'], function(iface, neighbors) {
+                var neighbor = neighbors[0];
+                var row = $('#' + iface.split(".")[0].replace(/([\/:])/g, "\\$1"));
+
+                // Glean configured hostnames/interfaces from the DOM
+                var configured_device = row.children('td.configured_device').attr('data');
+                var configured_interface = row.children('td.configured_interface').attr('data');
+                var configured_interface_short = null;
+                if (configured_interface) {
+                    // Match long-form IOS names against short ones (e.g. Gi0/1 == GigabitEthernet0/1).
+                    configured_interface_short = configured_interface.replace(/^([A-Z][a-z])[^0-9]*([0-9\/]+)$/, "$1$2");
+                }
+
+                // Clean up hostnames/interfaces learned via LLDP
+                var neighbor_host = neighbor['remote_system_name'] || ""; // sanitize hostname if it's null to avoid breaking the split func
+                var neighbor_port = neighbor['remote_port'] || ""; // sanitize port if it's null to avoid breaking the split func
+                var lldp_device = neighbor_host.split(".")[0];  // Strip off any trailing domain name
+                var lldp_interface = neighbor_port.split(".")[0];   // Strip off any trailing subinterface ID
+
+                // Add LLDP neighbors to table
+                row.children('td.device').html(lldp_device);
+                row.children('td.interface').html(lldp_interface);
+
+                // Apply colors to rows
+                if (!configured_device && lldp_device) {
+                    row.addClass('info');
+                } else if (configured_device == lldp_device && configured_interface == lldp_interface) {
+                    row.addClass('success');
+                } else if (configured_device == lldp_device && configured_interface_short == lldp_interface) {
+                    row.addClass('success');
+                } else {
+                    row.addClass('danger');
+                }
+            });
+        },
+        error: function(xhr) {
+            alert(xhr.responseText);
+        }
+    });
+});
+</script>
+{% endblock %}

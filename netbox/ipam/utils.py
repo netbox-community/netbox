@@ -11,7 +11,7 @@ def add_available_prefixes(parent, prefix_list):
 
     # Find all unallocated space
     available_prefixes = netaddr.IPSet(parent) ^ netaddr.IPSet([p.prefix for p in prefix_list])
-    available_prefixes = [Prefix(prefix=p) for p in available_prefixes.iter_cidrs()]
+    available_prefixes = [Prefix(prefix=p, status=None) for p in available_prefixes.iter_cidrs()]
 
     # Concatenate and sort complete list of children
     prefix_list = list(prefix_list) + available_prefixes

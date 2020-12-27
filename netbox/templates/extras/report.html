@@ -19,9 +19,9 @@
                 {% csrf_token %}
                 <button type="submit" name="_run" class="btn btn-primary">
                     {% if report.result %}
-                        <i class="fa fa-refresh"></i> Run Again
+                        <i class="mdi mdi-replay"></i> Run Again
                     {% else %}
-                        <i class="fa fa-play"></i> Run Report
+                        <i class="mdi mdi-play"></i> Run Report
                     {% endif %}
                 </button>
             </form>

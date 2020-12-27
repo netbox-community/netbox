@@ -16,7 +16,7 @@ GROUP_BUTTON = '<div class="btn-group">\n' \
                '{} <span class="caret"></span>\n' \
                '</button>\n' \
                '<ul class="dropdown-menu pull-right">\n' \
-               '{}</ul></div>'
+               '{}</ul></div>\n'
 GROUP_LINK = '<li><a href="{}"{}>{}</a></li>\n'
 
 
@@ -61,7 +61,7 @@ def custom_links(context, obj):
                     )
             except Exception as e:
                 template_code += '<a class="btn btn-sm btn-default" disabled="disabled" title="{}">' \
-                                 '<i class="fa fa-warning"></i> {}</a>\n'.format(e, cl.name)
+                                 '<i class="mdi mdi-alert"></i> {}</a>\n'.format(e, cl.name)
 
     # Add grouped links to template
     for group, links in group_names.items():
@@ -80,7 +80,7 @@ def custom_links(context, obj):
             except Exception as e:
                 links_rendered.append(
                     '<li><a disabled="disabled" title="{}"><span class="text-muted">'
-                    '<i class="fa fa-warning"></i> {}</span></a></li>'.format(e, cl.name)
+                    '<i class="mdi mdi-alert"></i> {}</span></a></li>'.format(e, cl.name)
                 )
 
         if links_rendered:

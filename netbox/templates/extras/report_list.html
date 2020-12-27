@@ -44,9 +44,9 @@
                                                 {% csrf_token %}
                                                 <button type="submit" name="_run" class="btn btn-primary btn-xs">
                                                     {% if report.result %}
-                                                        <i class="fa fa-refresh"></i> Run Again
+                                                        <i class="mdi mdi-replay"></i> Run Again
                                                     {% else %}
-                                                        <i class="fa fa-play"></i> Run Report
+                                                        <i class="mdi mdi-play"></i> Run Report
                                                     {% endif %}
                                                 </button>
                                             </form>
@@ -88,7 +88,7 @@
                         <ul class="list-group">
                             {% for report in module_reports %}
                                 <a href="#{{ report.module }}.{{ report.class_name }}" class="list-group-item">
-                                    <i class="fa fa-list-alt"></i> {{ report.name }}
+                                    <i class="mdi mdi-file-chart-outline"></i> {{ report.name }}
                                     <div class="pull-right">
                                         {% include 'extras/inc/job_label.html' with result=report.result %}
                                     </div>

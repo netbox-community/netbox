@@ -1,7 +1,4 @@
-from collections import OrderedDict
-
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
 from django.http import Http404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -15,15 +12,25 @@ from rq import Worker
 from extras import filters
 from extras.choices import JobResultStatusChoices
 from extras.models import (
-    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
+    ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
 )
+from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
-from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.metadata import ContentTypeMetadata
+from netbox.api.views import ModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.metadata import ContentTypeMetadata
-from utilities.utils import copy_safe_request
+from utilities.utils import copy_safe_request, count_related
 from . import serializers
+
+
+class ExtrasRootView(APIRootView):
+    """
+    Extras API root view
+    """
+    def get_view_name(self):
+        return 'Extras'
 
 
 class ConfigContextQuerySetMixin:
@@ -49,47 +56,16 @@ class ConfigContextQuerySetMixin:
         return self.queryset.annotate_config_context_data()
 
 
-class ExtrasRootView(APIRootView):
-    """
-    Extras API root view
-    """
-    def get_view_name(self):
-        return 'Extras'
-
-
-#
-# Custom field choices
-#
-
-class CustomFieldChoicesViewSet(ViewSet):
-    """
-    """
-    permission_classes = [IsAuthenticatedOrLoginNotRequired]
-
-    def __init__(self, *args, **kwargs):
-        super(CustomFieldChoicesViewSet, self).__init__(*args, **kwargs)
-
-        self._fields = OrderedDict()
-
-        for cfc in CustomFieldChoice.objects.all():
-            self._fields.setdefault(cfc.field.name, {})
-            self._fields[cfc.field.name][cfc.value] = cfc.pk
-
-    def list(self, request):
-        return Response(self._fields)
-
-    def retrieve(self, request, pk):
-        if pk not in self._fields:
-            raise Http404
-        return Response(self._fields[pk])
-
-    def get_view_name(self):
-        return "Custom Field choices"
-
-
 #
 # Custom fields
 #
+
+class CustomFieldViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = CustomField.objects.all()
+    serializer_class = serializers.CustomFieldSerializer
+    filterset_class = filters.CustomFieldFilterSet
+
 
 class CustomFieldModelViewSet(ModelViewSet):
     """
@@ -100,36 +76,13 @@ class CustomFieldModelViewSet(ModelViewSet):
 
         # Gather all custom fields for the model
         content_type = ContentType.objects.get_for_model(self.queryset.model)
-        custom_fields = content_type.custom_fields.prefetch_related('choices')
-
-        # Cache all relevant CustomFieldChoices. This saves us from having to do a lookup per select field per object.
-        custom_field_choices = {}
-        for field in custom_fields:
-            for cfc in field.choices.all():
-                custom_field_choices[cfc.id] = cfc.value
-        custom_field_choices = custom_field_choices
+        custom_fields = content_type.custom_fields.all()
 
         context = super().get_serializer_context()
         context.update({
             'custom_fields': custom_fields,
-            'custom_field_choices': custom_field_choices,
         })
         return context
-
-    def get_queryset(self):
-        # Prefetch custom field values
-        return super().get_queryset().prefetch_related('custom_field_values__field')
-
-
-#
-# Graphs
-#
-
-class GraphViewSet(ModelViewSet):
-    metadata_class = ContentTypeMetadata
-    queryset = Graph.objects.all()
-    serializer_class = serializers.GraphSerializer
-    filterset_class = filters.GraphFilterSet
 
 
 #
@@ -149,8 +102,8 @@ class ExportTemplateViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        tagged_items=count_related(TaggedItem, 'tag')
+    )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet
 
@@ -389,3 +342,16 @@ class JobResultViewSet(ReadOnlyModelViewSet):
     queryset = JobResult.objects.prefetch_related('user')
     serializer_class = serializers.JobResultSerializer
     filterset_class = filters.JobResultFilterSet
+
+
+#
+# ContentTypes
+#
+
+class ContentTypeViewSet(ReadOnlyModelViewSet):
+    """
+    Read-only list of ContentTypes. Limit results to ContentTypes pertinent to NetBox objects.
+    """
+    queryset = ContentType.objects.order_by('app_label', 'model')
+    serializer_class = serializers.ContentTypeSerializer
+    filterset_class = filters.ContentTypeFilterSet

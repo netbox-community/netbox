@@ -1,4 +1,4 @@
-from utilities.api import OrderedDefaultRouter
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 
@@ -7,6 +7,9 @@ router.APIRootView = views.IPAMRootView
 
 # VRFs
 router.register('vrfs', views.VRFViewSet)
+
+# Route targets
+router.register('route-targets', views.RouteTargetViewSet)
 
 # RIRs
 router.register('rirs', views.RIRViewSet)

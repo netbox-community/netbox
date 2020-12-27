@@ -78,20 +78,11 @@ class ObjectChangeActionChoices(ChoiceSet):
         (ACTION_DELETE, 'Deleted'),
     )
 
-
-#
-# ExportTemplates
-#
-
-class TemplateLanguageChoices(ChoiceSet):
-
-    LANGUAGE_JINJA2 = 'jinja2'
-    LANGUAGE_DJANGO = 'django'
-
-    CHOICES = (
-        (LANGUAGE_JINJA2, 'Jinja2'),
-        (LANGUAGE_DJANGO, 'Django (Legacy)'),
-    )
+    CSS_CLASSES = {
+        ACTION_CREATE: 'success',
+        ACTION_UPDATE: 'primary',
+        ACTION_DELETE: 'danger',
+    }
 
 
 #
@@ -114,13 +105,13 @@ class LogLevelChoices(ChoiceSet):
         (LOG_FAILURE, 'Failure'),
     )
 
-    CLASS_MAP = (
-        (LOG_DEFAULT, 'default'),
-        (LOG_SUCCESS, 'success'),
-        (LOG_INFO, 'info'),
-        (LOG_WARNING, 'warning'),
-        (LOG_FAILURE, 'danger'),
-    )
+    CSS_CLASSES = {
+        LOG_DEFAULT: 'default',
+        LOG_SUCCESS: 'success',
+        LOG_INFO: 'info',
+        LOG_WARNING: 'warning',
+        LOG_FAILURE: 'danger',
+    }
 
 
 #

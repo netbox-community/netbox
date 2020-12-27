@@ -31,7 +31,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     {% if not perms.extras.run_script %}
                         <div class="alert alert-warning">
-                            <i class="fa fa-warning"></i>
+                            <i class="mdi mdi-alert"></i>
                             You do not have permission to run scripts.
                         </div>
                     {% endif %}
@@ -48,13 +48,13 @@
                             </div>
                         {% else %}
                              <div class="alert alert-info">
-                                <i class="fa fa-exclamation-circle"></i>
+                                <i class="mdi mdi-information"></i>
                                 This script does not require any input to run.
                             </div>
                             {% render_form form %}
                         {% endif %}
                         <div class="pull-right">
-                            <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="fa fa-play"></i> Run Script</button>
+                            <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
                             <a href="{% url 'extras:script_list' %}" class="btn btn-default">Cancel</a>
                         </div>
                     </form>

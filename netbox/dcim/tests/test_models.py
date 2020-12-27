@@ -7,6 +7,42 @@ from dcim.models import *
 from tenancy.models import Tenant
 
 
+class RackGroupTestCase(TestCase):
+
+    def test_change_rackgroup_site(self):
+        """
+        Check that all child RackGroups and Racks get updated when a RackGroup is moved to a new Site. Topology:
+        Site A
+          - RackGroup A1
+            - RackGroup A2
+              - Rack 2
+            - Rack 1
+        """
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+
+        rackgroup_a1 = RackGroup(site=site_a, name='RackGroup A1', slug='rackgroup-a1')
+        rackgroup_a1.save()
+        rackgroup_a2 = RackGroup(site=site_a, parent=rackgroup_a1, name='RackGroup A2', slug='rackgroup-a2')
+        rackgroup_a2.save()
+
+        rack1 = Rack.objects.create(site=site_a, group=rackgroup_a1, name='Rack 1')
+        rack2 = Rack.objects.create(site=site_a, group=rackgroup_a2, name='Rack 2')
+
+        powerpanel1 = PowerPanel.objects.create(site=site_a, rack_group=rackgroup_a1, name='Power Panel 1')
+
+        # Move RackGroup A1 to Site B
+        rackgroup_a1.site = site_b
+        rackgroup_a1.save()
+
+        # Check that all objects within RackGroup A1 now belong to Site B
+        self.assertEqual(RackGroup.objects.get(pk=rackgroup_a1.pk).site, site_b)
+        self.assertEqual(RackGroup.objects.get(pk=rackgroup_a2.pk).site, site_b)
+        self.assertEqual(Rack.objects.get(pk=rack1.pk).site, site_b)
+        self.assertEqual(Rack.objects.get(pk=rack2.pk).site, site_b)
+        self.assertEqual(PowerPanel.objects.get(pk=powerpanel1.pk).site, site_b)
+
+
 class RackTestCase(TestCase):
 
     def setUp(self):
@@ -153,6 +189,34 @@ class RackTestCase(TestCase):
             face='',
         )
         self.assertTrue(pdu)
+
+    def test_change_rack_site(self):
+        """
+        Check that child Devices get updated when a Rack is moved to a new Site.
+        """
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Device Role 1', slug='device-role-1', color='ff0000'
+        )
+
+        # Create Rack1 in Site A
+        rack1 = Rack.objects.create(site=site_a, name='Rack 1')
+
+        # Create Device1 in Rack1
+        device1 = Device.objects.create(site=site_a, rack=rack1, device_type=device_type, device_role=device_role)
+
+        # Move Rack1 to Site B
+        rack1.site = site_b
+        rack1.save()
+
+        # Check that Device1 is now assigned to Site B
+        self.assertEqual(Device.objects.get(pk=device1.pk).site, site_b)
 
 
 class DeviceTestCase(TestCase):
@@ -390,17 +454,19 @@ class CableTestCase(TestCase):
         self.provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         self.circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         self.circuit = Circuit.objects.create(provider=self.provider, type=self.circuittype, cid='1')
-        self.circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='A', port_speed=1000)
-        self.circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='Z', port_speed=1000)
+        self.circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='A')
+        self.circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='Z')
 
     def test_cable_creation(self):
         """
         When a new Cable is created, it must be cached on either termination point.
         """
         interface1 = Interface.objects.get(pk=self.interface1.pk)
-        self.assertEqual(self.cable.termination_a, interface1)
         interface2 = Interface.objects.get(pk=self.interface2.pk)
+        self.assertEqual(self.cable.termination_a, interface1)
+        self.assertEqual(interface1._cable_peer, interface2)
         self.assertEqual(self.cable.termination_b, interface2)
+        self.assertEqual(interface2._cable_peer, interface1)
 
     def test_cable_deletion(self):
         """
@@ -412,8 +478,10 @@ class CableTestCase(TestCase):
         self.assertNotEqual(str(self.cable), '#None')
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertIsNone(interface1.cable)
+        self.assertIsNone(interface1._cable_peer)
         interface2 = Interface.objects.get(pk=self.interface2.pk)
         self.assertIsNone(interface2.cable)
+        self.assertIsNone(interface2._cable_peer)
 
     def test_cabletermination_deletion(self):
         """
@@ -457,21 +525,9 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_connection_via_single_position_rearport(self):
+    def test_rearport_connections(self):
         """
-        A RearPort with one position can be connected to anything.
-
-            [CableTermination X]---[RP(pos=1) FP]---[CableTermination Y]
-
-        is allowed anywhere
-
-            [CableTermination X]---[CableTermination Y]
-
-        is allowed.
-
-        A RearPort with multiple positions may not be directly connected to a path endpoint or another RearPort
-        with a different number of positions. RearPorts with a single position on the other hand may be connected
-        to such CableTerminations. Check that this is indeed allowed.
+        Test various combinations of RearPort connections.
         """
         # Connecting a single-position RearPort to a multi-position RearPort is ok
         Cable(termination_a=self.rear_port1, termination_b=self.rear_port2).full_clean()
@@ -482,67 +538,21 @@ class CableTestCase(TestCase):
         # Connecting a single-position RearPort to a CircuitTermination is ok
         Cable(termination_a=self.rear_port1, termination_b=self.circuittermination1).full_clean()
 
-    def test_connection_via_multi_position_rearport(self):
-        """
-        A RearPort with multiple positions may not be directly connected to a path endpoint or another RearPort
-        with a different number of positions.
-
-        The following scenario's are allowed (with x>1):
-
-            ~----------+   +---------~
-                       |   |
-             RP2(pos=x)|---|RP(pos=x)
-                       |   |
-            ~----------+   +---------~
-
-            ~----------+   +---------~
-                       |   |
-             RP2(pos=x)|---|RP(pos=1)
-                       |   |
-            ~----------+   +---------~
-
-            ~----------+   +------------------~
-                       |   |
-             RP2(pos=x)|---|CircuitTermination
-                       |   |
-            ~----------+   +------------------~
-
-        These scenarios are NOT allowed (with x>1):
-
-            ~----------+   +----------~
-                       |   |
-             RP2(pos=x)|---|RP(pos!=x)
-                       |   |
-            ~----------+   +----------~
-
-            ~----------+   +----------~
-                       |   |
-             RP2(pos=x)|---|Interface
-                       |   |
-            ~----------+   +----------~
-
-        These scenarios are tested in this order below.
-        """
         # Connecting a multi-position RearPort to another RearPort with the same number of positions is ok
         Cable(termination_a=self.rear_port3, termination_b=self.rear_port4).full_clean()
 
-        # Connecting a multi-position RearPort to a single-position RearPort is ok
-        Cable(termination_a=self.rear_port2, termination_b=self.rear_port1).full_clean()
+        # Connecting a multi-position RearPort to an Interface is ok
+        Cable(termination_a=self.rear_port2, termination_b=self.interface3).full_clean()
 
         # Connecting a multi-position RearPort to a CircuitTermination is ok
         Cable(termination_a=self.rear_port2, termination_b=self.circuittermination1).full_clean()
 
+        # Connecting a two-position RearPort to a three-position RearPort is NOT ok
         with self.assertRaises(
             ValidationError,
                 msg='Connecting a 2-position RearPort to a 3-position RearPort should fail'
         ):
             Cable(termination_a=self.rear_port2, termination_b=self.rear_port3).full_clean()
-
-        with self.assertRaises(
-            ValidationError,
-                msg='Connecting a multi-position RearPort to an Interface should fail'
-        ):
-            Cable(termination_a=self.rear_port2, termination_b=self.interface3).full_clean()
 
     def test_cable_cannot_terminate_to_a_virtual_interface(self):
         """
@@ -561,628 +571,3 @@ class CableTestCase(TestCase):
         cable = Cable(termination_a=self.interface2, termination_b=wireless_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
-
-
-class CablePathTestCase(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
-        )
-        devicerole = DeviceRole.objects.create(
-            name='Device Role 1', slug='device-role-1', color='ff0000'
-        )
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
-        circuit = Circuit.objects.create(provider=provider, type=circuittype, cid='1')
-        CircuitTermination.objects.bulk_create((
-            CircuitTermination(circuit=circuit, site=site, term_side='A', port_speed=1000),
-            CircuitTermination(circuit=circuit, site=site, term_side='Z', port_speed=1000),
-        ))
-
-        # Create four network devices with four interfaces each
-        devices = (
-            Device(device_type=devicetype, device_role=devicerole, name='Device 1', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Device 2', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Device 3', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Device 4', site=site),
-        )
-        Device.objects.bulk_create(devices)
-        for device in devices:
-            Interface.objects.bulk_create((
-                Interface(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-                Interface(device=device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-                Interface(device=device, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-                Interface(device=device, name='Interface 4', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            ))
-
-        # Create four patch panels, each with one rear port and four front ports
-        patch_panels = (
-            Device(device_type=devicetype, device_role=devicerole, name='Panel 1', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Panel 2', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Panel 3', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Panel 4', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Panel 5', site=site),
-            Device(device_type=devicetype, device_role=devicerole, name='Panel 6', site=site),
-        )
-        Device.objects.bulk_create(patch_panels)
-
-        # Create patch panels with 4 positions
-        for patch_panel in patch_panels[:4]:
-            rearport = RearPort.objects.create(device=patch_panel, name='Rear Port 1', positions=4, type=PortTypeChoices.TYPE_8P8C)
-            FrontPort.objects.bulk_create((
-                FrontPort(device=patch_panel, name='Front Port 1', rear_port=rearport, rear_port_position=1, type=PortTypeChoices.TYPE_8P8C),
-                FrontPort(device=patch_panel, name='Front Port 2', rear_port=rearport, rear_port_position=2, type=PortTypeChoices.TYPE_8P8C),
-                FrontPort(device=patch_panel, name='Front Port 3', rear_port=rearport, rear_port_position=3, type=PortTypeChoices.TYPE_8P8C),
-                FrontPort(device=patch_panel, name='Front Port 4', rear_port=rearport, rear_port_position=4, type=PortTypeChoices.TYPE_8P8C),
-            ))
-
-        # Create 1-on-1 patch panels
-        for patch_panel in patch_panels[4:]:
-            rearport = RearPort.objects.create(device=patch_panel, name='Rear Port 1', positions=1, type=PortTypeChoices.TYPE_8P8C)
-            FrontPort.objects.create(device=patch_panel, name='Front Port 1', rear_port=rearport, rear_port_position=1, type=PortTypeChoices.TYPE_8P8C)
-
-    def test_direct_connection(self):
-        """
-        Test a direct connection between two interfaces.
-
-        [Device 1] ----- [Device 2]
-             Iface1     Iface1
-        """
-        # Create cable
-        cable = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
-        )
-        cable.full_clean()
-        cable.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-
-        # Delete cable
-        cable.delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)
-
-    def test_connection_via_single_rear_port(self):
-        """
-        Test a connection which passes through a rear port with exactly one front port.
-
-                     1               2
-        [Device 1] ----- [Panel 5] ----- [Device 2]
-             Iface1     FP1     RP1     Iface1
-        """
-        # Create cables (FP first, RP second)
-        cable1 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1')
-        )
-        cable1.full_clean()
-        cable1.save()
-        cable2 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1'),
-            termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
-        )
-        self.assertEqual(cable2.termination_a.positions, 1)  # Sanity check
-        cable2.full_clean()
-        cable2.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-
-        # Delete cable 1
-        cable1.delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)
-
-    def test_connections_via_nested_single_position_rearport(self):
-        """
-        Test a connection which passes through a single front/rear port pair between two multi-position rear ports.
-
-        Test two connections via patched rear ports:
-            Device 1 <---> Device 2
-            Device 3 <---> Device 4
-
-                        1                                           2
-        [Device 1] -----------+                               +----------- [Device 2]
-              Iface1          |                               |          Iface1
-                          FP1 |       3               4       | FP1
-                          [Panel 1] ----- [Panel 5] ----- [Panel 2]
-                          FP2 |  RP1     RP1     FP1     RP1  | FP2
-              Iface1          |                               |          Iface1
-        [Device 3] -----------+                               +----------- [Device 4]
-                        5                                           6
-        """
-        # Create cables (Panel 5 RP first, FP second)
-        cable1 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
-        )
-        cable1.full_clean()
-        cable1.save()
-        cable2 = Cable(
-            termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
-            termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1')
-        )
-        cable2.full_clean()
-        cable2.save()
-        cable3 = Cable(
-            termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
-            termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1')
-        )
-        cable3.full_clean()
-        cable3.save()
-        cable4 = Cable(
-            termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1'),
-            termination_a=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
-        )
-        cable4.full_clean()
-        cable4.save()
-        cable5 = Cable(
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2'),
-            termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1')
-        )
-        cable5.full_clean()
-        cable5.save()
-        cable6 = Cable(
-            termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2'),
-            termination_a=Interface.objects.get(device__name='Device 4', name='Interface 1')
-        )
-        cable6.full_clean()
-        cable6.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-        endpoint_c = Interface.objects.get(device__name='Device 3', name='Interface 1')
-        endpoint_d = Interface.objects.get(device__name='Device 4', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertEqual(endpoint_c.connected_endpoint, endpoint_d)
-        self.assertEqual(endpoint_d.connected_endpoint, endpoint_c)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-        self.assertTrue(endpoint_c.connection_status)
-        self.assertTrue(endpoint_d.connection_status)
-
-        # Delete cable 3
-        cable3.delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-        endpoint_c.refresh_from_db()
-        endpoint_d.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_c.connected_endpoint)
-        self.assertIsNone(endpoint_d.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)
-        self.assertIsNone(endpoint_c.connection_status)
-        self.assertIsNone(endpoint_d.connection_status)
-
-    def test_connections_via_patch(self):
-        """
-        Test two connections via patched rear ports:
-            Device 1 <---> Device 2
-            Device 3 <---> Device 4
-
-                        1                           2
-        [Device 1] -----------+               +----------- [Device 2]
-              Iface1          |               |          Iface1
-                          FP1 |       3       | FP1
-                          [Panel 1] ----- [Panel 2]
-                          FP2 |   RP1   RP1   | FP2
-              Iface1          |               |          Iface1
-        [Device 3] -----------+               +----------- [Device 4]
-                        4                           5
-        """
-        # Create cables
-        cable1 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
-        )
-        cable1.full_clean()
-        cable1.save()
-        cable2 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1')
-        )
-        cable2.full_clean()
-        cable2.save()
-
-        cable3 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
-            termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
-        )
-        cable3.full_clean()
-        cable3.save()
-
-        cable4 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
-        )
-        cable4.full_clean()
-        cable4.save()
-        cable5 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 4', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2')
-        )
-        cable5.full_clean()
-        cable5.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-        endpoint_c = Interface.objects.get(device__name='Device 3', name='Interface 1')
-        endpoint_d = Interface.objects.get(device__name='Device 4', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertEqual(endpoint_c.connected_endpoint, endpoint_d)
-        self.assertEqual(endpoint_d.connected_endpoint, endpoint_c)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-        self.assertTrue(endpoint_c.connection_status)
-        self.assertTrue(endpoint_d.connection_status)
-
-        # Delete cable 3
-        cable3.delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-        endpoint_c.refresh_from_db()
-        endpoint_d.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_c.connected_endpoint)
-        self.assertIsNone(endpoint_d.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)
-        self.assertIsNone(endpoint_c.connection_status)
-        self.assertIsNone(endpoint_d.connection_status)
-
-    def test_connections_via_multiple_patches(self):
-        """
-        Test two connections via patched rear ports:
-            Device 1 <---> Device 2
-            Device 3 <---> Device 4
-
-                        1                             2                             3
-        [Device 1] -----------+               +---------------+               +----------- [Device 2]
-              Iface1          |               |               |               |          Iface1
-                          FP1 |       4       | FP1       FP1 |       5       | FP1
-                          [Panel 1] ----- [Panel 2]       [Panel 3] ----- [Panel 4]
-                          FP2 |   RP1   RP1   | FP2       FP2 |   RP1   RP1   | FP2
-              Iface1          |               |               |               |          Iface1
-        [Device 3] -----------+               +---------------+               +----------- [Device 4]
-                        6                             7                             8
-        """
-        # Create cables
-        cable1 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
-        )
-        cable1.full_clean()
-        cable1.save()
-        cable2 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 3', name='Front Port 1')
-        )
-        cable2.full_clean()
-        cable2.save()
-        cable3 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 1'),
-            termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
-        )
-        cable3.full_clean()
-        cable3.save()
-
-        cable4 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
-            termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
-        )
-        cable4.full_clean()
-        cable4.save()
-        cable5 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 3', name='Rear Port 1'),
-            termination_b=RearPort.objects.get(device__name='Panel 4', name='Rear Port 1')
-        )
-        cable5.full_clean()
-        cable5.save()
-
-        cable6 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
-        )
-        cable6.full_clean()
-        cable6.save()
-        cable7 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2'),
-            termination_b=FrontPort.objects.get(device__name='Panel 3', name='Front Port 2')
-        )
-        cable7.full_clean()
-        cable7.save()
-        cable8 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 2'),
-            termination_b=Interface.objects.get(device__name='Device 4', name='Interface 1')
-        )
-        cable8.full_clean()
-        cable8.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-        endpoint_c = Interface.objects.get(device__name='Device 3', name='Interface 1')
-        endpoint_d = Interface.objects.get(device__name='Device 4', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertEqual(endpoint_c.connected_endpoint, endpoint_d)
-        self.assertEqual(endpoint_d.connected_endpoint, endpoint_c)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-        self.assertTrue(endpoint_c.connection_status)
-        self.assertTrue(endpoint_d.connection_status)
-
-        # Delete cables 4 and 5
-        cable4.delete()
-        cable5.delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-        endpoint_c.refresh_from_db()
-        endpoint_d.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_c.connected_endpoint)
-        self.assertIsNone(endpoint_d.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)
-        self.assertIsNone(endpoint_c.connection_status)
-        self.assertIsNone(endpoint_d.connection_status)
-
-    def test_connections_via_nested_rear_ports(self):
-        """
-        Test two connections via nested rear ports:
-            Device 1 <---> Device 2
-            Device 3 <---> Device 4
-
-                        1                                                           2
-        [Device 1] -----------+                                               +----------- [Device 2]
-              Iface1          |                                               |          Iface1
-                          FP1 |       3               4               5       | FP1
-                          [Panel 1] ----- [Panel 2] ----- [Panel 3] ----- [Panel 4]
-                          FP2 |   RP1   FP1       RP1   RP1       FP1   RP1   | FP2
-              Iface1          |                                               |          Iface1
-        [Device 3] -----------+                                               +----------- [Device 4]
-                        6                                                           7
-        """
-        # Create cables
-        cable1 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
-        )
-        cable1.full_clean()
-        cable1.save()
-        cable2 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 1'),
-            termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
-        )
-        cable2.full_clean()
-        cable2.save()
-
-        cable3 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1')
-        )
-        cable3.full_clean()
-        cable3.save()
-        cable4 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1'),
-            termination_b=RearPort.objects.get(device__name='Panel 3', name='Rear Port 1')
-        )
-        cable4.full_clean()
-        cable4.save()
-        cable5 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 3', name='Front Port 1'),
-            termination_b=RearPort.objects.get(device__name='Panel 4', name='Rear Port 1')
-        )
-        cable5.full_clean()
-        cable5.save()
-
-        cable6 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
-        )
-        cable6.full_clean()
-        cable6.save()
-        cable7 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 2'),
-            termination_b=Interface.objects.get(device__name='Device 4', name='Interface 1')
-        )
-        cable7.full_clean()
-        cable7.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-        endpoint_c = Interface.objects.get(device__name='Device 3', name='Interface 1')
-        endpoint_d = Interface.objects.get(device__name='Device 4', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertEqual(endpoint_c.connected_endpoint, endpoint_d)
-        self.assertEqual(endpoint_d.connected_endpoint, endpoint_c)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-        self.assertTrue(endpoint_c.connection_status)
-        self.assertTrue(endpoint_d.connection_status)
-
-        # Delete cable 4
-        cable4.delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-        endpoint_c.refresh_from_db()
-        endpoint_d.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_c.connected_endpoint)
-        self.assertIsNone(endpoint_d.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)
-        self.assertIsNone(endpoint_c.connection_status)
-        self.assertIsNone(endpoint_d.connection_status)
-
-    def test_connection_via_circuit(self):
-        """
-                     1               2
-        [Device 1] ----- [Circuit] ----- [Device 2]
-             Iface1     A         Z     Iface1
-
-        """
-        # Create cables
-        cable1 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=CircuitTermination.objects.get(term_side='A')
-        )
-        cable1.full_clean()
-        cable1.save()
-        cable2 = Cable(
-            termination_a=CircuitTermination.objects.get(term_side='Z'),
-            termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
-        )
-        cable2.full_clean()
-        cable2.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-
-        # Delete circuit
-        circuit = Circuit.objects.first().delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)
-
-    def test_connection_via_patched_circuit(self):
-        """
-                     1               2               3               4
-        [Device 1] ----- [Panel 5] ----- [Circuit] ----- [Panel 6] ----- [Device 2]
-             Iface1     FP1     RP1     A         Z     RP1     FP1     Iface1
-
-        """
-        # Create cables
-        cable1 = Cable(
-            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1')
-        )
-        cable1.full_clean()
-        cable1.save()
-        cable2 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1'),
-            termination_b=CircuitTermination.objects.get(term_side='A')
-        )
-        cable2.full_clean()
-        cable2.save()
-        cable3 = Cable(
-            termination_a=CircuitTermination.objects.get(term_side='Z'),
-            termination_b=RearPort.objects.get(device__name='Panel 6', name='Rear Port 1')
-        )
-        cable3.full_clean()
-        cable3.save()
-        cable4 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 6', name='Front Port 1'),
-            termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
-        )
-        cable4.full_clean()
-        cable4.save()
-
-        # Retrieve endpoints
-        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
-        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
-
-        # Validate connections
-        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
-        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
-        self.assertTrue(endpoint_a.connection_status)
-        self.assertTrue(endpoint_b.connection_status)
-
-        # Delete circuit
-        circuit = Circuit.objects.first().delete()
-
-        # Refresh endpoints
-        endpoint_a.refresh_from_db()
-        endpoint_b.refresh_from_db()
-
-        # Check that connections have been nullified
-        self.assertIsNone(endpoint_a.connected_endpoint)
-        self.assertIsNone(endpoint_b.connected_endpoint)
-        self.assertIsNone(endpoint_a.connection_status)
-        self.assertIsNone(endpoint_b.connection_status)

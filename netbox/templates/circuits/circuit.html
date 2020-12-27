@@ -4,15 +4,15 @@
 {% load helpers %}
 {% load plugins %}
 
-{% block title %}{{ circuit }}{% endblock %}
+{% block title %}{{ object }}{% endblock %}
 
 {% block header %}
     <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
-                <li><a href="{% url 'circuits:circuit_list' %}?provider={{ circuit.provider.slug }}">{{ circuit.provider }}</a></li>
-                <li>{{ circuit.cid }}</li>
+                <li><a href="{% url 'circuits:circuit_list' %}?provider={{ object.provider.slug }}">{{ object.provider }}</a></li>
+                <li>{{ object.cid }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -29,29 +29,29 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons circuit %}
+        {% plugin_buttons object %}
         {% if perms.circuits.add_circuit %}
-            {% clone_button circuit %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.circuits.change_circuit %}
-            {% edit_button circuit %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.circuits.delete_circuit %}
-            {% delete_button circuit %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{{ circuit }}</h1>
-    {% include 'inc/created_updated.html' with obj=circuit %}
+    <h1>{{ object }}</h1>
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
-        {% custom_links circuit %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ circuit.get_absolute_url }}">Circuit</a>
+            <a href="{{ object.get_absolute_url }}">Circuit</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'circuits:circuit_changelog' pk=circuit.pk %}">Change Log</a>
+                <a href="{% url 'circuits:circuit_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -68,32 +68,31 @@
                 <tr>
                     <td>Status</td>
                     <td>
-                        <span class="label label-{{ circuit.get_status_class }}">{{ circuit.get_status_display }}</span>
+                        <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                     </td>
                 </tr>
                 <tr>
                     <td>Provider</td>
                     <td>
-                        <a href="{% url 'circuits:provider' slug=circuit.provider.slug %}">{{ circuit.provider }}</a>
+                        <a href="{% url 'circuits:provider' slug=object.provider.slug %}">{{ object.provider }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Circuit ID</td>
-                    <td>{{ circuit.cid }}</td>
+                    <td>{{ object.cid }}</td>
                 </tr>
                 <tr>
                     <td>Type</td>
-                    <td><a href="{{ circuit.type.get_absolute_url }}">{{ circuit.type }}</a></td>
+                    <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
                 </tr>
                 <tr>
                     <td>Tenant</td>
                     <td>
-                        {% if circuit.tenant %}
-                            {% if circuit.tenant.group %}
-                                <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                        {% if object.tenant %}
+                            {% if object.tenant.group %}
+                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                             {% endif %}
-                            <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
+                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -101,43 +100,43 @@
                 </tr>
                 <tr>
                     <td>Install Date</td>
-                    <td>{{ circuit.install_date|placeholder }}</td>
+                    <td>{{ object.install_date|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Commit Rate</td>
-                    <td>{{ circuit.commit_rate|humanize_speed|placeholder }}</td>
+                    <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>{{ circuit.description|placeholder }}</td>
+                    <td>{{ object.description|placeholder }}</td>
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with obj=circuit %}
-        {% include 'extras/inc/tags_panel.html' with tags=circuit.tags.all url='circuits:circuit_list' %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:circuit_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>
             </div>
             <div class="panel-body rendered-markdown">
-                {% if circuit.comments %}
-                    {{ circuit.comments|render_markdown }}
+                {% if object.comments %}
+                    {{ object.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}
             </div>
         </div>
-        {% plugin_left_page circuit %}
+        {% plugin_left_page object %}
 	</div>
 	<div class="col-md-6">
         {% include 'circuits/inc/circuit_termination.html' with termination=termination_a side='A' %}
         {% include 'circuits/inc/circuit_termination.html' with termination=termination_z side='Z' %}
-        {% plugin_right_page circuit %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page circuit %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}

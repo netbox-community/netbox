@@ -1,3 +1,4 @@
+from .cables import *
 from .device_component_templates import *
 from .device_components import *
 from .devices import *
@@ -8,6 +9,7 @@ from .sites import *
 __all__ = (
     'BaseInterface',
     'Cable',
+    'CablePath',
     'CableTermination',
     'ConsolePort',
     'ConsolePortTemplate',

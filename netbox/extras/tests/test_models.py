@@ -1,51 +1,9 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Site, Region
-from extras.choices import TemplateLanguageChoices
-from extras.models import ConfigContext, Graph, Tag
+from extras.models import ConfigContext, Tag
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
-
-
-class GraphTest(TestCase):
-
-    def setUp(self):
-
-        self.site = Site(name='Site 1', slug='site-1')
-
-    def test_graph_render_django(self):
-
-        # Using the pluralize filter as a sanity check (it's only available in Django)
-        TEMPLATE_TEXT = "{{ obj.name|lower }} thing{{ 2|pluralize }}"
-        RENDERED_TEXT = "site 1 things"
-
-        graph = Graph(
-            type=ContentType.objects.get(app_label='dcim', model='site'),
-            name='Graph 1',
-            template_language=TemplateLanguageChoices.LANGUAGE_DJANGO,
-            source=TEMPLATE_TEXT,
-            link=TEMPLATE_TEXT
-        )
-
-        self.assertEqual(graph.embed_url(self.site), RENDERED_TEXT)
-        self.assertEqual(graph.embed_link(self.site), RENDERED_TEXT)
-
-    def test_graph_render_jinja2(self):
-
-        TEMPLATE_TEXT = "{{ [obj.name, obj.slug]|join(',') }}"
-        RENDERED_TEXT = "Site 1,site-1"
-
-        graph = Graph(
-            type=ContentType.objects.get(app_label='dcim', model='site'),
-            name='Graph 1',
-            template_language=TemplateLanguageChoices.LANGUAGE_JINJA2,
-            source=TEMPLATE_TEXT,
-            link=TEMPLATE_TEXT
-        )
-
-        self.assertEqual(graph.embed_url(self.site), RENDERED_TEXT)
-        self.assertEqual(graph.embed_link(self.site), RENDERED_TEXT)
 
 
 class TagTest(TestCase):
@@ -362,4 +320,47 @@ class ConfigContextTest(TestCase):
 
         annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 1)
+        self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
+
+    def test_multiple_tags_return_distinct_objects_with_seperate_config_contexts(self):
+        """
+        Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
+        This is combatted by by appending distinct() to the config context querysets. This test creates a config
+        context assigned to two tags and ensures objects related by those same two tags result in only a single
+        config context record being returned.
+
+        This test case is seperate from the above in that it deals with multiple config context objects in play.
+
+        See https://github.com/netbox-community/netbox/issues/5387
+        """
+        tag_context_1 = ConfigContext.objects.create(
+            name="tag-1",
+            weight=100,
+            data={
+                "tag": 1
+            }
+        )
+        tag_context_1.tags.add(self.tag)
+        tag_context_2 = ConfigContext.objects.create(
+            name="tag-2",
+            weight=100,
+            data={
+                "tag": 1
+            }
+        )
+        tag_context_2.tags.add(self.tag2)
+
+        device = Device.objects.create(
+            name="Device 3",
+            site=self.site,
+            tenant=self.tenant,
+            platform=self.platform,
+            device_role=self.devicerole,
+            device_type=self.devicetype
+        )
+        device.tags.add(self.tag)
+        device.tags.add(self.tag2)
+
+        annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
+        self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 2)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
