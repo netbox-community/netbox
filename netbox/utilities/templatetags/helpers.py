@@ -230,22 +230,22 @@ def querystring(request, **kwargs):
 
 
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
-def utilization_graph(data_input, warning_threshold=75, danger_threshold=90):
+def utilization_graph(used_count, total, warning_threshold=75, danger_threshold=90):
     """
     Display a horizontal bar graph indicating a percentage of utilization.
     """
     # Check for possible division by zero error
-    if data_input[1] == 0:
+    if total == 0:
         utilization = 0
     else:
-        utilization = int(float(data_input[0]) / data_input[1] * 100)
+        utilization = int(float(used_count) / total * 100)
 
     return {
         'utilization': utilization,
         'warning_threshold': warning_threshold,
         'danger_threshold': danger_threshold,
-        'utilization_count': data_input[0],
-        'total_count': data_input[1],
+        'utilization_count': used_count,
+        'total_count': total,
     }
 
 

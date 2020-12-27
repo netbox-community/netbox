@@ -562,7 +562,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         if power_stats:
             allocated_draw_total = sum(x['allocated_draw_total'] or 0 for x in power_stats)
             available_power_total = sum(x['available_power'] for x in power_stats)
-            return int(allocated_draw_total / available_power_total * 100) or (0, 0)
+            return (allocated_draw_total, available_power_total) or (0, 0)
         return (0, 0)
 
 
