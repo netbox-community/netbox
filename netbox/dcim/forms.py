@@ -134,6 +134,7 @@ class ComponentForm(BootstrapMixin, forms.Form):
     )
 
     def clean(self):
+        super().clean()
 
         # Validate that the number of components being created from both the name_pattern and label_pattern are equal
         if self.cleaned_data['label_pattern']:
@@ -1438,6 +1439,7 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         self.fields['rear_port_set'].choices = choices
 
     def clean(self):
+        super().clean()
 
         # Validate that the number of ports being created equals the number of selected (rear port, position) tuples
         front_port_count = len(self.cleaned_data['name_pattern'])
@@ -2929,6 +2931,7 @@ class InterfaceBulkEditForm(
             self.fields['lag'].widget.attrs['disabled'] = True
 
     def clean(self):
+        super().clean()
 
         # Untagged interfaces cannot be assigned tagged VLANs
         if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and self.cleaned_data['tagged_vlans']:
@@ -3077,6 +3080,7 @@ class FrontPortCreateForm(ComponentCreateForm):
         self.fields['rear_port_set'].choices = choices
 
     def clean(self):
+        super().clean()
 
         # Validate that the number of ports being created equals the number of selected (rear port, position) tuples
         front_port_count = len(self.cleaned_data['name_pattern'])
@@ -3909,6 +3913,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         ]
 
     def clean(self):
+        super().clean()
 
         # Validate length/unit
         length = self.cleaned_data.get('length')

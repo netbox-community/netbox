@@ -109,6 +109,7 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Parent RackGroup (if any) must belong to the same Site
         if self.parent and self.parent.site != self.site:

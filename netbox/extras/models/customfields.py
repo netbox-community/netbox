@@ -47,6 +47,8 @@ class CustomFieldModel(models.Model):
         ])
 
     def clean(self):
+        super().clean()
+
         custom_fields = {cf.name: cf for cf in CustomField.objects.get_for_model(self)}
 
         # Validate all field values
@@ -172,6 +174,8 @@ class CustomField(models.Model):
                 obj.save()
 
     def clean(self):
+        super().clean()
+
         # Validate the field's default value (if any)
         if self.default is not None:
             try:

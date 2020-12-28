@@ -193,6 +193,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def clean(self):
+        super().clean()
 
         # Validate power port assignment
         if self.power_port and self.power_port.device_type != self.device_type:
@@ -278,6 +279,7 @@ class FrontPortTemplate(ComponentTemplateModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate rear port assignment
         if self.rear_port.device_type != self.device_type:
