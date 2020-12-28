@@ -798,8 +798,8 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                             # Update custom fields
                             for name in custom_fields:
                                 if name in form.nullable_fields and name in nullified_fields:
-                                    obj.custom_field_data.pop(name, None)
-                                else:
+                                    obj.custom_field_data[name] = None
+                                elif form.cleaned_data.get(name) not in (None, ''):
                                     obj.custom_field_data[name] = form.cleaned_data[name]
 
                             obj.full_clean()
