@@ -7,6 +7,7 @@
 * [#5301](https://github.com/netbox-community/netbox/issues/5301) - Fix misleading error when racking a device with invalid parameters
 * [#5311](https://github.com/netbox-community/netbox/issues/5311) - Update child objects when a rack group is moved to a new site
 * [#5518](https://github.com/netbox-community/netbox/issues/5518) - Fix persistent vertical scrollbar
+* [#5540](https://github.com/netbox-community/netbox/issues/5540) - Fix exception when viewing a provider with one or more tags assigned
 * [#5543](https://github.com/netbox-community/netbox/issues/5543) - Fix rendering of config contexts with cluster assignment for devices
 
 ---
