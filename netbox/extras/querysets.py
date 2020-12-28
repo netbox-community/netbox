@@ -89,6 +89,8 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         }
         base_query = Q(
             Q(platforms=OuterRef('platform')) | Q(platforms=None),
+            Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None),
+            Q(clusters=OuterRef('cluster')) | Q(clusters=None),
             Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
             Q(tenants=OuterRef('tenant')) | Q(tenants=None),
             Q(
@@ -111,8 +113,6 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
 
         elif self.model._meta.model_name == 'virtualmachine':
             base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
-            base_query.add((Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None)), Q.AND)
-            base_query.add((Q(clusters=OuterRef('cluster')) | Q(clusters=None)), Q.AND)
             base_query.add((Q(sites=OuterRef('cluster__site')) | Q(sites=None)), Q.AND)
             region_field = 'cluster__site__region'
 
