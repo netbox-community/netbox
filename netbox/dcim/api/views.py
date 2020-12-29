@@ -258,6 +258,7 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
     )
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filters.DeviceTypeFilterSet
+    brief_prefetch_fields = ['manufacturer']
 
 
 #
@@ -493,6 +494,7 @@ class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsolePortFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
@@ -501,18 +503,21 @@ class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filters.ConsoleServerPortFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerPortFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
     queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filters.PowerOutletFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
@@ -521,30 +526,35 @@ class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class FrontPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filters.FrontPortFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class RearPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
     serializer_class = serializers.RearPortSerializer
     filterset_class = filters.RearPortFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class DeviceBayViewSet(ModelViewSet):
     queryset = DeviceBay.objects.prefetch_related('installed_device').prefetch_related('tags')
     serializer_class = serializers.DeviceBaySerializer
     filterset_class = filters.DeviceBayFilterSet
+    brief_prefetch_fields = ['device']
 
 
 class InventoryItemViewSet(ModelViewSet):
     queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer').prefetch_related('tags')
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filters.InventoryItemFilterSet
+    brief_prefetch_fields = ['device']
 
 
 #
@@ -600,6 +610,7 @@ class VirtualChassisViewSet(ModelViewSet):
     )
     serializer_class = serializers.VirtualChassisSerializer
     filterset_class = filters.VirtualChassisFilterSet
+    brief_prefetch_fields = ['master']
 
 
 #

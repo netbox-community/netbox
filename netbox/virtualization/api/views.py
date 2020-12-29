@@ -84,3 +84,4 @@ class VMInterfaceViewSet(ModelViewSet):
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filters.VMInterfaceFilterSet
+    brief_prefetch_fields = ['virtual_machine']
