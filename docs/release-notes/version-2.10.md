@@ -11,6 +11,7 @@
 * [#5540](https://github.com/netbox-community/netbox/issues/5540) - Fix exception when viewing a provider with one or more tags assigned
 * [#5543](https://github.com/netbox-community/netbox/issues/5543) - Fix rendering of config contexts with cluster assignment for devices
 * [#5546](https://github.com/netbox-community/netbox/issues/5546) - Add custom field bulk edit support for cables, power panels, rack reservations, and virtual chassis
+* [#5547](https://github.com/netbox-community/netbox/issues/5547) - Add custom field bulk import support for cables, power panels, rack reservations, and virtual chassis
 
 ---
 

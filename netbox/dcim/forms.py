@@ -784,7 +784,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         ]
 
 
-class RackReservationCSVForm(CSVModelForm):
+class RackReservationCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -3775,7 +3775,7 @@ class CableForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class CableCSVForm(CSVModelForm):
+class CableCSVForm(CustomFieldModelCSVForm):
     # Termination A
     side_a_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -4271,7 +4271,7 @@ class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         nullable_fields = ['domain']
 
 
-class VirtualChassisCSVForm(CSVModelForm):
+class VirtualChassisCSVForm(CustomFieldModelCSVForm):
     master = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -4358,7 +4358,7 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class PowerPanelCSVForm(CSVModelForm):
+class PowerPanelCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
