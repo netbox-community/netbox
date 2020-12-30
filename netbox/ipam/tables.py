@@ -270,7 +270,7 @@ class PrefixTable(BaseTable):
     pk = ToggleColumn()
     prefix = tables.TemplateColumn(
         template_code=PREFIX_LINK,
-        attrs={'th': {'style': 'padding-left: 17px'}}
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     status = ChoiceFieldColumn(
         default=AVAILABLE_LABEL

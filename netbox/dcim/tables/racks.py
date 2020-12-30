@@ -26,7 +26,8 @@ class RackGroupTable(BaseTable):
     pk = ToggleColumn()
     name = tables.TemplateColumn(
         template_code=MPTT_LINK,
-        orderable=False
+        orderable=False,
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     site = tables.LinkColumn(
         viewname='dcim:site',
