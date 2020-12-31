@@ -196,7 +196,8 @@ class CustomField(models.Model):
             })
 
         # Regex validation can be set only for text fields
-        if self.validation_regex and self.type != CustomFieldTypeChoices.TYPE_TEXT:
+        regex_types = (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_URL)
+        if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
             })
