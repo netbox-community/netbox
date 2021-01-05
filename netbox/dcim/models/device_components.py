@@ -505,7 +505,7 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
     )
     mgmt_only = models.BooleanField(
         default=False,
-        verbose_name='OOB Management',
+        verbose_name='Management only',
         help_text='This interface is used only for out-of-band management'
     )
     untagged_vlan = models.ForeignKey(
