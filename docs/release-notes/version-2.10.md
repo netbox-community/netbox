@@ -18,6 +18,7 @@
 * [#5558](https://github.com/netbox-community/netbox/issues/5558) - Fix regex validation support for custom URL fields
 * [#5563](https://github.com/netbox-community/netbox/issues/5563) - Fix power feed cable trace link
 * [#5564](https://github.com/netbox-community/netbox/issues/5564) - Raise validation error if a power port template's `allocated_draw` exceeds its `maximum_draw`
+* [#5573](https://github.com/netbox-community/netbox/issues/5573) - Report inconsistent values when migrating custom field data
 
 ---
 
