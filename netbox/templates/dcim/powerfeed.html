@@ -165,7 +165,7 @@
                         <td>Cable</td>
                         <td>
                             <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
-                            <a href="{% url 'dcim:consoleport_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                            <a href="{% url 'dcim:powerfeed_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
                                 <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                             </a>
                         </td>
