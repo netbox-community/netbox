@@ -78,8 +78,8 @@ String based (char) fields (Name, Address, etc) support these lookup expressions
 - `nisw` - negated case insensitive starts with
 - `iew` - case insensitive ends with
 - `niew` - negated case insensitive ends with
-- `ie` - case sensitive exact match
-- `nie` - negated case sensitive exact match
+- `ie` - case insensitive exact match
+- `nie` - negated case insensitive exact match
 
 ### Foreign Keys & Other Fields
 

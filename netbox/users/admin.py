@@ -169,6 +169,8 @@ class ObjectPermissionForm(forms.ModelForm):
                     self.instance.actions.remove(action)
 
     def clean(self):
+        super().clean()
+
         object_types = self.cleaned_data.get('object_types')
         constraints = self.cleaned_data.get('constraints')
 

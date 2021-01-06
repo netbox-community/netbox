@@ -316,6 +316,7 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
         )
 
     def clean(self):
+        super().clean()
 
         if self.maximum_draw is not None and self.allocated_draw is not None:
             if self.allocated_draw > self.maximum_draw:
@@ -425,6 +426,7 @@ class PowerOutlet(CableTermination, PathEndpoint, ComponentModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate power port assignment
         if self.power_port and self.power_port.device != self.device:
@@ -503,7 +505,7 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
     )
     mgmt_only = models.BooleanField(
         default=False,
-        verbose_name='OOB Management',
+        verbose_name='Management only',
         help_text='This interface is used only for out-of-band management'
     )
     untagged_vlan = models.ForeignKey(
@@ -555,6 +557,7 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
         )
 
     def clean(self):
+        super().clean()
 
         # Virtual interfaces cannot be connected
         if self.type in NONCONNECTABLE_IFACE_TYPES and (
@@ -668,6 +671,7 @@ class FrontPort(CableTermination, ComponentModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate rear port assignment
         if self.rear_port.device != self.device:
@@ -711,6 +715,7 @@ class RearPort(CableTermination, ComponentModel):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})
 
     def clean(self):
+        super().clean()
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
         frontport_count = self.frontports.count()
@@ -768,6 +773,7 @@ class DeviceBay(ComponentModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate that the parent Device can have DeviceBays
         if not self.device.device_type.is_parent_device:

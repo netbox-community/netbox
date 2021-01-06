@@ -19,7 +19,8 @@ class RegionTable(BaseTable):
     pk = ToggleColumn()
     name = tables.TemplateColumn(
         template_code=MPTT_LINK,
-        orderable=False
+        orderable=False,
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     site_count = tables.Column(
         verbose_name='Sites'

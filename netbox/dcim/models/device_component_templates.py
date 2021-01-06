@@ -164,6 +164,15 @@ class PowerPortTemplate(ComponentTemplateModel):
             allocated_draw=self.allocated_draw
         )
 
+    def clean(self):
+        super().clean()
+
+        if self.maximum_draw is not None and self.allocated_draw is not None:
+            if self.allocated_draw > self.maximum_draw:
+                raise ValidationError({
+                    'allocated_draw': f"Allocated draw cannot exceed the maximum draw ({self.maximum_draw}W)."
+                })
+
 
 class PowerOutletTemplate(ComponentTemplateModel):
     """
@@ -193,6 +202,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def clean(self):
+        super().clean()
 
         # Validate power port assignment
         if self.power_port and self.power_port.device_type != self.device_type:
@@ -278,6 +288,7 @@ class FrontPortTemplate(ComponentTemplateModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate rear port assignment
         if self.rear_port.device_type != self.device_type:

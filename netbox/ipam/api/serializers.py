@@ -25,8 +25,18 @@ from .nested_serializers import *
 class VRFSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    import_targets = NestedRouteTargetSerializer(required=False, allow_null=True, many=True)
-    export_targets = NestedRouteTargetSerializer(required=False, allow_null=True, many=True)
+    import_targets = SerializedPKRelatedField(
+        queryset=RouteTarget.objects.all(),
+        serializer=NestedRouteTargetSerializer,
+        required=False,
+        many=True
+    )
+    export_targets = SerializedPKRelatedField(
+        queryset=RouteTarget.objects.all(),
+        serializer=NestedRouteTargetSerializer,
+        required=False,
+        many=True
+    )
     ipaddress_count = serializers.IntegerField(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
 

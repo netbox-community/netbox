@@ -134,6 +134,7 @@ class ComponentForm(BootstrapMixin, forms.Form):
     )
 
     def clean(self):
+        super().clean()
 
         # Validate that the number of components being created from both the name_pattern and label_pattern are equal
         if self.cleaned_data['label_pattern']:
@@ -783,7 +784,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         ]
 
 
-class RackReservationCSVForm(CSVModelForm):
+class RackReservationCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -833,7 +834,7 @@ class RackReservationCSVForm(CSVModelForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1438,6 +1439,7 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         self.fields['rear_port_set'].choices = choices
 
     def clean(self):
+        super().clean()
 
         # Validate that the number of ports being created equals the number of selected (rear port, position) tuples
         front_port_count = len(self.cleaned_data['name_pattern'])
@@ -1781,9 +1783,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'group_id': '$rack_group',
         }
     )
-    position = forms.TypedChoiceField(
+    position = forms.IntegerField(
         required=False,
-        empty_value=None,
         help_text="The lowest-numbered unit occupied by the device",
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
@@ -1856,6 +1857,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                                   "config context",
         }
         widgets = {
+            'face': StaticSelect2(),
             'status': StaticSelect2(),
             'primary_ip4': StaticSelect2(),
             'primary_ip6': StaticSelect2(),
@@ -1902,6 +1904,13 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 Q(manufacturer__isnull=True) | Q(manufacturer=self.instance.device_type.manufacturer)
             )
 
+            # Disable rack assignment if this is a child device installed in a parent device
+            if self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
+                self.fields['site'].disabled = True
+                self.fields['rack'].disabled = True
+                self.initial['site'] = self.instance.parent_bay.device.site_id
+                self.initial['rack'] = self.instance.parent_bay.device.rack_id
+
         else:
 
             # An object that doesn't exist yet can't have any IPs assigned to it
@@ -1911,31 +1920,9 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
         # Rack position
-        pk = self.instance.pk if self.instance.pk else None
-        try:
-            if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
-                position_choices = Rack.objects.get(pk=self.data['rack']) \
-                    .get_rack_units(face=self.data.get('face'), exclude=pk)
-            elif self.initial.get('rack') and str(self.initial.get('face')):
-                position_choices = Rack.objects.get(pk=self.initial['rack']) \
-                    .get_rack_units(face=self.initial.get('face'), exclude=pk)
-            else:
-                position_choices = []
-        except Rack.DoesNotExist:
-            position_choices = []
-        self.fields['position'].choices = [('', '---------')] + [
-            (p['id'], {
-                'label': p['name'],
-                'disabled': bool(p['device'] and p['id'] != self.initial.get('position')),
-            }) for p in position_choices
-        ]
-
-        # Disable rack assignment if this is a child device installed in a parent device
-        if pk and self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
-            self.fields['site'].disabled = True
-            self.fields['rack'].disabled = True
-            self.initial['site'] = self.instance.parent_bay.device.site_id
-            self.initial['rack'] = self.instance.parent_bay.device.rack_id
+        position = self.data.get('position') or self.initial.get('position')
+        if position:
+            self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
 class BaseDeviceCSVForm(CustomFieldModelCSVForm):
@@ -2944,6 +2931,7 @@ class InterfaceBulkEditForm(
             self.fields['lag'].widget.attrs['disabled'] = True
 
     def clean(self):
+        super().clean()
 
         # Untagged interfaces cannot be assigned tagged VLANs
         if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and self.cleaned_data['tagged_vlans']:
@@ -3092,6 +3080,7 @@ class FrontPortCreateForm(ComponentCreateForm):
         self.fields['rear_port_set'].choices = choices
 
     def clean(self):
+        super().clean()
 
         # Validate that the number of ports being created equals the number of selected (rear port, position) tuples
         front_port_count = len(self.cleaned_data['name_pattern'])
@@ -3786,7 +3775,7 @@ class CableForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class CableCSVForm(CSVModelForm):
+class CableCSVForm(CustomFieldModelCSVForm):
     # Termination A
     side_a_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -3881,7 +3870,7 @@ class CableCSVForm(CSVModelForm):
         return length_unit if length_unit is not None else ''
 
 
-class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cable.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -3924,6 +3913,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         ]
 
     def clean(self):
+        super().clean()
 
         # Validate length/unit
         length = self.cleaned_data.get('length')
@@ -4267,7 +4257,7 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         return device
 
 
-class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualChassis.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -4281,7 +4271,7 @@ class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm
         nullable_fields = ['domain']
 
 
-class VirtualChassisCSVForm(CSVModelForm):
+class VirtualChassisCSVForm(CustomFieldModelCSVForm):
     master = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -4368,7 +4358,7 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class PowerPanelCSVForm(CSVModelForm):
+class PowerPanelCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -4394,7 +4384,7 @@ class PowerPanelCSVForm(CSVModelForm):
             self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
 
 
-class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -4422,9 +4412,7 @@ class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = (
-            'rack_group',
-        )
+        nullable_fields = ['rack_group']
 
 
 class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):

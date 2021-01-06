@@ -14,21 +14,21 @@ body {
 .wrapper {
     min-height: 100%;
     height: auto !important;
-    margin: 0 auto -61px; /* the bottom margin is the negative value of the footer's height */
+    margin: 0 auto -48px; /* the bottom margin is the negative value of the footer's height */
     padding-bottom: 30px;
 }
 .navbar-brand {
     padding: 12px 15px 8px;
 }
 .footer, .push {
-    height: 60px; /* .push must be the same height as .footer */
+    height: 48px; /* .push must be the same height as .footer */
 }
 .footer {
     background-color: #f5f5f5;
     border-top: 1px solid #d0d0d0;
 }
 footer p {
-    margin: 20px 0;
+    margin: 12px 0;
 }
 #navbar_search {
     padding: 0 8px;

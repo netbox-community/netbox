@@ -1,5 +1,28 @@
 # NetBox v2.10
 
+## v2.10.3 (2021-01-05)
+
+### Bug Fixes
+
+* [#5049](https://github.com/netbox-community/netbox/issues/5049) - Add check for LLDP neighbor chassis name to lldp_neighbors
+* [#5301](https://github.com/netbox-community/netbox/issues/5301) - Fix misleading error when racking a device with invalid parameters
+* [#5311](https://github.com/netbox-community/netbox/issues/5311) - Update child objects when a rack group is moved to a new site
+* [#5518](https://github.com/netbox-community/netbox/issues/5518) - Fix persistent vertical scrollbar
+* [#5533](https://github.com/netbox-community/netbox/issues/5533) - Fix bulk editing of objects with required custom fields
+* [#5540](https://github.com/netbox-community/netbox/issues/5540) - Fix exception when viewing a provider with one or more tags assigned
+* [#5543](https://github.com/netbox-community/netbox/issues/5543) - Fix rendering of config contexts with cluster assignment for devices
+* [#5546](https://github.com/netbox-community/netbox/issues/5546) - Add custom field bulk edit support for cables, power panels, rack reservations, and virtual chassis
+* [#5547](https://github.com/netbox-community/netbox/issues/5547) - Add custom field bulk import support for cables, power panels, rack reservations, and virtual chassis
+* [#5551](https://github.com/netbox-community/netbox/issues/5551) - Restore missing import button on services list
+* [#5557](https://github.com/netbox-community/netbox/issues/5557) - Fix VRF route target assignment via REST API
+* [#5558](https://github.com/netbox-community/netbox/issues/5558) - Fix regex validation support for custom URL fields
+* [#5563](https://github.com/netbox-community/netbox/issues/5563) - Fix power feed cable trace link
+* [#5564](https://github.com/netbox-community/netbox/issues/5564) - Raise validation error if a power port template's `allocated_draw` exceeds its `maximum_draw`
+* [#5569](https://github.com/netbox-community/netbox/issues/5569) - Ensure consistent labeling of interface `mgmt_only` field
+* [#5573](https://github.com/netbox-community/netbox/issues/5573) - Report inconsistent values when migrating custom field data
+
+---
+
 ## v2.10.2 (2020-12-21)
 
 ### Enhancements

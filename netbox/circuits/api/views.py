@@ -65,3 +65,4 @@ class CircuitTerminationViewSet(PathEndpointMixin, ModelViewSet):
     )
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filters.CircuitTerminationFilterSet
+    brief_prefetch_fields = ['circuit']

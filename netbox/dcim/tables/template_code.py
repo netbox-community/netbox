@@ -57,13 +57,10 @@ INTERFACE_TAGGED_VLANS = """
 """
 
 MPTT_LINK = """
-{% if record.get_children %}
-    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="mdi mdi-chevron-right"></i>
-{% else %}
-    <span style="padding-left: {{ record.get_ancestors|length }}9px">
-{% endif %}
-    <a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
-</span>
+{% for i in record.get_ancestors %}
+    <i class="mdi mdi-circle-small"></i>
+{% endfor %}
+<a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
 """
 
 POWERFEED_CABLE = """

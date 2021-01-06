@@ -444,6 +444,7 @@ class VMInterface(BaseInterface):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:

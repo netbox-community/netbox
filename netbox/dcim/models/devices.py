@@ -640,7 +640,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # Validate site/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
-                'rack': "Rack {} does not belong to site {}.".format(self.rack, self.site),
+                'rack': f"Rack {self.rack} does not belong to site {self.site}.",
             })
 
         if self.rack is None:
@@ -650,7 +650,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 })
             if self.position:
                 raise ValidationError({
-                    'face': "Cannot select a rack position without assigning a rack.",
+                    'position': "Cannot select a rack position without assigning a rack.",
                 })
 
         # Validate position/face combination
@@ -662,7 +662,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # Prevent 0U devices from being assigned to a specific position
         if self.position and self.device_type.u_height == 0:
             raise ValidationError({
-                'position': "A U0 device type ({}) cannot be assigned to a rack position.".format(self.device_type)
+                'position': f"A U0 device type ({self.device_type}) cannot be assigned to a rack position."
             })
 
         if self.rack:
@@ -688,8 +688,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 )
                 if self.position and self.position not in available_units:
                     raise ValidationError({
-                        'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) "
-                                    "{} ({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                        'position': f"U{self.position} is already occupied or does not have sufficient space to "
+                                    f"accommodate this device type: {self.device_type} ({self.device_type.u_height}U)"
                     })
 
             except DeviceType.DoesNotExist:

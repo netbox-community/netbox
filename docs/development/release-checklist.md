@@ -52,10 +52,7 @@ Close the release milestone on GitHub after ensuring there are no remaining open
 
 ### Merge the Release Branch
 
-Submit a pull request to merge the release branch `develop-x.y` into the `develop` branch in preparation for its releases.
-
-!!! warning
-    No further releases for the current major version can be published once this pull request is merged.
+Submit a pull request to merge the `feature` branch into the `develop` branch in preparation for its release.
 
 ---
 

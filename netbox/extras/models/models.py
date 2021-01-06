@@ -117,11 +117,15 @@ class Webhook(models.Model):
         return self.name
 
     def clean(self):
+        super().clean()
+
+        # At least one action type must be selected
         if not self.type_create and not self.type_delete and not self.type_update:
             raise ValidationError(
                 "You must select at least one type: create, update, and/or delete."
             )
 
+        # CA file path requires SSL verification enabled
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError({
                 'ca_file_path': 'Do not specify a CA certificate file if SSL verification is disabled.'
@@ -436,6 +440,7 @@ class ConfigContext(ChangeLoggedModel):
         return reverse('extras:configcontext', kwargs={'pk': self.pk})
 
     def clean(self):
+        super().clean()
 
         # Verify that JSON data is provided as an object
         if type(self.data) is not dict:
@@ -482,7 +487,6 @@ class ConfigContextModel(models.Model):
         return data
 
     def clean(self):
-
         super().clean()
 
         # Verify that JSON data is provided as an object
