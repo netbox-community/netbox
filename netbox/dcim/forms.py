@@ -2687,6 +2687,12 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    mgmt_only = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
     mac_address = forms.CharField(
         required=False,
         label='MAC address'

@@ -2,6 +2,10 @@
 
 ## v2.10.4 (FUTURE)
 
+### Enhancements
+
+* [#5570](https://github.com/netbox-community/netbox/issues/5570) - Add "management only" filter widget for interfaces list
+
 ### Bug Fixes
 
 * [#5584](https://github.com/netbox-community/netbox/issues/5584) - Restore power utilization panel under device view

@@ -406,6 +406,7 @@ class BaseInterfaceTable(BaseTable):
 
 
 class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
+    mgmt_only = BooleanColumn()
     tags = TagColumn(
         url_name='dcim:interface_list'
     )
