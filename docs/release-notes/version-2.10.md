@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.4 (FUTURE)
+
+### Bug Fixes
+
+* [#5584](https://github.com/netbox-community/netbox/issues/5584) - Restore power utilization panel under device view
+
+---
+
 ## v2.10.3 (2021-01-05)
 
 ### Bug Fixes
