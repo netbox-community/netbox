@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#5584](https://github.com/netbox-community/netbox/issues/5584) - Restore power utilization panel under device view
+* [#5597](https://github.com/netbox-community/netbox/issues/5597) - Fix ordering devices by primary IP address
 
 ---
 
