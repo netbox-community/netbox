@@ -28,7 +28,7 @@ RIR_UTILIZATION = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% if record.pk %}{% utilization_graph record.get_utilization[0], record.get_utilization[1] %}{% else %}&mdash;{% endif %}
+{% if record.pk %}{% utilization_graph record.get_utilization.0 record.get_utilization.1 %}{% else %}&mdash;{% endif %}
 """
 
 ROLE_PREFIX_COUNT = """
