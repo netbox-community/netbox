@@ -1,4 +1,4 @@
-from utilities.api import OrderedDefaultRouter
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 

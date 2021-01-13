@@ -1,7 +1,8 @@
 import netaddr
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -13,7 +14,7 @@ from dcim.models import Device, Interface
 from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
+from utilities.utils import array_to_string, serialize_object
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
@@ -29,6 +30,7 @@ __all__ = (
     'Prefix',
     'RIR',
     'Role',
+    'RouteTarget',
     'Service',
     'VLAN',
     'VLANGroup',
@@ -44,7 +46,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     are said to exist in the "global" table.)
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     rd = models.CharField(
         max_length=VRF_RD_MAX_LENGTH,
@@ -70,10 +72,15 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
+    import_targets = models.ManyToManyField(
+        to='ipam.RouteTarget',
+        related_name='importing_vrfs',
+        blank=True
+    )
+    export_targets = models.ManyToManyField(
+        to='ipam.RouteTarget',
+        related_name='exporting_vrfs',
+        blank=True
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -111,16 +118,61 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         return self.name
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class RouteTarget(ChangeLoggedModel, CustomFieldModel):
+    """
+    A BGP extended community used to control the redistribution of routes among VRFs, as defined in RFC 4364.
+    """
+    name = models.CharField(
+        max_length=VRF_RD_MAX_LENGTH,  # Same format options as VRF RD (RFC 4360 section 4)
+        unique=True,
+        help_text='Route target value (formatted in accordance with RFC 4360)'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='route_targets',
+        blank=True,
+        null=True
+    )
+    tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
+
+    csv_headers = ['name', 'description', 'tenant']
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('ipam:routetarget', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.description,
+            self.tenant.name if self.tenant else None,
+        )
+
+
 class RIR(ChangeLoggedModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
     space. This can be an organization like ARIN or RIPE, or a governing standard such as RFC 1918.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     is_private = models.BooleanField(
@@ -170,6 +222,13 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         related_name='aggregates',
         verbose_name='RIR'
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='aggregates',
+        blank=True,
+        null=True
+    )
     date_added = models.DateField(
         blank=True,
         null=True
@@ -178,18 +237,13 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['prefix', 'rir', 'date_added', 'description']
+    csv_headers = ['prefix', 'rir', 'tenant', 'date_added', 'description']
     clone_fields = [
-        'rir', 'date_added', 'description',
+        'rir', 'tenant', 'date_added', 'description',
     ]
 
     class Meta:
@@ -202,6 +256,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:aggregate', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         if self.prefix:
 
@@ -242,6 +297,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         return (
             self.prefix,
             self.rir.name,
+            self.tenant.name if self.tenant else None,
             self.date_added,
             self.description,
         )
@@ -267,10 +323,11 @@ class Role(ChangeLoggedModel):
     "Management."
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     weight = models.PositiveSmallIntegerField(
@@ -364,11 +421,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = PrefixQuerySet.as_manager()
@@ -379,13 +431,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     clone_fields = [
         'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
     ]
-
-    STATUS_CLASS_MAP = {
-        'container': 'default',
-        'active': 'primary',
-        'reserved': 'info',
-        'deprecated': 'danger',
-    }
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
@@ -398,6 +443,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:prefix', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         if self.prefix:
 
@@ -467,7 +513,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     prefix_length = property(fset=_set_prefix_length)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return PrefixStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
@@ -647,11 +693,6 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = IPAddressManager()
@@ -663,25 +704,6 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     clone_fields = [
         'vrf', 'tenant', 'status', 'role', 'description',
     ]
-
-    STATUS_CLASS_MAP = {
-        'active': 'primary',
-        'reserved': 'info',
-        'deprecated': 'danger',
-        'dhcp': 'success',
-        'slaac': 'success',
-    }
-
-    ROLE_CLASS_MAP = {
-        'loopback': 'default',
-        'secondary': 'primary',
-        'anycast': 'warning',
-        'vip': 'success',
-        'vrrp': 'success',
-        'hsrp': 'success',
-        'glbp': 'success',
-        'carp': 'success',
-    }
 
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
@@ -701,6 +723,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         ).exclude(pk=self.pk)
 
     def clean(self):
+        super().clean()
 
         if self.address:
 
@@ -805,10 +828,10 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     mask_length = property(fset=_set_mask_length)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return IPAddressStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_role_class(self):
-        return self.ROLE_CLASS_MAP[self.role]
+        return IPAddressRoleChoices.CSS_CLASSES.get(self.role)
 
 
 class VLANGroup(ChangeLoggedModel):
@@ -816,9 +839,11 @@ class VLANGroup(ChangeLoggedModel):
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        max_length=100
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,
@@ -923,11 +948,6 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
@@ -936,12 +956,6 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
     clone_fields = [
         'site', 'group', 'tenant', 'status', 'role', 'description',
     ]
-
-    STATUS_CLASS_MAP = {
-        'active': 'primary',
-        'reserved': 'info',
-        'deprecated': 'danger',
-    }
 
     class Meta:
         ordering = ('site', 'group', 'vid', 'pk')  # (site, group, vid) may be non-unique
@@ -959,6 +973,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:vlan', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         # Validate VLAN group
         if self.group and self.group.site != self.site:
@@ -983,7 +998,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return f'{self.name} ({self.vid})'
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP[self.status]
+        return VLANStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_interfaces(self):
         # Return all device interfaces assigned to this VLAN
@@ -1022,18 +1037,20 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     name = models.CharField(
-        max_length=30
+        max_length=100
     )
     protocol = models.CharField(
         max_length=50,
         choices=ServiceProtocolChoices
     )
-    port = models.PositiveIntegerField(
-        validators=[
-            MinValueValidator(SERVICE_PORT_MIN),
-            MaxValueValidator(SERVICE_PORT_MAX)
-        ],
-        verbose_name='Port number'
+    ports = ArrayField(
+        base_field=models.PositiveIntegerField(
+            validators=[
+                MinValueValidator(SERVICE_PORT_MIN),
+                MaxValueValidator(SERVICE_PORT_MAX)
+            ]
+        ),
+        verbose_name='Port numbers'
     )
     ipaddresses = models.ManyToManyField(
         to='ipam.IPAddress',
@@ -1045,22 +1062,17 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'port', 'description']
+    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'ports', 'description']
 
     class Meta:
-        ordering = ('protocol', 'port', 'pk')  # (protocol, port) may be non-unique
+        ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
 
     def __str__(self):
-        return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
+        return f'{self.name} ({self.get_protocol_display()}/{self.port_list})'
 
     def get_absolute_url(self):
         return reverse('ipam:service', args=[self.pk])
@@ -1070,6 +1082,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         return self.device or self.virtual_machine
 
     def clean(self):
+        super().clean()
 
         # A Service must belong to a Device *or* to a VirtualMachine
         if self.device and self.virtual_machine:
@@ -1083,6 +1096,10 @@ class Service(ChangeLoggedModel, CustomFieldModel):
             self.virtual_machine.name if self.virtual_machine else None,
             self.name,
             self.get_protocol_display(),
-            self.port,
+            self.ports,
             self.description,
         )
+
+    @property
+    def port_list(self):
+        return array_to_string(self.ports)

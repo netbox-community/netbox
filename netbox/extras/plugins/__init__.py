@@ -3,7 +3,6 @@ import inspect
 from packaging import version
 
 from django.apps import AppConfig
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
 
@@ -71,10 +70,10 @@ class PluginConfig(AppConfig):
             register_menu_items(self.verbose_name, menu_items)
 
     @classmethod
-    def validate(cls, user_config):
+    def validate(cls, user_config, netbox_version):
 
         # Enforce version constraints
-        current_version = version.parse(settings.VERSION)
+        current_version = version.parse(netbox_version)
         if cls.min_version is not None:
             min_version = version.parse(cls.min_version)
             if current_version < min_version:

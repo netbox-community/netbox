@@ -1,0 +1,65 @@
+$mdi-sizes: 18 24 36 48 !default;
+@each $mdi-size in $mdi-sizes {
+    .#{$mdi-css-prefix}-#{$mdi-size}px {
+        &.#{$mdi-css-prefix}-set,
+        &.#{$mdi-css-prefix}:before {
+            font-size: $mdi-size * 1px;
+        }
+    }
+}
+
+.#{$mdi-css-prefix}-dark {
+    &:before {
+        color: rgba(0, 0, 0, 0.54);
+    }
+    &.#{$mdi-css-prefix}-inactive:before {
+        color: rgba(0, 0, 0, 0.26);
+    }
+}
+.#{$mdi-css-prefix}-light {
+    &:before {
+        color: rgba(255, 255, 255, 1);
+    }
+    &.#{$mdi-css-prefix}-inactive:before {
+        color: rgba(255, 255, 255, 0.3);
+    }
+}
+
+$mdi-degrees: 45 90 135 180 225 270 315 !default;
+@each $mdi-degree in $mdi-degrees {
+    .#{$mdi-css-prefix}-rotate-#{$mdi-degree}{
+        &:before {
+            -webkit-transform: rotate(#{$mdi-degree}deg);
+            -ms-transform: rotate(#{$mdi-degree}deg);
+            transform: rotate(#{$mdi-degree}deg);
+        }
+        /*
+        // Not included in production
+        &.#{$mdi-css-prefix}-flip-h:before {
+            -webkit-transform: scaleX(-1) rotate(#{$mdi-degree}deg);
+            transform: scaleX(-1) rotate(#{$mdi-degree}deg);
+            filter: FlipH;
+            -ms-filter: "FlipH";
+        }
+        &.#{$mdi-css-prefix}-flip-v:before {
+            -webkit-transform: scaleY(-1) rotate(#{$mdi-degree}deg);
+            -ms-transform: rotate(#{$mdi-degree}deg);
+            transform: scaleY(-1) rotate(#{$mdi-degree}deg);
+            filter: FlipV;
+            -ms-filter: "FlipV";
+        }
+        */
+    }
+}
+.#{$mdi-css-prefix}-flip-h:before {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+.#{$mdi-css-prefix}-flip-v:before {
+    -webkit-transform: scaleY(-1);
+    transform: scaleY(-1);
+    filter: FlipV;
+    -ms-filter: "FlipV";
+}

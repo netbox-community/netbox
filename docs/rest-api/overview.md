@@ -2,7 +2,7 @@
 
 ## What is a REST API?
 
-REST stands for [representational state transfer](https://en.wikipedia.org/wiki/Representational_state_transfer). It's a particular type of API which employs HTTP requests and [JavaScript Object Notation (JSON)](http://www.json.org/) to facilitate create, retrieve, update, and delete (CRUD) operations on objects within an application. Each type of operation is associated with a particular HTTP verb:
+REST stands for [representational state transfer](https://en.wikipedia.org/wiki/Representational_state_transfer). It's a particular type of API which employs HTTP requests and [JavaScript Object Notation (JSON)](https://www.json.org/) to facilitate create, retrieve, update, and delete (CRUD) operations on objects within an application. Each type of operation is associated with a particular HTTP verb:
 
 * `GET`: Retrieve an object or list of objects
 * `POST`: Create an object
@@ -468,16 +468,16 @@ http://netbox/api/dcim/sites/ \
 ]
 ```
 
-### Modifying an Object
+### Updating an Object
 
 To modify an object which has already been created, make a `PATCH` request to the model's _detail_ endpoint specifying its unique numeric ID. Include any data which you wish to update on the object. As with object creation, the `Authorization` and `Content-Type` headers must also be specified.
 
 ```no-highlight
 curl -s -X PATCH \
-> -H "Authorization: Token $TOKEN" \
-> -H "Content-Type: application/json" \
-> http://netbox/api/ipam/prefixes/18691/ \
-> --data '{"status": "reserved"}' | jq '.'
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/ipam/prefixes/18691/ \
+--data '{"status": "reserved"}' | jq '.'
 ```
 
 ```json
@@ -515,6 +515,23 @@ curl -s -X PATCH \
 !!! note "PUT versus PATCH"
     The NetBox REST API support the use of either `PUT` or `PATCH` to modify an existing object. The difference is that a `PUT` request requires the user to specify a _complete_ representation of the object being modified, whereas a `PATCH` request need include only the attributes that are being updated. For most purposes, using `PATCH` is recommended.
 
+### Updating Multiple Objects
+
+Multiple objects can be updated simultaneously by issuing a `PUT` or `PATCH` request to a model's list endpoint with a list of dictionaries specifying the numeric ID of each object to be deleted and the attributes to be updated. For example, to update sites with IDs 10 and 11 to a status of "active", issue the following request:
+
+```no-highlight
+curl -s -X PATCH \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/ \
+--data '[{"id": 10, "status": "active"}, {"id": 11, "status": "active"}]'
+```
+
+Note that there is no requirement for the attributes to be identical among objects. For instance, it's possible to update the status of one site along with the name of another in the same request.
+
+!!! note
+    The bulk update of objects is an all-or-none operation, meaning that if NetBox fails to successfully update any of the specified objects (e.g. due a validation error), the entire operation will be aborted and none of the objects will be updated.
+
 ### Deleting an Object
 
 To delete an object from NetBox, make a `DELETE` request to the model's _detail_ endpoint specifying its unique numeric ID. The `Authorization` header must be included to specify an authorization token, however this type of request does not support passing any data in the body.
@@ -529,3 +546,18 @@ Note that `DELETE` requests do not return any data: If successful, the API will 
 
 !!! note
     You can run `curl` with the verbose (`-v`) flag to inspect the HTTP response codes.
+
+### Deleting Multiple Objects
+
+NetBox supports the simultaneous deletion of multiple objects of the same type by issuing a `DELETE` request to the model's list endpoint with a list of dictionaries specifying the numeric ID of each object to be deleted. For example, to delete sites with IDs 10, 11, and 12, issue the following request:
+
+```no-highlight
+curl -s -X DELETE \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/ \
+--data '[{"id": 10}, {"id": 11}, {"id": 12}]'
+```
+
+!!! note
+    The bulk deletion of objects is an all-or-none operation, meaning that if NetBox fails to delete any of the specified objects (e.g. due a dependency by a related object), the entire operation will be aborted and none of the objects will be deleted.

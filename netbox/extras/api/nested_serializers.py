@@ -1,17 +1,25 @@
 from rest_framework import serializers
 
 from extras import choices, models
+from netbox.api import ChoiceField, WritableNestedSerializer
 from users.api.nested_serializers import NestedUserSerializer
-from utilities.api import ChoiceField, WritableNestedSerializer
 
 __all__ = [
     'NestedConfigContextSerializer',
+    'NestedCustomFieldSerializer',
     'NestedExportTemplateSerializer',
-    'NestedGraphSerializer',
     'NestedImageAttachmentSerializer',
     'NestedJobResultSerializer',
     'NestedTagSerializer',
 ]
+
+
+class NestedCustomFieldSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
+
+    class Meta:
+        model = models.CustomField
+        fields = ['id', 'url', 'name']
 
 
 class NestedConfigContextSerializer(WritableNestedSerializer):
@@ -27,14 +35,6 @@ class NestedExportTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ExportTemplate
-        fields = ['id', 'url', 'name']
-
-
-class NestedGraphSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:graph-detail')
-
-    class Meta:
-        model = models.Graph
         fields = ['id', 'url', 'name']
 
 

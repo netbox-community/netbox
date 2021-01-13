@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
 {% load helpers %}
 
-{% block title %}{{ objectchange }}{% endblock %}
+{% block title %}{{ object }}{% endblock %}
 
 {% block header %}
     <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
-                {% if objectchange.related_object.get_absolute_url %}
-                    <li><a href="{{ objectchange.related_object.get_absolute_url }}changelog/">{{ objectchange.related_object }}</a></li>
-                {% elif objectchange.changed_object.get_absolute_url %}
-                    <li><a href="{{ objectchange.changed_object.get_absolute_url }}changelog/">{{ objectchange.changed_object }}</a></li>
-                {% elif objectchange.changed_object %}
-                    <li>{{ objectchange.changed_object }}</li>
+                {% if object.related_object.get_absolute_url %}
+                    <li><a href="{{ object.related_object.get_absolute_url }}changelog/">{{ object.related_object }}</a></li>
+                {% elif object.changed_object.get_absolute_url %}
+                    <li><a href="{{ object.changed_object.get_absolute_url }}changelog/">{{ object.changed_object }}</a></li>
+                {% elif object.changed_object %}
+                    <li>{{ object.changed_object }}</li>
                 {% endif %}
-                <li>{{ objectchange }}</li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -24,7 +24,7 @@
                     <input type="text" name="q" class="form-control" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -44,41 +44,41 @@
                     <tr>
                         <td>Time</td>
                         <td>
-                            {{ objectchange.time }}
+                            {{ object.time }}
                         </td>
                     </tr>
                     <tr>
                         <td>User</td>
                         <td>
-                            {{ objectchange.user|default:objectchange.user_name }}
+                            {{ object.user|default:object.user_name }}
                         </td>
                     </tr>
                     <tr>
                         <td>Action</td>
                         <td>
-                            {{ objectchange.get_action_display }}
+                            {{ object.get_action_display }}
                         </td>
                     </tr>
                     <tr>
                         <td>Object Type</td>
                         <td>
-                            {{ objectchange.changed_object_type }}
+                            {{ object.changed_object_type }}
                         </td>
                     </tr>
                     <tr>
                         <td>Object</td>
                         <td>
-                            {% if objectchange.changed_object.get_absolute_url %}
-                                <a href="{{ objectchange.changed_object.get_absolute_url }}">{{ objectchange.changed_object }}</a>
+                            {% if object.changed_object.get_absolute_url %}
+                                <a href="{{ object.changed_object.get_absolute_url }}">{{ object.changed_object }}</a>
                             {% else %}
-                                {{ objectchange.object_repr }}
+                                {{ object.object_repr }}
                             {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <td>Request ID</td>
                         <td>
-                            {{ objectchange.request_id }}
+                            {{ object.request_id }}
                         </td>
                     </tr>
                 </table>
@@ -88,19 +88,19 @@
                     <strong>Difference</strong>
                     <div class="btn-group btn-group-xs pull-right noprint">
                         <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
-                            <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous
+                            <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous
                         </a>
                         <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
-                            Next <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                            Next <span class="mdi mdi-chevron-right" aria-hidden="true"></span>
                         </a>
                     </div>
                 </div>
                 <div class="panel-body">
                     {% if diff_added == diff_removed %}
                         <span class="text-muted" style="margin-left: 10px;">
-                            {% if objectchange.action == 'create' %}
+                            {% if object.action == 'create' %}
                                 Object created
-                            {% elif objectchange.action == 'delete' %}
+                            {% elif object.action == 'delete' %}
                                 Object deleted
                             {% else %}
                                 No changes
@@ -119,7 +119,7 @@
                     <strong>Object Data</strong>
                 </div>
                 <div class="panel-body">
-                    <pre>{{ objectchange.object_data|render_json }}</pre>
+                    <pre>{{ object.object_data|render_json }}</pre>
                 </div>
             </div>
         </div>
@@ -129,7 +129,7 @@
             {% include 'panel_table.html' with table=related_changes_table heading='Related Changes' panel_class='default' %}
             {% if related_changes_count > related_changes_table.rows|length %}
                 <div class="pull-right">
-                    <a href="{% url 'extras:objectchange_list' %}?request_id={{ objectchange.request_id }}" class="btn btn-primary">See all {{ related_changes_count|add:"1" }} changes</a>
+                    <a href="{% url 'extras:objectchange_list' %}?request_id={{ object.request_id }}" class="btn btn-primary">See all {{ related_changes_count|add:"1" }} changes</a>
                 </div>
             {% endif %}
         </div>

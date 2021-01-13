@@ -2,9 +2,8 @@ from collections import OrderedDict
 
 import yaml
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
@@ -20,12 +19,10 @@ from extras.utils import extras_features
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import to_meters
 from .device_components import *
 
 
 __all__ = (
-    'Cable',
     'Device',
     'DeviceRole',
     'DeviceType',
@@ -45,10 +42,11 @@ class Manufacturer(ChangeLoggedModel):
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -99,9 +97,11 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         related_name='device_types'
     )
     model = models.CharField(
-        max_length=50
+        max_length=100
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        max_length=100
+    )
     part_number = models.CharField(
         max_length=50,
         blank=True,
@@ -134,11 +134,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     )
     comments = models.TextField(
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -259,6 +254,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         return yaml.dump(dict(data), sort_keys=False)
 
     def clean(self):
+        super().clean()
 
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
@@ -349,10 +345,11 @@ class DeviceRole(ChangeLoggedModel):
     virtual machines as well.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     color = ColorField(
@@ -399,8 +396,8 @@ class Platform(ChangeLoggedModel):
         unique=True
     )
     slug = models.SlugField(
-        unique=True,
-        max_length=100
+        max_length=100,
+        unique=True
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
@@ -451,7 +448,7 @@ class Platform(ChangeLoggedModel):
         )
 
 
-@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -585,13 +582,14 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     images = GenericRelation(
         to='extras.ImageAttachment'
+    )
+    secrets = GenericRelation(
+        to='secrets.Secret',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='device'
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -604,16 +602,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     clone_fields = [
         'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
     ]
-
-    STATUS_CLASS_MAP = {
-        DeviceStatusChoices.STATUS_OFFLINE: 'warning',
-        DeviceStatusChoices.STATUS_ACTIVE: 'success',
-        DeviceStatusChoices.STATUS_PLANNED: 'info',
-        DeviceStatusChoices.STATUS_STAGED: 'primary',
-        DeviceStatusChoices.STATUS_FAILED: 'danger',
-        DeviceStatusChoices.STATUS_INVENTORY: 'default',
-        DeviceStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-    }
 
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
@@ -647,13 +635,12 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         super().validate_unique(exclude)
 
     def clean(self):
-
         super().clean()
 
         # Validate site/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
-                'rack': "Rack {} does not belong to site {}.".format(self.rack, self.site),
+                'rack': f"Rack {self.rack} does not belong to site {self.site}.",
             })
 
         if self.rack is None:
@@ -663,7 +650,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 })
             if self.position:
                 raise ValidationError({
-                    'face': "Cannot select a rack position without assigning a rack.",
+                    'position': "Cannot select a rack position without assigning a rack.",
                 })
 
         # Validate position/face combination
@@ -675,7 +662,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # Prevent 0U devices from being assigned to a specific position
         if self.position and self.device_type.u_height == 0:
             raise ValidationError({
-                'position': "A U0 device type ({}) cannot be assigned to a rack position.".format(self.device_type)
+                'position': f"A U0 device type ({self.device_type}) cannot be assigned to a rack position."
             })
 
         if self.rack:
@@ -701,8 +688,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 )
                 if self.position and self.position not in available_units:
                     raise ValidationError({
-                        'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) "
-                                    "{} ({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                        'position': f"U{self.position} is already occupied or does not have sufficient space to "
+                                    f"accommodate this device type: {self.device_type} ({self.device_type.u_height}U)"
                     })
 
             except DeviceType.DoesNotExist:
@@ -868,6 +855,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         """
         Return a QuerySet or PK list matching all Cables connected to a component of this Device.
         """
+        from .cables import Cable
         cable_pks = []
         for component_model in [
             ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, FrontPort, RearPort
@@ -886,301 +874,15 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
-
-
-#
-# Cables
-#
-
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class Cable(ChangeLoggedModel):
-    """
-    A physical connection between two endpoints.
-    """
-    termination_a_type = models.ForeignKey(
-        to=ContentType,
-        limit_choices_to=CABLE_TERMINATION_MODELS,
-        on_delete=models.PROTECT,
-        related_name='+'
-    )
-    termination_a_id = models.PositiveIntegerField()
-    termination_a = GenericForeignKey(
-        ct_field='termination_a_type',
-        fk_field='termination_a_id'
-    )
-    termination_b_type = models.ForeignKey(
-        to=ContentType,
-        limit_choices_to=CABLE_TERMINATION_MODELS,
-        on_delete=models.PROTECT,
-        related_name='+'
-    )
-    termination_b_id = models.PositiveIntegerField()
-    termination_b = GenericForeignKey(
-        ct_field='termination_b_type',
-        fk_field='termination_b_id'
-    )
-    type = models.CharField(
-        max_length=50,
-        choices=CableTypeChoices,
-        blank=True
-    )
-    status = models.CharField(
-        max_length=50,
-        choices=CableStatusChoices,
-        default=CableStatusChoices.STATUS_CONNECTED
-    )
-    label = models.CharField(
-        max_length=100,
-        blank=True
-    )
-    color = ColorField(
-        blank=True
-    )
-    length = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True
-    )
-    length_unit = models.CharField(
-        max_length=50,
-        choices=CableLengthUnitChoices,
-        blank=True,
-    )
-    # Stores the normalized length (in meters) for database ordering
-    _abs_length = models.DecimalField(
-        max_digits=10,
-        decimal_places=4,
-        blank=True,
-        null=True
-    )
-    # Cache the associated device (where applicable) for the A and B terminations. This enables filtering of Cables by
-    # their associated Devices.
-    _termination_a_device = models.ForeignKey(
-        to=Device,
-        on_delete=models.CASCADE,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    _termination_b_device = models.ForeignKey(
-        to=Device,
-        on_delete=models.CASCADE,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    tags = TaggableManager(through=TaggedItem)
-
-    objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = [
-        'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
-        'color', 'length', 'length_unit',
-    ]
-
-    STATUS_CLASS_MAP = {
-        CableStatusChoices.STATUS_CONNECTED: 'success',
-        CableStatusChoices.STATUS_PLANNED: 'info',
-        CableStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-    }
-
-    class Meta:
-        ordering = ['pk']
-        unique_together = (
-            ('termination_a_type', 'termination_a_id'),
-            ('termination_b_type', 'termination_b_id'),
-        )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # A copy of the PK to be used by __str__ in case the object is deleted
-        self._pk = self.pk
-
-    @classmethod
-    def from_db(cls, db, field_names, values):
-        """
-        Cache the original A and B terminations of existing Cable instances for later reference inside clean().
-        """
-        instance = super().from_db(db, field_names, values)
-
-        instance._orig_termination_a_type_id = instance.termination_a_type_id
-        instance._orig_termination_a_id = instance.termination_a_id
-        instance._orig_termination_b_type_id = instance.termination_b_type_id
-        instance._orig_termination_b_id = instance.termination_b_id
-
-        return instance
-
-    def __str__(self):
-        return self.label or '#{}'.format(self._pk)
-
-    def get_absolute_url(self):
-        return reverse('dcim:cable', args=[self.pk])
-
-    def clean(self):
-        from circuits.models import CircuitTermination
-
-        # Validate that termination A exists
-        if not hasattr(self, 'termination_a_type'):
-            raise ValidationError('Termination A type has not been specified')
-        try:
-            self.termination_a_type.model_class().objects.get(pk=self.termination_a_id)
-        except ObjectDoesNotExist:
-            raise ValidationError({
-                'termination_a': 'Invalid ID for type {}'.format(self.termination_a_type)
-            })
-
-        # Validate that termination B exists
-        if not hasattr(self, 'termination_b_type'):
-            raise ValidationError('Termination B type has not been specified')
-        try:
-            self.termination_b_type.model_class().objects.get(pk=self.termination_b_id)
-        except ObjectDoesNotExist:
-            raise ValidationError({
-                'termination_b': 'Invalid ID for type {}'.format(self.termination_b_type)
-            })
-
-        # If editing an existing Cable instance, check that neither termination has been modified.
-        if self.pk:
-            err_msg = 'Cable termination points may not be modified. Delete and recreate the cable instead.'
-            if (
-                self.termination_a_type_id != self._orig_termination_a_type_id or
-                self.termination_a_id != self._orig_termination_a_id
-            ):
-                raise ValidationError({
-                    'termination_a': err_msg
-                })
-            if (
-                self.termination_b_type_id != self._orig_termination_b_type_id or
-                self.termination_b_id != self._orig_termination_b_id
-            ):
-                raise ValidationError({
-                    'termination_b': err_msg
-                })
-
-        type_a = self.termination_a_type.model
-        type_b = self.termination_b_type.model
-
-        # Validate interface types
-        if type_a == 'interface' and self.termination_a.type in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError({
-                'termination_a_id': 'Cables cannot be terminated to {} interfaces'.format(
-                    self.termination_a.get_type_display()
-                )
-            })
-        if type_b == 'interface' and self.termination_b.type in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError({
-                'termination_b_id': 'Cables cannot be terminated to {} interfaces'.format(
-                    self.termination_b.get_type_display()
-                )
-            })
-
-        # Check that termination types are compatible
-        if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
-            raise ValidationError(
-                f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
-            )
-
-        # Check that a RearPort with multiple positions isn't connected to an endpoint
-        # or a RearPort with a different number of positions.
-        for term_a, term_b in [
-            (self.termination_a, self.termination_b),
-            (self.termination_b, self.termination_a)
-        ]:
-            if isinstance(term_a, RearPort) and term_a.positions > 1:
-                if not isinstance(term_b, (FrontPort, RearPort, CircuitTermination)):
-                    raise ValidationError(
-                        "Rear ports with multiple positions may only be connected to other pass-through ports"
-                    )
-                if isinstance(term_b, RearPort) and term_b.positions > 1 and term_a.positions != term_b.positions:
-                    raise ValidationError(
-                        f"{term_a} of {term_a.device} has {term_a.positions} position(s) but "
-                        f"{term_b} of {term_b.device} has {term_b.positions}. "
-                        f"Both terminations must have the same number of positions."
-                    )
-
-        # A termination point cannot be connected to itself
-        if self.termination_a == self.termination_b:
-            raise ValidationError(f"Cannot connect {self.termination_a_type} to itself")
-
-        # A front port cannot be connected to its corresponding rear port
-        if (
-            type_a in ['frontport', 'rearport'] and
-            type_b in ['frontport', 'rearport'] and
-            (
-                getattr(self.termination_a, 'rear_port', None) == self.termination_b or
-                getattr(self.termination_b, 'rear_port', None) == self.termination_a
-            )
-        ):
-            raise ValidationError("A front port cannot be connected to it corresponding rear port")
-
-        # Check for an existing Cable connected to either termination object
-        if self.termination_a.cable not in (None, self):
-            raise ValidationError("{} already has a cable attached (#{})".format(
-                self.termination_a, self.termination_a.cable_id
-            ))
-        if self.termination_b.cable not in (None, self):
-            raise ValidationError("{} already has a cable attached (#{})".format(
-                self.termination_b, self.termination_b.cable_id
-            ))
-
-        # Validate length and length_unit
-        if self.length is not None and not self.length_unit:
-            raise ValidationError("Must specify a unit when setting a cable length")
-        elif self.length is None:
-            self.length_unit = ''
-
-    def save(self, *args, **kwargs):
-
-        # Store the given length (if any) in meters for use in database ordering
-        if self.length and self.length_unit:
-            self._abs_length = to_meters(self.length, self.length_unit)
-        else:
-            self._abs_length = None
-
-        # Store the parent Device for the A and B terminations (if applicable) to enable filtering
-        if hasattr(self.termination_a, 'device'):
-            self._termination_a_device = self.termination_a.device
-        if hasattr(self.termination_b, 'device'):
-            self._termination_b_device = self.termination_b.device
-
-        super().save(*args, **kwargs)
-
-        # Update the private pk used in __str__ in case this is a new object (i.e. just got its pk)
-        self._pk = self.pk
-
-    def to_csv(self):
-        return (
-            '{}.{}'.format(self.termination_a_type.app_label, self.termination_a_type.model),
-            self.termination_a_id,
-            '{}.{}'.format(self.termination_b_type.app_label, self.termination_b_type.model),
-            self.termination_b_id,
-            self.get_type_display(),
-            self.get_status_display(),
-            self.label,
-            self.color,
-            self.length,
-            self.length_unit,
-        )
-
-    def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
-
-    def get_compatible_types(self):
-        """
-        Return all termination types compatible with termination A.
-        """
-        if self.termination_a is None:
-            return
-        return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
+        return DeviceStatusChoices.CSS_CLASSES.get(self.status)
 
 
 #
 # Virtual chassis
 #
 
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class VirtualChassis(ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class VirtualChassis(ChangeLoggedModel, CustomFieldModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """
@@ -1215,6 +917,7 @@ class VirtualChassis(ChangeLoggedModel):
         return reverse('dcim:virtualchassis', kwargs={'pk': self.pk})
 
     def clean(self):
+        super().clean()
 
         # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
         # VirtualChassis.)

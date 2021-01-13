@@ -1,15 +1,12 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
-from extras.models import Graph
+from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
-)
+from utilities.utils import count_related
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -19,25 +16,24 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 # Providers
 #
 
-class ProviderListView(ObjectListView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+class ProviderListView(generic.ObjectListView):
+    queryset = Provider.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
     table = tables.ProviderTable
 
 
-class ProviderView(ObjectView):
+class ProviderView(generic.ObjectView):
     queryset = Provider.objects.all()
 
-    def get(self, request, slug):
-
-        provider = get_object_or_404(self.queryset, slug=slug)
+    def get_extra_context(self, request, instance):
         circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            provider=provider
+            provider=instance
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         ).annotate_sites()
-        show_graphs = Graph.objects.filter(type__model='provider').exists()
 
         circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('provider')
@@ -48,38 +44,40 @@ class ProviderView(ObjectView):
         }
         RequestConfig(request, paginate).configure(circuits_table)
 
-        return render(request, 'circuits/provider.html', {
-            'provider': provider,
+        return {
             'circuits_table': circuits_table,
-            'show_graphs': show_graphs,
-        })
+        }
 
 
-class ProviderEditView(ObjectEditView):
+class ProviderEditView(generic.ObjectEditView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderForm
     template_name = 'circuits/provider_edit.html'
 
 
-class ProviderDeleteView(ObjectDeleteView):
+class ProviderDeleteView(generic.ObjectDeleteView):
     queryset = Provider.objects.all()
 
 
-class ProviderBulkImportView(BulkImportView):
+class ProviderBulkImportView(generic.BulkImportView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderCSVForm
     table = tables.ProviderTable
 
 
-class ProviderBulkEditView(BulkEditView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+class ProviderBulkEditView(generic.BulkEditView):
+    queryset = Provider.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
 
 
-class ProviderBulkDeleteView(BulkDeleteView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
+class ProviderBulkDeleteView(generic.BulkDeleteView):
+    queryset = Provider.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider')
+    )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
 
@@ -88,28 +86,32 @@ class ProviderBulkDeleteView(BulkDeleteView):
 # Circuit Types
 #
 
-class CircuitTypeListView(ObjectListView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
+class CircuitTypeListView(generic.ObjectListView):
+    queryset = CircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
     table = tables.CircuitTypeTable
 
 
-class CircuitTypeEditView(ObjectEditView):
+class CircuitTypeEditView(generic.ObjectEditView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeForm
 
 
-class CircuitTypeDeleteView(ObjectDeleteView):
+class CircuitTypeDeleteView(generic.ObjectDeleteView):
     queryset = CircuitType.objects.all()
 
 
-class CircuitTypeBulkImportView(BulkImportView):
+class CircuitTypeBulkImportView(generic.BulkImportView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeCSVForm
     table = tables.CircuitTypeTable
 
 
-class CircuitTypeBulkDeleteView(BulkDeleteView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
+class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
     table = tables.CircuitTypeTable
 
 
@@ -117,7 +119,7 @@ class CircuitTypeBulkDeleteView(BulkDeleteView):
 # Circuits
 #
 
-class CircuitListView(ObjectListView):
+class CircuitListView(generic.ObjectListView):
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'terminations'
     ).annotate_sites()
@@ -126,52 +128,52 @@ class CircuitListView(ObjectListView):
     table = tables.CircuitTable
 
 
-class CircuitView(ObjectView):
-    queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant__group')
+class CircuitView(generic.ObjectView):
+    queryset = Circuit.objects.all()
 
-    def get(self, request, pk):
-        circuit = get_object_or_404(self.queryset, pk=pk)
+    def get_extra_context(self, request, instance):
 
+        # A-side termination
         termination_a = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
-            'site__region', 'connected_endpoint__device'
+            'site__region'
         ).filter(
-            circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
+            circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
-        if termination_a and termination_a.connected_endpoint:
+        if termination_a and termination_a.connected_endpoint and hasattr(termination_a.connected_endpoint, 'ip_addresses'):
             termination_a.ip_addresses = termination_a.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
+        # Z-side termination
         termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
-            'site__region', 'connected_endpoint__device'
+            'site__region'
         ).filter(
-            circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
+            circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()
-        if termination_z and termination_z.connected_endpoint:
+        if termination_z and termination_z.connected_endpoint and hasattr(termination_z.connected_endpoint, 'ip_addresses'):
             termination_z.ip_addresses = termination_z.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
-        return render(request, 'circuits/circuit.html', {
-            'circuit': circuit,
+        return {
             'termination_a': termination_a,
             'termination_z': termination_z,
-        })
+        }
 
 
-class CircuitEditView(ObjectEditView):
+class CircuitEditView(generic.ObjectEditView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitForm
     template_name = 'circuits/circuit_edit.html'
 
 
-class CircuitDeleteView(ObjectDeleteView):
+class CircuitDeleteView(generic.ObjectDeleteView):
     queryset = Circuit.objects.all()
 
 
-class CircuitBulkImportView(BulkImportView):
+class CircuitBulkImportView(generic.BulkImportView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitCSVForm
     table = tables.CircuitTable
 
 
-class CircuitBulkEditView(BulkEditView):
+class CircuitBulkEditView(generic.BulkEditView):
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'terminations'
     )
@@ -180,7 +182,7 @@ class CircuitBulkEditView(BulkEditView):
     form = forms.CircuitBulkEditForm
 
 
-class CircuitBulkDeleteView(BulkDeleteView):
+class CircuitBulkDeleteView(generic.BulkDeleteView):
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'terminations'
     )
@@ -188,7 +190,7 @@ class CircuitBulkDeleteView(BulkDeleteView):
     table = tables.CircuitTable
 
 
-class CircuitSwapTerminations(ObjectEditView):
+class CircuitSwapTerminations(generic.ObjectEditView):
     """
     Swap the A and Z terminations of a circuit.
     """
@@ -261,7 +263,7 @@ class CircuitSwapTerminations(ObjectEditView):
 # Circuit terminations
 #
 
-class CircuitTerminationEditView(ObjectEditView):
+class CircuitTerminationEditView(generic.ObjectEditView):
     queryset = CircuitTermination.objects.all()
     model_form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
@@ -275,5 +277,5 @@ class CircuitTerminationEditView(ObjectEditView):
         return obj.circuit.get_absolute_url()
 
 
-class CircuitTerminationDeleteView(ObjectDeleteView):
+class CircuitTerminationDeleteView(generic.ObjectDeleteView):
     queryset = CircuitTermination.objects.all()

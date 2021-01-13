@@ -21,6 +21,14 @@ class SiteStatusChoices(ChoiceSet):
         (STATUS_RETIRED, 'Retired'),
     )
 
+    CSS_CLASSES = {
+        STATUS_PLANNED: 'info',
+        STATUS_STAGING: 'primary',
+        STATUS_ACTIVE: 'success',
+        STATUS_DECOMMISSIONING: 'warning',
+        STATUS_RETIRED: 'danger',
+    }
+
 
 #
 # Racks
@@ -73,6 +81,14 @@ class RackStatusChoices(ChoiceSet):
         (STATUS_ACTIVE, 'Active'),
         (STATUS_DEPRECATED, 'Deprecated'),
     )
+
+    CSS_CLASSES = {
+        STATUS_RESERVED: 'warning',
+        STATUS_AVAILABLE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_ACTIVE: 'primary',
+        STATUS_DEPRECATED: 'danger',
+    }
 
 
 class RackDimensionUnitChoices(ChoiceSet):
@@ -146,6 +162,16 @@ class DeviceStatusChoices(ChoiceSet):
         (STATUS_INVENTORY, 'Inventory'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
+
+    CSS_CLASSES = {
+        STATUS_OFFLINE: 'warning',
+        STATUS_ACTIVE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_STAGED: 'primary',
+        STATUS_FAILED: 'danger',
+        STATUS_INVENTORY: 'default',
+        STATUS_DECOMMISSIONING: 'warning',
+    }
 
 
 #
@@ -278,6 +304,16 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # USB
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_B = 'usb-b'
+    TYPE_USB_C = 'usb-c'
+    TYPE_USB_MINI_A = 'usb-mini-a'
+    TYPE_USB_MINI_B = 'usb-mini-b'
+    TYPE_USB_MICRO_A = 'usb-micro-a'
+    TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_3_B = 'usb-3-b'
+    TYPE_USB_3_MICROB = 'usb-3-micro-b'
 
     CHOICES = (
         ('IEC 60320', (
@@ -366,6 +402,17 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        )),
+        ('USB', (
+            (TYPE_USB_A, 'USB Type A'),
+            (TYPE_USB_B, 'USB Type B'),
+            (TYPE_USB_C, 'USB Type C'),
+            (TYPE_USB_MINI_A, 'USB Mini A'),
+            (TYPE_USB_MINI_B, 'USB Mini B'),
+            (TYPE_USB_MICRO_A, 'USB Micro A'),
+            (TYPE_USB_MICRO_B, 'USB Micro B'),
+            (TYPE_USB_3_B, 'USB 3.0 Type B'),
+            (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
     )
 
@@ -456,6 +503,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # USB
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_MICROB = 'usb-micro-b'
+    TYPE_USB_C = 'usb-c'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
 
@@ -545,6 +596,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        )),
+        ('USB', (
+            (TYPE_USB_A, 'USB Type A'),
+            (TYPE_USB_MICROB, 'USB Micro B'),
+            (TYPE_USB_C, 'USB Type C'),
         )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
@@ -830,6 +886,9 @@ class PortTypeChoices(ChoiceSet):
     TYPE_MPO = 'mpo'
     TYPE_LSH = 'lsh'
     TYPE_LSH_APC = 'lsh-apc'
+    TYPE_SPLICE = 'splice'
+    TYPE_CS = 'cs'
+    TYPE_SN = 'sn'
 
     CHOICES = (
         (
@@ -857,6 +916,9 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_SC, 'SC'),
                 (TYPE_SC_APC, 'SC/APC'),
                 (TYPE_ST, 'ST'),
+                (TYPE_CS, 'CS'),
+                (TYPE_SN, 'SN'),
+                (TYPE_SPLICE, 'Splice'),
             )
         )
     )
@@ -933,6 +995,12 @@ class CableStatusChoices(ChoiceSet):
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
 
+    CSS_CLASSES = {
+        STATUS_CONNECTED: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_DECOMMISSIONING: 'warning',
+    }
+
 
 class CableLengthUnitChoices(ChoiceSet):
 
@@ -967,6 +1035,13 @@ class PowerFeedStatusChoices(ChoiceSet):
         (STATUS_FAILED, 'Failed'),
     )
 
+    CSS_CLASSES = {
+        STATUS_OFFLINE: 'warning',
+        STATUS_ACTIVE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_FAILED: 'danger',
+    }
+
 
 class PowerFeedTypeChoices(ChoiceSet):
 
@@ -977,6 +1052,11 @@ class PowerFeedTypeChoices(ChoiceSet):
         (TYPE_PRIMARY, 'Primary'),
         (TYPE_REDUNDANT, 'Redundant'),
     )
+
+    CSS_CLASSES = {
+        TYPE_PRIMARY: 'success',
+        TYPE_REDUNDANT: 'info',
+    }
 
 
 class PowerFeedSupplyChoices(ChoiceSet):

@@ -101,10 +101,10 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Site 4,site-4",
-            "Site 5,site-5",
-            "Site 6,site-6",
+            "name,slug,status",
+            "Site 4,site-4,planned",
+            "Site 5,site-5,active",
+            "Site 6,site-6,staging",
         )
 
         cls.bulk_edit_data = {
@@ -301,6 +301,14 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
             'comments': 'New comments',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_list_rack_elevations(self):
+        """
+        Test viewing the list of rack elevations.
+        """
+        response = self.client.get(reverse('dcim:rack_elevation_list'))
+        self.assertHttpStatus(response, 200)
 
 
 class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -983,9 +991,9 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "device_role,manufacturer,device_type,status,name,site,rack_group,rack,position,face",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 4,Site 1,Rack Group 1,Rack 1,10,Front",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 5,Site 1,Rack Group 1,Rack 1,20,Front",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 6,Site 1,Rack Group 1,Rack 1,30,Front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Rack Group 1,Rack 1,10,front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Rack Group 1,Rack 1,20,front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Rack Group 1,Rack 1,30,front",
         )
 
         cls.bulk_edit_data = {
@@ -996,6 +1004,130 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'serial': '123456',
             'status': DeviceStatusChoices.STATUS_DECOMMISSIONING,
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_consoleports(self):
+        device = Device.objects.first()
+        console_ports = (
+            ConsolePort(device=device, name='Console Port 1'),
+            ConsolePort(device=device, name='Console Port 2'),
+            ConsolePort(device=device, name='Console Port 3'),
+        )
+        ConsolePort.objects.bulk_create(console_ports)
+
+        url = reverse('dcim:device_consoleports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_consoleserverports(self):
+        device = Device.objects.first()
+        console_server_ports = (
+            ConsoleServerPort(device=device, name='Console Server Port 1'),
+            ConsoleServerPort(device=device, name='Console Server Port 2'),
+            ConsoleServerPort(device=device, name='Console Server Port 3'),
+        )
+        ConsoleServerPort.objects.bulk_create(console_server_ports)
+
+        url = reverse('dcim:device_consoleserverports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_powerports(self):
+        device = Device.objects.first()
+        power_ports = (
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+            PowerPort(device=device, name='Power Port 3'),
+        )
+        PowerPort.objects.bulk_create(power_ports)
+
+        url = reverse('dcim:device_powerports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_poweroutlets(self):
+        device = Device.objects.first()
+        power_outlets = (
+            PowerOutlet(device=device, name='Power Outlet 1'),
+            PowerOutlet(device=device, name='Power Outlet 2'),
+            PowerOutlet(device=device, name='Power Outlet 3'),
+        )
+        PowerOutlet.objects.bulk_create(power_outlets)
+
+        url = reverse('dcim:device_poweroutlets', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_interfaces(self):
+        device = Device.objects.first()
+        interfaces = (
+            Interface(device=device, name='Interface 1'),
+            Interface(device=device, name='Interface 2'),
+            Interface(device=device, name='Interface 3'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        url = reverse('dcim:device_interfaces', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_rearports(self):
+        device = Device.objects.first()
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+
+        url = reverse('dcim:device_rearports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_frontports(self):
+        device = Device.objects.first()
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPort(device=device, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
+            FrontPort(device=device, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
+            FrontPort(device=device, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+        )
+        FrontPort.objects.bulk_create(front_ports)
+
+        url = reverse('dcim:device_frontports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_devicebays(self):
+        device = Device.objects.first()
+        device_bays = (
+            DeviceBay(device=device, name='Device Bay 1'),
+            DeviceBay(device=device, name='Device Bay 2'),
+            DeviceBay(device=device, name='Device Bay 3'),
+        )
+        DeviceBay.objects.bulk_create(device_bays)
+
+        url = reverse('dcim:device_devicebays', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_inventory(self):
+        device = Device.objects.first()
+        inventory_items = (
+            InventoryItem(device=device, name='Inventory Item 1'),
+            InventoryItem(device=device, name='Inventory Item 2'),
+            InventoryItem(device=device, name='Inventory Item 3'),
+        )
+        for item in inventory_items:
+            item.save()
+
+        url = reverse('dcim:device_inventory', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
 
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -1267,9 +1399,9 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_data = (
             "device,name,type",
-            "Device 1,Interface 4,1000BASE-T (1GE)",
-            "Device 1,Interface 5,1000BASE-T (1GE)",
-            "Device 1,Interface 6,1000BASE-T (1GE)",
+            "Device 1,Interface 4,1000base-t",
+            "Device 1,Interface 5,1000base-t",
+            "Device 1,Interface 6,1000base-t",
         )
 
 
@@ -1326,9 +1458,9 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_data = (
             "device,name,type,rear_port,rear_port_position",
-            "Device 1,Front Port 4,8P8C,Rear Port 4,1",
-            "Device 1,Front Port 5,8P8C,Rear Port 5,1",
-            "Device 1,Front Port 6,8P8C,Rear Port 6,1",
+            "Device 1,Front Port 4,8p8c,Rear Port 4,1",
+            "Device 1,Front Port 5,8p8c,Rear Port 5,1",
+            "Device 1,Front Port 6,8p8c,Rear Port 6,1",
         )
 
 
@@ -1372,9 +1504,9 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_data = (
             "device,name,type,positions",
-            "Device 1,Rear Port 4,8P8C,1",
-            "Device 1,Rear Port 5,8P8C,1",
-            "Device 1,Rear Port 6,8P8C,1",
+            "Device 1,Rear Port 4,8p8c,1",
+            "Device 1,Rear Port 5,8p8c,1",
+            "Device 1,Rear Port 6,8p8c,1",
         )
 
 
@@ -1430,11 +1562,9 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         device = create_test_device('Device 1')
         manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
 
-        InventoryItem.objects.bulk_create([
-            InventoryItem(device=device, name='Inventory Item 1'),
-            InventoryItem(device=device, name='Inventory Item 2'),
-            InventoryItem(device=device, name='Inventory Item 3'),
-        ])
+        InventoryItem.objects.create(device=device, name='Inventory Item 1')
+        InventoryItem.objects.create(device=device, name='Inventory Item 2')
+        InventoryItem.objects.create(device=device, name='Inventory Item 3')
 
         tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -1546,9 +1676,9 @@ class CableTestCase(
 
         cls.csv_data = (
             "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
-            "Device 3,interface,Interface 1,Device 4,interface,Interface 1",
-            "Device 3,interface,Interface 2,Device 4,interface,Interface 2",
-            "Device 3,interface,Interface 3,Device 4,interface,Interface 3",
+            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1",
+            "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
+            "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
         )
 
         cls.bulk_edit_data = {
@@ -1716,11 +1846,6 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'max_utilization': 50,
             'comments': 'New comments',
             'tags': [t.pk for t in tags],
-
-            # Connection
-            'cable': None,
-            'connected_endpoint': None,
-            'connection_status': None,
         }
 
         cls.csv_data = (

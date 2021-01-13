@@ -1,11 +1,8 @@
-from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 
 from circuits.choices import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.models import Site
-from extras.models import Graph
 from utilities.testing import APITestCase, APIViewTestCases
 
 
@@ -35,6 +32,9 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
             'slug': 'provider-6',
         },
     ]
+    bulk_update_data = {
+        'asn': 1234,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -45,27 +45,6 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
             Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_provider_graphs(self):
-        """
-        Test retrieval of Graphs assigned to Providers.
-        """
-        provider = self.model.objects.first()
-        ct = ContentType.objects.get(app_label='circuits', model='provider')
-        graphs = (
-            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=1'),
-            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=2'),
-            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=3'),
-        )
-        Graph.objects.bulk_create(graphs)
-
-        self.add_permissions('circuits.view_provider')
-        url = reverse('circuits-api:provider-graphs', kwargs={'pk': provider.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(len(response.data), 3)
-        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?provider=provider-1&foo=1')
 
 
 class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
@@ -85,6 +64,9 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
             'slug': 'circuit-type-6',
         },
     )
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -100,6 +82,9 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
 class CircuitTest(APIViewTestCases.APIViewTestCase):
     model = Circuit
     brief_fields = ['cid', 'id', 'url']
+    bulk_update_data = {
+        'status': 'planned',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -168,10 +153,10 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = (
-            CircuitTermination(circuit=circuits[0], site=sites[0], port_speed=100000, term_side=SIDE_A),
-            CircuitTermination(circuit=circuits[0], site=sites[1], port_speed=100000, term_side=SIDE_Z),
-            CircuitTermination(circuit=circuits[1], site=sites[0], port_speed=100000, term_side=SIDE_A),
-            CircuitTermination(circuit=circuits[1], site=sites[1], port_speed=100000, term_side=SIDE_Z),
+            CircuitTermination(circuit=circuits[0], site=sites[0], term_side=SIDE_A),
+            CircuitTermination(circuit=circuits[0], site=sites[1], term_side=SIDE_Z),
+            CircuitTermination(circuit=circuits[1], site=sites[0], term_side=SIDE_A),
+            CircuitTermination(circuit=circuits[1], site=sites[1], term_side=SIDE_Z),
         )
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -189,3 +174,7 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
                 'port_speed': 200000,
             },
         ]
+
+        cls.bulk_update_data = {
+            'port_speed': 123456
+        }

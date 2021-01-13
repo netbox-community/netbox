@@ -35,7 +35,7 @@ class ChangeLoggedModel(models.Model):
     def to_objectchange(self, action):
         """
         Return a new ObjectChange representing a change made to this object. This will typically be called automatically
-        by extras.middleware.ChangeLoggingMiddleware.
+        by ChangeLoggingMiddleware.
         """
         return ObjectChange(
             changed_object=self,
@@ -152,3 +152,6 @@ class ObjectChange(models.Model):
             self.object_repr,
             self.object_data,
         )
+
+    def get_action_class(self):
+        return ObjectChangeActionChoices.CSS_CLASSES.get(self.action)

@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -11,7 +10,7 @@ from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import ExclusionValidator
-from .device_components import CableTermination
+from .device_components import CableTermination, PathEndpoint
 
 __all__ = (
     'PowerFeed',
@@ -23,8 +22,8 @@ __all__ = (
 # Power
 #
 
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class PowerPanel(ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class PowerPanel(ChangeLoggedModel, CustomFieldModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -39,7 +38,7 @@ class PowerPanel(ChangeLoggedModel):
         null=True
     )
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -65,6 +64,7 @@ class PowerPanel(ChangeLoggedModel):
         )
 
     def clean(self):
+        super().clean()
 
         # RackGroup must belong to assigned Site
         if self.rack_group and self.rack_group.site != self.site:
@@ -74,7 +74,7 @@ class PowerPanel(ChangeLoggedModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
+class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """
@@ -89,20 +89,8 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         blank=True,
         null=True
     )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.PowerPort',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
-    )
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     status = models.CharField(
         max_length=50,
@@ -144,11 +132,6 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
@@ -161,18 +144,6 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         'power_panel', 'rack', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization',
         'available_power',
     ]
-
-    STATUS_CLASS_MAP = {
-        PowerFeedStatusChoices.STATUS_OFFLINE: 'warning',
-        PowerFeedStatusChoices.STATUS_ACTIVE: 'success',
-        PowerFeedStatusChoices.STATUS_PLANNED: 'info',
-        PowerFeedStatusChoices.STATUS_FAILED: 'danger',
-    }
-
-    TYPE_CLASS_MAP = {
-        PowerFeedTypeChoices.TYPE_PRIMARY: 'success',
-        PowerFeedTypeChoices.TYPE_REDUNDANT: 'info',
-    }
 
     class Meta:
         ordering = ['power_panel', 'name']
@@ -202,6 +173,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Rack must belong to same Site as PowerPanel
         if self.rack and self.rack.site != self.power_panel.site:
@@ -231,7 +203,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         return self.power_panel
 
     def get_type_class(self):
-        return self.TYPE_CLASS_MAP.get(self.type)
+        return PowerFeedTypeChoices.CSS_CLASSES.get(self.type)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return PowerFeedStatusChoices.CSS_CLASSES.get(self.status)

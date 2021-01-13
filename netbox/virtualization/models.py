@@ -5,7 +5,6 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.choices import InterfaceModeChoices
 from dcim.models import BaseInterface, Device
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.querysets import ConfigContextModelQuerySet
@@ -36,10 +35,11 @@ class ClusterType(ChangeLoggedModel):
     A type of Cluster.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -77,10 +77,11 @@ class ClusterGroup(ChangeLoggedModel):
     An organizational group of Clusters.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -151,11 +152,6 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
@@ -175,6 +171,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
         return reverse('virtualization:cluster', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
         if self.pk and self.site:
@@ -276,10 +273,11 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
+    secrets = GenericRelation(
+        to='secrets.Secret',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='virtual_machine'
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -291,15 +289,6 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     clone_fields = [
         'cluster', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     ]
-
-    STATUS_CLASS_MAP = {
-        VirtualMachineStatusChoices.STATUS_OFFLINE: 'warning',
-        VirtualMachineStatusChoices.STATUS_ACTIVE: 'success',
-        VirtualMachineStatusChoices.STATUS_PLANNED: 'info',
-        VirtualMachineStatusChoices.STATUS_STAGED: 'primary',
-        VirtualMachineStatusChoices.STATUS_FAILED: 'danger',
-        VirtualMachineStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-    }
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
@@ -319,16 +308,15 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
-                name=self.name, tenant__isnull=True
+                name=self.name, cluster=self.cluster, tenant__isnull=True
         ):
             raise ValidationError({
-                'name': 'A virtual machine with this name already exists.'
+                'name': 'A virtual machine with this name already exists in the assigned cluster.'
             })
 
         super().validate_unique(exclude)
 
     def clean(self):
-
         super().clean()
 
         # Validate primary IP addresses
@@ -360,7 +348,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return VirtualMachineStatusChoices.CSS_CLASSES.get(self.status)
 
     @property
     def primary_ip(self):
@@ -382,7 +370,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Interfaces
 #
 
-@extras_features('graphs', 'export_templates', 'webhooks')
+@extras_features('export_templates', 'webhooks')
 class VMInterface(BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
@@ -460,21 +448,9 @@ class VMInterface(BaseInterface):
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({
-                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
-                                 "virtual machine, or it must be global".format(self.untagged_vlan)
+                'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
+                                 f"interface's parent virtual machine, or it must be global"
             })
-
-    def save(self, *args, **kwargs):
-
-        # Remove untagged VLAN assignment for non-802.1Q interfaces
-        if self.mode is None:
-            self.untagged_vlan = None
-
-        # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
-            self.tagged_vlans.clear()
-
-        return super().save(*args, **kwargs)
 
     def to_objectchange(self, action):
         # Annotate the parent VirtualMachine

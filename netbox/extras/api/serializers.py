@@ -10,56 +10,39 @@ from dcim.api.nested_serializers import (
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.choices import *
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
+    ConfigContext, CustomField, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.utils import FeatureQuery
+from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
+from netbox.api.exceptions import SerializerNotFound
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
-from utilities.api import (
-    ChoiceField, ContentTypeField, get_serializer_for_model, SerializerNotFound, SerializedPKRelatedField,
-    ValidatedModelSerializer,
-)
+from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
 from virtualization.models import Cluster, ClusterGroup
 from .nested_serializers import *
 
 
 #
-# Graphs
+# Custom fields
 #
 
-class GraphSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:graph-detail')
-    type = ContentTypeField(
-        queryset=ContentType.objects.filter(FeatureQuery('graphs').get_query()),
+class CustomFieldSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
+    content_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
+        many=True
     )
+    type = ChoiceField(choices=CustomFieldTypeChoices)
+    filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
 
     class Meta:
-        model = Graph
-        fields = ['id', 'url', 'type', 'weight', 'name', 'template_language', 'source', 'link']
-
-
-class RenderedGraphSerializer(serializers.ModelSerializer):
-    embed_url = serializers.SerializerMethodField(
-        read_only=True
-    )
-    embed_link = serializers.SerializerMethodField(
-        read_only=True
-    )
-    type = ContentTypeField(
-        read_only=True
-    )
-
-    class Meta:
-        model = Graph
-        fields = ['id', 'type', 'weight', 'name', 'embed_url', 'embed_link']
-
-    def get_embed_url(self, obj):
-        return obj.embed_url(self.context['graphed_object'])
-
-    def get_embed_link(self, obj):
-        return obj.embed_link(self.context['graphed_object'])
+        model = CustomField
+        fields = [
+            'id', 'url', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
+            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
+        ]
 
 
 #
@@ -71,17 +54,10 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
     content_type = ContentTypeField(
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
     )
-    template_language = ChoiceField(
-        choices=TemplateLanguageChoices,
-        default=TemplateLanguageChoices.LANGUAGE_JINJA2
-    )
 
     class Meta:
         model = ExportTemplate
-        fields = [
-            'id', 'url', 'content_type', 'name', 'description', 'template_language', 'template_code', 'mime_type',
-            'file_extension',
-        ]
+        fields = ['id', 'url', 'content_type', 'name', 'description', 'template_code', 'mime_type', 'file_extension']
 
 
 #
@@ -383,3 +359,20 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         data = serializer(obj.changed_object, context=context).data
 
         return data
+
+
+#
+# ContentTypes
+#
+
+class ContentTypeSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:contenttype-detail')
+    display_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ContentType
+        fields = ['id', 'url', 'app_label', 'model', 'display_name']
+
+    @swagger_serializer_method(serializer_or_field=serializers.CharField)
+    def get_display_name(self, obj):
+        return obj.app_labeled_name

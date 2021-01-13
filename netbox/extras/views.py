@@ -1,7 +1,7 @@
 from django import template
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
@@ -9,19 +9,14 @@ from django_rq.queues import get_connection
 from django_tables2 import RequestConfig
 from rq import Worker
 
-from dcim.models import DeviceRole, Platform, Region, Site
-from tenancy.models import Tenant, TenantGroup
+from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import copy_safe_request, shallow_compare_dict
-from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    ContentTypePermissionRequiredMixin,
-)
-from virtualization.models import Cluster, ClusterGroup
+from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
+from utilities.views import ContentTypePermissionRequiredMixin
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag
+from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
 
@@ -30,43 +25,43 @@ from .scripts import get_scripts, run_script
 # Tags
 #
 
-class TagListView(ObjectListView):
+class TagListView(generic.ObjectListView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=count_related(TaggedItem, 'tag')
+    )
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
     table = tables.TagTable
 
 
-class TagEditView(ObjectEditView):
+class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
     template_name = 'extras/tag_edit.html'
 
 
-class TagDeleteView(ObjectDeleteView):
+class TagDeleteView(generic.ObjectDeleteView):
     queryset = Tag.objects.all()
 
 
-class TagBulkImportView(BulkImportView):
+class TagBulkImportView(generic.BulkImportView):
     queryset = Tag.objects.all()
     model_form = forms.TagCSVForm
     table = tables.TagTable
 
 
-class TagBulkEditView(BulkEditView):
+class TagBulkEditView(generic.BulkEditView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=count_related(TaggedItem, 'tag')
+    )
     table = tables.TagTable
     form = forms.TagBulkEditForm
 
 
-class TagBulkDeleteView(BulkDeleteView):
+class TagBulkDeleteView(generic.BulkDeleteView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
-    ).order_by(*Tag._meta.ordering)
+        items=count_related(TaggedItem, 'tag')
+    )
     table = tables.TagTable
 
 
@@ -74,7 +69,7 @@ class TagBulkDeleteView(BulkDeleteView):
 # Config contexts
 #
 
-class ConfigContextListView(ObjectListView):
+class ConfigContextListView(generic.ObjectListView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
@@ -82,24 +77,10 @@ class ConfigContextListView(ObjectListView):
     action_buttons = ('add',)
 
 
-class ConfigContextView(ObjectView):
+class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
 
-    def get(self, request, pk):
-        # Extend queryset to prefetch related objects
-        self.queryset = self.queryset.prefetch_related(
-            Prefetch('regions', queryset=Region.objects.restrict(request.user)),
-            Prefetch('sites', queryset=Site.objects.restrict(request.user)),
-            Prefetch('roles', queryset=DeviceRole.objects.restrict(request.user)),
-            Prefetch('platforms', queryset=Platform.objects.restrict(request.user)),
-            Prefetch('clusters', queryset=Cluster.objects.restrict(request.user)),
-            Prefetch('cluster_groups', queryset=ClusterGroup.objects.restrict(request.user)),
-            Prefetch('tenants', queryset=Tenant.objects.restrict(request.user)),
-            Prefetch('tenant_groups', queryset=TenantGroup.objects.restrict(request.user)),
-        )
-
-        configcontext = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
@@ -110,42 +91,39 @@ class ConfigContextView(ObjectView):
         else:
             format = 'json'
 
-        return render(request, 'extras/configcontext.html', {
-            'configcontext': configcontext,
+        return {
             'format': format,
-        })
+        }
 
 
-class ConfigContextEditView(ObjectEditView):
+class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
     template_name = 'extras/configcontext_edit.html'
 
 
-class ConfigContextBulkEditView(BulkEditView):
+class ConfigContextBulkEditView(generic.BulkEditView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm
 
 
-class ConfigContextDeleteView(ObjectDeleteView):
+class ConfigContextDeleteView(generic.ObjectDeleteView):
     queryset = ConfigContext.objects.all()
 
 
-class ConfigContextBulkDeleteView(BulkDeleteView):
+class ConfigContextBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigContext.objects.all()
     table = tables.ConfigContextTable
 
 
-class ObjectConfigContextView(ObjectView):
+class ObjectConfigContextView(generic.ObjectView):
     base_template = None
+    template_name = 'extras/object_configcontext.html'
 
-    def get(self, request, pk):
-
-        obj = get_object_or_404(self.queryset, pk=pk)
-        source_contexts = ConfigContext.objects.restrict(request.user, 'view').get_for_object(obj)
-        model_name = self.queryset.model._meta.model_name
+    def get_extra_context(self, request, instance):
+        source_contexts = ConfigContext.objects.restrict(request.user, 'view').get_for_object(instance)
 
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
@@ -157,23 +135,21 @@ class ObjectConfigContextView(ObjectView):
         else:
             format = 'json'
 
-        return render(request, 'extras/object_configcontext.html', {
-            model_name: obj,
-            'obj': obj,
-            'rendered_context': obj.get_config_context(),
+        return {
+            'rendered_context': instance.get_config_context(),
             'source_contexts': source_contexts,
             'format': format,
             'base_template': self.base_template,
             'active_tab': 'config-context',
-        })
+        }
 
 
 #
 # Change logging
 #
 
-class ObjectChangeListView(ObjectListView):
-    queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
+class ObjectChangeListView(generic.ObjectListView):
+    queryset = ObjectChange.objects.all()
     filterset = filters.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
@@ -181,17 +157,14 @@ class ObjectChangeListView(ObjectListView):
     action_buttons = ('export',)
 
 
-class ObjectChangeView(ObjectView):
+class ObjectChangeView(generic.ObjectView):
     queryset = ObjectChange.objects.all()
 
-    def get(self, request, pk):
-
-        objectchange = get_object_or_404(self.queryset, pk=pk)
-
+    def get_extra_context(self, request, instance):
         related_changes = ObjectChange.objects.restrict(request.user, 'view').filter(
-            request_id=objectchange.request_id
+            request_id=instance.request_id
         ).exclude(
-            pk=objectchange.pk
+            pk=instance.pk
         )
         related_changes_table = tables.ObjectChangeTable(
             data=related_changes[:50],
@@ -199,39 +172,41 @@ class ObjectChangeView(ObjectView):
         )
 
         objectchanges = ObjectChange.objects.restrict(request.user, 'view').filter(
-            changed_object_type=objectchange.changed_object_type,
-            changed_object_id=objectchange.changed_object_id,
+            changed_object_type=instance.changed_object_type,
+            changed_object_id=instance.changed_object_id,
         )
 
-        next_change = objectchanges.filter(time__gt=objectchange.time).order_by('time').first()
-        prev_change = objectchanges.filter(time__lt=objectchange.time).order_by('-time').first()
+        next_change = objectchanges.filter(time__gt=instance.time).order_by('time').first()
+        prev_change = objectchanges.filter(time__lt=instance.time).order_by('-time').first()
 
         if prev_change:
             diff_added = shallow_compare_dict(
                 prev_change.object_data,
-                objectchange.object_data,
+                instance.object_data,
                 exclude=['last_updated'],
             )
             diff_removed = {x: prev_change.object_data.get(x) for x in diff_added}
         else:
             # No previous change; this is the initial change that added the object
-            diff_added = diff_removed = objectchange.object_data
+            diff_added = diff_removed = instance.object_data
 
-        return render(request, 'extras/objectchange.html', {
-            'objectchange': objectchange,
+        return {
             'diff_added': diff_added,
             'diff_removed': diff_removed,
             'next_change': next_change,
             'prev_change': prev_change,
             'related_changes_table': related_changes_table,
             'related_changes_count': related_changes.count()
-        })
+        }
 
 
 class ObjectChangeLogView(View):
     """
     Present a history of changes made to a particular object.
+
+    base_template: The name of the template to extend. If not provided, "<app>/<model>.html" will be used.
     """
+    base_template = None
 
     def get(self, request, model, **kwargs):
 
@@ -261,20 +236,20 @@ class ObjectChangeLogView(View):
         }
         RequestConfig(request, paginate).configure(objectchanges_table)
 
-        # Check whether a header template exists for this model
-        base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
-        try:
-            template.loader.get_template(base_template)
-            object_var = model._meta.model_name
-        except template.TemplateDoesNotExist:
-            base_template = 'base.html'
-            object_var = 'obj'
+        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
+        # fall back to using base.html.
+        if self.base_template is None:
+            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
+            # TODO: This can be removed once an object view has been established for every model.
+            try:
+                template.loader.get_template(self.base_template)
+            except template.TemplateDoesNotExist:
+                self.base_template = 'base.html'
 
         return render(request, 'extras/object_changelog.html', {
-            object_var: obj,
-            'instance': obj,  # We'll eventually standardize on 'instance` for the object variable name
+            'object': obj,
             'table': objectchanges_table,
-            'base_template': base_template,
+            'base_template': self.base_template,
             'active_tab': 'changelog',
         })
 
@@ -283,7 +258,7 @@ class ObjectChangeLogView(View):
 # Image attachments
 #
 
-class ImageAttachmentEditView(ObjectEditView):
+class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
 
@@ -298,7 +273,7 @@ class ImageAttachmentEditView(ObjectEditView):
         return imageattachment.parent.get_absolute_url()
 
 
-class ImageAttachmentDeleteView(ObjectDeleteView):
+class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
 
     def get_return_url(self, request, imageattachment):

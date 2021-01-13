@@ -2,12 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ButtonsColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
 from .models import Circuit, CircuitType, Provider
-
-STATUS_LABEL = """
-<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
-"""
 
 
 #
@@ -64,9 +60,7 @@ class CircuitTable(BaseTable):
         viewname='circuits:provider',
         args=[Accessor('provider__slug')]
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )

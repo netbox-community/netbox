@@ -100,7 +100,7 @@ class TestCase(_TestCase):
         """
         for name in names:
             ct, action = resolve_permission_ct(name)
-            obj_perm = ObjectPermission(actions=[action])
+            obj_perm = ObjectPermission(name=name, actions=[action])
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ct)
@@ -126,20 +126,25 @@ class TestCase(_TestCase):
             err_message = f"Expected HTTP status {expected_status}; received {response.status_code}: {err}"
         self.assertEqual(response.status_code, expected_status, err_message)
 
-    def assertInstanceEqual(self, instance, data, api=False):
+    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
         """
         Compare a model instance to a dictionary, checking that its attribute values match those specified
         in the dictionary.
 
-        :instance: Python object instance
-        :data: Dictionary of test data used to define the instance
-        :api: Set to True is the data is a JSON representation of the instance
+        :param instance: Python object instance
+        :param data: Dictionary of test data used to define the instance
+        :param exclude: List of fields to exclude from comparison (e.g. passwords, which get hashed)
+        :param api: Set to True is the data is a JSON representation of the instance
         """
-        model_dict = self.model_to_dict(instance, fields=data.keys(), api=api)
+        if exclude is None:
+            exclude = []
 
-        # Omit any dictionary keys which are not instance attributes
+        fields = [k for k in data.keys() if k not in exclude]
+        model_dict = self.model_to_dict(instance, fields=fields, api=api)
+
+        # Omit any dictionary keys which are not instance attributes or have been excluded
         relevant_data = {
-            k: v for k, v in data.items() if hasattr(instance, k)
+            k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude
         }
 
         self.assertDictEqual(model_dict, relevant_data)
@@ -240,6 +245,7 @@ class ViewTestCases:
 
             # Add model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['view']
             )
             obj_perm.save()
@@ -255,6 +261,7 @@ class ViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['view']
             )
@@ -307,6 +314,7 @@ class ViewTestCases:
 
             # Assign unconstrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -331,6 +339,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': 0},  # Dummy permission to deny all
                 actions=['add']
             )
@@ -391,6 +400,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -414,6 +424,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['change']
             )
@@ -467,6 +478,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()
@@ -491,6 +503,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['delete']
             )
@@ -544,6 +557,7 @@ class ViewTestCases:
 
             # Add model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['view']
             )
             obj_perm.save()
@@ -565,6 +579,7 @@ class ViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': instance1.pk},
                 actions=['view']
             )
@@ -614,6 +629,7 @@ class ViewTestCases:
 
             # Assign non-constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add'],
             )
             obj_perm.save()
@@ -637,6 +653,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add'],
                 constraints={'pk': 0}  # Dummy constraint to deny all
             )
@@ -692,6 +709,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['add']
             )
             obj_perm.save()
@@ -714,6 +732,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': 0},  # Dummy permission to deny all
                 actions=['add']
             )
@@ -770,6 +789,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -799,6 +819,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={attr_name: value},
                 actions=['change']
             )
@@ -851,6 +872,7 @@ class ViewTestCases:
 
             # Assign unconstrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['delete']
             )
             obj_perm.save()
@@ -873,6 +895,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'pk': 0},  # Dummy permission to deny all
                 actions=['delete']
             )
@@ -930,6 +953,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 actions=['change']
             )
             obj_perm.save()
@@ -953,6 +977,7 @@ class ViewTestCases:
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
+                name='Test permission',
                 constraints={'name__regex': '[^X]$'},
                 actions=['change']
             )

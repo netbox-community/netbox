@@ -1,16 +1,16 @@
 {% if perms.dcim.change_cable %}
     {% if cable.status == 'connected' %}
         <a href="#" class="btn btn-warning btn-xs cable-toggle connected" title="Mark planned" data="{{ cable.pk }}">
-            <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
+            <i class="mdi mdi-lan-disconnect" aria-hidden="true"></i>
         </a>
     {% else %}
         <a href="#" class="btn btn-success btn-xs cable-toggle" title="Mark installed" data="{{ cable.pk }}">
-            <i class="fa fa-plug" aria-hidden="true"></i>
+            <i class="mdi mdi-lan-connect" aria-hidden="true"></i>
         </a>
     {% endif %}
 {% endif %}
 {% if perms.dcim.delete_cable %}
-    <a href="{% url 'dcim:cable_delete' pk=cable.pk %}?return_url={{ device.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">
-        <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
+    <a href="{% url 'dcim:cable_delete' pk=cable.pk %}?return_url={{ object.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
     </a>
 {% endif %}

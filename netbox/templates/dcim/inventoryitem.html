@@ -13,14 +13,14 @@
                     <tr>
                         <td>Device</td>
                         <td>
-                            <a href="{{ instance.device.get_absolute_url }}">{{ instance.device }}</a>
+                            <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td>Parent Item</td>
                         <td>
-                            {% if instance.parent %}
-                                <a href="{{ instance.parent.get_absolute_url }}">{{ instance.parent }}</a>
+                            {% if object.parent %}
+                                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
                             {% else %}
                                 <span class="text-muted">&mdash;</span>
                             {% endif %}
@@ -28,17 +28,17 @@
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td>{{ instance.name }}</td>
+                        <td>{{ object.name }}</td>
                     </tr>
                     <tr>
                         <td>Label</td>
-                        <td>{{ instance.label|placeholder }}</td>
+                        <td>{{ object.label|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Manufacturer</td>
                         <td>
-                            {% if instance.manufacturer %}
-                                <a href="{{ instance.manufacturer.get_absolute_url }}">{{ instance.manufacturer }}</a>
+                            {% if object.manufacturer %}
+                                <a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a>
                             {% else %}
                                 <span class="text-muted">&mdash;</span>
                             {% endif %}
@@ -46,32 +46,32 @@
                     </tr>
                     <tr>
                         <td>Part ID</td>
-                        <td>{{ instance.part_id|placeholder }}</td>
+                        <td>{{ object.part_id|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Serial</td>
-                        <td>{{ instance.serial|placeholder }}</td>
+                        <td>{{ object.serial|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Asset Tag</td>
-                        <td>{{ instance.asset_tag|placeholder }}</td>
+                        <td>{{ object.asset_tag|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>{{ instance.description|placeholder }}</td>
+                        <td>{{ object.description|placeholder }}</td>
                     </tr>
                 </table>
             </div>
-            {% include 'extras/inc/tags_panel.html' with tags=instance.tags.all %}
-            {% plugin_left_page instance %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
+            {% plugin_left_page object %}
         </div>
         <div class="col-md-6">
-            {% plugin_right_page instance %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% plugin_full_width_page instance %}
+            {% plugin_full_width_page object %}
         </div>
     </div>
 {% endblock %}

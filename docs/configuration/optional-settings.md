@@ -44,7 +44,7 @@ This defines custom content to be displayed on the login page above the login fo
 
 Default: None
 
-The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at http://example.com/netbox/, set:
+The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at https://example.com/netbox/, set:
 
 ```python
 BASE_PATH = 'netbox/'
@@ -277,7 +277,7 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 
 Default: False
 
-Setting this to True will display a "maintenance mode" banner at the top of every page.
+Setting this to True will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
 
 ---
 
@@ -318,7 +318,7 @@ NetBox will use these credentials when authenticating to remote devices via the 
 
 ## NAPALM_ARGS
 
-A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](http://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
+A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](https://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
 
 ```python
 NAPALM_ARGS = {
@@ -460,7 +460,7 @@ NetBox can be configured to support remote user authentication by inferring user
 
 Default: `'HTTP_REMOTE_USER'`
 
-When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. (Requires `REMOTE_AUTH_ENABLED`.)
+When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. For example, to use the request header `X-Remote-User` it needs to be set to `HTTP_X_REMOTE_USER`. (Requires `REMOTE_AUTH_ENABLED`.)
 
 ---
 

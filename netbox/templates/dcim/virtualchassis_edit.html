@@ -21,9 +21,20 @@
                 <div class="panel panel-default">
                     <div class="panel-heading"><strong>Virtual Chassis</strong></div>
                     <div class="table panel-body">
-                        {% render_form vc_form %}
+                        {% render_field vc_form.name %}
+                        {% render_field vc_form.domain %}
+                        {% render_field vc_form.master %}
+                        {% render_field vc_form.tags %}
                     </div>
                 </div>
+                {% if vc_form.custom_fields %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><strong>Custom Fields</strong></div>
+                        <div class="panel-body">
+                            {% render_custom_fields vc_form %}
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="panel panel-default">
                     <div class="panel-heading"><strong>Members</strong></div>
                     <table class="table panel-body">
@@ -72,7 +83,7 @@
                                         <td>
                                             {% if virtual_chassis.pk %}
                                                 <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" class="btn btn-danger btn-xs{% if virtual_chassis.master == device %} disabled{% endif %}">
-                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                                                 </a>
                                             {% endif %}
                                         </td>
