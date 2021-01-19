@@ -1152,7 +1152,7 @@ class ConnectionFilterSet:
     def filter_device(self, queryset, name, value):
         if not value:
             return queryset
-        return queryset.filter(device_id__in=value)
+        return queryset.filter(**{f'{name}__in': value})
 
 
 class ConsoleConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
