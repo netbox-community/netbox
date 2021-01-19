@@ -873,6 +873,10 @@ class PortTypeChoices(ChoiceSet):
     TYPE_8P6C = '8p6c'
     TYPE_8P4C = '8p4c'
     TYPE_8P2C = '8p2c'
+    TYPE_GG45 = 'gg45'
+    TYPE_TERA4P = 'tera-4p'
+    TYPE_TERA2P = 'tera-2p'
+    TYPE_TERA1P = 'tera-1p'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
     TYPE_MRJ21 = 'mrj21'
@@ -898,6 +902,10 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_8P6C, '8P6C'),
                 (TYPE_8P4C, '8P4C'),
                 (TYPE_8P2C, '8P2C'),
+                (TYPE_GG45, 'GG45'),
+                (TYPE_TERA4P, 'TERA 4P'),
+                (TYPE_TERA2P, 'TERA 2P'),
+                (TYPE_TERA1P, 'TERA 1P'),
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
                 (TYPE_MRJ21, 'MRJ21'),
@@ -936,6 +944,8 @@ class CableTypeChoices(ChoiceSet):
     TYPE_CAT6 = 'cat6'
     TYPE_CAT6A = 'cat6a'
     TYPE_CAT7 = 'cat7'
+    TYPE_CAT7A = 'cat7a'
+    TYPE_CAT8 = 'cat8'
     TYPE_DAC_ACTIVE = 'dac-active'
     TYPE_DAC_PASSIVE = 'dac-passive'
     TYPE_MRJ21_TRUNK = 'mrj21-trunk'
@@ -960,6 +970,8 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_CAT6, 'CAT6'),
                 (TYPE_CAT6A, 'CAT6a'),
                 (TYPE_CAT7, 'CAT7'),
+                (TYPE_CAT7A, 'CAT7a'),
+                (TYPE_CAT8, 'CAT8'),
                 (TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
                 (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
                 (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
