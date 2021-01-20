@@ -7,7 +7,7 @@
                 <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                {% if perms.dcim.add_interface %}<li><a href="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Interfaces</a></li>{% endif %}
+                {% if perms.virtualization.add_vminterface %}<li><a href="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Interfaces</a></li>{% endif %}
             </ul>
         </div>
     {% endif %}
