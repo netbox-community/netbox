@@ -13,6 +13,7 @@
 * [#5574](https://github.com/netbox-community/netbox/issues/5574) - Restrict the creation of device bay templates on non-parent device types
 * [#5584](https://github.com/netbox-community/netbox/issues/5584) - Restore power utilization panel under device view
 * [#5597](https://github.com/netbox-community/netbox/issues/5597) - Fix ordering devices by primary IP address
+* [#5603](https://github.com/netbox-community/netbox/issues/5603) - Fix display of white cables in trace view
 * [#5639](https://github.com/netbox-community/netbox/issues/5639) - Fix filtering connection lists by device name
 * [#5640](https://github.com/netbox-community/netbox/issues/5640) - Fix permissions assessment when adding VM interfaces in bulk
 
