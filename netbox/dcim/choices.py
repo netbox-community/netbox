@@ -802,7 +802,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_8GFC_SFP_PLUS, 'SFP+ (8GFC)'),
                 (TYPE_16GFC_SFP_PLUS, 'SFP+ (16GFC)'),
                 (TYPE_32GFC_SFP28, 'SFP28 (32GFC)'),
-                (TYPE_64GFC_SFP_PLUS, 'QSFPP (64GFC)'),
+                (TYPE_64GFC_SFP_PLUS, 'QSFP+ (64GFC)'),
                 (TYPE_128GFC_QSFP28, 'QSFP28 (128GFC)'),
             )
         ),
