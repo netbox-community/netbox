@@ -101,7 +101,7 @@ REDIS = {
 
 If you are using [Redis Sentinel](https://redis.io/topics/sentinel) for high-availability purposes, there is minimal 
 configuration necessary to convert NetBox to recognize it. It requires the removal of the `HOST` and `PORT` keys from 
-above and the addition of two new keys.
+above and the addition of three new keys.
 
 * `SENTINELS`: List of tuples or tuple of tuples with each inner tuple containing the name or IP address 
 of the Redis server and port for each sentinel instance to connect to
