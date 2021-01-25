@@ -299,6 +299,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
         super().clean()
 
+        # Validate group/site assignment
+        if self.site and self.group and self.group.site != self.site:
+            raise ValidationError(f"Assigned rack group must belong to parent site ({self.site}).")
+
         # Validate outer dimensions and unit
         if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
             raise ValidationError("Must specify a unit when setting an outer width/depth")
