@@ -17,6 +17,7 @@
 * [#5603](https://github.com/netbox-community/netbox/issues/5603) - Fix display of white cables in trace view
 * [#5639](https://github.com/netbox-community/netbox/issues/5639) - Fix filtering connection lists by device name
 * [#5640](https://github.com/netbox-community/netbox/issues/5640) - Fix permissions assessment when adding VM interfaces in bulk
+* [#5648](https://github.com/netbox-community/netbox/issues/5648) - Include VC member interfaces on interfaces tab count when viewing VC master
 * [#5665](https://github.com/netbox-community/netbox/issues/5665) - Validate rack group is assigned to same site when creating a rack
 
 ---
