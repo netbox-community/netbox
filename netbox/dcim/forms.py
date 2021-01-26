@@ -2354,6 +2354,7 @@ class ConsolePortCSVForm(CSVModelForm):
     )
     type = CSVChoiceField(
         choices=ConsolePortTypeChoices,
+        required=False,
         help_text='Port type'
     )
 
@@ -2431,6 +2432,7 @@ class ConsoleServerPortCSVForm(CSVModelForm):
     )
     type = CSVChoiceField(
         choices=ConsolePortTypeChoices,
+        required=False,
         help_text='Port type'
     )
 
@@ -2520,6 +2522,7 @@ class PowerPortCSVForm(CSVModelForm):
     )
     type = CSVChoiceField(
         choices=PowerPortTypeChoices,
+        required=False,
         help_text='Port type'
     )
 
@@ -2644,6 +2647,7 @@ class PowerOutletCSVForm(CSVModelForm):
     )
     type = CSVChoiceField(
         choices=PowerOutletTypeChoices,
+        required=False,
         help_text='Outlet type'
     )
     power_port = CSVModelChoiceField(
