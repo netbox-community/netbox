@@ -8,6 +8,7 @@
 * [#5570](https://github.com/netbox-community/netbox/issues/5570) - Add "management only" filter widget for interfaces list
 * [#5586](https://github.com/netbox-community/netbox/issues/5586) - Allow filtering virtual chassis by name and master
 * [#5612](https://github.com/netbox-community/netbox/issues/5612) - Add GG45 and TERA port types, and CAT7a and CAT8 cable types
+* [#5678](https://github.com/netbox-community/netbox/issues/5678) - Show available type choices for all device component import forms
 
 ### Bug Fixes
 

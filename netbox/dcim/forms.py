@@ -2352,6 +2352,10 @@ class ConsolePortCSVForm(CSVModelForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
+    type = CSVChoiceField(
+        choices=ConsolePortTypeChoices,
+        help_text='Port type'
+    )
 
     class Meta:
         model = ConsolePort
@@ -2424,6 +2428,10 @@ class ConsoleServerPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
+    )
+    type = CSVChoiceField(
+        choices=ConsolePortTypeChoices,
+        help_text='Port type'
     )
 
     class Meta:
@@ -2509,6 +2517,10 @@ class PowerPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
+    )
+    type = CSVChoiceField(
+        choices=PowerPortTypeChoices,
+        help_text='Port type'
     )
 
     class Meta:
@@ -2629,6 +2641,10 @@ class PowerOutletCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
+    )
+    type = CSVChoiceField(
+        choices=PowerOutletTypeChoices,
+        help_text='Outlet type'
     )
     power_port = CSVModelChoiceField(
         queryset=PowerPort.objects.all(),
