@@ -12,6 +12,7 @@
 
 ### Bug Fixes
 
+* [#5232](https://github.com/netbox-community/netbox/issues/5232) - Correct swagger definition for ip_prefixes_available-ips_create API
 * [#5574](https://github.com/netbox-community/netbox/issues/5574) - Restrict the creation of device bay templates on non-parent device types
 * [#5584](https://github.com/netbox-community/netbox/issues/5584) - Restore power utilization panel under device view
 * [#5597](https://github.com/netbox-community/netbox/issues/5597) - Fix ordering devices by primary IP address
