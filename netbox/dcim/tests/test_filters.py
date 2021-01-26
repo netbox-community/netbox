@@ -2399,9 +2399,9 @@ class VirtualChassisTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         virtual_chassis = (
-            VirtualChassis(master=devices[0], domain='Domain 1'),
-            VirtualChassis(master=devices[2], domain='Domain 2'),
-            VirtualChassis(master=devices[4], domain='Domain 3'),
+            VirtualChassis(name='VC 1', master=devices[0], domain='Domain 1'),
+            VirtualChassis(name='VC 2', master=devices[2], domain='Domain 2'),
+            VirtualChassis(name='VC 3', master=devices[4], domain='Domain 3'),
         )
         VirtualChassis.objects.bulk_create(virtual_chassis)
 
@@ -2415,6 +2415,17 @@ class VirtualChassisTestCase(TestCase):
 
     def test_domain(self):
         params = {'domain': ['Domain 1', 'Domain 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_master(self):
+        masters = Device.objects.all()
+        params = {'master_id': [masters[0].pk, masters[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'master': [masters[0].name, masters[2].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['VC 1', 'VC 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):

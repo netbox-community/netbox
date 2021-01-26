@@ -178,7 +178,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
     @swagger_auto_schema(method='get', responses={200: serializers.AvailableIPSerializer(many=True)})
     @swagger_auto_schema(method='post', responses={201: serializers.AvailableIPSerializer(many=True)},
-                         request_body=serializers.AvailableIPSerializer(many=False))
+                         request_body=serializers.AvailableIPSerializer(many=True))
     @action(detail=True, url_path='available-ips', methods=['get', 'post'], queryset=IPAddress.objects.all())
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):

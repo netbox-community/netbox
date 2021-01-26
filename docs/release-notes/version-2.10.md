@@ -1,5 +1,30 @@
 # NetBox v2.10
 
+## v2.10.4 (2021-01-26)
+
+### Enhancements
+
+* [#5542](https://github.com/netbox-community/netbox/issues/5542) - Show cable trace lengths in both meters and feet
+* [#5570](https://github.com/netbox-community/netbox/issues/5570) - Add "management only" filter widget for interfaces list
+* [#5586](https://github.com/netbox-community/netbox/issues/5586) - Allow filtering virtual chassis by name and master
+* [#5612](https://github.com/netbox-community/netbox/issues/5612) - Add GG45 and TERA port types, and CAT7a and CAT8 cable types
+* [#5678](https://github.com/netbox-community/netbox/issues/5678) - Show available type choices for all device component import forms
+
+### Bug Fixes
+
+* [#5232](https://github.com/netbox-community/netbox/issues/5232) - Correct swagger definition for ip_prefixes_available-ips_create API
+* [#5574](https://github.com/netbox-community/netbox/issues/5574) - Restrict the creation of device bay templates on non-parent device types
+* [#5584](https://github.com/netbox-community/netbox/issues/5584) - Restore power utilization panel under device view
+* [#5597](https://github.com/netbox-community/netbox/issues/5597) - Fix ordering devices by primary IP address
+* [#5603](https://github.com/netbox-community/netbox/issues/5603) - Fix display of white cables in trace view
+* [#5639](https://github.com/netbox-community/netbox/issues/5639) - Fix filtering connection lists by device name
+* [#5640](https://github.com/netbox-community/netbox/issues/5640) - Fix permissions assessment when adding VM interfaces in bulk
+* [#5648](https://github.com/netbox-community/netbox/issues/5648) - Include VC member interfaces on interfaces tab count when viewing VC master
+* [#5665](https://github.com/netbox-community/netbox/issues/5665) - Validate rack group is assigned to same site when creating a rack
+* [#5683](https://github.com/netbox-community/netbox/issues/5683) - Correct rack elevation displayed when viewing a reservation
+
+---
+
 ## v2.10.3 (2021-01-05)
 
 ### Bug Fixes

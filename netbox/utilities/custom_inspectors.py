@@ -28,28 +28,37 @@ class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
         serializer = super().get_request_serializer()
 
         if serializer is not None and self.method in self.implicit_body_methods:
-            properties = {}
-            for child_name, child in serializer.fields.items():
-                if isinstance(child, (ChoiceField, WritableNestedSerializer)):
-                    properties[child_name] = None
-                elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
-                    properties[child_name] = None
-
-            if properties:
-                if type(serializer) not in self.writable_serializers:
-                    writable_name = 'Writable' + type(serializer).__name__
-                    meta_class = getattr(type(serializer), 'Meta', None)
-                    if meta_class:
-                        ref_name = 'Writable' + get_serializer_ref_name(serializer)
-                        writable_meta = type('Meta', (meta_class,), {'ref_name': ref_name})
-                        properties['Meta'] = writable_meta
-
-                    self.writable_serializers[type(serializer)] = type(writable_name, (type(serializer),), properties)
-
-                writable_class = self.writable_serializers[type(serializer)]
-                serializer = writable_class()
-
+            writable_class = self.get_writable_class(serializer)
+            if writable_class is not None:
+                if hasattr(serializer, 'child'):
+                    child_serializer = self.get_writable_class(serializer.child)
+                    serializer = writable_class(child=child_serializer)
+                else:
+                    serializer = writable_class()
         return serializer
+
+    def get_writable_class(self, serializer):
+        properties = {}
+        fields = {} if hasattr(serializer, 'child') else serializer.fields
+        for child_name, child in fields.items():
+            if isinstance(child, (ChoiceField, WritableNestedSerializer)):
+                properties[child_name] = None
+            elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
+                properties[child_name] = None
+
+        if properties:
+            if type(serializer) not in self.writable_serializers:
+                writable_name = 'Writable' + type(serializer).__name__
+                meta_class = getattr(type(serializer), 'Meta', None)
+                if meta_class:
+                    ref_name = 'Writable' + get_serializer_ref_name(serializer)
+                    writable_meta = type('Meta', (meta_class,), {'ref_name': ref_name})
+                    properties['Meta'] = writable_meta
+
+                self.writable_serializers[type(serializer)] = type(writable_name, (type(serializer),), properties)
+
+            writable_class = self.writable_serializers[type(serializer)]
+            return writable_class
 
 
 class SerializedPKRelatedFieldInspector(FieldInspector):
