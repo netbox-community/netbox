@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.5 (FUTURE)
+
+### Bug Fixes
+
+* [#5716](https://github.com/netbox-community/netbox/issues/5716) - Fix filtering rack reservations by custom field
+
+---
+
 ## v2.10.4 (2021-01-26)
 
 ### Enhancements

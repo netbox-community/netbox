@@ -264,7 +264,7 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         )
 
 
-class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
+class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
