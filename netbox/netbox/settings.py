@@ -391,6 +391,7 @@ if CACHING_REDIS_USING_SENTINEL:
         'locations': CACHING_REDIS_SENTINELS,
         'service_name': CACHING_REDIS_SENTINEL_SERVICE,
         'db': CACHING_REDIS_DATABASE,
+        'password': CACHING_REDIS_PASSWORD,
     }
 else:
     if CACHING_REDIS_SSL:
