@@ -792,7 +792,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                                     if form.cleaned_data[name]:
                                         getattr(obj, name).set(form.cleaned_data[name])
                                 # Normal fields
-                                elif form.cleaned_data[name] not in (None, ''):
+                                elif form.cleaned_data[name] not in (None, '', []):
                                     setattr(obj, name, form.cleaned_data[name])
 
                             # Update custom fields

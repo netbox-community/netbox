@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#5716](https://github.com/netbox-community/netbox/issues/5716) - Fix filtering rack reservations by custom field
+* [#5718](https://github.com/netbox-community/netbox/issues/5718) - Fix bulk editing of services when no port(s) are defined
 
 ---
 
