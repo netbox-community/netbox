@@ -95,6 +95,11 @@ CONSOLEPORT_BUTTONS = """
 {% if record.cable %}
     <a href="{% url 'dcim:consoleport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif perms.dcim.add_cable %}
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
@@ -115,6 +120,11 @@ CONSOLESERVERPORT_BUTTONS = """
 {% if record.cable %}
     <a href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif perms.dcim.add_cable %}
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
@@ -135,6 +145,11 @@ POWERPORT_BUTTONS = """
 {% if record.cable %}
     <a href="{% url 'dcim:powerport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif perms.dcim.add_cable %}
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
@@ -154,6 +169,11 @@ POWEROUTLET_BUTTONS = """
 {% if record.cable %}
     <a href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif perms.dcim.add_cable %}
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
@@ -172,6 +192,11 @@ INTERFACE_BUTTONS = """
 {% if record.cable %}
     <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif record.is_connectable and perms.dcim.add_cable %}
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
@@ -193,6 +218,11 @@ FRONTPORT_BUTTONS = """
 {% if record.cable %}
     <a href="{% url 'dcim:frontport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif perms.dcim.add_cable %}
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
@@ -216,6 +246,11 @@ REARPORT_BUTTONS = """
 {% if record.cable %}
     <a href="{% url 'dcim:rearport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.delete_cable %}
+        <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif perms.dcim.add_cable %}
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-default btn-xs disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
