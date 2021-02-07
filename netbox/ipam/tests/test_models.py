@@ -260,6 +260,18 @@ class TestIPAddress(TestCase):
         self.assertRaises(ValidationError, duplicate_ip.clean)
 
     @override_settings(ENFORCE_GLOBAL_UNIQUE=True)
+    def test_duplicate_nonunique_nonrole_role(self):
+        IPAddress.objects.create(address=netaddr.IPNetwork('192.0.2.1/24'))
+        duplicate_ip = IPAddress(address=netaddr.IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
+        self.assertRaises(ValidationError, duplicate_ip.clean)
+
+    @override_settings(ENFORCE_GLOBAL_UNIQUE=True)
+    def test_duplicate_nonunique_role_nonrole(self):
+        IPAddress.objects.create(address=netaddr.IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
+        duplicate_ip = IPAddress(address=netaddr.IPNetwork('192.0.2.1/24'))
+        self.assertRaises(ValidationError, duplicate_ip.clean)
+
+    @override_settings(ENFORCE_GLOBAL_UNIQUE=True)
     def test_duplicate_nonunique_role(self):
         IPAddress.objects.create(address=netaddr.IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
         IPAddress.objects.create(address=netaddr.IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
