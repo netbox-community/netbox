@@ -29,7 +29,7 @@
                                     <td>{{ script.Meta.description|render_markdown }}</td>
                                     {% if script.result %}
                                         <td class="text-right">
-                                            <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created }}</a>
+                                            <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created|annotated_date }}</a>
                                         </td>
                                     {% else %}
                                         <td class="text-right text-muted">Never</td>
