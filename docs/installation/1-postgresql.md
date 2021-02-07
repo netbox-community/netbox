@@ -51,7 +51,7 @@ $ sudo -u postgres psql
 psql (12.5 (Ubuntu 12.5-0ubuntu0.20.04.1))
 Type "help" for help.
 
-postgres=# CREATE DATABASE netbox;
+postgres=# CREATE DATABASE netbox ENCODING 'UTF8' LC_COLLATE='C.UTF-8' LC_CTYPE='C.UTF-8';
 CREATE DATABASE
 postgres=# CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K';
 CREATE ROLE
