@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#5626](https://github.com/netbox-community/netbox/issues/5626) - Fix REST API representation for circuit terminations connected to non-interface endpoints
 * [#5716](https://github.com/netbox-community/netbox/issues/5716) - Fix filtering rack reservations by custom field
 * [#5718](https://github.com/netbox-community/netbox/issues/5718) - Fix bulk editing of services when no port(s) are defined
 * [#5735](https://github.com/netbox-community/netbox/issues/5735) - Ensure consistent treatment of duplicate IP addresses
