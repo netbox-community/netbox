@@ -1,8 +1,5 @@
 # Configuration for Stale (https://github.com/apps/stale)
 
-# Pull requests are exempt from being marked as stale
-only: issues
-
 # Number of days of inactivity before an issue becomes stale
 daysUntilStale: 45
 
