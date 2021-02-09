@@ -19,6 +19,7 @@ class LoginRequiredMiddleware(object):
     """
     If LOGIN_REQUIRED is True, redirect all non-authenticated users to the login page.
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -48,7 +49,8 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
         return settings.REMOTE_AUTH_HEADER
 
     def process_request(self, request):
-        logger = logging.getLogger('netbox.authentication.RemoteUserMiddleware')
+        logger = logging.getLogger(
+            'netbox.authentication.RemoteUserMiddleware')
         # Bypass middleware if remote authentication is not enabled
         if not settings.REMOTE_AUTH_ENABLED:
             return
@@ -84,7 +86,8 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
         # to authenticate the user.
         if settings.REMOTE_AUTH_GROUP_SYNC_ENABLED:
             logger.debug("Trying to sync Groups")
-            user = auth.authenticate(request, remote_user=username, remote_groups=self._get_groups(request))
+            user = auth.authenticate(
+                request, remote_user=username, remote_groups=self._get_groups(request))
         else:
             user = auth.authenticate(request, remote_user=username)
         if user:
@@ -92,17 +95,20 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
             # by logging the user in.
             request.user = user
             auth.login(request, user)
-    
-    def _get_groups(self, request):
-        logger = logging.getLogger('netbox.authentication.RemoteUserMiddleware')
 
-        groups_string = request.META.get(settings.REMOTE_AUTH_GROUP_HEADER, None)
+    def _get_groups(self, request):
+        logger = logging.getLogger(
+            'netbox.authentication.RemoteUserMiddleware')
+
+        groups_string = request.META.get(
+            settings.REMOTE_AUTH_GROUP_HEADER, None)
         if groups_string:
             groups = groups_string.split(settings.REMOTE_AUTH_GROUP_SEPERATOR)
         else:
             groups = []
         logger.debug(f"Groups are {groups}")
         return groups
+
 
 class ObjectChangeMiddleware(object):
     """
@@ -118,6 +124,7 @@ class ObjectChangeMiddleware(object):
     have been created. Conversely, deletions are acted upon immediately, so that the serialized representation of the
     object is recorded before it (and any related objects) are actually deleted from the database.
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -137,6 +144,7 @@ class APIVersionMiddleware(object):
     """
     If the request is for an API endpoint, include the API version as a response header.
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -152,6 +160,7 @@ class ExceptionHandlingMiddleware(object):
     Intercept certain exceptions which are likely indicative of installation issues and provide helpful instructions
     to the user.
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
 

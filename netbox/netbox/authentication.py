@@ -106,16 +106,19 @@ class RemoteUserBackend(_RemoteUserBackend):
             try:
                 group_list.append(Group.objects.get(name=name))
             except Group.DoesNotExist:
-                logging.error(f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
+                logging.error(
+                    f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
         if group_list:
             user.groups.set(group_list)
-            logger.debug(f"Assigned groups to remotely-authenticated user {user}: {group_list}")
-        else: 
+            logger.debug(
+                f"Assigned groups to remotely-authenticated user {user}: {group_list}")
+        else:
             user.groups.clear()
             logger.debug(f"Stripping user {user} from Groups")
         user.is_superuser = self._is_superuser(user)
         logger.debug(f"User {user} is Superuser: {user.is_superuser}")
-        logger.debug(f"User {user} should be Superuser: {self._is_superuser(user)}")
+        logger.debug(
+            f"User {user} should be Superuser: {self._is_superuser(user)}")
 
         user.is_staff = self._is_staff(user)
         logger.debug(f"User {user} is Staff: {user.is_staff}")
@@ -132,7 +135,8 @@ class RemoteUserBackend(_RemoteUserBackend):
         object with the given username is not found in the database.
         """
         logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
-        logger.debug(f"trying to authenticate {remote_user} with groups {remote_groups}")
+        logger.debug(
+            f"trying to authenticate {remote_user} with groups {remote_groups}")
         if not remote_user:
             return
         user = None
@@ -155,7 +159,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         if self.user_can_authenticate(user):
             if settings.REMOTE_AUTH_GROUP_SYNC_ENABLED:
                 if user is not None and not isinstance(user, AnonymousUser):
-                    return self.configure_groups(user,remote_groups)
+                    return self.configure_groups(user, remote_groups)
             else:
                 return user
         else:
@@ -172,10 +176,11 @@ class RemoteUserBackend(_RemoteUserBackend):
             user_groups.add(g.name)
         logger.debug(f"User {user.username} is in Groups:{user_groups}")
 
-        result = user.username in superusers or (set(user_groups) & set(superuser_groups))
+        result = user.username in superusers or (
+            set(user_groups) & set(superuser_groups))
         logger.debug(f"User {user.username} in Superuser Users :{result}")
         return bool(result)
-    
+
     def _is_staff(self, user):
         logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
         staff_groups = settings.REMOTE_AUTH_STAFF_GROUPS
@@ -185,8 +190,9 @@ class RemoteUserBackend(_RemoteUserBackend):
         user_groups = set()
         for g in user.groups.all():
             user_groups.add(g.name)
-        logger.debug(f"User {user.username} is in Groups:{user_groups}")        
-        result = user.username in staff_users or (set(user_groups) & set(staff_groups))
+        logger.debug(f"User {user.username} is in Groups:{user_groups}")
+        result = user.username in staff_users or (
+            set(user_groups) & set(staff_groups))
         logger.debug(f"User {user.username} in Staff Users :{result}")
         return bool(result)
 
@@ -199,18 +205,22 @@ class RemoteUserBackend(_RemoteUserBackend):
                 try:
                     group_list.append(Group.objects.get(name=name))
                 except Group.DoesNotExist:
-                    logging.error(f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
+                    logging.error(
+                        f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
             if group_list:
                 user.groups.add(*group_list)
-                logger.debug(f"Assigned groups to remotely-authenticated user {user}: {group_list}")
+                logger.debug(
+                    f"Assigned groups to remotely-authenticated user {user}: {group_list}")
 
             # Assign default object permissions to the user
             permissions_list = []
             for permission_name, constraints in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS.items():
                 try:
-                    object_type, action = resolve_permission_ct(permission_name)
+                    object_type, action = resolve_permission_ct(
+                        permission_name)
                     # TODO: Merge multiple actions into a single ObjectPermission per content type
-                    obj_perm = ObjectPermission(actions=[action], constraints=constraints)
+                    obj_perm = ObjectPermission(
+                        actions=[action], constraints=constraints)
                     obj_perm.save()
                     obj_perm.users.add(user)
                     obj_perm.object_types.add(object_type)
@@ -221,9 +231,11 @@ class RemoteUserBackend(_RemoteUserBackend):
                         "<app>.<action>_<model>. (Example: dcim.add_site)"
                     )
             if permissions_list:
-                logger.debug(f"Assigned permissions to remotely-authenticated user {user}: {permissions_list}")
+                logger.debug(
+                    f"Assigned permissions to remotely-authenticated user {user}: {permissions_list}")
         else:
-            logger.debug(f"Skipped initial assignment of permissions and groups to remotely-authenticated user {user} as Group sync is enabled")
+            logger.debug(
+                f"Skipped initial assignment of permissions and groups to remotely-authenticated user {user} as Group sync is enabled")
 
         return user
 
