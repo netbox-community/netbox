@@ -24,7 +24,7 @@ class TenantGroupSerializer(ValidatedModelSerializer):
 
 class TenantSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
-    group = NestedTenantGroupSerializer(required=False)
+    group = NestedTenantGroupSerializer(required=False, allow_null=True)
     circuit_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
     ipaddress_count = serializers.IntegerField(read_only=True)
