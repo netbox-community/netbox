@@ -84,7 +84,7 @@ RACKGROUP_ELEVATIONS = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% utilization_graph value.0 value.1 value %}
+{% utilization_graph value.0 value.1 %}
 """
 
 #
