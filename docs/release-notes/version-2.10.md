@@ -10,6 +10,7 @@
 * [#5718](https://github.com/netbox-community/netbox/issues/5718) - Fix bulk editing of services when no port(s) are defined
 * [#5735](https://github.com/netbox-community/netbox/issues/5735) - Ensure consistent treatment of duplicate IP addresses
 * [#5738](https://github.com/netbox-community/netbox/issues/5738) - Fix redirect to device components view after disconnecting a cable
+* [#5841](https://github.com/netbox-community/netbox/issues/5841) - Disallow the creation of available prefixes/IP addresses in violation of assigned permission constraints
 
 ---
 
