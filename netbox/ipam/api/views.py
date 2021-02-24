@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_yasg.utils import swagger_auto_schema
@@ -162,7 +164,12 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             # Create the new Prefix(es)
             if serializer.is_valid():
-                serializer.save()
+                try:
+                    with transaction.atomic():
+                        created = serializer.save()
+                        self._validate_objects(created)
+                except ObjectDoesNotExist:
+                    raise PermissionDenied()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -225,7 +232,12 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             # Create the new IP address(es)
             if serializer.is_valid():
-                serializer.save()
+                try:
+                    with transaction.atomic():
+                        created = serializer.save()
+                        self._validate_objects(created)
+                except ObjectDoesNotExist:
+                    raise PermissionDenied()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

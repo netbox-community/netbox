@@ -56,6 +56,7 @@ class TenantTest(APIViewTestCases.APIViewTestCase):
     model = Tenant
     brief_fields = ['id', 'name', 'slug', 'url']
     bulk_update_data = {
+        'group': None,
         'description': 'New description',
     }
 
