@@ -14,9 +14,9 @@ from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
 from extras.constants import *
-from extras.models import ChangeLoggedModel
 from extras.querysets import ConfigContextQuerySet
 from extras.utils import extras_features, FeatureQuery, image_upload
+from netbox.models import BigIDModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge, render_jinja2
 
@@ -25,7 +25,7 @@ from utilities.utils import deepmerge, render_jinja2
 # Webhooks
 #
 
-class Webhook(models.Model):
+class Webhook(BigIDModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -158,7 +158,7 @@ class Webhook(models.Model):
 # Custom links
 #
 
-class CustomLink(models.Model):
+class CustomLink(BigIDModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -210,7 +210,7 @@ class CustomLink(models.Model):
 # Export templates
 #
 
-class ExportTemplate(models.Model):
+class ExportTemplate(BigIDModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
@@ -285,7 +285,7 @@ class ExportTemplate(models.Model):
 # Image attachments
 #
 
-class ImageAttachment(models.Model):
+class ImageAttachment(BigIDModel):
     """
     An uploaded image which is associated with an object.
     """
@@ -361,7 +361,7 @@ class ImageAttachment(models.Model):
 # Config contexts
 #
 
-class ConfigContext(ChangeLoggedModel):
+class ConfigContext(PrimaryModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -526,7 +526,7 @@ class Report(models.Model):
 # Job results
 #
 
-class JobResult(models.Model):
+class JobResult(BigIDModel):
     """
     This model stores the results from running a user-defined report.
     """

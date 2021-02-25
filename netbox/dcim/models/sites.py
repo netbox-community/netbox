@@ -1,15 +1,16 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
-from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
+from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.mptt import TreeManager
@@ -25,8 +26,8 @@ __all__ = (
 # Regions
 #
 
-@extras_features('export_templates', 'webhooks')
-class Region(MPTTModel, ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class Region(NestedGroupModel):
     """
     Sites can be grouped within geographic Regions.
     """
@@ -51,15 +52,7 @@ class Region(MPTTModel, ChangeLoggedModel):
         blank=True
     )
 
-    objects = TreeManager()
-
     csv_headers = ['name', 'slug', 'parent', 'description']
-
-    class MPTTMeta:
-        order_insertion_by = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
@@ -78,22 +71,13 @@ class Region(MPTTModel, ChangeLoggedModel):
             Q(region__in=self.get_descendants())
         ).count()
 
-    def to_objectchange(self, action):
-        # Remove MPTT-internal fields
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
-        )
-
 
 #
 # Sites
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Site(ChangeLoggedModel, CustomFieldModel):
+class Site(PrimaryModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).

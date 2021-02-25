@@ -10,14 +10,15 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Sum
 from django.urls import reverse
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import TreeForeignKey
 from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.elevations import RackElevationSVG
-from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
+from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
@@ -39,8 +40,8 @@ __all__ = (
 # Racks
 #
 
-@extras_features('export_templates')
-class RackGroup(MPTTModel, ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class RackGroup(NestedGroupModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
     example, if a Site spans a corporate campus, a RackGroup might be defined to represent each building within that
@@ -70,8 +71,6 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
         blank=True
     )
 
-    objects = TreeManager()
-
     csv_headers = ['site', 'parent', 'name', 'slug', 'description']
 
     class Meta:
@@ -80,12 +79,6 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
             ['site', 'name'],
             ['site', 'slug'],
         ]
-
-    class MPTTMeta:
-        order_insertion_by = ['name']
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
@@ -99,15 +92,6 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
             self.description,
         )
 
-    def to_objectchange(self, action):
-        # Remove MPTT-internal fields
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
-        )
-
     def clean(self):
         super().clean()
 
@@ -116,7 +100,8 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
             raise ValidationError(f"Parent rack group ({self.parent}) must belong to the same site ({self.site})")
 
 
-class RackRole(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
     """
@@ -159,7 +144,7 @@ class RackRole(ChangeLoggedModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Rack(ChangeLoggedModel, CustomFieldModel):
+class Rack(PrimaryModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a RackGroup.
@@ -550,7 +535,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class RackReservation(ChangeLoggedModel, CustomFieldModel):
+class RackReservation(PrimaryModel):
     """
     One or more reserved units within a Rack.
     """

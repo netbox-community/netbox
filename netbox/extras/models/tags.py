@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from extras.models import ChangeLoggedModel
+from netbox.models import BigIDModel, CoreModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
@@ -12,7 +12,7 @@ from utilities.querysets import RestrictedQuerySet
 # Tags
 #
 
-class Tag(TagBase, ChangeLoggedModel):
+class Tag(TagBase, CoreModel):
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )
@@ -44,7 +44,7 @@ class Tag(TagBase, ChangeLoggedModel):
         )
 
 
-class TaggedItem(GenericTaggedItemBase):
+class TaggedItem(BigIDModel, GenericTaggedItemBase):
     tag = models.ForeignKey(
         to=Tag,
         related_name="%(app_label)s_%(class)s_items",

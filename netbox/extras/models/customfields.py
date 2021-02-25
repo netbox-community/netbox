@@ -12,12 +12,13 @@ from django.utils.safestring import mark_safe
 
 from extras.choices import *
 from extras.utils import FeatureQuery
+from netbox.models import BigIDModel
 from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
 
-class CustomFieldModel(models.Model):
+class CustomFieldModel(BigIDModel):
     """
     Abstract class for any model which may have custom fields associated with it.
     """
@@ -77,7 +78,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(models.Model):
+class CustomField(BigIDModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',

@@ -6,8 +6,9 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
+from extras.models import TaggedItem
 from extras.utils import extras_features
+from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import ExclusionValidator
 from .device_components import CableTermination, PathEndpoint
@@ -23,7 +24,7 @@ __all__ = (
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class PowerPanel(ChangeLoggedModel, CustomFieldModel):
+class PowerPanel(PrimaryModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -74,7 +75,7 @@ class PowerPanel(ChangeLoggedModel, CustomFieldModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldModel):
+class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
     """
     An electrical circuit delivered from a PowerPanel.
     """

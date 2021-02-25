@@ -12,8 +12,9 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
+from extras.models import TaggedItem
 from extras.utils import extras_features
+from netbox.models import BigIDModel, PrimaryModel
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
@@ -32,7 +33,7 @@ __all__ = (
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Cable(ChangeLoggedModel, CustomFieldModel):
+class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.
     """
@@ -305,7 +306,7 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
 
 
-class CablePath(models.Model):
+class CablePath(BigIDModel):
     """
     A CablePath instance represents the physical path from an origin to a destination, including all intermediate
     elements in the path. Every instance must specify an `origin`, whereas `destination` may be null (for paths which do

@@ -4,8 +4,9 @@ from taggit.managers import TaggableManager
 
 from dcim.fields import ASNField
 from dcim.models import CableTermination, PathEndpoint
-from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
+from netbox.models import BigIDModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 from .choices import *
@@ -21,7 +22,7 @@ __all__ = (
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Provider(ChangeLoggedModel, CustomFieldModel):
+class Provider(PrimaryModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -93,7 +94,8 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
         )
 
 
-class CircuitType(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class CircuitType(OrganizationalModel):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
     "Long Haul," "Metro," or "Out-of-Band".
@@ -133,7 +135,7 @@ class CircuitType(ChangeLoggedModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Circuit(ChangeLoggedModel, CustomFieldModel):
+class Circuit(PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
@@ -233,7 +235,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         return self._get_termination('Z')
 
 
-class CircuitTermination(PathEndpoint, CableTermination):
+class CircuitTermination(BigIDModel, PathEndpoint, CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,

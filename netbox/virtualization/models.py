@@ -6,9 +6,10 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import BaseInterface, Device
-from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ConfigContextModel, ObjectChange, TaggedItem
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -30,7 +31,8 @@ __all__ = (
 # Cluster types
 #
 
-class ClusterType(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
     """
@@ -72,7 +74,8 @@ class ClusterType(ChangeLoggedModel):
 # Cluster groups
 #
 
-class ClusterGroup(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class ClusterGroup(OrganizationalModel):
     """
     An organizational group of Clusters.
     """
@@ -115,7 +118,7 @@ class ClusterGroup(ChangeLoggedModel):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Cluster(ChangeLoggedModel, CustomFieldModel):
+class Cluster(PrimaryModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
@@ -199,7 +202,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
+class VirtualMachine(PrimaryModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
     """
@@ -371,7 +374,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 #
 
 @extras_features('export_templates', 'webhooks')
-class VMInterface(BaseInterface):
+class VMInterface(PrimaryModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
