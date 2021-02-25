@@ -67,13 +67,16 @@ class RouteTargetSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # RIRs/aggregates
 #
 
-class RIRSerializer(ValidatedModelSerializer):
+class RIRSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
     aggregate_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RIR
-        fields = ['id', 'url', 'name', 'slug', 'is_private', 'description', 'aggregate_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'is_private', 'description', 'custom_fields', 'created', 'last_updated',
+            'aggregate_count',
+        ]
 
 
 class AggregateSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
@@ -85,8 +88,8 @@ class AggregateSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Aggregate
         fields = [
-            'id', 'url', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
         read_only_fields = ['family']
 
@@ -95,24 +98,30 @@ class AggregateSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # VLANs
 #
 
-class RoleSerializer(ValidatedModelSerializer):
+class RoleSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
     prefix_count = serializers.IntegerField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Role
-        fields = ['id', 'url', 'name', 'slug', 'weight', 'description', 'prefix_count', 'vlan_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'weight', 'description', 'custom_fields', 'created', 'last_updated',
+            'prefix_count', 'vlan_count',
+        ]
 
 
-class VLANGroupSerializer(ValidatedModelSerializer):
+class VLANGroupSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     site = NestedSiteSerializer(required=False, allow_null=True)
     vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'url', 'name', 'slug', 'site', 'description', 'vlan_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'site', 'description', 'custom_fields', 'created', 'last_updated',
+            'vlan_count',
+        ]
         validators = []
 
     def validate(self, data):

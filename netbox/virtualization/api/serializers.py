@@ -18,22 +18,26 @@ from .nested_serializers import *
 # Clusters
 #
 
-class ClusterTypeSerializer(ValidatedModelSerializer):
+class ClusterTypeSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'url', 'name', 'slug', 'description', 'cluster_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'cluster_count',
+        ]
 
 
-class ClusterGroupSerializer(ValidatedModelSerializer):
+class ClusterGroupSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'url', 'name', 'slug', 'description', 'cluster_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'cluster_count',
+        ]
 
 
 class ClusterSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):

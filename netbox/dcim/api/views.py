@@ -99,7 +99,7 @@ class PassThroughPortMixin(object):
 # Regions
 #
 
-class RegionViewSet(ModelViewSet):
+class RegionViewSet(CustomFieldModelViewSet):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -134,7 +134,7 @@ class SiteViewSet(CustomFieldModelViewSet):
 # Rack groups
 #
 
-class RackGroupViewSet(ModelViewSet):
+class RackGroupViewSet(CustomFieldModelViewSet):
     queryset = RackGroup.objects.add_related_count(
         RackGroup.objects.all(),
         Rack,
@@ -150,7 +150,7 @@ class RackGroupViewSet(ModelViewSet):
 # Rack roles
 #
 
-class RackRoleViewSet(ModelViewSet):
+class RackRoleViewSet(CustomFieldModelViewSet):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
     )
@@ -238,7 +238,7 @@ class RackReservationViewSet(ModelViewSet):
 # Manufacturers
 #
 
-class ManufacturerViewSet(ModelViewSet):
+class ManufacturerViewSet(CustomFieldModelViewSet):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
@@ -317,7 +317,7 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 # Device roles
 #
 
-class DeviceRoleViewSet(ModelViewSet):
+class DeviceRoleViewSet(CustomFieldModelViewSet):
     queryset = DeviceRole.objects.annotate(
         device_count=count_related(Device, 'device_role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
@@ -330,7 +330,7 @@ class DeviceRoleViewSet(ModelViewSet):
 # Platforms
 #
 
-class PlatformViewSet(ModelViewSet):
+class PlatformViewSet(CustomFieldModelViewSet):
     queryset = Platform.objects.annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')

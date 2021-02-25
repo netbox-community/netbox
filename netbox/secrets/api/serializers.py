@@ -15,13 +15,15 @@ from .nested_serializers import *
 # Secrets
 #
 
-class SecretRoleSerializer(ValidatedModelSerializer):
+class SecretRoleSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
     secret_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = SecretRole
-        fields = ['id', 'url', 'name', 'slug', 'description', 'secret_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'secret_count',
+        ]
 
 
 class SecretSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):

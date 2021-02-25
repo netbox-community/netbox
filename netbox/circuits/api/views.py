@@ -34,7 +34,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 #  Circuit Types
 #
 
-class CircuitTypeViewSet(ModelViewSet):
+class CircuitTypeViewSet(CustomFieldModelViewSet):
     queryset = CircuitType.objects.annotate(
         circuit_count=count_related(Circuit, 'type')
     )

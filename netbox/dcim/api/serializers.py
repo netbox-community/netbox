@@ -82,7 +82,7 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
 # Regions/sites
 #
 
-class RegionSerializer(serializers.ModelSerializer):
+class RegionSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     parent = NestedRegionSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
@@ -90,7 +90,10 @@ class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Region
-        fields = ['id', 'url', 'name', 'slug', 'parent', 'description', 'site_count', '_depth']
+        fields = [
+            'id', 'url', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
+            'site_count', '_depth',
+        ]
 
 
 class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
@@ -120,7 +123,7 @@ class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # Racks
 #
 
-class RackGroupSerializer(ValidatedModelSerializer):
+class RackGroupSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
     site = NestedSiteSerializer()
     parent = NestedRackGroupSerializer(required=False, allow_null=True)
@@ -129,16 +132,22 @@ class RackGroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RackGroup
-        fields = ['id', 'url', 'name', 'slug', 'site', 'parent', 'description', 'rack_count', '_depth']
+        fields = [
+            'id', 'url', 'name', 'slug', 'site', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
+            'rack_count', '_depth',
+        ]
 
 
-class RackRoleSerializer(ValidatedModelSerializer):
+class RackRoleSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
     rack_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RackRole
-        fields = ['id', 'url', 'name', 'slug', 'color', 'description', 'rack_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'color', 'description', 'custom_fields', 'created', 'last_updated',
+            'rack_count',
+        ]
 
 
 class RackSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
@@ -242,7 +251,7 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
 # Device types
 #
 
-class ManufacturerSerializer(ValidatedModelSerializer):
+class ManufacturerSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:manufacturer-detail')
     devicetype_count = serializers.IntegerField(read_only=True)
     inventoryitem_count = serializers.IntegerField(read_only=True)
@@ -251,7 +260,8 @@ class ManufacturerSerializer(ValidatedModelSerializer):
     class Meta:
         model = Manufacturer
         fields = [
-            'id', 'url', 'name', 'slug', 'description', 'devicetype_count', 'inventoryitem_count', 'platform_count',
+            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'devicetype_count',
+            'inventoryitem_count', 'platform_count',
         ]
 
 
@@ -378,7 +388,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 # Devices
 #
 
-class DeviceRoleSerializer(ValidatedModelSerializer):
+class DeviceRoleSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
@@ -386,11 +396,12 @@ class DeviceRoleSerializer(ValidatedModelSerializer):
     class Meta:
         model = DeviceRole
         fields = [
-            'id', 'url', 'name', 'slug', 'color', 'vm_role', 'description', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'name', 'slug', 'color', 'vm_role', 'description', 'custom_fields', 'created', 'last_updated',
+            'device_count', 'virtualmachine_count',
         ]
 
 
-class PlatformSerializer(ValidatedModelSerializer):
+class PlatformSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True)
     device_count = serializers.IntegerField(read_only=True)
@@ -399,8 +410,8 @@ class PlatformSerializer(ValidatedModelSerializer):
     class Meta:
         model = Platform
         fields = [
-            'id', 'url', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'device_count',
-            'virtualmachine_count',
+            'id', 'url', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'custom_fields',
+            'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 

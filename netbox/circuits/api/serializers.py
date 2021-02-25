@@ -31,13 +31,15 @@ class ProviderSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # Circuits
 #
 
-class CircuitTypeSerializer(ValidatedModelSerializer):
+class CircuitTypeSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
     circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'url', 'name', 'slug', 'description', 'circuit_count']
+        fields = [
+            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'circuit_count',
+        ]
 
 
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer, ConnectedEndpointSerializer):

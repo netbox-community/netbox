@@ -20,7 +20,7 @@ class VirtualizationRootView(APIRootView):
 # Clusters
 #
 
-class ClusterTypeViewSet(ModelViewSet):
+class ClusterTypeViewSet(CustomFieldModelViewSet):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
     )
@@ -28,7 +28,7 @@ class ClusterTypeViewSet(ModelViewSet):
     filterset_class = filters.ClusterTypeFilterSet
 
 
-class ClusterGroupViewSet(ModelViewSet):
+class ClusterGroupViewSet(CustomFieldModelViewSet):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
     )

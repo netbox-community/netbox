@@ -4,7 +4,6 @@ from circuits.models import Circuit
 from dcim.models import Device, Rack, Site
 from extras.api.views import CustomFieldModelViewSet
 from ipam.models import IPAddress, Prefix, VLAN, VRF
-from netbox.api.views import ModelViewSet
 from tenancy import filters
 from tenancy.models import Tenant, TenantGroup
 from utilities.utils import count_related
@@ -24,7 +23,7 @@ class TenancyRootView(APIRootView):
 # Tenant Groups
 #
 
-class TenantGroupViewSet(ModelViewSet):
+class TenantGroupViewSet(CustomFieldModelViewSet):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
         Tenant,

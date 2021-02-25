@@ -11,7 +11,7 @@ from .nested_serializers import *
 # Tenants
 #
 
-class TenantGroupSerializer(ValidatedModelSerializer):
+class TenantGroupSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
     parent = NestedTenantGroupSerializer(required=False, allow_null=True)
     tenant_count = serializers.IntegerField(read_only=True)
@@ -19,7 +19,10 @@ class TenantGroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = TenantGroup
-        fields = ['id', 'url', 'name', 'slug', 'parent', 'description', 'tenant_count', '_depth']
+        fields = [
+            'id', 'url', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
+            'tenant_count', '_depth',
+        ]
 
 
 class TenantSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
