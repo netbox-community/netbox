@@ -210,6 +210,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Role(name='Role 1', slug='role-1'),
             Role(name='Role 2', slug='role-2'),
         )
+        Role.objects.bulk_create(roles)
 
         Prefix.objects.bulk_create([
             Prefix(prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),

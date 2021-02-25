@@ -1,7 +1,8 @@
+from django.contrib.postgres.aggregates import JSONBAgg
 from django.db.models import OuterRef, Subquery, Q
 
 from extras.models.tags import TaggedItem
-from utilities.query_functions import EmptyGroupByJSONBAgg, OrderableJSONBAgg
+from utilities.query_functions import EmptyGroupByJSONBAgg
 from utilities.querysets import RestrictedQuerySet
 
 
@@ -47,7 +48,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
 
         if aggregate_data:
             return queryset.aggregate(
-                config_context_data=OrderableJSONBAgg('data', ordering=['weight', 'name'])
+                config_context_data=JSONBAgg('data', ordering=['weight', 'name'])
             )['config_context_data']
 
         return queryset
