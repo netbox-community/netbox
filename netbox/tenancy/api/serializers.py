@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from extras.api.customfields import CustomFieldModelSerializer
+from netbox.api.serializers import CustomFieldModelSerializer, NestedGroupModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
-from netbox.api import ValidatedModelSerializer
 from tenancy.models import Tenant, TenantGroup
 from .nested_serializers import *
 
@@ -11,11 +10,10 @@ from .nested_serializers import *
 # Tenants
 #
 
-class TenantGroupSerializer(CustomFieldModelSerializer):
+class TenantGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
     parent = NestedTenantGroupSerializer(required=False, allow_null=True)
     tenant_count = serializers.IntegerField(read_only=True)
-    _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = TenantGroup

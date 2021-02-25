@@ -4,7 +4,7 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
 from dcim.api.serializers import CableTerminationSerializer, ConnectedEndpointSerializer
-from extras.api.customfields import CustomFieldModelSerializer
+from netbox.api.serializers import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from netbox.api import ChoiceField
 from netbox.api.serializers import OrganizationalModelSerializer, WritableNestedSerializer

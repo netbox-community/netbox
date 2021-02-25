@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
-from extras.api.customfields import CustomFieldModelSerializer
+from netbox.api.serializers import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from secrets.constants import SECRET_ASSIGNMENT_MODELS
 from secrets.models import Secret, SecretRole

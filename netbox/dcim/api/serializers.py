@@ -13,12 +13,14 @@ from dcim.models import (
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-from extras.api.customfields import CustomFieldModelSerializer
+from netbox.api.serializers import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, TimeZoneField
-from netbox.api.serializers import OrganizationalModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
+from netbox.api.serializers import (
+    NestedGroupModelSerializer, OrganizationalModelSerializer, ValidatedModelSerializer, WritableNestedSerializer,
+)
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
@@ -79,11 +81,10 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
 # Regions/sites
 #
 
-class RegionSerializer(CustomFieldModelSerializer):
+class RegionSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     parent = NestedRegionSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
-    _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = Region
@@ -120,12 +121,11 @@ class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # Racks
 #
 
-class RackGroupSerializer(CustomFieldModelSerializer):
+class RackGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
     site = NestedSiteSerializer()
     parent = NestedRackGroupSerializer(required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)
-    _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = RackGroup

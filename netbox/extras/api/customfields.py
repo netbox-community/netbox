@@ -1,9 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
-from rest_framework.fields import CreateOnlyDefault, Field
+from rest_framework.fields import Field
 
-from extras.choices import *
 from extras.models import CustomField
-from netbox.api import ValidatedModelSerializer
 
 
 #
@@ -56,34 +54,3 @@ class CustomFieldsDataField(Field):
             data = {**self.parent.instance.custom_field_data, **data}
 
         return data
-
-
-class CustomFieldModelSerializer(ValidatedModelSerializer):
-    """
-    Extends ModelSerializer to render any CustomFields and their values associated with an object.
-    """
-    custom_fields = CustomFieldsDataField(
-        source='custom_field_data',
-        default=CreateOnlyDefault(CustomFieldDefaultValues())
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.instance is not None:
-
-            # Retrieve the set of CustomFields which apply to this type of object
-            content_type = ContentType.objects.get_for_model(self.Meta.model)
-            fields = CustomField.objects.filter(content_types=content_type)
-
-            # Populate CustomFieldValues for each instance from database
-            if type(self.instance) in (list, tuple):
-                for obj in self.instance:
-                    self._populate_custom_fields(obj, fields)
-            else:
-                self._populate_custom_fields(self.instance, fields)
-
-    def _populate_custom_fields(self, instance, custom_fields):
-        instance.custom_fields = {}
-        for field in custom_fields:
-            instance.custom_fields[field.name] = instance.cf.get(field.name)
