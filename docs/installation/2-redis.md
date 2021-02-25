@@ -7,19 +7,19 @@
 !!! note
     NetBox v2.9.0 and later require Redis v4.0 or higher. If your distribution does not offer a recent enough release, you will need to build Redis from source. Please see [the Redis installation documentation](https://github.com/redis/redis) for further details.
 
-### Ubuntu
+=== "Ubuntu"
 
-```no-highlight
-sudo apt install -y redis-server
-```
+    ```no-highlight
+    sudo apt install -y redis-server
+    ```
 
-### CentOS
+=== "CentOS"
 
-```no-highlight
-sudo yum install -y redis
-sudo systemctl start redis
-sudo systemctl enable redis
-```
+    ```no-highlight
+    sudo yum install -y redis
+    sudo systemctl start redis
+    sudo systemctl enable redis
+    ```
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/redis/redis.conf`, however in most cases the default configuration is sufficient.
 

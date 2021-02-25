@@ -5,14 +5,15 @@ python:
     install:
         - requirements: docs/requirements.txt
 theme:
-    name: readthedocs
-    navigation_depth: 3
+  name: material
 extra_css:
     - extra.css
 markdown_extensions:
-    - admonition:
+    - admonition
     - markdown_include.include:
         headingOffset: 1
+    - pymdownx.superfences
+    - pymdownx.tabbed
 nav:
     - Introduction: 'index.md'
     - Installation:
