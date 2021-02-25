@@ -338,4 +338,6 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         }
         widgets = {
             'term_side': forms.HiddenInput(),
+            'port_speed': SelectSpeedWidget(),
+            'upstream_speed': SelectSpeedWidget(),
         }
