@@ -116,6 +116,9 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'name', 'slug', 'color', 'description'
         ]
+        fieldsets = (
+            ('Tag', ('name', 'slug', 'color', 'description')),
+        )
 
 
 class TagCSVForm(CSVModelForm):

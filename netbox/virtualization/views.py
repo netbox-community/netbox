@@ -114,7 +114,6 @@ class ClusterView(generic.ObjectView):
 
 
 class ClusterEditView(generic.ObjectEditView):
-    template_name = 'virtualization/cluster_edit.html'
     queryset = Cluster.objects.all()
     model_form = forms.ClusterForm
 
@@ -276,7 +275,6 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
 class VirtualMachineEditView(generic.ObjectEditView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineForm
-    template_name = 'virtualization/virtualmachine_edit.html'
 
 
 class VirtualMachineDeleteView(generic.ObjectDeleteView):

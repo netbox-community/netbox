@@ -37,7 +37,6 @@ class TagListView(generic.ObjectListView):
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
-    template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(generic.ObjectDeleteView):

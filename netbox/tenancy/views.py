@@ -87,7 +87,6 @@ class TenantView(generic.ObjectView):
 class TenantEditView(generic.ObjectEditView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantForm
-    template_name = 'tenancy/tenant_edit.html'
 
 
 class TenantDeleteView(generic.ObjectDeleteView):

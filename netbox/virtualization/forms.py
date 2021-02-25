@@ -104,6 +104,10 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         fields = (
             'name', 'type', 'group', 'tenant', 'region', 'site', 'comments', 'tags',
         )
+        fieldsets = (
+            ('Cluster', ('name', 'type', 'group', 'region', 'site')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
 
 
 class ClusterCSVForm(CustomFieldModelCSVForm):
@@ -321,6 +325,13 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
+        fieldsets = (
+            ('Virtual Machine', ('name', 'role', 'status')),
+            ('Cluster', ('cluster_group', 'cluster')),
+            ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
+            ('Resources', ('vcpus', 'memory', 'disk')),
+            ('Config Context', ('local_context_data',)),
+        )
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
                                   "config context",

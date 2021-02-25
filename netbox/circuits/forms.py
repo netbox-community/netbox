@@ -9,8 +9,8 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DatePicker,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField, StaticSelect2,
-    StaticSelect2Multiple, TagFilterField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SelectSpeedWidget, SmallTextarea, SlugField,
+    StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -33,6 +33,10 @@ class ProviderForm(BootstrapMixin, CustomFieldModelForm):
         fields = [
             'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags',
         ]
+        fieldsets = (
+            ('Provider', ('name', 'slug', 'asn')),
+            ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
+        )
         widgets = {
             'noc_contact': SmallTextarea(
                 attrs={'rows': 5}
@@ -127,7 +131,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Circuit types
 #
 
-class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
+class CircuitTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -171,6 +175,10 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'cid', 'type', 'provider', 'status', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
             'comments', 'tags',
         ]
+        fieldsets = (
+            ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
         help_texts = {
             'cid': "Unique circuit ID",
             'commit_rate': "Committed rate",
@@ -178,6 +186,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         widgets = {
             'status': StaticSelect2(),
             'install_date': DatePicker(),
+            'commit_rate': SelectSpeedWidget(),
         }
 
 

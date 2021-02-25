@@ -64,6 +64,9 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
         fields = (
             'name', 'slug', 'group', 'description', 'comments', 'tags',
         )
+        fieldsets = (
+            ('Tenant', ('name', 'slug', 'group', 'description')),
+        )
 
 
 class TenantCSVForm(CustomFieldModelCSVForm):

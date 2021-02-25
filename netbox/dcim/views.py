@@ -178,7 +178,6 @@ class SiteView(generic.ObjectView):
 class SiteEditView(generic.ObjectEditView):
     queryset = Site.objects.all()
     model_form = forms.SiteForm
-    template_name = 'dcim/site_edit.html'
 
 
 class SiteDeleteView(generic.ObjectDeleteView):
@@ -421,7 +420,6 @@ class RackReservationView(generic.ObjectView):
 class RackReservationEditView(generic.ObjectEditView):
     queryset = RackReservation.objects.all()
     model_form = forms.RackReservationForm
-    template_name = 'dcim/rackreservation_edit.html'
 
     def alter_obj(self, obj, request, args, kwargs):
         if not obj.pk:
@@ -577,7 +575,6 @@ class DeviceTypeView(generic.ObjectView):
 class DeviceTypeEditView(generic.ObjectEditView):
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeForm
-    template_name = 'dcim/devicetype_edit.html'
 
 
 class DeviceTypeDeleteView(generic.ObjectDeleteView):
@@ -2591,7 +2588,6 @@ class PowerPanelView(generic.ObjectView):
 class PowerPanelEditView(generic.ObjectEditView):
     queryset = PowerPanel.objects.all()
     model_form = forms.PowerPanelForm
-    template_name = 'dcim/powerpanel_edit.html'
 
 
 class PowerPanelDeleteView(generic.ObjectDeleteView):
@@ -2639,7 +2635,6 @@ class PowerFeedView(generic.ObjectView):
 class PowerFeedEditView(generic.ObjectEditView):
     queryset = PowerFeed.objects.all()
     model_form = forms.PowerFeedForm
-    template_name = 'dcim/powerfeed_edit.html'
 
 
 class PowerFeedDeleteView(generic.ObjectDeleteView):

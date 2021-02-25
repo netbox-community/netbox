@@ -231,6 +231,14 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
             'contact_email', 'comments', 'tags',
         ]
+        fieldsets = (
+            ('Site', ('name', 'slug', 'status', 'region', 'facility', 'asn', 'time_zone', 'description')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+            ('Contact Info', (
+                'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+                'contact_email',
+            )),
+        )
         widgets = {
             'physical_address': SmallTextarea(
                 attrs={
@@ -780,8 +788,12 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = RackReservation
         fields = [
-            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'tags',
+            'region', 'site', 'rack_group', 'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'tags',
         ]
+        fieldsets = (
+            ('Reservation', ('region', 'site', 'rack_group', 'rack', 'units', 'user', 'description')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
 
 
 class RackReservationCSVForm(CustomFieldModelCSVForm):
@@ -941,6 +953,12 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
             'front_image', 'rear_image', 'comments', 'tags',
         ]
+        fieldsets = (
+            ('Device Type', (
+                'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            )),
+            ('Images', ('front_image', 'rear_image')),
+        )
         widgets = {
             'subdevice_role': StaticSelect2(),
             # Exclude SVG images (unsupported by PIL)
@@ -4382,6 +4400,9 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
         fields = [
             'region', 'site', 'rack_group', 'name', 'tags',
         ]
+        fieldsets = (
+            ('Power Panel', ('region', 'site', 'rack_group', 'name')),
+        )
 
 
 class PowerPanelCSVForm(CustomFieldModelCSVForm):
@@ -4520,6 +4541,11 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
             'region', 'site', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
             'max_utilization', 'comments', 'tags',
         ]
+        fieldsets = (
+            ('Power Panel', ('region', 'site', 'power_panel')),
+            ('Power Feed', ('rack', 'name', 'status', 'type')),
+            ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
+        )
         widgets = {
             'status': StaticSelect2(),
             'type': StaticSelect2(),

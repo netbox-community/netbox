@@ -50,7 +50,6 @@ class VRFView(generic.ObjectView):
 class VRFEditView(generic.ObjectEditView):
     queryset = VRF.objects.all()
     model_form = forms.VRFForm
-    template_name = 'ipam/vrf_edit.html'
 
 
 class VRFDeleteView(generic.ObjectDeleteView):
@@ -245,7 +244,6 @@ class AggregateView(generic.ObjectView):
 class AggregateEditView(generic.ObjectEditView):
     queryset = Aggregate.objects.all()
     model_form = forms.AggregateForm
-    template_name = 'ipam/aggregate_edit.html'
 
 
 class AggregateDeleteView(generic.ObjectDeleteView):
@@ -444,7 +442,6 @@ class PrefixIPAddressesView(generic.ObjectView):
 class PrefixEditView(generic.ObjectEditView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixForm
-    template_name = 'ipam/prefix_edit.html'
 
 
 class PrefixDeleteView(generic.ObjectDeleteView):
@@ -769,7 +766,6 @@ class VLANVMInterfacesView(generic.ObjectView):
 class VLANEditView(generic.ObjectEditView):
     queryset = VLAN.objects.all()
     model_form = forms.VLANForm
-    template_name = 'ipam/vlan_edit.html'
 
 
 class VLANDeleteView(generic.ObjectDeleteView):

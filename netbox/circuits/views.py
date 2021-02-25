@@ -52,7 +52,6 @@ class ProviderView(generic.ObjectView):
 class ProviderEditView(generic.ObjectEditView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderForm
-    template_name = 'circuits/provider_edit.html'
 
 
 class ProviderDeleteView(generic.ObjectDeleteView):
@@ -160,7 +159,6 @@ class CircuitView(generic.ObjectView):
 class CircuitEditView(generic.ObjectEditView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitForm
-    template_name = 'circuits/circuit_edit.html'
 
 
 class CircuitDeleteView(generic.ObjectDeleteView):

@@ -50,6 +50,11 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'name', 'rd', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tenant_group', 'tenant',
             'tags',
         ]
+        fieldsets = (
+            ('VRF', ('name', 'rd', 'enforce_unique', 'description')),
+            ('Route Targets', ('import_targets', 'export_targets')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
         labels = {
             'rd': "RD",
         }
@@ -240,6 +245,10 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         fields = [
             'prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant', 'tags',
         ]
+        fieldsets = (
+            ('Aggregate', ('prefix', 'rir', 'date_added', 'description')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
             'rir': "Regional Internet Registry responsible for this prefix",
@@ -404,6 +413,11 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'description', 'tenant_group', 'tenant',
             'tags',
         ]
+        fieldsets = (
+            ('Prefix', ('prefix', 'status', 'vrf', 'role', 'description', 'is_pool')),
+            ('Site/VLAN Assignment', ('region', 'site', 'vlan_group', 'vlan')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
         widgets = {
             'status': StaticSelect2(),
         }
@@ -1163,6 +1177,11 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         fields = [
             'site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
         ]
+        fieldsets = (
+            ('VLAN', ('vid', 'name', 'status', 'role', 'description')),
+            ('Assignment', ('region', 'site', 'group')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
         help_texts = {
             'site': "Leave blank if this VLAN spans multiple sites",
             'group': "VLAN group (optional)",
