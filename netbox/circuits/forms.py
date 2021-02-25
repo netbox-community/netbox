@@ -34,7 +34,7 @@ class ProviderForm(BootstrapMixin, CustomFieldModelForm):
             'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags',
         ]
         fieldsets = (
-            ('Provider', ('name', 'slug', 'asn')),
+            ('Provider', ('name', 'slug', 'asn', 'tags')),
             ('Support Info', ('account', 'portal_url', 'noc_contact', 'admin_contact')),
         )
         widgets = {
@@ -176,7 +176,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'comments', 'tags',
         ]
         fieldsets = (
-            ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description')),
+            ('Circuit', ('provider', 'cid', 'type', 'status', 'install_date', 'commit_rate', 'description', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
         help_texts = {

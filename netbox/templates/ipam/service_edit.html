@@ -31,6 +31,7 @@
             </div>
             {% render_field form.ipaddresses %}
             {% render_field form.description %}
+            {% render_field form.tags %}
         </div>
     </div>
     {% if form.custom_fields %}
@@ -41,10 +42,4 @@
             </div>
         </div>
     {% endif %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
-        <div class="panel-body">
-            {% render_field form.tags %}
-        </div>
-    </div>
 {% endblock %}

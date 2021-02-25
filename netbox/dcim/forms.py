@@ -232,7 +232,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'contact_email', 'comments', 'tags',
         ]
         fieldsets = (
-            ('Site', ('name', 'slug', 'status', 'region', 'facility', 'asn', 'time_zone', 'description')),
+            ('Site', ('name', 'slug', 'status', 'region', 'facility', 'asn', 'time_zone', 'description', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
             ('Contact Info', (
                 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
@@ -791,7 +791,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region', 'site', 'rack_group', 'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'tags',
         ]
         fieldsets = (
-            ('Reservation', ('region', 'site', 'rack_group', 'rack', 'units', 'user', 'description')),
+            ('Reservation', ('region', 'site', 'rack_group', 'rack', 'units', 'user', 'description', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
 
@@ -955,7 +955,7 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         ]
         fieldsets = (
             ('Device Type', (
-                'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+                'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'tags',
             )),
             ('Images', ('front_image', 'rear_image')),
         )
@@ -4401,7 +4401,7 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
             'region', 'site', 'rack_group', 'name', 'tags',
         ]
         fieldsets = (
-            ('Power Panel', ('region', 'site', 'rack_group', 'name')),
+            ('Power Panel', ('region', 'site', 'rack_group', 'name', 'tags')),
         )
 
 
@@ -4543,7 +4543,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
         ]
         fieldsets = (
             ('Power Panel', ('region', 'site', 'power_panel')),
-            ('Power Feed', ('rack', 'name', 'status', 'type')),
+            ('Power Feed', ('rack', 'name', 'status', 'type', 'tags')),
             ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
         )
         widgets = {

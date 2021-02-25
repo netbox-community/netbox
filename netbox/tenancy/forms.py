@@ -65,7 +65,7 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
             'name', 'slug', 'group', 'description', 'comments', 'tags',
         )
         fieldsets = (
-            ('Tenant', ('name', 'slug', 'group', 'description')),
+            ('Tenant', ('name', 'slug', 'group', 'description', 'tags')),
         )
 
 

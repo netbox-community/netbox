@@ -51,7 +51,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'tags',
         ]
         fieldsets = (
-            ('VRF', ('name', 'rd', 'enforce_unique', 'description')),
+            ('VRF', ('name', 'rd', 'enforce_unique', 'description', 'tags')),
             ('Route Targets', ('import_targets', 'export_targets')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
@@ -246,7 +246,7 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant', 'tags',
         ]
         fieldsets = (
-            ('Aggregate', ('prefix', 'rir', 'date_added', 'description')),
+            ('Aggregate', ('prefix', 'rir', 'date_added', 'description', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
         help_texts = {
@@ -414,7 +414,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'tags',
         ]
         fieldsets = (
-            ('Prefix', ('prefix', 'status', 'vrf', 'role', 'description', 'is_pool')),
+            ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'description', 'tags')),
             ('Site/VLAN Assignment', ('region', 'site', 'vlan_group', 'vlan')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
@@ -1178,7 +1178,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
         ]
         fieldsets = (
-            ('VLAN', ('vid', 'name', 'status', 'role', 'description')),
+            ('VLAN', ('vid', 'name', 'status', 'role', 'description', 'tags')),
             ('Assignment', ('region', 'site', 'group')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )

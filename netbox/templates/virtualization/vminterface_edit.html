@@ -20,6 +20,7 @@
             {% render_field form.mac_address %}
             {% render_field form.mtu %}
             {% render_field form.description %}
+            {% render_field form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -28,12 +29,6 @@
             {% render_field form.mode %}
             {% render_field form.untagged_vlan %}
             {% render_field form.tagged_vlans %}
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
-        <div class="panel-body">
-            {% render_field form.tags %}
         </div>
     </div>
 {% endblock %}

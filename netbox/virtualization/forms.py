@@ -105,7 +105,7 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'name', 'type', 'group', 'tenant', 'region', 'site', 'comments', 'tags',
         )
         fieldsets = (
-            ('Cluster', ('name', 'type', 'group', 'region', 'site')),
+            ('Cluster', ('name', 'type', 'group', 'region', 'site', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
 
@@ -326,7 +326,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
         fieldsets = (
-            ('Virtual Machine', ('name', 'role', 'status')),
+            ('Virtual Machine', ('name', 'role', 'status', 'tags')),
             ('Cluster', ('cluster_group', 'cluster')),
             ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
             ('Resources', ('vcpus', 'memory', 'disk')),

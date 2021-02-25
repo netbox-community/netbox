@@ -17,6 +17,7 @@
             {% render_field model_form.role %}
             {% render_field model_form.vrf %}
             {% render_field model_form.description %}
+            {% render_field model_form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -24,12 +25,6 @@
         <div class="panel-body">
             {% render_field model_form.tenant_group %}
             {% render_field model_form.tenant %}
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
-        <div class="panel-body">
-            {% render_field model_form.tags %}
         </div>
     </div>
     {% if model_form.custom_fields %}

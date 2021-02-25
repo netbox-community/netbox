@@ -7,6 +7,7 @@
         <div class="panel-body">
             {% render_field form.name %}
             {% render_field form.device_role %}
+            {% render_field form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -90,12 +91,6 @@
         <div class="panel-heading"><strong>Local Config Context Data</strong></div>
         <div class="panel-body">
             {% render_field form.local_context_data %}
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
-        <div class="panel-body">
-            {% render_field form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
