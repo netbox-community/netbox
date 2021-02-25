@@ -11,7 +11,8 @@ from extras.api.serializers import TaggedObjectSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
-from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
+from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.serializers import OrganizationalModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
@@ -67,7 +68,7 @@ class RouteTargetSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # RIRs/aggregates
 #
 
-class RIRSerializer(CustomFieldModelSerializer):
+class RIRSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
     aggregate_count = serializers.IntegerField(read_only=True)
 
@@ -98,7 +99,7 @@ class AggregateSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # VLANs
 #
 
-class RoleSerializer(CustomFieldModelSerializer):
+class RoleSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
     prefix_count = serializers.IntegerField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
@@ -111,7 +112,7 @@ class RoleSerializer(CustomFieldModelSerializer):
         ]
 
 
-class VLANGroupSerializer(CustomFieldModelSerializer):
+class VLANGroupSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     site = NestedSiteSerializer(required=False, allow_null=True)
     vlan_count = serializers.IntegerField(read_only=True)

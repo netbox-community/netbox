@@ -13,15 +13,12 @@ from dcim.models import (
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-from dcim.utils import decompile_path_node
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
-from netbox.api import (
-    ChoiceField, ContentTypeField, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer,
-    WritableNestedSerializer,
-)
+from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, TimeZoneField
+from netbox.api.serializers import OrganizationalModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
@@ -138,7 +135,7 @@ class RackGroupSerializer(CustomFieldModelSerializer):
         ]
 
 
-class RackRoleSerializer(CustomFieldModelSerializer):
+class RackRoleSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
     rack_count = serializers.IntegerField(read_only=True)
 
@@ -251,7 +248,7 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
 # Device types
 #
 
-class ManufacturerSerializer(CustomFieldModelSerializer):
+class ManufacturerSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:manufacturer-detail')
     devicetype_count = serializers.IntegerField(read_only=True)
     inventoryitem_count = serializers.IntegerField(read_only=True)
@@ -388,7 +385,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 # Devices
 #
 
-class DeviceRoleSerializer(CustomFieldModelSerializer):
+class DeviceRoleSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
@@ -401,7 +398,7 @@ class DeviceRoleSerializer(CustomFieldModelSerializer):
         ]
 
 
-class PlatformSerializer(CustomFieldModelSerializer):
+class PlatformSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True)
     device_count = serializers.IntegerField(read_only=True)

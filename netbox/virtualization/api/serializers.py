@@ -7,7 +7,8 @@ from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
-from netbox.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
+from netbox.api import ChoiceField, SerializedPKRelatedField
+from netbox.api.serializers import OrganizationalModelSerializer, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -18,7 +19,7 @@ from .nested_serializers import *
 # Clusters
 #
 
-class ClusterTypeSerializer(CustomFieldModelSerializer):
+class ClusterTypeSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 
@@ -29,7 +30,7 @@ class ClusterTypeSerializer(CustomFieldModelSerializer):
         ]
 
 
-class ClusterGroupSerializer(CustomFieldModelSerializer):
+class ClusterGroupSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 

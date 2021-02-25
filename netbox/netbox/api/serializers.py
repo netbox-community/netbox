@@ -35,6 +35,10 @@ class ValidatedModelSerializer(serializers.ModelSerializer):
         return data
 
 
+class OrganizationalModelSerializer(ValidatedModelSerializer):
+    pass
+
+
 class WritableNestedSerializer(serializers.ModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
