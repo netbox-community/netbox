@@ -130,7 +130,7 @@ class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
         abstract = True
 
 
-class NestedGroupModel(ChangeLoggingMixin, BigIDModel, MPTTModel):
+class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -173,7 +173,7 @@ class NestedGroupModel(ChangeLoggingMixin, BigIDModel, MPTTModel):
         )
 
 
-class OrganizationalModel(ChangeLoggingMixin, BigIDModel):
+class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational
