@@ -27,7 +27,7 @@ from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterf
 # Cluster types
 #
 
-class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
+class ClusterTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -37,7 +37,7 @@ class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterTypeCSVForm(CSVModelForm):
+class ClusterTypeCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -49,7 +49,7 @@ class ClusterTypeCSVForm(CSVModelForm):
 # Cluster groups
 #
 
-class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
+class ClusterGroupForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -59,7 +59,7 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterGroupCSVForm(CSVModelForm):
+class ClusterGroupCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:

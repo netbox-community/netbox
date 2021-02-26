@@ -15,7 +15,7 @@ from .models import Tenant, TenantGroup
 # Tenant groups
 #
 
-class TenantGroupForm(BootstrapMixin, forms.ModelForm):
+class TenantGroupForm(BootstrapMixin, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
@@ -29,7 +29,7 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class TenantGroupCSVForm(CSVModelForm):
+class TenantGroupCSVForm(CustomFieldModelCSVForm):
     parent = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,

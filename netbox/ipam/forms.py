@@ -8,8 +8,8 @@ from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
-    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, NumericArrayField,
+    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField, CSVModelChoiceField, DatePicker,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, NumericArrayField,
     ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, VirtualMachine, VMInterface
@@ -195,7 +195,7 @@ class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilter
 # RIRs
 #
 
-class RIRForm(BootstrapMixin, forms.ModelForm):
+class RIRForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -205,7 +205,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RIRCSVForm(CSVModelForm):
+class RIRCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -332,7 +332,7 @@ class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
 # Roles
 #
 
-class RoleForm(BootstrapMixin, forms.ModelForm):
+class RoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -342,7 +342,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RoleCSVForm(CSVModelForm):
+class RoleCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -1081,7 +1081,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
 # VLAN groups
 #
 
-class VLANGroupForm(BootstrapMixin, forms.ModelForm):
+class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1105,7 +1105,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class VLANGroupCSVForm(CSVModelForm):
+class VLANGroupCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

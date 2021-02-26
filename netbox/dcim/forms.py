@@ -173,7 +173,7 @@ class MACAddressField(forms.Field):
 # Regions
 #
 
-class RegionForm(BootstrapMixin, forms.ModelForm):
+class RegionForm(BootstrapMixin, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -187,7 +187,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
         )
 
 
-class RegionCSVForm(CSVModelForm):
+class RegionCSVForm(CustomFieldModelCSVForm):
     parent = CSVModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -360,7 +360,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 # Rack groups
 #
 
-class RackGroupForm(BootstrapMixin, forms.ModelForm):
+class RackGroupForm(BootstrapMixin, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -390,7 +390,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         )
 
 
-class RackGroupCSVForm(CSVModelForm):
+class RackGroupCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -440,7 +440,7 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
 # Rack roles
 #
 
-class RackRoleForm(BootstrapMixin, forms.ModelForm):
+class RackRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -450,7 +450,7 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RackRoleCSVForm(CSVModelForm):
+class RackRoleCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -913,7 +913,7 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
 # Manufacturers
 #
 
-class ManufacturerForm(BootstrapMixin, forms.ModelForm):
+class ManufacturerForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -923,7 +923,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ManufacturerCSVForm(CSVModelForm):
+class ManufacturerCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Manufacturer
@@ -1705,7 +1705,7 @@ class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
 # Device roles
 #
 
-class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
+class DeviceRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -1715,7 +1715,7 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class DeviceRoleCSVForm(CSVModelForm):
+class DeviceRoleCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -1730,7 +1730,7 @@ class DeviceRoleCSVForm(CSVModelForm):
 # Platforms
 #
 
-class PlatformForm(BootstrapMixin, forms.ModelForm):
+class PlatformForm(BootstrapMixin, CustomFieldModelForm):
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -1749,7 +1749,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PlatformCSVForm(CSVModelForm):
+class PlatformCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
     manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
