@@ -9,7 +9,7 @@ from dcim.models import BaseInterface, Device
 from extras.models import ConfigContextModel, ObjectChange, TaggedItem
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import BigIDModel, OrganizationalModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -374,7 +374,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 #
 
 @extras_features('export_templates', 'webhooks')
-class VMInterface(PrimaryModel, BaseInterface):
+class VMInterface(BigIDModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,

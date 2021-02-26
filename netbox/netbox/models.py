@@ -16,23 +16,13 @@ __all__ = (
 )
 
 
-class BigIDModel(models.Model):
-    """
-    Abstract base model for all Schematic data objects. Ensures the use of a 64-bit PK.
-    """
-    id = models.BigAutoField(
-        primary_key=True
-    )
+#
+# Mixins
+#
 
-    class Meta:
-        abstract = True
-
-
-class CoreModel(BigIDModel):
+class ChangeLoggingMixin(models.Model):
     """
-    Base class for all core objects. Provides the following:
-    - Change logging
-    - Custom field support
+    Provides change logging support.
     """
     created = models.DateField(
         auto_now_add=True,
@@ -62,9 +52,9 @@ class CoreModel(BigIDModel):
         )
 
 
-class PrimaryModel(CoreModel):
+class CustomFieldsMixin(models.Model):
     """
-    Primary models represent real objects within the infrastructure being modeled.
+    Provides support for custom fields.
     """
     custom_field_data = models.JSONField(
         encoder=DjangoJSONEncoder,
@@ -114,7 +104,33 @@ class PrimaryModel(CoreModel):
                 raise ValidationError(f"Missing required custom field '{cf.name}'.")
 
 
-class NestedGroupModel(PrimaryModel, MPTTModel):
+#
+# Base model classes
+
+class BigIDModel(models.Model):
+    """
+    Abstract base model for all data objects. Ensures the use of a 64-bit PK.
+    """
+    id = models.BigAutoField(
+        primary_key=True
+    )
+
+    class Meta:
+        abstract = True
+
+
+class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
+    """
+    Primary models represent real objects within the infrastructure being modeled.
+    """
+    # TODO
+    # tags = TaggableManager(through=TaggedItem)
+
+    class Meta:
+        abstract = True
+
+
+class NestedGroupModel(ChangeLoggingMixin, BigIDModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -157,7 +173,7 @@ class NestedGroupModel(PrimaryModel, MPTTModel):
         )
 
 
-class OrganizationalModel(PrimaryModel):
+class OrganizationalModel(ChangeLoggingMixin, BigIDModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational

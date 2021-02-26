@@ -51,7 +51,7 @@ class AdminUser(User):
 # User preferences
 #
 
-class UserConfig(BigIDModel):
+class UserConfig(models.Model):
     """
     This model stores arbitrary user-specific preferences in a JSON data structure.
     """
