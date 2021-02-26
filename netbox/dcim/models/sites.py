@@ -192,7 +192,7 @@ class Site(PrimaryModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('dcim:site', args=[self.slug])
+        return reverse('dcim:site', args=[self.pk])
 
     def to_csv(self):
         return (

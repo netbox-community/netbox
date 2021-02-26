@@ -19,9 +19,8 @@ __all__ = (
 class PowerPanelTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')]
+    site = tables.Column(
+        linkify=True
     )
     powerfeed_count = LinkedCountColumn(
         viewname='dcim:powerfeed_list',

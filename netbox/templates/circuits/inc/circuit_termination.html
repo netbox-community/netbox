@@ -32,7 +32,7 @@
                     {% if termination.site.region %}
                         <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a> /
                     {% endif %}
-                    <a href="{% url 'dcim:site' slug=termination.site.slug %}">{{ termination.site }}</a>
+                    <a href="{{ termination.site.get_absolute_url }}">{{ termination.site }}</a>
                 </td>
             </tr>
             <tr>

@@ -111,9 +111,9 @@ VLAN_MEMBER_TAGGED = """
 
 TENANT_LINK = """
 {% if record.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
+    <a href="{{ record.tenant.get_absolute_url }}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
 {% elif record.vrf.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
+    <a href="{{ record.vrf.tenant.get_absolute_url }}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
 {% else %}
     &mdash;
 {% endif %}
@@ -191,7 +191,7 @@ class RIRTable(BaseTable):
         url_params={'rir': 'slug'},
         verbose_name='Aggregates'
     )
-    actions = ButtonsColumn(RIR, pk_field='slug')
+    actions = ButtonsColumn(RIR)
 
     class Meta(BaseTable.Meta):
         model = RIR
@@ -254,7 +254,7 @@ class RoleTable(BaseTable):
         url_params={'role': 'slug'},
         verbose_name='VLANs'
     )
-    actions = ButtonsColumn(Role, pk_field='slug')
+    actions = ButtonsColumn(Role)
 
     class Meta(BaseTable.Meta):
         model = Role
@@ -444,9 +444,8 @@ class InterfaceIPAddressTable(BaseTable):
 class VLANGroupTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(linkify=True)
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')]
+    site = tables.Column(
+        linkify=True
     )
     vlan_count = LinkedCountColumn(
         viewname='ipam:vlan_list',
@@ -474,9 +473,8 @@ class VLANTable(BaseTable):
         template_code=VLAN_LINK,
         verbose_name='ID'
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')]
+    site = tables.Column(
+        linkify=True
     )
     group = tables.LinkColumn(
         viewname='ipam:vlangroup_vlans',

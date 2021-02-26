@@ -16,7 +16,7 @@ class SecretRoleTable(BaseTable):
         url_params={'role': 'slug'},
         verbose_name='Secrets'
     )
-    actions = ButtonsColumn(SecretRole, pk_field='slug')
+    actions = ButtonsColumn(SecretRole)
 
     class Meta(BaseTable.Meta):
         model = SecretRole

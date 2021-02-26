@@ -68,7 +68,7 @@
                             {% if rack.site.region %}
                                 <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
                             {% endif %}
-                            <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
+                            <a href="{{ rack.site.get_absolute_url }}">{{ rack.site }}</a>
                         </td>
                     </tr>
                     <tr>

@@ -79,7 +79,7 @@ class Provider(PrimaryModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('circuits:provider', args=[self.slug])
+        return reverse('circuits:provider', args=[self.pk])
 
     def to_csv(self):
         return (

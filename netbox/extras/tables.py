@@ -37,7 +37,7 @@ OBJECTCHANGE_REQUEST_ID = """
 class TagTable(BaseTable):
     pk = ToggleColumn()
     color = ColorColumn()
-    actions = ButtonsColumn(Tag, pk_field='slug')
+    actions = ButtonsColumn(Tag)
 
     class Meta(BaseTable.Meta):
         model = Tag

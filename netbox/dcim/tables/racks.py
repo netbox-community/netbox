@@ -29,10 +29,8 @@ class RackGroupTable(BaseTable):
         orderable=False,
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')],
-        verbose_name='Site'
+    site = tables.Column(
+        linkify=True
     )
     rack_count = tables.Column(
         verbose_name='Racks'

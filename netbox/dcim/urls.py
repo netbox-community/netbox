@@ -27,10 +27,10 @@ urlpatterns = [
     path('sites/import/', views.SiteBulkImportView.as_view(), name='site_import'),
     path('sites/edit/', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
     path('sites/delete/', views.SiteBulkDeleteView.as_view(), name='site_bulk_delete'),
-    path('sites/<slug:slug>/', views.SiteView.as_view(), name='site'),
-    path('sites/<slug:slug>/edit/', views.SiteEditView.as_view(), name='site_edit'),
-    path('sites/<slug:slug>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
-    path('sites/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
+    path('sites/<int:pk>/', views.SiteView.as_view(), name='site'),
+    path('sites/<int:pk>/edit/', views.SiteEditView.as_view(), name='site_edit'),
+    path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
+    path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
     path('sites/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
     # Rack groups
@@ -80,9 +80,9 @@ urlpatterns = [
     path('manufacturers/add/', views.ManufacturerEditView.as_view(), name='manufacturer_add'),
     path('manufacturers/import/', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
     path('manufacturers/delete/', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
-    path('manufacturers/<slug:slug>/edit/', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
-    path('manufacturers/<slug:slug>/delete/', views.ManufacturerDeleteView.as_view(), name='manufacturer_delete'),
-    path('manufacturers/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
+    path('manufacturers/<int:pk>/edit/', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
+    path('manufacturers/<int:pk>/delete/', views.ManufacturerDeleteView.as_view(), name='manufacturer_delete'),
+    path('manufacturers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
 
     # Device types
     path('device-types/', views.DeviceTypeListView.as_view(), name='devicetype_list'),
@@ -164,18 +164,18 @@ urlpatterns = [
     path('device-roles/add/', views.DeviceRoleEditView.as_view(), name='devicerole_add'),
     path('device-roles/import/', views.DeviceRoleBulkImportView.as_view(), name='devicerole_import'),
     path('device-roles/delete/', views.DeviceRoleBulkDeleteView.as_view(), name='devicerole_bulk_delete'),
-    path('device-roles/<slug:slug>/edit/', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
-    path('device-roles/<slug:slug>/delete/', views.DeviceRoleDeleteView.as_view(), name='devicerole_delete'),
-    path('device-roles/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
+    path('device-roles/<int:pk>/edit/', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
+    path('device-roles/<int:pk>/delete/', views.DeviceRoleDeleteView.as_view(), name='devicerole_delete'),
+    path('device-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
 
     # Platforms
     path('platforms/', views.PlatformListView.as_view(), name='platform_list'),
     path('platforms/add/', views.PlatformEditView.as_view(), name='platform_add'),
     path('platforms/import/', views.PlatformBulkImportView.as_view(), name='platform_import'),
     path('platforms/delete/', views.PlatformBulkDeleteView.as_view(), name='platform_bulk_delete'),
-    path('platforms/<slug:slug>/edit/', views.PlatformEditView.as_view(), name='platform_edit'),
-    path('platforms/<slug:slug>/delete/', views.PlatformDeleteView.as_view(), name='platform_delete'),
-    path('platforms/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
+    path('platforms/<int:pk>/edit/', views.PlatformEditView.as_view(), name='platform_edit'),
+    path('platforms/<int:pk>/delete/', views.PlatformDeleteView.as_view(), name='platform_delete'),
+    path('platforms/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
 
     # Devices
     path('devices/', views.DeviceListView.as_view(), name='device_list'),

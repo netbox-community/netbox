@@ -61,7 +61,7 @@ class DeviceRoleTable(BaseTable):
     )
     color = ColorColumn()
     vm_role = BooleanColumn()
-    actions = ButtonsColumn(DeviceRole, pk_field='slug')
+    actions = ButtonsColumn(DeviceRole)
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
@@ -85,7 +85,7 @@ class PlatformTable(BaseTable):
         url_params={'platform': 'slug'},
         verbose_name='VMs'
     )
-    actions = ButtonsColumn(Platform, pk_field='slug')
+    actions = ButtonsColumn(Platform)
 
     class Meta(BaseTable.Meta):
         model = Platform

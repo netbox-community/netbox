@@ -8,7 +8,7 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a></li>
             {% if object.site %}
-                <li><a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a></li>
+                <li><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></li>
             {% endif %}
             <li>{{ object }}</li>
         </ol>

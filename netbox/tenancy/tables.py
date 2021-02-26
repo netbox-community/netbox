@@ -12,7 +12,7 @@ MPTT_LINK = """
 
 COL_TENANT = """
 {% if record.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
+    <a href="{{ record.tenant.get_absolute_url }}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
 {% else %}
     &mdash;
 {% endif %}
@@ -35,7 +35,7 @@ class TenantGroupTable(BaseTable):
         url_params={'group': 'slug'},
         verbose_name='Tenants'
     )
-    actions = ButtonsColumn(TenantGroup, pk_field='slug')
+    actions = ButtonsColumn(TenantGroup)
 
     class Meta(BaseTable.Meta):
         model = TenantGroup

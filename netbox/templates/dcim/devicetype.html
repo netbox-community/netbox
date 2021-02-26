@@ -55,10 +55,10 @@
             {% clone_button object %}
         {% endif %}
         {% if perms.dcim.change_devicetype %}
-            {% edit_button object use_pk=True %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.dcim.delete_devicetype %}
-            {% delete_button object use_pk=True %}
+            {% delete_button object %}
         {% endif %}
     </div>
     <h1>{{ object.manufacturer }} {{ object.model }}</h1>

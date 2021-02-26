@@ -11,3 +11,4 @@
 ### Other Changes
 
 * [#1638](https://github.com/netbox-community/netbox/issues/1638) - Migrate all primary keys to 64-bit integers
+* [#5873](https://github.com/netbox-community/netbox/issues/5873) - Use numeric IDs in all object URLs

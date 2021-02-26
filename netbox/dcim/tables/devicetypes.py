@@ -37,7 +37,7 @@ class ManufacturerTable(BaseTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
-    actions = ButtonsColumn(Manufacturer, pk_field='slug')
+    actions = ButtonsColumn(Manufacturer)
 
     class Meta(BaseTable.Meta):
         model = Manufacturer

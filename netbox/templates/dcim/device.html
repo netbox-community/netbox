@@ -23,7 +23,7 @@
                                             {% if object.site.region %}
                                                 <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                                             {% endif %}
-                                            <a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a>
+                                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
                                         </td>
                                     </tr>
                                     <tr>
@@ -74,7 +74,7 @@
                                     <tr>
                                         <td>Device Type</td>
                                         <td>
-                                            <span><a href="{% url 'dcim:devicetype' pk=object.device_type.pk %}">{{ object.device_type.display_name }}</a> ({{ object.device_type.u_height }}U)</span>
+                                            <span><a href="{{ object.device_type.get_absolute_url }}">{{ object.device_type.display_name }}</a> ({{ object.device_type.u_height }}U)</span>
                                         </td>
                                     </tr>
                                     <tr>

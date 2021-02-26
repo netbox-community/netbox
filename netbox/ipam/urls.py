@@ -34,9 +34,9 @@ urlpatterns = [
     path('rirs/add/', views.RIREditView.as_view(), name='rir_add'),
     path('rirs/import/', views.RIRBulkImportView.as_view(), name='rir_import'),
     path('rirs/delete/', views.RIRBulkDeleteView.as_view(), name='rir_bulk_delete'),
-    path('rirs/<slug:slug>/edit/', views.RIREditView.as_view(), name='rir_edit'),
-    path('rirs/<slug:slug>/delete/', views.RIRDeleteView.as_view(), name='rir_delete'),
-    path('vrfs/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='rir_changelog', kwargs={'model': RIR}),
+    path('rirs/<int:pk>/edit/', views.RIREditView.as_view(), name='rir_edit'),
+    path('rirs/<int:pk>/delete/', views.RIRDeleteView.as_view(), name='rir_delete'),
+    path('rirs/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rir_changelog', kwargs={'model': RIR}),
 
     # Aggregates
     path('aggregates/', views.AggregateListView.as_view(), name='aggregate_list'),
@@ -54,9 +54,9 @@ urlpatterns = [
     path('roles/add/', views.RoleEditView.as_view(), name='role_add'),
     path('roles/import/', views.RoleBulkImportView.as_view(), name='role_import'),
     path('roles/delete/', views.RoleBulkDeleteView.as_view(), name='role_bulk_delete'),
-    path('roles/<slug:slug>/edit/', views.RoleEditView.as_view(), name='role_edit'),
-    path('roles/<slug:slug>/delete/', views.RoleDeleteView.as_view(), name='role_delete'),
-    path('roles/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='role_changelog', kwargs={'model': Role}),
+    path('roles/<int:pk>/edit/', views.RoleEditView.as_view(), name='role_edit'),
+    path('roles/<int:pk>/delete/', views.RoleDeleteView.as_view(), name='role_delete'),
+    path('roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='role_changelog', kwargs={'model': Role}),
 
     # Prefixes
     path('prefixes/', views.PrefixListView.as_view(), name='prefix_list'),

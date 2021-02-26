@@ -129,7 +129,7 @@
                                 {% if object.site.region %}
                                     <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                                 {% endif %}
-                                <a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a>
+                                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}

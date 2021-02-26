@@ -5,7 +5,7 @@ from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
-from django.urls import reverse, NoReverseMatch
+from django.urls import reverse
 from django.utils.text import slugify
 from netaddr import IPNetwork
 from taggit.managers import TaggableManager
@@ -205,14 +205,6 @@ class ModelViewTestCase(ModelTestCase):
         if instance is None:
             return reverse(url_format.format(action))
 
-        # Attempt to resolve using slug as the unique identifier if one exists
-        if hasattr(self.model, 'slug'):
-            try:
-                return reverse(url_format.format(action), kwargs={'slug': instance.slug})
-            except NoReverseMatch:
-                pass
-
-        # Default to using the numeric PK to retrieve the URL for an object
         return reverse(url_format.format(action), kwargs={'pk': instance.pk})
 
 

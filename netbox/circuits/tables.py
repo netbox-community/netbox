@@ -39,7 +39,7 @@ class CircuitTypeTable(BaseTable):
     circuit_count = tables.Column(
         verbose_name='Circuits'
     )
-    actions = ButtonsColumn(CircuitType, pk_field='slug')
+    actions = ButtonsColumn(CircuitType)
 
     class Meta(BaseTable.Meta):
         model = CircuitType
@@ -56,9 +56,8 @@ class CircuitTable(BaseTable):
     cid = tables.LinkColumn(
         verbose_name='ID'
     )
-    provider = tables.LinkColumn(
-        viewname='circuits:provider',
-        args=[Accessor('provider__slug')]
+    provider = tables.Column(
+        linkify=True
     )
     status = ChoiceFieldColumn()
     tenant = tables.TemplateColumn(

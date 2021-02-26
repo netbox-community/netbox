@@ -105,7 +105,7 @@ class Tenant(PrimaryModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('tenancy:tenant', args=[self.slug])
+        return reverse('tenancy:tenant', args=[self.pk])
 
     def to_csv(self):
         return (

@@ -13,18 +13,18 @@ urlpatterns = [
     path('cluster-types/add/', views.ClusterTypeEditView.as_view(), name='clustertype_add'),
     path('cluster-types/import/', views.ClusterTypeBulkImportView.as_view(), name='clustertype_import'),
     path('cluster-types/delete/', views.ClusterTypeBulkDeleteView.as_view(), name='clustertype_bulk_delete'),
-    path('cluster-types/<slug:slug>/edit/', views.ClusterTypeEditView.as_view(), name='clustertype_edit'),
-    path('cluster-types/<slug:slug>/delete/', views.ClusterTypeDeleteView.as_view(), name='clustertype_delete'),
-    path('cluster-types/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='clustertype_changelog', kwargs={'model': ClusterType}),
+    path('cluster-types/<int:pk>/edit/', views.ClusterTypeEditView.as_view(), name='clustertype_edit'),
+    path('cluster-types/<int:pk>/delete/', views.ClusterTypeDeleteView.as_view(), name='clustertype_delete'),
+    path('cluster-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='clustertype_changelog', kwargs={'model': ClusterType}),
 
     # Cluster groups
     path('cluster-groups/', views.ClusterGroupListView.as_view(), name='clustergroup_list'),
     path('cluster-groups/add/', views.ClusterGroupEditView.as_view(), name='clustergroup_add'),
     path('cluster-groups/import/', views.ClusterGroupBulkImportView.as_view(), name='clustergroup_import'),
     path('cluster-groups/delete/', views.ClusterGroupBulkDeleteView.as_view(), name='clustergroup_bulk_delete'),
-    path('cluster-groups/<slug:slug>/edit/', views.ClusterGroupEditView.as_view(), name='clustergroup_edit'),
-    path('cluster-groups/<slug:slug>/delete/', views.ClusterGroupDeleteView.as_view(), name='clustergroup_delete'),
-    path('cluster-groups/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='clustergroup_changelog', kwargs={'model': ClusterGroup}),
+    path('cluster-groups/<int:pk>/edit/', views.ClusterGroupEditView.as_view(), name='clustergroup_edit'),
+    path('cluster-groups/<int:pk>/delete/', views.ClusterGroupDeleteView.as_view(), name='clustergroup_delete'),
+    path('cluster-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='clustergroup_changelog', kwargs={'model': ClusterGroup}),
 
     # Clusters
     path('clusters/', views.ClusterListView.as_view(), name='cluster_list'),

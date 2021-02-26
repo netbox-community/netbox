@@ -36,7 +36,7 @@ class ClusterTypeTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    actions = ButtonsColumn(ClusterType, pk_field='slug')
+    actions = ButtonsColumn(ClusterType)
 
     class Meta(BaseTable.Meta):
         model = ClusterType
@@ -54,7 +54,7 @@ class ClusterGroupTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    actions = ButtonsColumn(ClusterGroup, pk_field='slug')
+    actions = ButtonsColumn(ClusterGroup)
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup

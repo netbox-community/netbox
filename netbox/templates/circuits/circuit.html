@@ -74,7 +74,7 @@
                 <tr>
                     <td>Provider</td>
                     <td>
-                        <a href="{% url 'circuits:provider' slug=object.provider.slug %}">{{ object.provider }}</a>
+                        <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
                     </td>
                 </tr>
                 <tr>
