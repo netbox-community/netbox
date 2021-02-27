@@ -114,8 +114,8 @@ TENANT_LINK = """
     <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
 {% elif record.vrf.tenant %}
     <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
-{% elif object.tenant %}    
-    <a href="{% url 'tenancy:tenant' slug=object.tenant.slug %}" title="{{ object.tenant.description }}">{{ object.tenant }}</a>    
+{% elif object.tenant %}
+    <a href="{% url 'tenancy:tenant' slug=object.tenant.slug %}" title="{{ object.tenant.description }}">{{ object.tenant }}</a>
 {% else %}
     &mdash;
 {% endif %}
