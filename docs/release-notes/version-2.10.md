@@ -2,13 +2,16 @@
 
 ## v2.10.6 (FUTURE)
 
-### Bug Fixes
-
-* [#5703](https://github.com/netbox-community/netbox/issues/5703) - Fix VRF and Tenant field population when adding IP addresses from prefix
-
 ### Enhancements
 
 * [#5630](https://github.com/netbox-community/netbox/issues/5630) - Add QSFP+ (64GFC) FibreChannel Interface option
+* [#5884](https://github.com/netbox-community/netbox/issues/5884) - Enable custom links for device components
+
+### Bug Fixes
+
+* [#5703](https://github.com/netbox-community/netbox/issues/5703) - Fix VRF and Tenant field population when adding IP addresses from prefix
+* [#5819](https://github.com/netbox-community/netbox/issues/5819) - Enable ordering of virtual machines by primary IP address
+* [#5872](https://github.com/netbox-community/netbox/issues/5872) - Ordering of devices by primary IP should respect PREFER_IPV4 configuration parameter
 
 ## v2.10.5 (2021-02-24)
 
