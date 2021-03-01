@@ -7,8 +7,8 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    ContentTypeSelect, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField,
-    StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
+    CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -19,8 +19,33 @@ from .models import ConfigContext, CustomField, ImageAttachment, ObjectChange, T
 # Custom fields
 #
 
-class CustomFieldModelForm(forms.ModelForm):
+class CustomFieldForm(forms.Form):
+    """
+    Extend Form to include custom field support.
+    """
+    model = None
 
+    def __init__(self, *args, **kwargs):
+        if self.model is None:
+            raise NotImplementedError("CustomFieldForm must specify a model class.")
+        self.custom_fields = []
+
+        super().__init__(*args, **kwargs)
+
+        # Append relevant custom fields to the form instance
+        obj_type = ContentType.objects.get_for_model(self.model)
+        for cf in CustomField.objects.filter(content_types=obj_type):
+            field_name = 'cf_{}'.format(cf.name)
+            self.fields[field_name] = cf.to_form_field()
+
+            # Annotate the field in the list of CustomField form fields
+            self.custom_fields.append(field_name)
+
+
+class CustomFieldModelForm(forms.ModelForm):
+    """
+    Extend ModelForm to include custom field support.
+    """
     def __init__(self, *args, **kwargs):
 
         self.obj_type = ContentType.objects.get_for_model(self._meta.model)

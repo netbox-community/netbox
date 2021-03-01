@@ -12,8 +12,8 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, CircuitTermination, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
-    LocalConfigContextFilterForm,
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldModelCSVForm, CustomFieldFilterForm,
+    CustomFieldModelForm, LocalConfigContextFilterForm,
 )
 from extras.models import Tag
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
@@ -22,10 +22,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelForm,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
-    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, NumericArrayField, SelectWithPK,
+    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -119,7 +118,7 @@ class InterfaceCommonForm(forms.Form):
                 })
 
 
-class ComponentForm(BootstrapMixin, forms.Form):
+class ComponentForm(forms.Form):
     """
     Subclass this form when facilitating the creation of one or more device component or component templates based on
     a name pattern.
@@ -1073,7 +1072,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Device component templates
 #
 
-class ComponentTemplateCreateForm(ComponentForm):
+class ComponentTemplateCreateForm(BootstrapMixin, ComponentForm):
     """
     Base form for the creation of device component templates (subclassed from ComponentTemplateModel).
     """
@@ -2270,11 +2269,10 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
 # Device components
 #
 
-class ComponentCreateForm(ComponentForm):
+class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
     """
     Base form for the creation of device components (models subclassed from ComponentModel).
     """
-    # TODO: Enable custom field support
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         display_field='display_name'
@@ -2289,7 +2287,7 @@ class ComponentCreateForm(ComponentForm):
     )
 
 
-class DeviceBulkAddComponentForm(ComponentForm):
+class DeviceBulkAddComponentForm(BootstrapMixin, ComponentForm):
     # TODO: Enable custom field support
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -2337,6 +2335,7 @@ class ConsolePortForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class ConsolePortCreateForm(ComponentCreateForm):
+    model = ConsolePort
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2415,6 +2414,7 @@ class ConsoleServerPortForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class ConsoleServerPortCreateForm(ComponentCreateForm):
+    model = ConsoleServerPort
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2493,6 +2493,7 @@ class PowerPortForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class PowerPortCreateForm(ComponentCreateForm):
+    model = PowerPort
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
@@ -2596,6 +2597,7 @@ class PowerOutletForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class PowerOutletCreateForm(ComponentCreateForm):
+    model = PowerOutlet
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
@@ -2808,6 +2810,7 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
 
 
 class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
+    model = Interface
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect2(),
@@ -3089,6 +3092,7 @@ class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
 
 # TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
 class FrontPortCreateForm(ComponentCreateForm):
+    model = FrontPort
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -3247,6 +3251,7 @@ class RearPortForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class RearPortCreateForm(ComponentCreateForm):
+    model = RearPort
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -3326,6 +3331,7 @@ class DeviceBayForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class DeviceBayCreateForm(ComponentCreateForm):
+    model = DeviceBay
     field_order = ('device', 'name_pattern', 'label_pattern', 'description', 'tags')
 
 
@@ -3449,6 +3455,7 @@ class InventoryItemForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class InventoryItemCreateForm(ComponentCreateForm):
+    model = InventoryItem
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
