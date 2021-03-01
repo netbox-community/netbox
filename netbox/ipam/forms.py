@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import (
@@ -103,20 +104,20 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
 
 class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VRF
-    field_order = ['q', 'import_target', 'export_target', 'tenant_group', 'tenant']
+    field_order = ['q', 'import_target_id', 'export_target_id', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    import_target = DynamicModelMultipleChoiceField(
+    import_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
-        to_field_name='name',
-        required=False
+        required=False,
+        label=_('Import targets')
     )
-    export_target = DynamicModelMultipleChoiceField(
+    export_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
-        to_field_name='name',
-        required=False
+        required=False,
+        label=_('Export targets')
     )
     tag = TagFilterField(model)
 
@@ -173,20 +174,20 @@ class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulk
 
 class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = RouteTarget
-    field_order = ['q', 'name', 'tenant_group', 'tenant', 'importing_vrfs', 'exporting_vrfs']
+    field_order = ['q', 'name', 'tenant_group_id', 'tenant_id', 'importing_vrfs', 'exporting_vrfs']
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     importing_vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='Imported by VRF'
+        label=_('Imported by VRF')
     )
     exporting_vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='Exported by VRF'
+        label=_('Exported by VRF')
     )
     tag = TagFilterField(model)
 
@@ -219,7 +220,7 @@ class RIRCSVForm(CustomFieldModelCSVForm):
 class RIRFilterForm(BootstrapMixin, forms.Form):
     is_private = forms.NullBooleanField(
         required=False,
-        label='Private',
+        label=_('Private'),
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -309,21 +310,21 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
 
 class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Aggregate
+    field_order = ['q', 'family', 'rir', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
-        label='Address family',
+        label=_('Address family'),
         widget=StaticSelect2()
     )
-    rir = DynamicModelMultipleChoiceField(
+    rir_id = DynamicModelMultipleChoiceField(
         queryset=RIR.objects.all(),
-        to_field_name='slug',
         required=False,
-        label='RIR'
+        label=_('RIR')
     )
     tag = TagFilterField(model)
 
@@ -494,14 +495,13 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
-        required=False,
-        to_field_name='slug'
+        required=False
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region': '$region'
+            'region_id': '$region'
         }
     )
     vrf = DynamicModelChoiceField(
@@ -547,15 +547,15 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Prefix
     field_order = [
-        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region', 'site',
-        'role', 'tenant_group', 'tenant', 'is_pool', 'expand',
+        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region_id', 'site_id',
+        'role_id', 'tenant_group_id', 'tenant_id', 'is_pool',
     ]
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()
     )
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     within_include = forms.CharField(
         required=False,
@@ -564,59 +564,59 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
                 'placeholder': 'Prefix',
             }
         ),
-        label='Search within'
+        label=_('Search within')
     )
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
-        label='Address family',
+        label=_('Address family'),
         widget=StaticSelect2()
     )
     mask_length = forms.ChoiceField(
         required=False,
         choices=PREFIX_MASK_LENGTH_CHOICES,
-        label='Mask length',
+        label=_('Mask length'),
         widget=StaticSelect2()
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='Assigned VRF',
+        label=_('Assigned VRF'),
         null_option='Global'
     )
     present_in_vrf_id = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='Present in VRF'
+        label=_('Present in VRF')
     )
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Region')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         required=False,
         null_option='None',
         query_params={
-            'region': '$region'
-        }
+            'region_id': '$region_id'
+        },
+        label=_('Site')
     )
-    role = DynamicModelMultipleChoiceField(
+    role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Role')
     )
     is_pool = forms.NullBooleanField(
         required=False,
-        label='Is a pool',
+        label=_('Is a pool'),
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -1019,11 +1019,11 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     model = IPAddress
     field_order = [
         'q', 'parent', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'role',
-        'assigned_to_interface', 'tenant_group', 'tenant',
+        'assigned_to_interface', 'tenant_group_id', 'tenant_id',
     ]
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     parent = forms.CharField(
         required=False,
@@ -1037,25 +1037,25 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
-        label='Address family',
+        label=_('Address family'),
         widget=StaticSelect2()
     )
     mask_length = forms.ChoiceField(
         required=False,
         choices=IPADDRESS_MASK_LENGTH_CHOICES,
-        label='Mask length',
+        label=_('Mask length'),
         widget=StaticSelect2()
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='Assigned VRF',
+        label=_('Assigned VRF'),
         null_option='Global'
     )
     present_in_vrf_id = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='Present in VRF'
+        label=_('Present in VRF')
     )
     status = forms.MultipleChoiceField(
         choices=IPAddressStatusChoices,
@@ -1069,7 +1069,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     )
     assigned_to_interface = forms.NullBooleanField(
         required=False,
-        label='Assigned to an interface',
+        label=_('Assigned to an interface'),
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -1120,19 +1120,19 @@ class VLANGroupCSVForm(CustomFieldModelCSVForm):
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Region')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         required=False,
         null_option='None',
         query_params={
-            'region': '$region'
-        }
+            'region_id': '$region_id'
+        },
+        label=_('Site')
     )
 
 
@@ -1250,14 +1250,13 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
-        required=False,
-        to_field_name='slug'
+        required=False
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region': '$region'
+            'region_id': '$region'
         }
     )
     group = DynamicModelChoiceField(
@@ -1293,44 +1292,44 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VLAN
-    field_order = ['q', 'region', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
+    field_order = ['q', 'region_id', 'site_id', 'group_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
         required=False,
         label='Search'
     )
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Region')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         required=False,
         null_option='None',
         query_params={
             'region': '$region'
-        }
+        },
+        label=_('Site')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        label='VLAN group',
         null_option='None',
         query_params={
             'region': '$region'
-        }
+        },
+        label=_('VLAN group')
     )
     status = forms.MultipleChoiceField(
         choices=VLANStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
-    role = DynamicModelMultipleChoiceField(
+    role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Role')
     )
     tag = TagFilterField(model)
 
@@ -1386,7 +1385,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Service
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),

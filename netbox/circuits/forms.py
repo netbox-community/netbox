@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.models import Region, Site
 from extras.forms import (
@@ -8,7 +9,7 @@ from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DatePicker,
+    add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField, DatePicker,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, SelectSpeedWidget, SmallTextarea, SlugField,
     StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
@@ -105,24 +106,24 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Provider
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Region')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         required=False,
         query_params={
-            'region': '$region'
-        }
+            'region_id': '$region_id'
+        },
+        label=_('Site')
     )
     asn = forms.IntegerField(
         required=False,
-        label='ASN'
+        label=_('ASN')
     )
     tag = TagFilterField(model)
 
@@ -265,44 +266,44 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
     field_order = [
-        'q', 'type', 'provider', 'status', 'region', 'site', 'tenant_group', 'tenant', 'commit_rate',
+        'q', 'type_id', 'provider_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id', 'commit_rate',
     ]
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    type = DynamicModelMultipleChoiceField(
+    type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Type')
     )
-    provider = DynamicModelMultipleChoiceField(
+    provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Provider')
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Region')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         required=False,
         query_params={
-            'region': '$region'
-        }
+            'region_id': '$region_id'
+        },
+        label=_('Site')
     )
     commit_rate = forms.IntegerField(
         required=False,
         min_value=0,
-        label='Commit rate (Kbps)'
+        label=_('Commit rate (Kbps)')
     )
     tag = TagFilterField(model)
 

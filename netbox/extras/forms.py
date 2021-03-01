@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
@@ -177,7 +178,7 @@ class TagFilterForm(BootstrapMixin, forms.Form):
     model = Tag
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
 
 
@@ -278,54 +279,59 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
+    field_order = [
+        'q', 'region_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id', 'cluster_id', 'tenant_group_id',
+        'tenant_id',
+    ]
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Regions')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Sites')
     )
-    role = DynamicModelMultipleChoiceField(
+    role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Roles')
     )
-    platform = DynamicModelMultipleChoiceField(
+    platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Platforms')
     )
-    cluster_group = DynamicModelMultipleChoiceField(
+    cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Cluster groups')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label='Cluster'
+        label=_('Clusters')
     )
-    tenant_group = DynamicModelMultipleChoiceField(
+    tenant_group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Tenant groups')
     )
-    tenant = DynamicModelMultipleChoiceField(
+    tenant_id = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Tenant')
     )
     tag = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Tags')
     )
 
 
@@ -336,7 +342,7 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
 class LocalConfigContextFilterForm(forms.Form):
     local_context_data = forms.NullBooleanField(
         required=False,
-        label='Has local config context data',
+        label=_('Has local config context data'),
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -364,16 +370,16 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     model = ObjectChange
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     time_after = forms.DateTimeField(
-        label='After',
         required=False,
+        label=_('After'),
         widget=DateTimePicker()
     )
     time_before = forms.DateTimeField(
-        label='Before',
         required=False,
+        label=_('Before'),
         widget=DateTimePicker()
     )
     action = forms.ChoiceField(
@@ -385,7 +391,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         queryset=User.objects.all(),
         required=False,
         display_field='username',
-        label='User',
+        label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
         )
@@ -394,7 +400,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         queryset=ContentType.objects.all(),
         required=False,
         display_field='display_name',
-        label='Object Type',
+        label=_('Object Type'),
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
         )

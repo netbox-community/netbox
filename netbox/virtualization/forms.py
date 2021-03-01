@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
@@ -160,13 +161,12 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        to_field_name='slug'
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region': '$region'
+            'region_id': '$region'
         }
     )
     comments = CommentField(
@@ -183,33 +183,36 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Cluster
     field_order = [
-        'q', 'type', 'region', 'site', 'group', 'tenant_group', 'tenant'
+        'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
     ]
-    q = forms.CharField(required=False, label='Search')
-    type = DynamicModelMultipleChoiceField(
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
+    type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Type')
     )
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Region')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         required=False,
         null_option='None',
         query_params={
-            'region': '$region'
-        }
+            'region_id': '$region_id'
+        },
+        label=_('Site')
     )
-    group = DynamicModelMultipleChoiceField(
+    group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Group')
     )
     tag = TagFilterField(model)
 
@@ -478,63 +481,63 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
 class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VirtualMachine
     field_order = [
-        'q', 'cluster_group', 'cluster_type', 'cluster_id', 'status', 'role', 'region', 'site', 'tenant_group',
-        'tenant', 'platform', 'mac_address',
+        'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_id',
+        'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
     ]
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    cluster_group = DynamicModelMultipleChoiceField(
+    cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Cluster group')
     )
-    cluster_type = DynamicModelMultipleChoiceField(
+    cluster_type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Cluster type')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label='Cluster'
+        label=_('Cluster')
     )
-    region = DynamicModelMultipleChoiceField(
+    region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Region')
     )
-    site = DynamicModelMultipleChoiceField(
+    site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         required=False,
         null_option='None',
         query_params={
-            'region': '$region'
-        }
+            'region_id': '$region_id'
+        },
+        label=_('Cluster')
     )
-    role = DynamicModelMultipleChoiceField(
-        queryset=DeviceRole.objects.filter(vm_role=True),
-        to_field_name='slug',
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceRole.objects.all(),
         required=False,
         null_option='None',
         query_params={
             'vm_role': "True"
-        }
+        },
+        label=_('Role')
     )
     status = forms.MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
-    platform = DynamicModelMultipleChoiceField(
+    platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Platform')
     )
     mac_address = forms.CharField(
         required=False,
@@ -781,15 +784,15 @@ class VMInterfaceFilterForm(forms.Form):
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label='Cluster'
+        label=_('Cluster')
     )
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        label='Virtual machine',
         query_params={
             'cluster_id': '$cluster_id'
-        }
+        },
+        label=_('Virtual machine')
     )
     enabled = forms.NullBooleanField(
         required=False,

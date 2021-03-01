@@ -1,7 +1,7 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
-from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
 from dcim.models import Device
 from extras.forms import (
@@ -9,7 +9,7 @@ from extras.forms import (
 )
 from extras.models import Tag
 from utilities.forms import (
-    BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    BootstrapMixin, CSVModelChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     SlugField, TagFilterField,
 )
 from virtualization.models import VirtualMachine
@@ -221,12 +221,12 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Secret
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    role = DynamicModelMultipleChoiceField(
+    role_id = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Role')
     )
     tag = TagFilterField(model)
 
