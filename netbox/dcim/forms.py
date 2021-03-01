@@ -2288,7 +2288,6 @@ class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
 
 
 class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldForm, ComponentForm):
-    # TODO: Enable custom field support
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -2356,7 +2355,7 @@ class ConsolePortBulkEditForm(
     form_from_model(ConsolePort, ['label', 'type', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsolePort.objects.all(),
@@ -2364,7 +2363,7 @@ class ConsolePortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'description')
+        nullable_fields = ['label', 'description']
 
 
 class ConsolePortCSVForm(CustomFieldModelCSVForm):
@@ -2436,7 +2435,7 @@ class ConsoleServerPortBulkEditForm(
     form_from_model(ConsoleServerPort, ['label', 'type', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
@@ -2444,7 +2443,7 @@ class ConsoleServerPortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'description')
+        nullable_fields = ['label', 'description']
 
 
 class ConsoleServerPortCSVForm(CustomFieldModelCSVForm):
@@ -2528,7 +2527,7 @@ class PowerPortBulkEditForm(
     form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPort.objects.all(),
@@ -2536,7 +2535,7 @@ class PowerPortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'description')
+        nullable_fields = ['label', 'description']
 
 
 class PowerPortCSVForm(CustomFieldModelCSVForm):
@@ -2638,7 +2637,7 @@ class PowerOutletBulkEditForm(
     form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerOutlet.objects.all(),
@@ -2652,7 +2651,7 @@ class PowerOutletBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'type', 'feed_leg', 'power_port', 'description')
+        nullable_fields = ['label', 'type', 'feed_leg', 'power_port', 'description']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2903,7 +2902,7 @@ class InterfaceBulkEditForm(
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
@@ -2944,9 +2943,9 @@ class InterfaceBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = (
+        nullable_fields = [
             'label', 'lag', 'mac_address', 'mtu', 'description', 'mode', 'untagged_vlan', 'tagged_vlans'
-        )
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3168,7 +3167,7 @@ class FrontPortBulkEditForm(
     form_from_model(FrontPort, ['label', 'type', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
@@ -3176,7 +3175,7 @@ class FrontPortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'description')
+        nullable_fields = ['label', 'description']
 
 
 class FrontPortCSVForm(CustomFieldModelCSVForm):
@@ -3282,7 +3281,7 @@ class RearPortBulkEditForm(
     form_from_model(RearPort, ['label', 'type', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
@@ -3290,7 +3289,7 @@ class RearPortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'description')
+        nullable_fields = ['label', 'description']
 
 
 class RearPortCSVForm(CustomFieldModelCSVForm):
@@ -3371,7 +3370,7 @@ class DeviceBayBulkEditForm(
     form_from_model(DeviceBay, ['label', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBay.objects.all(),
@@ -3379,7 +3378,7 @@ class DeviceBayBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'description')
+        nullable_fields = ['label', 'description']
 
 
 class DeviceBayCSVForm(CustomFieldModelCSVForm):
@@ -3524,7 +3523,7 @@ class InventoryItemBulkEditForm(
     form_from_model(InventoryItem, ['label', 'manufacturer', 'part_id', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    BulkEditForm
+    CustomFieldBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=InventoryItem.objects.all(),
@@ -3536,7 +3535,7 @@ class InventoryItemBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ('label', 'manufacturer', 'part_id', 'description')
+        nullable_fields = ['label', 'manufacturer', 'part_id', 'description']
 
 
 class InventoryItemFilterForm(DeviceComponentFilterForm):
