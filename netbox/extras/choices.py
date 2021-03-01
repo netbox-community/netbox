@@ -13,6 +13,7 @@ class CustomFieldTypeChoices(ChoiceSet):
     TYPE_DATE = 'date'
     TYPE_URL = 'url'
     TYPE_SELECT = 'select'
+    TYPE_MULTISELECT = 'multiselect'
 
     CHOICES = (
         (TYPE_TEXT, 'Text'),
@@ -21,6 +22,7 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_DATE, 'Date'),
         (TYPE_URL, 'URL'),
         (TYPE_SELECT, 'Selection'),
+        (TYPE_MULTISELECT, 'Multiple selection'),
     )
 
 

@@ -11,7 +11,9 @@ from django.utils.safestring import mark_safe
 from extras.choices import *
 from extras.utils import FeatureQuery
 from netbox.models import BigIDModel
-from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from utilities.forms import (
+    CSVChoiceField, DatePicker, LaxURLField, StaticSelect2Multiple, StaticSelect2, add_blank_choice,
+)
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
@@ -153,7 +155,10 @@ class CustomField(BigIDModel):
             })
 
         # Choices can be set only on selection fields
-        if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
+        if self.choices and self.type not in (
+                CustomFieldTypeChoices.TYPE_SELECT,
+                CustomFieldTypeChoices.TYPE_MULTISELECT
+        ):
             raise ValidationError({
                 'choices': "Choices may be set only for custom selection fields."
             })
@@ -206,7 +211,7 @@ class CustomField(BigIDModel):
             field = forms.DateField(required=required, initial=initial, widget=DatePicker())
 
         # Select
-        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+        elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
             choices = [(c, c) for c in self.choices]
             default_choice = self.default if self.default in self.choices else None
 
@@ -217,10 +222,16 @@ class CustomField(BigIDModel):
             if set_initial and default_choice:
                 initial = default_choice
 
-            field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
-            field = field_class(
-                choices=choices, required=required, initial=initial, widget=StaticSelect2()
-            )
+            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
+                field = field_class(
+                    choices=choices, required=required, initial=initial, widget=StaticSelect2()
+                )
+            else:
+                field_class = CSVChoiceField if for_csv_import else forms.MultipleChoiceField
+                field = field_class(
+                    choices=choices, required=required, initial=initial, widget=StaticSelect2Multiple()
+                )
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
@@ -283,6 +294,13 @@ class CustomField(BigIDModel):
                 if value not in self.choices:
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
+                    )
+
+            # Validate all selected choices
+            if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+                if not set(value).issubset(self.choices):
+                    raise ValidationError(
+                        f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"
                     )
 
         elif self.required:
