@@ -35,6 +35,12 @@
             {% render_field form.tagged_vlans %}
         </div>
     </div>
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Custom Fields</strong></div>
+      <div class="panel-body">
+        {% render_custom_fields form %}
+      </div>
+    </div>
 {% endblock %}
 
 {% block buttons %}
