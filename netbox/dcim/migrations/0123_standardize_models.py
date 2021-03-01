@@ -11,8 +11,33 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='consoleport',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleport',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='consoleport',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleporttemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleporttemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
             model_name='consoleserverport',
@@ -20,9 +45,44 @@ class Migration(migrations.Migration):
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),
         migrations.AddField(
+            model_name='consoleserverport',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleserverporttemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleserverporttemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='devicebay',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
             model_name='devicebay',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='devicebay',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='devicebaytemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='devicebaytemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
         ),
         migrations.AddField(
             model_name='devicerole',
@@ -31,8 +91,33 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='frontport',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='frontport',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='frontport',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='frontporttemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='frontporttemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
             model_name='interface',
@@ -40,9 +125,34 @@ class Migration(migrations.Migration):
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),
         migrations.AddField(
+            model_name='interface',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='interfacetemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='interfacetemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='inventoryitem',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
             model_name='inventoryitem',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='inventoryitem',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
         ),
         migrations.AddField(
             model_name='manufacturer',
@@ -56,13 +166,53 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='poweroutlet',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='poweroutlet',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='poweroutlet',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='poweroutlettemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='poweroutlettemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='powerport',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
             model_name='powerport',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='powerport',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='powerporttemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='powerporttemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
         ),
         migrations.AddField(
             model_name='rackgroup',
@@ -76,8 +226,28 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='rearport',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='rearport',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='rearport',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='rearporttemplate',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='rearporttemplate',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
         ),
         migrations.AddField(
             model_name='region',

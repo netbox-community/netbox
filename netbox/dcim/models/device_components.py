@@ -13,7 +13,7 @@ from dcim.constants import *
 from dcim.fields import MACAddressField
 from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
-from netbox.models import BigIDModel, CustomFieldsMixin
+from netbox.models import PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -38,7 +38,7 @@ __all__ = (
 )
 
 
-class ComponentModel(CustomFieldsMixin, BigIDModel):
+class ComponentModel(PrimaryModel):
     """
     An abstract model inherited by any model which has a parent Device.
     """

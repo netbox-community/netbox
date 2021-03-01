@@ -6,7 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.models import ObjectChange
 from extras.utils import extras_features
-from netbox.models import BigIDModel
+from netbox.models import BigIDModel, ChangeLoggingMixin
 from utilities.fields import NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
@@ -28,7 +28,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(BigIDModel):
+class ComponentTemplateModel(ChangeLoggingMixin, BigIDModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,

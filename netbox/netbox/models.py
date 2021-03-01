@@ -10,6 +10,7 @@ from utilities.utils import serialize_object
 
 __all__ = (
     'BigIDModel',
+    'ChangeLoggingMixin',
     'CustomFieldsMixin',
     'NestedGroupModel',
     'OrganizationalModel',
