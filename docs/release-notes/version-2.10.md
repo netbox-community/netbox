@@ -2,6 +2,10 @@
 
 ## v2.10.6 (FUTURE)
 
+### Bug Fixes
+
+* [#5703](https://github.com/netbox-community/netbox/issues/5703) - Fix VRF and Tenant field population when adding IP addresses from prefix
+
 ### Enhancements
 
 * [#5630](https://github.com/netbox-community/netbox/issues/5630) - Add QSFP+ (64GFC) FibreChannel Interface option
