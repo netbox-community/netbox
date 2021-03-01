@@ -10,7 +10,37 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
+            model_name='consoleport',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='devicebay',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
             model_name='devicerole',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='frontport',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='inventoryitem',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),
@@ -25,12 +55,27 @@ class Migration(migrations.Migration):
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),
         migrations.AddField(
+            model_name='poweroutlet',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='powerport',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
             model_name='rackgroup',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),
         migrations.AddField(
             model_name='rackrole',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='rearport',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),

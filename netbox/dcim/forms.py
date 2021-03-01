@@ -58,7 +58,7 @@ def get_device_by_name_or_pk(name):
     return device
 
 
-class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
+class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
     field_order = [
         'q', 'region', 'site'
     ]
@@ -2274,6 +2274,7 @@ class ComponentCreateForm(ComponentForm):
     """
     Base form for the creation of device components (models subclassed from ComponentModel).
     """
+    # TODO: Enable custom field support
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         display_field='display_name'
@@ -2289,6 +2290,7 @@ class ComponentCreateForm(ComponentForm):
 
 
 class DeviceBulkAddComponentForm(ComponentForm):
+    # TODO: Enable custom field support
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -2318,7 +2320,7 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class ConsolePortForm(BootstrapMixin, forms.ModelForm):
+class ConsolePortForm(BootstrapMixin, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -2365,7 +2367,7 @@ class ConsolePortBulkEditForm(
         nullable_fields = ('label', 'description')
 
 
-class ConsolePortCSVForm(CSVModelForm):
+class ConsolePortCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -2396,7 +2398,7 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
+class ConsoleServerPortForm(BootstrapMixin, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -2443,7 +2445,7 @@ class ConsoleServerPortBulkEditForm(
         nullable_fields = ('label', 'description')
 
 
-class ConsoleServerPortCSVForm(CSVModelForm):
+class ConsoleServerPortCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -2474,7 +2476,7 @@ class PowerPortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerPortForm(BootstrapMixin, forms.ModelForm):
+class PowerPortForm(BootstrapMixin, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -2533,7 +2535,7 @@ class PowerPortBulkEditForm(
         nullable_fields = ('label', 'description')
 
 
-class PowerPortCSVForm(CSVModelForm):
+class PowerPortCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -2564,7 +2566,7 @@ class PowerOutletFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerOutletForm(BootstrapMixin, forms.ModelForm):
+class PowerOutletForm(BootstrapMixin, CustomFieldModelForm):
     power_port = forms.ModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False
@@ -2658,7 +2660,7 @@ class PowerOutletBulkEditForm(
             self.fields['power_port'].widget.attrs['disabled'] = True
 
 
-class PowerOutletCSVForm(CSVModelForm):
+class PowerOutletCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -2738,7 +2740,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class InterfaceForm(BootstrapMixin, InterfaceCommonForm, forms.ModelForm):
+class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
@@ -2988,7 +2990,7 @@ class InterfaceBulkEditForm(
             self.cleaned_data['tagged_vlans'] = []
 
 
-class InterfaceCSVForm(CSVModelForm):
+class InterfaceCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -3058,7 +3060,7 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class FrontPortForm(BootstrapMixin, forms.ModelForm):
+class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -3168,7 +3170,7 @@ class FrontPortBulkEditForm(
         nullable_fields = ('label', 'description')
 
 
-class FrontPortCSVForm(CSVModelForm):
+class FrontPortCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -3227,7 +3229,7 @@ class RearPortFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class RearPortForm(BootstrapMixin, forms.ModelForm):
+class RearPortForm(BootstrapMixin, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -3280,7 +3282,7 @@ class RearPortBulkEditForm(
         nullable_fields = ('label', 'description')
 
 
-class RearPortCSVForm(CSVModelForm):
+class RearPortCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -3307,7 +3309,7 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class DeviceBayForm(BootstrapMixin, forms.ModelForm):
+class DeviceBayForm(BootstrapMixin, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -3367,7 +3369,7 @@ class DeviceBayBulkEditForm(
         nullable_fields = ('label', 'description')
 
 
-class DeviceBayCSVForm(CSVModelForm):
+class DeviceBayCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
@@ -3417,7 +3419,7 @@ class DeviceBayCSVForm(CSVModelForm):
 # Inventory items
 #
 
-class InventoryItemForm(BootstrapMixin, forms.ModelForm):
+class InventoryItemForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         display_field='display_name'
@@ -3477,7 +3479,7 @@ class InventoryItemCreateForm(ComponentCreateForm):
     )
 
 
-class InventoryItemCSVForm(CSVModelForm):
+class InventoryItemCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'

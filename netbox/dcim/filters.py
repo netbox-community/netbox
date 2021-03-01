@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.db.models import Count
 
 from extras.filters import CustomFieldModelFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -704,7 +703,7 @@ class DeviceFilterSet(
         return queryset.exclude(devicebays__isnull=value)
 
 
-class DeviceComponentFilterSet(django_filters.FilterSet):
+class DeviceComponentFilterSet(CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

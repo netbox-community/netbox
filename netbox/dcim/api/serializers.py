@@ -49,7 +49,7 @@ class CableTerminationSerializer(serializers.ModelSerializer):
         return None
 
 
-class ConnectedEndpointSerializer(ValidatedModelSerializer):
+class ConnectedEndpointSerializer(CustomFieldModelSerializer):
     connected_endpoint_type = serializers.SerializerMethodField(read_only=True)
     connected_endpoint = serializers.SerializerMethodField(read_only=True)
     connected_endpoint_reachable = serializers.SerializerMethodField(read_only=True)
@@ -497,7 +497,7 @@ class ConsoleServerPortSerializer(TaggedObjectSerializer, CableTerminationSerial
         model = ConsoleServerPort
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'cable_peer_type',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
         ]
 
 
@@ -515,7 +515,7 @@ class ConsolePortSerializer(TaggedObjectSerializer, CableTerminationSerializer, 
         model = ConsolePort
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'cable_peer_type',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
         ]
 
 
@@ -544,7 +544,7 @@ class PowerOutletSerializer(TaggedObjectSerializer, CableTerminationSerializer, 
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable',
             'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags',
+            'connected_endpoint_reachable', 'tags', 'custom_fields',
         ]
 
 
@@ -563,7 +563,7 @@ class PowerPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable',
             'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags',
+            'connected_endpoint_reachable', 'tags', 'custom_fields',
         ]
 
 
@@ -588,7 +588,7 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
             'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'cable', 'cable_peer', 'cable_peer_type',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
             'count_ipaddresses',
         ]
 
@@ -606,7 +606,7 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         return super().validate(data)
 
 
-class RearPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, ValidatedModelSerializer):
+class RearPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearport-detail')
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PortTypeChoices)
@@ -616,7 +616,7 @@ class RearPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, Val
         model = RearPort
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer',
-            'cable_peer_type', 'tags',
+            'cable_peer_type', 'tags', 'custom_fields',
         ]
 
 
@@ -631,7 +631,7 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'name', 'label']
 
 
-class FrontPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, ValidatedModelSerializer):
+class FrontPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontport-detail')
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PortTypeChoices)
@@ -642,25 +642,25 @@ class FrontPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, Va
         model = FrontPort
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable',
-            'cable_peer', 'cable_peer_type', 'tags',
+            'cable_peer', 'cable_peer_type', 'tags', 'custom_fields',
         ]
 
 
-class DeviceBaySerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class DeviceBaySerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebay-detail')
     device = NestedDeviceSerializer()
     installed_device = NestedDeviceSerializer(required=False, allow_null=True)
 
     class Meta:
         model = DeviceBay
-        fields = ['id', 'url', 'device', 'name', 'label', 'description', 'installed_device', 'tags']
+        fields = ['id', 'url', 'device', 'name', 'label', 'description', 'installed_device', 'tags', 'custom_fields']
 
 
 #
 # Inventory items
 #
 
-class InventoryItemSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class InventoryItemSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitem-detail')
     device = NestedDeviceSerializer()
     # Provide a default value to satisfy UniqueTogetherValidator
@@ -672,7 +672,7 @@ class InventoryItemSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
         model = InventoryItem
         fields = [
             'id', 'url', 'device', 'parent', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'discovered', 'description', 'tags', '_depth',
+            'discovered', 'description', 'tags', 'custom_fields', '_depth',
         ]
 
 
