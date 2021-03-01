@@ -1,5 +1,11 @@
 # NetBox v2.10
 
+## v2.10.6 (FUTURE)
+
+### Enhancements
+
+* [#5630](https://github.com/netbox-community/netbox/issues/5630) - Add QSFP+ (64GFC) FibreChannel Interface option
+
 ## v2.10.5 (2021-02-24)
 
 ### Bug Fixes
