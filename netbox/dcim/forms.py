@@ -2287,7 +2287,7 @@ class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
     )
 
 
-class DeviceBulkAddComponentForm(BootstrapMixin, ComponentForm):
+class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldForm, ComponentForm):
     # TODO: Enable custom field support
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -2348,6 +2348,7 @@ class ConsolePortBulkCreateForm(
     form_from_model(ConsolePort, ['type']),
     DeviceBulkAddComponentForm
 ):
+    model = ConsolePort
     field_order = ('name_pattern', 'label_pattern', 'type', 'description', 'tags')
 
 
@@ -2427,6 +2428,7 @@ class ConsoleServerPortBulkCreateForm(
     form_from_model(ConsoleServerPort, ['type']),
     DeviceBulkAddComponentForm
 ):
+    model = ConsoleServerPort
     field_order = ('name_pattern', 'label_pattern', 'type', 'description', 'tags')
 
 
@@ -2518,6 +2520,7 @@ class PowerPortBulkCreateForm(
     form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw']),
     DeviceBulkAddComponentForm
 ):
+    model = PowerPort
     field_order = ('name_pattern', 'label_pattern', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags')
 
 
@@ -2627,6 +2630,7 @@ class PowerOutletBulkCreateForm(
     form_from_model(PowerOutlet, ['type', 'feed_leg']),
     DeviceBulkAddComponentForm
 ):
+    model = PowerOutlet
     field_order = ('name_pattern', 'label_pattern', 'type', 'feed_leg', 'description', 'tags')
 
 
@@ -2889,6 +2893,7 @@ class InterfaceBulkCreateForm(
     form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only']),
     DeviceBulkAddComponentForm
 ):
+    model = Interface
     field_order = ('name_pattern', 'label_pattern', 'type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags')
 
 
@@ -3269,6 +3274,7 @@ class RearPortBulkCreateForm(
     form_from_model(RearPort, ['type', 'positions']),
     DeviceBulkAddComponentForm
 ):
+    model = RearPort
     field_order = ('name_pattern', 'label_pattern', 'type', 'positions', 'description', 'tags')
 
 
@@ -3357,6 +3363,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
 
 class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):
+    model = DeviceBay
     field_order = ('name_pattern', 'label_pattern', 'description', 'tags')
 
 
@@ -3506,6 +3513,7 @@ class InventoryItemBulkCreateForm(
     form_from_model(InventoryItem, ['manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered']),
     DeviceBulkAddComponentForm
 ):
+    model = InventoryItem
     field_order = (
         'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
         'tags',
