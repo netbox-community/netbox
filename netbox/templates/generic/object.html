@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load buttons %}
+{% load custom_links %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+
+{% block header %}
+  <div class="row noprint">
+    <div class="col-sm-8 col-md-9">
+      <ol class="breadcrumb">
+        {% block breadcrumbs %}{% endblock %}
+      </ol>
+    </div>
+    <div class="col-sm-4 col-md-3">
+      {# TODO: Provide absolute search URL #}
+      <form action="../" method="get">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Search" />
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-primary">
+              <span class="mdi mdi-magnify" aria-hidden="true"></span>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="pull-right noprint">
+    {% plugin_buttons object %}
+    {% block buttons %}
+      {% if request.user|can_add:object %}
+        {% clone_button object %}
+      {% endif %}
+      {% if request.user|can_change:object %}
+        {% edit_button object %}
+      {% endif %}
+      {% if request.user|can_delete:object %}
+        {% delete_button object %}
+      {% endif %}
+    {% endblock %}
+  </div>
+  <h1>{% block title %}{{ object }}{% endblock %}</h1>
+  {% include 'inc/created_updated.html' %}
+  <div class="pull-right noprint">
+    {% block tab_buttons %}
+      {% custom_links object %}
+    {% endblock %}
+  </div>
+  {% block tabs %}
+    <ul class="nav nav-tabs">
+      <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+        <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
+      </li>
+      {% if perms.extras.view_objectchange %}
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+          {# TODO: Fix changelog URL resolution hack #}
+          <a href="{{ object.get_absolute_url }}changelog/">Change Log</a>
+        </li>
+      {% endif %}
+    </ul>
+  {% endblock %}
+{% endblock %}

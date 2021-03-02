@@ -1,70 +1,42 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load static %}
 {% load helpers %}
 {% load plugins %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                {% if object.cluster %}
-                    <li><a href="{{ object.cluster.get_absolute_url }}">{{ object.cluster }}</a></li>
-                {% endif %}
-                <li>{{ object }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'virtualization:virtualmachine_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" placeholder="Search virtual machines" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% if perms.virtualization.add_vminterface %}
-            <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
-                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Interfaces
-            </a>
-        {% endif %}
-        {% plugin_buttons object %}
-        {% if perms.virtualization.add_virtualmachine %}
-            {% clone_button object %}
-        {% endif %}
-        {% if perms.virtualization.change_virtualmachine %}
-            {% edit_button object %}
-        {% endif %}
-        {% if perms.virtualization.delete_virtualmachine %}
-            {% delete_button object %}
-        {% endif %}
-    </div>
-    <h1>{% block title %}{{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' %}
-    <div class="pull-right noprint">
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Virtual Machine</a>
-        </li>
-        {% if perms.extras.view_configcontext %}
-            <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
-                <a href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
-            </li>
-        {% endif %}
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'virtualization:virtualmachine_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block breadcrumbs %}
+  {% if object.cluster %}
+    <li><a href="{{ object.cluster.get_absolute_url }}">{{ object.cluster }}</a></li>
+  {% endif %}
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block buttons %}
+  {% if perms.virtualization.add_vminterface %}
+    <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Interfaces
+    </a>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+      <a href="{{ object.get_absolute_url }}">Virtual Machine</a>
+    </li>
+    {% if perms.extras.view_configcontext %}
+      <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
+        <a href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
+      </li>
+    {% endif %}
+    {% if perms.extras.view_objectchange %}
+      <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+        <a href="{% url 'virtualization:virtualmachine_changelog' pk=object.pk %}">Change Log</a>
+      </li>
+    {% endif %}
+  </ul>
 {% endblock %}
 
 {% block content %}
