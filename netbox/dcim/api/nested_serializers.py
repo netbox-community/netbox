@@ -230,7 +230,7 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConsoleServerPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedConsolePortSerializer(WritableNestedSerializer):
@@ -239,7 +239,7 @@ class NestedConsolePortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConsolePort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedPowerOutletSerializer(WritableNestedSerializer):
@@ -248,7 +248,7 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerOutlet
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedPowerPortSerializer(WritableNestedSerializer):
@@ -257,7 +257,7 @@ class NestedPowerPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedInterfaceSerializer(WritableNestedSerializer):
@@ -266,7 +266,7 @@ class NestedInterfaceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Interface
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedRearPortSerializer(WritableNestedSerializer):
@@ -275,7 +275,7 @@ class NestedRearPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.RearPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedFrontPortSerializer(WritableNestedSerializer):
@@ -284,7 +284,7 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.FrontPort
-        fields = ['id', 'url', 'device', 'name', 'cable']
+        fields = ['id', 'url', 'device', 'name', 'cable', '_occupied']
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):
@@ -350,4 +350,4 @@ class NestedPowerFeedSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerFeed
-        fields = ['id', 'url', 'name', 'cable']
+        fields = ['id', 'url', 'name', 'cable', '_occupied']

@@ -53,7 +53,11 @@
                 <div class="panel-heading">
                     <strong>Connection</strong>
                 </div>
-                {% if object.cable %}
+                {% if object.mark_connected %}
+                    <div class="panel-body text-muted">
+                      <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
+                    </div>
+                {% elif object.cable %}
                     <table class="table table-hover panel-body attr-table">
                         <tr>
                             <td>Cable</td>

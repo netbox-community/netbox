@@ -2324,7 +2324,7 @@ class ConsolePortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'label', 'type', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2338,19 +2338,19 @@ class ConsolePortCreateForm(ComponentCreateForm):
         required=False,
         widget=StaticSelect2()
     )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'description', 'tags')
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'mark_connected', 'description', 'tags')
 
 
 class ConsolePortBulkCreateForm(
-    form_from_model(ConsolePort, ['type']),
+    form_from_model(ConsolePort, ['type', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = ConsolePort
-    field_order = ('name_pattern', 'label_pattern', 'type', 'description', 'tags')
+    field_order = ('name_pattern', 'label_pattern', 'type', 'mark_connected', 'description', 'tags')
 
 
 class ConsolePortBulkEditForm(
-    form_from_model(ConsolePort, ['label', 'type', 'description']),
+    form_from_model(ConsolePort, ['label', 'type', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -2772,8 +2772,8 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'label', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
-            'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'device', 'name', 'label', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'mark_connected',
+            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -3625,7 +3625,7 @@ class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=ConsolePort.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'device_id': '$termination_b_device'
         }
@@ -3636,7 +3636,7 @@ class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'device_id': '$termination_b_device'
         }
@@ -3647,7 +3647,7 @@ class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=PowerPort.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'device_id': '$termination_b_device'
         }
@@ -3658,7 +3658,7 @@ class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=PowerOutlet.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'device_id': '$termination_b_device'
         }
@@ -3669,7 +3669,7 @@ class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'device_id': '$termination_b_device',
             'kind': 'physical',
@@ -3681,7 +3681,7 @@ class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=FrontPort.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'device_id': '$termination_b_device'
         }
@@ -3692,7 +3692,7 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=RearPort.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'device_id': '$termination_b_device'
         }
@@ -3731,7 +3731,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, CustomFieldModelForm)
         queryset=CircuitTermination.objects.all(),
         label='Side',
         display_field='term_side',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'circuit_id': '$termination_b_circuit'
         }
@@ -3788,7 +3788,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=PowerFeed.objects.all(),
         label='Name',
-        disabled_indicator='cable',
+        disabled_indicator='_occupied',
         query_params={
             'power_panel_id': '$termination_b_powerpanel'
         }
@@ -4538,12 +4538,12 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = PowerFeed
         fields = [
-            'region', 'site', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'comments', 'tags',
+            'region', 'site', 'power_panel', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
+            'voltage', 'amperage', 'max_utilization', 'comments', 'tags',
         ]
         fieldsets = (
             ('Power Panel', ('region', 'site', 'power_panel')),
-            ('Power Feed', ('rack', 'name', 'status', 'type', 'tags')),
+            ('Power Feed', ('rack', 'name', 'status', 'type', 'mark_connected', 'tags')),
             ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
         )
         widgets = {

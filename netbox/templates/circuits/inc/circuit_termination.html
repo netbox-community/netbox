@@ -38,7 +38,10 @@
             <tr>
                 <td>Termination</td>
                 <td>
-                    {% if termination.cable %}
+                    {% if termination.mark_connected %}
+                        <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                        <span class="text-muted">Marked as connected</span>
+                    {% elif termination.cable %}
                         {% if perms.dcim.delete_cable %}
                             <div class="pull-right">
                                 <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">

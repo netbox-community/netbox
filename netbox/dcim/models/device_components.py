@@ -126,6 +126,10 @@ class CableTermination(models.Model):
         ct_field='_cable_peer_type',
         fk_field='_cable_peer_id'
     )
+    mark_connected = models.BooleanField(
+        default=False,
+        help_text="Treat as if a cable is connected"
+    )
 
     # Generic relations to Cable. These ensure that an attached Cable is deleted if the terminated object is deleted.
     _cabled_as_a = GenericRelation(
@@ -142,8 +146,18 @@ class CableTermination(models.Model):
     class Meta:
         abstract = True
 
+    def clean(self):
+        super().clean()
+
+        if self.mark_connected and self.cable_id:
+            raise ValidationError("Cannot set mark_connected with a cable connected.")
+
     def get_cable_peer(self):
         return self._cable_peer
+
+    @property
+    def _occupied(self):
+        return bool(self.mark_connected or self.cable_id)
 
 
 class PathEndpoint(models.Model):
@@ -212,7 +226,7 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -227,6 +241,7 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
             self.name,
             self.label,
             self.type,
+            self.mark_connected,
             self.description,
         )
 
@@ -248,7 +263,7 @@ class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -263,6 +278,7 @@ class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
             self.name,
             self.label,
             self.type,
+            self.mark_connected,
             self.description,
         )
 
@@ -296,7 +312,9 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description']
+    csv_headers = [
+        'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description',
+    ]
 
     class Meta:
         ordering = ('device', '_name')
@@ -311,6 +329,7 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
             self.name,
             self.label,
             self.get_type_display(),
+            self.mark_connected,
             self.maximum_draw,
             self.allocated_draw,
             self.description,
@@ -406,7 +425,7 @@ class PowerOutlet(CableTermination, PathEndpoint, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -421,6 +440,7 @@ class PowerOutlet(CableTermination, PathEndpoint, ComponentModel):
             self.name,
             self.label,
             self.get_type_display(),
+            self.mark_connected,
             self.power_port.name if self.power_port else None,
             self.get_feed_leg_display(),
             self.description,
@@ -532,7 +552,8 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'label', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode',
+        'device', 'name', 'label', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu', 'mgmt_only',
+        'description', 'mode',
     ]
 
     class Meta:
@@ -550,6 +571,7 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
             self.lag.name if self.lag else None,
             self.get_type_display(),
             self.enabled,
+            self.mark_connected,
             self.mac_address,
             self.mtu,
             self.mgmt_only,
@@ -648,7 +670,9 @@ class FrontPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description']
+    csv_headers = [
+        'device', 'name', 'label', 'type', 'mark_connected', 'rear_port', 'rear_port_position', 'description',
+    ]
 
     class Meta:
         ordering = ('device', '_name')
@@ -666,6 +690,7 @@ class FrontPort(CableTermination, ComponentModel):
             self.name,
             self.label,
             self.get_type_display(),
+            self.mark_connected,
             self.rear_port.name,
             self.rear_port_position,
             self.description,
@@ -706,7 +731,7 @@ class RearPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'positions', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'positions', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -732,6 +757,7 @@ class RearPort(CableTermination, ComponentModel):
             self.name,
             self.label,
             self.get_type_display(),
+            self.mark_connected,
             self.positions,
             self.description,
         )

@@ -129,7 +129,7 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
     model = CircuitTermination
-    brief_fields = ['cable', 'circuit', 'id', 'term_side', 'url']
+    brief_fields = ['_occupied', 'cable', 'circuit', 'id', 'term_side', 'url']
 
     @classmethod
     def setUpTestData(cls):

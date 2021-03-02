@@ -509,9 +509,9 @@ class ConsoleServerPortSerializer(TaggedObjectSerializer, CableTerminationSerial
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'cable_peer_type',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 
@@ -528,9 +528,9 @@ class ConsolePortSerializer(TaggedObjectSerializer, CableTerminationSerializer, 
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'cable_peer_type',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 
@@ -557,9 +557,9 @@ class PowerOutletSerializer(TaggedObjectSerializer, CableTerminationSerializer, 
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable',
-            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'mark_connected',
+            'cable', 'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 
@@ -576,9 +576,9 @@ class PowerPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable',
-            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
+            'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 
@@ -602,9 +602,9 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         model = Interface
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'cable', 'cable_peer', 'cable_peer_type',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
-            'created', 'last_updated', 'count_ipaddresses',
+            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'cable_peer',
+            'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', '_occupied',
         ]
 
     def validate(self, data):
@@ -630,8 +630,8 @@ class RearPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, Cus
     class Meta:
         model = RearPort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer',
-            'cable_peer_type', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'device', 'name', 'label', 'type', 'positions', 'description', 'mark_connected', 'cable',
+            'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 
@@ -656,8 +656,9 @@ class FrontPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, Cu
     class Meta:
         model = FrontPort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable',
-            'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description',
+            'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created',
+            'last_updated', '_occupied',
         ]
 
 
@@ -892,7 +893,7 @@ class PowerFeedSerializer(
         model = PowerFeed
         fields = [
             'id', 'url', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'comments', 'cable', 'cable_peer', 'cable_peer_type', 'connected_endpoint',
-            'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'max_utilization', 'comments', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields',
+            'created', 'last_updated', '_occupied',
         ]

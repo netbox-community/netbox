@@ -51,4 +51,4 @@ class NestedCircuitTerminationSerializer(WritableNestedSerializer):
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'url', 'circuit', 'term_side', 'cable']
+        fields = ['id', 'url', 'circuit', 'term_side', 'cable', '_occupied']

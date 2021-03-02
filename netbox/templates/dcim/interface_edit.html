@@ -23,6 +23,7 @@
             {% render_field form.mac_address %}
             {% render_field form.mtu %}
             {% render_field form.mgmt_only %}
+            {% render_field form.mark_connected %}
             {% render_field form.description %}
             {% render_field form.tags %}
         </div>
@@ -35,12 +36,14 @@
             {% render_field form.tagged_vlans %}
         </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading"><strong>Custom Fields</strong></div>
-      <div class="panel-body">
-        {% render_custom_fields form %}
+    {% if form.custom_fields %}
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Custom Fields</strong></div>
+        <div class="panel-body">
+          {% render_custom_fields form %}
+        </div>
       </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block buttons %}

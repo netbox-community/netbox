@@ -979,7 +979,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1018,7 +1018,7 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
 
 class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1057,7 +1057,7 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
 
 class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1096,7 +1096,7 @@ class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
 
 class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1135,7 +1135,7 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
 
 class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1193,7 +1193,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):
     model = FrontPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1251,7 +1251,7 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
 
 class RearPortTest(APIViewTestCases.APIViewTestCase):
     model = RearPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1628,7 +1628,7 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
 
 class PowerFeedTest(APIViewTestCases.APIViewTestCase):
     model = PowerFeed
-    brief_fields = ['cable', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
