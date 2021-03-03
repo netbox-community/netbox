@@ -10,7 +10,11 @@
 
 Cable termination objects (circuit terminations, power feeds, and most device components) can now be marked as "connected" without actually attaching a cable. This helps simplify the process of modeling an infrastructure boundary where you don't necessarily know or care what is connected to the far end of a cable, but still need to designate the near end termination.
 
-In addition to the new `mark_connected` boolean field, the REST API representation of these objects now also includes a read-only boolean field named `_occupied`. This conveniently returns true if either a cable is attached or `mark_connected` is true. 
+In addition to the new `mark_connected` boolean field, the REST API representation of these objects now also includes a read-only boolean field named `_occupied`. This conveniently returns true if either a cable is attached or `mark_connected` is true.
+
+#### Allow Assigning Devices to Locations ([#4971](https://github.com/netbox-community/netbox/issues/4971))
+
+Devices can now be assigned to locations (formerly known as rack groups) within a site without needing to be assigned to a particular rack. This is handy for assigning devices to rooms or floors within a building where racks are not used. The `location` foreign key field has been added to the Device model to support this.
 
 ### Enhancements
 
@@ -42,6 +46,8 @@ In addition to the new `mark_connected` boolean field, the REST API representati
   * Added `_occupied` read-only boolean field as common attribute for determining whether an object is occupied
 * Renamed RackGroup to Location
   * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
+* dcim.Device
+  * Added the `location` field
 * dcim.PowerPanel
   * Renamed `rack_group` field to `location`
 * dcim.Rack

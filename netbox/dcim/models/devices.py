@@ -517,6 +517,13 @@ class Device(PrimaryModel, ConfigContextModel):
         on_delete=models.PROTECT,
         related_name='devices'
     )
+    location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
     rack = models.ForeignKey(
         to='dcim.Rack',
         on_delete=models.PROTECT,
@@ -603,7 +610,7 @@ class Device(PrimaryModel, ConfigContextModel):
         'site', 'location', 'rack_name', 'position', 'face', 'comments',
     ]
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
     ]
 
     class Meta:
@@ -640,11 +647,17 @@ class Device(PrimaryModel, ConfigContextModel):
     def clean(self):
         super().clean()
 
-        # Validate site/rack combination
+        # Validate site/location/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to site {self.site}.",
             })
+        if self.rack and self.location and self.rack.location != self.location:
+            raise ValidationError({
+                'rack': f"Rack {self.rack} does not belong to location {self.location}.",
+            })
+        elif self.rack:
+            self.location = self.rack.location
 
         if self.rack is None:
             if self.face:

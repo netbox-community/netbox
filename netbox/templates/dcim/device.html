@@ -18,21 +18,41 @@
                                 </div>
                                 <table class="table table-hover panel-body attr-table">
                                     <tr>
-                                        <td>Site</td>
+                                        <td>Region</td>
                                         <td>
                                             {% if object.site.region %}
-                                                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
+                                                {% for region in object.site.region.get_ancestors %}
+                                                    <a href="{{ region.get_absolute_url }}">{{ region }}</a> /
+                                                {% endfor %}
+                                                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a>
+                                            {% else %}
+                                                <span class="text-muted">None</span>
                                             {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Site</td>
+                                        <td>
                                             <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Location</td>
+                                        <td>
+                                            {% if object.location %}
+                                                {% for location in object.location.get_ancestors %}
+                                                    <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
+                                                {% endfor %}
+                                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
+                                            {% else %}
+                                                <span class="text-muted">None</span>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Rack</td>
                                         <td>
                                             {% if object.rack %}
-                                                {% if object.rack.group %}
-                                                    <a href="{{ object.rack.group.get_absolute_url }}">{{ object.rack.group }}</a> /
-                                                {% endif %}
                                                 <a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack }}</a>
                                             {% else %}
                                                 <span class="text-muted">None</span>

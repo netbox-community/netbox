@@ -433,6 +433,7 @@ class DeviceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
+    location = NestedLocationSerializer(required=False, allow_null=True, default=None)
     rack = NestedRackSerializer(required=False, allow_null=True)
     face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, required=False)
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
@@ -447,9 +448,9 @@ class DeviceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
         model = Device
         fields = [
             'id', 'url', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip',
+            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
+            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 
@@ -483,9 +484,9 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
     class Meta(DeviceSerializer.Meta):
         fields = [
             'id', 'url', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data',
-            'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip',
+            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
+            'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)

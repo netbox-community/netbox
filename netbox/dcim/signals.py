@@ -43,7 +43,7 @@ def rebuild_paths(obj):
 @receiver(post_save, sender=Location)
 def handle_location_site_change(instance, created, **kwargs):
     """
-    Update child Locations and Racks if Site assignment has changed. We intentionally recurse through each child
+    Update child objects if Site assignment has changed. We intentionally recurse through each child
     object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
     """
     if not created:
@@ -53,6 +53,9 @@ def handle_location_site_change(instance, created, **kwargs):
         for rack in Rack.objects.filter(location=instance).exclude(site=instance.site):
             rack.site = instance.site
             rack.save()
+        for device in Device.objects.filter(location=instance).exclude(site=instance.site):
+            device.site = instance.site
+            device.save()
         for powerpanel in PowerPanel.objects.filter(location=instance).exclude(site=instance.site):
             powerpanel.site = instance.site
             powerpanel.save()
@@ -61,11 +64,12 @@ def handle_location_site_change(instance, created, **kwargs):
 @receiver(post_save, sender=Rack)
 def handle_rack_site_change(instance, created, **kwargs):
     """
-    Update child Devices if Site assignment has changed.
+    Update child Devices if Site or Location assignment has changed.
     """
     if not created:
-        for device in Device.objects.filter(rack=instance).exclude(site=instance.site):
+        for device in Device.objects.filter(rack=instance).exclude(site=instance.site, location=instance.location):
             device.site = instance.site
+            device.location = instance.location
             device.save()
 
 

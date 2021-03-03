@@ -2009,13 +2009,13 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         queryset=Location.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's location (if any)"
+        help_text="Assigned location (if any)"
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Assigned rack"
+        help_text="Assigned rack (if any)"
     )
     face = CSVChoiceField(
         choices=DeviceFaceChoices,

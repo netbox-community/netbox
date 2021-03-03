@@ -577,7 +577,7 @@ class DeviceFilterSet(
     )
     location_id = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
-        field_name='rack__location',
+        field_name='location',
         lookup_expr='in',
         label='Location (ID)',
     )

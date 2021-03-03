@@ -115,6 +115,9 @@ class DeviceTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
+    location = tables.Column(
+        linkify=True
+    )
     rack = tables.Column(
         linkify=True
     )
@@ -162,11 +165,11 @@ class DeviceTable(BaseTable):
         model = Device
         fields = (
             'pk', 'name', 'status', 'tenant', 'device_role', 'device_type', 'platform', 'serial', 'asset_tag', 'site',
-            'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'tags',
+            'location', 'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster',
+            'virtual_chassis', 'vc_position', 'vc_priority', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip',
+            'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'device_type', 'primary_ip',
         )
 
 

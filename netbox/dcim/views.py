@@ -982,7 +982,7 @@ class DeviceListView(generic.ObjectListView):
 
 class DeviceView(generic.ObjectView):
     queryset = Device.objects.prefetch_related(
-        'site__region', 'rack__location', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
+        'site__region', 'location', 'rack', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
     )
 
     def get_extra_context(self, request, instance):

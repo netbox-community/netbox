@@ -16,8 +16,18 @@ class LocationTestCase(TestCase):
           - Location A1
             - Location A2
               - Rack 2
+              - Device 2
             - Rack 1
+            - Device 1
         """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Device Role 1', slug='device-role-1', color='ff0000'
+        )
+
         site_a = Site.objects.create(name='Site A', slug='site-a')
         site_b = Site.objects.create(name='Site B', slug='site-b')
 
@@ -28,6 +38,21 @@ class LocationTestCase(TestCase):
 
         rack1 = Rack.objects.create(site=site_a, location=location_a1, name='Rack 1')
         rack2 = Rack.objects.create(site=site_a, location=location_a2, name='Rack 2')
+
+        device1 = Device.objects.create(
+            site=site_a,
+            location=location_a1,
+            name='Device 1',
+            device_type=device_type,
+            device_role=device_role
+        )
+        device2 = Device.objects.create(
+            site=site_a,
+            location=location_a2,
+            name='Device 2',
+            device_type=device_type,
+            device_role=device_role
+        )
 
         powerpanel1 = PowerPanel.objects.create(site=site_a, location=location_a1, name='Power Panel 1')
 
@@ -40,6 +65,8 @@ class LocationTestCase(TestCase):
         self.assertEqual(Location.objects.get(pk=location_a2.pk).site, site_b)
         self.assertEqual(Rack.objects.get(pk=rack1.pk).site, site_b)
         self.assertEqual(Rack.objects.get(pk=rack2.pk).site, site_b)
+        self.assertEqual(Device.objects.get(pk=device1.pk).site, site_b)
+        self.assertEqual(Device.objects.get(pk=device2.pk).site, site_b)
         self.assertEqual(PowerPanel.objects.get(pk=powerpanel1.pk).site, site_b)
 
 
