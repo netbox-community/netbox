@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 
 from django.core.serializers.json import DjangoJSONEncoder
@@ -5,6 +6,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
+from extras.choices import ObjectChangeActionChoices
 from utilities.mptt import TreeManager
 from utilities.utils import serialize_object
 
@@ -40,18 +42,32 @@ class ChangeLoggingMixin(models.Model):
     class Meta:
         abstract = True
 
-    def to_objectchange(self, action):
+    def snapshot(self):
+        """
+        Save a snapshot of the object's current state in preparation for modification.
+        """
+        logger = logging.getLogger('netbox')
+        logger.debug(f"Taking a snapshot of {self}")
+        self._prechange_snapshot = serialize_object(self)
+
+    def to_objectchange(self, action, related_object=None):
         """
         Return a new ObjectChange representing a change made to this object. This will typically be called automatically
         by ChangeLoggingMiddleware.
         """
         from extras.models import ObjectChange
-        return ObjectChange(
+        objectchange = ObjectChange(
             changed_object=self,
+            related_object=related_object,
             object_repr=str(self),
-            action=action,
-            object_data=serialize_object(self)
+            action=action
         )
+        if hasattr(self, '_prechange_snapshot'):
+            objectchange.prechange_data = self._prechange_snapshot
+        if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
+            objectchange.postchange_data = serialize_object(self)
+
+        return objectchange
 
 
 class CustomFieldsMixin(models.Model):
@@ -163,16 +179,6 @@ class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel, MPTTMo
 
     def __str__(self):
         return self.name
-
-    def to_objectchange(self, action):
-        # Remove MPTT-internal fields
-        from extras.models import ObjectChange
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
-        )
 
 
 class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):

@@ -83,6 +83,8 @@
                     </tr>
                 </table>
             </div>
+        </div>
+        <div class="col-md-7">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Difference</strong>
@@ -113,13 +115,25 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+    </div>
+    <div class="row">
+        <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Object Data</strong>
+                    <strong>Pre-Change Data</strong>
                 </div>
                 <div class="panel-body">
-                    <pre>{{ object.object_data|render_json }}</pre>
+                    <pre>{{ object.prechange_data|render_json }}</pre>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Post-Change Data</strong>
+                </div>
+                <div class="panel-body">
+                    <pre>{{ object.postchange_data|render_json }}</pre>
                 </div>
             </div>
         </div>

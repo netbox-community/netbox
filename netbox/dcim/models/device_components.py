@@ -82,13 +82,7 @@ class ComponentModel(PrimaryModel):
         except ObjectDoesNotExist:
             # The parent Device has already been deleted
             device = None
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=device,
-            object_data=serialize_object(self)
-        )
+        return super().to_objectchange(action, related_object=device)
 
     @property
     def parent(self):

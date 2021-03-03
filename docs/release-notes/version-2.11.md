@@ -16,6 +16,10 @@ In addition to the new `mark_connected` boolean field, the REST API representati
 
 Devices can now be assigned to locations (formerly known as rack groups) within a site without needing to be assigned to a particular rack. This is handy for assigning devices to rooms or floors within a building where racks are not used. The `location` foreign key field has been added to the Device model to support this.
 
+#### Improved Change Logging ([#5913](https://github.com/netbox-community/netbox/issues/5913))
+
+The ObjectChange model (which is used to record the creation, modification, and deletion of NetBox objects) now explicitly records the pre-change and post-change state of each object, rather than only the post-change state. This was done to present a more clear depiction of each change being made, and to prevent the erroneous association of a previous unlogged change with its successor.
+
 ### Enhancements
 
 * [#5370](https://github.com/netbox-community/netbox/issues/5370) - Extend custom field support to organizational models
@@ -54,3 +58,6 @@ Devices can now be assigned to locations (formerly known as rack groups) within 
   * Renamed `group` field to `location`
 * extras.CustomField
   * Added new custom field type: `multi-select`
+* extras.ObjectChange
+  * Added the `prechange_data` field
+  * Renamed `object_data` to `postchange_data`

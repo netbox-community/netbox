@@ -64,10 +64,11 @@ class ChangeLogViewTest(ModelViewTestCase):
         ).order_by('pk')
         self.assertEqual(oc_list[0].changed_object, site)
         self.assertEqual(oc_list[0].action, ObjectChangeActionChoices.ACTION_CREATE)
-        self.assertEqual(oc_list[0].object_data['custom_fields']['my_field'], form_data['cf_my_field'])
-        self.assertEqual(oc_list[0].object_data['custom_fields']['my_field_select'], form_data['cf_my_field_select'])
+        self.assertEqual(oc_list[0].prechange_data, None)
+        self.assertEqual(oc_list[0].postchange_data['custom_fields']['my_field'], form_data['cf_my_field'])
+        self.assertEqual(oc_list[0].postchange_data['custom_fields']['my_field_select'], form_data['cf_my_field_select'])
         self.assertEqual(oc_list[1].action, ObjectChangeActionChoices.ACTION_UPDATE)
-        self.assertEqual(oc_list[1].object_data['tags'], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc_list[1].postchange_data['tags'], ['Tag 1', 'Tag 2'])
 
     def test_update_object(self):
         site = Site(name='Test Site 1', slug='test-site-1')
@@ -100,9 +101,11 @@ class ChangeLogViewTest(ModelViewTestCase):
         ).first()
         self.assertEqual(oc.changed_object, site)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
-        self.assertEqual(oc.object_data['custom_fields']['my_field'], form_data['cf_my_field'])
-        self.assertEqual(oc.object_data['custom_fields']['my_field_select'], form_data['cf_my_field_select'])
-        self.assertEqual(oc.object_data['tags'], ['Tag 3'])
+        self.assertEqual(oc.prechange_data['name'], 'Test Site 1')
+        self.assertEqual(oc.prechange_data['tags'], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.postchange_data['custom_fields']['my_field'], form_data['cf_my_field'])
+        self.assertEqual(oc.postchange_data['custom_fields']['my_field_select'], form_data['cf_my_field_select'])
+        self.assertEqual(oc.postchange_data['tags'], ['Tag 3'])
 
     def test_delete_object(self):
         site = Site(
@@ -129,9 +132,12 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(oc.changed_object, None)
         self.assertEqual(oc.object_repr, site.name)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
-        self.assertEqual(oc.object_data['custom_fields']['my_field'], 'ABC')
-        self.assertEqual(oc.object_data['custom_fields']['my_field_select'], 'Bar')
-        self.assertEqual(oc.object_data['tags'], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.prechange_data['custom_fields']['my_field'], 'ABC')
+        self.assertEqual(oc.prechange_data['custom_fields']['my_field_select'], 'Bar')
+        self.assertEqual(oc.prechange_data['tags'], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.postchange_data, None)
+
+    # TODO: Add tests for bulk edit, bulk delete views
 
 
 class ChangeLogAPITest(APITestCase):
@@ -195,9 +201,10 @@ class ChangeLogAPITest(APITestCase):
         ).order_by('pk')
         self.assertEqual(oc_list[0].changed_object, site)
         self.assertEqual(oc_list[0].action, ObjectChangeActionChoices.ACTION_CREATE)
-        self.assertEqual(oc_list[0].object_data['custom_fields'], data['custom_fields'])
+        self.assertEqual(oc_list[0].prechange_data, None)
+        self.assertEqual(oc_list[0].postchange_data['custom_fields'], data['custom_fields'])
         self.assertEqual(oc_list[1].action, ObjectChangeActionChoices.ACTION_UPDATE)
-        self.assertEqual(oc_list[1].object_data['tags'], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc_list[1].postchange_data['tags'], ['Tag 1', 'Tag 2'])
 
     def test_update_object(self):
         site = Site(name='Test Site 1', slug='test-site-1')
@@ -229,8 +236,8 @@ class ChangeLogAPITest(APITestCase):
         ).first()
         self.assertEqual(oc.changed_object, site)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
-        self.assertEqual(oc.object_data['custom_fields'], data['custom_fields'])
-        self.assertEqual(oc.object_data['tags'], ['Tag 3'])
+        self.assertEqual(oc.postchange_data['custom_fields'], data['custom_fields'])
+        self.assertEqual(oc.postchange_data['tags'], ['Tag 3'])
 
     def test_delete_object(self):
         site = Site(
@@ -255,6 +262,9 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(oc.changed_object, None)
         self.assertEqual(oc.object_repr, site.name)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
-        self.assertEqual(oc.object_data['custom_fields']['my_field'], 'ABC')
-        self.assertEqual(oc.object_data['custom_fields']['my_field_select'], 'Bar')
-        self.assertEqual(oc.object_data['tags'], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.prechange_data['custom_fields']['my_field'], 'ABC')
+        self.assertEqual(oc.prechange_data['custom_fields']['my_field_select'], 'Bar')
+        self.assertEqual(oc.prechange_data['tags'], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.postchange_data, None)
+
+    # TODO: Add tests for bulk edit, bulk delete views

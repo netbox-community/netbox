@@ -76,6 +76,8 @@ class BulkUpdateModelMixin:
             data_list = []
             for obj in objects:
                 data = update_data.get(obj.id)
+                if hasattr(obj, 'snapshot'):
+                    obj.snapshot()
                 serializer = self.get_serializer(obj, data=data, partial=partial)
                 serializer.is_valid(raise_exception=True)
                 self.perform_update(serializer)
@@ -113,6 +115,8 @@ class BulkDestroyModelMixin:
     def perform_bulk_destroy(self, objects):
         with transaction.atomic():
             for obj in objects:
+                if hasattr(obj, 'snapshot'):
+                    obj.snapshot()
                 self.perform_destroy(obj)
 
 
@@ -126,6 +130,16 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
     """
     brief = False
     brief_prefetch_fields = []
+
+    def get_object_with_snapshot(self):
+        """
+        Save a pre-change snapshot of the object immediately after retrieving it. This snapshot will be used to
+        record the "before" data in the changelog.
+        """
+        obj = super().get_object()
+        if hasattr(obj, 'snapshot'):
+            obj.snapshot()
+        return obj
 
     def get_serializer(self, *args, **kwargs):
 
@@ -221,6 +235,11 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
         except ObjectDoesNotExist:
             raise PermissionDenied()
 
+    def update(self, request, *args, **kwargs):
+        # Hotwire get_object() to ensure we save a pre-change snapshot
+        self.get_object = self.get_object_with_snapshot
+        return super().update(request, *args, **kwargs)
+
     def perform_update(self, serializer):
         model = self.queryset.model
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
@@ -233,6 +252,11 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
             raise PermissionDenied()
+
+    def destroy(self, request, *args, **kwargs):
+        # Hotwire get_object() to ensure we save a pre-change snapshot
+        self.get_object = self.get_object_with_snapshot
+        return super().destroy(request, *args, **kwargs)
 
     def perform_destroy(self, instance):
         model = self.queryset.model

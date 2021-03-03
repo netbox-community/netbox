@@ -327,7 +327,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_CREATE,
                 changed_object=site,
                 object_repr=str(site),
-                object_data={'name': site.name, 'slug': site.slug}
+                postchange_data={'name': site.name, 'slug': site.slug}
             ),
             ObjectChange(
                 user=users[0],
@@ -336,7 +336,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_UPDATE,
                 changed_object=site,
                 object_repr=str(site),
-                object_data={'name': site.name, 'slug': site.slug}
+                postchange_data={'name': site.name, 'slug': site.slug}
             ),
             ObjectChange(
                 user=users[1],
@@ -345,7 +345,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_DELETE,
                 changed_object=site,
                 object_repr=str(site),
-                object_data={'name': site.name, 'slug': site.slug}
+                postchange_data={'name': site.name, 'slug': site.slug}
             ),
             ObjectChange(
                 user=users[1],
@@ -354,7 +354,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_CREATE,
                 changed_object=ipaddress,
                 object_repr=str(ipaddress),
-                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
             ),
             ObjectChange(
                 user=users[2],
@@ -363,7 +363,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_UPDATE,
                 changed_object=ipaddress,
                 object_repr=str(ipaddress),
-                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
             ),
             ObjectChange(
                 user=users[2],
@@ -372,7 +372,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_DELETE,
                 changed_object=ipaddress,
                 object_repr=str(ipaddress),
-                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
             ),
         )
         ObjectChange.objects.bulk_create(object_changes)

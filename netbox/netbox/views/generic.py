@@ -218,11 +218,18 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get_object(self, kwargs):
         # Look up an existing object by slug or PK, if provided.
         if 'slug' in kwargs:
-            return get_object_or_404(self.queryset, slug=kwargs['slug'])
+            obj = get_object_or_404(self.queryset, slug=kwargs['slug'])
         elif 'pk' in kwargs:
-            return get_object_or_404(self.queryset, pk=kwargs['pk'])
+            obj = get_object_or_404(self.queryset, pk=kwargs['pk'])
         # Otherwise, return a new instance.
-        return self.queryset.model()
+        else:
+            return self.queryset.model()
+
+        # Take a snapshot of change-logged models
+        if hasattr(obj, 'snapshot'):
+            obj.snapshot()
+
+        return obj
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
@@ -328,9 +335,15 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
         if 'slug' in kwargs:
-            return get_object_or_404(self.queryset, slug=kwargs['slug'])
+            obj = get_object_or_404(self.queryset, slug=kwargs['slug'])
         else:
-            return get_object_or_404(self.queryset, pk=kwargs['pk'])
+            obj = get_object_or_404(self.queryset, pk=kwargs['pk'])
+
+        # Take a snapshot of change-logged models
+        if hasattr(obj, 'snapshot'):
+            obj.snapshot()
+
+        return obj
 
     def get(self, request, **kwargs):
         obj = self.get_object(kwargs)
@@ -771,6 +784,10 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                         updated_objects = []
                         for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
 
+                            # Take a snapshot of change-logged models
+                            if hasattr(obj, 'snapshot'):
+                                obj.snapshot()
+
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
 
@@ -898,6 +915,11 @@ class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     with transaction.atomic():
                         renamed_pks = []
                         for obj in selected_objects:
+
+                            # Take a snapshot of change-logged models
+                            if hasattr(obj, 'snapshot'):
+                                obj.snapshot()
+
                             find = form.cleaned_data['find']
                             replace = form.cleaned_data['replace']
                             if form.cleaned_data['use_regex']:
@@ -985,6 +1007,7 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 logger.debug("Form validation was successful")
 
                 # Delete objects
+                # TODO: Take a snapshot of each object prior to bulk deletion
                 queryset = self.queryset.filter(pk__in=pk_list)
                 try:
                     deleted_count = queryset.delete()[1][model._meta.label]

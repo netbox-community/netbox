@@ -9,12 +9,11 @@ from dcim.models import BaseInterface, Device
 from extras.models import ConfigContextModel, ObjectChange, TaggedItem
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
-from netbox.models import BigIDModel, OrganizationalModel, PrimaryModel
+from netbox.models import BigIDModel, ChangeLoggingMixin, OrganizationalModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
 from .choices import *
 
 
@@ -373,8 +372,9 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 # Interfaces
 #
 
+# TODO: Inherit from PrimaryModel
 @extras_features('export_templates', 'webhooks')
-class VMInterface(BigIDModel, BaseInterface):
+class VMInterface(ChangeLoggingMixin, BigIDModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
@@ -458,13 +458,7 @@ class VMInterface(BigIDModel, BaseInterface):
 
     def to_objectchange(self, action):
         # Annotate the parent VirtualMachine
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=self.virtual_machine,
-            object_data=serialize_object(self)
-        )
+        return super().to_objectchange(action, related_object=self.virtual_machine)
 
     @property
     def parent(self):

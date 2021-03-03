@@ -1,6 +1,6 @@
 # Change Logging
 
-Every time an object in NetBox is created, updated, or deleted, a serialized copy of that object is saved to the database, along with meta data including the current time and the user associated with the change. These records form a persistent record of changes both for each individual object as well as NetBox as a whole. The global change log can be viewed by navigating to Other > Change Log.
+Every time an object in NetBox is created, updated, or deleted, a serialized copy of that object taken both before and after the change is saved to the database, along with meta data including the current time and the user associated with the change. These records form a persistent record of changes both for each individual object as well as NetBox as a whole. The global change log can be viewed by navigating to Other > Change Log.
 
 A serialized representation of the instance being modified is included in JSON format. This is similar to how objects are conveyed within the REST API, but does not include any nested representations. For instance, the `tenant` field of a site will record only the tenant's ID, not a representation of the tenant.
 
