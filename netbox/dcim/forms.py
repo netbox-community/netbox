@@ -2370,6 +2370,10 @@ class ConsolePortBulkEditForm(
         queryset=ConsolePort.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
 
     class Meta:
         nullable_fields = ['label', 'description']
@@ -2427,7 +2431,7 @@ class ConsoleServerPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'label', 'type', 'speed', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2446,11 +2450,11 @@ class ConsoleServerPortCreateForm(ComponentCreateForm):
         required=False,
         widget=StaticSelect2()
     )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'speed', 'description', 'tags')
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
 
 class ConsoleServerPortBulkCreateForm(
-    form_from_model(ConsoleServerPort, ['type', 'speed']),
+    form_from_model(ConsoleServerPort, ['type', 'speed', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = ConsoleServerPort
@@ -2458,7 +2462,7 @@ class ConsoleServerPortBulkCreateForm(
 
 
 class ConsoleServerPortBulkEditForm(
-    form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'description']),
+    form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -2466,6 +2470,10 @@ class ConsoleServerPortBulkEditForm(
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         widget=forms.MultipleHiddenInput()
+    )
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
     )
 
     class Meta:
@@ -2519,7 +2527,8 @@ class PowerPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = PowerPort
         fields = [
-            'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description',
+            'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2544,12 +2553,13 @@ class PowerPortCreateForm(ComponentCreateForm):
         help_text="Allocated draw in watts"
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
+        'device', 'name_pattern', 'label_pattern', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
+        'description', 'tags',
     )
 
 
 class PowerPortBulkCreateForm(
-    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw']),
+    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = PowerPort
@@ -2557,7 +2567,7 @@ class PowerPortBulkCreateForm(
 
 
 class PowerPortBulkEditForm(
-    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'description']),
+    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -2565,6 +2575,10 @@ class PowerPortBulkEditForm(
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPort.objects.all(),
         widget=forms.MultipleHiddenInput()
+    )
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
     )
 
     class Meta:
@@ -2615,7 +2629,7 @@ class PowerOutletForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2646,7 +2660,10 @@ class PowerOutletCreateForm(ComponentCreateForm):
         choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False
     )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'power_port', 'feed_leg', 'description', 'tags')
+    field_order = (
+        'device', 'name_pattern', 'label_pattern', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
+        'tags',
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2659,7 +2676,7 @@ class PowerOutletCreateForm(ComponentCreateForm):
 
 
 class PowerOutletBulkCreateForm(
-    form_from_model(PowerOutlet, ['type', 'feed_leg']),
+    form_from_model(PowerOutlet, ['type', 'feed_leg', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = PowerOutlet
@@ -2667,7 +2684,7 @@ class PowerOutletBulkCreateForm(
 
 
 class PowerOutletBulkEditForm(
-    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'description']),
+    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -2681,6 +2698,10 @@ class PowerOutletBulkEditForm(
         required=False,
         disabled=True,
         widget=forms.HiddenInput()
+    )
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
     )
 
     class Meta:
@@ -2901,7 +2922,7 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     )
     field_order = (
         'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'description',
-        'mgmt_only', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
+        'mgmt_only', 'mark_connected', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
     )
 
     def __init__(self, *args, **kwargs):
@@ -2922,16 +2943,18 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only']),
+    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = Interface
-    field_order = ('name_pattern', 'label_pattern', 'type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags')
+    field_order = (
+        'name_pattern', 'label_pattern', 'type', 'enabled', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'tags',
+    )
 
 
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
-        'label', 'type', 'lag', 'mac_address', 'mtu', 'description', 'mode'
+        'label', 'type', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'mode'
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
@@ -2955,6 +2978,10 @@ class InterfaceBulkEditForm(
         required=False,
         widget=BulkEditNullBooleanSelect,
         label='Management only'
+    )
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -3109,7 +3136,8 @@ class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = FrontPort
         fields = [
-            'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'mark_connected', 'description',
+            'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -3139,7 +3167,9 @@ class FrontPortCreateForm(ComponentCreateForm):
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'description', 'tags')
+    field_order = (
+        'device', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'mark_connected', 'description', 'tags',
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3197,7 +3227,7 @@ class FrontPortCreateForm(ComponentCreateForm):
 
 
 class FrontPortBulkEditForm(
-    form_from_model(FrontPort, ['label', 'type', 'description']),
+    form_from_model(FrontPort, ['label', 'type', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -3279,7 +3309,7 @@ class RearPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = RearPort
         fields = [
-            'device', 'name', 'label', 'type', 'positions', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'positions', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -3299,19 +3329,21 @@ class RearPortCreateForm(ComponentCreateForm):
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'positions', 'description', 'tags')
+    field_order = (
+        'device', 'name_pattern', 'label_pattern', 'type', 'positions', 'mark_connected', 'description', 'tags',
+    )
 
 
 class RearPortBulkCreateForm(
-    form_from_model(RearPort, ['type', 'positions']),
+    form_from_model(RearPort, ['type', 'positions', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = RearPort
-    field_order = ('name_pattern', 'label_pattern', 'type', 'positions', 'description', 'tags')
+    field_order = ('name_pattern', 'label_pattern', 'type', 'positions', 'mark_connected', 'description', 'tags')
 
 
 class RearPortBulkEditForm(
-    form_from_model(RearPort, ['label', 'type', 'description']),
+    form_from_model(RearPort, ['label', 'type', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -4704,6 +4736,10 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     )
     max_utilization = forms.IntegerField(
         required=False
+    )
+    mark_connected = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
     )
     comments = CommentField(
         widget=SmallTextarea,
