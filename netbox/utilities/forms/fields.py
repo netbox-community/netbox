@@ -24,6 +24,7 @@ __all__ = (
     'CSVContentTypeField',
     'CSVDataField',
     'CSVModelChoiceField',
+    'CSVTypedChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
     'ExpandableIPAddressField',
@@ -123,6 +124,10 @@ class CSVChoiceField(forms.ChoiceField):
     def __init__(self, *, choices=(), **kwargs):
         super().__init__(choices=choices, **kwargs)
         self.choices = unpack_grouped_choices(choices)
+
+
+class CSVTypedChoiceField(forms.TypedChoiceField):
+    STATIC_CHOICES = True
 
 
 class CSVModelChoiceField(forms.ModelChoiceField):

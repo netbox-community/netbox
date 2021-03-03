@@ -224,9 +224,15 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
         blank=True,
         help_text='Physical port type'
     )
+    speed = models.PositiveSmallIntegerField(
+        choices=ConsolePortSpeedChoices,
+        blank=True,
+        null=True,
+        help_text='Port speed in bits per second'
+    )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -241,6 +247,7 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
             self.name,
             self.label,
             self.type,
+            self.speed,
             self.mark_connected,
             self.description,
         )
@@ -261,9 +268,15 @@ class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
         blank=True,
         help_text='Physical port type'
     )
+    speed = models.PositiveSmallIntegerField(
+        choices=ConsolePortSpeedChoices,
+        blank=True,
+        null=True,
+        help_text='Port speed in bits per second'
+    )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -278,6 +291,7 @@ class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
             self.name,
             self.label,
             self.type,
+            self.speed,
             self.mark_connected,
             self.description,
         )

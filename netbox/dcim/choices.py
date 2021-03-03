@@ -217,6 +217,29 @@ class ConsolePortTypeChoices(ChoiceSet):
     )
 
 
+class ConsolePortSpeedChoices(ChoiceSet):
+
+    SPEED_1200 = 1200
+    SPEED_2400 = 2400
+    SPEED_4800 = 4800
+    SPEED_9600 = 9600
+    SPEED_19200 = 19200
+    SPEED_38400 = 38400
+    SPEED_57600 = 57600
+    SPEED_115200 = 115200
+
+    CHOICES = (
+        (SPEED_1200, '1200 bps'),
+        (SPEED_2400, '2400 bps'),
+        (SPEED_4800, '4800 bps'),
+        (SPEED_9600, '9600 bps'),
+        (SPEED_19200, '19.2 kbps'),
+        (SPEED_38400, '38.4 kbps'),
+        (SPEED_57600, '57.6 kbps'),
+        (SPEED_115200, '115.2 kbps'),
+    )
+
+
 #
 # PowerPorts
 #

@@ -23,9 +23,10 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, NumericArrayField, SelectWithPK,
-    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
+    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -2312,6 +2313,11 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
+    speed = forms.MultipleChoiceField(
+        choices=ConsolePortSpeedChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 
@@ -2324,7 +2330,7 @@ class ConsolePortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'label', 'type', 'mark_connected', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2338,11 +2344,16 @@ class ConsolePortCreateForm(ComponentCreateForm):
         required=False,
         widget=StaticSelect2()
     )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'mark_connected', 'description', 'tags')
+    speed = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortSpeedChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
 
 class ConsolePortBulkCreateForm(
-    form_from_model(ConsolePort, ['type', 'mark_connected']),
+    form_from_model(ConsolePort, ['type', 'speed', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = ConsolePort
@@ -2350,7 +2361,7 @@ class ConsolePortBulkCreateForm(
 
 
 class ConsolePortBulkEditForm(
-    form_from_model(ConsolePort, ['label', 'type', 'mark_connected', 'description']),
+    form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -2374,6 +2385,13 @@ class ConsolePortCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Port type'
     )
+    speed = CSVTypedChoiceField(
+        choices=ConsolePortSpeedChoices,
+        coerce=int,
+        empty_value=None,
+        required=False,
+        help_text='Port speed in bps'
+    )
 
     class Meta:
         model = ConsolePort
@@ -2392,6 +2410,11 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
+    speed = forms.MultipleChoiceField(
+        choices=ConsolePortSpeedChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 
@@ -2404,7 +2427,7 @@ class ConsoleServerPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'label', 'type', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'speed', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2418,19 +2441,24 @@ class ConsoleServerPortCreateForm(ComponentCreateForm):
         required=False,
         widget=StaticSelect2()
     )
-    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'description', 'tags')
+    speed = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortSpeedChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'speed', 'description', 'tags')
 
 
 class ConsoleServerPortBulkCreateForm(
-    form_from_model(ConsoleServerPort, ['type']),
+    form_from_model(ConsoleServerPort, ['type', 'speed']),
     DeviceBulkAddComponentForm
 ):
     model = ConsoleServerPort
-    field_order = ('name_pattern', 'label_pattern', 'type', 'description', 'tags')
+    field_order = ('name_pattern', 'label_pattern', 'type', 'speed', 'description', 'tags')
 
 
 class ConsoleServerPortBulkEditForm(
-    form_from_model(ConsoleServerPort, ['label', 'type', 'description']),
+    form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -2453,6 +2481,13 @@ class ConsoleServerPortCSVForm(CustomFieldModelCSVForm):
         choices=ConsolePortTypeChoices,
         required=False,
         help_text='Port type'
+    )
+    speed = CSVTypedChoiceField(
+        choices=ConsolePortSpeedChoices,
+        coerce=int,
+        empty_value=None,
+        required=False,
+        help_text='Port speed in bps'
     )
 
     class Meta:

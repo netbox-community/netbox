@@ -26,7 +26,11 @@
                     </tr>
                     <tr>
                         <td>Type</td>
-                        <td>{{ object.get_type_display }}</td>
+                        <td>{{ object.get_type_display|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Speed</td>
+                        <td>{{ object.get_speed_display|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Description</td>

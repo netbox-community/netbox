@@ -504,14 +504,19 @@ class ConsoleServerPortSerializer(TaggedObjectSerializer, CableTerminationSerial
         allow_blank=True,
         required=False
     )
+    speed = ChoiceField(
+        choices=ConsolePortSpeedChoices,
+        allow_blank=True,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
-            'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
-            'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable',
+            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 
@@ -523,14 +528,19 @@ class ConsolePortSerializer(TaggedObjectSerializer, CableTerminationSerializer, 
         allow_blank=True,
         required=False
     )
+    speed = ChoiceField(
+        choices=ConsolePortSpeedChoices,
+        allow_blank=True,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
-            'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
-            'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable',
+            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 

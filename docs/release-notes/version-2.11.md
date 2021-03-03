@@ -15,6 +15,7 @@ In addition to the new `mark_connected` boolean field, the REST API representati
 ### Enhancements
 
 * [#5370](https://github.com/netbox-community/netbox/issues/5370) - Extend custom field support to organizational models
+* [#5375](https://github.com/netbox-community/netbox/issues/5375) - Add `speed` attribute to console port models
 * [#5401](https://github.com/netbox-community/netbox/issues/5401) - Extend custom field support to device component models
 * [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add support for multiple-selection custom fields
 * [#5894](https://github.com/netbox-community/netbox/issues/5894) - Use primary keys when filtering object lists by related objects in the UI

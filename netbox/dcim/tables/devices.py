@@ -249,10 +249,10 @@ class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'pk', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
             'connection', 'tags',
         )
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'speed', 'description')
 
 
 class DeviceConsolePortTable(ConsolePortTable):
@@ -269,10 +269,10 @@ class DeviceConsolePortTable(ConsolePortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer', 'connection',
-            'tags', 'actions'
+            'pk', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
         }
@@ -286,10 +286,10 @@ class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'pk', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
             'connection', 'tags',
         )
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'speed', 'description')
 
 
 class DeviceConsoleServerPortTable(ConsoleServerPortTable):
@@ -307,10 +307,10 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer', 'connection', 'tags',
-            'actions',
+            'pk', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
         }
