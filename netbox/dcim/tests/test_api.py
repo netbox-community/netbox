@@ -8,7 +8,7 @@ from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 from ipam.models import VLAN
 from utilities.testing import APITestCase, APIViewTestCases
@@ -135,8 +135,8 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class RackGroupTest(APIViewTestCases.APIViewTestCase):
-    model = RackGroup
+class LocationTest(APIViewTestCases.APIViewTestCase):
+    model = Location
     brief_fields = ['_depth', 'id', 'name', 'rack_count', 'slug', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -151,33 +151,33 @@ class RackGroupTest(APIViewTestCases.APIViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
-        parent_rack_groups = (
-            RackGroup.objects.create(site=sites[0], name='Parent Rack Group 1', slug='parent-rack-group-1'),
-            RackGroup.objects.create(site=sites[1], name='Parent Rack Group 2', slug='parent-rack-group-2'),
+        parent_locations = (
+            Location.objects.create(site=sites[0], name='Parent Location 1', slug='parent-location-1'),
+            Location.objects.create(site=sites[1], name='Parent Location 2', slug='parent-location-2'),
         )
 
-        RackGroup.objects.create(site=sites[0], name='Rack Group 1', slug='rack-group-1', parent=parent_rack_groups[0])
-        RackGroup.objects.create(site=sites[0], name='Rack Group 2', slug='rack-group-2', parent=parent_rack_groups[0])
-        RackGroup.objects.create(site=sites[0], name='Rack Group 3', slug='rack-group-3', parent=parent_rack_groups[0])
+        Location.objects.create(site=sites[0], name='Location 1', slug='location-1', parent=parent_locations[0])
+        Location.objects.create(site=sites[0], name='Location 2', slug='location-2', parent=parent_locations[0])
+        Location.objects.create(site=sites[0], name='Location 3', slug='location-3', parent=parent_locations[0])
 
         cls.create_data = [
             {
-                'name': 'Test Rack Group 4',
-                'slug': 'test-rack-group-4',
+                'name': 'Test Location 4',
+                'slug': 'test-location-4',
                 'site': sites[1].pk,
-                'parent': parent_rack_groups[1].pk,
+                'parent': parent_locations[1].pk,
             },
             {
-                'name': 'Test Rack Group 5',
-                'slug': 'test-rack-group-5',
+                'name': 'Test Location 5',
+                'slug': 'test-location-5',
                 'site': sites[1].pk,
-                'parent': parent_rack_groups[1].pk,
+                'parent': parent_locations[1].pk,
             },
             {
-                'name': 'Test Rack Group 6',
-                'slug': 'test-rack-group-6',
+                'name': 'Test Location 6',
+                'slug': 'test-location-6',
                 'site': sites[1].pk,
-                'parent': parent_rack_groups[1].pk,
+                'parent': parent_locations[1].pk,
             },
         ]
 
@@ -233,9 +233,9 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup.objects.create(site=sites[0], name='Rack Group 1', slug='rack-group-1'),
-            RackGroup.objects.create(site=sites[1], name='Rack Group 2', slug='rack-group-2'),
+        locations = (
+            Location.objects.create(site=sites[0], name='Location 1', slug='location-1'),
+            Location.objects.create(site=sites[1], name='Location 2', slug='location-2'),
         )
 
         rack_roles = (
@@ -245,9 +245,9 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         RackRole.objects.bulk_create(rack_roles)
 
         racks = (
-            Rack(site=sites[0], group=rack_groups[0], role=rack_roles[0], name='Rack 1'),
-            Rack(site=sites[0], group=rack_groups[0], role=rack_roles[0], name='Rack 2'),
-            Rack(site=sites[0], group=rack_groups[0], role=rack_roles[0], name='Rack 3'),
+            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 1'),
+            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 2'),
+            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 3'),
         )
         Rack.objects.bulk_create(racks)
 
@@ -255,19 +255,19 @@ class RackTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Test Rack 4',
                 'site': sites[1].pk,
-                'group': rack_groups[1].pk,
+                'location': locations[1].pk,
                 'role': rack_roles[1].pk,
             },
             {
                 'name': 'Test Rack 5',
                 'site': sites[1].pk,
-                'group': rack_groups[1].pk,
+                'location': locations[1].pk,
                 'role': rack_roles[1].pk,
             },
             {
                 'name': 'Test Rack 6',
                 'site': sites[1].pk,
-                'group': rack_groups[1].pk,
+                'location': locations[1].pk,
                 'role': rack_roles[1].pk,
             },
         ]
@@ -1588,17 +1588,17 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
             Site.objects.create(name='Site 2', slug='site-2'),
         )
 
-        rack_groups = (
-            RackGroup.objects.create(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup.objects.create(name='Rack Group 2', slug='rack-group-2', site=sites[0]),
-            RackGroup.objects.create(name='Rack Group 3', slug='rack-group-3', site=sites[0]),
-            RackGroup.objects.create(name='Rack Group 4', slug='rack-group-3', site=sites[1]),
+        locations = (
+            Location.objects.create(name='Location 1', slug='location-1', site=sites[0]),
+            Location.objects.create(name='Location 2', slug='location-2', site=sites[0]),
+            Location.objects.create(name='Location 3', slug='location-3', site=sites[0]),
+            Location.objects.create(name='Location 4', slug='location-3', site=sites[1]),
         )
 
         power_panels = (
-            PowerPanel(site=sites[0], rack_group=rack_groups[0], name='Power Panel 1'),
-            PowerPanel(site=sites[0], rack_group=rack_groups[1], name='Power Panel 2'),
-            PowerPanel(site=sites[0], rack_group=rack_groups[2], name='Power Panel 3'),
+            PowerPanel(site=sites[0], location=locations[0], name='Power Panel 1'),
+            PowerPanel(site=sites[0], location=locations[1], name='Power Panel 2'),
+            PowerPanel(site=sites[0], location=locations[2], name='Power Panel 3'),
         )
         PowerPanel.objects.bulk_create(power_panels)
 
@@ -1606,23 +1606,23 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Power Panel 4',
                 'site': sites[0].pk,
-                'rack_group': rack_groups[0].pk,
+                'location': locations[0].pk,
             },
             {
                 'name': 'Power Panel 5',
                 'site': sites[0].pk,
-                'rack_group': rack_groups[1].pk,
+                'location': locations[1].pk,
             },
             {
                 'name': 'Power Panel 6',
                 'site': sites[0].pk,
-                'rack_group': rack_groups[2].pk,
+                'location': locations[2].pk,
             },
         ]
 
         cls.bulk_update_data = {
             'site': sites[1].pk,
-            'rack_group': rack_groups[3].pk
+            'location': locations[3].pk
         }
 
 
@@ -1636,20 +1636,20 @@ class PowerFeedTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
         site = Site.objects.create(name='Site 1', slug='site-1')
-        rackgroup = RackGroup.objects.create(site=site, name='Rack Group 1', slug='rack-group-1')
+        location = Location.objects.create(site=site, name='Location 1', slug='location-1')
         rackrole = RackRole.objects.create(name='Rack Role 1', slug='rack-role-1', color='ff0000')
 
         racks = (
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 1'),
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 2'),
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 3'),
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 4'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 1'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 2'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 3'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 4'),
         )
         Rack.objects.bulk_create(racks)
 
         power_panels = (
-            PowerPanel(site=site, rack_group=rackgroup, name='Power Panel 1'),
-            PowerPanel(site=site, rack_group=rackgroup, name='Power Panel 2'),
+            PowerPanel(site=site, location=location, name='Power Panel 1'),
+            PowerPanel(site=site, location=location, name='Power Panel 2'),
         )
         PowerPanel.objects.bulk_create(power_panels)
 

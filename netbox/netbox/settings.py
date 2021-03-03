@@ -428,7 +428,7 @@ CACHEOPS = {
     'circuits.*': {'ops': 'all'},
     'dcim.inventoryitem': None,  # MPTT models are exempt due to raw SQL
     'dcim.region': None,  # MPTT models are exempt due to raw SQL
-    'dcim.rackgroup': None,  # MPTT models are exempt due to raw SQL
+    'dcim.location': None,  # MPTT models are exempt due to raw SQL
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},

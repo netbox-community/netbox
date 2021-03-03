@@ -35,7 +35,7 @@ from .models import (
     Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate,
-    Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 DEVICE_BY_PK_RE = r'{\d+\}'
@@ -358,10 +358,10 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 
 #
-# Rack groups
+# Locations
 #
 
-class RackGroupForm(BootstrapMixin, CustomFieldModelForm):
+class LocationForm(BootstrapMixin, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -376,7 +376,7 @@ class RackGroupForm(BootstrapMixin, CustomFieldModelForm):
         }
     )
     parent = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+        queryset=Location.objects.all(),
         required=False,
         query_params={
             'site_id': '$site'
@@ -385,20 +385,20 @@ class RackGroupForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
-        model = RackGroup
+        model = Location
         fields = (
             'region', 'site', 'parent', 'name', 'slug', 'description',
         )
 
 
-class RackGroupCSVForm(CustomFieldModelCSVForm):
+class LocationCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         help_text='Assigned site'
     )
     parent = CSVModelChoiceField(
-        queryset=RackGroup.objects.all(),
+        queryset=Location.objects.all(),
         required=False,
         to_field_name='name',
         help_text='Parent rack group',
@@ -408,11 +408,11 @@ class RackGroupCSVForm(CustomFieldModelCSVForm):
     )
 
     class Meta:
-        model = RackGroup
-        fields = RackGroup.csv_headers
+        model = Location
+        fields = Location.csv_headers
 
 
-class RackGroupFilterForm(BootstrapMixin, forms.Form):
+class LocationFilterForm(BootstrapMixin, forms.Form):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -427,7 +427,7 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
         label=_('Site')
     )
     parent = DynamicModelMultipleChoiceField(
-        queryset=RackGroup.objects.all(),
+        queryset=Location.objects.all(),
         required=False,
         query_params={
             'region_id': '$region_id',
@@ -480,8 +480,8 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
-    group = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         query_params={
             'site_id': '$site'
@@ -500,7 +500,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Rack
         fields = [
-            'region', 'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
+            'region', 'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
             'comments', 'tags',
         ]
@@ -523,8 +523,8 @@ class RackCSVForm(CustomFieldModelCSVForm):
         queryset=Site.objects.all(),
         to_field_name='name'
     )
-    group = CSVModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = CSVModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         to_field_name='name'
     )
@@ -569,9 +569,9 @@ class RackCSVForm(CustomFieldModelCSVForm):
 
         if data:
 
-            # Limit group queryset by assigned site
+            # Limit location queryset by assigned site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
-            self.fields['group'].queryset = self.fields['group'].queryset.filter(**params)
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
 class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -593,8 +593,8 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
             'region_id': '$region'
         }
     )
-    group = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         query_params={
             'site_id': '$site'
@@ -662,13 +662,13 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
     class Meta:
         nullable_fields = [
-            'group', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+            'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
         ]
 
 
 class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Rack
-    field_order = ['q', 'region_id', 'site_id', 'group_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
+    field_order = ['q', 'region_id', 'site_id', 'location_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
         required=False,
         label=_('Search')
@@ -686,14 +686,14 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         },
         label=_('Site')
     )
-    group_id = DynamicModelMultipleChoiceField(
-        queryset=RackGroup.objects.all(),
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         null_option='None',
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Rack group')
+        label=_('Location')
     )
     status = forms.MultipleChoiceField(
         choices=RackStatusChoices,
@@ -724,7 +724,9 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 #
 
 class RackElevationFilterForm(RackFilterForm):
-    field_order = ['q', 'region_id', 'site_id', 'group_id', 'id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
+    field_order = [
+        'q', 'region_id', 'site_id', 'location_id', 'id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
+    ]
     id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         label=_('Rack'),
@@ -732,7 +734,7 @@ class RackElevationFilterForm(RackFilterForm):
         display_field='display_name',
         query_params={
             'site_id': '$site_id',
-            'group_id_id': '$group_id_id',
+            'location_id': '$location_id',
         }
     )
 
@@ -756,8 +758,8 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
-    rack_group = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         query_params={
             'site_id': '$site'
@@ -768,7 +770,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         display_field='display_name',
         query_params={
             'site_id': '$site',
-            'group_id': '$rack_group',
+            'location_id': 'location',
         }
     )
     units = NumericArrayField(
@@ -789,10 +791,10 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = RackReservation
         fields = [
-            'region', 'site', 'rack_group', 'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'tags',
+            'region', 'site', 'location', 'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'tags',
         ]
         fieldsets = (
-            ('Reservation', ('region', 'site', 'rack_group', 'rack', 'units', 'user', 'description', 'tags')),
+            ('Reservation', ('region', 'site', 'location', 'rack', 'units', 'user', 'description', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
 
@@ -803,11 +805,11 @@ class RackReservationCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Parent site'
     )
-    rack_group = CSVModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = CSVModelChoiceField(
+        queryset=Location.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's group (if any)"
+        help_text="Rack's location (if any)"
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
@@ -828,21 +830,21 @@ class RackReservationCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RackReservation
-        fields = ('site', 'rack_group', 'rack', 'units', 'tenant', 'description')
+        fields = ('site', 'location', 'rack', 'units', 'tenant', 'description')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
         if data:
 
-            # Limit rack_group queryset by assigned site
+            # Limit location queryset by assigned site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
-            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
             # Limit rack queryset by assigned site and group
             params = {
                 f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"group__{self.fields['rack_group'].to_field_name}": data.get('rack_group'),
+                f"location__{self.fields['location'].to_field_name}": data.get('location'),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -874,7 +876,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
 
 class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
     model = RackReservation
-    field_order = ['q', 'region_id', 'site_id', 'group_id', 'user_id', 'tenant_group_id', 'tenant_id']
+    field_order = ['q', 'region_id', 'site_id', 'location_id', 'user_id', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
         required=False,
         label=_('Search')
@@ -892,10 +894,10 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
         },
         label=_('Region')
     )
-    group_id = DynamicModelMultipleChoiceField(
-        queryset=RackGroup.objects.prefetch_related('site'),
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.prefetch_related('site'),
         required=False,
-        label='Rack group',
+        label='Location',
         null_option='None'
     )
     user_id = DynamicModelMultipleChoiceField(
@@ -1782,8 +1784,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
-    rack_group = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         display_field='display_name',
         query_params={
@@ -1799,7 +1801,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         display_field='display_name',
         query_params={
             'site_id': '$site',
-            'group_id': '$rack_group',
+            'location_id': 'location',
         }
     )
     position = forms.IntegerField(
@@ -2003,11 +2005,11 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         to_field_name='name',
         help_text='Assigned site'
     )
-    rack_group = CSVModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = CSVModelChoiceField(
+        queryset=Location.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's group (if any)"
+        help_text="Rack's location (if any)"
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
@@ -2024,7 +2026,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'rack_group', 'rack', 'position', 'face', 'cluster', 'comments',
+            'site', 'location', 'rack', 'position', 'face', 'cluster', 'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -2032,14 +2034,14 @@ class DeviceCSVForm(BaseDeviceCSVForm):
 
         if data:
 
-            # Limit rack_group queryset by assigned site
+            # Limit location queryset by assigned site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
-            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
             # Limit rack queryset by assigned site and group
             params = {
                 f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"group__{self.fields['rack_group'].to_field_name}": data.get('rack_group'),
+                f"location__{self.fields['location'].to_field_name}": data.get('location'),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -2135,7 +2137,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
     field_order = [
-        'q', 'region_id', 'site_id', 'rack_group_id', 'rack_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
+        'q', 'region_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
         'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
@@ -2153,10 +2155,10 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             'region_id': '$region_id'
         }
     )
-    rack_group_id = DynamicModelMultipleChoiceField(
-        queryset=RackGroup.objects.all(),
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
         required=False,
-        label=_('Rack group'),
+        label=_('Location'),
         query_params={
             'site_id': '$site_id'
         }
@@ -2167,7 +2169,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         null_option='None',
         query_params={
             'site_id': '$site_id',
-            'group_id': '$rack_group_id',
+            'location_id': '$location_id',
         },
         label=_('Rack')
     )
@@ -3834,9 +3836,9 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, CustomFieldModelForm):
             'region_id': '$termination_b_region'
         }
     )
-    termination_b_rackgroup = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
-        label='Rack Group',
+    termination_b_location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        label='Location',
         required=False,
         display_field='cid',
         query_params={
@@ -3849,7 +3851,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, CustomFieldModelForm):
         required=False,
         query_params={
             'site_id': '$termination_b_site',
-            'rack_group_id': '$termination_b_rackgroup',
+            'location_id': '$termination_b_location',
         }
     )
     termination_b_id = DynamicModelChoiceField(
@@ -3868,7 +3870,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Cable
         fields = [
-            'termination_b_rackgroup', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'label',
+            'termination_b_location', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'label',
             'color', 'length', 'length_unit', 'tags',
         ]
 
@@ -4450,8 +4452,8 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
-    rack_group = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         query_params={
             'site_id': '$site'
@@ -4465,10 +4467,10 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = PowerPanel
         fields = [
-            'region', 'site', 'rack_group', 'name', 'tags',
+            'region', 'site', 'location', 'name', 'tags',
         ]
         fieldsets = (
-            ('Power Panel', ('region', 'site', 'rack_group', 'name', 'tags')),
+            ('Power Panel', ('region', 'site', 'location', 'name', 'tags')),
         )
 
 
@@ -4478,8 +4480,8 @@ class PowerPanelCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Name of parent site'
     )
-    rack_group = CSVModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = CSVModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         to_field_name='name'
     )
@@ -4495,7 +4497,7 @@ class PowerPanelCSVForm(CustomFieldModelCSVForm):
 
             # Limit group queryset by assigned site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
-            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
 class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -4517,8 +4519,8 @@ class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkE
             'region_id': '$region'
         }
     )
-    rack_group = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         query_params={
             'site_id': '$site'
@@ -4526,7 +4528,7 @@ class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkE
     )
 
     class Meta:
-        nullable_fields = ['rack_group']
+        nullable_fields = ['location']
 
 
 class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -4548,14 +4550,14 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
         },
         label=_('Site')
     )
-    rack_group_id = DynamicModelMultipleChoiceField(
-        queryset=RackGroup.objects.all(),
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
         required=False,
         null_option='None',
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Rack group')
+        label=_('Location')
     )
     tag = TagFilterField(model)
 
@@ -4632,11 +4634,11 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Upstream power panel'
     )
-    rack_group = CSVModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    location = CSVModelChoiceField(
+        queryset=Location.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's group (if any)"
+        help_text="Rack's location (if any)"
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
@@ -4678,14 +4680,14 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
             self.fields['power_panel'].queryset = self.fields['power_panel'].queryset.filter(**params)
 
-            # Limit rack_group queryset by site
+            # Limit location queryset by site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
-            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
             # Limit rack queryset by site and group
             params = {
                 f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"group__{self.fields['rack_group'].to_field_name}": data.get('rack_group'),
+                f"location__{self.fields['location'].to_field_name}": data.get('location'),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -4748,7 +4750,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
 
     class Meta:
         nullable_fields = [
-            'rackgroup', 'comments',
+            'location', 'comments',
         ]
 
 

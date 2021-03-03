@@ -27,7 +27,7 @@ __all__ = [
     'NestedPowerPanelSerializer',
     'NestedPowerPortSerializer',
     'NestedPowerPortTemplateSerializer',
-    'NestedRackGroupSerializer',
+    'NestedLocationSerializer',
     'NestedRackReservationSerializer',
     'NestedRackRoleSerializer',
     'NestedRackSerializer',
@@ -65,13 +65,13 @@ class NestedSiteSerializer(WritableNestedSerializer):
 # Racks
 #
 
-class NestedRackGroupSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
+class NestedLocationSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
     rack_count = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
-        model = models.RackGroup
+        model = models.Location
         fields = ['id', 'url', 'name', 'slug', 'rack_count', '_depth']
 
 

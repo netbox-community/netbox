@@ -600,7 +600,7 @@ class Device(PrimaryModel, ConfigContextModel):
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-        'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
+        'site', 'location', 'rack_name', 'position', 'face', 'comments',
     ]
     clone_fields = [
         'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
@@ -799,7 +799,7 @@ class Device(PrimaryModel, ConfigContextModel):
             self.asset_tag,
             self.get_status_display(),
             self.site.name,
-            self.rack.group.name if self.rack and self.rack.group else None,
+            self.rack.location.name if self.rack and self.rack.location else None,
             self.rack.name if self.rack else None,
             self.position,
             self.get_face_display(),

@@ -1,18 +1,18 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, RackGroup, RackReservation, RackRole
+from dcim.models import Rack, Location, RackReservation, RackRole
 from tenancy.tables import COL_TENANT
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn,
     ToggleColumn,
 )
-from .template_code import MPTT_LINK, RACKGROUP_ELEVATIONS, UTILIZATION_GRAPH
+from .template_code import MPTT_LINK, LOCATION_ELEVATIONS, UTILIZATION_GRAPH
 
 __all__ = (
     'RackTable',
     'RackDetailTable',
-    'RackGroupTable',
+    'LocationTable',
     'RackReservationTable',
     'RackRoleTable',
 )
@@ -22,7 +22,7 @@ __all__ = (
 # Rack groups
 #
 
-class RackGroupTable(BaseTable):
+class LocationTable(BaseTable):
     pk = ToggleColumn()
     name = tables.TemplateColumn(
         template_code=MPTT_LINK,
@@ -36,12 +36,12 @@ class RackGroupTable(BaseTable):
         verbose_name='Racks'
     )
     actions = ButtonsColumn(
-        model=RackGroup,
-        prepend_template=RACKGROUP_ELEVATIONS
+        model=Location,
+        prepend_template=LOCATION_ELEVATIONS
     )
 
     class Meta(BaseTable.Meta):
-        model = RackGroup
+        model = Location
         fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
         default_columns = ('pk', 'name', 'site', 'rack_count', 'description', 'actions')
 

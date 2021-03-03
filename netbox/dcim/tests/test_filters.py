@@ -7,7 +7,7 @@ from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerPortTemplate, PowerOutlet,
-    PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    PowerOutletTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
 from ipam.models import IPAddress
@@ -168,9 +168,9 @@ class SiteTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackGroupTestCase(TestCase):
-    queryset = RackGroup.objects.all()
-    filterset = RackGroupFilterSet
+class LocationTestCase(TestCase):
+    queryset = Location.objects.all()
+    filterset = LocationFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -190,32 +190,32 @@ class RackGroupTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
-        parent_rack_groups = (
-            RackGroup(name='Parent Rack Group 1', slug='parent-rack-group-1', site=sites[0]),
-            RackGroup(name='Parent Rack Group 2', slug='parent-rack-group-2', site=sites[1]),
-            RackGroup(name='Parent Rack Group 3', slug='parent-rack-group-3', site=sites[2]),
+        parent_locations = (
+            Location(name='Parent Location 1', slug='parent-location-1', site=sites[0]),
+            Location(name='Parent Location 2', slug='parent-location-2', site=sites[1]),
+            Location(name='Parent Location 3', slug='parent-location-3', site=sites[2]),
         )
-        for rackgroup in parent_rack_groups:
-            rackgroup.save()
+        for location in parent_locations:
+            location.save()
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0], parent=parent_rack_groups[0], description='A'),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1], parent=parent_rack_groups[1], description='B'),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2], parent=parent_rack_groups[2], description='C'),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0], parent=parent_locations[0], description='A'),
+            Location(name='Location 2', slug='location-2', site=sites[1], parent=parent_locations[1], description='B'),
+            Location(name='Location 3', slug='location-3', site=sites[2], parent=parent_locations[2], description='C'),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
-        params = {'name': ['Rack Group 1', 'Rack Group 2']}
+        params = {'name': ['Location 1', 'Location 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
-        params = {'slug': ['rack-group-1', 'rack-group-2']}
+        params = {'slug': ['location-1', 'location-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -237,7 +237,7 @@ class RackGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_parent(self):
-        parent_groups = RackGroup.objects.filter(name__startswith='Parent')[:2]
+        parent_groups = Location.objects.filter(name__startswith='Parent')[:2]
         params = {'parent_id': [parent_groups[0].pk, parent_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
@@ -297,13 +297,13 @@ class RackTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -328,9 +328,9 @@ class RackTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         racks = (
-            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], group=rack_groups[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], group=rack_groups[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], group=rack_groups[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
+            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
         )
         Rack.objects.bulk_create(racks)
 
@@ -395,11 +395,11 @@ class RackTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_group(self):
-        groups = RackGroup.objects.all()[:2]
-        params = {'group_id': [groups[0].pk, groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'group': [groups[0].slug, groups[1].slug]}
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
@@ -448,18 +448,18 @@ class RackReservationTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         racks = (
-            Rack(name='Rack 1', site=sites[0], group=rack_groups[0]),
-            Rack(name='Rack 2', site=sites[1], group=rack_groups[1]),
-            Rack(name='Rack 3', site=sites[2], group=rack_groups[2]),
+            Rack(name='Rack 1', site=sites[0], location=locations[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2]),
         )
         Rack.objects.bulk_create(racks)
 
@@ -503,11 +503,11 @@ class RackReservationTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_group(self):
-        groups = RackGroup.objects.all()[:2]
-        params = {'group_id': [groups[0].pk, groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'group': [groups[0].slug, groups[1].slug]}
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
@@ -1168,18 +1168,18 @@ class DeviceTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         racks = (
-            Rack(name='Rack 1', site=sites[0], group=rack_groups[0]),
-            Rack(name='Rack 2', site=sites[1], group=rack_groups[1]),
-            Rack(name='Rack 3', site=sites[2], group=rack_groups[2]),
+            Rack(name='Rack 1', site=sites[0], location=locations[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2]),
         )
         Rack.objects.bulk_create(racks)
 
@@ -1331,9 +1331,9 @@ class DeviceTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_rackgroup(self):
-        rack_groups = RackGroup.objects.all()[:2]
-        params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rack(self):
@@ -2589,18 +2589,18 @@ class PowerPanelTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         power_panels = (
-            PowerPanel(name='Power Panel 1', site=sites[0], rack_group=rack_groups[0]),
-            PowerPanel(name='Power Panel 2', site=sites[1], rack_group=rack_groups[1]),
-            PowerPanel(name='Power Panel 3', site=sites[2], rack_group=rack_groups[2]),
+            PowerPanel(name='Power Panel 1', site=sites[0], location=locations[0]),
+            PowerPanel(name='Power Panel 2', site=sites[1], location=locations[1]),
+            PowerPanel(name='Power Panel 3', site=sites[2], location=locations[2]),
         )
         PowerPanel.objects.bulk_create(power_panels)
 
@@ -2626,9 +2626,9 @@ class PowerPanelTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_rack_group(self):
-        rack_groups = RackGroup.objects.all()[:2]
-        params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

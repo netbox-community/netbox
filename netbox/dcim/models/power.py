@@ -32,8 +32,8 @@ class PowerPanel(PrimaryModel):
         to='Site',
         on_delete=models.PROTECT
     )
-    rack_group = models.ForeignKey(
-        to='RackGroup',
+    location = models.ForeignKey(
+        to='dcim.Location',
         on_delete=models.PROTECT,
         blank=True,
         null=True
@@ -45,7 +45,7 @@ class PowerPanel(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['site', 'rack_group', 'name']
+    csv_headers = ['site', 'location', 'name']
 
     class Meta:
         ordering = ['site', 'name']
@@ -60,17 +60,17 @@ class PowerPanel(PrimaryModel):
     def to_csv(self):
         return (
             self.site.name,
-            self.rack_group.name if self.rack_group else None,
+            self.location.name if self.location else None,
             self.name,
         )
 
     def clean(self):
         super().clean()
 
-        # RackGroup must belong to assigned Site
-        if self.rack_group and self.rack_group.site != self.site:
+        # Location must belong to assigned Site
+        if self.location and self.location.site != self.site:
             raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
-                self.rack_group, self.rack_group.site, self.site
+                self.location, self.location.site, self.site
             ))
 
 
@@ -138,7 +138,7 @@ class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
     objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
-        'site', 'power_panel', 'rack_group', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
+        'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
         'voltage', 'amperage', 'max_utilization', 'comments',
     ]
     clone_fields = [
@@ -160,7 +160,7 @@ class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
         return (
             self.power_panel.site.name,
             self.power_panel.name,
-            self.rack.group.name if self.rack and self.rack.group else None,
+            self.rack.location.name if self.rack and self.rack.location else None,
             self.rack.name if self.rack else None,
             self.name,
             self.get_status_display(),

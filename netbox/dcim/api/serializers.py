@@ -10,7 +10,7 @@ from dcim.models import (
     Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
 from netbox.api.serializers import CustomFieldModelSerializer
@@ -121,14 +121,14 @@ class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # Racks
 #
 
-class RackGroupSerializer(NestedGroupModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
+class LocationSerializer(NestedGroupModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
     site = NestedSiteSerializer()
-    parent = NestedRackGroupSerializer(required=False, allow_null=True)
+    parent = NestedLocationSerializer(required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = RackGroup
+        model = Location
         fields = [
             'id', 'url', 'name', 'slug', 'site', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
             'rack_count', '_depth',
@@ -150,7 +150,7 @@ class RackRoleSerializer(OrganizationalModelSerializer):
 class RackSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rack-detail')
     site = NestedSiteSerializer()
-    group = NestedRackGroupSerializer(required=False, allow_null=True, default=None)
+    location = NestedLocationSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=RackStatusChoices, required=False)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
@@ -163,21 +163,22 @@ class RackSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'url', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
+            'id', 'url', 'name', 'facility_id', 'display_name', 'site', 'location', 'tenant', 'status', 'role',
+            'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
+            'outer_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'powerfeed_count',
         ]
-        # Omit the UniqueTogetherValidator that would be automatically added to validate (group, facility_id). This
+        # Omit the UniqueTogetherValidator that would be automatically added to validate (location, facility_id). This
         # prevents facility_id from being interpreted as a required field.
         validators = [
-            UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('group', 'name'))
+            UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('location', 'name'))
         ]
 
     def validate(self, data):
 
-        # Validate uniqueness of (group, facility_id) since we omitted the automatically-created validator from Meta.
+        # Validate uniqueness of (location, facility_id) since we omitted the automatically-created validator from Meta.
         if data.get('facility_id', None):
-            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('group', 'facility_id'))
+            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('location', 'facility_id'))
             validator(data, self)
 
         # Enforce model validation
@@ -856,7 +857,7 @@ class VirtualChassisSerializer(TaggedObjectSerializer, CustomFieldModelSerialize
 class PowerPanelSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerpanel-detail')
     site = NestedSiteSerializer()
-    rack_group = NestedRackGroupSerializer(
+    location = NestedLocationSerializer(
         required=False,
         allow_null=True,
         default=None
@@ -865,7 +866,7 @@ class PowerPanelSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 
     class Meta:
         model = PowerPanel
-        fields = ['id', 'url', 'site', 'rack_group', 'name', 'tags', 'custom_fields', 'powerfeed_count']
+        fields = ['id', 'url', 'site', 'location', 'name', 'tags', 'custom_fields', 'powerfeed_count']
 
 
 class PowerFeedSerializer(

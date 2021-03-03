@@ -34,7 +34,7 @@ __all__ = (
     'PowerPort',
     'PowerPortTemplate',
     'Rack',
-    'RackGroup',
+    'Location',
     'RackReservation',
     'RackRole',
     'RearPort',

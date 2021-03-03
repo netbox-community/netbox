@@ -30,7 +30,7 @@ from .models import (
     Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, PathEndpoint, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    PowerPort, PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
 
@@ -161,17 +161,17 @@ class SiteView(generic.ObjectView):
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).count(),
             'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance).count(),
         }
-        rack_groups = RackGroup.objects.add_related_count(
-            RackGroup.objects.all(),
+        locations = Location.objects.add_related_count(
+            Location.objects.all(),
             Rack,
-            'group',
+            'location',
             'rack_count',
             cumulative=True
         ).restrict(request.user, 'view').filter(site=instance)
 
         return {
             'stats': stats,
-            'rack_groups': rack_groups,
+            'locations': locations,
         }
 
 
@@ -207,44 +207,44 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
 # Rack groups
 #
 
-class RackGroupListView(generic.ObjectListView):
-    queryset = RackGroup.objects.add_related_count(
-        RackGroup.objects.all(),
+class LocationListView(generic.ObjectListView):
+    queryset = Location.objects.add_related_count(
+        Location.objects.all(),
         Rack,
-        'group',
+        'location',
         'rack_count',
         cumulative=True
     )
-    filterset = filters.RackGroupFilterSet
-    filterset_form = forms.RackGroupFilterForm
-    table = tables.RackGroupTable
+    filterset = filters.LocationFilterSet
+    filterset_form = forms.LocationFilterForm
+    table = tables.LocationTable
 
 
-class RackGroupEditView(generic.ObjectEditView):
-    queryset = RackGroup.objects.all()
-    model_form = forms.RackGroupForm
+class LocationEditView(generic.ObjectEditView):
+    queryset = Location.objects.all()
+    model_form = forms.LocationForm
 
 
-class RackGroupDeleteView(generic.ObjectDeleteView):
-    queryset = RackGroup.objects.all()
+class LocationDeleteView(generic.ObjectDeleteView):
+    queryset = Location.objects.all()
 
 
-class RackGroupBulkImportView(generic.BulkImportView):
-    queryset = RackGroup.objects.all()
-    model_form = forms.RackGroupCSVForm
-    table = tables.RackGroupTable
+class LocationBulkImportView(generic.BulkImportView):
+    queryset = Location.objects.all()
+    model_form = forms.LocationCSVForm
+    table = tables.LocationTable
 
 
-class RackGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = RackGroup.objects.add_related_count(
-        RackGroup.objects.all(),
+class LocationBulkDeleteView(generic.BulkDeleteView):
+    queryset = Location.objects.add_related_count(
+        Location.objects.all(),
         Rack,
-        'group',
+        'location',
         'rack_count',
         cumulative=True
     ).prefetch_related('site')
-    filterset = filters.RackGroupFilterSet
-    table = tables.RackGroupTable
+    filterset = filters.LocationFilterSet
+    table = tables.LocationTable
 
 
 #
@@ -286,7 +286,7 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 
 class RackListView(generic.ObjectListView):
     queryset = Rack.objects.prefetch_related(
-        'site', 'group', 'tenant', 'role', 'devices__device_type'
+        'site', 'location', 'tenant', 'role', 'devices__device_type'
     ).annotate(
         device_count=count_related(Device, 'rack')
     )
@@ -338,7 +338,7 @@ class RackElevationListView(generic.ObjectListView):
 
 
 class RackView(generic.ObjectView):
-    queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role')
+    queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'location', 'role')
 
     def get_extra_context(self, request, instance):
         # Get 0U and child devices located within the rack
@@ -349,10 +349,10 @@ class RackView(generic.ObjectView):
 
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
-        if instance.group:
-            peer_racks = peer_racks.filter(group=instance.group)
+        if instance.location:
+            peer_racks = peer_racks.filter(location=instance.location)
         else:
-            peer_racks = peer_racks.filter(group__isnull=True)
+            peer_racks = peer_racks.filter(location__isnull=True)
         next_rack = peer_racks.filter(name__gt=instance.name).order_by('name').first()
         prev_rack = peer_racks.filter(name__lt=instance.name).order_by('-name').first()
 
@@ -390,14 +390,14 @@ class RackBulkImportView(generic.BulkImportView):
 
 
 class RackBulkEditView(generic.BulkEditView):
-    queryset = Rack.objects.prefetch_related('site', 'group', 'tenant', 'role')
+    queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'role')
     filterset = filters.RackFilterSet
     table = tables.RackTable
     form = forms.RackBulkEditForm
 
 
 class RackBulkDeleteView(generic.BulkDeleteView):
-    queryset = Rack.objects.prefetch_related('site', 'group', 'tenant', 'role')
+    queryset = Rack.objects.prefetch_related('site', 'location', 'tenant', 'role')
     filterset = filters.RackFilterSet
     table = tables.RackTable
 
@@ -982,7 +982,7 @@ class DeviceListView(generic.ObjectListView):
 
 class DeviceView(generic.ObjectView):
     queryset = Device.objects.prefetch_related(
-        'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
+        'site__region', 'rack__location', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
     )
 
     def get_extra_context(self, request, instance):
@@ -2560,7 +2560,7 @@ class VirtualChassisBulkDeleteView(generic.BulkDeleteView):
 
 class PowerPanelListView(generic.ObjectListView):
     queryset = PowerPanel.objects.prefetch_related(
-        'site', 'rack_group'
+        'site', 'location'
     ).annotate(
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
@@ -2570,7 +2570,7 @@ class PowerPanelListView(generic.ObjectListView):
 
 
 class PowerPanelView(generic.ObjectView):
-    queryset = PowerPanel.objects.prefetch_related('site', 'rack_group')
+    queryset = PowerPanel.objects.prefetch_related('site', 'location')
 
     def get_extra_context(self, request, instance):
         power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=instance).prefetch_related('rack')
@@ -2601,7 +2601,7 @@ class PowerPanelBulkImportView(generic.BulkImportView):
 
 
 class PowerPanelBulkEditView(generic.BulkEditView):
-    queryset = PowerPanel.objects.prefetch_related('site', 'rack_group')
+    queryset = PowerPanel.objects.prefetch_related('site', 'location')
     filterset = filters.PowerPanelFilterSet
     table = tables.PowerPanelTable
     form = forms.PowerPanelBulkEditForm
@@ -2609,7 +2609,7 @@ class PowerPanelBulkEditView(generic.BulkEditView):
 
 class PowerPanelBulkDeleteView(generic.BulkDeleteView):
     queryset = PowerPanel.objects.prefetch_related(
-        'site', 'rack_group'
+        'site', 'location'
     ).annotate(
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )

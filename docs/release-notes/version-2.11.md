@@ -19,6 +19,7 @@ In addition to the new `mark_connected` boolean field, the REST API representati
 * [#5401](https://github.com/netbox-community/netbox/issues/5401) - Extend custom field support to device component models
 * [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add support for multiple-selection custom fields
 * [#5894](https://github.com/netbox-community/netbox/issues/5894) - Use primary keys when filtering object lists by related objects in the UI
+* [#5895](https://github.com/netbox-community/netbox/issues/5895) - Rename RackGroup to Location
 * [#5901](https://github.com/netbox-community/netbox/issues/5901) - Add `created` and `last_updated` fields to device component models
 
 ### Other Changes
@@ -39,5 +40,11 @@ In addition to the new `mark_connected` boolean field, the REST API representati
 * All cable termination models (cabled device components, power feeds, and circuit terminations)
   * Added `mark_connected` boolean field to force connection status
   * Added `_occupied` read-only boolean field as common attribute for determining whether an object is occupied
+* Renamed RackGroup to Location
+  * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
+* dcim.PowerPanel
+  * Renamed `rack_group` field to `location`
+* dcim.Rack
+  * Renamed `group` field to `location`
 * extras.CustomField
   * Added new custom field type: `multi-select`

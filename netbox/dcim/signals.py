@@ -7,7 +7,7 @@ from django.db import transaction
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
-from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, RackGroup, VirtualChassis
+from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
 
 
 def create_cablepath(node):
@@ -40,20 +40,20 @@ def rebuild_paths(obj):
 # Site/rack/device assignment
 #
 
-@receiver(post_save, sender=RackGroup)
-def handle_rackgroup_site_change(instance, created, **kwargs):
+@receiver(post_save, sender=Location)
+def handle_location_site_change(instance, created, **kwargs):
     """
-    Update child RackGroups and Racks if Site assignment has changed. We intentionally recurse through each child
+    Update child Locations and Racks if Site assignment has changed. We intentionally recurse through each child
     object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
     """
     if not created:
-        for rackgroup in instance.get_children():
-            rackgroup.site = instance.site
-            rackgroup.save()
-        for rack in Rack.objects.filter(group=instance).exclude(site=instance.site):
+        for location in instance.get_children():
+            location.site = instance.site
+            location.save()
+        for rack in Rack.objects.filter(location=instance).exclude(site=instance.site):
             rack.site = instance.site
             rack.save()
-        for powerpanel in PowerPanel.objects.filter(rack_group=instance).exclude(site=instance.site):
+        for powerpanel in PowerPanel.objects.filter(location=instance).exclude(site=instance.site):
             powerpanel.site = instance.site
             powerpanel.save()
 

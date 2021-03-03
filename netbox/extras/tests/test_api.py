@@ -9,7 +9,7 @@ from django_rq.queues import get_connection
 from rest_framework import status
 from rq import Worker
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
 from extras.models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, Tag
 from extras.reports import Report
@@ -382,13 +382,13 @@ class CreatedUpdatedFilterTest(APITestCase):
         super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.location1 = Location.objects.create(site=self.site1, name='Test Location 1', slug='test-location-1')
         self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
         self.rack1 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 1', u_height=42,
         )
         self.rack2 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2', u_height=42,
+            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 2', u_height=42,
         )
 
         # change the created and last_updated of one

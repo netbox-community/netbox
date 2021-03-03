@@ -61,13 +61,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Group</td>
+                    <td>Location</td>
                     <td>
-                        {% if object.group %}
-                            {% for group in object.group.get_ancestors %}
-                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> /
+                        {% if object.location %}
+                            {% for location in object.location.get_ancestors %}
+                                <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
                             {% endfor %}
-                            <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+                            <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

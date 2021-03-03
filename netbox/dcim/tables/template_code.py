@@ -76,8 +76,8 @@ POWERFEED_CABLETERMINATION = """
 <a href="{{ value.get_absolute_url }}">{{ value }}</a>
 """
 
-RACKGROUP_ELEVATIONS = """
-<a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
+LOCATION_ELEVATIONS = """
+<a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&location_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
     <i class="mdi mdi-server"></i>
 </a>
 """

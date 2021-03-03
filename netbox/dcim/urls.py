@@ -5,7 +5,7 @@ from ipam.views import ServiceEditView
 from . import views
 from .models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, FrontPort, Interface,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, RackGroup,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, Location,
     RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
 
@@ -33,14 +33,14 @@ urlpatterns = [
     path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
     path('sites/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
-    # Rack groups
-    path('rack-groups/', views.RackGroupListView.as_view(), name='rackgroup_list'),
-    path('rack-groups/add/', views.RackGroupEditView.as_view(), name='rackgroup_add'),
-    path('rack-groups/import/', views.RackGroupBulkImportView.as_view(), name='rackgroup_import'),
-    path('rack-groups/delete/', views.RackGroupBulkDeleteView.as_view(), name='rackgroup_bulk_delete'),
-    path('rack-groups/<int:pk>/edit/', views.RackGroupEditView.as_view(), name='rackgroup_edit'),
-    path('rack-groups/<int:pk>/delete/', views.RackGroupDeleteView.as_view(), name='rackgroup_delete'),
-    path('rack-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackgroup_changelog', kwargs={'model': RackGroup}),
+    # Locations
+    path('locations/', views.LocationListView.as_view(), name='location_list'),
+    path('locations/add/', views.LocationEditView.as_view(), name='location_add'),
+    path('locations/import/', views.LocationBulkImportView.as_view(), name='location_import'),
+    path('locations/delete/', views.LocationBulkDeleteView.as_view(), name='location_bulk_delete'),
+    path('locations/<int:pk>/edit/', views.LocationEditView.as_view(), name='location_edit'),
+    path('locations/<int:pk>/delete/', views.LocationDeleteView.as_view(), name='location_delete'),
+    path('locations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='location_changelog', kwargs={'model': Location}),
 
     # Rack roles
     path('rack-roles/', views.RackRoleListView.as_view(), name='rackrole_list'),
