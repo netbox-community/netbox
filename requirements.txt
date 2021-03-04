@@ -21,3 +21,4 @@ psycopg2-binary==2.8.6
 pycryptodome==3.9.9
 PyYAML==5.3.1
 svgwrite==1.4
+tablib==3.0.0
