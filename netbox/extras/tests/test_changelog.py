@@ -151,6 +151,9 @@ class ChangeLogViewTest(ModelViewTestCase):
             'status': SiteStatusChoices.STATUS_PLANNED,
             'description': 'New description',
         }
+        print("Running test_bulk_update_objects")
+        print([site.pk for site in Site.objects.all()])
+        print(form_data)
 
         request = {
             'path': self._get_url('bulk_edit'),
