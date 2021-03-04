@@ -133,6 +133,9 @@ class BooleanColumn(tables.Column):
             rendered = '<span class="text-danger"><i class="mdi mdi-close-thick"></i></span>'
         return mark_safe(rendered)
 
+    def value(self, value):
+        return str(value)
+
 
 class ButtonsColumn(tables.TemplateColumn):
     """
@@ -177,6 +180,10 @@ class ButtonsColumn(tables.TemplateColumn):
 
         super().__init__(template_code=template_code, *args, **kwargs)
 
+        # Exclude from export by default
+        if 'exclude_from_export' not in kwargs:
+            self.exclude_from_export = True
+
         self.extra_context.update({
             'buttons': buttons or self.buttons,
             'return_url_extra': return_url_extra,
@@ -201,6 +208,9 @@ class ChoiceFieldColumn(tables.Column):
             )
         return self.default
 
+    def value(self, value):
+        return value
+
 
 class ColorColumn(tables.Column):
     """
@@ -210,6 +220,9 @@ class ColorColumn(tables.Column):
         return mark_safe(
             f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
         )
+
+    def value(self, value):
+        return f'#{value}'
 
 
 class ColoredLabelColumn(tables.TemplateColumn):
@@ -223,6 +236,9 @@ class ColoredLabelColumn(tables.TemplateColumn):
 
     def __init__(self, *args, **kwargs):
         super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        return str(value)
 
 
 class LinkedCountColumn(tables.Column):
@@ -247,6 +263,9 @@ class LinkedCountColumn(tables.Column):
             return mark_safe(f'<a href="{url}">{value}</a>')
         return value
 
+    def value(self, value):
+        return value
+
 
 class TagColumn(tables.TemplateColumn):
     """
@@ -265,3 +284,6 @@ class TagColumn(tables.TemplateColumn):
             template_code=self.template_code,
             extra_context={'url_name': url_name}
         )
+
+    def value(self, value):
+        return ",".join([tag.name for tag in value.all()])
