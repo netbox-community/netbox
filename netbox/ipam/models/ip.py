@@ -649,13 +649,7 @@ class IPAddress(PrimaryModel):
 
     def to_objectchange(self, action):
         # Annotate the assigned object, if any
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=self.assigned_object,
-            object_data=serialize_object(self)
-        )
+        return super().to_objectchange(action, related_object=self.assigned_object)
 
     def to_csv(self):
 

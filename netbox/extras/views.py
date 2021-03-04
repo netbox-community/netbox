@@ -178,16 +178,18 @@ class ObjectChangeView(generic.ObjectView):
         next_change = objectchanges.filter(time__gt=instance.time).order_by('time').first()
         prev_change = objectchanges.filter(time__lt=instance.time).order_by('-time').first()
 
-        if prev_change:
+        if instance.prechange_data and instance.postchange_data:
             diff_added = shallow_compare_dict(
-                prev_change.object_data,
-                instance.object_data,
+                instance.prechange_data or dict(),
+                instance.postchange_data or dict(),
                 exclude=['last_updated'],
             )
-            diff_removed = {x: prev_change.object_data.get(x) for x in diff_added}
+            diff_removed = {
+                x: instance.prechange_data.get(x) for x in diff_added
+            } if instance.prechange_data else {}
         else:
-            # No previous change; this is the initial change that added the object
-            diff_added = diff_removed = instance.object_data
+            diff_added = None
+            diff_removed = None
 
         return {
             'diff_added': diff_added,

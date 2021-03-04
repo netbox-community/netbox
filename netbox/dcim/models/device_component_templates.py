@@ -75,13 +75,7 @@ class ComponentTemplateModel(ChangeLoggingMixin, BigIDModel):
         except ObjectDoesNotExist:
             # The parent DeviceType has already been deleted
             device_type = None
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=device_type,
-            object_data=serialize_object(self)
-        )
+        return super().to_objectchange(action, related_object=device_type)
 
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')

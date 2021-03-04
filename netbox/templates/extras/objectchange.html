@@ -83,6 +83,8 @@
                     </tr>
                 </table>
             </div>
+        </div>
+        <div class="col-md-7">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Difference</strong>
@@ -113,13 +115,39 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+    </div>
+    <div class="row">
+        <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Object Data</strong>
+                    <strong>Pre-Change Data</strong>
                 </div>
                 <div class="panel-body">
-                    <pre>{{ object.object_data|render_json }}</pre>
+                  {% if object.prechange_data %}
+                    <pre>{% for k, v in object.prechange_data.items %}{% spaceless %}
+                      <span{% if k in diff_removed %} style="background-color: #ffdce0"{% endif %}>{{ k }}: {{ v|render_json }}</span>
+                    {% endspaceless %}
+{% endfor %}</pre>
+                  {% else %}
+                    <span class="text-muted">None</span>
+                  {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Post-Change Data</strong>
+                </div>
+                <div class="panel-body">
+                  {% if object.postchange_data %}
+                    <pre>{% for k, v in object.postchange_data.items %}{% spaceless %}
+                        <span{% if k in diff_added %} style="background-color: #cdffd8"{% endif %}>{{ k }}: {{ v|render_json }}</span>
+                      {% endspaceless %}
+{% endfor %}</pre>
+                  {% else %}
+                    <span class="text-muted">None</span>
+                  {% endif %}
                 </div>
             </div>
         </div>

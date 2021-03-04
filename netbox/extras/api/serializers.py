@@ -338,7 +338,7 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         model = ObjectChange
         fields = [
             'id', 'url', 'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type',
-            'changed_object_id', 'changed_object', 'object_data',
+            'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
