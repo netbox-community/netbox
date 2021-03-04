@@ -156,7 +156,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             'path': self._get_url('bulk_edit'),
             'data': post_data(form_data),
         }
-        self.add_permissions('dcim.change_site')
+        self.add_permissions('dcim.view_site', 'dcim.change_site')
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
 
@@ -393,7 +393,7 @@ class ChangeLogAPITest(APITestCase):
         )
         self.assertEqual(ObjectChange.objects.count(), 0)
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.view_site', 'dcim.change_site')
+        self.add_permissions('dcim.change_site')
 
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
