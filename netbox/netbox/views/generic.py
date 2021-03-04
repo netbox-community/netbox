@@ -181,10 +181,14 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
         # Handle table-based export
         if request.GET.get('export') == 'table':
+            exclude_columns = {'pk'}
+            exclude_columns.update({
+                col for col in table.base_columns if col not in table.visible_columns
+            })
             exporter = TableExport(
                 export_format=TableExport.CSV,
                 table=table,
-                exclude_columns=['pk'],
+                exclude_columns=exclude_columns,
                 dataset_kwargs={},
             )
             return exporter.response(
