@@ -5,7 +5,7 @@ from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem, Platform,
     PowerOutlet, PowerPort, RearPort, VirtualChassis,
 )
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     TagColumn, ToggleColumn,
@@ -109,9 +109,7 @@ class DeviceTable(BaseTable):
         template_code=DEVICE_LINK
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )
@@ -178,9 +176,7 @@ class DeviceImportTable(BaseTable):
         template_code=DEVICE_LINK
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )

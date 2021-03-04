@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Rack, Location, RackReservation, RackRole
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn,
     ToggleColumn,
@@ -79,9 +79,7 @@ class RackTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     status = ChoiceFieldColumn()
     role = ColoredLabelColumn()
     u_height = tables.TemplateColumn(
@@ -143,9 +141,7 @@ class RackReservationTable(BaseTable):
         accessor=Accessor('rack__site'),
         linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     rack = tables.Column(
         linkify=True
     )

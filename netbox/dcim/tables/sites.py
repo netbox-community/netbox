@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.models import Region, Site
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
 from .template_code import MPTT_LINK
 
@@ -46,9 +46,7 @@ class SiteTable(BaseTable):
     region = tables.Column(
         linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     tags = TagColumn(
         url_name='dcim:site_list'
     )
