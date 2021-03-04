@@ -1007,16 +1007,20 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 logger.debug("Form validation was successful")
 
                 # Delete objects
-                # TODO: Take a snapshot of each object prior to bulk deletion
                 queryset = self.queryset.filter(pk__in=pk_list)
+                deleted_count = queryset.count()
                 try:
-                    deleted_count = queryset.delete()[1][model._meta.label]
+                    for obj in queryset:
+                        # Take a snapshot of change-logged models
+                        if hasattr(obj, 'snapshot'):
+                            obj.snapshot()
+                        obj.delete()
                 except ProtectedError as e:
                     logger.info("Caught ProtectedError while attempting to delete objects")
                     handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
 
-                msg = 'Deleted {} {}'.format(deleted_count, model._meta.verbose_name_plural)
+                msg = f"Deleted {deleted_count} {model._meta.verbose_name_plural}"
                 logger.info(msg)
                 messages.success(request, msg)
                 return redirect(self.get_return_url(request))
