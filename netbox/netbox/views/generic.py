@@ -15,6 +15,7 @@ from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2 import RequestConfig
+from django_tables2.export import TableExport
 
 from extras.models import CustomField, ExportTemplate
 from utilities.error_handlers import handle_protectederror
@@ -137,32 +138,35 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
 
-        # Check for export template rendering
-        if request.GET.get('export'):
-            et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET.get('export'))
-            try:
-                return et.render_to_response(self.queryset)
-            except Exception as e:
-                messages.error(
-                    request,
-                    "There was an error rendering the selected export template ({}): {}".format(
-                        et.name, e
+        # Check for export rendering (except for table-based)
+        if 'export' in request.GET and request.GET['export'] != 'table':
+
+            # An export template has been specified
+            if request.GET['export']:
+                et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                try:
+                    return et.render_to_response(self.queryset)
+                except Exception as e:
+                    messages.error(
+                        request,
+                        "There was an error rendering the selected export template ({}): {}".format(
+                            et.name, e
+                        )
                     )
-                )
 
-        # Check for YAML export support
-        elif 'export' in request.GET and hasattr(model, 'to_yaml'):
-            response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
-            filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-            return response
+            # Check for YAML export support
+            elif hasattr(model, 'to_yaml'):
+                response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
+                filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
+                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                return response
 
-        # Fall back to built-in CSV formatting if export requested but no template specified
-        elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
-            filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-            return response
+            # Fall back to built-in CSV formatting if export requested but no template specified
+            elif 'export' in request.GET and hasattr(model, 'to_csv'):
+                response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
+                filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
+                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                return response
 
         # Compile a dictionary indicating which permissions are available to the current user for this model
         permissions = {}
@@ -174,6 +178,18 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         table = self.table(self.queryset, user=request.user)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
+
+        # Handle table-based export
+        if request.GET.get('export') == 'table':
+            exporter = TableExport(
+                export_format=TableExport.CSV,
+                table=table,
+                exclude_columns=['pk'],
+                dataset_kwargs={},
+            )
+            return exporter.response(
+                filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+            )
 
         # Apply the request context
         paginate = {
