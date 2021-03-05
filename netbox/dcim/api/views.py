@@ -522,7 +522,7 @@ class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
+        'device', 'parent', 'lag', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilterSet

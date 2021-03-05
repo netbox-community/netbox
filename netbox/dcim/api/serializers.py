@@ -598,6 +598,7 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=InterfaceTypeChoices)
+    parent = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
@@ -613,10 +614,11 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
     class Meta:
         model = Interface
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'cable_peer',
-            'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
-            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', '_occupied',
+            'id', 'url', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
+            'mgmt_only', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable',
+            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses',
+            '_occupied',
         ]
 
     def validate(self, data):

@@ -523,6 +523,14 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         max_length=100,
         blank=True
     )
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='child_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Parent interface'
+    )
     lag = models.ForeignKey(
         to='self',
         on_delete=models.SET_NULL,
@@ -563,8 +571,8 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'label', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu', 'mgmt_only',
-        'description', 'mode',
+        'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
+        'mgmt_only', 'description', 'mode',
     ]
 
     class Meta:
@@ -579,6 +587,7 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
             self.device.identifier if self.device else None,
             self.name,
             self.label,
+            self.parent.name if self.parent else None,
             self.lag.name if self.lag else None,
             self.get_type_display(),
             self.enabled,
@@ -601,6 +610,27 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
                 'type': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
                         "Disconnect the interface or choose a suitable type."
             })
+
+        # An interface's parent must belong to the same device or virtual chassis
+        if self.parent and self.parent.device != self.device:
+            if self.device.virtual_chassis is None:
+                raise ValidationError({
+                    'parent': f"The selected parent interface ({self.parent}) belongs to a different device "
+                              f"({self.parent.device})."
+                })
+            elif self.parent.device.virtual_chassis != self.parent.virtual_chassis:
+                raise ValidationError({
+                    'parent': f"The selected parent interface ({self.parent}) belongs to {self.parent.device}, which "
+                              f"is not part of virtual chassis {self.device.virtual_chassis}."
+                })
+
+        # A physical interface cannot have a parent interface
+        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
+            raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
+
+        # A virtual interface cannot be a parent interface
+        if self.parent is not None and self.parent.type == InterfaceTypeChoices.TYPE_VIRTUAL:
+            raise ValidationError({'parent': "Virtual interfaces may not be parents of other interfaces."})
 
         # An interface's LAG must belong to the same device or virtual chassis
         if self.lag and self.lag.device != self.device:

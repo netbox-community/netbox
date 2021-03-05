@@ -844,6 +844,11 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
         method='filter_kind',
         label='Kind of interface',
     )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent',
+        queryset=Interface.objects.all(),
+        label='Parent interface (ID)',
+    )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
         queryset=Interface.objects.all(),
