@@ -11,7 +11,7 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from extras.models import ObjectChange, TaggedItem
+from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
 from utilities.fields import NaturalOrderingField
@@ -19,7 +19,6 @@ from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
-from utilities.utils import serialize_object
 
 
 __all__ = (
