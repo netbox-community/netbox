@@ -6,6 +6,10 @@
 
 ### New Features
 
+#### Parent Interface Assignments ([#1519](https://github.com/netbox-community/netbox/issues/1519))
+
+Virtual interfaces can now be assigned to a "parent" physical interface, by setting the `parent` field on the Interface model. This is helpful for associating subinterfaces with their physical counterpart. For example, you might assign virtual interfaces Gi0/0.100 and Gi0/0.200 to the physical interface Gi0/0.
+
 #### Mark as Connected Without a Cable ([#3648](https://github.com/netbox-community/netbox/issues/3648))
 
 Cable termination objects (circuit terminations, power feeds, and most device components) can now be marked as "connected" without actually attaching a cable. This helps simplify the process of modeling an infrastructure boundary where you don't necessarily know or care what is connected to the far end of a cable, but still need to designate the near end termination.
@@ -58,6 +62,8 @@ The ObjectChange model (which is used to record the creation, modification, and 
   * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
 * dcim.Device
   * Added the `location` field
+* dcim.Interface
+  * Added the `parent` field
 * dcim.PowerPanel
   * Renamed `rack_group` field to `location`
 * dcim.Rack
