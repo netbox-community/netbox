@@ -290,6 +290,9 @@ class TagColumn(tables.TemplateColumn):
 
 
 class MPTTColumn(tables.TemplateColumn):
+    """
+    Display a nested hierarchy for MPTT-enabled models.
+    """
     template_code = """{% for i in record.get_ancestors %}<i class="mdi mdi-circle-small"></i>{% endfor %}""" \
                     """<a href="{{ record.get_absolute_url }}">{{ record.name }}</a>"""
 
@@ -304,3 +307,16 @@ class MPTTColumn(tables.TemplateColumn):
 
     def value(self, value):
         return value
+
+
+class UtilizationColumn(tables.TemplateColumn):
+    """
+    Display a colored utilization bar graph.
+    """
+    template_code = """{% load helpers %}{% if record.pk %}{% utilization_graph value %}{% endif %}"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        return f'{value}%'

@@ -5,9 +5,9 @@ from dcim.models import Rack, Location, RackReservation, RackRole
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MPTTColumn,
-    TagColumn, ToggleColumn,
+    TagColumn, ToggleColumn, UtilizationColumn,
 )
-from .template_code import LOCATION_ELEVATIONS, UTILIZATION_GRAPH
+from .template_code import LOCATION_ELEVATIONS
 
 __all__ = (
     'RackTable',
@@ -98,13 +98,10 @@ class RackDetailTable(RackTable):
         url_params={'rack_id': 'pk'},
         verbose_name='Devices'
     )
-    get_utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
-        orderable=False,
+    get_utilization = UtilizationColumn(
         verbose_name='Space'
     )
-    get_power_utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
+    get_power_utilization = UtilizationColumn(
         orderable=False,
         verbose_name='Power'
     )

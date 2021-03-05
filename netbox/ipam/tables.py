@@ -6,16 +6,12 @@ from dcim.models import Interface
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+    UtilizationColumn,
 )
 from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
 AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>')
-
-UTILIZATION_GRAPH = """
-{% load helpers %}
-{% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
-"""
 
 PREFIX_LINK = """
 {% load helpers %}
@@ -209,8 +205,8 @@ class AggregateDetailTable(AggregateTable):
     child_count = tables.Column(
         verbose_name='Prefixes'
     )
-    utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
+    utilization = UtilizationColumn(
+        accessor='get_utilization',
         orderable=False
     )
     tags = TagColumn(
@@ -290,8 +286,8 @@ class PrefixTable(BaseTable):
 
 
 class PrefixDetailTable(PrefixTable):
-    utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
+    utilization = UtilizationColumn(
+        accessor='get_utilization',
         orderable=False
     )
     tenant = TenantColumn()

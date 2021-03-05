@@ -75,11 +75,6 @@ LOCATION_ELEVATIONS = """
 </a>
 """
 
-UTILIZATION_GRAPH = """
-{% load helpers %}
-{% utilization_graph value %}
-"""
-
 #
 # Device component buttons
 #
