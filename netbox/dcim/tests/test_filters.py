@@ -1931,6 +1931,34 @@ class InterfaceTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_parent(self):
+        # Create child interfaces
+        parent_interface = Interface.objects.first()
+        child_interfaces = (
+            Interface(device=parent_interface.device, name='Child 1', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=parent_interface.device, name='Child 2', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=parent_interface.device, name='Child 3', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        )
+        Interface.objects.bulk_create(child_interfaces)
+
+        params = {'parent_id': [parent_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_lag(self):
+        # Create LAG members
+        device = Device.objects.first()
+        lag_interface = Interface(device=device, name='LAG', type=InterfaceTypeChoices.TYPE_LAG)
+        lag_interface.save()
+        lag_members = (
+            Interface(device=device, name='Member 1', lag=lag_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=device, name='Member 2', lag=lag_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=device, name='Member 3', lag=lag_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(lag_members)
+
+        params = {'lag_id': [lag_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
