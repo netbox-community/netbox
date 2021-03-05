@@ -1,14 +1,7 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn
 from .models import Tenant, TenantGroup
-
-MPTT_LINK = """
-{% for i in record.get_ancestors %}
-    <i class="mdi mdi-circle-small"></i>
-{% endfor %}
-<a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
-"""
 
 
 #
@@ -42,11 +35,7 @@ class TenantColumn(tables.TemplateColumn):
 
 class TenantGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(
-        template_code=MPTT_LINK,
-        orderable=False,
-        attrs={'td': {'class': 'text-nowrap'}}
-    )
+    name = MPTTColumn()
     tenant_count = LinkedCountColumn(
         viewname='tenancy:tenant_list',
         url_params={'group': 'slug'},

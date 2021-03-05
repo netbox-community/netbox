@@ -287,3 +287,20 @@ class TagColumn(tables.TemplateColumn):
 
     def value(self, value):
         return ",".join([tag.name for tag in value.all()])
+
+
+class MPTTColumn(tables.TemplateColumn):
+    template_code = """{% for i in record.get_ancestors %}<i class="mdi mdi-circle-small"></i>{% endfor %}""" \
+                    """<a href="{{ record.get_absolute_url }}">{{ record.name }}</a>"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            template_code=self.template_code,
+            orderable=False,
+            attrs={'td': {'class': 'text-nowrap'}},
+            *args,
+            **kwargs
+        )
+
+    def value(self, value):
+        return value

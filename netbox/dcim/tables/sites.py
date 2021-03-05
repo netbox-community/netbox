@@ -2,8 +2,7 @@ import django_tables2 as tables
 
 from dcim.models import Region, Site
 from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
-from .template_code import MPTT_LINK
+from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, MPTTColumn, TagColumn, ToggleColumn
 
 __all__ = (
     'RegionTable',
@@ -17,11 +16,7 @@ __all__ = (
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(
-        template_code=MPTT_LINK,
-        orderable=False,
-        attrs={'td': {'class': 'text-nowrap'}}
-    )
+    name = MPTTColumn()
     site_count = tables.Column(
         verbose_name='Sites'
     )

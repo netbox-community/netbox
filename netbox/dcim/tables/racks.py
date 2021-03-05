@@ -4,10 +4,10 @@ from django_tables2.utils import Accessor
 from dcim.models import Rack, Location, RackReservation, RackRole
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn,
-    ToggleColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MPTTColumn,
+    TagColumn, ToggleColumn,
 )
-from .template_code import MPTT_LINK, LOCATION_ELEVATIONS, UTILIZATION_GRAPH
+from .template_code import LOCATION_ELEVATIONS, UTILIZATION_GRAPH
 
 __all__ = (
     'RackTable',
@@ -24,11 +24,7 @@ __all__ = (
 
 class LocationTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(
-        template_code=MPTT_LINK,
-        orderable=False,
-        attrs={'td': {'class': 'text-nowrap'}}
-    )
+    name = MPTTColumn()
     site = tables.Column(
         linkify=True
     )
