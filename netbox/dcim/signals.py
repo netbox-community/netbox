@@ -37,7 +37,7 @@ def rebuild_paths(obj):
 
 
 #
-# Site/rack/device assignment
+# Location/rack/device assignment
 #
 
 @receiver(post_save, sender=Location)
@@ -47,18 +47,11 @@ def handle_location_site_change(instance, created, **kwargs):
     object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
     """
     if not created:
-        for location in instance.get_children():
-            location.site = instance.site
-            location.save()
-        for rack in Rack.objects.filter(location=instance).exclude(site=instance.site):
-            rack.site = instance.site
-            rack.save()
-        for device in Device.objects.filter(location=instance).exclude(site=instance.site):
-            device.site = instance.site
-            device.save()
-        for powerpanel in PowerPanel.objects.filter(location=instance).exclude(site=instance.site):
-            powerpanel.site = instance.site
-            powerpanel.save()
+        instance.get_descendants().update(site=instance.site)
+        locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
+        Rack.objects.filter(location__in=locations).update(site=instance.site)
+        Device.objects.filter(location__in=locations).update(site=instance.site)
+        PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
 
 
 @receiver(post_save, sender=Rack)
@@ -67,10 +60,7 @@ def handle_rack_site_change(instance, created, **kwargs):
     Update child Devices if Site or Location assignment has changed.
     """
     if not created:
-        for device in Device.objects.filter(rack=instance).exclude(site=instance.site, location=instance.location):
-            device.site = instance.site
-            device.location = instance.location
-            device.save()
+        Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
 
 
 #
