@@ -16,6 +16,12 @@ In addition to the new `mark_connected` boolean field, the REST API representati
 
 Devices can now be assigned to locations (formerly known as rack groups) within a site without needing to be assigned to a particular rack. This is handy for assigning devices to rooms or floors within a building where racks are not used. The `location` foreign key field has been added to the Device model to support this.
 
+#### Dynamic Object Exports ([#4999](https://github.com/netbox-community/netbox/issues/4999))
+
+When exporting a list of objects in NetBox, users now have the option of selecting the "current view". This will render CSV output matching the configuration of the current table. For example, if you modify the sites list to display on the site name, tenant, and status, the rendered CSV will include only these columns.
+
+The legacy static export behavior has been retained to ensure backward compatibility for dependent integrations. However, users are strongly encouraged to adapt custom export templates where needed as this functionality will be removed in v2.12.
+
 #### Improved Change Logging ([#5913](https://github.com/netbox-community/netbox/issues/5913))
 
 The ObjectChange model (which is used to record the creation, modification, and deletion of NetBox objects) now explicitly records the pre-change and post-change state of each object, rather than only the post-change state. This was done to present a more clear depiction of each change being made, and to prevent the erroneous association of a previous unlogged change with its successor.

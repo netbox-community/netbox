@@ -2,12 +2,12 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Rack, Location, RackReservation, RackRole
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn,
-    ToggleColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MPTTColumn,
+    TagColumn, ToggleColumn, UtilizationColumn,
 )
-from .template_code import MPTT_LINK, LOCATION_ELEVATIONS, UTILIZATION_GRAPH
+from .template_code import LOCATION_ELEVATIONS
 
 __all__ = (
     'RackTable',
@@ -24,11 +24,7 @@ __all__ = (
 
 class LocationTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(
-        template_code=MPTT_LINK,
-        orderable=False,
-        attrs={'td': {'class': 'text-nowrap'}}
-    )
+    name = MPTTColumn()
     site = tables.Column(
         linkify=True
     )
@@ -79,9 +75,7 @@ class RackTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     status = ChoiceFieldColumn()
     role = ColoredLabelColumn()
     u_height = tables.TemplateColumn(
@@ -104,13 +98,10 @@ class RackDetailTable(RackTable):
         url_params={'rack_id': 'pk'},
         verbose_name='Devices'
     )
-    get_utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
-        orderable=False,
+    get_utilization = UtilizationColumn(
         verbose_name='Space'
     )
-    get_power_utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
+    get_power_utilization = UtilizationColumn(
         orderable=False,
         verbose_name='Power'
     )
@@ -143,9 +134,7 @@ class RackReservationTable(BaseTable):
         accessor=Accessor('rack__site'),
         linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     rack = tables.Column(
         linkify=True
     )

@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from dcim.tables.devices import BaseInterfaceTable
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn, ToggleColumn,
 )
@@ -107,9 +107,7 @@ class VirtualMachineTable(BaseTable):
         linkify=True
     )
     role = ColoredLabelColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine

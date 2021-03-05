@@ -93,3 +93,7 @@ redis
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite
 svgwrite
+
+# Tabular dataset library (for table-based exports)
+# https://github.com/jazzband/tablib
+tablib
