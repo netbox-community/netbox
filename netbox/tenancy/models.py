@@ -3,7 +3,7 @@ from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 
-from extras.models import ObjectChange, TaggedItem
+from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.mptt import TreeManager

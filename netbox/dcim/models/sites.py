@@ -8,13 +8,11 @@ from timezone_field import TimeZoneField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
-from extras.models import ObjectChange, TaggedItem
+from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
-from utilities.mptt import TreeManager
-from utilities.utils import serialize_object
 
 __all__ = (
     'Region',

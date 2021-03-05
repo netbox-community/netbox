@@ -436,6 +436,10 @@ class DeviceInterfaceTable(InterfaceTable):
                       '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         attrs={'td': {'class': 'text-nowrap'}}
     )
+    parent = tables.Column(
+        linkify=True,
+        verbose_name='Parent'
+    )
     lag = tables.Column(
         linkify=True,
         verbose_name='LAG'
@@ -449,13 +453,13 @@ class DeviceInterfaceTable(InterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
-            'mark_connected', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan',
-            'tagged_vlans', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address',
+            'description', 'mark_connected', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mtu', 'mode', 'description', 'ip_addresses', 'cable',
-            'connection', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
+            'cable', 'connection', 'actions',
         )
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else '',

@@ -39,9 +39,19 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Parent</td>
+                        <td>
+                            {% if object.parent %}
+                                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>LAG</td>
                         <td>
-                            {% if object.lag%}
+                            {% if object.lag %}
                                 <a href="{{ object.lag.get_absolute_url }}">{{ object.lag }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>

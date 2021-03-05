@@ -9,7 +9,7 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import Device
-from extras.models import ObjectChange, TaggedItem
+from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
 from ipam.choices import *
@@ -19,7 +19,6 @@ from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
 
 

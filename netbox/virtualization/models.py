@@ -6,7 +6,7 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import BaseInterface, Device
-from extras.models import ConfigContextModel, ObjectChange, TaggedItem
+from extras.models import ConfigContextModel, TaggedItem
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggingMixin, OrganizationalModel, PrimaryModel

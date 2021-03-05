@@ -11,7 +11,7 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from extras.models import ObjectChange, TaggedItem
+from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
 from utilities.fields import NaturalOrderingField
@@ -19,7 +19,6 @@ from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
-from utilities.utils import serialize_object
 
 
 __all__ = (
@@ -85,8 +84,8 @@ class ComponentModel(PrimaryModel):
         return super().to_objectchange(action, related_object=device)
 
     @property
-    def parent(self):
-        return getattr(self, 'device', None)
+    def parent_object(self):
+        return self.device
 
 
 class CableTermination(models.Model):
@@ -153,6 +152,10 @@ class CableTermination(models.Model):
     def _occupied(self):
         return bool(self.mark_connected or self.cable_id)
 
+    @property
+    def parent_object(self):
+        raise NotImplementedError("CableTermination models must implement parent_object()")
+
 
 class PathEndpoint(models.Model):
     """
@@ -208,7 +211,7 @@ class PathEndpoint(models.Model):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
+class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -252,7 +255,7 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
+class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -296,7 +299,7 @@ class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class PowerPort(CableTermination, PathEndpoint, ComponentModel):
+class PowerPort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -408,7 +411,7 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class PowerOutlet(CableTermination, PathEndpoint, ComponentModel):
+class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -509,7 +512,7 @@ class BaseInterface(models.Model):
 
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
+class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -519,6 +522,14 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
         naturalize_function=naturalize_interface,
         max_length=100,
         blank=True
+    )
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='child_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Parent interface'
     )
     lag = models.ForeignKey(
         to='self',
@@ -560,8 +571,8 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'label', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu', 'mgmt_only',
-        'description', 'mode',
+        'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
+        'mgmt_only', 'description', 'mode',
     ]
 
     class Meta:
@@ -576,6 +587,7 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
             self.device.identifier if self.device else None,
             self.name,
             self.label,
+            self.parent.name if self.parent else None,
             self.lag.name if self.lag else None,
             self.get_type_display(),
             self.enabled,
@@ -599,6 +611,27 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
                         "Disconnect the interface or choose a suitable type."
             })
 
+        # An interface's parent must belong to the same device or virtual chassis
+        if self.parent and self.parent.device != self.device:
+            if self.device.virtual_chassis is None:
+                raise ValidationError({
+                    'parent': f"The selected parent interface ({self.parent}) belongs to a different device "
+                              f"({self.parent.device})."
+                })
+            elif self.parent.device.virtual_chassis != self.parent.virtual_chassis:
+                raise ValidationError({
+                    'parent': f"The selected parent interface ({self.parent}) belongs to {self.parent.device}, which "
+                              f"is not part of virtual chassis {self.device.virtual_chassis}."
+                })
+
+        # A physical interface cannot have a parent interface
+        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
+            raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
+
+        # A virtual interface cannot be a parent interface
+        if self.parent is not None and self.parent.type == InterfaceTypeChoices.TYPE_VIRTUAL:
+            raise ValidationError({'parent': "Virtual interfaces may not be parents of other interfaces."})
+
         # An interface's LAG must belong to the same device or virtual chassis
         if self.lag and self.lag.device != self.device:
             if self.device.virtual_chassis is None:
@@ -620,15 +653,11 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
             raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
 
         # Validate untagged VLAN
-        if self.untagged_vlan and self.untagged_vlan.site not in [self.parent.site, None]:
+        if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:
             raise ValidationError({
                 'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
                                  "device, or it must be global".format(self.untagged_vlan)
             })
-
-    @property
-    def parent(self):
-        return self.device
 
     @property
     def is_connectable(self):
@@ -656,7 +685,7 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class FrontPort(CableTermination, ComponentModel):
+class FrontPort(ComponentModel, CableTermination):
     """
     A pass-through port on the front of a Device.
     """
@@ -722,7 +751,7 @@ class FrontPort(CableTermination, ComponentModel):
 
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class RearPort(CableTermination, ComponentModel):
+class RearPort(ComponentModel, CableTermination):
     """
     A pass-through port on the rear of a Device.
     """
