@@ -84,8 +84,8 @@ class ComponentModel(PrimaryModel):
         return super().to_objectchange(action, related_object=device)
 
     @property
-    def parent(self):
-        return getattr(self, 'device', None)
+    def parent_object(self):
+        return self.device
 
 
 class CableTermination(models.Model):
@@ -152,6 +152,10 @@ class CableTermination(models.Model):
     def _occupied(self):
         return bool(self.mark_connected or self.cable_id)
 
+    @property
+    def parent_object(self):
+        raise NotImplementedError("CableTermination models must implement parent_object()")
+
 
 class PathEndpoint(models.Model):
     """
@@ -207,7 +211,7 @@ class PathEndpoint(models.Model):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
+class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -251,7 +255,7 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
+class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -295,7 +299,7 @@ class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class PowerPort(CableTermination, PathEndpoint, ComponentModel):
+class PowerPort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -407,7 +411,7 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class PowerOutlet(CableTermination, PathEndpoint, ComponentModel):
+class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -508,7 +512,7 @@ class BaseInterface(models.Model):
 
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
+class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -619,15 +623,11 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
             raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
 
         # Validate untagged VLAN
-        if self.untagged_vlan and self.untagged_vlan.site not in [self.parent.site, None]:
+        if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:
             raise ValidationError({
                 'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
                                  "device, or it must be global".format(self.untagged_vlan)
             })
-
-    @property
-    def parent(self):
-        return self.device
 
     @property
     def is_connectable(self):
@@ -655,7 +655,7 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
 #
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class FrontPort(CableTermination, ComponentModel):
+class FrontPort(ComponentModel, CableTermination):
     """
     A pass-through port on the front of a Device.
     """
@@ -721,7 +721,7 @@ class FrontPort(CableTermination, ComponentModel):
 
 
 @extras_features('custom_fields', 'export_templates', 'webhooks')
-class RearPort(CableTermination, ComponentModel):
+class RearPort(ComponentModel, CableTermination):
     """
     A pass-through port on the rear of a Device.
     """

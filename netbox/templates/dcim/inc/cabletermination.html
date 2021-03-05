@@ -1,12 +1,12 @@
 <td>
-    {% if termination.parent.provider %}
+    {% if termination.parent_object.provider %}
         <i class="mdi mdi-lightning-bolt" title="Circuit"></i>
-        <a href="{{ termination.parent.get_absolute_url }}">
-            {{ termination.parent.provider }}
-            {{ termination.parent }}
+        <a href="{{ termination.parent_object.get_absolute_url }}">
+            {{ termination.parent_object.provider }}
+            {{ termination.parent_object }}
         </a>
     {% else %}
-        <a href="{{ termination.parent.get_absolute_url }}">{{ termination.parent }}</a>
+        <a href="{{ termination.parent_object.get_absolute_url }}">{{ termination.parent_object }}</a>
     {% endif %}
 </td>
 <td>

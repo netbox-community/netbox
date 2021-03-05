@@ -295,7 +295,7 @@ class CircuitTermination(ChangeLoggingMixin, BigIDModel, PathEndpoint, CableTerm
         return super().to_objectchange(action, related_object=circuit)
 
     @property
-    def parent(self):
+    def parent_object(self):
         return self.circuit
 
     def get_peer_termination(self):
