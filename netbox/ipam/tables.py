@@ -433,6 +433,9 @@ class InterfaceIPAddressTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
+    actions = ButtonsColumn(
+        model=IPAddress
+    )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
