@@ -2,7 +2,6 @@
 name: ✨ Feature Request
 about: Propose a new NetBox feature or enhancement
 labels: ["type: feature"]
-issue_body: false
 body:
   - type: markdown
     attributes:
@@ -52,3 +51,7 @@ body:
       description: "List any new dependencies on external libraries or services that this
         new feature would introduce. For example, does the proposal require the installation
         of a new Python package? (Not all new features introduce new dependencies.)"
+  - type: markdown
+    attributes:
+      value: "### Additional information
+      You can use the space below to provide any additional information or to attach files."
