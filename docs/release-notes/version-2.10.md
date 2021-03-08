@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#5592](https://github.com/netbox-community/netbox/issues/5592) - Add IP addresses count to VRF view
 * [#5630](https://github.com/netbox-community/netbox/issues/5630) - Add QSFP+ (64GFC) FibreChannel Interface option
 * [#5884](https://github.com/netbox-community/netbox/issues/5884) - Enable custom links for device components
 
