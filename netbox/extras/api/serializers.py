@@ -5,9 +5,9 @@ from rest_framework import serializers
 
 from dcim.api.nested_serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedRackSerializer,
-    NestedRegionSerializer, NestedSiteSerializer,
+    NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
 )
-from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
+from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import (
     ConfigContext, CustomField, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
@@ -166,6 +166,12 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    site_groups = SerializedPKRelatedField(
+        queryset=SiteGroup.objects.all(),
+        serializer=NestedSiteGroupSerializer,
+        required=False,
+        many=True
+    )
     sites = SerializedPKRelatedField(
         queryset=Site.objects.all(),
         serializer=NestedSiteSerializer,
@@ -218,8 +224,9 @@ class ConfigContextSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConfigContext
         fields = [
-            'id', 'url', 'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms',
-            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data', 'created', 'last_updated',
+            'id', 'url', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites', 'roles',
+            'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data', 'created',
+            'last_updated',
         ]
 
 
