@@ -35,10 +35,6 @@ body:
         1. Click on "create widget"
         2. Set foo to 12 and bar to G
         3. Click the "create" button
-      value: |
-        1.
-        2.
-        3.
     validations:
       required: true
   - type: textarea
@@ -46,8 +42,12 @@ body:
       label: Expected Behavior
       description: "What did you expect to happen?"
       placeholder: "A new widget should have been created with the specified attributes"
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Observed Behavior
       description: "What happened instead?"
       placeholder: "A TypeError exception was raised"
+    validations:
+      required: true
