@@ -386,6 +386,11 @@ class ConfigContext(ChangeLoggingMixin, BigIDModel):
         related_name='+',
         blank=True
     )
+    site_groups = models.ManyToManyField(
+        to='dcim.SiteGroup',
+        related_name='+',
+        blank=True
+    )
     sites = models.ManyToManyField(
         to='dcim.Site',
         related_name='+',

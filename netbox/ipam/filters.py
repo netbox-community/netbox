@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from netaddr.core import AddrFormatError
 
-from dcim.models import Device, Interface, Region, Site
+from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
@@ -253,6 +253,19 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -535,6 +548,19 @@ class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         to_field_name='slug',
         label='Region (slug)',
     )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -568,6 +594,19 @@ class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),

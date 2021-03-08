@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.models import DeviceRole, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
@@ -51,6 +51,19 @@ class ClusterFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSe
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -150,6 +163,19 @@ class VirtualMachineFilterSet(
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='cluster__site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='cluster__site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__site',

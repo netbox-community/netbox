@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
-from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
+from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
@@ -87,11 +87,19 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'sites': '$site'
         }
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     comments = CommentField()
@@ -103,10 +111,10 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'tenant', 'region', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
         )
         fieldsets = (
-            ('Cluster', ('name', 'type', 'group', 'region', 'site', 'tags')),
+            ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
 
@@ -162,11 +170,16 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         queryset=Region.objects.all(),
         required=False,
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     comments = CommentField(
@@ -223,11 +236,17 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         required=False,
         null_option='None'
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        null_option='None'
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     rack = DynamicModelChoiceField(

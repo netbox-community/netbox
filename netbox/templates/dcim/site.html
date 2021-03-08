@@ -42,6 +42,19 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Group</td>
+                    <td>
+                        {% if object.group %}
+                            {% for group in object.group.get_ancestors %}
+                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> /
+                            {% endfor %}
+                            <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Tenant</td>
                     <td>
                         {% if object.tenant %}

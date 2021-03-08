@@ -41,5 +41,6 @@ __all__ = (
     'RearPortTemplate',
     'Region',
     'Site',
+    'SiteGroup',
     'VirtualChassis',
 )

@@ -17,6 +17,7 @@ from utilities.querysets import RestrictedQuerySet
 __all__ = (
     'Region',
     'Site',
+    'SiteGroup',
 )
 
 
@@ -27,7 +28,9 @@ __all__ = (
 @extras_features('custom_fields', 'export_templates', 'webhooks')
 class Region(NestedGroupModel):
     """
-    Sites can be grouped within geographic Regions.
+    A region represents a geographic collection of sites. For example, you might create regions representing countries,
+    states, and/or cities. Regions are recursively nested into a hierarchy: all sites belonging to a child region are
+    also considered to be members of its parent and ancestor region(s).
     """
     parent = TreeForeignKey(
         to='self',
@@ -71,6 +74,58 @@ class Region(NestedGroupModel):
 
 
 #
+# Site groups
+#
+
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class SiteGroup(NestedGroupModel):
+    """
+    A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
+    within corporate sites you might distinguish between offices and data centers. Like regions, site groups can be
+    nested recursively to form a hierarchy.
+    """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    csv_headers = ['name', 'slug', 'parent', 'description']
+
+    def get_absolute_url(self):
+        return "{}?group={}".format(reverse('dcim:site_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.parent.name if self.parent else None,
+            self.description,
+        )
+
+    def get_site_count(self):
+        return Site.objects.filter(
+            Q(group=self) |
+            Q(group__in=self.get_descendants())
+        ).count()
+
+
+#
 # Sites
 #
 
@@ -100,6 +155,13 @@ class Site(PrimaryModel):
     )
     region = models.ForeignKey(
         to='dcim.Region',
+        on_delete=models.SET_NULL,
+        related_name='sites',
+        blank=True,
+        null=True
+    )
+    group = models.ForeignKey(
+        to='dcim.SiteGroup',
         on_delete=models.SET_NULL,
         related_name='sites',
         blank=True,
@@ -175,11 +237,12 @@ class Site(PrimaryModel):
     objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
-        'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
-        'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+        'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+        'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+        'contact_email', 'comments',
     ]
     clone_fields = [
-        'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
+        'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
     ]
 
@@ -198,6 +261,7 @@ class Site(PrimaryModel):
             self.slug,
             self.get_status_display(),
             self.region.name if self.region else None,
+            self.group.name if self.group else None,
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,

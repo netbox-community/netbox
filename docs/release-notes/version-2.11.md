@@ -26,6 +26,10 @@ When exporting a list of objects in NetBox, users now have the option of selecti
 
 The legacy static export behavior has been retained to ensure backward compatibility for dependent integrations. However, users are strongly encouraged to adapt custom export templates where needed as this functionality will be removed in v2.12.
 
+#### New Site Group Model ([#5892](https://github.com/netbox-community/netbox/issues/5892))
+
+This release introduces the new Site Group model, which can be used to organize sites similar to the existing Region model. Whereas regions are intended for geographically arranging sites into countries, states, and so on, the new site group model can be used to organize sites by role or other arbitrary classification. Using regions and site groups in conjunction provides two dimensions along which sites can be organized, offering greater flexibility to the user.
+
 #### Improved Change Logging ([#5913](https://github.com/netbox-community/netbox/issues/5913))
 
 The ObjectChange model (which is used to record the creation, modification, and deletion of NetBox objects) now explicitly records the pre-change and post-change state of each object, rather than only the post-change state. This was done to present a more clear depiction of each change being made, and to prevent the erroneous association of a previous unlogged change with its successor.
@@ -68,6 +72,12 @@ The ObjectChange model (which is used to record the creation, modification, and 
   * Renamed `rack_group` field to `location`
 * dcim.Rack
   * Renamed `group` field to `location`
+* dcim.Site
+  * Added the `group` foreign key field to SiteGroup
+* dcim.SiteGroup
+  * Added the `/api/dcim/site-groups/` endpoint
+* extras.ConfigContext
+  * Added the `site_groups` many-to-many field to track the assignment of ConfigContexts to SiteGroups
 * extras.CustomField
   * Added new custom field type: `multi-select`
 * extras.ObjectChange

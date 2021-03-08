@@ -4,12 +4,7 @@ from rest_framework import status
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
-)
+from dcim.models import *
 from ipam.models import VLAN
 from utilities.testing import APITestCase, APIViewTestCases
 from virtualization.models import Cluster, ClusterType
@@ -102,14 +97,19 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
 
         regions = (
-            Region.objects.create(name='Test Region 1', slug='test-region-1'),
-            Region.objects.create(name='Test Region 2', slug='test-region-2'),
+            Region.objects.create(name='Region 1', slug='region-1'),
+            Region.objects.create(name='Region 2', slug='region-2'),
+        )
+
+        groups = (
+            SiteGroup.objects.create(name='Site Group 1', slug='site-group-1'),
+            SiteGroup.objects.create(name='Site Group 2', slug='site-group-2'),
         )
 
         sites = (
-            Site(region=regions[0], name='Site 1', slug='site-1'),
-            Site(region=regions[0], name='Site 2', slug='site-2'),
-            Site(region=regions[0], name='Site 3', slug='site-3'),
+            Site(region=regions[0], group=groups[0], name='Site 1', slug='site-1'),
+            Site(region=regions[0], group=groups[0], name='Site 2', slug='site-2'),
+            Site(region=regions[0], group=groups[0], name='Site 3', slug='site-3'),
         )
         Site.objects.bulk_create(sites)
 
@@ -118,18 +118,21 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Site 4',
                 'slug': 'site-4',
                 'region': regions[1].pk,
+                'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
             },
             {
                 'name': 'Site 5',
                 'slug': 'site-5',
                 'region': regions[1].pk,
+                'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
             },
             {
                 'name': 'Site 6',
                 'slug': 'site-6',
                 'region': regions[1].pk,
+                'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
             },
         ]

@@ -16,13 +16,7 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
 from dcim import filters
-from dcim.models import (
-    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
-)
+from dcim.models import *
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from ipam.models import Prefix, VLAN
 from netbox.api.views import ModelViewSet
@@ -109,6 +103,22 @@ class RegionViewSet(CustomFieldModelViewSet):
     )
     serializer_class = serializers.RegionSerializer
     filterset_class = filters.RegionFilterSet
+
+
+#
+# Site groups
+#
+
+class SiteGroupViewSet(CustomFieldModelViewSet):
+    queryset = SiteGroup.objects.add_related_count(
+        SiteGroup.objects.all(),
+        Site,
+        'group',
+        'site_count',
+        cumulative=True
+    )
+    serializer_class = serializers.SiteGroupSerializer
+    filterset_class = filters.SiteGroupFilterSet
 
 
 #

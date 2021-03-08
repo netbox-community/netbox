@@ -7,6 +7,7 @@ router.APIRootView = views.DCIMRootView
 
 # Sites
 router.register('regions', views.RegionViewSet)
+router.register('site-groups', views.SiteGroupViewSet)
 router.register('sites', views.SiteViewSet)
 
 # Racks

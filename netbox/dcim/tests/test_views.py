@@ -71,10 +71,17 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+        )
+        for group in groups:
+            group.save()
+
         Site.objects.bulk_create([
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[0]),
-            Site(name='Site 3', slug='site-3', region=regions[0]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[1]),
+            Site(name='Site 2', slug='site-2', region=regions[0], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[0], group=groups[1]),
         ])
 
         tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
@@ -84,6 +91,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'slug': 'site-x',
             'status': SiteStatusChoices.STATUS_PLANNED,
             'region': regions[1].pk,
+            'group': groups[1].pk,
             'tenant': None,
             'facility': 'Facility X',
             'asn': 65001,
@@ -110,6 +118,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'status': SiteStatusChoices.STATUS_PLANNED,
             'region': regions[1].pk,
+            'group': groups[1].pk,
             'tenant': None,
             'asn': 65009,
             'time_zone': pytz.timezone('US/Eastern'),

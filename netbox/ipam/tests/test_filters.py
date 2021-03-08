@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.filters import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
@@ -343,14 +343,21 @@ class PrefixTestCase(TestCase):
             Region(name='Test Region 2', slug='test-region-2'),
             Region(name='Test Region 3', slug='test-region-3'),
         )
-        # Can't use bulk_create for models with MPTT fields
         for r in regions:
             r.save()
 
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
+
         sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2]),
+            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -466,6 +473,13 @@ class PrefixTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
@@ -701,14 +715,21 @@ class VLANGroupTestCase(TestCase):
             Region(name='Test Region 2', slug='test-region-2'),
             Region(name='Test Region 3', slug='test-region-3'),
         )
-        # Can't use bulk_create for models with MPTT fields
         for r in regions:
             r.save()
 
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
+
         sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2]),
+            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -743,6 +764,13 @@ class VLANGroupTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -763,14 +791,21 @@ class VLANTestCase(TestCase):
             Region(name='Test Region 2', slug='test-region-2'),
             Region(name='Test Region 3', slug='test-region-3'),
         )
-        # Can't use bulk_create for models with MPTT fields
         for r in regions:
             r.save()
 
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
+
         sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2]),
+            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -830,6 +865,13 @@ class VLANTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):

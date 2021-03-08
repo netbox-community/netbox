@@ -31,7 +31,7 @@ from .models import (
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, PathEndpoint, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel,
     PowerPort, PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
+    SiteGroup, VirtualChassis,
 )
 
 
@@ -136,6 +136,50 @@ class RegionBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filters.RegionFilterSet
     table = tables.RegionTable
+
+
+#
+# Site groups
+#
+
+class SiteGroupListView(generic.ObjectListView):
+    queryset = SiteGroup.objects.add_related_count(
+        SiteGroup.objects.all(),
+        Site,
+        'group',
+        'site_count',
+        cumulative=True
+    )
+    filterset = filters.SiteGroupFilterSet
+    filterset_form = forms.SiteGroupFilterForm
+    table = tables.SiteGroupTable
+
+
+class SiteGroupEditView(generic.ObjectEditView):
+    queryset = SiteGroup.objects.all()
+    model_form = forms.SiteGroupForm
+
+
+class SiteGroupDeleteView(generic.ObjectDeleteView):
+    queryset = SiteGroup.objects.all()
+
+
+class SiteGroupBulkImportView(generic.BulkImportView):
+    queryset = SiteGroup.objects.all()
+    model_form = forms.SiteGroupCSVForm
+    table = tables.SiteGroupTable
+
+
+class SiteGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = SiteGroup.objects.add_related_count(
+        SiteGroup.objects.all(),
+        Site,
+        'group',
+        'site_count',
+        cumulative=True
+    )
+    filterset = filters.SiteGroupFilterSet
+    table = tables.SiteGroupTable
 
 
 #
@@ -2181,6 +2225,8 @@ class CableCreateView(generic.ObjectEditView):
         termination_a_site = getattr(obj.termination_a.parent_object, 'site', None)
         if termination_a_site and 'termination_b_region' not in initial_data:
             initial_data['termination_b_region'] = termination_a_site.region
+        if termination_a_site and 'termination_b_site_group' not in initial_data:
+            initial_data['termination_b_site_group'] = termination_a_site.group
         if 'termination_b_site' not in initial_data:
             initial_data['termination_b_site'] = termination_a_site
         if 'termination_b_rack' not in initial_data:

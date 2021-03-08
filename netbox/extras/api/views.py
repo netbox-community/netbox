@@ -124,7 +124,7 @@ class ImageAttachmentViewSet(ModelViewSet):
 
 class ConfigContextViewSet(ModelViewSet):
     queryset = ConfigContext.objects.prefetch_related(
-        'regions', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
+        'regions', 'site_groups', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
     filterset_class = filters.ConfigContextFilterSet

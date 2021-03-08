@@ -67,6 +67,20 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Site Groups</td>
+                        <td>
+                            {% if object.site_groups.all %}
+                                <ul>
+                                    {% for sitegroup in object.site_groups.all %}
+                                        <li><a href="{{ sitegroup.get_absolute_url }}">{{ sitegroup }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Sites</td>
                         <td>
                             {% if object.sites.all %}

@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import DateField, IntegerField, NullBooleanField
 
-from dcim.models import DeviceRole, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet, ContentTypeFilter
 from virtualization.models import Cluster, ClusterGroup
@@ -128,6 +128,17 @@ class ConfigContextFilterSet(BaseFilterSet):
         queryset=Region.objects.all(),
         to_field_name='slug',
         label='Region (slug)',
+    )
+    site_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='site_groups__slug',
+        queryset=SiteGroup.objects.all(),
+        to_field_name='slug',
+        label='Site group (slug)',
+    )
+    site_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='site_groups',
+        queryset=SiteGroup.objects.all(),
+        label='Site group',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='sites',
