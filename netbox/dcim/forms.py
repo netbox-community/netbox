@@ -31,12 +31,7 @@ from utilities.forms import (
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .constants import *
-from .models import (
-    Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
-    Device, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate,
-    Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
-)
+from .models import *
 
 DEVICE_BY_PK_RE = r'{\d+\}'
 
@@ -61,7 +56,7 @@ def get_device_by_name_or_pk(name):
 
 class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
     field_order = [
-        'q', 'region_id', 'site_id'
+        'q', 'region_id', 'site_group_id', 'site_id'
     ]
     q = forms.CharField(
         required=False,
@@ -71,6 +66,11 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -210,12 +210,55 @@ class RegionFilterForm(BootstrapMixin, forms.Form):
 
 
 #
+# Site groups
+#
+
+class SiteGroupForm(BootstrapMixin, CustomFieldModelForm):
+    parent = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
+    slug = SlugField()
+
+    class Meta:
+        model = SiteGroup
+        fields = (
+            'parent', 'name', 'slug', 'description',
+        )
+
+
+class SiteGroupCSVForm(CustomFieldModelCSVForm):
+    parent = CSVModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent site group'
+    )
+
+    class Meta:
+        model = SiteGroup
+        fields = SiteGroup.csv_headers
+
+
+class SiteGroupFilterForm(BootstrapMixin, forms.Form):
+    model = Site
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
+
+
+#
 # Sites
 #
 
 class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
+        required=False
+    )
+    group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
         required=False
     )
     slug = SlugField()
@@ -228,12 +271,14 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
-            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email', 'comments', 'tags',
+            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asn', 'time_zone',
+            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
+            'contact_phone', 'contact_email', 'comments', 'tags',
         ]
         fieldsets = (
-            ('Site', ('name', 'slug', 'status', 'region', 'facility', 'asn', 'time_zone', 'description', 'tags')),
+            ('Site', (
+                'name', 'slug', 'status', 'region', 'group', 'facility', 'asn', 'time_zone', 'description', 'tags',
+            )),
             ('Tenancy', ('tenant_group', 'tenant')),
             ('Contact Info', (
                 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
@@ -279,6 +324,12 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Assigned region'
     )
+    group = CSVModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned group'
+    )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -311,6 +362,10 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         queryset=Region.objects.all(),
         required=False
     )
+    group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -333,7 +388,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
     class Meta:
         nullable_fields = [
-            'region', 'tenant', 'asn', 'description', 'time_zone',
+            'region', 'group', 'tenant', 'asn', 'description', 'time_zone',
         ]
 
 
@@ -353,6 +408,11 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Group')
     )
     tag = TagFilterField(model)
 
@@ -4451,7 +4511,7 @@ class VirtualChassisCSVForm(CustomFieldModelCSVForm):
 
 class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VirtualChassis
-    field_order = ['q', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id']
+    field_order = ['q', 'region_id', 'site_group_id', 'site_id', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
         required=False,
         label=_('Search')
@@ -4460,6 +4520,11 @@ class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -4579,6 +4644,11 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -4802,6 +4872,11 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),

@@ -35,6 +35,7 @@ __all__ = [
     'NestedRearPortTemplateSerializer',
     'NestedRegionSerializer',
     'NestedSiteSerializer',
+    'NestedSiteGroupSerializer',
     'NestedVirtualChassisSerializer',
 ]
 
@@ -50,6 +51,16 @@ class NestedRegionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Region
+        fields = ['id', 'url', 'name', 'slug', 'site_count', '_depth']
+
+
+class NestedSiteGroupSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
+    site_count = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
+
+    class Meta:
+        model = models.SiteGroup
         fields = ['id', 'url', 'name', 'slug', 'site_count', '_depth']
 
 

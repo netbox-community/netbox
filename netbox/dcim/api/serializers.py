@@ -6,13 +6,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models import (
-    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceType, DeviceRole, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
-)
+from dcim.models import *
 from netbox.api.serializers import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
@@ -94,10 +88,24 @@ class RegionSerializer(NestedGroupModelSerializer):
         ]
 
 
+class SiteGroupSerializer(NestedGroupModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
+    parent = NestedRegionSerializer(required=False, allow_null=True)
+    site_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = SiteGroup
+        fields = [
+            'id', 'url', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
+            'site_count', '_depth',
+        ]
+
+
 class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:site-detail')
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = NestedRegionSerializer(required=False, allow_null=True)
+    group = NestedSiteGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
     circuit_count = serializers.IntegerField(read_only=True)
@@ -110,10 +118,10 @@ class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id', 'url', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
-            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
-            'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
+            'id', 'url', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone',
+            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
+            'contact_phone', 'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'circuit_count', 'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
         ]
 
 

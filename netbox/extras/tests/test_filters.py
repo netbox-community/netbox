@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from dcim.models import DeviceRole, Platform, Rack, Region, Site
+from dcim.models import DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import ObjectChangeActionChoices
 from extras.filters import *
 from extras.models import ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, Tag
@@ -132,9 +132,16 @@ class ConfigContextTestCase(TestCase):
             Region(name='Test Region 2', slug='test-region-2'),
             Region(name='Test Region 3', slug='test-region-3'),
         )
-        # Can't use bulk_create for models with MPTT fields
         for r in regions:
             r.save()
+
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
 
         sites = (
             Site(name='Test Site 1', slug='test-site-1'),
@@ -195,6 +202,7 @@ class ConfigContextTestCase(TestCase):
                 data='{"foo": 123}'
             )
             c.regions.set([regions[i]])
+            c.site_groups.set([site_groups[i]])
             c.sites.set([sites[i]])
             c.roles.set([device_roles[i]])
             c.platforms.set([platforms[i]])
@@ -222,6 +230,13 @@ class ConfigContextTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):

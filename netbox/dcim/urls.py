@@ -3,11 +3,7 @@ from django.urls import path
 from extras.views import ObjectChangeLogView, ImageAttachmentEditView
 from ipam.views import ServiceEditView
 from . import views
-from .models import (
-    Cable, ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, FrontPort, Interface,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, Location,
-    RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
-)
+from .models import *
 
 app_name = 'dcim'
 urlpatterns = [
@@ -20,6 +16,15 @@ urlpatterns = [
     path('regions/<int:pk>/edit/', views.RegionEditView.as_view(), name='region_edit'),
     path('regions/<int:pk>/delete/', views.RegionDeleteView.as_view(), name='region_delete'),
     path('regions/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='region_changelog', kwargs={'model': Region}),
+
+    # Site groups
+    path('site-groups/', views.SiteGroupListView.as_view(), name='sitegroup_list'),
+    path('site-groups/add/', views.SiteGroupEditView.as_view(), name='sitegroup_add'),
+    path('site-groups/import/', views.SiteGroupBulkImportView.as_view(), name='sitegroup_import'),
+    path('site-groups/delete/', views.SiteGroupBulkDeleteView.as_view(), name='sitegroup_bulk_delete'),
+    path('site-groups/<int:pk>/edit/', views.SiteGroupEditView.as_view(), name='sitegroup_edit'),
+    path('site-groups/<int:pk>/delete/', views.SiteGroupDeleteView.as_view(), name='sitegroup_delete'),
+    path('site-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='sitegroup_changelog', kwargs={'model': SiteGroup}),
 
     # Sites
     path('sites/', views.SiteListView.as_view(), name='site_list'),

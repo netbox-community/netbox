@@ -38,6 +38,15 @@
                             {% endif %}
                             <a href="{% url 'dcim:region_list' %}">Regions</a>
                         </li>
+                        <li{% if not perms.dcim.view_sitegroup %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_sitegroup %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:sitegroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:sitegroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:sitegroup_list' %}">Site Groups</a>
+                        </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Racks</li>
                         <li{% if not perms.dcim.view_rack %} class="disabled"{% endif %}>

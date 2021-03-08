@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from dcim.filters import CableTerminationFilterSet, PathEndpointFilterSet
-from dcim.models import Region, Site
+from dcim.models import Region, Site, SiteGroup
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
@@ -36,6 +36,19 @@ class ProviderFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdated
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='circuits__terminations__site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='circuits__terminations__site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='circuits__terminations__site',
@@ -102,17 +115,6 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSe
         choices=CircuitStatusChoices,
         null_value=None
     )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='terminations__site',
-        queryset=Site.objects.all(),
-        label='Site (ID)',
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='terminations__site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label='Site (slug)',
-    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='terminations__site__region',
@@ -125,6 +127,30 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSe
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='terminations__site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='terminations__site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='terminations__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='terminations__site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
     )
     tag = TagFilter()
 
