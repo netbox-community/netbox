@@ -32,13 +32,13 @@ body:
       the raw HTTP request(s) being made: Don't rely on a client  library such as
       pynetbox."
       placeholder: |
-      1. Click on "create widget"
-      2. Set foo to 12 and bar to G
-      3. Click the "create" button
+        1. Click on "create widget"
+        2. Set foo to 12 and bar to G
+        3. Click the "create" button
       value: |
-      1.
-      2.
-      3.
+        1.
+        2.
+        3.
     validations:
       required: true
   - type: textarea
