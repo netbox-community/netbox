@@ -5,11 +5,11 @@ labels: ["type: feature"]
 issue_body: false
 body:
   - type: markdown
-  attributes:
-    value: "**NOTE:** This form is only for submitting well-formed proposals to extend or
-    modify NetBox in some way. If you're trying to solve a problem but can't figure out how,
-    or if you still need time to work on the details of a proposed new feature, please start
-    a [discussion](https://github.com/netbox-community/netbox/discussions) instead."
+    attributes:
+      value: "**NOTE:** This form is only for submitting well-formed proposals to extend or
+      modify NetBox in some way. If you're trying to solve a problem but can't figure out how,
+      or if you still need time to work on the details of a proposed new feature, please start
+      a [discussion](https://github.com/netbox-community/netbox/discussions) instead."
   - type: input
     attributes:
       label: NetBox version

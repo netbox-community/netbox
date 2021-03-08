@@ -5,9 +5,9 @@ labels: ["type: housekeeping"]
 issue_body: false
 body:
   - type: markdown
-  attributes:
-    value: "**NOTE:** This template is for use by maintainers only. Please do not submit
-    an issue using this template unless you have been specifically asked to do so."
+    attributes:
+      value: "**NOTE:** This template is for use by maintainers only. Please do not submit
+      an issue using this template unless you have been specifically asked to do so."
   - type: textarea
     attributes:
       label: Proposed Changes
