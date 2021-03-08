@@ -1,6 +1,7 @@
 # Sites and Racks
 
 {!docs/models/dcim/region.md!}
+{!docs/models/dcim/sitegroup.md!}
 {!docs/models/dcim/site.md!}
 {!docs/models/dcim/location.md!}
 
