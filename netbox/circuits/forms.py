@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from dcim.models import Region, Site
+from dcim.models import Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
@@ -320,18 +320,26 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
             'sites': '$site'
         }
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'region', 'site', 'mark_connected', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
-            'description',
+            'term_side', 'region', 'site_group', 'site', 'mark_connected', 'port_speed', 'upstream_speed',
+            'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
