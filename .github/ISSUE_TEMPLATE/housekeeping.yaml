@@ -22,5 +22,6 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: "### Additional information
-      You can use the space below to provide any additional information or to attach files."
+      value: |
+        ### Additional information
+        You can use the space below to provide any additional information or to attach files.
