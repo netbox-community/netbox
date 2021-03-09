@@ -13,6 +13,29 @@ later will be required.
 
 Virtual interfaces can now be assigned to a "parent" physical interface, by setting the `parent` field on the Interface model. This is helpful for associating subinterfaces with their physical counterpart. For example, you might assign virtual interfaces Gi0/0.100 and Gi0/0.200 to the physical interface Gi0/0.
 
+#### Pre- and Post-Change Snapshots in Webhooks ([#3451](https://github.com/netbox-community/netbox/issues/3451))
+
+In conjunction with the newly improved change logging functionality ([#5913](https://github.com/netbox-community/netbox/issues/5913)), outgoing webhooks now include a pre- and post-change representation of the modified object. These are available in the rendering context as a dictionary named `snapshots` with keys `prechange` and `postchange`. For example, here are the abridged snapshots resulting from renaming a site and changing its status:
+
+```json
+"snapshots": {
+    "prechange": {
+        "name": "Site 1",
+        "slug": "site-1",
+        "status": "active",
+        ...
+    },
+    "postchange": {
+        "name": "Site 2",
+        "slug": "site-2",
+        "status": "planned",
+        ...
+    }
+}
+```
+
+Note: The pre-change snapshot for an object creation will always be null, as will the post-change snapshot for an object deletion.
+
 #### Mark as Connected Without a Cable ([#3648](https://github.com/netbox-community/netbox/issues/3648))
 
 Cable termination objects (circuit terminations, power feeds, and most device components) can now be marked as "connected" without actually attaching a cable. This helps simplify the process of modeling an infrastructure boundary where you don't necessarily know or care what is connected to the far end of a cable, but still need to designate the near end termination.
