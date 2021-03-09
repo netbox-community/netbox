@@ -11,7 +11,7 @@ from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
-from extras.models import ConfigContext, CustomField, CustomLink, ExportTemplate, ImageAttachment, Tag
+from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
@@ -28,6 +28,60 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
+
+
+class WebhookTest(APIViewTestCases.APIViewTestCase):
+    model = Webhook
+    brief_fields = ['id', 'name', 'url']
+    create_data = [
+        {
+            'content_types': ['dcim.device', 'dcim.devicetype'],
+            'name': 'Webhook 4',
+            'type_create': True,
+            'payload_url': 'http://example.com/?4',
+        },
+        {
+            'content_types': ['dcim.device', 'dcim.devicetype'],
+            'name': 'Webhook 5',
+            'type_update': True,
+            'payload_url': 'http://example.com/?5',
+        },
+        {
+            'content_types': ['dcim.device', 'dcim.devicetype'],
+            'name': 'Webhook 6',
+            'type_delete': True,
+            'payload_url': 'http://example.com/?6',
+        },
+    ]
+    bulk_update_data = {
+        'ssl_verification': False,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+        rack_ct = ContentType.objects.get_for_model(Rack)
+
+        webhooks = (
+            Webhook(
+                name='Webhook 1',
+                type_create=True,
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 2',
+                type_update=True,
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 3',
+                type_delete=True,
+                payload_url='http://example.com/?1',
+            ),
+        )
+        Webhook.objects.bulk_create(webhooks)
+        for webhook in webhooks:
+            webhook.content_types.add(site_ct, rack_ct)
 
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):

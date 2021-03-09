@@ -9,9 +9,7 @@ from dcim.api.nested_serializers import (
 )
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import *
-from extras.models import (
-    ConfigContext, CustomField, CustomLink, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
-)
+from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
 from netbox.api.exceptions import SerializerNotFound
@@ -22,6 +20,48 @@ from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
 from virtualization.models import Cluster, ClusterGroup
 from .nested_serializers import *
+
+
+__all__ = (
+    'ConfigContextSerializer',
+    'ContentTypeSerializer',
+    'CustomFieldSerializer',
+    'CustomLinkSerializer',
+    'ExportTemplateSerializer',
+    'ImageAttachmentSerializer',
+    'JobResultSerializer',
+    'ObjectChangeSerializer',
+    'ReportDetailSerializer',
+    'ReportSerializer',
+    'ScriptDetailSerializer',
+    'ScriptInputSerializer',
+    'ScriptLogMessageSerializer',
+    'ScriptOutputSerializer',
+    'ScriptSerializer',
+    'TagSerializer',
+    'TaggedObjectSerializer',
+    'WebhookSerializer',
+)
+
+
+#
+# Webhooks
+#
+
+class WebhookSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:webhook-detail')
+    content_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('webhooks').get_query()),
+        many=True
+    )
+
+    class Meta:
+        model = Webhook
+        fields = [
+            'id', 'url', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled',
+            'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret', 'ssl_verification',
+            'ca_file_path',
+        ]
 
 
 #

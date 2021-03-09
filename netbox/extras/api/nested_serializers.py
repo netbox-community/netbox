@@ -12,7 +12,16 @@ __all__ = [
     'NestedImageAttachmentSerializer',
     'NestedJobResultSerializer',
     'NestedTagSerializer',
+    'NestedWebhookSerializer',
 ]
+
+
+class NestedWebhookSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:webhook-detail')
+
+    class Meta:
+        model = models.Webhook
+        fields = ['id', 'url', 'name']
 
 
 class NestedCustomFieldSerializer(WritableNestedSerializer):

@@ -5,6 +5,9 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.ExtrasRootView
 
+# Webhooks
+router.register('webhooks', views.WebhookViewSet)
+
 # Custom fields
 router.register('custom-fields', views.CustomFieldViewSet)
 

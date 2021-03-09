@@ -21,6 +21,19 @@ from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge, render_jinja2
 
 
+__all__ = (
+    'ConfigContext',
+    'ConfigContextModel',
+    'CustomLink',
+    'ExportTemplate',
+    'ImageAttachment',
+    'JobResult',
+    'Report',
+    'Script',
+    'Webhook',
+)
+
+
 #
 # Webhooks
 #
@@ -108,6 +121,8 @@ class Webhook(BigIDModel):
         help_text='The specific CA certificate file to use for SSL verification. '
                   'Leave blank to use the system defaults.'
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ('name',)

@@ -11,9 +11,7 @@ from rq import Worker
 
 from extras import filters
 from extras.choices import JobResultStatusChoices
-from extras.models import (
-    ConfigContext, CustomLink, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
-)
+from extras.models import *
 from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
@@ -53,6 +51,17 @@ class ConfigContextQuerySetMixin:
         if self.brief or 'config_context' in request.query_params.get('exclude', []):
             return queryset
         return queryset.annotate_config_context_data()
+
+
+#
+# Webhooks
+#
+
+class WebhookViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Webhook.objects.all()
+    serializer_class = serializers.WebhookSerializer
+    filterset_class = filters.WebhookFilterSet
 
 
 #

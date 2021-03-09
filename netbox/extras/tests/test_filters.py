@@ -7,10 +7,86 @@ from django.test import TestCase
 from dcim.models import DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import ObjectChangeActionChoices
 from extras.filters import *
-from extras.models import ConfigContext, CustomLink, ExportTemplate, ImageAttachment, ObjectChange, Tag
+from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+
+
+class WebhookTestCase(TestCase):
+    queryset = Webhook.objects.all()
+    filterset = WebhookFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        webhooks = (
+            Webhook(
+                name='Webhook 1',
+                type_create=True,
+                payload_url='http://example.com/?1',
+                enabled=True,
+                http_method='GET',
+                ssl_verification=True,
+            ),
+            Webhook(
+                name='Webhook 2',
+                type_update=True,
+                payload_url='http://example.com/?2',
+                enabled=True,
+                http_method='POST',
+                ssl_verification=True,
+            ),
+            Webhook(
+                name='Webhook 3',
+                type_delete=True,
+                payload_url='http://example.com/?3',
+                enabled=False,
+                http_method='PATCH',
+                ssl_verification=False,
+            ),
+        )
+        Webhook.objects.bulk_create(webhooks)
+        webhooks[0].content_types.add(content_types[0])
+        webhooks[1].content_types.add(content_types[1])
+        webhooks[2].content_types.add(content_types[2])
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Webhook 1', 'Webhook 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_types(self):
+        params = {'content_types': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_create(self):
+        params = {'type_create': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_update(self):
+        params = {'type_update': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_delete(self):
+        params = {'type_delete': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_http_method(self):
+        params = {'http_method': ['GET', 'POST']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ssl_verification(self):
+        params = {'ssl_verification': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class CustomLinkTestCase(TestCase):

@@ -9,9 +9,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet, ContentTypeFilter
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import (
-    ConfigContext, CustomField, CustomLink, ExportTemplate, ImageAttachment, JobResult, ObjectChange, Tag,
-)
+from .models import *
 
 
 __all__ = (
@@ -26,6 +24,7 @@ __all__ = (
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
     'TagFilterSet',
+    'WebhookFilterSet',
 )
 
 EXACT_FILTER_TYPES = (
@@ -34,6 +33,20 @@ EXACT_FILTER_TYPES = (
     CustomFieldTypeChoices.TYPE_INTEGER,
     CustomFieldTypeChoices.TYPE_SELECT,
 )
+
+
+class WebhookFilterSet(BaseFilterSet):
+    content_types = ContentTypeFilter()
+    http_method = django_filters.MultipleChoiceFilter(
+        choices=WebhookHttpMethodChoices
+    )
+
+    class Meta:
+        model = Webhook
+        fields = [
+            'id', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled',
+            'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+        ]
 
 
 class CustomFieldFilter(django_filters.Filter):
