@@ -43,6 +43,7 @@ The ObjectChange model (which is used to record the creation, modification, and 
 * [#5375](https://github.com/netbox-community/netbox/issues/5375) - Add `speed` attribute to console port models
 * [#5401](https://github.com/netbox-community/netbox/issues/5401) - Extend custom field support to device component models
 * [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add support for multiple-selection custom fields
+* [#5608](https://github.com/netbox-community/netbox/issues/5608) - Add REST API endpoint for custom links
 * [#5894](https://github.com/netbox-community/netbox/issues/5894) - Use primary keys when filtering object lists by related objects in the UI
 * [#5895](https://github.com/netbox-community/netbox/issues/5895) - Rename RackGroup to Location
 * [#5901](https://github.com/netbox-community/netbox/issues/5901) - Add `created` and `last_updated` fields to device component models
@@ -83,6 +84,8 @@ The ObjectChange model (which is used to record the creation, modification, and 
   * Added the `site_groups` many-to-many field to track the assignment of ConfigContexts to SiteGroups
 * extras.CustomField
   * Added new custom field type: `multi-select`
+* extras.CustomLink
+  * Added the `/api/extras/custom-links/` endpoint
 * extras.ObjectChange
   * Added the `prechange_data` field
   * Renamed `object_data` to `postchange_data`

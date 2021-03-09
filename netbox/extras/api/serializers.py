@@ -10,7 +10,7 @@ from dcim.api.nested_serializers import (
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import (
-    ConfigContext, CustomField, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
+    ConfigContext, CustomField, CustomLink, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.utils import FeatureQuery
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
@@ -42,6 +42,24 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
             'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
+        ]
+
+
+#
+# Custom links
+#
+
+class CustomLinkSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customlink-detail')
+    content_type = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query())
+    )
+
+    class Meta:
+        model = CustomLink
+        fields = [
+            'id', 'url', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name', 'button_class',
+            'new_window',
         ]
 
 

@@ -9,7 +9,9 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet, ContentTypeFilter
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, JobResult, ObjectChange, Tag
+from .models import (
+    ConfigContext, CustomField, CustomLink, ExportTemplate, ImageAttachment, JobResult, ObjectChange, Tag,
+)
 
 
 __all__ = (
@@ -17,6 +19,7 @@ __all__ = (
     'ContentTypeFilterSet',
     'CreatedUpdatedFilterSet',
     'CustomFieldFilter',
+    'CustomLinkFilterSet',
     'CustomFieldModelFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
@@ -77,6 +80,13 @@ class CustomFieldFilterSet(django_filters.FilterSet):
     class Meta:
         model = CustomField
         fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight']
+
+
+class CustomLinkFilterSet(BaseFilterSet):
+
+    class Meta:
+        model = CustomLink
+        fields = ['id', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name', 'new_window']
 
 
 class ExportTemplateFilterSet(BaseFilterSet):

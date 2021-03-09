@@ -11,7 +11,7 @@ from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
-from extras.models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, Tag
+from extras.models import ConfigContext, CustomField, CustomLink, ExportTemplate, ImageAttachment, Tag
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
@@ -75,6 +75,60 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         CustomField.objects.bulk_create(custom_fields)
         for cf in custom_fields:
             cf.content_types.add(site_ct)
+
+
+class CustomLinkTest(APIViewTestCases.APIViewTestCase):
+    model = CustomLink
+    brief_fields = ['id', 'name', 'url']
+    create_data = [
+        {
+            'content_type': 'dcim.site',
+            'name': 'Custom Link 4',
+            'link_text': 'Link 4',
+            'link_url': 'http://example.com/?4',
+        },
+        {
+            'content_type': 'dcim.site',
+            'name': 'Custom Link 5',
+            'link_text': 'Link 5',
+            'link_url': 'http://example.com/?5',
+        },
+        {
+            'content_type': 'dcim.site',
+            'name': 'Custom Link 6',
+            'link_text': 'Link 6',
+            'link_url': 'http://example.com/?6',
+        },
+    ]
+    bulk_update_data = {
+        'new_window': True,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        custom_links = (
+            CustomLink(
+                content_type=site_ct,
+                name='Custom Link 1',
+                link_text='Link 1',
+                link_url='http://example.com/?1',
+            ),
+            CustomLink(
+                content_type=site_ct,
+                name='Custom Link 2',
+                link_text='Link 2',
+                link_url='http://example.com/?2',
+            ),
+            CustomLink(
+                content_type=site_ct,
+                name='Custom Link 3',
+                link_text='Link 3',
+                link_url='http://example.com/?3',
+            ),
+        )
+        CustomLink.objects.bulk_create(custom_links)
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):

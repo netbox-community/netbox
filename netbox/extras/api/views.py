@@ -12,7 +12,7 @@ from rq import Worker
 from extras import filters
 from extras.choices import JobResultStatusChoices
 from extras.models import (
-    ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
+    ConfigContext, CustomLink, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
 )
 from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
@@ -82,6 +82,17 @@ class CustomFieldModelViewSet(ModelViewSet):
             'custom_fields': custom_fields,
         })
         return context
+
+
+#
+# Custom links
+#
+
+class CustomLinkViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = CustomLink.objects.all()
+    serializer_class = serializers.CustomLinkSerializer
+    filterset_class = filters.CustomLinkFilterSet
 
 
 #

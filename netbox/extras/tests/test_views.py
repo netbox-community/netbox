@@ -135,8 +135,8 @@ class CustomLinkTest(TestCase):
         customlink = CustomLink(
             content_type=ContentType.objects.get_for_model(Site),
             name='Test',
-            text='FOO {{ obj.name }} BAR',
-            url='http://example.com/?site={{ obj.slug }}',
+            link_text='FOO {{ obj.name }} BAR',
+            link_url='http://example.com/?site={{ obj.slug }}',
             new_window=False
         )
         customlink.save()

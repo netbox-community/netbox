@@ -7,10 +7,69 @@ from django.test import TestCase
 from dcim.models import DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import ObjectChangeActionChoices
 from extras.filters import *
-from extras.models import ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, Tag
+from extras.models import ConfigContext, CustomLink, ExportTemplate, ImageAttachment, ObjectChange, Tag
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+
+
+class CustomLinkTestCase(TestCase):
+    queryset = CustomLink.objects.all()
+    filterset = CustomLinkFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        custom_links = (
+            CustomLink(
+                name='Custom Link 1',
+                content_type=content_types[0],
+                weight=100,
+                new_window=False,
+                link_text='Link 1',
+                link_url='http://example.com/?1'
+            ),
+            CustomLink(
+                name='Custom Link 2',
+                content_type=content_types[1],
+                weight=200,
+                new_window=False,
+                link_text='Link 1',
+                link_url='http://example.com/?2'
+            ),
+            CustomLink(
+                name='Custom Link 3',
+                content_type=content_types[2],
+                weight=300,
+                new_window=True,
+                link_text='Link 1',
+                link_url='http://example.com/?3'
+            ),
+        )
+        CustomLink.objects.bulk_create(custom_links)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Custom Link 1', 'Custom Link 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_type(self):
+        params = {'content_type': ContentType.objects.get(model='site').pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_weight(self):
+        params = {'weight': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_new_window(self):
+        params = {'new_window': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'new_window': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ExportTemplateTestCase(TestCase):

@@ -172,13 +172,13 @@ class CustomLink(BigIDModel):
         max_length=100,
         unique=True
     )
-    text = models.CharField(
+    link_text = models.CharField(
         max_length=500,
         help_text="Jinja2 template code for link text"
     )
-    url = models.CharField(
+    link_url = models.CharField(
         max_length=500,
-        verbose_name='URL',
+        verbose_name='Link URL',
         help_text="Jinja2 template code for link URL"
     )
     weight = models.PositiveSmallIntegerField(
@@ -196,8 +196,11 @@ class CustomLink(BigIDModel):
         help_text="The class of the first link in a group will be used for the dropdown button"
     )
     new_window = models.BooleanField(
+        default=False,
         help_text="Force link to open in a new window"
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
