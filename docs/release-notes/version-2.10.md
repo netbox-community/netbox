@@ -17,6 +17,7 @@
 * [#5872](https://github.com/netbox-community/netbox/issues/5872) - Ordering of devices by primary IP should respect PREFER_IPV4 configuration parameter
 * [#5922](https://github.com/netbox-community/netbox/issues/5922) - Fix options for filtering object permissions in admin UI
 * [#5935](https://github.com/netbox-community/netbox/issues/5935) - Fix filtering prefixes list by multiple prefix values
+* [#5948](https://github.com/netbox-community/netbox/issues/5948) - Invalidate cached queries when running `renaturalize`
 
 ## v2.10.5 (2021-02-24)
 
