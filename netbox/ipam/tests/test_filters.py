@@ -422,6 +422,11 @@ class PrefixTestCase(TestCase):
         params = {'family': '6'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
+    def test_prefix(self):
+        prefixes = Prefix.objects.all()[:2]
+        params = {'prefix': [prefixes[0].prefix, prefixes[1].prefix]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_is_pool(self):
         params = {'is_pool': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

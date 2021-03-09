@@ -1,5 +1,24 @@
 # NetBox v2.10
 
+## v2.10.6 (2021-03-09)
+
+### Enhancements
+
+* [#5592](https://github.com/netbox-community/netbox/issues/5592) - Add IP addresses count to VRF view
+* [#5630](https://github.com/netbox-community/netbox/issues/5630) - Add QSFP+ (64GFC) FibreChannel Interface option
+* [#5884](https://github.com/netbox-community/netbox/issues/5884) - Enable custom links for device components
+* [#5914](https://github.com/netbox-community/netbox/issues/5914) - Add edit/delete buttons for IP addresses on interface view
+* [#5942](https://github.com/netbox-community/netbox/issues/5942) - Add button to add a new IP address on interface view
+
+### Bug Fixes
+
+* [#5703](https://github.com/netbox-community/netbox/issues/5703) - Fix VRF and Tenant field population when adding IP addresses from prefix
+* [#5819](https://github.com/netbox-community/netbox/issues/5819) - Enable ordering of virtual machines by primary IP address
+* [#5872](https://github.com/netbox-community/netbox/issues/5872) - Ordering of devices by primary IP should respect `PREFER_IPV4` configuration parameter
+* [#5922](https://github.com/netbox-community/netbox/issues/5922) - Fix options for filtering object permissions in admin UI
+* [#5935](https://github.com/netbox-community/netbox/issues/5935) - Fix filtering prefixes list by multiple prefix values
+* [#5948](https://github.com/netbox-community/netbox/issues/5948) - Invalidate cached queries when running `renaturalize`
+
 ## v2.10.5 (2021-02-24)
 
 ### Bug Fixes

@@ -4,12 +4,12 @@ NetBox is maintained as a [GitHub project](https://github.com/netbox-community/n
 
 ## Communication
 
-Communication among developers should always occur via public channels:
+There are several official forums for communication among the developers and community members:
 
 * [GitHub issues](https://github.com/netbox-community/netbox/issues) - All feature requests, bug reports, and other substantial changes to the code base **must** be documented in an issue.
-* [GitHub discussions](https://github.com/netbox-community/netbox/discussions) - The preferred forum for general discussion and support issues. Ideal for shaping a feature request prior to submitting an issue.
-* [The mailing list](https://groups.google.com/g/netbox-discuss) - An alternative forum for general discussion (GitHub is preferred).
-* [#netbox on NetworkToCode](http://slack.networktocode.com/) - Good for quick chats. Avoid any discussion that might need to be referenced later on, as the chat history is not retained long.
+* [GitHub Discussions](https://github.com/netbox-community/netbox/discussions) - The preferred forum for general discussion and support issues. Ideal for shaping a feature request prior to submitting an issue.
+* [#netbox on NetDev Community Slack](https://join.slack.com/t/netdev-community/shared_invite/zt-mtts8g0n-Sm6Wutn62q_M4OdsaIycrQ) - Good for quick chats. Avoid any discussion that might need to be referenced later on, as the chat history is not retained long.
+* [Google Group](https://groups.google.com/g/netbox-discuss) - Legacy mailing list; slowly being phased out in favor of GitHub discussions.
 
 ## Governance
 

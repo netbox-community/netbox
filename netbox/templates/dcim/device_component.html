@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load helpers %}
 {% load perms %}
+{% load custom_links %}
 {% load plugins %}
 
 {% block header %}
@@ -30,6 +31,9 @@
         {% endif %}
     </div>
     <h1>{% block title %}{{ object.device }} / {{ object }}{% endblock %}</h1>
+    <div class="pull-right noprint">
+        {% custom_links object %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>

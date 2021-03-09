@@ -192,7 +192,7 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet
         field_name='prefix',
         lookup_expr='family'
     )
-    prefix = django_filters.CharFilter(
+    prefix = MultiValueCharFilter(
         method='filter_prefix',
         label='Prefix',
     )
@@ -304,13 +304,13 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet
         return queryset.filter(qs_filter)
 
     def filter_prefix(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        try:
-            query = str(netaddr.IPNetwork(value).cidr)
-            return queryset.filter(prefix=query)
-        except (AddrFormatError, ValueError):
-            return queryset.none()
+        query_values = []
+        for v in value:
+            try:
+                query_values.append(netaddr.IPNetwork(v))
+            except (AddrFormatError, ValueError):
+                pass
+        return queryset.filter(prefix__in=query_values)
 
     def search_within(self, queryset, name, value):
         value = value.strip()
