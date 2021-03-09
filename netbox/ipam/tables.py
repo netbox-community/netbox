@@ -414,7 +414,7 @@ class InterfaceIPAddressTable(BaseTable):
 class VLANGroupTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(linkify=True)
-    site = tables.Column(
+    scope = tables.Column(
         linkify=True
     )
     vlan_count = LinkedCountColumn(
@@ -429,8 +429,8 @@ class VLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'description', 'actions')
-        default_columns = ('pk', 'name', 'site', 'vlan_count', 'description', 'actions')
+        fields = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'actions')
+        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description', 'actions')
 
 
 #

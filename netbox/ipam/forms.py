@@ -1,7 +1,8 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from dcim.models import Device, Interface, Rack, Region, Site, SiteGroup
+from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
@@ -1126,9 +1127,30 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
+        initial_params={
+            'locations': '$location'
+        },
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
+        }
+    )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        initial_params={
+            'racks': '$rack'
+        },
+        query_params={
+            'site_id': '$site',
+        }
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site',
+            'location_id': '$location',
         }
     )
     slug = SlugField()
@@ -1136,8 +1158,39 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'region', 'site', 'name', 'slug', 'description',
+            'name', 'slug', 'description', 'region', 'site_group', 'site', 'location', 'rack',
         ]
+        fieldsets = (
+            ('VLAN Group', ('name', 'slug', 'description')),
+            ('Scope', ('region', 'site_group', 'site', 'location', 'rack')),
+        )
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.scope:
+            if type(instance.scope) is Rack:
+                initial['rack'] = instance.scope
+            elif type(instance.scope) is Location:
+                initial['location'] = instance.scope
+            elif type(instance.scope) is Site:
+                initial['site'] = instance.scope
+            elif type(instance.scope) is SiteGroup:
+                initial['site_group'] = instance.scope
+            elif type(instance.scope) is Region:
+                initial['region'] = instance.scope
+
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Assign scope object
+        self.instance.scope = self.cleaned_data['rack'] or self.cleaned_data['location'] or self.cleaned_data['site'] \
+            or self.cleaned_data['site_group'] or self.cleaned_data['region'] or None
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):
@@ -1155,24 +1208,30 @@ class VLANGroupCSVForm(CustomFieldModelCSVForm):
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
-    region_id = DynamicModelMultipleChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
     )
-    site_group_id = DynamicModelMultipleChoiceField(
+    sitegroup = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
         label=_('Site group')
     )
-    site_id = DynamicModelMultipleChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region_id'
-        },
         label=_('Site')
+    )
+    location = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
+    )
+    rack = DynamicModelMultipleChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        label=_('Rack')
     )
 
 
