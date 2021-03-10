@@ -379,6 +379,7 @@ class ImageAttachment(BigIDModel):
 # Config contexts
 #
 
+@extras_features('webhooks')
 class ConfigContext(ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned

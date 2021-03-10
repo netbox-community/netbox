@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
+from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggedModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
@@ -12,6 +13,7 @@ from utilities.querysets import RestrictedQuerySet
 # Tags
 #
 
+@extras_features('webhooks')
 class Tag(ChangeLoggedModel, TagBase):
     color = ColorField(
         default=ColorChoices.COLOR_GREY

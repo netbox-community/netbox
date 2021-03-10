@@ -231,6 +231,7 @@ class Circuit(PrimaryModel):
         return self._get_termination('Z')
 
 
+@extras_features('webhooks')
 class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
