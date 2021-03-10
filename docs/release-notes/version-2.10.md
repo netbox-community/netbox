@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.7 (FUTURE)
+
+### Bug Fixes
+
+* [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image
+
+---
+
 ## v2.10.6 (2021-03-09)
 
 ### Enhancements
@@ -18,6 +26,8 @@
 * [#5922](https://github.com/netbox-community/netbox/issues/5922) - Fix options for filtering object permissions in admin UI
 * [#5935](https://github.com/netbox-community/netbox/issues/5935) - Fix filtering prefixes list by multiple prefix values
 * [#5948](https://github.com/netbox-community/netbox/issues/5948) - Invalidate cached queries when running `renaturalize`
+
+---
 
 ## v2.10.5 (2021-02-24)
 

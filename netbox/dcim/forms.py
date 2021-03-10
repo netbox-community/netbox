@@ -944,10 +944,10 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         widgets = {
             'subdevice_role': StaticSelect2(),
             # Exclude SVG images (unsupported by PIL)
-            'front_image': forms.FileInput(attrs={
+            'front_image': forms.ClearableFileInput(attrs={
                 'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
             }),
-            'rear_image': forms.FileInput(attrs={
+            'rear_image': forms.ClearableFileInput(attrs={
                 'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
             })
         }
