@@ -173,10 +173,11 @@ class VLAN(PrimaryModel):
     def clean(self):
         super().clean()
 
-        # Validate VLAN group
-        if self.group and self.group.site != self.site:
+        # Validate VLAN group (if assigned)
+        if self.group and self.site and self.group.scope != self.site:
             raise ValidationError({
-                'group': "VLAN group must belong to the assigned site ({}).".format(self.site)
+                'group': f"VLAN is assigned to group {self.group} (scope: {self.group.scope}); cannot also assign to "
+                         f"site {self.site}."
             })
 
     def to_csv(self):
