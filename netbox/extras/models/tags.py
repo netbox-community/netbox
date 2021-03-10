@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from netbox.models import BigIDModel, ChangeLoggingMixin
+from netbox.models import BigIDModel, ChangeLoggedModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
@@ -12,7 +12,7 @@ from utilities.querysets import RestrictedQuerySet
 # Tags
 #
 
-class Tag(ChangeLoggingMixin, BigIDModel, TagBase):
+class Tag(ChangeLoggedModel, TagBase):
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )

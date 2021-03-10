@@ -6,7 +6,7 @@ from dcim.fields import ASNField
 from dcim.models import CableTermination, PathEndpoint
 from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
-from netbox.models import BigIDModel, ChangeLoggingMixin, OrganizationalModel, PrimaryModel
+from netbox.models import BigIDModel, ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from .choices import *
 from .querysets import CircuitQuerySet
@@ -234,7 +234,7 @@ class Circuit(PrimaryModel):
         return self._get_termination('Z')
 
 
-class CircuitTermination(ChangeLoggingMixin, BigIDModel, PathEndpoint, CableTermination):
+class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,

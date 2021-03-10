@@ -12,8 +12,7 @@ from utilities.utils import serialize_object
 
 __all__ = (
     'BigIDModel',
-    'ChangeLoggingMixin',
-    'CustomFieldsMixin',
+    'ChangeLoggedModel',
     'NestedGroupModel',
     'OrganizationalModel',
     'PrimaryModel',
@@ -133,6 +132,14 @@ class BigIDModel(models.Model):
         primary_key=True
     )
 
+    class Meta:
+        abstract = True
+
+
+class ChangeLoggedModel(ChangeLoggingMixin, BigIDModel):
+    """
+    Base model for all objects which support change logging.
+    """
     class Meta:
         abstract = True
 

@@ -16,7 +16,7 @@ from extras.choices import *
 from extras.constants import *
 from extras.querysets import ConfigContextQuerySet
 from extras.utils import extras_features, FeatureQuery, image_upload
-from netbox.models import BigIDModel, ChangeLoggingMixin
+from netbox.models import BigIDModel, ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge, render_jinja2
 
@@ -379,7 +379,7 @@ class ImageAttachment(BigIDModel):
 # Config contexts
 #
 
-class ConfigContext(ChangeLoggingMixin, BigIDModel):
+class ConfigContext(ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B

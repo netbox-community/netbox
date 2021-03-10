@@ -5,7 +5,7 @@ from django.db import models
 from dcim.choices import *
 from dcim.constants import *
 from extras.utils import extras_features
-from netbox.models import BigIDModel, ChangeLoggingMixin
+from netbox.models import ChangeLoggedModel
 from utilities.fields import NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
@@ -26,7 +26,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(ChangeLoggingMixin, BigIDModel):
+class ComponentTemplateModel(ChangeLoggedModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
