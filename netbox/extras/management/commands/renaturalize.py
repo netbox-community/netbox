@@ -1,3 +1,4 @@
+from cacheops import invalidate_model
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 
@@ -27,7 +28,7 @@ class Command(BaseCommand):
                     app_label, model_name = name.split('.')
                 except ValueError:
                     raise CommandError(
-                        "Invalid format: {}. Models must be specified in the form app_label.ModelName.".format(name)
+                        f"Invalid format: {name}. Models must be specified in the form app_label.ModelName."
                     )
                 try:
                     app_config = apps.get_app_config(app_label)
@@ -36,13 +37,13 @@ class Command(BaseCommand):
                 try:
                     model = app_config.get_model(model_name)
                 except LookupError:
-                    raise CommandError("Unknown model: {}.{}".format(app_label, model_name))
+                    raise CommandError(f"Unknown model: {app_label}.{model_name}")
                 fields = [
                     field for field in model._meta.concrete_fields if type(field) is NaturalOrderingField
                 ]
                 if not fields:
                     raise CommandError(
-                        "Invalid model: {}.{} does not employ natural ordering".format(app_label, model_name)
+                        f"Invalid model: {app_label}.{model_name} does not employ natural ordering"
                     )
                 models.append(
                     (model, fields)
@@ -67,7 +68,7 @@ class Command(BaseCommand):
         models = self._get_models(args)
 
         if options['verbosity']:
-            self.stdout.write("Renaturalizing {} models.".format(len(models)))
+            self.stdout.write(f"Renaturalizing {len(models)} models.")
 
         for model, fields in models:
             for field in fields:
@@ -78,7 +79,7 @@ class Command(BaseCommand):
                 # Print the model and field name
                 if options['verbosity']:
                     self.stdout.write(
-                        "{}.{} ({})... ".format(model._meta.label, field.target_field, field.name),
+                        f"{model._meta.label}.{field.target_field} ({field.name})... ",
                         ending='\n' if options['verbosity'] >= 2 else ''
                     )
                     self.stdout.flush()
@@ -89,23 +90,26 @@ class Command(BaseCommand):
                     naturalized_value = naturalize(value, max_length=field.max_length)
 
                     if options['verbosity'] >= 2:
-                        self.stdout.write("  {} -> {}".format(value, naturalized_value), ending='')
+                        self.stdout.write(f"  {value} -> {naturalized_value}", ending='')
                         self.stdout.flush()
 
                     # Update each unique field value in bulk
                     changed = model.objects.filter(name=value).update(**{field.name: naturalized_value})
 
                     if options['verbosity'] >= 2:
-                        self.stdout.write(" ({})".format(changed))
+                        self.stdout.write(f" ({changed})")
                     count += changed
 
                 # Print the total count of alterations for the field
                 if options['verbosity'] >= 2:
-                    self.stdout.write(self.style.SUCCESS("{} {} updated ({} unique values)".format(
-                        count, model._meta.verbose_name_plural, queryset.count()
-                    )))
+                    self.stdout.write(self.style.SUCCESS(
+                        f"{count} {model._meta.verbose_name_plural} updated ({queryset.count()} unique values)"
+                    ))
                 elif options['verbosity']:
                     self.stdout.write(self.style.SUCCESS(str(count)))
+
+            # Invalidate cached queries
+            invalidate_model(model)
 
         if options['verbosity']:
             self.stdout.write(self.style.SUCCESS("Done."))

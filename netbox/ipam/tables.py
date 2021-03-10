@@ -33,7 +33,7 @@ IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
 {% elif perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if prefix.vrf %}&vrf={{ prefix.vrf.pk }}{% endif %}{% if prefix.tenant %}&tenant={{ prefix.tenant.pk }}{% endif %}" class="btn btn-xs btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-xs btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
 {% else %}
     {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
 {% endif %}
@@ -46,8 +46,8 @@ IPADDRESS_ASSIGN_LINK = """
 VRF_LINK = """
 {% if record.vrf %}
     <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
-{% elif prefix.vrf %}
-    {{ prefix.vrf }}
+{% elif object.vrf %}
+    <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
 {% else %}
     Global
 {% endif %}
@@ -401,6 +401,9 @@ class InterfaceIPAddressTable(BaseTable):
     )
     status = ChoiceFieldColumn()
     tenant = TenantColumn()
+    actions = ButtonsColumn(
+        model=IPAddress
+    )
 
     class Meta(BaseTable.Meta):
         model = IPAddress

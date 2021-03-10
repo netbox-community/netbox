@@ -2,24 +2,9 @@
 
 ## Minor Version Bumps
 
-### Update Requirements
+### Address Pinned Dependencies
 
-Required Python packages are maintained in two files. `base_requirements.txt` contains a list of all the packages required by NetBox. Some of them may be pinned to a specific version of the package due to a known issue. For example:
-
-```
-# https://github.com/encode/django-rest-framework/issues/6053
-djangorestframework==3.8.1
-```
-
-The other file is `requirements.txt`, which lists each of the required packages pinned to its current stable version. When NetBox is installed, the Python environment is configured to match this file. This helps ensure that a new release of a dependency doesn't break NetBox.
-
-Every minor version release should refresh `requirements.txt` so that it lists the most recent stable release of each package. To do this:
-
-1. Create a new virtual environment.
-2. Install the latest version of all required packages `pip install -U -r base_requirements.txt`).
-3. Run all tests and check that the UI and API function as expected.
-4. Review each requirement's release notes for any breaking or otherwise noteworthy changes.
-5. Update the package versions in `requirements.txt` as appropriate.
+Check `base_requirements.txt` for any dependencies pinned to a specific version, and upgrade them to their most stable release (where possible).
 
 ### Update Static Libraries
 
@@ -57,6 +42,27 @@ Submit a pull request to merge the `feature` branch into the `develop` branch in
 ---
 
 ## All Releases
+
+### Update Requirements
+
+Required Python packages are maintained in two files. `base_requirements.txt` contains a list of all the packages required by NetBox. Some of them may be pinned to a specific version of the package due to a known issue. For example:
+
+```
+# https://github.com/encode/django-rest-framework/issues/6053
+djangorestframework==3.8.1
+```
+
+The other file is `requirements.txt`, which lists each of the required packages pinned to its current stable version. When NetBox is installed, the Python environment is configured to match this file. This helps ensure that a new release of a dependency doesn't break NetBox.
+
+Every release should refresh `requirements.txt` so that it lists the most recent stable release of each package. To do this:
+
+1. Create a new virtual environment.
+2. Install the latest version of all required packages `pip install -U -r base_requirements.txt`).
+3. Run all tests and check that the UI and API function as expected.
+4. Review each requirement's release notes for any breaking or otherwise noteworthy changes.
+5. Update the package versions in `requirements.txt` as appropriate.
+
+In cases where upgrading a dependency to its most recent release is breaking, it should be pinned to its current minor version in `base_requirements.txt` (with an explanatory comment) and revisited for the next major NetBox release.
 
 ### Verify CI Build Status
 

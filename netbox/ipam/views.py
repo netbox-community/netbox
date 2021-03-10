@@ -30,6 +30,7 @@ class VRFView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         prefix_count = Prefix.objects.restrict(request.user, 'view').filter(vrf=instance).count()
+        ipaddress_count = IPAddress.objects.restrict(request.user, 'view').filter(vrf=instance).count()
 
         import_targets_table = tables.RouteTargetTable(
             instance.import_targets.prefetch_related('tenant'),
@@ -42,6 +43,7 @@ class VRFView(generic.ObjectView):
 
         return {
             'prefix_count': prefix_count,
+            'ipaddress_count': ipaddress_count,
             'import_targets_table': import_targets_table,
             'export_targets_table': export_targets_table,
         }
