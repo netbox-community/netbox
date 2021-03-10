@@ -103,7 +103,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 # VM interfaces
 #
 
-class VMInterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class VMInterfaceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer()
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
@@ -119,7 +119,7 @@ class VMInterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
         model = VMInterface
         fields = [
             'id', 'url', 'virtual_machine', 'name', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
-            'untagged_vlan', 'tagged_vlans', 'tags',
+            'untagged_vlan', 'tagged_vlans', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
     def validate(self, data):

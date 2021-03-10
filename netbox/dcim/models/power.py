@@ -2,11 +2,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
@@ -41,7 +39,6 @@ class PowerPanel(PrimaryModel):
     name = models.CharField(
         max_length=100
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -133,7 +130,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

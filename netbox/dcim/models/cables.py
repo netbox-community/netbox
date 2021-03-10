@@ -6,13 +6,11 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import BigIDModel, PrimaryModel
 from utilities.fields import ColorField
@@ -108,7 +106,6 @@ class Cable(PrimaryModel):
         blank=True,
         null=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

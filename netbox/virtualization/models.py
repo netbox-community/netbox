@@ -3,13 +3,12 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.models import BaseInterface, Device
-from extras.models import ConfigContextModel, TaggedItem
+from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
-from netbox.models import BigIDModel, ChangeLoggingMixin, OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -154,7 +153,6 @@ class Cluster(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -281,7 +279,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         object_id_field='assigned_object_id',
         related_query_name='virtual_machine'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = ConfigContextModelQuerySet.as_manager()
 
@@ -372,9 +369,8 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 # Interfaces
 #
 
-# TODO: Inherit from PrimaryModel
-@extras_features('export_templates', 'webhooks')
-class VMInterface(ChangeLoggingMixin, BigIDModel, BaseInterface):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class VMInterface(PrimaryModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
@@ -412,10 +408,6 @@ class VMInterface(ChangeLoggingMixin, BigIDModel, BaseInterface):
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='vminterface'
-    )
-    tags = TaggableManager(
-        through=TaggedItem,
-        related_name='vminterface'
     )
 
     objects = RestrictedQuerySet.as_manager()
