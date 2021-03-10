@@ -6,12 +6,10 @@ from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
 from utilities.fields import NaturalOrderingField
@@ -227,7 +225,6 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
         null=True,
         help_text='Port speed in bits per second'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
 
@@ -271,7 +268,6 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
         null=True,
         help_text='Port speed in bits per second'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
 
@@ -321,7 +317,6 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
         validators=[MinValueValidator(1)],
         help_text="Allocated power draw (watts)"
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description',
@@ -434,7 +429,6 @@ class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
         blank=True,
         help_text="Phase (for three-phase feeds)"
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description']
 
@@ -568,7 +562,6 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         object_id_field='assigned_object_id',
         related_query_name='interface'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
@@ -705,7 +698,6 @@ class FrontPort(ComponentModel, CableTermination):
             MaxValueValidator(REARPORT_POSITIONS_MAX)
         ]
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'name', 'label', 'type', 'mark_connected', 'rear_port', 'rear_port_position', 'description',
@@ -766,7 +758,6 @@ class RearPort(ComponentModel, CableTermination):
             MaxValueValidator(REARPORT_POSITIONS_MAX)
         ]
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'positions', 'description']
 
@@ -816,7 +807,6 @@ class DeviceBay(ComponentModel):
         blank=True,
         null=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'label', 'installed_device', 'description']
 
@@ -908,8 +898,6 @@ class InventoryItem(MPTTModel, ComponentModel):
         default=False,
         help_text='This item was automatically discovered'
     )
-
-    tags = TaggableManager(through=TaggedItem)
 
     objects = TreeManager()
 

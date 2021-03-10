@@ -11,12 +11,10 @@ from django.db import models
 from django.db.models import Count, Sum
 from django.urls import reverse
 from mptt.models import TreeForeignKey
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.elevations import RackElevationSVG
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
@@ -251,7 +249,6 @@ class Rack(PrimaryModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -558,7 +555,6 @@ class RackReservation(PrimaryModel):
     description = models.CharField(
         max_length=200
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

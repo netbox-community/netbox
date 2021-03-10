@@ -9,11 +9,10 @@ from django.db import models
 from django.db.models import F, ProtectedError
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ConfigContextModel, TaggedItem
+from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -136,7 +135,6 @@ class DeviceType(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -601,7 +599,6 @@ class Device(PrimaryModel, ConfigContextModel):
         object_id_field='assigned_object_id',
         related_query_name='device'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = ConfigContextModelQuerySet.as_manager()
 
@@ -916,7 +913,6 @@ class VirtualChassis(PrimaryModel):
         max_length=30,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

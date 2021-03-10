@@ -2,13 +2,11 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
-from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
@@ -232,7 +230,6 @@ class Site(PrimaryModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

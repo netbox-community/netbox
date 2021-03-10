@@ -2,10 +2,8 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.models import Interface
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from ipam.choices import *
 from ipam.constants import *
@@ -135,7 +133,6 @@ class VLAN(PrimaryModel):
         max_length=200,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

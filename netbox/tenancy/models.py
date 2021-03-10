@@ -1,9 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
-from taggit.managers import TaggableManager
 
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.mptt import TreeManager
@@ -89,7 +87,6 @@ class Tenant(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

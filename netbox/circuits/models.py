@@ -1,10 +1,9 @@
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.fields import ASNField
 from dcim.models import CableTermination, PathEndpoint
-from extras.models import ObjectChange, TaggedItem
+from extras.models import ObjectChange
 from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
@@ -60,7 +59,6 @@ class Provider(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -184,7 +182,6 @@ class Circuit(PrimaryModel):
     )
 
     objects = CircuitQuerySet.as_manager()
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',

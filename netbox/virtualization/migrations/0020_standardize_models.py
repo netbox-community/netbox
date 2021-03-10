@@ -1,4 +1,5 @@
 import django.core.serializers.json
+import taggit.managers
 from django.db import migrations, models
 
 
@@ -58,5 +59,10 @@ class Migration(migrations.Migration):
             model_name='vminterface',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AlterField(
+            model_name='vminterface',
+            name='tags',
+            field=taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag'),
         ),
     ]

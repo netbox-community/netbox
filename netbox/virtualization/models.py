@@ -3,10 +3,9 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.models import BaseInterface, Device
-from extras.models import ConfigContextModel, TaggedItem
+from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -154,7 +153,6 @@ class Cluster(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -281,7 +279,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         object_id_field='assigned_object_id',
         related_query_name='virtual_machine'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = ConfigContextModelQuerySet.as_manager()
 
@@ -411,10 +408,6 @@ class VMInterface(PrimaryModel, BaseInterface):
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='vminterface'
-    )
-    tags = TaggableManager(
-        through=TaggedItem,
-        related_name='vminterface'
     )
 
     objects = RestrictedQuerySet.as_manager()

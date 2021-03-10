@@ -1,8 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from ipam.constants import *
 from netbox.models import PrimaryModel
@@ -59,7 +57,6 @@ class VRF(PrimaryModel):
         related_name='exporting_vrfs',
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -116,7 +113,6 @@ class RouteTarget(PrimaryModel):
         blank=True,
         null=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

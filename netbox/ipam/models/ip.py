@@ -6,10 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.models import Device
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
 from ipam.choices import *
@@ -107,7 +105,6 @@ class Aggregate(PrimaryModel):
         max_length=200,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -292,7 +289,6 @@ class Prefix(PrimaryModel):
         max_length=200,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = PrefixQuerySet.as_manager()
 
@@ -564,7 +560,6 @@ class IPAddress(PrimaryModel):
         max_length=200,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = IPAddressManager()
 

@@ -12,9 +12,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes
-from taggit.managers import TaggableManager
 
-from extras.models import TaggedItem
 from extras.utils import extras_features
 from netbox.models import BigIDModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
@@ -312,7 +310,6 @@ class Secret(PrimaryModel):
         max_length=128,
         editable=False
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
