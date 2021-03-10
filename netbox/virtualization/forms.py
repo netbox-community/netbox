@@ -576,7 +576,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
 # VM interfaces
 #
 
-class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, forms.ModelForm):
+class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,

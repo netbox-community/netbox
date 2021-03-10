@@ -54,4 +54,9 @@ class Migration(migrations.Migration):
             name='last_updated',
             field=models.DateTimeField(auto_now=True, null=True),
         ),
+        migrations.AddField(
+            model_name='vminterface',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
     ]

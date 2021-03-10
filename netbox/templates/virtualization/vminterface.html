@@ -57,9 +57,10 @@
                 </tr>
             </table>
         </div>
-          {% plugin_left_page object %}
+        {% plugin_left_page object %}
     </div>
     <div class="col-md-6">
+        {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
           {% plugin_right_page object %}
     </div>
