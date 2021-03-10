@@ -4,7 +4,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
-from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
 
 
@@ -39,8 +38,6 @@ class TenantGroup(NestedGroupModel):
         max_length=200,
         blank=True
     )
-
-    objects = TreeManager()
 
     csv_headers = ['name', 'slug', 'parent', 'description']
 
