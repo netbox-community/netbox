@@ -1263,11 +1263,46 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'group_id': '$site_group',
         }
     )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site',
+        }
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site',
+            'location_id': '$location',
+        }
+    )
+    group_scope = forms.ChoiceField(
+        choices=(
+            ('', ''),
+            ('dcim.region', 'Region'),
+            ('dcim.sitegroup', 'Site group'),
+            ('dcim.site', 'Site'),
+            ('dcim.location', 'Location'),
+            ('dcim.rack', 'Rack'),
+        ),
+        required=False,
+        widget=StaticSelect2,
+        label='Group scope'
+    )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         query_params={
-            'site_id': '$site'
+            'scope_type': '$group_scope',
+            'region': '$region',
+            'sitegroup': '$site_group',
+            'site': '$site',
+            'location': '$location',
+            'rack': '$rack',
         }
     )
     role = DynamicModelChoiceField(
@@ -1286,7 +1321,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         ]
         fieldsets = (
             ('VLAN', ('vid', 'name', 'status', 'role', 'description', 'tags')),
-            ('Assignment', ('region', 'site_group', 'site', 'group')),
+            ('Assignment', ('region', 'site_group', 'site', 'location', 'rack', 'group_scope', 'group')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
         help_texts = {
