@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image
+* [#5962](https://github.com/netbox-community/netbox/issues/5962) - Ensure consistent display of change log action labels
 
 ---
 
