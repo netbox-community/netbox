@@ -59,6 +59,56 @@ class RegionTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
+class SiteGroupTestCase(TestCase):
+    queryset = SiteGroup.objects.all()
+    filterset = SiteGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sitegroups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1', description='A'),
+            SiteGroup(name='Site Group 2', slug='site-group-2', description='B'),
+            SiteGroup(name='Site Group 3', slug='site-group-3', description='C'),
+        )
+        for sitegroup in sitegroups:
+            sitegroup.save()
+
+        child_sitegroups = (
+            SiteGroup(name='Site Group 1A', slug='site-group-1a', parent=sitegroups[0]),
+            SiteGroup(name='Site Group 1B', slug='site-group-1b', parent=sitegroups[0]),
+            SiteGroup(name='Site Group 2A', slug='site-group-2a', parent=sitegroups[1]),
+            SiteGroup(name='Site Group 2B', slug='site-group-2b', parent=sitegroups[1]),
+            SiteGroup(name='Site Group 3A', slug='site-group-3a', parent=sitegroups[2]),
+            SiteGroup(name='Site Group 3B', slug='site-group-3b', parent=sitegroups[2]),
+        )
+        for sitegroup in child_sitegroups:
+            sitegroup.save()
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Site Group 1', 'Site Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['site-group-1', 'site-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent(self):
+        parent_sitegroups = SiteGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [parent_sitegroups[0].pk, parent_sitegroups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'parent': [parent_sitegroups[0].slug, parent_sitegroups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
 class SiteTestCase(TestCase):
     queryset = Site.objects.all()
     filterset = SiteFilterSet
