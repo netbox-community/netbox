@@ -3,12 +3,10 @@ from rest_framework import serializers
 
 from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
 from dcim.choices import InterfaceModeChoices
-from netbox.api.serializers import CustomFieldModelSerializer
-from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
 from netbox.api import ChoiceField, SerializedPKRelatedField
-from netbox.api.serializers import OrganizationalModelSerializer, ValidatedModelSerializer
+from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -41,7 +39,7 @@ class ClusterGroupSerializer(OrganizationalModelSerializer):
         ]
 
 
-class ClusterSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class ClusterSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
@@ -62,7 +60,7 @@ class ClusterSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # Virtual machines
 #
 
-class VirtualMachineSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class VirtualMachineSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = NestedSiteSerializer(read_only=True)
@@ -103,7 +101,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 # VM interfaces
 #
 
-class VMInterfaceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class VMInterfaceSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer()
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)

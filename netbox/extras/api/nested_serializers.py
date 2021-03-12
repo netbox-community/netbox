@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from extras import choices, models
 from netbox.api import ChoiceField, WritableNestedSerializer
+from netbox.api.serializers import NestedTagSerializer
 from users.api.nested_serializers import NestedUserSerializer
 
 __all__ = [
@@ -11,7 +12,7 @@ __all__ = [
     'NestedExportTemplateSerializer',
     'NestedImageAttachmentSerializer',
     'NestedJobResultSerializer',
-    'NestedTagSerializer',
+    'NestedTagSerializer',  # Defined in netbox.api.serializers
     'NestedWebhookSerializer',
 ]
 
@@ -62,14 +63,6 @@ class NestedImageAttachmentSerializer(WritableNestedSerializer):
     class Meta:
         model = models.ImageAttachment
         fields = ['id', 'url', 'name', 'image']
-
-
-class NestedTagSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
-
-    class Meta:
-        model = models.Tag
-        fields = ['id', 'url', 'name', 'slug', 'color']
 
 
 class NestedJobResultSerializer(serializers.ModelSerializer):

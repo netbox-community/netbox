@@ -4,10 +4,8 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
 from dcim.api.serializers import CableTerminationSerializer, ConnectedEndpointSerializer
-from netbox.api.serializers import CustomFieldModelSerializer
-from extras.api.serializers import TaggedObjectSerializer
 from netbox.api import ChoiceField
-from netbox.api.serializers import OrganizationalModelSerializer, WritableNestedSerializer
+from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from .nested_serializers import *
 
@@ -16,7 +14,7 @@ from .nested_serializers import *
 # Providers
 #
 
-class ProviderSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class ProviderSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
     circuit_count = serializers.IntegerField(read_only=True)
 
@@ -55,7 +53,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer, ConnectedEnd
         ]
 
 
-class CircuitSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class CircuitSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
     provider = NestedProviderSerializer()
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
