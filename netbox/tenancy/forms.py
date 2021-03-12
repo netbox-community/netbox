@@ -44,6 +44,24 @@ class TenantGroupCSVForm(CustomFieldModelCSVForm):
         fields = TenantGroup.csv_headers
 
 
+class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=TenantGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    parent = DynamicModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
+
+
 #
 # Tenants
 #

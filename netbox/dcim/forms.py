@@ -201,6 +201,24 @@ class RegionCSVForm(CustomFieldModelCSVForm):
         fields = Region.csv_headers
 
 
+class RegionBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    parent = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
+
+
 class RegionFilterForm(BootstrapMixin, forms.Form):
     model = Site
     q = forms.CharField(
@@ -238,6 +256,24 @@ class SiteGroupCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = SiteGroup
         fields = SiteGroup.csv_headers
+
+
+class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    parent = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
 
 
 class SiteGroupFilterForm(BootstrapMixin, forms.Form):
@@ -478,6 +514,31 @@ class LocationCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Location
         fields = Location.csv_headers
+
+
+class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    parent = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
 
 
 class LocationFilterForm(BootstrapMixin, forms.Form):
