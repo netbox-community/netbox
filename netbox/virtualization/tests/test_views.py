@@ -33,6 +33,10 @@ class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Group 6,cluster-group-6,Sixth cluster group",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = ClusterType
@@ -58,6 +62,10 @@ class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Type 5,cluster-type-5,Fifth cluster type",
             "Cluster Type 6,cluster-type-6,Sixth cluster type",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):

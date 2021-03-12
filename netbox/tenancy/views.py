@@ -39,6 +39,19 @@ class TenantGroupBulkImportView(generic.BulkImportView):
     table = tables.TenantGroupTable
 
 
+class TenantGroupBulkEditView(generic.BulkEditView):
+    queryset = TenantGroup.objects.add_related_count(
+        TenantGroup.objects.all(),
+        Tenant,
+        'group',
+        'tenant_count',
+        cumulative=True
+    )
+    filterset = filters.TenantGroupFilterSet
+    table = tables.TenantGroupTable
+    form = forms.TenantGroupBulkEditForm
+
+
 class TenantGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),

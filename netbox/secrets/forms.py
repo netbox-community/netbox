@@ -59,6 +59,20 @@ class SecretRoleCSVForm(CustomFieldModelCSVForm):
         fields = SecretRole.csv_headers
 
 
+class SecretRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=SecretRole.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
+
+
 #
 # Secrets
 #

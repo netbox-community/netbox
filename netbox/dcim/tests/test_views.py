@@ -57,6 +57,44 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Region 6,region-6,Sixth region",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
+class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = SiteGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        # Create three SiteGroups
+        sitegroups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for sitegroup in sitegroups:
+            sitegroup.save()
+
+        cls.form_data = {
+            'name': 'Site Group X',
+            'slug': 'site-group-x',
+            'parent': sitegroups[2].pk,
+            'description': 'A new site group',
+        }
+
+        cls.csv_data = (
+            "name,slug,description",
+            "Site Group 4,site-group-4,Fourth site group",
+            "Site Group 5,site-group-5,Fifth site group",
+            "Site Group 6,site-group-6,Sixth site group",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Site
@@ -157,6 +195,10 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Site 1,Location 6,location-6,Sixth location",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = RackRole
@@ -183,6 +225,11 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Rack Role 5,rack-role-5,00ff00",
             "Rack Role 6,rack-role-6,0000ff",
         )
+
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
 
 
 class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -344,6 +391,10 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Manufacturer 5,manufacturer-5,Fifth manufacturer",
             "Manufacturer 6,manufacturer-6,Sixth manufacturer",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
@@ -894,6 +945,11 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Device Role 6,device-role-6,0000ff",
         )
 
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
+
 
 class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Platform
@@ -924,6 +980,11 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Platform 5,platform-5,Fifth platform",
             "Platform 6,platform-6,Sixth platform",
         )
+
+        cls.bulk_edit_data = {
+            'napalm_driver': 'ios',
+            'description': 'New description',
+        }
 
 
 class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
