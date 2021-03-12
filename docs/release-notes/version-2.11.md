@@ -71,6 +71,7 @@ The ObjectChange model (which is used to record the creation, modification, and 
 * [#5894](https://github.com/netbox-community/netbox/issues/5894) - Use primary keys when filtering object lists by related objects in the UI
 * [#5895](https://github.com/netbox-community/netbox/issues/5895) - Rename RackGroup to Location
 * [#5901](https://github.com/netbox-community/netbox/issues/5901) - Add `created` and `last_updated` fields to device component models
+* [#5972](https://github.com/netbox-community/netbox/issues/5972) - Enable bulk editing for organizational models
 
 ### Other Changes
 
