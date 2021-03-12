@@ -184,6 +184,11 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Rack Role 6,rack-role-6,0000ff",
         )
 
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
+
 
 class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = RackReservation
@@ -344,6 +349,10 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Manufacturer 5,manufacturer-5,Fifth manufacturer",
             "Manufacturer 6,manufacturer-6,Sixth manufacturer",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
@@ -894,6 +903,11 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Device Role 6,device-role-6,0000ff",
         )
 
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
+
 
 class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Platform
@@ -924,6 +938,11 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Platform 5,platform-5,Fifth platform",
             "Platform 6,platform-6,Sixth platform",
         )
+
+        cls.bulk_edit_data = {
+            'napalm_driver': 'ios',
+            'description': 'New description',
+        }
 
 
 class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):

@@ -46,6 +46,20 @@ class ClusterTypeCSVForm(CustomFieldModelCSVForm):
         fields = ClusterType.csv_headers
 
 
+class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ClusterType.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
+
+
 #
 # Cluster groups
 #
@@ -66,6 +80,20 @@ class ClusterGroupCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = ClusterGroup
         fields = ClusterGroup.csv_headers
+
+
+class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
 
 
 #

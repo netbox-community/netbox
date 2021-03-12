@@ -34,6 +34,10 @@ class SecretRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Secret Role 6,secret-role-6",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 # TODO: Change base class to PrimaryObjectViewTestCase
 class SecretTestCase(

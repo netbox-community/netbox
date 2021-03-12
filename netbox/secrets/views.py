@@ -48,6 +48,15 @@ class SecretRoleBulkImportView(generic.BulkImportView):
     table = tables.SecretRoleTable
 
 
+class SecretRoleBulkEditView(generic.BulkEditView):
+    queryset = SecretRole.objects.annotate(
+        secret_count=count_related(Secret, 'role')
+    )
+    filterset = filters.SecretRoleFilterSet
+    table = tables.SecretRoleTable
+    form = forms.SecretRoleBulkEditForm
+
+
 class SecretRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = SecretRole.objects.annotate(
         secret_count=count_related(Secret, 'role')
