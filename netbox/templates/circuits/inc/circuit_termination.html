@@ -1,36 +1,37 @@
 {% load helpers %}
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div class="pull-right">
+<div class="card">
+    <div class="card-header">
+        <div class="float-end">
             {% if not termination and perms.circuits.add_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_add' circuit=object.pk %}?term_side={{ side }}" class="btn btn-xs btn-success">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add
+                <a href="{% url 'circuits:circuittermination_add' circuit=object.pk %}?term_side={{ side }}" class="btn btn-sm btn-success">
+                    <span class="bi bi-plus" aria-hidden="true"></span> Add
                 </a>
             {% endif %}
             {% if termination and perms.circuits.change_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-xs btn-warning">
-                    <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
+                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-warning">
+                    <span class="bi bi-pencil-fill" aria-hidden="true"></span> Edit
                 </a>
-                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-xs btn-primary">
+                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-sm btn-primary">
                     <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> Swap
                 </a>
             {% endif %}
             {% if termination and perms.circuits.delete_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-xs btn-danger">
-                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
+                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-danger">
+                    <span class="bi bi-trash-fill" aria-hidden="true"></span> Delete
                 </a>
             {% endif %}
         </div>
         <strong>Termination - {{ side }} Side</strong>
     </div>
+    <div class="card-body">
     {% if termination %}
-        <table class="table table-hover panel-body attr-table">
+        <table class="table table-hover attr-table">
             <tr>
                 <td>Site</td>
                 <td>
                     {% if termination.site.region %}
-                        <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a> /
+                    <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a> /
                     {% endif %}
                     <a href="{{ termination.site.get_absolute_url }}">{{ termination.site }}</a>
                 </td>
@@ -39,18 +40,18 @@
                 <td>Termination</td>
                 <td>
                     {% if termination.mark_connected %}
-                        <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                        <span class="text-muted">Marked as connected</span>
+                    <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                    <span class="text-muted">Marked as connected</span>
                     {% elif termination.cable %}
                         {% if perms.dcim.delete_cable %}
-                            <div class="pull-right">
-                                <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">
-                                    <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> Disconnect
-                                </a>
-                            </div>
+                        <div class="pull-right">
+                            <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-sm">
+                                <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> Disconnect
+                            </a>
+                        </div>
                         {% endif %}
                         <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
-                        <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                        <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm" title="Trace">
                             <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                         </a>
                         {% with peer=termination.get_cable_peer %}
@@ -66,7 +67,7 @@
                         {% if perms.dcim.add_cable %}
                             <div class="pull-right">
                                 <span class="dropdown">
-                                    <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right">
@@ -85,14 +86,14 @@
             <tr>
                 <td>Speed</td>
                 <td>
-                    {% if termination.port_speed and termination.upstream_speed %}
-                        <i class="mdi mdi-arrow-down-bold" title="Downstream"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
-                        <i class="mdi mdi-arrow-up-bold" title="Upstream"></i> {{ termination.upstream_speed|humanize_speed }}
-                    {% elif termination.port_speed %}
-                        {{ termination.port_speed|humanize_speed }}
-                    {% else %}
-                        <span class="text-muted">&mdash;</span>
-                    {% endif %}
+                {% if termination.port_speed and termination.upstream_speed %}
+                    <i class="mdi mdi-arrow-down-bold" title="Downstream"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
+                    <i class="mdi mdi-arrow-up-bold" title="Upstream"></i> {{ termination.upstream_speed|humanize_speed }}
+                {% elif termination.port_speed %}
+                    {{ termination.port_speed|humanize_speed }}
+                {% else %}
+                    <span class="text-muted">&mdash;</span>
+                {% endif %}
                 </td>
             </tr>
             <tr>
@@ -124,8 +125,7 @@
             </tr>
         </table>
     {% else %}
-        <div class="panel-body">
-            <span class="text-muted">None</span>
-        </div>
+        <span class="text-muted">None</span>
     {% endif %}
+    </div>
 </div>

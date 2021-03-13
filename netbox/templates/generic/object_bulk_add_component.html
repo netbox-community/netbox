@@ -1,8 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load form_helpers %}
 
+{% block title %}Add {{ model_name|title }}{% endblock %}
+
 {% block content %}
-<h1>{% block title %}Add {{ model_name|title }}{% endblock %}</h1>
 <p>{{ table.rows|length }} {{ parent_model_name }} selected</p>
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
@@ -14,22 +15,22 @@
     {% endfor %}
     <div class="row">
         <div class="col-md-7">
-            <div class="panel panel-default">
+            <div class="card">
                 {% include 'inc/table.html' %}
             </div>
         </div>
         <div class="col-md-5">
             {% if form.non_field_errors %}
-                <div class="panel panel-danger">
-                    <div class="panel-heading"><strong>Errors</strong></div>
-                    <div class="panel-body">
+                <div class="panel bg-danger">
+                    <h5 class="card-header">Errors</h5>
+                    <div class="card-body">
                         {{ form.non_field_errors }}
                     </div>
                 </div>
             {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>{{ model_name|title }} to Add</strong></div>
-                <div class="panel-body">
+            <div class="card">
+                <h5 class="card-header">{{ model_name|title }} to Add</h5>
+                <div class="card-body">
                     {% for field in form.visible_fields %}
                         {% render_field field %}
                     {% endfor %}

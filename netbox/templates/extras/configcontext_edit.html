@@ -2,18 +2,18 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Config Context</strong></div>
-        <div class="panel-body">
+    <div class="card">
+        <h5 class="card-header">Config Context</h5>
+        <div class="card-body">
             {% render_field form.name %}
             {% render_field form.weight %}
             {% render_field form.description %}
             {% render_field form.is_active %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Assignment</strong></div>
-        <div class="panel-body">
+    <div class="card">
+        <h5 class="card-header">Assignment</h5>
+        <div class="card-body">
             {% render_field form.regions %}
             {% render_field form.sites %}
             {% render_field form.roles %}
@@ -25,9 +25,9 @@
             {% render_field form.tags %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Data</strong></div>
-        <div class="panel-body">
+    <div class="card">
+        <h5 class="card-header">Data</h5>
+        <div class="card-body">
             {% render_field form.data %}
         </div>
     </div>

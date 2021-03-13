@@ -2,9 +2,9 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Rack</strong></div>
-        <div class="panel-body">
+    <div class="card mb-3">
+        <h5 class="card-header">Rack</h5>
+        <div class="card-body">
             {% render_field form.region %}
             {% render_field form.site %}
             {% render_field form.group %}
@@ -14,29 +14,29 @@
             {% render_field form.tags %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Inventory Control</strong></div>
-        <div class="panel-body">
+    <div class="card mb-3">
+        <h5 class="card-header">Inventory Control</h5>
+        <div class="card-body">
             {% render_field form.facility_id %}
             {% render_field form.serial %}
             {% render_field form.asset_tag %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tenancy</strong></div>
-        <div class="panel-body">
+    <div class="card mb-3">
+        <h5 class="card-header">Tenancy</h5>
+        <div class="card-body">
             {% render_field form.tenant_group %}
             {% render_field form.tenant %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Dimensions</strong></div>
-        <div class="panel-body">
+    <div class="card mb-3">
+        <h5 class="card-header">Dimensions</h5>
+        <div class="card-body">
             {% render_field form.type %}
             {% render_field form.width %}
             {% render_field form.u_height %}
-            <div class="form-group">
-                <label class="col-md-3 control-label">Outer dimensions</label>
+            <div class="row mb-3">
+                <label class="col-md-3 col-form-label">Outer dimensions</label>
                 <div class="col-md-3">
                     {{ form.outer_width }}
                 </div>
@@ -51,16 +51,16 @@
         </div>
     </div>
     {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
+        <div class="card">
+            <h5 class="card-header">Custom Fields</h5>
+            <div class="card-body">
                 {% render_custom_fields form %}
             </div>
         </div>
     {% endif %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Comments</strong></div>
-        <div class="panel-body">
+    <div class="card">
+        <h5 class="card-header">Comments</h5>
+        <div class="card-body">
             {% render_field form.comments %}
         </div>
     </div>

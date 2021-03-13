@@ -1,13 +1,13 @@
 {% if result.status == 'failed' %}
-    <label class="label label-danger">Failed</label>
+    <span class="badge bg-danger">Failed</span>
 {% elif result.status == 'errored' %}
-    <label class="label label-danger">Errored</label>
+    <span class="badge bg-danger">Errored</span>
 {% elif result.status == 'pending' %}
-    <label class="label label-default">Pending</label>
+    <span class="badge bg-light">Pending</span>
 {% elif result.status == 'running' %}
-    <label class="label label-warning">Running</label>
+    <span class="badge bg-warning">Running</span>
 {% elif result.status == 'completed' %}
-    <label class="label label-success">Completed</label>
+    <span class="badge bg-success">Completed</span>
 {% else %}
-    <label class="label label-default">N/A</label>
+    <span class="badge bg-light">N/A</span>
 {% endif %}

@@ -17,63 +17,67 @@
                 <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
             </p>
             {% if result.completed %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>Report Methods</strong>
-                    </div>
-                    <table class="table table-hover panel-body">
-                        {% for method, data in result.data.items %}
-                            <tr>
-                                <td><code><a href="#{{ method }}">{{ method }}</a></code></td>
-                                <td class="text-right report-stats">
-                                    <label class="label label-success">{{ data.success }}</label>
-                                    <label class="label label-info">{{ data.info }}</label>
-                                    <label class="label label-warning">{{ data.warning }}</label>
-                                    <label class="label label-danger">{{ data.failure }}</label>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>Report Results</strong>
-                    </div>
-                    <table class="table table-hover panel-body report">
-                        <thead>
-                            <tr class="table-headings">
-                                <th>Time</th>
-                                <th>Level</th>
-                                <th>Object</th>
-                                <th>Message</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <div class="card">
+                    <h5 class="card-header">
+                        Report Methods
+                    </h5>
+                    <div class="card-body">
+                        <table class="table table-hover">
                             {% for method, data in result.data.items %}
                                 <tr>
-                                    <th colspan="4" style="font-family: monospace">
-                                        <a name="{{ method }}"></a>{{ method }}
-                                    </th>
+                                    <td><code><a href="#{{ method }}">{{ method }}</a></code></td>
+                                    <td class="text-right report-stats">
+                                        <label class="badge bg-success">{{ data.success }}</label>
+                                        <label class="badge bg-info">{{ data.info }}</label>
+                                        <label class="badge bg-warning">{{ data.warning }}</label>
+                                        <label class="badge bg-danger">{{ data.failure }}</label>
+                                    </td>
                                 </tr>
-                                {% for time, level, obj, url, message in data.log %}
-                                    <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
-                                        <td>{{ time }}</td>
-                                        <td>
-                                            <label class="label label-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
-                                        </td>
-                                        <td>
-                                            {% if obj and url %}
-                                                <a href="{{ url }}">{{ obj }}</a>
-                                            {% elif obj %}
-                                                {{ obj }}
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ message }}</td>
-                                    </tr>
-                                {% endfor %}
                             {% endfor %}
-                        </tbody>
-                    </table>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h5 class="card-header">
+                        Report Results
+                    </h5>
+                    <div class="card-body">
+                        <table class="table table-hover report">
+                            <thead>
+                                <tr class="table-headings">
+                                    <th>Time</th>
+                                    <th>Level</th>
+                                    <th>Object</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for method, data in result.data.items %}
+                                    <tr>
+                                        <th colspan="4" style="font-family: monospace">
+                                            <a name="{{ method }}"></a>{{ method }}
+                                        </th>
+                                    </tr>
+                                    {% for time, level, obj, url, message in data.log %}
+                                        <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
+                                            <td>{{ time }}</td>
+                                            <td>
+                                                <label class="badge bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
+                                            </td>
+                                            <td>
+                                                {% if obj and url %}
+                                                    <a href="{{ url }}">{{ obj }}</a>
+                                                {% elif obj %}
+                                                    {{ obj }}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ message }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             {% else %}
                 <div class="well">Pending results</div>

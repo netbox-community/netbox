@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 
@@ -6,7 +6,6 @@
 
 {% block content %}
     {% if request.GET.q %}
-        {% include 'search_form.html' with search_form=form %}
         {% if results %}
             <div class="row">
                 <div class="col-md-10">

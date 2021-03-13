@@ -1,9 +1,9 @@
 {% load helpers %}
 
-<div class="paginator pull-right text-right">
+<div class="paginator float-end text-end my-3">
     {% if paginator.num_pages > 1 %}
         <nav>
-            <ul class="pagination pull-right">
+            <ul class="pagination float-right">
                 {% if page.has_previous %}
                     <li><a href="{% querystring request page=page.previous_page_number %}"><i class="mdi mdi-chevron-double-left"></i></a></li>
                 {% endif %}
@@ -28,14 +28,22 @@
                 {% endfor %}
             {% endif %}
         {% endfor %}
-        <select name="per_page" id="per_page">
+        <div class="input-group input-group-sm mb-3">
+            <select name="per_page" class="form-select" id="per_page">
             {% for n in settings.PER_PAGE_DEFAULTS %}
                 <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
             {% endfor %}
-        </select> per page
+            </select>
+            <label class="input-group-text" for="per_page">Per Page</label>
+        </div>
+        {% comment %} <select name="per_page" id="per_page" class="form-select">
+            {% for n in settings.PER_PAGE_DEFAULTS %}
+                <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
+            {% endfor %}
+        </select> per page {% endcomment %}
     </form>
     {% if page %}
-        <div class="text-right text-muted">
+        <div class="text-end text-muted">
             Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
         </div>
     {% endif %}

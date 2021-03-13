@@ -1,92 +1,90 @@
-{% extends 'base.html' %}
-{% load form_helpers %}
-{% load helpers %}
+{% extends 'layout.html' %} {% load form_helpers %} {% load helpers %} 
+
+{% block title %}{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}{% endblock %}
+
+{% block controls %}
+{% if settings.DOCS_ROOT %}
+<button
+  type="button"
+  class="btn btn-sm btn-outline-secondary"
+  data-toggle="modal"
+  data-target="#docs_modal"
+  title="Help"
+>
+  <i class="bi bi-question"></i>
+</button>
+{% endif %}
+{% endblock %}
 
 {% block content %}
-    <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
-        {% csrf_token %}
-        {% for field in form.hidden_fields %}
-            {{ field }}
-        {% endfor %}
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h3>
-                    {% if settings.DOCS_ROOT %}
-                        <div class="pull-right">
-                            <button type="button" class="btn btn-link btn-xs" data-toggle="modal" data-target="#docs_modal" title="Help">
-                              <i class="mdi mdi-help-circle"></i>
-                            </button>
-                        </div>
-                    {% endif %}
-                    {% block title %}{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}{% endblock %}
-                </h3>
-                {% block tabs %}{% endblock %}
-                {% if form.non_field_errors %}
-                    <div class="panel panel-danger">
-                        <div class="panel-heading"><strong>Errors</strong></div>
-                        <div class="panel-body">
-                            {{ form.non_field_errors }}
-                        </div>
-                    </div>
-                {% endif %}
-                {% block form %}
-                  {% if form.Meta.fieldsets %}
-                    {# Render grouped fields accoring to Form #}
-                    {% for group, fields in form.Meta.fieldsets %}
-                      <div class="panel panel-default">
-                          <div class="panel-heading"><strong>{{ group }}</strong></div>
-                          <div class="panel-body">
-                            {% for name in fields %}
-                              {% render_field form|getfield:name %}
-                            {% endfor %}
-                          </div>
-                      </div>
-                    {% endfor %}
-                    {% if form.custom_fields %}
-                      <div class="panel panel-default">
-                        <div class="panel-heading"><strong>Custom Fields</strong></div>
-                        <div class="panel-body">
-                          {% render_custom_fields form %}
-                        </div>
-                      </div>
-                    {% endif %}
-                    {% if form.comments %}
-                      <div class="panel panel-default">
-                        <div class="panel-heading"><strong>Comments</strong></div>
-                        <div class="panel-body">
-                          {% render_field form.comments %}
-                        </div>
-                      </div>
-                    {% endif %}
-                  {% else %}
-                    {# Render all fields in a single group #}
-                    <div class="panel panel-default">
-                      <div class="panel-heading"><strong>{{ obj_type|capfirst }}</strong></div>
-                      <div class="panel-body">
-                        {% block form_fields %}
-                          {% render_form form %}
-                        {% endblock %}
-                      </div>
-                    </div>
-                  {% endif %}
-                {% endblock %}
-            </div>
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+  <div class="row">
+    <div class="col-md-8 col-md-offset-3">
+      {% block tabs %}{% endblock %} {% if form.non_field_errors %}
+      <div class="card bg-danger">
+        <h5 class="card-header">Errors</h5>
+        <div class="card-body">
+          {{ form.non_field_errors }}
         </div>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3 text-right">
-                {% block buttons %}
-                    {% if obj.pk %}
-                        <button type="submit" name="_update" class="btn btn-primary">Update</button>
-                    {% else %}
-                        <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                        <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
-                    {% endif %}
-                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-                {% endblock %}
-            </div>
+      </div>
+      {% endif %} 
+      
+      {% block form %}
+      {% if form.Meta.fieldsets %}
+
+      {# Render grouped fields accoring to Form #} 
+      {% for group, fields in form.Meta.fieldsets %}
+        <div class="field-group">
+          <h4 class="mb-3">{{ group }}</h4>
+          {% for name in fields %}{% render_field form|getfield:name %}{% endfor %}
         </div>
-    </form>
-    {% if obj and settings.DOCS_ROOT %}
-        {% include 'inc/modal.html' with name='docs' content=obj|get_docs %}
-    {% endif %}
+        
+      {% endfor %}
+      {% if form.custom_fields %}
+      <div class="field-group">
+        <h4 class="mb-3">Custom Fields</h4>
+        {% render_custom_fields form %}
+      </div>
+      {% endif %}
+      {% if form.comments %}
+      <div class="field-group">
+        <h4 class="mb-3">Comments</h4>
+        {% render_field form.comments %}
+      </div>  
+      {% endif %}
+      {% else %} 
+      {# Render all fields in a single group #}
+      <div class="field-group">
+        <h4 class="mb-3">{{ obj_type|capfirst }}</h4>
+        {% block form_fields %}{% render_form form %}{% endblock %}
+      </div>
+      {% endif %}
+      {% endblock %}
+    </div>
+  </div>
+  <div class="row my-3">
+    <div class="col-md-8 col-md-offset-3 text-end">
+      {% block buttons %}
+      <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+      {% if obj.pk %}
+      <button type="submit" name="_update" class="btn btn-primary">
+        Update
+      </button>
+      {% else %}
+      <button type="submit" name="_addanother" class="btn btn-outline-primary">
+        Create & Add Another
+      </button>
+      <button type="submit" name="_create" class="btn btn-primary">
+        Create
+      </button>
+      {% endif %}
+      {% endblock %}
+    </div>
+  </div>
+</form>
+{% if obj and settings.DOCS_ROOT %} 
+  {% include 'inc/modal.html' with name='docs' content=obj|get_docs %}
+{% endif %}
 {% endblock %}

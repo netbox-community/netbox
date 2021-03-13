@@ -1,0 +1,25 @@
+<div
+  id="django-messages"
+  class="toast-container position-fixed bottom-0 end-0 m-3"
+>
+  {% if messages %} {% for message in messages %}
+  <div
+    class="django-message toast align-items-center border-0 bg-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ message }}
+      </div>
+      <button
+        type="button"
+        class="btn-close me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+  {% endfor %} {% endif %}
+</div>

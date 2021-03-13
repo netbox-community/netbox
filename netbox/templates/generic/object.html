@@ -1,16 +1,65 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 {% load perms %}
 {% load plugins %}
 
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block breadcrumb_main %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#">Home</a></li>
+    {% block breadcrumbs %}{%endblock%}
+  </ol>
+</nav>
+{% endblock %}
+
+{% block controls %}
+{% plugin_buttons object %}
+<div class="container mb-2 mx-0">
+  <div class="d-flex flex-wrap justify-content-end">
+  {% block extra_controls %}{% endblock %}
+  {% if request.user|can_add:object %}
+    {% clone_button object %}
+  {% endif %}
+  {% if request.user|can_change:object %}
+    {% edit_button object %}
+  {% endif %}
+  {% if request.user|can_delete:object %}
+    {% delete_button object %}
+  {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+{% block tabs %}
+<ul class="nav nav-tabs">
+  <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+    <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
+  </li>
+  {% if perms.extras.view_objectchange %}
+    <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+      {# TODO: Fix changelog URL resolution hack #}
+      <a href="{{ object.get_absolute_url }}changelog/">Change Log</a>
+    </li>
+  {% endif %}
+</ul>
+{% endblock %}
+{% endblock %}
+
 {% block header %}
   <div class="row noprint">
     <div class="col-sm-8 col-md-9">
-      <ol class="breadcrumb">
-        {% block breadcrumbs %}{% endblock %}
-      </ol>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          {% comment %} {% block breadcumbs %}{%endblock%} {% endcomment %}
+        </ol>
+      </nav>
     </div>
     <div class="col-sm-4 col-md-3">
       {# TODO: Provide absolute search URL #}
@@ -26,7 +75,7 @@
       </form>
     </div>
   </div>
-  <div class="pull-right noprint">
+  {% comment %} <div class="pull-right noprint">
     {% plugin_buttons object %}
     {% block buttons %}
       {% if request.user|can_add:object %}
@@ -41,23 +90,12 @@
     {% endblock %}
   </div>
   <h1>{% block title %}{{ object }}{% endblock %}</h1>
+  {% endcomment %}
   {% include 'inc/created_updated.html' %}
-  <div class="pull-right noprint">
+  <div class="float-end noprint">
     {% block tab_buttons %}
       {% custom_links object %}
     {% endblock %}
   </div>
-  {% block tabs %}
-    <ul class="nav nav-tabs">
-      <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-        <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
-      </li>
-      {% if perms.extras.view_objectchange %}
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-          {# TODO: Fix changelog URL resolution hack #}
-          <a href="{{ object.get_absolute_url }}changelog/">Change Log</a>
-        </li>
-      {% endif %}
-    </ul>
-  {% endblock %}
+  
 {% endblock %}

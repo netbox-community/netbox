@@ -147,18 +147,18 @@ class ButtonsColumn(tables.TemplateColumn):
     # Note that braces are escaped to allow for string formatting prior to template rendering
     template_code = """
     {{% if "changelog" in buttons %}}
-        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-default btn-xs" title="Change log">
-            <i class="mdi mdi-history"></i>
+        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-outline-dark btn-sm" title="Change log">
+            <i class="bi bi-clock-history"></i>
         </a>
     {{% endif %}}
     {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-warning" title="Edit">
-            <i class="mdi mdi-pencil"></i>
+        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-sm btn-warning" title="Edit">
+            <i class="bi bi-pencil-fill"></i>
         </a>
     {{% endif %}}
     {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-danger" title="Delete">
-            <i class="mdi mdi-trash-can-outline"></i>
+        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-sm btn-danger" title="Delete">
+            <i class="bi bi-trash-fill"></i>
         </a>
     {{% endif %}}
     """
@@ -197,7 +197,7 @@ class ChoiceFieldColumn(tables.Column):
             css_class = getattr(record, f'get_{name}_class')()
             label = getattr(record, f'get_{name}_display')()
             return mark_safe(
-                f'<span class="label label-{css_class}">{label}</span>'
+                f'<span class="badge bg-{css_class}">{label}</span>'
             )
         return self.default
 
@@ -208,7 +208,7 @@ class ColorColumn(tables.Column):
     """
     def render(self, value):
         return mark_safe(
-            f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
+            f'<span class="color-label" style="background-color: #{value}">&nbsp;</span>'
         )
 
 
@@ -218,7 +218,13 @@ class ColoredLabelColumn(tables.TemplateColumn):
     """
     template_code = """
     {% load helpers %}
-    {% if value %}<label class="label" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">{{ value }}</label>{% else %}&mdash;{% endif %}
+    {% if value %}
+    <span class="badge" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">
+      {{ value }}
+    </span>
+    {% else %}
+    &mdash;
+    {% endif %}
     """
 
     def __init__(self, *args, **kwargs):

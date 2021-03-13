@@ -12,7 +12,7 @@
     {% if cable.length %}
         ({{ cable.length }} {{ cable.get_length_unit_display }})<br />
     {% endif %}
-    <span class="label label-{{ cable.get_status_class }}">{{ cable.get_status_display }}</span><br />
+    <span class="badge bg-{{ cable.get_status_class }}">{{ cable.get_status_display }}</span><br />
     {% for tag in cable.tags.all %}
         {% tag tag 'dcim:cable_list' %}
     {% endfor %}

@@ -1,38 +1,54 @@
-{% extends 'base.html' %}
-{% load form_helpers %}
-
-{% block content %}
-<div class="row" style="margin-top: {% if settings.BANNER_LOGIN %}100{% else %}150{% endif %}px;">
-    <div class="col-sm-4 col-sm-offset-4">
-        {% if settings.BANNER_LOGIN %}
-            <div style="margin-bottom: 25px">
-                {{ settings.BANNER_LOGIN|safe }}
-            </div>
-        {% endif %}
-        {% if form.non_field_errors %}
-            <div class="panel panel-danger">
-                <div class="panel-heading"><strong>Errors</strong></div>
-                <div class="panel-body">
-                    {{ form.non_field_errors }}
-                </div>
-            </div>
-        {% endif %}
-        <form action="{% url 'login' %}" method="post" class="form form-horizontal">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Log In</strong>
-                </div>
-                <div class="panel-body">
-                    {% csrf_token %}
-                    {% if 'next' in request.GET %}<input type="hidden" name="next" value="{{ request.GET.next }}" />{% endif %}
-                    {% if 'next' in request.POST %}<input type="hidden" name="next" value="{{ request.POST.next }}" />{% endif %}
-                    {% render_form form %}
-                </div>
-                <div class="panel-footer text-right">
-                    <button type="submit" class="btn btn-primary">Log In</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+{% extends 'base.html' %} {% load static %} {% block layout %}
+<main class="login-container text-center">
+  {% if settings.BANNER_LOGIN %}
+  <div class="alert alert-secondary" role="alert">
+    {{ settings.BANNER_LOGIN|safe }}
+  </div>
+  {% endif %}
+  <div class="form-login">
+    <form action="{% url 'login' %}" method="post">
+      <img src="{% static 'netbox_logo.svg' %}" class="mb-4" />
+      {% csrf_token %} {% if 'next' in request.GET %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}" />
+      {% endif %} {% if 'next' in request.POST %}
+      <input type="hidden" name="next" value="{{ request.POST.next }}" />
+      {% endif %}
+      <input
+        required
+        type="text"
+        placeholder="Username"
+        name="username"
+        maxlength="150"
+        id="id_username"
+        class="form-control"
+      />
+      <input
+        required
+        type="password"
+        placeholder="Password"
+        name="password"
+        id="id_password"
+        class="form-control"
+      />
+      <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
+        Sign In
+      </button>
+    </form>
+  </div>
+  {% load form_helpers %} {% if form.non_field_errors %}
+  <div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Errors</h4>
+    <p>
+      {{ form.non_field_errors }}
+    </p>
+  </div>
+  {% endif %}
+</main>
+<footer class="footer login-footer py-3">
+  <div class="container-fluid">
+    <small class="text-muted">
+      {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+    </small>
+  </div>
+</footer>
 {% endblock %}

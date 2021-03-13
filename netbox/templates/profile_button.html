@@ -1,0 +1,42 @@
+{% if request.user.is_authenticated %}
+<div class="dropdown">
+  <button
+    type="button"
+    aria-expanded="false"
+    data-bs-toggle="dropdown"
+    class="btn btn-outline-secondary dropdown-toggle mx-4"
+  >
+    <i class="bi bi-person-fill"></i>
+    <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li class="dropdown-item">
+      {% if request.user.is_staff %}
+      <a class="text-decoration-none" href="{% url 'admin:index' %}">
+        <i class="bi bi-gear-wide-connected"></i> Admin
+      </a>
+      {% else %}
+      <a class="text-decoration-none" href="{% url 'user:profile' %}">
+        <i class="bi bi-person-fill"></i> Profile
+      </a>
+      {% endif %}
+    </li>
+    <li><hr class="dropdown-divider" /></li>
+    <li class="dropdown-item">
+      <a class="text-decoration-none" href="{% url 'logout' %}">
+        <i class="bi bi-box-arrow-right"></i> Log out
+      </a>
+    </li>
+  </ul>
+</div>
+{% else %}
+<div>
+  <a
+    class="btn btn-primary mx-4 ws-nowrap"
+    type="button"
+    href="{% url 'login' %}"
+  >
+    <i class="bi bi-box-arrow-in-right"></i> Log in
+  </a>
+</div>
+{% endif %}

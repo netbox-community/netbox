@@ -1,5 +1,6 @@
+
 {% if images %}
-    <table class="table table-hover panel-body">
+    <table class="table table-hover">
         <tr>
             <th>Name</th>
             <th>Size</th>
@@ -9,20 +10,20 @@
         {% for attachment in images %}
             <tr{% if not attachment.size %} class="danger"{% endif %}>
                 <td>
-                    <i class="mdi mdi-file-image"></i>
+                    <i class="bi bi-card-image"></i>
                     <a class="image-preview" href="{{ attachment.image.url }}" target="_blank">{{ attachment }}</a>
                 </td>
                 <td>{{ attachment.size|filesizeformat }}</td>
                 <td>{{ attachment.created }}</td>
                 <td class="text-right noprint">
                     {% if perms.extras.change_imageattachment %}
-                        <a href="{% url 'extras:imageattachment_edit' pk=attachment.pk %}" class="btn btn-warning btn-xs" title="Edit image">
-                            <i class="mdi mdi-pencil" aria-hidden="true"></i>
+                        <a href="{% url 'extras:imageattachment_edit' pk=attachment.pk %}" class="btn btn-warning btn-sm" title="Edit image">
+                            <i class="bi bi-pencil-fill" aria-hidden="true"></i>
                         </a>
                     {% endif %}
                     {% if perms.extras.delete_imageattachment %}
-                        <a href="{% url 'extras:imageattachment_delete' pk=attachment.pk %}" class="btn btn-danger btn-xs" title="Delete image">
-                            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
+                        <a href="{% url 'extras:imageattachment_delete' pk=attachment.pk %}" class="btn btn-danger btn-sm" title="Delete image">
+                            <i class="bi bi-trash-fill" aria-hidden="true"></i>
                         </a>
                     {% endif %}
                 </td>
@@ -30,7 +31,7 @@
         {% endfor %}
     </table>
 {% else %}
-    <div class="panel-body">
-        <span class="text-muted">None</span>
+    <div class="text-muted">
+        None
     </div>
 {% endif %}

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 
 {% block title %}{{ object }}{% endblock %}
@@ -36,56 +36,58 @@
 {% block content %}
     <div class="row">
         <div class="col-md-5">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Change</strong>
+            <div class="card">
+                <h5 class="card-header">
+                    Change
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <td>Time</td>
+                            <td>
+                                {{ object.time }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>
+                                {{ object.user|default:object.user_name }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Action</td>
+                            <td>
+                                {{ object.get_action_display }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Object Type</td>
+                            <td>
+                                {{ object.changed_object_type }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Object</td>
+                            <td>
+                                {% if object.changed_object.get_absolute_url %}
+                                    <a href="{{ object.changed_object.get_absolute_url }}">{{ object.changed_object }}</a>
+                                {% else %}
+                                    {{ object.object_repr }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Request ID</td>
+                            <td>
+                                {{ object.request_id }}
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Time</td>
-                        <td>
-                            {{ object.time }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>User</td>
-                        <td>
-                            {{ object.user|default:object.user_name }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Action</td>
-                        <td>
-                            {{ object.get_action_display }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Object Type</td>
-                        <td>
-                            {{ object.changed_object_type }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Object</td>
-                        <td>
-                            {% if object.changed_object.get_absolute_url %}
-                                <a href="{{ object.changed_object.get_absolute_url }}">{{ object.changed_object }}</a>
-                            {% else %}
-                                {{ object.object_repr }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Request ID</td>
-                        <td>
-                            {{ object.request_id }}
-                        </td>
-                    </tr>
-                </table>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Difference</strong>
+            <div class="card">
+                <h5 class="card-header">
+                    Difference
                     <div class="btn-group btn-group-xs pull-right noprint">
                         <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
                             <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous
@@ -94,8 +96,8 @@
                             Next <span class="mdi mdi-chevron-right" aria-hidden="true"></span>
                         </a>
                     </div>
-                </div>
-                <div class="panel-body">
+                </h5>
+                <div class="card-body">
                     {% if diff_added == diff_removed %}
                         <span class="text-muted" style="margin-left: 10px;">
                             {% if object.action == 'create' %}
@@ -114,11 +116,11 @@
             </div>
         </div>
         <div class="col-md-7">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Object Data</strong>
-                </div>
-                <div class="panel-body">
+            <div class="card">
+                <h5 class="card-header">
+                    Object Data
+                </h5>
+                <div class="card-body">
                     <pre>{{ object.object_data|render_json }}</pre>
                 </div>
             </div>

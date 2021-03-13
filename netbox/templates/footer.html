@@ -1,0 +1,42 @@
+<footer class="footer mt-auto bg-light p-3 text-center">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col d-flex flex-column justify-content-center">
+        <span class="text-muted">
+          {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+        </span>
+      </div>
+      <div class="col d-flex flex-column justify-content-center">
+        <span class="text-muted">{% now 'Y-m-d H:i:s T' %}</span>
+      </div>
+      <div class="col d-flex flex-column justify-content-center">
+        <nav class="nav">
+          <a
+            class="nav-link"
+            href="https://netbox.readthedocs.io/"
+            target="_blank"
+          >
+            <i class="mdi mdi-book-open-page-variant text-primary"></i> Docs
+          </a>
+          <a class="nav-link" href="{% url 'api_docs' %}" target="_blank">
+            <i class="mdi mdi-cloud-braces text-primary"></i> API
+          </a>
+          <a
+            class="nav-link"
+            href="https://github.com/netbox-community/netbox"
+            target="_blank"
+          >
+            <i class="mdi mdi-xml text-primary"></i> Code
+          </a>
+          <a
+            class="nav-link"
+            href="https://github.com/netbox-community/netbox/wiki"
+            target="_blank"
+          >
+            <i class="mdi mdi-lifebuoy text-primary"></i> Help
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -2,9 +2,9 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Service</strong></div>
-        <div class="panel-body">
+    <div class="card">
+        <h5 class="card-header">Service</h5>
+        <div class="card-body">
             {% if obj.device %}
                 <div class="form-group">
                     <label class="col-md-3 control-label required">Device</label>
@@ -35,9 +35,9 @@
         </div>
     </div>
     {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
+        <div class="card">
+            <h5 class="card-header">Custom Fields</h5>
+            <div class="card-body">
                 {% render_custom_fields form %}
             </div>
         </div>

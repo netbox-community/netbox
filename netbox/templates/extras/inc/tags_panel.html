@@ -1,13 +1,11 @@
 {% load helpers %}
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <strong>Tags</strong>
-    </div>
-    <div class="panel-body">
-        {% for tag in tags.all %}
-            {% tag tag url %}
-        {% empty %}
-            <span class="text-muted">No tags assigned</span>
-        {% endfor %}
-    </div>
+<div class="card">
+  <h5 class="card-header">
+    Tags
+  </h5>
+  <div class="card-body">
+    {% for tag in tags.all %} {% tag tag url %} {% empty %}
+    <span class="text-muted">No tags assigned</span>
+    {% endfor %}
+  </div>
 </div>

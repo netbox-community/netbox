@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 
 {% block title %}Delete {{ table.rows|length }} {{ obj_type_plural|bettertitle }}?{% endblock %}
@@ -6,9 +6,9 @@
 {% block content %}
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-danger">
-                <div class="panel-heading"><strong>Confirm Bulk Deletion</strong></div>
-                <div class="panel-body">
+            <div class="card bg-danger">
+                <h5 class="card-header">Confirm Bulk Deletion</h5>
+                <div class="card-body">
                     <p><strong>Warning:</strong> The following operation will delete {{ table.rows|length }} {{ obj_type_plural }}. Please carefully review the {{ obj_type_plural }} to be deleted and confirm below.</p>
                     {% block message_extra %}{% endblock %}
                 </div>
@@ -17,7 +17,7 @@
     </div>
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
+            <div class="card">
                 {% include 'inc/table.html' %}
             </div>
         </div>

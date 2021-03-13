@@ -1,33 +1,46 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load static %}
 
-{% block content %}
-<div class="pull-right noprint">
-    {% block buttons %}{% endblock %}
-    {% if request.user.is_authenticated and table_config_form %}
-        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#ObjectTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
-    {% endif %}
-    {% if permissions.add and 'add' in action_buttons %}
+{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
+
+{% block controls %}
+<div class="container mb-2 mx-0">
+  <div class="d-flex flex-wrap justify-content-end">
+  {% if permissions.add and 'add' in action_buttons %}
         {% add_button content_type.model_class|validated_viewname:"add" %}
     {% endif %}
-    {% if permissions.add and 'import' in action_buttons %}
-        {% import_button content_type.model_class|validated_viewname:"import" %}
-    {% endif %}
-    {% if 'export' in action_buttons %}
-        {% export_button content_type %}
-    {% endif %}
-</div>
-<h1>{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}</h1>
-<div class="row">
-    <div class="col-md-12">
-        {% if filter_form %}
-            <div class="col-md-3 pull-right right-side-panel noprint">
-                {% include 'inc/search_panel.html' %}
-                {% block sidebar %}{% endblock %}
-            </div>
+    <div class="d-flex flex-shrink-1">
+        <div class="btn-group m-1">
+        {% if permissions.add and 'import' in action_buttons %}
+            {% import_button content_type.model_class|validated_viewname:"import" %}
         {% endif %}
+        {% if 'export' in action_buttons %}
+            {% export_button content_type %}
+        {% endif %}
+        </div>
+    </div>
+    <div class="d-flex flex-shrink-1">
+    {% if request.user.is_authenticated and table_config_form %}
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary m-1"
+        data-toggle="modal" data-target="#ObjectTable_config"
+        title="Configure table"
+      >
+        <i class="bi bi-sliders"></i>
+      </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-9">
         {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
         {% if permissions.change or permissions.delete %}
             <form method="post" class="form form-horizontal">
@@ -58,20 +71,23 @@
                     </div>
                 {% endif %}
                 {% include table_template|default:'responsive_table.html' %}
-                <div class="pull-left noprint">
+                <div class="noprint">
                     {% block bulk_buttons %}{% endblock %}
+                    <div class="btn-group my-3" role="group">
                     {% if bulk_edit_url and permissions.change %}
                         <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                            <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit Selected
+                            <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit Selected
                         </button>
                     {% endif %}
                     {% if bulk_delete_url and permissions.delete %}
                         <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete Selected
+                            <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete Selected
                         </button>
                     {% endif %}
+                    </div>
                 </div>
             </form>
+            
         {% else %}
             {% include table_template|default:'responsive_table.html' %}
         {% endif %}
@@ -79,6 +95,12 @@
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         <div class="clearfix"></div>
     </div>
+    {% if filter_form %}
+    <div class="col-3 noprint">
+        {% block sidebar %}{% endblock %}
+        {% include 'inc/search_panel.html' %}
+    </div>
+    {% endif %}
 </div>
 {% table_config_form table table_name="ObjectTable" %}
 {% endblock %}

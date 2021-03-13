@@ -1,8 +1,7 @@
 {% if export_templates %}
-    <div class="btn-group">
-        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mdi mdi-database-export" aria-hidden="true"></span>
-            Export <span class="caret"></span>
+    <div class="btn-group m-1">
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="bi bi-download"></i>&nbsp;Export
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Default format</a></li>
@@ -13,7 +12,7 @@
         </ul>
     </div>
 {% else %}
-    <a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export" class="btn btn-success">
-        <span class="mdi mdi-database-export" aria-hidden="true"></span> Export
+    <a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-download"></i>&nbsp;Export
     </a>
 {% endif %}

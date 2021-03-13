@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>IP Addresses</strong></div>
-        <div class="panel-body">
+    <div class="card">
+        <h5 class="card-header">IP Addresses</h5>
+        <div class="card-body">
             {% render_field form.pattern %}
             {% render_field model_form.status %}
             {% render_field model_form.role %}
@@ -20,17 +20,17 @@
             {% render_field model_form.tags %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tenancy</strong></div>
-        <div class="panel-body">
+    <div class="card">
+        <h5 class="card-header">Tenancy</h5>
+        <div class="card-body">
             {% render_field model_form.tenant_group %}
             {% render_field model_form.tenant %}
         </div>
     </div>
     {% if model_form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
+        <div class="card">
+            <h5 class="card-header">Custom Fields</h5>
+            <div class="card-body">
                 {% render_custom_fields model_form %}
             </div>
         </div>

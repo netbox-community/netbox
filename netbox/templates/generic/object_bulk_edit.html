@@ -1,13 +1,13 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 
 {% block content %}
 <h1>{% block title %}Editing {{ table.rows|length }} {{ obj_type_plural|bettertitle }}{% endblock %}</h1>
 {% if form.errors %}
-    <div class="panel panel-danger">
-        <div class="panel-heading"><strong>Errors</strong></div>
-        <div class="panel-body">
+    <div class="card bg-danger">
+        <h5 class="card-header">Errors</h5>
+        <div class="card-body">
             {{ form.errors }}
         </div>
     </div>
@@ -22,22 +22,22 @@
     {% endfor %}
     <div class="row">
         <div class="col-md-8">
-            <div class="panel panel-default">
+            <div class="card">
                 {% include 'inc/table.html' %}
             </div>
         </div>
         <div class="col-md-4">
             {% if form.non_field_errors %}
-                <div class="panel panel-danger">
-                    <div class="panel-heading"><strong>Errors</strong></div>
-                    <div class="panel-body">
+                <div class="card bg-danger">
+                    <h5 class="card-header">Errors</h5>
+                    <div class="card-body">
                         {{ form.non_field_errors }}
                     </div>
                 </div>
             {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>{% block form_title %}Attributes{% endblock %}</strong></div>
-                <div class="panel-body">
+            <div class="card">
+                <h5 class="card-header">{% block form_title %}Attributes{% endblock %}</h5>
+                <div class="card-body">
                     {% for field in form.visible_fields %}
                         {% if field.name in form.nullable_fields %}
                             {% render_field field bulk_nullable=True %}
