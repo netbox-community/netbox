@@ -1,0 +1,65 @@
+{
+  "name": "netbox",
+  "version": "0.1.0",
+  "main": "index.js",
+  "license": "Apache2",
+  "scripts": {
+    "bundle:css": "parcel build --public-url /static -o netbox.css main.scss && parcel build --public-url /static -o rack_elevation.css rack_elevation.scss",
+    "bundle:js": "parcel build -o netbox.js src/index.ts",
+    "bundle": "yarn bundle:css && yarn bundle:js"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.9.0",
+    "bootstrap": "^5.0.0-beta2",
+    "bootstrap-icons": "^1.4.0",
+    "choices.js": "^9.0.1",
+    "clipboard": "2.0.6",
+    "color2k": "^1.2.4",
+    "cookie": "^0.4.1",
+    "flatpickr": "4.6.3",
+    "jquery": "3.5.1",
+    "jquery-ui": "1.12.1",
+    "masonry-layout": "^4.2.2",
+    "parcel-bundler": "1.12.3",
+    "query-string": "^6.14.1",
+    "sass": "^1.32.8",
+    "select2": "4.0.13",
+    "select2-bootstrap-theme": "0.1.0-beta.10",
+    "slim-select": "^1.27.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
+    "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.8",
+    "@babel/preset-env": "^7.13.9",
+    "@babel/preset-typescript": "^7.13.0",
+    "@types/bootstrap": "^5.0.8",
+    "@types/cookie": "^0.4.0",
+    "@types/masonry-layout": "^4.2.2",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "babel-polyfill": "^6.26.0",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-import-resolver-typescript": "^2.4.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "prettier": "^2.2.1",
+    "prettier-eslint": "^12.0.0",
+    "typescript": "^4.2.3"
+  },
+  "babel": {
+    "presets": [
+      "@babel/env",
+      "@babel/typescript"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-optional-chaining",
+      "@babel/proposal-class-properties",
+      "@babel/proposal-object-rest-spread",
+      "@babel/plugin-proposal-nullish-coalescing-operator"
+    ]
+  }
+}
