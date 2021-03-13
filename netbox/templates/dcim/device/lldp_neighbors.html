@@ -4,47 +4,47 @@
 
 {% block content %}
     {% include 'inc/ajax_loader.html' %}
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>LLDP Neighbors</strong>
-        </div>
-        <table class="table table-hover panel-body">
-            <thead>
-                <tr>
-                    <th>Interface</th>
-                    <th>Configured Device</th>
-                    <th>Configured Interface</th>
-                    <th>LLDP Device</th>
-                    <th>LLDP Interface</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for iface in interfaces %}
-                    <tr id="{{ iface.name }}">
-                        <td>{{ iface }}</td>
-                        {% if iface.connected_endpoint.device %}
-                            <td class="configured_device" data="{{ iface.connected_endpoint.device }}" data-chassis="{{ iface.connected_endpoint.device.virtual_chassis.name }}">
-                                <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
-                            </td>
-                            <td class="configured_interface" data="{{ iface.connected_endpoint }}">
-                                <span title="{{ iface.connected_endpoint.get_type_display }}">{{ iface.connected_endpoint }}</span>
-                            </td>
-                        {% elif iface.connected_endpoint.circuit %}
-                            {% with circuit=iface.connected_endpoint.circuit %}
-                                <td colspan="2">
-                                    <i class="mdi mdi-lightning-bolt" title="Circuit"></i>
-                                    <a href="{{ circuit.get_absolute_url }}">{{ circuit.provider }} {{ circuit }}</a>
-                                </td>
-                            {% endwith %}
-                        {% else %}
-                            <td colspan="2">None</td>
-                        {% endif %}
-                        <td class="device"></td>
-                        <td class="interface"></td>
+    <div class="card">
+        <h5 class="card-header">LLDP Neighbors</h5>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Interface</th>
+                        <th>Configured Device</th>
+                        <th>Configured Interface</th>
+                        <th>LLDP Device</th>
+                        <th>LLDP Interface</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for iface in interfaces %}
+                        <tr id="{{ iface.name }}">
+                            <td>{{ iface }}</td>
+                            {% if iface.connected_endpoint.device %}
+                                <td class="configured_device" data="{{ iface.connected_endpoint.device }}" data-chassis="{{ iface.connected_endpoint.device.virtual_chassis.name }}">
+                                    <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
+                                </td>
+                                <td class="configured_interface" data="{{ iface.connected_endpoint }}">
+                                    <span title="{{ iface.connected_endpoint.get_type_display }}">{{ iface.connected_endpoint }}</span>
+                                </td>
+                            {% elif iface.connected_endpoint.circuit %}
+                                {% with circuit=iface.connected_endpoint.circuit %}
+                                    <td colspan="2">
+                                        <i class="mdi mdi-lightning-bolt" title="Circuit"></i>
+                                        <a href="{{ circuit.get_absolute_url }}">{{ circuit.provider }} {{ circuit }}</a>
+                                    </td>
+                                {% endwith %}
+                            {% else %}
+                                <td colspan="2">None</td>
+                            {% endif %}
+                            <td class="device"></td>
+                            <td class="interface"></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}
 

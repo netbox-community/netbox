@@ -7,60 +7,64 @@
     {% include 'inc/ajax_loader.html' %}
     <div class="row">
         <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>Device Facts</strong></div>
-                <table class="table panel-body">
-                    <tr>
-                        <th>Hostname</th>
-                        <td id="hostname"></td>
-                    </tr>
-                    <tr>
-                        <th>FQDN</th>
-                        <td id="fqdn"></td>
-                    </tr>
-                    <tr>
-                        <th>Vendor</th>
-                        <td id="vendor"></td>
-                    </tr>
-                    <tr>
-                        <th>Model</th>
-                        <td id="model"></td>
-                    </tr>
-                    <tr>
-                        <th>Serial Number</th>
-                        <td id="serial_number"></td>
-                    </tr>
-                    <tr>
-                        <th>OS Version</th>
-                        <td id="os_version"></td>
-                    </tr>
-                    <tr>
-                        <th>Uptime</th>
-                        <td id="uptime"></td>
-                    </tr>
-                </table>
+            <div class="card">
+                <h5 class="card-header">Device Facts</h5>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th scope="row">Hostname</th>
+                            <td id="hostname"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">FQDN</th>
+                            <td id="fqdn"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Vendor</th>
+                            <td id="vendor"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Model</th>
+                            <td id="model"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Serial Number</th>
+                            <td id="serial_number"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">OS Version</th>
+                            <td id="os_version"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Uptime</th>
+                            <td id="uptime"></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>Environment</strong></div>
-                <table class="table panel-body">
-                    <tr id="cpu">
-                        <th colspan="2"><i class="mdi mdi-gauge"></i> CPU</th>
-                    </tr>
-                    <tr id="memory">
-                        <th colspan="2"><i class="mdi mdi-chip"></i> Memory</th>
-                    </tr>
-                    <tr id="temperature">
-                        <th colspan="2"><i class="mdi mdi-thermometer"></i> Temperature</th>
-                    </tr>
-                    <tr id="fans">
-                        <th colspan="2"><i class="mdi mdi-fan"></i> Fans</th>
-                    </tr>
-                    <tr id="power">
-                        <th colspan="2"><i class="mdi mdi-power"></i> Power</th>
-                    </tr>
-                </table>
+            <div class="card">
+                <h5 class="card-header">Environment</h5>
+                <div class="card-body">
+                    <table class="table">
+                        <tr id="cpu">
+                            <th colspan="2"><i class="mdi mdi-gauge"></i> CPU</th>
+                        </tr>
+                        <tr id="memory">
+                            <th colspan="2"><i class="mdi mdi-chip"></i> Memory</th>
+                        </tr>
+                        <tr id="temperature">
+                            <th colspan="2"><i class="mdi mdi-thermometer"></i> Temperature</th>
+                        </tr>
+                        <tr id="fans">
+                            <th colspan="2"><i class="mdi mdi-fan"></i> Fans</th>
+                        </tr>
+                        <tr id="power">
+                            <th colspan="2"><i class="mdi mdi-power"></i> Power</th>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
