@@ -1,7 +1,6 @@
 *.pyc
 *.swp
 node_modules
-/netbox/project-static/dist
 /netbox/project-static/.cache
 /netbox/netbox/configuration.py
 /netbox/netbox/ldap_config.py
