@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "noUnusedParameters": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "declaration": true,
+    "module": "esnext",
+    "target": "esnext",
+    "jsx": "react",
+    "strict": true,
+    "baseUrl": "."
+  },
+  "include": ["src/**/*.ts", "./src/global.d.ts"],
+  "exclude": ["node_modules", "esm", "src/**/*.test.ts"]
+}
