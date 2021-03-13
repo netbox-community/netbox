@@ -327,5 +327,6 @@ def copy_safe_request(request):
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })
 
+
 # Setup UtilizationData named tuple for use by multiple methods
 UtilizationData = namedtuple("UtilizationData", ["numerator", "denominator"])

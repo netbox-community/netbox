@@ -308,7 +308,6 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
             return self.prefix.version
         return None
 
-
     def get_percent_utilized(self):
         """Gets the percentage utilized from the get_utilization method.
 
@@ -318,7 +317,6 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         utilization = self.get_utilization()
         return int(utilization.numerator / float(utilization.denominator) * 100)
 
-
     def get_utilization(self):
         """Gets the numerator and denominator for calculating utilization of an Aggregrate.
         Returns:
@@ -326,7 +324,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         """
         queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
-        
+
         return UtilizationData(numerator=child_prefixes.size, denominator=self.prefix.size)
 
 
@@ -609,9 +607,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
 
     def get_utilization(self):
         """Get the child prefix size and parent size.
-        
+
         For Prefixes with a status of "container", get the number child prefixes. For all others, count child IP addresses.
-        
+
         Returns:
             UtilizationData (namedtuple): (numerator, denominator)
         """

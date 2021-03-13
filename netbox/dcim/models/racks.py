@@ -506,7 +506,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
     def get_utilization(self):
         """Gets utilization numerator and denominator for racks.
-        
+
         Returns:
             UtilizationData: (numerator=Occupied Unit Count, denominator=U Height of the rack)
         """

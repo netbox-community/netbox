@@ -245,15 +245,15 @@ def querystring(request, **kwargs):
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
 def utilization_graph(utilization_data, warning_threshold=75, danger_threshold=90):
     """Wrapper for a horizontal bar graph indicating a percentage of utilization from a tuple of data.
-    
+
     Takes the utilization_data that is a namedtuple with numerator and denominator field names and passes them into
     the utilization_graph_raw_data to handle the generation graph data.
-    
+
     Args:
         utilization_data (UtilizationData): Namedtuple with numerator and denominator keys
         warning_threshold (int, optional): Warning Threshold Value. Defaults to 75.
         danger_threshold (int, optional): Danger Threshold Value. Defaults to 90.
-    
+
     Returns:
         dict: Dictionary with utilization, warning threshold, danger threshold, utilization count, and total count for
                 display
@@ -269,13 +269,13 @@ def utilization_graph(utilization_data, warning_threshold=75, danger_threshold=9
 @register.inclusion_tag("utilities/templatetags/utilization_graph_raw_data.html")
 def utilization_graph_raw_data(numerator, denominator, warning_threshold=75, danger_threshold=90):
     """Display a horizontal bar graph indicating a percentage of utilization.
-    
+
     Args:
         numerator (int): Numerator for creating a percentage
         denominator (int): Denominator for creating a percentage
         warning_threshold (int, optional): Warning Threshold Value. Defaults to 75.
         danger_threshold (int, optional): Danger Threshold Value. Defaults to 90.
-    
+
     Returns:
         dict: Dictionary with utilization, warning threshold, danger threshold, utilization count, and total count for
                 display
