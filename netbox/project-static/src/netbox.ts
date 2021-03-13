@@ -5,6 +5,7 @@ import { initDateSelector } from './dateSelector';
 import { initMessageToasts } from './toast';
 import { initSpeedSelector, initForms } from './forms';
 import { initSearchBar } from './search';
+import { getElements } from './util';
 
 const INITIALIZERS = [
   initSearchBar,
@@ -18,13 +19,13 @@ const INITIALIZERS = [
 ] as (() => void)[];
 
 /**
- * Enable Tooltips everywhere
- * @see https://getbootstrap.com/docs/5.0/components/tooltips/
+ * Enable any defined Bootstrap Tooltips.
+ *
+ * @see https://getbootstrap.com/docs/5.0/components/tooltips
  */
 function initBootstrap(): void {
   if (document !== null) {
-    const tooltips = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    for (const tooltip of tooltips) {
+    for (const tooltip of getElements('[data-bs-toggle="tooltip"]')) {
       new Tooltip(tooltip, { container: 'body', boundary: 'window' });
     }
     initMessageToasts();
@@ -32,10 +33,12 @@ function initBootstrap(): void {
   }
 }
 
-function initMasonry() {
+/**
+ * Initialize masonry-layout for homepage (or any other masonry layout cards).
+ */
+function initMasonry(): void {
   if (document !== null) {
-    const grids = document.querySelectorAll('.masonry');
-    for (const grid of grids) {
+    for (const grid of getElements('.masonry')) {
       new Masonry(grid, {
         itemSelector: '.masonry-item',
         percentPosition: true,
@@ -46,6 +49,7 @@ function initMasonry() {
 
 /**
  * Create a slug from any input string.
+ *
  * @param slug Original string.
  * @param chars Maximum number of characters.
  * @returns Slugified string.
