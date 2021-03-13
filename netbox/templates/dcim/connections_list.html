@@ -6,13 +6,13 @@
     {% export_button content_type %}
 </div>
 <h1>{% block title %}{{ title }}{% endblock %}</h1>
-<div class="row">
-	  <div class="col-md-12">
-        <div class="col-md-3 pull-right right-side-panel noprint">
-            {% include 'inc/search_panel.html' %}
-        </div>
+<div class="row">        
+    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 pull-right noprint">
+        {% include 'inc/search_panel.html' %}
+    </div>
+	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-9">
         {% include 'responsive_table.html' %}
-        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page show_count=True %}
     </div>
 </div>
 {% endblock %}

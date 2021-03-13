@@ -18,10 +18,10 @@
 </div>
 <h1>{% block title %}Rack Elevations{% endblock %}</h1>
 <div class="row">
-    <div class="col-md-12">
-        <div class="col-md-3 pull-right right-side-panel noprint">
-            {% include 'inc/search_panel.html' %}
-        </div>
+    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 pull-right noprint">
+        {% include 'inc/search_panel.html' %}
+    </div>
+	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-9">
         {% if page %}
             <div style="white-space: nowrap; overflow-x: scroll;">
                 {% for rack in page %}
@@ -49,7 +49,7 @@
                 {% endfor %}
             </div>
             <br />
-            {% include 'inc/paginator.html' %}
+            {% include 'inc/paginator.html' with show_count=True %}
         {% else %}
             <p>No racks found</p>
         {% endif %}

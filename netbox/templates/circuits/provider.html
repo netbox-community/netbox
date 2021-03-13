@@ -129,7 +129,7 @@
                 </div>
             {% endif %}
         </div>
-    {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
+    {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page show_count=True %}
     {% plugin_right_page object %}
     </div>
 </div>

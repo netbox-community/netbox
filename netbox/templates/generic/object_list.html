@@ -4,30 +4,38 @@
 {% load static %}
 
 {% block content %}
-<div class="pull-right noprint">
-    {% block buttons %}{% endblock %}
-    {% if request.user.is_authenticated and table_config_form %}
-        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#ObjectTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
-    {% endif %}
-    {% if permissions.add and 'add' in action_buttons %}
-        {% add_button content_type.model_class|validated_viewname:"add" %}
-    {% endif %}
-    {% if permissions.add and 'import' in action_buttons %}
-        {% import_button content_type.model_class|validated_viewname:"import" %}
-    {% endif %}
-    {% if 'export' in action_buttons %}
-        {% export_button content_type %}
-    {% endif %}
-</div>
-<h1>{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}</h1>
 <div class="row">
-    <div class="col-md-12">
-        {% if filter_form %}
-            <div class="col-md-3 pull-right right-side-panel noprint">
-                {% include 'inc/search_panel.html' %}
-                {% block sidebar %}{% endblock %}
-            </div>
+    <div class="col-xs-12 col-sm-6 col-lg-6 col-md-2">
+        <h1>{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}</h1>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-lg-3 col-md-4 pull-right text-right noprint" style="margin-bottom: 1em;">
+        {% block buttons %}{% endblock %}
+        {% if request.user.is_authenticated and table_config_form %}
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#ObjectTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
         {% endif %}
+        {% if permissions.add and 'add' in action_buttons %}
+            {% add_button content_type.model_class|validated_viewname:"add" %}
+        {% endif %}
+        {% if permissions.add and 'import' in action_buttons %}
+            {% import_button content_type.model_class|validated_viewname:"import" %}
+        {% endif %}
+        {% if 'export' in action_buttons %}
+            {% export_button content_type %}
+        {% endif %}
+    </div>
+    <div class="col-xs-12 col-sm-12 col-lg-3 col-md-6">
+        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page show_count=False%}
+    </div>
+</div>
+
+<div class="row">
+    {% if filter_form %}
+        <div class="col-xs-12 col-sm-12 col-lg-3 col-md-4 pull-right noprint">
+            {% include 'inc/search_panel.html' %}
+            {% block sidebar %}{% endblock %}
+        </div>
+    {% endif %}
+    <div class="col-xs-12 col-sm-12 col-lg-9 col-md-8">
         {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
         {% if permissions.change or permissions.delete %}
             <form method="post" class="form form-horizontal">
@@ -58,7 +66,7 @@
                     </div>
                 {% endif %}
                 {% include table_template|default:'responsive_table.html' %}
-                <div class="pull-left noprint">
+                <div class="pull-left noprint" style="margin-bottom: 1em;">
                     {% block bulk_buttons %}{% endblock %}
                     {% if bulk_edit_url and permissions.change %}
                         <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
@@ -76,10 +84,11 @@
             {% include table_template|default:'responsive_table.html' %}
         {% endif %}
         {% endwith %}
-        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page show_count=True %}
         <div class="clearfix"></div>
     </div>
 </div>
+
 {% table_config_form table table_name="ObjectTable" %}
 {% endblock %}
 

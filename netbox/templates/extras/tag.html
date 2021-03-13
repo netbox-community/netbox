@@ -92,7 +92,7 @@
         </div>
         <div class="col-md-6">
             {% include 'panel_table.html' with table=items_table heading='Tagged Objects' %}
-            {% include 'inc/paginator.html' with paginator=items_table.paginator page=items_table.page %}
+            {% include 'inc/paginator.html' with paginator=items_table.paginator page=items_table.page show_count=True %}
         </div>
     </div>
 {% endblock %}

@@ -33,11 +33,6 @@ footer p {
 #navbar_search {
     padding: 0 8px;
 }
-.right-side-panel {
-    max-width: 400px;
-    min-width: 300px;
-    padding-right: 0;
-}
 
 /* Hide the username in the navigation menu on displays less than 1400px wide */
 @media (max-width: 1399px) {
@@ -168,7 +163,7 @@ td.min-width {
 
 /* Paginator */
 div.paginator {
-    margin-bottom: 20px;
+    margin-bottom: 1em;
 }
 div.paginator form {
     margin-bottom: 6px;
