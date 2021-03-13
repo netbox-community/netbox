@@ -22,7 +22,7 @@ from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.mptt import TreeManager
-from utilities.utils import array_to_string, serialize_object
+from utilities.utils import array_to_string, serialize_object, UtilizationData
 from .device_components import PowerOutlet, PowerPort
 from .devices import Device
 from .power import PowerFeed
@@ -505,9 +505,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return self.devices.filter(position=0)
 
     def get_utilization(self):
-        """
-        Determine the utilization rate of the rack and return it as a percentage. Occupied and reserved units both count
-        as utilized.
+        """Gets utilization numerator and denominator for racks.
+        
+        Returns:
+            UtilizationData: (numerator=Occupied Unit Count, denominator=U Height of the rack)
         """
         # Determine unoccupied units
         available_units = self.get_available_units()
@@ -517,19 +518,19 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             if u in available_units:
                 available_units.remove(u)
 
-        occupied_unit_count = self.u_height - len(available_units)
-
         # Return the numerator and denominator as percentage is to be calculated later where needed
-        return (occupied_unit_count, self.u_height)
+        return UtilizationData(numerator=self.u_height - len(available_units), denominator=self.u_height)
 
     def get_power_utilization(self):
-        """
-        Determine the utilization rate of power in the rack and return it as a percentage.
+        """Determine the utilization numerator and denominator for power utilization on the rack.
+
+        Returns:
+            UtilizationData: (numerator, denominator)
         """
         powerfeeds = PowerFeed.objects.filter(rack=self)
         available_power_total = sum(pf.available_power for pf in powerfeeds)
         if not available_power_total:
-            return (0, 0)
+            return UtilizationData(numerator=0, denominator=0)
 
         pf_powerports = PowerPort.objects.filter(
             _cable_peer_type=ContentType.objects.get_for_model(PowerFeed),
@@ -541,7 +542,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             _cable_peer_id__in=poweroutlets.values_list('id', flat=True)
         ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
 
-        return (allocated_draw_total, available_power_total)
+        return UtilizationData(numerator=allocated_draw_total, denominator=available_power_total)
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')

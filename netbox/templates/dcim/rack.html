@@ -242,7 +242,7 @@
                             </td>
                             {% with power_port=powerfeed.connected_endpoint %}
                                 {% if power_port %}
-                                    <td>{% utilization_graph power_port.get_power_draw.allocated powerfeed.available_power %}</td>
+                                    <td>{% utilization_graph power_port.get_power_draw %}</td>
                                 {% else %}
                                     <td class="text-muted">N/A</td>
                                 {% endif %}

@@ -225,7 +225,7 @@
                                                     <td>{{ utilization.allocated }}VA</td>
                                                     {% if powerfeed.available_power %}
                                                         <td>{{ powerfeed.available_power }}VA</td>
-                                                        <td>{% utilization_graph utilization.allocated powerfeed.available_power %}</td>
+                                                        <td>{% utilization_graph_raw_data utilization.allocated powerfeed.available_power %}</td>
                                                     {% else %}
                                                         <td class="text-muted">&mdash;</td>
                                                         <td class="text-muted">&mdash;</td>
@@ -238,7 +238,7 @@
                                                         <td>{{ leg.allocated }}</td>
                                                         <td>{{ powerfeed.available_power|divide:3 }}VA</td>
                                                         {% with phase_available=powerfeed.available_power|divide:3 %}
-                                                            <td>{% utilization_graph leg.allocated phase_available %}</td>
+                                                            <td>{% utilization_graph_raw_data leg.allocated phase_available %}</td>
                                                         {% endwith %}
                                                     </tr>
                                                 {% endfor %}

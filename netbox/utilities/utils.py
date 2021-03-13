@@ -1,6 +1,6 @@
 import datetime
 import json
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from itertools import count, groupby
 
 from django.core.serializers import serialize
@@ -326,3 +326,6 @@ def copy_safe_request(request):
         'path': request.path,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })
+
+# Setup UtilizationData named tuple for use by multiple methods
+UtilizationData = namedtuple("UtilizationData", ["numerator", "denominator"])

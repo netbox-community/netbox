@@ -243,22 +243,55 @@ def querystring(request, **kwargs):
 
 
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
-def utilization_graph(used_count, total, warning_threshold=75, danger_threshold=90):
+def utilization_graph(utilization_data, warning_threshold=75, danger_threshold=90):
+    """Wrapper for a horizontal bar graph indicating a percentage of utilization from a tuple of data.
+    
+    Takes the utilization_data that is a namedtuple with numerator and denominator field names and passes them into
+    the utilization_graph_raw_data to handle the generation graph data.
+    
+    Args:
+        utilization_data (UtilizationData): Namedtuple with numerator and denominator keys
+        warning_threshold (int, optional): Warning Threshold Value. Defaults to 75.
+        danger_threshold (int, optional): Danger Threshold Value. Defaults to 90.
+    
+    Returns:
+        dict: Dictionary with utilization, warning threshold, danger threshold, utilization count, and total count for
+                display
     """
-    Display a horizontal bar graph indicating a percentage of utilization.
+    return utilization_graph_raw_data(
+        numerator=utilization_data.numerator,
+        denominator=utilization_data.denominator,
+        warning_threshold=warning_threshold,
+        danger_threshold=danger_threshold,
+    )
+
+
+@register.inclusion_tag("utilities/templatetags/utilization_graph_raw_data.html")
+def utilization_graph_raw_data(numerator, denominator, warning_threshold=75, danger_threshold=90):
+    """Display a horizontal bar graph indicating a percentage of utilization.
+    
+    Args:
+        numerator (int): Numerator for creating a percentage
+        denominator (int): Denominator for creating a percentage
+        warning_threshold (int, optional): Warning Threshold Value. Defaults to 75.
+        danger_threshold (int, optional): Danger Threshold Value. Defaults to 90.
+    
+    Returns:
+        dict: Dictionary with utilization, warning threshold, danger threshold, utilization count, and total count for
+                display
     """
     # Check for possible division by zero error
-    if total == 0:
+    if denominator == 0:
         utilization = 0
     else:
-        utilization = int(float(used_count) / total * 100)
+        utilization = int(float(numerator) / denominator * 100)
 
     return {
-        'utilization': utilization,
-        'warning_threshold': warning_threshold,
-        'danger_threshold': danger_threshold,
-        'utilization_count': used_count,
-        'total_count': total,
+        "utilization": utilization,
+        "warning_threshold": warning_threshold,
+        "danger_threshold": danger_threshold,
+        "utilization_count": numerator,
+        "total_count": denominator,
     }
 
 
