@@ -613,7 +613,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Returns:
             UtilizationData (namedtuple): (numerator, denominator)
         """
-        if self.status == Prefix.STATUS_CONTAINER:
+        if self.status == PrefixStatusChoices.STATUS_CONTAINER:
             queryset = Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return UtilizationData(numerator=child_prefixes.size, denominator=self.prefix.size)
