@@ -214,7 +214,7 @@ class CommentField(forms.CharField):
     widget = forms.Textarea
     default_label = ''
     # TODO: Port Markdown cheat sheet to internal documentation
-    default_helptext = '<i class="mdi mdi-information-outline"></i> '\
+    default_helptext = '<i class="bi bi-info-circle"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
                        'Markdown</a> syntax is supported'
 
@@ -390,7 +390,8 @@ class JSONField(_JSONField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
+            
+            self.help_text = 'Enter context data in <a target="_blank" href="https://json.org/">JSON</a> format.'
             self.widget.attrs['placeholder'] = ''
 
     def prepare_value(self, value):
