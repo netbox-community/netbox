@@ -1,0 +1,78 @@
+$height: $form-floating-height;
+$white: $white;
+$font-color: $input-color;
+$font-placeholder-color: $input-placeholder-color;
+$font-disabled-color: $form-select-disabled-color;
+$primary-color: $primary;
+$border-color: $form-select-border-color;
+$search-highlight-color: $yellow;
+$border-radius: $form-select-border-radius;
+$spacing-l: $input-padding-x;
+$spacing-m: $input-padding-x;
+$spacing-s: $input-padding-x;
+
+@import './node_modules/slim-select/src/slim-select/slimselect.scss';
+
+.ss-main {
+  &.is-invalid .ss-single-selected,
+  &.is-invalid .ss-multi-selected {
+    border-color: $form-feedback-icon-invalid-color;
+  }
+
+  &.is-valid .ss-single-selected,
+  &.is-valid .ss-multi-selected {
+    border-color: $form-feedback-icon-valid-color;
+  }
+
+  .ss-single-selected {
+    span.ss-arrow {
+      // Inherit the arrow color from the parent (see color selector).
+      span.arrow-down,
+      span.arrow-up {
+        border-color: currentColor;
+      }
+    }
+    span.placeholder > *,
+    span.placeholder {
+      line-height: $input-line-height;
+    }
+  }
+
+  .ss-multi-selected {
+    align-items: center;
+    padding-left: $input-padding-x;
+    padding-right: $input-padding-x;
+    .ss-values .ss-disabled {
+      padding: 4px 0px;
+    }
+    .ss-add {
+      margin: 0 0.75rem;
+    }
+  }
+
+  .ss-content {
+    .ss-list {
+      .ss-option:last-child {
+        border-bottom-left-radius: $form-select-border-radius;
+        border-bottom-right-radius: $form-select-border-radius;
+      }
+    }
+    border-bottom-left-radius: $form-select-border-radius;
+    border-bottom-right-radius: $form-select-border-radius;
+    .ss-search {
+      input[type='search'] {
+        border: $form-select-border-width solid $form-select-border-color;
+        &:focus {
+          border-color: $form-select-focus-border-color;
+          outline: 0;
+          @if $enable-shadows {
+            @include box-shadow($form-select-box-shadow, $form-select-focus-box-shadow);
+          } @else {
+            // Avoid using mixin so we can pass custom focus shadow properly
+            box-shadow: $form-select-focus-box-shadow;
+          }
+        }
+      }
+    }
+  }
+}

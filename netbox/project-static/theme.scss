@@ -1,0 +1,26 @@
+@import 'bootstrap/scss/functions';
+
+// Override built-in variables/add new variables.
+// $blue: #1685fc;
+// $primary: #1685fc;
+$green: #47e5bc;
+$orange: #f9a620;
+$yellow: #ffd449;
+$red: #ff5964;
+$alt: #13293d;
+
+$card-cap-bg: none;
+
+// On import, any variables marked `!default` will be overridden by the above.
+@import 'bootstrap/scss/variables';
+
+$theme-color-addons: (
+  'alt': $alt,
+  'gray': $gray-400,
+);
+
+// Merge/modify bootstrap variables.
+$theme-colors: map-merge($theme-colors, $theme-color-addons);
+$card-cap-color: $gray-800;
+
+$breadcrumb-divider: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E");

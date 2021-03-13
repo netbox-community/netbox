@@ -1,0 +1,315 @@
+main.login-container {
+  display: flex;
+  height: calc(100vh - 4rem);
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+footer.login-footer {
+  height: 4rem;
+  margin-top: auto;
+
+  .container-fluid {
+    display: flex;
+    justify-content: flex-end;
+    padding: $container-padding-x $grid-gutter-width;
+  }
+}
+
+.form-login {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  // margin: auto;
+}
+
+.form-login input[type='text'] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-login input[type='password'] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form-login .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+li.dropdown-item.dropdown-item-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  // padding: 48px 0 0; /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    top: 5rem;
+  }
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.navbar-brand {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.sidebar {
+  .sidebar-nav-link {
+    color: $gray-800;
+  }
+  .accordion-body {
+    max-height: calc(100vh - 24rem);
+    overflow-y: auto;
+    .nav-item {
+      .nav-link {
+        padding: 0.25rem 0.5rem;
+        font-size: $font-size-base;
+      }
+      .nav-link:hover {
+        background-color: $blue-100;
+        border-radius: $border-radius;
+      }
+    }
+  }
+  div.position-sticky {
+    height: calc(100% - 8rem);
+  }
+  div.sidebar-bottom {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    position: sticky;
+    height: 8rem;
+    background-color: $light;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+    .nav-link {
+      padding: 0.5rem 0.25rem;
+    }
+  }
+  a.sidebar-logo {
+    display: flex;
+    flex-shrink: 1;
+    width: 100%;
+    height: 4rem;
+  }
+}
+
+.tooltip {
+  pointer-events: none;
+}
+
+.ws-nowrap {
+  white-space: nowrap !important;
+}
+
+h1.accordion-item-title,
+h2.accordion-item-title,
+h3.accordion-item-title,
+h4.accordion-item-title,
+h5.accordion-item-title,
+h6.accordion-item-title {
+  padding: 0 0.5rem;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+#object-type-selector {
+  button.dropdown-item,
+  h6.dropdown-header {
+    font-size: $font-size-sm;
+  }
+}
+
+.stats-container {
+  min-height: 50vh;
+}
+
+span.color-label {
+  width: 5rem;
+  height: 1rem;
+  display: block;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius;
+  padding: $badge-padding-y $badge-padding-x;
+}
+
+.card {
+  box-shadow: $box-shadow-sm;
+  .card-header {
+    border-bottom: none;
+    padding: $card-cap-padding-x;
+  }
+  .card-header + .card-body {
+    padding-top: 0;
+  }
+}
+
+.form-floating {
+  position: relative;
+
+  > .input-group > .form-control,
+  > .input-group > .form-select {
+    height: $form-floating-height;
+    padding: $form-floating-padding-y $form-floating-padding-x;
+  }
+
+  > .input-group > label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%; // allow textareas
+    padding: $form-floating-padding-y $form-floating-padding-x;
+    pointer-events: none;
+    border: $input-border-width solid transparent; // Required for aligning label's text with the input as it affects inner box model
+    transform-origin: 0 0;
+    @include transition($form-floating-transition);
+  }
+
+  > .input-group > .form-control {
+    &::placeholder {
+      color: transparent;
+    }
+
+    &:focus,
+    &:not(:placeholder-shown) {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+    // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+    &:-webkit-autofill {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+  }
+
+  > .input-group > .form-select,
+  > .choices > .choices__inner,
+  > .ss-main span.placeholder, // SlimSelect Single
+  > .ss-main div.ss-values // SlimSelect Multiple
+  {
+    padding-top: $form-floating-input-padding-t;
+    padding-bottom: $form-floating-input-padding-b;
+  }
+
+  > .input-group > .form-control:focus,
+  > .input-group > .form-control:not(:placeholder-shown),
+  > .input-group > .form-select,
+  > .choices,
+  > .ss-main {
+    ~ label {
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+      z-index: 4;
+    }
+  }
+  // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+  > .input-group > .form-control:-webkit-autofill {
+    ~ label {
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+      z-index: 4;
+    }
+  }
+}
+
+textarea#id_local_context_data,
+textarea#id_comments {
+  font-family: $font-family-monospace;
+}
+
+// Pad all adjacent cards
+.card:not(:only-of-type) {
+  margin-bottom: $spacer;
+}
+
+.stat-btn {
+  min-width: $spacer * 3;
+}
+
+nav.breadcrumb-container {
+  padding: $badge-padding-y $badge-padding-x;
+  border-radius: $border-radius;
+  background-color: $light;
+  font-size: $font-size-sm;
+  width: fit-content;
+
+  ol.breadcrumb {
+    margin-bottom: 0;
+    li.breadcrumb-item > a {
+      text-decoration: none;
+    }
+    li.breadcrumb-item > a:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+div#content-title {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
+div.paginator > form > div.input-group {
+  width: fit-content;
+}
+
+button.btn.btn-outline-gray.dropdown-toggle:after {
+  color: $black;
+}
+
+// Apply bootstrap focus styling to Choices.JS elements.
+div.choices.is-focused > div.choices__inner {
+  border-color: $form-select-focus-border-color;
+  outline: 0;
+  @if $enable-shadows {
+    @include box-shadow($form-select-box-shadow, $form-select-focus-box-shadow);
+  } @else {
+    box-shadow: $form-select-focus-box-shadow;
+  }
+}
+
+div.field-group:not(:first-of-type) {
+  margin-top: $spacer * 3;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: $spacer;
+  }
+}

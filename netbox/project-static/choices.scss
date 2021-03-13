@@ -1,0 +1,44 @@
+$choices-font-size-lg: $form-select-font-size-lg;
+$choices-font-size-md: $form-select-font-size;
+$choices-font-size-sm: $form-select-font-size-sm;
+$choices-guttering: $form-select-padding-y;
+$choices-border-radius: $form-select-border-radius;
+$choices-bg-color: $form-select-bg;
+$choices-bg-color-disabled: $form-select-disabled-bg;
+$choices-bg-color-dropdown: $form-select-bg;
+$choices-text-color: $form-select-color;
+$choices-keyline-color: $form-select-border-color;
+$choices-primary-color: $primary;
+$choices-disabled-color: $form-select-disabled-color;
+$choices-highlight-color: $choices-primary-color;
+$choices-button-dimension: $form-select-bg-size;
+
+.choices {
+  .choices__list--dropdown .choices__item--selectable.is-highlighted[class] {
+    background-color: $primary;
+    color: white;
+  }
+
+  // Floating-input adjusts the z-index of the label. This fixes an issue where if there are two
+  // floating inputs on top of eachother, the label of an overlapping field is visible inside the
+  // dropdown's dropdown list.
+  &.is-open .choices__list--dropdown {
+    z-index: 10;
+  }
+}
+
+.choices[data-type*='select-one'] select.choices__input {
+  display: block !important;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+select[data-ssid] {
+  display: block !important;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+}
