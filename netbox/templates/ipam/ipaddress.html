@@ -3,14 +3,12 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
-{% block header %}
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
   {% if object.vrf %}
     <li class="breadcrumb-item"><a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a></li>
   {% endif %}
   <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
 {% endblock %}
 
 {% block content %}

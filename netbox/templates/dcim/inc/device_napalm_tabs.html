@@ -1,15 +1,15 @@
 {% if not disabled_message %}
-    <li role="presentation"{% if active_tab == 'status' %} class="active"{% endif %}>
-        <a href="{% url 'dcim:device_status' pk=object.pk %}">Status</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link{% if active_tab == 'status' %} active{% endif %}" href="{% url 'dcim:device_status' pk=object.pk %}">Status</a>
     </li>
-    <li role="presentation"{% if active_tab == 'lldp-neighbors' %} class="active"{% endif %}>
-        <a href="{% url 'dcim:device_lldp_neighbors' pk=object.pk %}">LLDP Neighbors</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link{% if active_tab == 'lldp-neighbors' %} active{% endif %}" href="{% url 'dcim:device_lldp_neighbors' pk=object.pk %}">LLDP Neighbors</a>
     </li>
-    <li role="presentation"{% if active_tab == 'config' %} class="active"{% endif %}>
-        <a href="{% url 'dcim:device_config' pk=object.pk %}">Configuration</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link{% if active_tab == 'config' %} active{% endif %}" href="{% url 'dcim:device_config' pk=object.pk %}">Configuration</a>
     </li>
 {% else %}
-    <li role="presentation" class="disabled"><a href="#" title="{{ disabled_message }}">Status</a></li>
-    <li role="presentation" class="disabled"><a href="#" title="{{ disabled_message }}">LLDP Neighbors</a></li>
-    <li role="presentation" class="disabled"><a href="#" title="{{ disabled_message }}">Configuration</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link disabled" href="#" title="{{ disabled_message }}">Status</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link disabled" href="#" title="{{ disabled_message }}">LLDP Neighbors</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link disabled" href="#" title="{{ disabled_message }}">Configuration</a></li>
 {% endif %}

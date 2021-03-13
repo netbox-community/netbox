@@ -35,21 +35,23 @@
 </div>
 {% endblock %}
 
-{% block content %}
 {% block tabs %}
-<ul class="nav nav-tabs">
+<ul class="nav nav-tabs mb-3">
+  {% block tab_items %}
   <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
     <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
   </li>
   {% if perms.extras.view_objectchange %}
-    <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-      {# TODO: Fix changelog URL resolution hack #}
-      <a href="{{ object.get_absolute_url }}changelog/">Change Log</a>
-    </li>
+  <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+    {# TODO: Fix changelog URL resolution hack #}
+    <a href="{{ object.get_absolute_url }}changelog/">Change Log</a>
+  </li>
   {% endif %}
+  {% endblock %}
 </ul>
 {% endblock %}
-{% endblock %}
+
+{% block content %}{% endblock %}
 
 {% block header %}
   <div class="row noprint">

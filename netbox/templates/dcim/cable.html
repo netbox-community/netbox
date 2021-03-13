@@ -5,8 +5,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:cable_list' %}">Cables</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:cable_list' %}">Cables</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block buttons %}
@@ -28,21 +28,21 @@
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <td>Type</td>
+                            <th scope="row">Type</th>
                             <td>{{ object.get_type_display|placeholder }}</td>
                         </tr>
                         <tr>
-                            <td>Status</td>
+                            <th scope="row">Status</th>
                             <td>
                                 <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                             </td>
                         </tr>
                         <tr>
-                            <td>Label</td>
+                            <th scope="row">Label</th>
                             <td>{{ object.label|placeholder }}</td>
                         </tr>
                         <tr>
-                            <td>Color</td>
+                            <th scope="row">Color</th>
                             <td>
                                 {% if object.color %}
                                     <span class="color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
@@ -52,7 +52,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Length</td>
+                            <th scope="row">Length</th>
                             <td>
                                 {% if object.length %}
                                     {{ object.length }} {{ object.get_length_unit_display }}
@@ -73,13 +73,17 @@
                 <h5 class="card-header">
                     Termination A
                 </h5>
+                <div class="card-body">
                 {% include 'dcim/inc/cable_termination.html' with termination=object.termination_a %}
+                </div>
             </div>
             <div class="card">
                 <h5 class="card-header">
                     Termination B
                 </h5>
+                <div class="card-body">
                 {% include 'dcim/inc/cable_termination.html' with termination=object.termination_b %}
+                </div>
             </div>
             {% plugin_right_page object %}
         </div>

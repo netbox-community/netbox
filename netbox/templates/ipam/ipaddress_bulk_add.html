@@ -4,35 +4,26 @@
 
 {% block title %}Bulk Add IP Addresses{% endblock %}
 
-{% block tabs %}
-    {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='bulk_add' %}
-{% endblock %}
-
 {% block form %}
-    <div class="card">
-        <h5 class="card-header">IP Addresses</h5>
-        <div class="card-body">
-            {% render_field form.pattern %}
-            {% render_field model_form.status %}
-            {% render_field model_form.role %}
-            {% render_field model_form.vrf %}
-            {% render_field model_form.description %}
-            {% render_field model_form.tags %}
-        </div>
+{% include 'ipam/inc/ipadress_edit_header.html' with active_tab='bulk_add' %}
+    <div class="field-group">
+        <h4>IP Addresses</h4>
+        {% render_field form.pattern %}
+        {% render_field model_form.status %}
+        {% render_field model_form.role %}
+        {% render_field model_form.vrf %}
+        {% render_field model_form.description %}
+        {% render_field model_form.tags %}
     </div>
-    <div class="card">
-        <h5 class="card-header">Tenancy</h5>
-        <div class="card-body">
-            {% render_field model_form.tenant_group %}
-            {% render_field model_form.tenant %}
-        </div>
+    <div class="field-group">
+        <h4>Tenancy</h4>
+        {% render_field model_form.tenant_group %}
+        {% render_field model_form.tenant %}
     </div>
     {% if model_form.custom_fields %}
-        <div class="card">
-            <h5 class="card-header">Custom Fields</h5>
-            <div class="card-body">
-                {% render_custom_fields model_form %}
-            </div>
+        <div class="field-group">
+            <h4>Custom Fields</h4>
+            {% render_custom_fields model_form %}
         </div>
     {% endif %}
 {% endblock %}

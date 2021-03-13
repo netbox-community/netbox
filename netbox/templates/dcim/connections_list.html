@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% load buttons %}
 
+{% block title %}{{ title }}{% endblock %}
+
 {% block content %}
-<div class="pull-right noprint">
+<div class="float-end noprint">
     {% export_button content_type %}
 </div>
-<h1>{% block title %}{{ title }}{% endblock %}</h1>
 <div class="row">
 	  <div class="col-md-12">
         <div class="col-md-3 pull-right right-side-panel noprint">
