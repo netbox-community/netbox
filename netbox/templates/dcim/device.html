@@ -319,6 +319,11 @@
                                 <div class="card-body">
                                     {% if related_devices %}
                                     <table class="table table-hover">
+                                        <tr>
+                                            <th>Device</th>
+                                            <th>Rack</th>
+                                            <th>Type</th>
+                                        </tr>
                                         {% for rd in related_devices %}
                                         <tr>
                                             <td>
@@ -326,7 +331,7 @@
                                             </td>
                                             <td>
                                                 {% if rd.rack %}
-                                                    <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
+                                                    <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">{{ rd.rack }}</a>
                                                 {% else %}
                                                     <span class="text-muted">&mdash;</span>
                                                 {% endif %}

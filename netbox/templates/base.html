@@ -17,8 +17,7 @@
     />
   </head>
   <body>
-    {% comment %} {% include './layout.html' %} {% endcomment %} {% comment %}
-    {% endcomment %} {% block layout %}{% endblock %}
+    {% block layout %}{% endblock %}
     <script
       src="{% static 'netbox.js' %}"
       onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'"

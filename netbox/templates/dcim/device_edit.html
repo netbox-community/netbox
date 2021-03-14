@@ -2,6 +2,8 @@
 {% load form_helpers %}
 
 {% block form %}
+{% render_errors form %}
+
     <div class="field-group">
         <h4 >Device</h4>
         {% render_field form.name %}

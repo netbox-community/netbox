@@ -313,3 +313,18 @@ div.field-group:not(:first-of-type) {
     margin-bottom: $spacer;
   }
 }
+
+label.required {
+  font-weight: $font-weight-bold;
+  &::after {
+    font-family: bootstrap-icons;
+    content: '\f151';
+    font-weight: normal;
+    font-size: 8px;
+    font-style: normal;
+    margin: 0 0 0 2px;
+    text-decoration: none;
+    display: inline-block;
+    position: absolute;
+  }
+}
