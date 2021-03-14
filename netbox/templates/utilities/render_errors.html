@@ -1,0 +1,26 @@
+{% load form_helpers %}
+
+{% if form.errors or form.non_field_errors %}
+<div class="alert alert-danger mt-3" role="alert">
+  <h4 class="alert-heading">Errors</h4>
+  <hr />
+  <div class="ps-2">
+    {% if form.errors %}
+    {% for field_name, errors in form.errors.items %}
+    {% with field=form|getfield:field_name %}
+    <strong>{{ field.label }}</strong>
+        <ul>
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    {% endwith %}
+    {% endfor %}
+    {% endif %}
+    {% if form.non_field_errors %}
+    <hr />
+    {{ form.non_field_errors }}
+    {% endif %}
+  </div>
+</div>
+{% endif %}

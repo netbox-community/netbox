@@ -54,3 +54,13 @@ def widget_type(field):
         return field.field.widget.__class__.__name__.lower()
     else:
         return None
+
+
+@register.inclusion_tag('utilities/render_errors.html')
+def render_errors(form):
+    """
+    Render form errors, if they exist.
+    """
+    return {
+        "form": form
+    }
