@@ -1,39 +1,25 @@
 {% load form_helpers %}
-<div class="field-group">
-    <h4>Cable</h4>
-    {% render_field form.status %}
-    {% render_field form.type %}
-    {% render_field form.label %}
-    {% render_field form.color %}
-    <div class="field-group">
-        <label class="col-md-3 control-label" for="id_length">{{ form.length.label }}</label>
-        <div class="col-md-5">
-            {{ form.length }}
-            {% if form.length.errors %}
-                <ul>
-                {% for error in form.length.errors %}
-                    <li class="text-danger">{{ error }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
+<div class="card">
+    <h5 class="card-header">Cable</h5>
+    <div class="card-body">
+        {% render_field form.status %}
+        {% render_field form.type %}
+        {% render_field form.label %}
+        {% render_field form.color %}
+        <div class="row">
+            <div class="col">
+                {% render_field form.length %}
+            </div>
+            <div class="col">
+                {% render_field form.length_unit %}
+            </div>
         </div>
-        <div class="col-md-4">
-            {{ form.length_unit }}
-            {% if form.length_unit.errors %}
-                <ul>
-                    {% for error in form.length_unit.errors %}
-                        <li class="text-danger">{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+        {% render_field form.tags %}
+        {% if form.custom_fields %}
+        <div class="field-group">
+            <h4>Custom Fields</h4>
+            {% render_custom_fields form %}
         </div>
+        {% endif %}
     </div>
-    {% render_field form.tags %}
-    
 </div>
-{% if form.custom_fields %}
-<div class="field-group">
-    <h4>Custom Fields</h4>
-    {% render_custom_fields form %}
-</div>
-{% endif %}
