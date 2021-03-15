@@ -143,7 +143,7 @@ class ButtonsColumn(tables.TemplateColumn):
     :param return_url_extra: String to append to the return URL (e.g. for specifying a tab) (optional)
     """
     buttons = ('changelog', 'edit', 'delete')
-    attrs = {'td': {'class': 'text-right text-nowrap noprint'}}
+    attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
     # Note that braces are escaped to allow for string formatting prior to template rendering
     template_code = """
     {{% if "changelog" in buttons %}}

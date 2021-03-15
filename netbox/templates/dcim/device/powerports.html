@@ -20,13 +20,13 @@
             </div>
             <div class="card-footer noprint">
                 {% if perms.dcim.change_powerport %}
-                    <button type="submit" name="_rename" formaction="{% url 'dcim:powerport_bulk_rename' %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-warning btn-sm">
+                    <button type="submit" name="_rename" formaction="{% url 'dcim:powerport_bulk_rename' %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
                         <i class="bi bi-input-cursor-text" aria-hidden="true"></i> Rename
                     </button>
                     <button type="submit" name="_edit" formaction="{% url 'dcim:powerport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit
                     </button>
-                    <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerport_bulk_disconnect' %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-danger btn-sm">
+                    <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerport_bulk_disconnect' %}?return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
                         <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                     </button>
                 {% endif %}

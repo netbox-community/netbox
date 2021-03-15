@@ -20,7 +20,7 @@
             </div>
             <div class="card-footer noprint">
                 {% if perms.dcim.change_devicebay %}
-                    <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-warning btn-sm">
+                    <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-outline-warning btn-sm">
                         <i class="bi bi-input-cursor-text" aria-hidden="true"></i> Rename
                     </button>
                     <button type="submit" name="_edit" formaction="{% url 'dcim:devicebay_bulk_edit' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-warning btn-sm">
@@ -28,14 +28,14 @@
                     </button>
                 {% endif %}
                 {% if perms.dcim.delete_devicebay %}
-                    <button type="submit" formaction="{% url 'dcim:devicebay_bulk_delete' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-danger btn-sm">
+                    <button type="submit" formaction="{% url 'dcim:devicebay_bulk_delete' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-outline-danger btn-sm">
                         <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete selected
                     </button>
                 {% endif %}
                 {% if perms.dcim.add_devicebay %}
-                    <div class="pull-right">
+                    <div class="float-end">
                         <a href="{% url 'dcim:devicebay_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus" aria-hidden="true"></i> Add device bays
+                            <i class="bi bi-plus" aria-hidden="true"></i> Add Device Bays
                         </a>
                     </div>
                 {% endif %}

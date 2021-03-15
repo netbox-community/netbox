@@ -20,13 +20,13 @@
             </div>
             <div class="card-footer noprint">
                 {% if perms.dcim.change_consoleserverport %}
-                    <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-warning btn-sm">
+                    <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
                         <i class="bi bi-input-cursor-text" aria-hidden="true"></i> Rename
                     </button>
                     <button type="submit" name="_edit" formaction="{% url 'dcim:consoleserverport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit
                     </button>
-                    <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleserverport_bulk_disconnect' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-danger btn-sm">
+                    <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleserverport_bulk_disconnect' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
                         <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                     </button>
                 {% endif %}
@@ -36,9 +36,9 @@
                     </button>
                 {% endif %}
                 {% if perms.dcim.add_consoleserverport %}
-                    <div class="pull-right">
+                    <div class="float-end">
                         <a href="{% url 'dcim:consoleserverport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus" aria-hidden="true"></i> Add console server ports
+                            <i class="bi bi-plus" aria-hidden="true"></i> Add Console Server Ports
                         </a>
                     </div>
                 {% endif %}

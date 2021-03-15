@@ -13,8 +13,8 @@
                 {% endfor %}
             </table>
         </div>
-        <div class="card-footer noprint">
-            {% if components and perms.dcim.change_consoleport %}
+        {% if components and perms.dcim.change_consoleport %}
+            <div class="card-footer noprint">
                 <button type="submit" name="_rename" formaction="{% url 'dcim:consoleport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-sm">
                     <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                 </button>
@@ -31,12 +31,12 @@
                 </button>
             {% endif %}
             {% if components and perms.dcim.add_consoleport %}
-                <div class="pull-right">
+                <div class="float-end">
                     <a href="{% url 'dcim:consoleport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-sm btn-primary">
                         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add console port
                     </a>
                 </div>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </div>
 </form>

@@ -114,7 +114,7 @@
                                             {% endfor %}
                                         </table>
                                     </div>
-                                    <div class="card-footer text-right noprint">
+                                    <div class="card-footer text-end noprint">
                                         <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary btn-sm">
                                             <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> View Virtual Chassis
                                         </a>
@@ -265,7 +265,7 @@
                                 {% if perms.secrets.add_secret %}
                                 <div class="card-footer text-end noprint">
                                     <a href="{% url 'secrets:secret_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
-                                        <span class="bi bi-plus" aria-hidden="true"></span> Add secret
+                                        <i class="bi bi-plus"></i> Add secret
                                     </a>
                                 </div>
                                 {% endif %}

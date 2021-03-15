@@ -1,33 +1,33 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load form_helpers %}
 
 {% block title %}Create {{ component_type }}{% endblock %}
+
+{% render_errors form %}
 
 {% block content %}
 <form action="" method="post">
     {% csrf_token %}
     <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            {% if form.non_field_errors %}
-                <div class="card bg-danger">
-                    <h5 class="card-header">Errors</h5>
-                    <div class="card-body">
-                        {{ form.non_field_errors }}
-                    </div>
-                </div>
-            {% endif %}
-            <div class="card">
-                <h5 class="card-header">{{ component_type|title }}</h5>
-                <div class="card-body">
-                    {% render_form form %}
-                </div>
-            </div>
-            <div class="col-md-9 col-md-offset-3">
-                <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                <button type="submit" name="_addanother" class="btn btn-primary">Create and Add More</button>
-                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+        <div class="col-md-8">
+            <div class="field-group">
+                <h4>{{ component_type|title }}</h4>
+                {% render_form form %}
             </div>
         </div>
     </div>
+    <div class="row my-3">
+        <div class="col-md-8 text-end">
+        {% block buttons %}
+        <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+        <button type="submit" name="_addanother" class="btn btn-outline-primary">
+            Create & Add Another
+        </button>
+        <button type="submit" name="_create" class="btn btn-primary">
+            Create
+        </button>
+        {% endblock %}
+    </div>
+  </div>
 </form>
 {% endblock %}
