@@ -41,7 +41,6 @@ export function toggle(action: 'enable' | 'disable', instance: SlimSelect): void
  * @param instance SlimSelect instance with options already set.
  */
 export function setOptionStyles(instance: SlimSelect): void {
-  console.log('1', instance);
   const options = instance.data.data;
   for (const option of options) {
     // Only create style elements for options that contain a color attribute.
