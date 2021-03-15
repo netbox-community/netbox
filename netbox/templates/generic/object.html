@@ -6,7 +6,7 @@
 {% load plugins %}
 
 
-{% block title %}{{ object }}{% endblock %}
+{% block title %}<a href="{{ object.get_absolute_url }}">{{ object }}</a>{% endblock %}
 
 {% block breadcrumb_main %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -38,13 +38,13 @@
 {% block tabs %}
 <ul class="nav nav-tabs mb-3">
   {% block tab_items %}
-  <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-    <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
   </li>
   {% if perms.extras.view_objectchange %}
-  <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+  <li class="nav-item" role="presentation">
     {# TODO: Fix changelog URL resolution hack #}
-    <a href="{{ object.get_absolute_url }}changelog/">Change Log</a>
+    <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{{ object.get_absolute_url }}changelog/">Change Log</a>
   </li>
   {% endif %}
   {% endblock %}
@@ -52,6 +52,7 @@
 {% endblock %}
 
 {% block content %}{% endblock %}
+{% block components %}{% endblock %}
 
 {% block header %}
   <div class="row noprint">
@@ -59,7 +60,6 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
-          {% comment %} {% block breadcumbs %}{%endblock%} {% endcomment %}
         </ol>
       </nav>
     </div>

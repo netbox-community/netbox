@@ -2,9 +2,9 @@
 
 {% block bulk_buttons %}
     {% if perms.dcim.change_device %}
-        <div class="btn-group">
+        <div class="dropdown">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
+                <i class="bi bi-plus" aria-hidden="true"></i> Add Components
             </button>
             <ul class="dropdown-menu">
                 {% if perms.dcim.add_consoleport %}

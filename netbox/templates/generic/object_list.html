@@ -71,20 +71,18 @@
                     </div>
                 {% endif %}
                 {% include table_template|default:'responsive_table.html' %}
-                <div class="noprint">
+                <div class="noprint bulk-buttons">
                     {% block bulk_buttons %}{% endblock %}
-                    <div class="btn-group my-3" role="group">
                     {% if bulk_edit_url and permissions.change %}
-                        <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit Selected
-                        </button>
+                    <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit Selected
+                    </button>
                     {% endif %}
                     {% if bulk_delete_url and permissions.delete %}
-                        <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete Selected
-                        </button>
+                    <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete Selected
+                    </button>
                     {% endif %}
-                    </div>
                 </div>
             </form>
             

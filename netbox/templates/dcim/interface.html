@@ -5,66 +5,67 @@
 {% block content %}
     <div class="row">
         <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Interface</strong>
+            <div class="card">
+                <h5 class="card-header">
+                    Interface
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <tr>
+                            <td colspan="2">
+                                {% if object.enabled %}
+                                    <span class="badge bg-success">Enabled</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Disabled</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Device</th>
+                            <td>
+                                <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Name</th>
+                            <td>{{ object.name }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Label</th>
+                            <td>{{ object.label|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Type</th>
+                            <td>{{ object.get_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">LAG</th>
+                            <td>
+                                {% if object.lag%}
+                                    <a href="{{ object.lag.get_absolute_url }}">{{ object.lag }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Description</th>
+                            <td>{{ object.description|placeholder }} </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">MTU</th>
+                            <td>{{ object.mtu|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">MAC Address</th>
+                            <td><span class="text-monospace">{{ object.mac_address|placeholder }}</span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">802.1Q Mode</th>
+                            <td>{{ object.get_mode_display }}</td>
+                        </tr>
+                    </table>
                 </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Device</td>
-                        <td>
-                            <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Name</td>
-                        <td>{{ object.name }}</td>
-                    </tr>
-                    <tr>
-                        <td>Label</td>
-                        <td>{{ object.label|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <td>Type</td>
-                        <td>{{ object.get_type_display }}</td>
-                    </tr>
-                    <tr>
-                        <td>Enabled</td>
-                        <td>
-                            {% if object.enabled %}
-                                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                            {% else %}
-                                <span class="text-danger"><i class="mdi mdi-close"></i></span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>LAG</td>
-                        <td>
-                            {% if object.lag%}
-                                <a href="{{ object.lag.get_absolute_url }}">{{ object.lag }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>{{ object.description|placeholder }} </td>
-                    </tr>
-                    <tr>
-                        <td>MTU</td>
-                        <td>{{ object.mtu|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <td>MAC Address</td>
-                        <td><span class="text-monospace">{{ object.mac_address|placeholder }}</span></td>
-                    </tr>
-                    <tr>
-                        <td>802.1Q Mode</td>
-                        <td>{{ object.get_mode_display }}</td>
-                    </tr>
-                </table>
             </div>
             {% include 'inc/custom_fields_panel.html' %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
@@ -72,21 +73,33 @@
         </div>
         <div class="col-md-6">
             {% if object.is_connectable %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>Connection</strong>
-                    </div>
+                <div class="card">
+                    <h5 class="card-header">
+                        Connection
+                    </h5>
+                    <div class="card-body">
                     {% if object.mark_connected %}
-                        <div class="panel-body text-muted">
-                          <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
+                        <div class="text-muted">
+                          <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as Connected
                         </div>
                     {% elif object.cable %}
-                        <table class="table table-hover panel-body attr-table">
+                        <table class="table table-hover">
+                            {% if object.connected_endpoint.device %}
                             <tr>
-                                <td>Cable</td>
+                                <td colspan="2">
+                                    {% if object.connected_endpoint.enabled %}
+                                        <span class="badge bg-success">Enabled</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Disabled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %} 
+                            <tr>
+                                <th scope="row">Cable</th>
                                 <td>
                                     <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
-                                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm" title="Trace">
                                         <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                     </a>
                                 </td>
@@ -94,33 +107,23 @@
                             {% if object.connected_endpoint.device %}
                                 {% with iface=object.connected_endpoint %}
                                     <tr>
-                                        <td>Device</td>
+                                        <th scope="row">Device</th>
                                         <td>
                                             <a href="{{ iface.device.get_absolute_url }}">{{ iface.device }}</a>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Name</td>
+                                        <th scope="row">Name</th>
                                         <td>
                                             <a href="{{ iface.get_absolute_url }}">{{ iface.name }}</a>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Type</td>
+                                        <th scope="row">Type</th>
                                         <td>{{ iface.get_type_display }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Enabled</td>
-                                        <td>
-                                            {% if iface.enabled %}
-                                                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                                            {% else %}
-                                                <span class="text-danger"><i class="mdi mdi-close"></i></span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>LAG</td>
+                                        <th scope="row">LAG</th>
                                         <td>
                                             {% if iface.lag%}
                                                 <a href="{{ iface.lag.get_absolute_url }}">{{ iface.lag }}</a>
@@ -130,100 +133,119 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Description</td>
+                                        <th scope="row">Description</th>
                                         <td>{{ iface.description|placeholder }}</td>
                                     </tr>
                                     <tr>
-                                        <td>MTU</td>
+                                        <th scope="row">MTU</th>
                                         <td>{{ iface.mtu|placeholder }}</td>
                                     </tr>
                                     <tr>
-                                        <td>MAC Address</td>
+                                        <th scope="row">MAC Address</th>
                                         <td>{{ iface.mac_address|placeholder }}</td>
                                     </tr>
                                     <tr>
-                                        <td>802.1Q Mode</td>
+                                        <th scope="row">802.1Q Mode</th>
                                         <td>{{ iface.get_mode_display }}</td>
                                     </tr>
                                 {% endwith %}
                             {% elif object.connected_endpoint.circuit %}
                                 {% with ct=object.connected_endpoint %}
                                     <tr>
-                                        <td>Provider</td>
+                                        <th scope="row">Provider</th>
                                         <td><a href="{{ ct.circuit.provider.get_absolute_url }}">{{ ct.circuit.provider }}</a></td>
                                     </tr>
                                     <tr>
-                                        <td>Circuit</td>
+                                        <th scope="row">Circuit</th>
                                         <td><a href="{{ ct.circuit.get_absolute_url }}">{{ ct.circuit }}</a></td>
                                     </tr>
                                     <tr>
-                                        <td>Side</td>
+                                        <th scope="row">Side</th>
                                         <td>{{ ct.term_side }}</td>
                                     </tr>
                                 {% endwith %}
                             {% endif %}
                             <tr>
-                                <td>Path Status</td>
+                                <th scope="row">Path Status</th>
                                 <td>
                                     {% if object.path.is_active %}
-                                        <span class="label label-success">Reachable</span>
+                                        <span class="badge bg-success">Reachable</span>
                                     {% else %}
-                                        <span class="label label-danger">Not Reachable</span>
+                                        <span class="badge bg-danger">Not Reachable</span>
                                     {% endif %}
                                 </td>
                             </tr>
                         </table>
                     {% else %}
-                        <div class="panel-body text-muted">
-                            Not connected
+                        <div class="text-muted">
+                            Not Connected
                             {% if perms.dcim.add_cable %}
-                                <span class="dropdown pull-right">
-                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div class="dropdown float-end">
+                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='interface' %}?return_url={{ object.get_absolute_url }}">Interface</a></li>
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='front-port' %}?return_url={{ object.get_absolute_url }}">Front Port</a></li>
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='rear-port' %}?return_url={{ object.get_absolute_url }}">Rear Port</a></li>
-                                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='circuit-termination' %}?return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='interface' %}?return_url={{ object.get_absolute_url }}">
+                                                Interface
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='front-port' %}?return_url={{ object.get_absolute_url }}">
+                                                Front Port
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='rear-port' %}?return_url={{ object.get_absolute_url }}">
+                                                Rear Port
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'dcim:interface_connect' termination_a_id=object.pk termination_b_type='circuit-termination' %}?return_url={{ object.get_absolute_url }}">
+                                                Circuit Termination
+                                            </a>
+                                        </li>
                                     </ul>
-                                </span>
+                                </div>
                             {% endif %}
                         </div>
                     {% endif %}
+                    </div>
                 </div>
             {% endif %}
             {% if object.is_lag %}
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>LAG Members</strong></div>
-                    <table class="table table-hover table-headings panel-body">
-                        <thead>
-                            <tr>
-                                <th>Parent</th>
-                                <th>Interface</th>
-                                <th>Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for member in object.member_interfaces.all %}
+                <div class="card">
+                    <h5 class="card-header">LAG Members</h5>
+                    <div class="card-body">
+                        <table class="table table-hover table-headings">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <a href="{{ member.device.get_absolute_url }}">{{ member.device }}</a>
-                                    </td>
-                                    <td>
-                                        <a href="{{ member.get_absolute_url }}">{{ member }}</a>
-                                    </td>
-                                    <td>
-                                        {{ member.get_type_display }}
-                                    </td>
+                                    <th>Parent</th>
+                                    <th>Interface</th>
+                                    <th>Type</th>
                                 </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-muted">No member interfaces</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {% for member in object.member_interfaces.all %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ member.device.get_absolute_url }}">{{ member.device }}</a>
+                                        </td>
+                                        <td>
+                                            <a href="{{ member.get_absolute_url }}">{{ member }}</a>
+                                        </td>
+                                        <td>
+                                            {{ member.get_type_display }}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-muted">No member interfaces</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             {% endif %}
             {% plugin_right_page object %}
