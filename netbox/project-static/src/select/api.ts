@@ -2,7 +2,7 @@ import SlimSelect from 'slim-select';
 import queryString from 'query-string';
 import { getApiData, isApiError, getElements } from '../util';
 import { createToast } from '../toast';
-import { setOptionStyles, getFilteredBy } from './util';
+import { setOptionStyles, getFilteredBy, toggle } from './util';
 
 import type { Option } from 'slim-select/dist/data';
 
@@ -155,7 +155,7 @@ export function initApiSelect() {
       });
 
       // Disable the element while data has not been loaded.
-      instance.disable();
+      toggle('disable', instance);
 
       // Don't copy classes from select element to SlimSelect instance.
       for (const className of select.classList) {
@@ -166,13 +166,12 @@ export function initApiSelect() {
       getChoices(url, displayField, selectOptions, disabledOptions)
         .then(options => instance.setData(options))
         .finally(() => {
+          // Set option styles, if the field calls for it (color selectors).
+          setOptionStyles(instance);
           // Inform any event listeners that data has updated.
           select.dispatchEvent(event);
           // Enable the element after data has loaded.
-          instance.enable();
-          // Set option styles, if the field calls for it (color selectors). Note: this must be
-          // done after instance.enable() since instance.enable() changes the element style.
-          setOptionStyles(instance);
+          toggle('enable', instance);
         });
 
       // Reset validity classes if the field was invalid.
@@ -253,17 +252,13 @@ export function initApiSelect() {
             }
 
             // Disable the element while data is loading.
-            instance.disable();
+            toggle('disable', instance);
             // Load new data.
             getChoices(filterUrl, displayField, selectOptions, disabledOptions)
               .then(data => instance.setData(data))
               .finally(() => {
                 // Re-enable the element after data has loaded.
-                instance.enable();
-                // Set option styles, if the field calls for it (color selectors). Note: this must
-                // be done after instance.enable() since instance.enable() changes the element
-                // style.
-                setOptionStyles(instance);
+                toggle('enable', instance);
               });
           }
           // Re-fetch data when the group changes.

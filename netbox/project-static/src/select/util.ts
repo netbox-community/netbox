@@ -3,6 +3,36 @@ import { readableColor } from 'color2k';
 import type SlimSelect from 'slim-select';
 
 /**
+ * Add or remove a class to the SlimSelect element to match Bootstrap .form-select:disabled styles.
+ *
+ * @param action `enable` or `disable`
+ * @param instance Instance of SlimSelect
+ */
+export function toggle(action: 'enable' | 'disable', instance: SlimSelect): void {
+  if (action === 'enable') {
+    if (instance.slim.singleSelected !== null) {
+      if (instance.slim.singleSelected.container.hasAttribute('disabled')) {
+        instance.slim.singleSelected.container.removeAttribute('disabled');
+      }
+    } else if (instance.slim.multiSelected !== null) {
+      if (instance.slim.multiSelected.container.hasAttribute('disabled')) {
+        instance.slim.multiSelected.container.removeAttribute('disabled');
+      }
+    }
+  } else if (action === 'disable') {
+    if (instance.slim.singleSelected !== null) {
+      if (!instance.slim.singleSelected.container.hasAttribute('disabled')) {
+        instance.slim.singleSelected.container.setAttribute('disabled', '');
+      }
+    } else if (instance.slim.multiSelected !== null) {
+      if (!instance.slim.multiSelected.container.hasAttribute('disabled')) {
+        instance.slim.multiSelected.container.setAttribute('disabled', '');
+      }
+    }
+  }
+}
+
+/**
  * Add scoped style elements specific to each SlimSelect option, if the color property exists.
  * As of this writing, this attribute only exist on Tags. The color property is used as the
  * background color, and a foreground color is detected based on the luminosity of the background
@@ -11,6 +41,7 @@ import type SlimSelect from 'slim-select';
  * @param instance SlimSelect instance with options already set.
  */
 export function setOptionStyles(instance: SlimSelect): void {
+  console.log('1', instance);
   const options = instance.data.data;
   for (const option of options) {
     // Only create style elements for options that contain a color attribute.
