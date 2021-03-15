@@ -125,11 +125,11 @@ export function initApiSelect() {
       let { url } = select.dataset;
       const displayField = select.getAttribute('display-field') ?? 'name';
 
-      // Set the placeholder text to the label value, if it exists.
-      let placeholder;
+      let placeholder: string = select.name;
       if (select.id) {
         const label = document.querySelector(`label[for=${select.id}]`) as HTMLLabelElement;
 
+        // Set the placeholder text to the label value, if it exists.
         if (label !== null) {
           placeholder = `Select ${label.innerText.trim()}`;
         }
@@ -154,18 +154,25 @@ export function initApiSelect() {
         placeholder,
       });
 
+      // Disable the element while data has not been loaded.
+      instance.disable();
+
       // Don't copy classes from select element to SlimSelect instance.
       for (const className of select.classList) {
         instance.slim.container.classList.remove(className);
       }
 
+      // Load data.
       getChoices(url, displayField, selectOptions, disabledOptions)
         .then(options => instance.setData(options))
         .finally(() => {
-          // Set option styles, if the field calls for it (color selectors).
-          setOptionStyles(instance);
           // Inform any event listeners that data has updated.
           select.dispatchEvent(event);
+          // Enable the element after data has loaded.
+          instance.enable();
+          // Set option styles, if the field calls for it (color selectors). Note: this must be
+          // done after instance.enable() since instance.enable() changes the element style.
+          setOptionStyles(instance);
         });
 
       // Reset validity classes if the field was invalid.
@@ -245,9 +252,19 @@ export function initApiSelect() {
               }
             }
 
-            getChoices(filterUrl, displayField, selectOptions, disabledOptions).then(data =>
-              instance.setData(data),
-            );
+            // Disable the element while data is loading.
+            instance.disable();
+            // Load new data.
+            getChoices(filterUrl, displayField, selectOptions, disabledOptions)
+              .then(data => instance.setData(data))
+              .finally(() => {
+                // Re-enable the element after data has loaded.
+                instance.enable();
+                // Set option styles, if the field calls for it (color selectors). Note: this must
+                // be done after instance.enable() since instance.enable() changes the element
+                // style.
+                setOptionStyles(instance);
+              });
           }
           // Re-fetch data when the group changes.
           groupElem.addEventListener('change', handleEvent);
