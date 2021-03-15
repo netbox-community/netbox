@@ -228,6 +228,16 @@ def meters_to_feet(n):
     return float(n) * 3.28084
 
 
+@register.filter("startswith")
+def startswith(text: str, starts: str) -> bool:
+    """
+    Template implementation of `str.startswith()`.
+    """
+    if isinstance(text, str):
+        return text.startswith(starts)
+    return False
+
+
 #
 # Tags
 #
