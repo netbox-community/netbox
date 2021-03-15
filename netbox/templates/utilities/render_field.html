@@ -1,4 +1,5 @@
 {% load form_helpers %}
+{% load helpers %}
 
 {% if field|widget_type == 'checkboxinput' %}
     <div class="mb-3">
@@ -79,7 +80,19 @@
         </ul>
     </div>
 </div>
-
+{% elif field|widget_type == 'fileinput' %}
+<div class="input-group mb-3">
+    <input
+        class="form-control"
+        type="file"
+        name="{{ field.name }}"
+        placeholder="{{ field.placeholder }}"
+        id="id_{{ field.name }}"
+        accept="{{ field.field.widget.attrs.accept }}"
+        {% if field.is_required %}required{% endif %}
+    />
+    <label for="{{ field.id_for_label }}" class="input-group-text">{{ field.label|bettertitle }}</label>
+</div>
 {% else %}
     <div class="form-floating mb-3">
         {{ field }}
