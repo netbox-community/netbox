@@ -35,8 +35,7 @@ class VLANGroup(OrganizationalModel):
         to=ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(
-            app_label='dcim',
-            model__in=['region', 'sitegroup', 'site', 'location', 'rack']
+            model__in=['region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster']
         ),
         blank=True,
         null=True

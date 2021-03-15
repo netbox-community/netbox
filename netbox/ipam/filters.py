@@ -552,6 +552,12 @@ class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     rack = django_filters.NumberFilter(
         method='filter_scope'
     )
+    clustergroup = django_filters.NumberFilter(
+        method='filter_scope'
+    )
+    cluster = django_filters.NumberFilter(
+        method='filter_scope'
+    )
 
     class Meta:
         model = VLANGroup
@@ -559,7 +565,7 @@ class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     def filter_scope(self, queryset, name, value):
         return queryset.filter(
-            scope_type=ContentType.objects.get(app_label='dcim', model=name),
+            scope_type=ContentType.objects.get(model=name),
             scope_id=value
         )
 
