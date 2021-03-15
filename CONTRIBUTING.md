@@ -25,7 +25,7 @@ discussions.
 
 ### Slack
 
-For real-time chat, you can join the **#netbox** Slack channel on [NetDev Community](https://join.slack.com/t/netdev-community/shared_invite/zt-mtts8g0n-Sm6Wutn62q_M4OdsaIycrQ).
+For real-time chat, you can join the **#netbox** Slack channel on [NetDev Community](https://slack.netbox.dev/).
 Unfortunately, the Slack channel does not provide long-term retention of chat
 history, so try to avoid it for any discussions would benefit from being
 preserved for future reference.
