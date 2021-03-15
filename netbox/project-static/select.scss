@@ -1,4 +1,4 @@
-$height: $form-floating-height;
+$height: $input-height;
 $white: $white;
 $font-color: $input-color;
 $font-placeholder-color: $input-placeholder-color;
@@ -10,6 +10,11 @@ $border-radius: $form-select-border-radius;
 $spacing-l: $input-padding-x;
 $spacing-m: $input-padding-x;
 $spacing-s: $input-padding-x;
+
+div.form-floating div.ss-main div.ss-single-selected,
+div.form-floating div.ss-main div.ss-multi-selected {
+  height: $form-floating-height;
+}
 
 @import './node_modules/slim-select/src/slim-select/slimselect.scss';
 
@@ -42,8 +47,12 @@ $spacing-s: $input-padding-x;
     align-items: center;
     padding-left: $input-padding-x;
     padding-right: $input-padding-x;
-    .ss-values .ss-disabled {
-      padding: 4px 0px;
+
+    .ss-values {
+      padding-top: $spacer * 2 !important;
+      .ss-disabled {
+        padding: 4px 0px;
+      }
     }
     .ss-add {
       margin: 0 0.75rem;
