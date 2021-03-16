@@ -1,6 +1,7 @@
 import datetime
 from unittest import skipIf
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -307,6 +308,56 @@ class ImageAttachmentTest(
             )
         )
         ImageAttachment.objects.bulk_create(image_attachments)
+
+
+class JournalEntryTest(APIViewTestCases.APIViewTestCase):
+    model = JournalEntry
+    brief_fields = ['created', 'display', 'id', 'url']
+    bulk_update_data = {
+        'comments': 'Overwritten',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.first()
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        journal_entries = (
+            JournalEntry(
+                created_by=user,
+                assigned_object=site,
+                comments='Fourth entry',
+            ),
+            JournalEntry(
+                created_by=user,
+                assigned_object=site,
+                comments='Fifth entry',
+            ),
+            JournalEntry(
+                created_by=user,
+                assigned_object=site,
+                comments='Sixth entry',
+            ),
+        )
+        JournalEntry.objects.bulk_create(journal_entries)
+
+        cls.create_data = [
+            {
+                'assigned_object_type': 'dcim.site',
+                'assigned_object_id': site.pk,
+                'comments': 'First entry',
+            },
+            {
+                'assigned_object_type': 'dcim.site',
+                'assigned_object_id': site.pk,
+                'comments': 'Second entry',
+            },
+            {
+                'assigned_object_type': 'dcim.site',
+                'assigned_object_id': site.pk,
+                'comments': 'Third entry',
+            },
+        ]
 
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):

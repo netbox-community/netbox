@@ -304,6 +304,8 @@ class JournalEntryEditView(generic.ObjectEditView):
         return obj
 
     def get_return_url(self, request, instance):
+        if not instance.assigned_object:
+            return reverse('extras:journalentry_list')
         obj = instance.assigned_object
         viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_journal'
         return reverse(viewname, kwargs={'pk': obj.pk})

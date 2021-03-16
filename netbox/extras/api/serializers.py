@@ -203,12 +203,13 @@ class JournalEntrySerializer(ValidatedModelSerializer):
     def validate(self, data):
 
         # Validate that the parent object exists
-        try:
-            data['content_type'].get_object_for_this_type(id=data['object_id'])
-        except ObjectDoesNotExist:
-            raise serializers.ValidationError(
-                "Invalid parent object: {} ID {}".format(data['content_type'], data['object_id'])
-            )
+        if 'assigned_object_type' in data and 'assigned_object_id' in data:
+            try:
+                data['assigned_object_type'].get_object_for_this_type(id=data['assigned_object_id'])
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError(
+                    f"Invalid assigned_object: {data['assigned_object_type']} ID {data['assigned_object_id']}"
+                )
 
         # Enforce model validation
         super().validate(data)
