@@ -113,14 +113,21 @@ class RoleSerializer(OrganizationalModelSerializer):
 
 class VLANGroupSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
-    site = NestedSiteSerializer(required=False, allow_null=True)
+    scope_type = ContentTypeField(
+        queryset=ContentType.objects.filter(
+            app_label='dcim',
+            model__in=['region', 'sitegroup', 'site', 'location', 'rack']
+        ),
+        required=False
+    )
+    scope = serializers.SerializerMethodField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'name', 'slug', 'site', 'description', 'custom_fields', 'created', 'last_updated',
-            'vlan_count',
+            'id', 'url', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'custom_fields', 'created',
+            'last_updated', 'vlan_count',
         ]
         validators = []
 
@@ -136,6 +143,14 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
         super().validate(data)
 
         return data
+
+    def get_scope(self, obj):
+        if obj.scope_id is None:
+            return None
+        serializer = get_serializer_for_model(obj.scope, prefix='Nested')
+        context = {'request': self.context['request']}
+
+        return serializer(obj.scope, context=context).data
 
 
 class VLANSerializer(PrimaryModelSerializer):

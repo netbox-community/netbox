@@ -1,5 +1,6 @@
 import django_filters
 import netaddr
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from netaddr.core import AddrFormatError
@@ -8,8 +9,8 @@ from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericArrayFilter, TagFilter,
-    TreeNodeMultipleChoiceFilter,
+    BaseFilterSet, ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet,
+    NumericArrayFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
@@ -535,46 +536,38 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilter
 
 
 class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
-    region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        label='Region (ID)',
+    scope_type = ContentTypeFilter()
+    region = django_filters.NumberFilter(
+        method='filter_scope'
     )
-    region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        to_field_name='slug',
-        label='Region (slug)',
+    sitegroup = django_filters.NumberFilter(
+        method='filter_scope'
     )
-    site_group_id = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        label='Site group (ID)',
+    site = django_filters.NumberFilter(
+        method='filter_scope'
     )
-    site_group = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        to_field_name='slug',
-        label='Site group (slug)',
+    location = django_filters.NumberFilter(
+        method='filter_scope'
     )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
-        label='Site (ID)',
+    rack = django_filters.NumberFilter(
+        method='filter_scope'
     )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label='Site (slug)',
+    clustergroup = django_filters.NumberFilter(
+        method='filter_scope'
+    )
+    cluster = django_filters.NumberFilter(
+        method='filter_scope'
     )
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ['id', 'name', 'slug', 'description', 'scope_id']
+
+    def filter_scope(self, queryset, name, value):
+        return queryset.filter(
+            scope_type=ContentType.objects.get(model=name),
+            scope_id=value
+        )
 
 
 class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):

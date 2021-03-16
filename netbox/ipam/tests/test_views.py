@@ -314,18 +314,22 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
 
         VLANGroup.objects.bulk_create([
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=site),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=site),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=site),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sites[0]),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=sites[0]),
         ])
 
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
-            'site': site.pk,
+            'site': sites[1].pk,
             'description': 'A new VLAN group',
         }
 
@@ -354,8 +358,8 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Site.objects.bulk_create(sites)
 
         vlangroups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sites[1]),
         )
         VLANGroup.objects.bulk_create(vlangroups)
 

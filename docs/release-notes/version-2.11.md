@@ -52,6 +52,12 @@ When exporting a list of objects in NetBox, users now have the option of selecti
 
 The legacy static export behavior has been retained to ensure backward compatibility for dependent integrations. However, users are strongly encouraged to adapt custom export templates where needed as this functionality will be removed in v2.12.
 
+#### Variable Scope Support for VLAN Groups ([#5284](https://github.com/netbox-community/netbox/issues/5284))
+
+In previous releases, VLAN groups could be assigned only to a site. To afford more flexibility in conveying the true scope of an L2 domain, a VLAN group can now be assigned to a region, site group (new in v2.11), site, location, or rack. VLANs assigned to a group will be available only to devices and virtual machines which exist within its scope.
+
+For example, a VLAN within a group assigned to a location will be available only to devices assigned to that location (or one of its child locations), or to a rack within that location.
+
 #### New Site Group Model ([#5892](https://github.com/netbox-community/netbox/issues/5892))
 
 This release introduces the new Site Group model, which can be used to organize sites similar to the existing Region model. Whereas regions are intended for geographically arranging sites into countries, states, and so on, the new site group model can be used to organize sites by role or other arbitrary classification. Using regions and site groups in conjunction provides two dimensions along which sites can be organized, offering greater flexibility to the user.
@@ -116,3 +122,6 @@ The ObjectChange model (which is used to record the creation, modification, and 
   * Renamed `object_data` to `postchange_data`
 * extras.Webhook
   * Added the `/api/extras/webhooks/` endpoint
+* ipam.VLANGroup
+  * Added the `scope_type`, `scope_id`, and `scope` fields (`scope` is a generic foreign key)
+  * Dropped the `site` foreign key field

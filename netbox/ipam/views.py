@@ -647,7 +647,7 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
 #
 
 class VLANGroupListView(generic.ObjectListView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     filterset = filters.VLANGroupFilterSet
@@ -658,6 +658,7 @@ class VLANGroupListView(generic.ObjectListView):
 class VLANGroupEditView(generic.ObjectEditView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
+    template_name = 'ipam/vlangroup_edit.html'
 
 
 class VLANGroupDeleteView(generic.ObjectDeleteView):
@@ -671,7 +672,7 @@ class VLANGroupBulkImportView(generic.BulkImportView):
 
 
 class VLANGroupBulkEditView(generic.BulkEditView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     filterset = filters.VLANGroupFilterSet
@@ -680,7 +681,7 @@ class VLANGroupBulkEditView(generic.BulkEditView):
 
 
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     filterset = filters.VLANGroupFilterSet
@@ -793,6 +794,7 @@ class VLANVMInterfacesView(generic.ObjectView):
 class VLANEditView(generic.ObjectEditView):
     queryset = VLAN.objects.all()
     model_form = forms.VLANForm
+    template_name = 'ipam/vlan_edit.html'
 
 
 class VLANDeleteView(generic.ObjectDeleteView):

@@ -1,10 +1,10 @@
 from django.test import TestCase
 
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Rack, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.filters import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
-from virtualization.models import Cluster, ClusterType, VirtualMachine, VMInterface
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
 
@@ -715,34 +715,39 @@ class VLANGroupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        regions = (
-            Region(name='Test Region 1', slug='test-region-1'),
-            Region(name='Test Region 2', slug='test-region-2'),
-            Region(name='Test Region 3', slug='test-region-3'),
-        )
-        for r in regions:
-            r.save()
+        region = Region(name='Region 1', slug='region-1')
+        region.save()
 
-        site_groups = (
-            SiteGroup(name='Site Group 1', slug='site-group-1'),
-            SiteGroup(name='Site Group 2', slug='site-group-2'),
-            SiteGroup(name='Site Group 3', slug='site-group-3'),
-        )
-        for site_group in site_groups:
-            site_group.save()
+        sitegroup = SiteGroup(name='Site Group 1', slug='site-group-1')
+        sitegroup.save()
 
-        sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
-        )
-        Site.objects.bulk_create(sites)
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        location = Location(name='Location 1', slug='location-1', site=site)
+        location.save()
+
+        rack = Rack(name='Rack 1', site=site)
+        rack.save()
+
+        clustertype = ClusterType(name='Cluster Type 1', slug='cluster-type-1')
+        clustertype.save()
+
+        clustergroup = ClusterGroup(name='Cluster Group 1', slug='cluster-group-1')
+        clustergroup.save()
+
+        cluster = Cluster(name='Cluster 1', type=clustertype)
+        cluster.save()
 
         vlan_groups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0], description='A'),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1], description='B'),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=sites[2], description='C'),
-            VLANGroup(name='VLAN Group 4', slug='vlan-group-4', site=None),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=region, description='A'),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sitegroup, description='B'),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=site, description='C'),
+            VLANGroup(name='VLAN Group 4', slug='vlan-group-4', scope=location, description='D'),
+            VLANGroup(name='VLAN Group 5', slug='vlan-group-5', scope=rack, description='E'),
+            VLANGroup(name='VLAN Group 6', slug='vlan-group-6', scope=clustergroup, description='F'),
+            VLANGroup(name='VLAN Group 7', slug='vlan-group-7', scope=cluster, description='G'),
+            VLANGroup(name='VLAN Group 8', slug='vlan-group-8'),
         )
         VLANGroup.objects.bulk_create(vlan_groups)
 
@@ -763,25 +768,32 @@ class VLANGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
-        regions = Region.objects.all()[:2]
-        params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': Region.objects.first().pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_site_group(self):
-        site_groups = SiteGroup.objects.all()[:2]
-        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+    def test_sitegroup(self):
+        params = {'sitegroup': SiteGroup.objects.first().pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_site(self):
-        sites = Site.objects.all()[:2]
-        params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': Site.objects.first().pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_location(self):
+        params = {'location': Location.objects.first().pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_rack(self):
+        params = {'rack': Rack.objects.first().pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_clustergroup(self):
+        params = {'clustergroup': ClusterGroup.objects.first().pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_cluster(self):
+        params = {'cluster': Cluster.objects.first().pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class VLANTestCase(TestCase):
@@ -822,9 +834,9 @@ class VLANTestCase(TestCase):
         Role.objects.bulk_create(roles)
 
         groups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=None),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sites[1]),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=None),
         )
         VLANGroup.objects.bulk_create(groups)
 

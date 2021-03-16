@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -29,12 +31,22 @@ class VLANGroup(OrganizationalModel):
     slug = models.SlugField(
         max_length=100
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
-        on_delete=models.PROTECT,
-        related_name='vlan_groups',
+    scope_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=Q(
+            model__in=['region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster']
+        ),
         blank=True,
         null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
     )
     description = models.CharField(
         max_length=200,
@@ -43,13 +55,13 @@ class VLANGroup(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'site', 'description']
+    csv_headers = ['name', 'slug', 'scope_type', 'scope_id', 'description']
 
     class Meta:
-        ordering = ('site', 'name', 'pk')  # (site, name) may be non-unique
+        ordering = ('name', 'pk')  # Name may be non-unique
         unique_together = [
-            ['site', 'name'],
-            ['site', 'slug'],
+            ['scope_type', 'scope_id', 'name'],
+            ['scope_type', 'scope_id', 'slug'],
         ]
         verbose_name = 'VLAN group'
         verbose_name_plural = 'VLAN groups'
@@ -60,11 +72,21 @@ class VLANGroup(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('ipam:vlangroup_vlans', args=[self.pk])
 
+    def clean(self):
+        super().clean()
+
+        # Validate scope assignment
+        if self.scope_type and not self.scope_id:
+            raise ValidationError("Cannot set scope_type without scope_id.")
+        if self.scope_id and not self.scope_type:
+            raise ValidationError("Cannot set scope_id without scope_type.")
+
     def to_csv(self):
         return (
             self.name,
             self.slug,
-            self.site.name if self.site else None,
+            f'{self.scope_type.app_label}.{self.scope_type.model}',
+            self.scope_id,
             self.description,
         )
 
@@ -159,10 +181,11 @@ class VLAN(PrimaryModel):
     def clean(self):
         super().clean()
 
-        # Validate VLAN group
-        if self.group and self.group.site != self.site:
+        # Validate VLAN group (if assigned)
+        if self.group and self.site and self.group.scope != self.site:
             raise ValidationError({
-                'group': "VLAN group must belong to the assigned site ({}).".format(self.site)
+                'group': f"VLAN is assigned to group {self.group} (scope: {self.group.scope}); cannot also assign to "
+                         f"site {self.site}."
             })
 
     def to_csv(self):

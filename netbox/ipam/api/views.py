@@ -283,7 +283,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 #
 
 class VLANGroupViewSet(CustomFieldModelViewSet):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     serializer_class = serializers.VLANGroupSerializer
