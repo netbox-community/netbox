@@ -80,8 +80,7 @@ class SecretRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        required=False,
-        display_field='display_name'
+        required=False
     )
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all(),

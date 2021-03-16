@@ -281,14 +281,12 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
-        display_field='display_name',
         query_params={
             'site_id': '$site'
         }
     )
     devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
-        display_field='display_name',
         query_params={
             'site_id': '$site',
             'rack_id': '$rack',
@@ -609,7 +607,6 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         queryset=VLAN.objects.all(),
         required=False,
         label='Untagged VLAN',
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -619,7 +616,6 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         queryset=VLAN.objects.all(),
         required=False,
         label='Tagged VLANs',
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -694,7 +690,6 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -703,7 +698,6 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -784,7 +778,6 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -793,7 +786,6 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',

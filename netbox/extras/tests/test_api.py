@@ -32,7 +32,7 @@ class AppTest(APITestCase):
 
 class WebhookTest(APIViewTestCases.APIViewTestCase):
     model = Webhook
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'content_types': ['dcim.device', 'dcim.devicetype'],
@@ -86,7 +86,7 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     model = CustomField
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'content_types': ['dcim.site'],
@@ -133,7 +133,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
 
 class CustomLinkTest(APIViewTestCases.APIViewTestCase):
     model = CustomLink
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'content_type': 'dcim.site',
@@ -187,7 +187,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'content_type': 'dcim.device',
@@ -235,7 +235,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
-    brief_fields = ['color', 'id', 'name', 'slug', 'url']
+    brief_fields = ['color', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Tag 4',
@@ -272,7 +272,7 @@ class ImageAttachmentTest(
     APIViewTestCases.DeleteObjectViewTestCase
 ):
     model = ImageAttachment
-    brief_fields = ['id', 'image', 'name', 'url']
+    brief_fields = ['display', 'id', 'image', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -311,7 +311,7 @@ class ImageAttachmentTest(
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Context 4',

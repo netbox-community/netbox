@@ -11,8 +11,9 @@ from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGr
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
-from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
+from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.exceptions import SerializerNotFound
+from netbox.api.serializers import BaseModelSerializer, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
@@ -56,9 +57,9 @@ class WebhookSerializer(ValidatedModelSerializer):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'url', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled',
-            'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret', 'ssl_verification',
-            'ca_file_path',
+            'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url',
+            'enabled', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
+            'ssl_verification', 'ca_file_path',
         ]
 
 
@@ -78,7 +79,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
+            'id', 'url', 'display', 'content_types', 'type', 'name', 'label', 'description', 'required', 'filter_logic',
             'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
         ]
 
@@ -96,8 +97,8 @@ class CustomLinkSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'url', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name', 'button_class',
-            'new_window',
+            'id', 'url', 'display', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name',
+            'button_class', 'new_window',
         ]
 
 
@@ -113,7 +114,10 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'url', 'content_type', 'name', 'description', 'template_code', 'mime_type', 'file_extension']
+        fields = [
+            'id', 'url', 'display', 'content_type', 'name', 'description', 'template_code', 'mime_type',
+            'file_extension',
+        ]
 
 
 #
@@ -126,7 +130,7 @@ class TagSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'url', 'name', 'slug', 'color', 'description', 'tagged_items']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items']
 
 
 #
@@ -143,8 +147,8 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
     class Meta:
         model = ImageAttachment
         fields = [
-            'id', 'url', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height', 'image_width',
-            'created',
+            'id', 'url', 'display', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height',
+            'image_width', 'created',
         ]
 
     def validate(self, data):
@@ -248,8 +252,8 @@ class ConfigContextSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConfigContext
         fields = [
-            'id', 'url', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites', 'roles',
-            'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data', 'created',
+            'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
+            'roles', 'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data', 'created',
             'last_updated',
         ]
 
@@ -258,7 +262,7 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 # Job Results
 #
 
-class JobResultSerializer(serializers.ModelSerializer):
+class JobResultSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:jobresult-detail')
     user = NestedUserSerializer(
         read_only=True
@@ -271,7 +275,7 @@ class JobResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobResult
         fields = [
-            'id', 'url', 'created', 'completed', 'name', 'obj_type', 'status', 'user', 'data', 'job_id',
+            'id', 'url', 'display', 'created', 'completed', 'name', 'obj_type', 'status', 'user', 'data', 'job_id',
         ]
 
 
@@ -349,7 +353,7 @@ class ScriptOutputSerializer(serializers.Serializer):
 # Change logging
 #
 
-class ObjectChangeSerializer(serializers.ModelSerializer):
+class ObjectChangeSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:objectchange-detail')
     user = NestedUserSerializer(
         read_only=True
@@ -368,7 +372,7 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ObjectChange
         fields = [
-            'id', 'url', 'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type',
+            'id', 'url', 'display', 'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type',
             'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
         ]
 
@@ -396,13 +400,13 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
 # ContentTypes
 #
 
-class ContentTypeSerializer(serializers.ModelSerializer):
+class ContentTypeSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:contenttype-detail')
     display_name = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentType
-        fields = ['id', 'url', 'app_label', 'model', 'display_name']
+        fields = ['id', 'url', 'display', 'app_label', 'model', 'display_name']
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)
     def get_display_name(self, obj):

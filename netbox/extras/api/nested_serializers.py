@@ -22,7 +22,7 @@ class NestedWebhookSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Webhook
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedCustomFieldSerializer(WritableNestedSerializer):
@@ -30,7 +30,7 @@ class NestedCustomFieldSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.CustomField
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedCustomLinkSerializer(WritableNestedSerializer):
@@ -38,7 +38,7 @@ class NestedCustomLinkSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.CustomLink
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedConfigContextSerializer(WritableNestedSerializer):
@@ -46,7 +46,7 @@ class NestedConfigContextSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ConfigContext
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedExportTemplateSerializer(WritableNestedSerializer):
@@ -54,7 +54,7 @@ class NestedExportTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ExportTemplate
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedImageAttachmentSerializer(WritableNestedSerializer):
@@ -62,7 +62,7 @@ class NestedImageAttachmentSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ImageAttachment
-        fields = ['id', 'url', 'name', 'image']
+        fields = ['id', 'url', 'display', 'name', 'image']
 
 
 class NestedJobResultSerializer(serializers.ModelSerializer):

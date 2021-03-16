@@ -74,6 +74,7 @@ The ObjectChange model (which is used to record the creation, modification, and 
 * [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add support for multiple-selection custom fields
 * [#5608](https://github.com/netbox-community/netbox/issues/5608) - Add REST API endpoint for custom links
 * [#5610](https://github.com/netbox-community/netbox/issues/5610) - Add REST API endpoint for webhooks
+* [#5891](https://github.com/netbox-community/netbox/issues/5891) - Add `display` field to all REST API serializers
 * [#5894](https://github.com/netbox-community/netbox/issues/5894) - Use primary keys when filtering object lists by related objects in the UI
 * [#5895](https://github.com/netbox-community/netbox/issues/5895) - Rename RackGroup to Location
 * [#5901](https://github.com/netbox-community/netbox/issues/5901) - Add `created` and `last_updated` fields to device component models
@@ -87,6 +88,7 @@ The ObjectChange model (which is used to record the creation, modification, and 
 ### REST API Changes
 
 * All primary keys are now 64-bit integers
+* All model serializers now include a `display` field to be used for the presentation of an object to a human user
 * All device components
   * Added support for custom fields
   * Added `created` and `last_updated` fields to track object creation and modification

@@ -10,7 +10,14 @@ from extras.models import CustomField, Tag
 from utilities.utils import dict_to_filter_params
 
 
-class ValidatedModelSerializer(serializers.ModelSerializer):
+class BaseModelSerializer(serializers.ModelSerializer):
+    display = serializers.SerializerMethodField(read_only=True)
+
+    def get_display(self, obj):
+        return str(obj)
+
+
+class ValidatedModelSerializer(BaseModelSerializer):
     """
     Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
@@ -74,7 +81,7 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
 # Nested serializers
 #
 
-class WritableNestedSerializer(serializers.ModelSerializer):
+class WritableNestedSerializer(BaseModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
@@ -133,7 +140,7 @@ class NestedTagSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'url', 'name', 'slug', 'color']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'color']
 
 
 #
