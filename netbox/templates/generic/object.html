@@ -53,16 +53,22 @@
         <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
       </li>
       {% if perms.extras.view_journalentry %}
-        <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
-          {# TODO: Fix journal URL resolution hack #}
-          <a href="{{ object.get_absolute_url }}journal/">Journal</a>
-        </li>
+        {% with journal_viewname=object|viewname:'journal' %}
+          {% url journal_viewname pk=object.pk as journal_url %}
+          {% if journal_url %}
+            <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
+              <a href="{{ journal_url }}">Journal</a>
+            </li>
+          {% endif %}
+        {% endwith %}
       {% endif %}
       {% if perms.extras.view_objectchange %}
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-          {# TODO: Fix changelog URL resolution hack #}
-          <a href="{{ object.get_absolute_url }}changelog/">Change Log</a>
-        </li>
+        {% with changelog_viewname=object|viewname:'changelog' %}
+          {% url changelog_viewname pk=object.pk as changelog_url %}
+          <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{{ changelog_url }}">Change Log</a>
+          </li>
+        {% endwith %}
       {% endif %}
     </ul>
   {% endblock %}
