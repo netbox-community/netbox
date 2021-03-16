@@ -21,7 +21,8 @@ class SecretRoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = SecretRole
         fields = [
-            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'secret_count',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'secret_count',
         ]
 
 
@@ -37,8 +38,8 @@ class SecretSerializer(PrimaryModelSerializer):
     class Meta:
         model = Secret
         fields = [
-            'id', 'url', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'role', 'name', 'plaintext',
-            'hash', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'role', 'name',
+            'plaintext', 'hash', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 

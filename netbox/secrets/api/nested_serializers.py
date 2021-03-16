@@ -14,7 +14,7 @@ class NestedSecretSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Secret
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedSecretRoleSerializer(WritableNestedSerializer):
@@ -23,4 +23,4 @@ class NestedSecretRoleSerializer(WritableNestedSerializer):
 
     class Meta:
         model = SecretRole
-        fields = ['id', 'url', 'name', 'slug', 'secret_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'secret_count']

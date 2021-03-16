@@ -17,7 +17,7 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
     class Meta:
         model = TenantGroup
         fields = [
-            'id', 'url', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
             'tenant_count', '_depth',
         ]
 
@@ -39,7 +39,7 @@ class TenantSerializer(PrimaryModelSerializer):
     class Meta:
         model = Tenant
         fields = [
-            'id', 'url', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated', 'circuit_count', 'device_count', 'ipaddress_count', 'prefix_count', 'rack_count',
+            'id', 'url', 'display', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'circuit_count', 'device_count', 'ipaddress_count', 'prefix_count', 'rack_count',
             'site_count', 'virtualmachine_count', 'vlan_count', 'vrf_count', 'cluster_count',
         ]

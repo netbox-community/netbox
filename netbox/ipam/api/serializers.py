@@ -43,8 +43,9 @@ class VRFSerializer(PrimaryModelSerializer):
     class Meta:
         model = VRF
         fields = [
-            'id', 'url', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets',
-            'tags', 'display_name', 'custom_fields', 'created', 'last_updated', 'ipaddress_count', 'prefix_count',
+            'id', 'url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets',
+            'export_targets', 'tags', 'display_name', 'custom_fields', 'created', 'last_updated', 'ipaddress_count',
+            'prefix_count',
         ]
 
 
@@ -59,7 +60,7 @@ class RouteTargetSerializer(PrimaryModelSerializer):
     class Meta:
         model = RouteTarget
         fields = [
-            'id', 'url', 'name', 'tenant', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'tenant', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -74,8 +75,8 @@ class RIRSerializer(OrganizationalModelSerializer):
     class Meta:
         model = RIR
         fields = [
-            'id', 'url', 'name', 'slug', 'is_private', 'description', 'custom_fields', 'created', 'last_updated',
-            'aggregate_count',
+            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'custom_fields', 'created',
+            'last_updated', 'aggregate_count',
         ]
 
 
@@ -88,8 +89,8 @@ class AggregateSerializer(PrimaryModelSerializer):
     class Meta:
         model = Aggregate
         fields = [
-            'id', 'url', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 
@@ -106,7 +107,7 @@ class RoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = Role
         fields = [
-            'id', 'url', 'name', 'slug', 'weight', 'description', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'custom_fields', 'created', 'last_updated',
             'prefix_count', 'vlan_count',
         ]
 
@@ -126,8 +127,8 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'custom_fields', 'created',
-            'last_updated', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'custom_fields',
+            'created', 'last_updated', 'vlan_count',
         ]
         validators = []
 
@@ -165,7 +166,7 @@ class VLANSerializer(PrimaryModelSerializer):
     class Meta:
         model = VLAN
         fields = [
-            'id', 'url', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags',
+            'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags',
             'display_name', 'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
         validators = []
@@ -201,7 +202,7 @@ class PrefixSerializer(PrimaryModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'id', 'url', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
+            'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
             'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
@@ -277,7 +278,7 @@ class IPAddressSerializer(PrimaryModelSerializer):
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'url', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type',
+            'id', 'url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type',
             'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
@@ -331,6 +332,6 @@ class ServiceSerializer(PrimaryModelSerializer):
     class Meta:
         model = Service
         fields = [
-            'id', 'url', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]

@@ -17,7 +17,7 @@ class AppTest(APITestCase):
 
 class ProviderTest(APIViewTestCases.APIViewTestCase):
     model = Provider
-    brief_fields = ['circuit_count', 'id', 'name', 'slug', 'url']
+    brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Provider 4',
@@ -49,7 +49,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
     model = CircuitType
-    brief_fields = ['circuit_count', 'id', 'name', 'slug', 'url']
+    brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = (
         {
             'name': 'Circuit Type 4',
@@ -81,7 +81,7 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTest(APIViewTestCases.APIViewTestCase):
     model = Circuit
-    brief_fields = ['cid', 'id', 'url']
+    brief_fields = ['cid', 'display', 'id', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -129,7 +129,7 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
     model = CircuitTermination
-    brief_fields = ['_occupied', 'cable', 'circuit', 'id', 'term_side', 'url']
+    brief_fields = ['_occupied', 'cable', 'circuit', 'display', 'id', 'term_side', 'url']
 
     @classmethod
     def setUpTestData(cls):

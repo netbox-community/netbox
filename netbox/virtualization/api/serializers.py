@@ -24,7 +24,8 @@ class ClusterTypeSerializer(OrganizationalModelSerializer):
     class Meta:
         model = ClusterType
         fields = [
-            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'cluster_count',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'cluster_count',
         ]
 
 
@@ -35,7 +36,8 @@ class ClusterGroupSerializer(OrganizationalModelSerializer):
     class Meta:
         model = ClusterGroup
         fields = [
-            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'cluster_count',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'cluster_count',
         ]
 
 
@@ -51,8 +53,8 @@ class ClusterSerializer(PrimaryModelSerializer):
     class Meta:
         model = Cluster
         fields = [
-            'id', 'url', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 
@@ -75,9 +77,9 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'url', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip',
+            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 
@@ -87,9 +89,9 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'url', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags', 'custom_fields',
-            'config_context', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip',
+            'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags',
+            'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
@@ -116,7 +118,7 @@ class VMInterfaceSerializer(PrimaryModelSerializer):
     class Meta:
         model = VMInterface
         fields = [
-            'id', 'url', 'virtual_machine', 'name', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
+            'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
             'untagged_vlan', 'tagged_vlans', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
