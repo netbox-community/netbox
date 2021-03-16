@@ -21,7 +21,6 @@ from virtualization.api.nested_serializers import NestedClusterGroupSerializer, 
 from virtualization.models import Cluster, ClusterGroup
 from .nested_serializers import *
 
-
 __all__ = (
     'ConfigContextSerializer',
     'ContentTypeSerializer',
@@ -39,7 +38,6 @@ __all__ = (
     'ScriptOutputSerializer',
     'ScriptSerializer',
     'TagSerializer',
-    'TaggedObjectSerializer',
     'WebhookSerializer',
 )
 
@@ -129,38 +127,6 @@ class TagSerializer(ValidatedModelSerializer):
     class Meta:
         model = Tag
         fields = ['id', 'url', 'name', 'slug', 'color', 'description', 'tagged_items']
-
-
-class TaggedObjectSerializer(serializers.Serializer):
-    tags = NestedTagSerializer(many=True, required=False)
-
-    def create(self, validated_data):
-        tags = validated_data.pop('tags', None)
-        instance = super().create(validated_data)
-
-        if tags is not None:
-            return self._save_tags(instance, tags)
-        return instance
-
-    def update(self, instance, validated_data):
-        tags = validated_data.pop('tags', None)
-
-        # Cache tags on instance for change logging
-        instance._tags = tags or []
-
-        instance = super().update(instance, validated_data)
-
-        if tags is not None:
-            return self._save_tags(instance, tags)
-        return instance
-
-    def _save_tags(self, instance, tags):
-        if tags:
-            instance.tags.set(*[t.name for t in tags])
-        else:
-            instance.tags.clear()
-
-        return instance
 
 
 #

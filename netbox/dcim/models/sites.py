@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
@@ -13,6 +14,7 @@ from utilities.fields import NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
+    'Location',
     'Region',
     'Site',
     'SiteGroup',
@@ -276,3 +278,66 @@ class Site(PrimaryModel):
 
     def get_status_class(self):
         return SiteStatusChoices.CSS_CLASSES.get(self.status)
+
+
+#
+# Locations
+#
+
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class Location(NestedGroupModel):
+    """
+    A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
+    site, or a room within a building, for example.
+    """
+    name = models.CharField(
+        max_length=100
+    )
+    slug = models.SlugField(
+        max_length=100
+    )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        related_name='locations'
+    )
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = [
+            ['site', 'name'],
+            ['site', 'slug'],
+        ]
+
+    def get_absolute_url(self):
+        return "{}?location_id={}".format(reverse('dcim:rack_list'), self.pk)
+
+    def to_csv(self):
+        return (
+            self.site,
+            self.parent.name if self.parent else '',
+            self.name,
+            self.slug,
+            self.description,
+        )
+
+    def clean(self):
+        super().clean()
+
+        # Parent Location (if any) must belong to the same Site
+        if self.parent and self.parent.site != self.site:
+            raise ValidationError(f"Parent location ({self.parent}) must belong to the same site ({self.site})")

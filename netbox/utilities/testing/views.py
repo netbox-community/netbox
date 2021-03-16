@@ -1024,6 +1024,7 @@ class ViewTestCases:
         DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
         BulkImportObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
         """

@@ -201,6 +201,24 @@ class RegionCSVForm(CustomFieldModelCSVForm):
         fields = Region.csv_headers
 
 
+class RegionBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    parent = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
+
+
 class RegionFilterForm(BootstrapMixin, forms.Form):
     model = Site
     q = forms.CharField(
@@ -238,6 +256,24 @@ class SiteGroupCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = SiteGroup
         fields = SiteGroup.csv_headers
+
+
+class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    parent = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
 
 
 class SiteGroupFilterForm(BootstrapMixin, forms.Form):
@@ -480,6 +516,31 @@ class LocationCSVForm(CustomFieldModelCSVForm):
         fields = Location.csv_headers
 
 
+class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    parent = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
+
+
 class LocationFilterForm(BootstrapMixin, forms.Form):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -528,6 +589,25 @@ class RackRoleCSVForm(CustomFieldModelCSVForm):
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
+
+
+class RackRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RackRole.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['color', 'description']
 
 
 #
@@ -1024,6 +1104,20 @@ class ManufacturerCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Manufacturer
         fields = Manufacturer.csv_headers
+
+
+class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
 
 
 #
@@ -1822,6 +1916,30 @@ class DeviceRoleCSVForm(CustomFieldModelCSVForm):
         }
 
 
+class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=DeviceRole.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
+    )
+    vm_role = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+        label='VM role'
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['color', 'description']
+
+
 #
 # Platforms
 #
@@ -1857,6 +1975,29 @@ class PlatformCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Platform
         fields = Platform.csv_headers
+
+
+class PlatformBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Platform.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    napalm_driver = forms.CharField(
+        max_length=50,
+        required=False
+    )
+    # TODO: Bulk edit support for napalm_args
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['manufacturer', 'napalm_driver', 'description']
 
 
 #

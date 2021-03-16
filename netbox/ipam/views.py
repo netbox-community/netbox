@@ -164,6 +164,15 @@ class RIRBulkImportView(generic.BulkImportView):
     table = tables.RIRTable
 
 
+class RIRBulkEditView(generic.BulkEditView):
+    queryset = RIR.objects.annotate(
+        aggregate_count=count_related(Aggregate, 'rir')
+    )
+    filterset = filters.RIRFilterSet
+    table = tables.RIRTable
+    form = forms.RIRBulkEditForm
+
+
 class RIRBulkDeleteView(generic.BulkDeleteView):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
@@ -296,6 +305,13 @@ class RoleBulkImportView(generic.BulkImportView):
     queryset = Role.objects.all()
     model_form = forms.RoleCSVForm
     table = tables.RoleTable
+
+
+class RoleBulkEditView(generic.BulkEditView):
+    queryset = Role.objects.all()
+    filterset = filters.RoleFilterSet
+    table = tables.RoleTable
+    form = forms.RoleBulkEditForm
 
 
 class RoleBulkDeleteView(generic.BulkDeleteView):
@@ -653,6 +669,15 @@ class VLANGroupBulkImportView(generic.BulkImportView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupCSVForm
     table = tables.VLANGroupTable
+
+
+class VLANGroupBulkEditView(generic.BulkEditView):
+    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+        vlan_count=count_related(VLAN, 'group')
+    )
+    filterset = filters.VLANGroupFilterSet
+    table = tables.VLANGroupTable
+    form = forms.VLANGroupBulkEditForm
 
 
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):

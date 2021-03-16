@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CreateOnlyDefault
 
 from extras.api.customfields import CustomFieldsDataField, CustomFieldDefaultValues
-from extras.models import CustomField
+from extras.models import CustomField, Tag
 from utilities.utils import dict_to_filter_params
 
 
@@ -70,19 +70,14 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
             instance.custom_fields[field.name] = instance.cf.get(field.name)
 
 
-class OrganizationalModelSerializer(CustomFieldModelSerializer):
-    pass
-
-
-class NestedGroupModelSerializer(CustomFieldModelSerializer):
-    _depth = serializers.IntegerField(source='level', read_only=True)
-
+#
+# Nested serializers
+#
 
 class WritableNestedSerializer(serializers.ModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
-
     def to_internal_value(self, data):
 
         if data is None:
@@ -126,6 +121,72 @@ class WritableNestedSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 "Related object not found using the provided numeric ID: {}".format(pk)
             )
+
+
+#
+# Nested tags serialization
+#
+
+# Declared here for use by PrimaryModelSerializer, but should be imported from extras.api.nested_serializers
+class NestedTagSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
+
+    class Meta:
+        model = Tag
+        fields = ['id', 'url', 'name', 'slug', 'color']
+
+
+#
+# Base model serializers
+#
+
+class OrganizationalModelSerializer(CustomFieldModelSerializer):
+    """
+    Adds support for custom fields.
+    """
+    pass
+
+
+class PrimaryModelSerializer(CustomFieldModelSerializer):
+    """
+    Adds support for custom fields and tags.
+    """
+    tags = NestedTagSerializer(many=True, required=False)
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags', None)
+        instance = super().create(validated_data)
+
+        if tags is not None:
+            return self._save_tags(instance, tags)
+        return instance
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags', None)
+
+        # Cache tags on instance for change logging
+        instance._tags = tags or []
+
+        instance = super().update(instance, validated_data)
+
+        if tags is not None:
+            return self._save_tags(instance, tags)
+        return instance
+
+    def _save_tags(self, instance, tags):
+        if tags:
+            instance.tags.set(*[t.name for t in tags])
+        else:
+            instance.tags.clear()
+
+        return instance
+
+
+class NestedGroupModelSerializer(CustomFieldModelSerializer):
+    """
+    Extends OrganizationalModelSerializer to include MPTT support.
+    """
+    _depth = serializers.IntegerField(source='level', read_only=True)
 
 
 class BulkOperationSerializer(serializers.Serializer):

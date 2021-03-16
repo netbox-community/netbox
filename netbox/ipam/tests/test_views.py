@@ -118,6 +118,10 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "RIR 6,rir-6,Sixth RIR",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Aggregate
@@ -186,6 +190,10 @@ class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Role 5,role-5,1000",
             "Role 6,role-6,1000",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -331,6 +339,10 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "VLAN Group 5,vlan-group-5,Fifth VLAN group",
             "VLAN Group 6,vlan-group-6,Sixth VLAN group",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):

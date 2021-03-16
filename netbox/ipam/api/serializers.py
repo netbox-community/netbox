@@ -6,13 +6,12 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
-from netbox.api.serializers import CustomFieldModelSerializer
-from extras.api.serializers import TaggedObjectSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import OrganizationalModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
@@ -23,7 +22,7 @@ from .nested_serializers import *
 # VRFs
 #
 
-class VRFSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class VRFSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     import_targets = SerializedPKRelatedField(
@@ -53,7 +52,7 @@ class VRFSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # Route targets
 #
 
-class RouteTargetSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class RouteTargetSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:routetarget-detail')
     tenant = NestedTenantSerializer(required=False, allow_null=True)
 
@@ -80,7 +79,7 @@ class RIRSerializer(OrganizationalModelSerializer):
         ]
 
 
-class AggregateSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class AggregateSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:aggregate-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = NestedRIRSerializer()
@@ -154,7 +153,7 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
         return serializer(obj.scope, context=context).data
 
 
-class VLANSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class VLANSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
     site = NestedSiteSerializer(required=False, allow_null=True)
     group = NestedVLANGroupSerializer(required=False, allow_null=True)
@@ -189,7 +188,7 @@ class VLANSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
 # Prefixes
 #
 
-class PrefixSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class PrefixSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:prefix-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
@@ -259,7 +258,7 @@ class AvailablePrefixSerializer(serializers.Serializer):
 # IP addresses
 #
 
-class IPAddressSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class IPAddressSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
@@ -317,7 +316,7 @@ class AvailableIPSerializer(serializers.Serializer):
 # Services
 #
 
-class ServiceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class ServiceSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)

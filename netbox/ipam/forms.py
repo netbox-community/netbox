@@ -217,6 +217,24 @@ class RIRCSVForm(CustomFieldModelCSVForm):
         }
 
 
+class RIRBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RIR.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    is_private = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['is_private', 'description']
+
+
 class RIRFilterForm(BootstrapMixin, forms.Form):
     is_private = forms.NullBooleanField(
         required=False,
@@ -349,6 +367,23 @@ class RoleCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Role
         fields = Role.csv_headers
+
+
+class RoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Role.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
 
 
 #
@@ -1221,6 +1256,24 @@ class VLANGroupCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = VLANGroup
         fields = VLANGroup.csv_headers
+
+
+class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=VLANGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['site', 'description']
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):

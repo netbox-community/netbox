@@ -142,6 +142,20 @@ class CircuitTypeForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
+class CircuitTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CircuitType.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
+
+
 class CircuitTypeCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 

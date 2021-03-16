@@ -11,6 +11,7 @@ urlpatterns = [
     path('secret-roles/', views.SecretRoleListView.as_view(), name='secretrole_list'),
     path('secret-roles/add/', views.SecretRoleEditView.as_view(), name='secretrole_add'),
     path('secret-roles/import/', views.SecretRoleBulkImportView.as_view(), name='secretrole_import'),
+    path('secret-roles/edit/', views.SecretRoleBulkEditView.as_view(), name='secretrole_bulk_edit'),
     path('secret-roles/delete/', views.SecretRoleBulkDeleteView.as_view(), name='secretrole_bulk_delete'),
     path('secret-roles/<int:pk>/edit/', views.SecretRoleEditView.as_view(), name='secretrole_edit'),
     path('secret-roles/<int:pk>/delete/', views.SecretRoleDeleteView.as_view(), name='secretrole_delete'),

@@ -126,6 +126,19 @@ class RegionBulkImportView(generic.BulkImportView):
     table = tables.RegionTable
 
 
+class RegionBulkEditView(generic.BulkEditView):
+    queryset = Region.objects.add_related_count(
+        Region.objects.all(),
+        Site,
+        'region',
+        'site_count',
+        cumulative=True
+    )
+    filterset = filters.RegionFilterSet
+    table = tables.RegionTable
+    form = forms.RegionBulkEditForm
+
+
 class RegionBulkDeleteView(generic.BulkDeleteView):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
@@ -168,6 +181,19 @@ class SiteGroupBulkImportView(generic.BulkImportView):
     queryset = SiteGroup.objects.all()
     model_form = forms.SiteGroupCSVForm
     table = tables.SiteGroupTable
+
+
+class SiteGroupBulkEditView(generic.BulkEditView):
+    queryset = SiteGroup.objects.add_related_count(
+        SiteGroup.objects.all(),
+        Site,
+        'group',
+        'site_count',
+        cumulative=True
+    )
+    filterset = filters.SiteGroupFilterSet
+    table = tables.SiteGroupTable
+    form = forms.SiteGroupBulkEditForm
 
 
 class SiteGroupBulkDeleteView(generic.BulkDeleteView):
@@ -279,6 +305,19 @@ class LocationBulkImportView(generic.BulkImportView):
     table = tables.LocationTable
 
 
+class LocationBulkEditView(generic.BulkEditView):
+    queryset = Location.objects.add_related_count(
+        Location.objects.all(),
+        Rack,
+        'location',
+        'rack_count',
+        cumulative=True
+    ).prefetch_related('site')
+    filterset = filters.LocationFilterSet
+    table = tables.LocationTable
+    form = forms.LocationBulkEditForm
+
+
 class LocationBulkDeleteView(generic.BulkDeleteView):
     queryset = Location.objects.add_related_count(
         Location.objects.all(),
@@ -315,6 +354,15 @@ class RackRoleBulkImportView(generic.BulkImportView):
     queryset = RackRole.objects.all()
     model_form = forms.RackRoleCSVForm
     table = tables.RackRoleTable
+
+
+class RackRoleBulkEditView(generic.BulkEditView):
+    queryset = RackRole.objects.annotate(
+        rack_count=count_related(Rack, 'role')
+    )
+    filterset = filters.RackRoleFilterSet
+    table = tables.RackRoleTable
+    form = forms.RackRoleBulkEditForm
 
 
 class RackRoleBulkDeleteView(generic.BulkDeleteView):
@@ -532,6 +580,15 @@ class ManufacturerBulkImportView(generic.BulkImportView):
     queryset = Manufacturer.objects.all()
     model_form = forms.ManufacturerCSVForm
     table = tables.ManufacturerTable
+
+
+class ManufacturerBulkEditView(generic.BulkEditView):
+    queryset = Manufacturer.objects.annotate(
+        devicetype_count=count_related(DeviceType, 'manufacturer')
+    )
+    filterset = filters.ManufacturerFilterSet
+    table = tables.ManufacturerTable
+    form = forms.ManufacturerBulkEditForm
 
 
 class ManufacturerBulkDeleteView(generic.BulkDeleteView):
@@ -975,6 +1032,13 @@ class DeviceRoleBulkImportView(generic.BulkImportView):
     table = tables.DeviceRoleTable
 
 
+class DeviceRoleBulkEditView(generic.BulkEditView):
+    queryset = DeviceRole.objects.all()
+    filterset = filters.DeviceRoleFilterSet
+    table = tables.DeviceRoleTable
+    form = forms.DeviceRoleBulkEditForm
+
+
 class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceRole.objects.all()
     table = tables.DeviceRoleTable
@@ -1005,6 +1069,13 @@ class PlatformBulkImportView(generic.BulkImportView):
     queryset = Platform.objects.all()
     model_form = forms.PlatformCSVForm
     table = tables.PlatformTable
+
+
+class PlatformBulkEditView(generic.BulkEditView):
+    queryset = Platform.objects.all()
+    filterset = filters.PlatformFilterSet
+    table = tables.PlatformTable
+    form = forms.PlatformBulkEditForm
 
 
 class PlatformBulkDeleteView(generic.BulkDeleteView):
