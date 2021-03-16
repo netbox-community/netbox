@@ -6,6 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.models import ObjectChange
 from utilities.fields import NaturalOrderingField
+from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
 from utilities.utils import serialize_object
 from .device_components import (
@@ -26,9 +27,38 @@ __all__ = (
 
 
 class ComponentTemplateModel(models.Model):
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
+        return self.name
 
     def instantiate(self, device):
         """
@@ -56,19 +86,6 @@ class ConsolePortTemplate(ComponentTemplateModel):
     """
     A template for a ConsolePort to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='consoleport_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -79,13 +96,11 @@ class ConsolePortTemplate(ComponentTemplateModel):
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def instantiate(self, device):
         return ConsolePort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type
         )
 
@@ -94,19 +109,6 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='consoleserverport_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -117,13 +119,11 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def instantiate(self, device):
         return ConsoleServerPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type
         )
 
@@ -132,19 +132,6 @@ class PowerPortTemplate(ComponentTemplateModel):
     """
     A template for a PowerPort to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='powerport_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerPortTypeChoices,
@@ -167,36 +154,30 @@ class PowerPortTemplate(ComponentTemplateModel):
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def instantiate(self, device):
         return PowerPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             maximum_draw=self.maximum_draw,
             allocated_draw=self.allocated_draw
         )
+
+    def clean(self):
+        super().clean()
+
+        if self.maximum_draw is not None and self.allocated_draw is not None:
+            if self.allocated_draw > self.maximum_draw:
+                raise ValidationError({
+                    'allocated_draw': f"Allocated draw cannot exceed the maximum draw ({self.maximum_draw}W)."
+                })
 
 
 class PowerOutletTemplate(ComponentTemplateModel):
     """
     A template for a PowerOutlet to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='poweroutlet_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -220,10 +201,8 @@ class PowerOutletTemplate(ComponentTemplateModel):
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def clean(self):
+        super().clean()
 
         # Validate power port assignment
         if self.power_port and self.power_port.device_type != self.device_type:
@@ -239,6 +218,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         return PowerOutlet(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             power_port=power_port,
             feed_leg=self.feed_leg
@@ -249,14 +229,7 @@ class InterfaceTemplate(ComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='interface_templates'
-    )
-    name = models.CharField(
-        max_length=64
-    )
+    # Override ComponentTemplateModel._name to specify naturalize_interface function
     _name = NaturalOrderingField(
         target_field='name',
         naturalize_function=naturalize_interface,
@@ -276,13 +249,11 @@ class InterfaceTemplate(ComponentTemplateModel):
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def instantiate(self, device):
         return Interface(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             mgmt_only=self.mgmt_only
         )
@@ -292,19 +263,6 @@ class FrontPortTemplate(ComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='frontport_templates'
-    )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -316,7 +274,10 @@ class FrontPortTemplate(ComponentTemplateModel):
     )
     rear_port_position = models.PositiveSmallIntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(64)]
+        validators=[
+            MinValueValidator(REARPORT_POSITIONS_MIN),
+            MaxValueValidator(REARPORT_POSITIONS_MAX)
+        ]
     )
 
     class Meta:
@@ -326,10 +287,8 @@ class FrontPortTemplate(ComponentTemplateModel):
             ('rear_port', 'rear_port_position'),
         )
 
-    def __str__(self):
-        return self.name
-
     def clean(self):
+        super().clean()
 
         # Validate rear port assignment
         if self.rear_port.device_type != self.device_type:
@@ -353,6 +312,7 @@ class FrontPortTemplate(ComponentTemplateModel):
         return FrontPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             rear_port=rear_port,
             rear_port_position=self.rear_port_position
@@ -363,39 +323,27 @@ class RearPortTemplate(ComponentTemplateModel):
     """
     Template for a pass-through port on the rear of a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='rearport_templates'
-    )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(64)]
+        validators=[
+            MinValueValidator(REARPORT_POSITIONS_MIN),
+            MaxValueValidator(REARPORT_POSITIONS_MAX)
+        ]
     )
 
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def instantiate(self, device):
         return RearPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             positions=self.positions
         )
@@ -405,29 +353,13 @@ class DeviceBayTemplate(ComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='device_bay_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
-
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def instantiate(self, device):
         return DeviceBay(
             device=device,
-            name=self.name
+            name=self.name,
+            label=self.label
         )

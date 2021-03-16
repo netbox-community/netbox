@@ -2,8 +2,8 @@ from django import forms
 from django.test import TestCase
 
 from ipam.forms import IPAddressCSVForm
-from ipam.models import VRF
-from utilities.forms import *
+from utilities.forms.fields import CSVDataField
+from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 
 class ExpandIPAddress(TestCase):

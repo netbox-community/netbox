@@ -1,17 +1,16 @@
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
-from dcim.models import Interface
+from dcim.choices import InterfaceModeChoices
 from extras.api.customfields import CustomFieldModelSerializer
+from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
+from netbox.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
-from utilities.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
 from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from .nested_serializers import *
 
 
@@ -20,35 +19,37 @@ from .nested_serializers import *
 #
 
 class ClusterTypeSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'name', 'slug', 'description', 'cluster_count']
+        fields = ['id', 'url', 'name', 'slug', 'description', 'cluster_count']
 
 
 class ClusterGroupSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
     cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'name', 'slug', 'description', 'cluster_count']
+        fields = ['id', 'url', 'name', 'slug', 'description', 'cluster_count']
 
 
-class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class ClusterSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
-    tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Cluster
         fields = [
-            'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'device_count', 'virtualmachine_count',
+            'id', 'url', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 
@@ -56,7 +57,8 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
 # Virtual machines
 #
 
-class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class VirtualMachineSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = NestedSiteSerializer(read_only=True)
     cluster = NestedClusterSerializer()
@@ -66,12 +68,11 @@ class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4',
+            'id', 'url', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4',
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
@@ -83,7 +84,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4',
+            'id', 'url', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4',
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags', 'custom_fields',
             'config_context', 'created', 'last_updated',
         ]
@@ -97,9 +98,9 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 # VM interfaces
 #
 
-class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
+class VMInterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer()
-    type = ChoiceField(choices=VMInterfaceTypeChoices, default=VMInterfaceTypeChoices.TYPE_VIRTUAL, required=False)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
@@ -108,11 +109,23 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
         required=False,
         many=True
     )
-    tags = TagListSerializerField(required=False)
 
     class Meta:
-        model = Interface
+        model = VMInterface
         fields = [
-            'id', 'virtual_machine', 'name', 'type', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
+            'id', 'url', 'virtual_machine', 'name', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
             'untagged_vlan', 'tagged_vlans', 'tags',
         ]
+
+    def validate(self, data):
+
+        # Validate many-to-many VLAN assignments
+        virtual_machine = self.instance.virtual_machine if self.instance else data.get('virtual_machine')
+        for vlan in data.get('tagged_vlans', []):
+            if vlan.site not in [virtual_machine.site, None]:
+                raise serializers.ValidationError({
+                    'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent virtual "
+                                    f"machine, or it must be global."
+                })
+
+        return super().validate(data)

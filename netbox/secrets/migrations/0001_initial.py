@@ -56,7 +56,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['user__username'],
-                'permissions': (('activate_userkey', 'Can activate user keys for decryption'),),
             },
         ),
         migrations.AddField(

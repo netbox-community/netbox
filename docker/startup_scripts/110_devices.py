@@ -1,72 +1,51 @@
-from dcim.models import Site, Rack, DeviceRole, DeviceType, Device, Platform
-from ipam.models import IPAddress
-from virtualization.models import Cluster
-from tenancy.models import Tenant
-from extras.models import CustomField, CustomFieldValue
-from ruamel.yaml import YAML
-
-from pathlib import Path
 import sys
 
-file = Path('/opt/netbox/initializers/devices.yml')
-if not file.is_file():
+from dcim.models import Site, Rack, DeviceRole, DeviceType, Device, Platform
+from startup_script_utils import *
+from tenancy.models import Tenant
+from virtualization.models import Cluster
+
+devices = load_yaml('/opt/netbox/initializers/devices.yml')
+
+if devices is None:
   sys.exit()
 
-with file.open('r') as stream:
-  yaml = YAML(typ='safe')
-  devices = yaml.load(stream)
+required_assocs = {
+  'device_role': (DeviceRole, 'name'),
+  'device_type': (DeviceType, 'model'),
+  'site': (Site, 'name')
+}
 
-  required_assocs = {
-    'device_role': (DeviceRole, 'name'),
-    'device_type': (DeviceType, 'model'),
-    'site': (Site, 'name')
-  }
+optional_assocs = {
+  'tenant': (Tenant, 'name'),
+  'platform': (Platform, 'name'),
+  'rack': (Rack, 'name'),
+  'cluster': (Cluster, 'name')
+}
 
-  optional_assocs = {
-    'tenant': (Tenant, 'name'),
-    'platform': (Platform, 'name'),
-    'rack': (Rack, 'name'),
-    'cluster': (Cluster, 'name'),
-    'primary_ip4': (IPAddress, 'address'),
-    'primary_ip6': (IPAddress, 'address')
-  }
+for params in devices:
+  custom_field_data = pop_custom_fields(params)
 
-  if devices is not None:
-    for params in devices:
-      custom_fields = params.pop('custom_fields', None)
+  # primary ips are handled later in `270_primary_ips.py`
+  params.pop('primary_ip4', None)
+  params.pop('primary_ip6', None)
 
-      for assoc, details in required_assocs.items():
-        model, field = details
-        query = { field: params.pop(assoc) }
+  for assoc, details in required_assocs.items():
+    model, field = details
+    query = { field: params.pop(assoc) }
 
-        params[assoc] = model.objects.get(**query)
+    params[assoc] = model.objects.get(**query)
 
-      for assoc, details in optional_assocs.items():
-        if assoc in params:
-          model, field = details
+  for assoc, details in optional_assocs.items():
+    if assoc in params:
+      model, field = details
+      query = { field: params.pop(assoc) }
 
-          if assoc == 'rack':  # Special handling for rack query to reference rack name and site
-            query = {
-              'site': params.get('site'),
-              field: params.pop(assoc),
-            }
-          else:
-            query = { field: params.pop(assoc) }
+      params[assoc] = model.objects.get(**query)
 
-          params[assoc] = model.objects.get(**query)
+  device, created = Device.objects.get_or_create(**params)
 
-      device, created = Device.objects.update_or_create(name=params['name'], defaults=params)
+  if created:
+    set_custom_fields_values(device, custom_field_data)
 
-      if created:
-        if custom_fields is not None:
-          for cf_name, cf_value in custom_fields.items():
-            custom_field = CustomField.objects.get(name=cf_name)
-            custom_field_value = CustomFieldValue.objects.create(
-              field=custom_field,
-              obj=device,
-              value=cf_value
-            )
-
-            device.custom_field_values.add(custom_field_value)
-
-        print("🖥️  Created device", device.name)
+    print("🖥️  Created device", device.name)

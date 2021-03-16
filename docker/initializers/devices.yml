@@ -8,7 +8,7 @@
   face: front
   name: EFR2.EMUL8R.000
   site: Local Emulator (EMUL8R.000)
-- custom_fields:
+- custom_field_data:
     sf_id: a6d8c2a0-b4cf-4940-a53f-e356354d78c9
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -18,7 +18,7 @@
   rack: R1 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 6ba5ba20-5c2d-4210-adee-46e425756b43
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -27,7 +27,7 @@
   position: 1
   rack: R1 Zone B
   site: Local Emulator (EMUL8R.000)
-- custom_fields:
+- custom_field_data:
     sf_id: 34f87c0c-5009-4c3f-99aa-26a9ade66294
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -37,7 +37,7 @@
   rack: R1 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: VaporProvider
-- custom_fields:
+- custom_field_data:
     sf_id: 62d02859-b027-4cc8-afea-492e67525e49
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -47,7 +47,7 @@
   rack: R1 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: VaporProvider
-- custom_fields:
+- custom_field_data:
     sf_id: 7ecacf66-0b0b-4bca-909f-92888560209a
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -57,7 +57,7 @@
   rack: R1 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: VaporProvider
-- custom_fields:
+- custom_field_data:
     sf_id: b9bf83a8-1ebf-45ce-8ffb-978870e32ddd
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -67,7 +67,7 @@
   rack: R1 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: VaporProvider
-- custom_fields:
+- custom_field_data:
     sf_id: 910b806a-737e-409f-a54a-847acdfd3e83
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -76,7 +76,7 @@
   position: 28
   rack: R1 Zone A
   site: Local Emulator (EMUL8R.000)
-- custom_fields:
+- custom_field_data:
     sf_id: 8a6824a0-dd8c-4b8a-a258-0127a9898ecf
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -85,7 +85,7 @@
   position: 28
   rack: R1 Zone B
   site: Local Emulator (EMUL8R.000)
-- custom_fields:
+- custom_field_data:
     sf_id: c5fc8fa1-e713-411b-80e5-92f2fef62bdd
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -94,7 +94,7 @@
   position: 1
   rack: R2 Zone A
   site: Local Emulator (EMUL8R.000)
-- custom_fields:
+- custom_field_data:
     sf_id: a9678550-58b4-41ed-8670-fce340145bc4
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -103,7 +103,7 @@
   position: 1
   rack: R2 Zone B
   site: Local Emulator (EMUL8R.000)
-- custom_fields:
+- custom_field_data:
     sf_id: 32ec365c-ed18-4ac7-bc5e-ad7653b20863
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -113,7 +113,7 @@
   rack: R2 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 36249382-fe42-4212-8497-de70422238f7
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -123,7 +123,7 @@
   rack: R2 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: e95e48fd-790e-4033-9b4a-9a2b4d5b2588
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -132,7 +132,7 @@
   position: 19
   rack: R2 Zone A
   site: Local Emulator (EMUL8R.000)
-- custom_fields:
+- custom_field_data:
     sf_id: b9f7b04c-fb2a-4549-b481-f47b7017fc84
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -142,7 +142,7 @@
   rack: R2 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 136bcb0c-7177-4601-9f81-5df7fdce3829
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -152,7 +152,7 @@
   rack: R2 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: e189281e-e2e7-49fd-a2a1-62f7082aca83
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -162,7 +162,7 @@
   rack: R2 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: efafbd9e-6b48-429d-8d58-26b2fda96f58
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -172,7 +172,7 @@
   rack: R3 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 3fda0ec6-4d06-4500-a9a7-4e5266b500e5
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -182,7 +182,7 @@
   rack: R3 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: a29efaca-08c5-403e-a352-30237a675f1c
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -192,7 +192,7 @@
   rack: R3 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 2ed96b2f-f1d5-4604-843d-32f0e98b65ca
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -202,7 +202,7 @@
   rack: R3 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: f6f52fcf-9f42-4070-9062-3b1339d19841
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -212,7 +212,7 @@
   rack: R3 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 7792510a-192a-4809-b982-2a852c57ddd1
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -222,7 +222,7 @@
   rack: R3 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: d60d3b5e-62d4-496d-a02a-1dc6a70bd39b
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -232,7 +232,7 @@
   rack: R3 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 6023f5dd-0bc1-4a16-987d-994141032a5e
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -242,7 +242,7 @@
   rack: R3 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: ac7561d2-4c37-42c6-843b-749e8957c1e0
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -252,7 +252,7 @@
   rack: R4 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 628de521-b70f-4597-8f54-a3d241d67c8a
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -262,7 +262,7 @@
   rack: R4 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 16d10add-bcaa-4abd-b269-c73892567607
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -272,7 +272,7 @@
   rack: R4 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 73243081-2e35-42be-b2a6-dcf664a7d4ba
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -282,7 +282,7 @@
   rack: R4 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: d7b70ba7-0ef9-40da-a35e-be03e649706a
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -292,7 +292,7 @@
   rack: R4 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 79fe0fd4-0f03-4f46-9b4a-a4634277fc2a
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -302,7 +302,7 @@
   rack: R4 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: faf2e908-2b4b-4d87-9cbf-a8c7cae110fc
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -312,7 +312,7 @@
   rack: R4 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: cc00b009-1d1f-40b1-99ea-f5ab1f155779
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -322,7 +322,7 @@
   rack: R4 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: fb13c35a-1780-48d3-92da-ff66a9b9bf08
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -332,7 +332,7 @@
   rack: R5 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: abd3767e-9a1b-4f34-8e4b-1255d0eef4d8
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -342,7 +342,7 @@
   rack: R5 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: bda2f9d9-9364-42ba-974b-76f2fbf2ccd7
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -352,7 +352,7 @@
   rack: R5 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 39740509-f89b-4c82-884e-ae1bb87c88f5
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -362,7 +362,7 @@
   rack: R5 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 9eb87161-7df5-45d1-8ca0-356550f7f024
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -372,7 +372,7 @@
   rack: R5 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: cf7d4e9d-6803-4587-8cd1-be27309d1414
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -382,7 +382,7 @@
   rack: R5 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: b5103b46-4467-49c5-9b65-1a0285d41422
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -392,7 +392,7 @@
   rack: R5 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: da922d8c-d491-4b15-a737-ad7649482188
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -402,7 +402,7 @@
   rack: R5 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: d0c11e46-ace9-43d6-a545-ada55eb05b03
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -412,7 +412,7 @@
   rack: R6 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 1bca6a2e-0810-404b-8eaa-f3ad12165894
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -422,7 +422,7 @@
   rack: R6 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: ca2fd52a-053e-4883-aafa-a11e8da4c108
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -432,7 +432,7 @@
   rack: R6 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: a5ef8dc0-01cf-4648-8cd3-3ba29c7d9eb9
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -442,7 +442,7 @@
   rack: R6 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 3d3328fa-3853-4cf7-afff-2b174f5f1c60
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -452,7 +452,7 @@
   rack: R6 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 52bba559-5fec-4640-af10-ce358240f1d2
   device_role: Customer Network Locker
   device_type: 9U Locker
@@ -462,7 +462,7 @@
   rack: R6 Zone B
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 1536cf6e-991a-44c0-88f0-bdce489adb4c
   device_role: Customer Compute Locker
   device_type: 9U Locker
@@ -472,7 +472,7 @@
   rack: R6 Zone A
   site: Local Emulator (EMUL8R.000)
   tenant: vaportest
-- custom_fields:
+- custom_field_data:
     sf_id: 8d3cd060-ff10-4b97-b51c-4c524895aeb7
   device_role: Customer Network Locker
   device_type: 9U Locker

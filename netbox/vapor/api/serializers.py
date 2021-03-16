@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
+from extras.api.serializers import TaggedObjectSerializer
 from drf_yasg.utils import swagger_serializer_method
-from dcim.constants import CONNECTION_STATUS_CHOICES
 
 from extras.api.customfields import CustomFieldModelSerializer
 from dcim.api.nested_serializers import (
@@ -15,9 +14,9 @@ from dcim.models import Interface
 from ipam.api.nested_serializers import NestedPrefixSerializer
 from ipam.models import VLAN, Prefix
 from tenancy.api.nested_serializers import NestedTenantGroupSerializer
-from utilities.api import ChoiceField, ValidatedModelSerializer, SerializedPKRelatedField, WritableNestedSerializer
 from tenancy.models import Tenant as Customer
 from utilities.utils import dynamic_import
+from netbox.api import ChoiceField, ValidatedModelSerializer, SerializedPKRelatedField, WritableNestedSerializer
 
 from netbox_virtual_circuit_plugin.models import VirtualCircuitVLAN, VirtualCircuit
 
@@ -85,7 +84,6 @@ class NestedVaporVLANSerializer(WritableNestedSerializer):
 class NestedVLANInterfaceSerializer(WritableNestedSerializer):
     device = NestedDeviceSerializer(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
     type = ChoiceField(choices=InterfaceTypeChoices, required=False)
 
     untagged_vlan = NestedVaporVLANSerializer(required=False, allow_null=True)
@@ -98,20 +96,38 @@ class NestedVLANInterfaceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Interface
-        fields = ['id', 'url', 'device', 'name', 'cable', 'connection_status', 'type', 'untagged_vlan', 'tagged_vlans']
+        fields = ['id', 'url', 'device', 'name', 'cable', 'type', 'untagged_vlan', 'tagged_vlans']
+
+
+class CableTerminationSerializer(serializers.ModelSerializer):
+    cable_peer_type = serializers.SerializerMethodField(read_only=True)
+    cable_peer = serializers.SerializerMethodField(read_only=True)
+
+    def get_cable_peer_type(self, obj):
+        if obj._cable_peer is not None:
+            return f'{obj._cable_peer._meta.app_label}.{obj._cable_peer._meta.model_name}'
+        return None
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_cable_peer(self, obj):
+        """
+        Return the appropriate serializer for the cable termination model.
+        """
+        if obj._cable_peer is not None:
+            serializer = get_serializer_for_model(obj._cable_peer, prefix='Nested')
+            context = {'request': self.context['request']}
+            return serializer(obj._cable_peer, context=context).data
+        return None
 
 
 class ConnectedEndpointSerializer(ValidatedModelSerializer):
     connected_endpoint_type = serializers.SerializerMethodField(read_only=True)
     connected_endpoint = serializers.SerializerMethodField(read_only=True)
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
+    connected_endpoint_reachable = serializers.SerializerMethodField(read_only=True)
 
     def get_connected_endpoint_type(self, obj):
-        if hasattr(obj, 'connected_endpoint') and obj.connected_endpoint is not None:
-            return '{}.{}'.format(
-                obj.connected_endpoint._meta.app_label,
-                obj.connected_endpoint._meta.model_name
-            )
+        if obj._path is not None and obj._path.destination is not None:
+            return f'{obj._path.destination._meta.app_label}.{obj._path.destination._meta.model_name}'
         return None
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
@@ -119,19 +135,21 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
         """
         Return the appropriate serializer for the type of connected object.
         """
-        if getattr(obj, 'connected_endpoint', None) is None:
-            return None
+        if obj._path is not None and obj._path.destination is not None:
+            serializer = get_serializer_for_model(obj._path.destination, prefix='Nested')
+            context = {'request': self.context['request']}
+            return serializer(obj._path.destination, context=context).data
+        return None
 
-        serializer = get_serializer_for_model(obj.connected_endpoint, prefix='Nested')
-        context = {'request': self.context['request']}
-        data = serializer(obj.connected_endpoint, context=context).data
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
+    def get_connected_endpoint_reachable(self, obj):
+        if obj._path is not None:
+            return obj._path.is_active
+        return None
 
-        return data
 
-
-class CustomerSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class CustomerSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     group = NestedTenantGroupSerializer(required=False)
-    tags = TagListSerializerField(required=False)
     devices = NestedDeviceSerializer(required=False, many=True)
 
     class Meta:
@@ -142,9 +160,10 @@ class CustomerSerializer(TaggitSerializer, CustomFieldModelSerializer):
         ]
 
 
-class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
+class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, ConnectedEndpointSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=InterfaceTypeChoices, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_null=True)
     untagged_vlan = NestedVaporVLANSerializer(required=False, allow_null=True)
@@ -155,31 +174,26 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         many=True
     )
     cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
+    count_ipaddresses = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Interface
         fields = [
-            'id', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-            'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode',
+            'id', 'url', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
+            'description', 'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable', 'mode',
             'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
+        ref_name = 'VaporInterfaceSerializer'
 
     def validate(self, data):
 
         # All associated VLANs be global or assigned to the parent device's site.
         device = self.instance.device if self.instance else data.get('device')
-        untagged_vlan = data.get('untagged_vlan')
-        if untagged_vlan and untagged_vlan.site not in [device.site, None]:
-            raise serializers.ValidationError({
-                'untagged_vlan': "VLAN {} must belong to the same site as the interface's parent device, or it must be "
-                                 "global.".format(untagged_vlan)
-            })
         for vlan in data.get('tagged_vlans', []):
             if vlan.site not in [device.site, None]:
                 raise serializers.ValidationError({
-                    'tagged_vlans': "VLAN {} must belong to the same site as the interface's parent device, or it must "
-                                    "be global.".format(vlan)
+                    'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent device, or "
+                                    f"it must be global."
                 })
 
         return super().validate(data)

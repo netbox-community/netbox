@@ -1,5 +1,95 @@
 # NetBox v2.8
 
+## v2.8.9 (2020-08-04)
+
+### Enhancements
+
+* [#4898](https://github.com/netbox-community/netbox/issues/4898) - Add MAC address search field to interfaces list
+* [#4899](https://github.com/netbox-community/netbox/issues/4899) - Add MAC address column to interfaces table
+
+### Bug Fixes
+
+* [#4455](https://github.com/netbox-community/netbox/issues/4455) - Fix ordering of prefixes beneath aggregate when available space is hidden
+* [#4875](https://github.com/netbox-community/netbox/issues/4875) - Fix documentation for image attachments
+* [#4876](https://github.com/netbox-community/netbox/issues/4876) - Fix labels for sites in staging or decommissioning status
+* [#4880](https://github.com/netbox-community/netbox/issues/4880) - Fix removal of tagged VLANs if not assigned in bulk interface editing
+* [#4887](https://github.com/netbox-community/netbox/issues/4887) - Don't disable NAPALM tabs when device has no primary IP
+* [#4894](https://github.com/netbox-community/netbox/issues/4894) - Fix display of device/VM counts on platforms list
+* [#4895](https://github.com/netbox-community/netbox/issues/4895) - Force UTF-8 encoding when embedding model documentation
+* [#4910](https://github.com/netbox-community/netbox/issues/4910) - Unpin redis dependency to fix exception in RQ worker
+* [#4926](https://github.com/netbox-community/netbox/issues/4926) - Fix ordering of VM interfaces in REST API endpoint
+* [#4927](https://github.com/netbox-community/netbox/issues/4927) - Fix validation error when updating an existing secret
+* [#4929](https://github.com/netbox-community/netbox/issues/4929) - Correct log message when creating a new object
+
+---
+
+## v2.8.8 (2020-07-21)
+
+### Enhancements
+
+* [#4805](https://github.com/netbox-community/netbox/issues/4805) - Improve handling of plugin loading errors
+* [#4829](https://github.com/netbox-community/netbox/issues/4829) - Add NEMA 15 power port and outlet types
+* [#4831](https://github.com/netbox-community/netbox/issues/4831) - Allow NAPALM to resolve device name when primary IP is not set
+* [#4854](https://github.com/netbox-community/netbox/issues/4854) - Add staging and decommissioning statuses for sites
+
+### Bug Fixes
+
+* [#3240](https://github.com/netbox-community/netbox/issues/3240) - Correct OpenAPI definition for available-prefixes endpoint
+* [#4595](https://github.com/netbox-community/netbox/issues/4595) - Ensure consistent display of non-racked and child devices on rack view
+* [#4803](https://github.com/netbox-community/netbox/issues/4803) - Return IP family (4 or 6) as integer rather than string
+* [#4821](https://github.com/netbox-community/netbox/issues/4821) - Restrict group options by selected site when bulk editing VLANs
+* [#4835](https://github.com/netbox-community/netbox/issues/4835) - Support passing multiple initial values for multiple choice fields
+* [#4838](https://github.com/netbox-community/netbox/issues/4838) - Fix rack power utilization display for racks without devices
+* [#4851](https://github.com/netbox-community/netbox/issues/4851) - Show locally connected peer on circuit terminations
+* [#4856](https://github.com/netbox-community/netbox/issues/4856) - Redirect user back to circuit after connecting a termination
+* [#4872](https://github.com/netbox-community/netbox/issues/4872) - Enable filtering virtual machine interfaces by tag
+
+---
+
+## v2.8.7 (2020-07-02)
+
+### Enhancements
+
+* [#4796](https://github.com/netbox-community/netbox/issues/4796) - Introduce configuration parameters for default rack elevation size
+* [#4802](https://github.com/netbox-community/netbox/issues/4802) - Allow changing page size when displaying only a single page of results
+
+### Bug Fixes
+
+* [#4695](https://github.com/netbox-community/netbox/issues/4695) - Expose cable termination type choices in OpenAPI spec
+* [#4708](https://github.com/netbox-community/netbox/issues/4708) - Relax connection constraints for multi-position rear ports
+* [#4766](https://github.com/netbox-community/netbox/issues/4766) - Fix redirect after login when `next` is not specified
+* [#4771](https://github.com/netbox-community/netbox/issues/4771) - Fix add/remove tag population when bulk editing objects
+* [#4772](https://github.com/netbox-community/netbox/issues/4772) - Fix "brief" format for the secrets REST API endpoint
+* [#4774](https://github.com/netbox-community/netbox/issues/4774) - Fix exception when deleting a device with device bays
+* [#4775](https://github.com/netbox-community/netbox/issues/4775) - Allow selecting an alternate device type when creating component templates
+
+---
+
+## v2.8.6 (2020-06-15)
+
+### Enhancements
+
+* [#4698](https://github.com/netbox-community/netbox/issues/4698) - Improve display of template code for object in admin UI
+* [#4717](https://github.com/netbox-community/netbox/issues/4717) - Introduce `ALLOWED_URL_SCHEMES` configuration parameter to mitigate dangerous hyperlinks
+* [#4744](https://github.com/netbox-community/netbox/issues/4744) - Hide "IP addresses" tab when viewing a container prefix
+* [#4755](https://github.com/netbox-community/netbox/issues/4755) - Enable creation of rack reservations directly from navigation menu
+* [#4761](https://github.com/netbox-community/netbox/issues/4761) - Enable tag assignment during bulk creation of IP addresses
+
+### Bug Fixes
+
+* [#4674](https://github.com/netbox-community/netbox/issues/4674) - Fix API definition for available prefix and IP address endpoints
+* [#4702](https://github.com/netbox-community/netbox/issues/4702) - Catch IntegrityError exception when adding a non-unique secret
+* [#4707](https://github.com/netbox-community/netbox/issues/4707) - Fix `prefix_count` population on VLAN API serializer
+* [#4710](https://github.com/netbox-community/netbox/issues/4710) - Fix merging of form fields among custom scripts
+* [#4725](https://github.com/netbox-community/netbox/issues/4725) - Fix "brief" rendering of various REST API endpoints
+* [#4736](https://github.com/netbox-community/netbox/issues/4736) - Add cable trace endpoints for pass-through ports
+* [#4737](https://github.com/netbox-community/netbox/issues/4737) - Fix display of role labels in virtual machines table
+* [#4743](https://github.com/netbox-community/netbox/issues/4743) - Allow users to create "next available" IPs without needing permission to create prefixes
+* [#4756](https://github.com/netbox-community/netbox/issues/4756) - Filter parent group by site when creating rack groups
+* [#4760](https://github.com/netbox-community/netbox/issues/4760) - Enable power port template assignment when bulk editing power outlet templates
+
+---
+
 ## v2.8.5 (2020-05-26)
 
 **Note:** The minimum required version of PostgreSQL is now 9.6.

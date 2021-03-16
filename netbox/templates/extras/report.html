@@ -3,7 +3,7 @@
 
 {% block title %}{{ report.name }}{% endblock %}
 
-{% block content %}
+{% block header %}
     <div class="row noprint">
         <div class="col-md-12">
             <ol class="breadcrumb">
@@ -13,89 +13,33 @@
             </ol>
         </div>
     </div>
-    {% if perms.extras.add_reportresult %}
+    {% if perms.extras.run_report %}
         <div class="pull-right noprint">
-            <form action="{% url 'extras:report_run' name=report.full_name %}" method="post">
+            <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
                 {% csrf_token %}
-                {{ run_form }}
-                <button type="submit" name="_run" class="btn btn-primary"><i class="fa fa-play"></i> Run Report</button>
+                <button type="submit" name="_run" class="btn btn-primary">
+                    {% if report.result %}
+                        <i class="mdi mdi-replay"></i> Run Again
+                    {% else %}
+                        <i class="mdi mdi-play"></i> Run Report
+                    {% endif %}
+                </button>
             </form>
         </div>
     {% endif %}
-    <h1>{{ report.name }}{% include 'extras/inc/report_label.html' with result=report.result %}</h1>
+    <h1>{{ report.name }}</h1>
+    {% if report.description %}
+        <p class="lead">{{ report.description }}</p>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
     <div class="row">
         <div class="col-md-12">
-            {% if report.description %}
-                <p class="lead">{{ report.description }}</p>
-            {% endif %}
             {% if report.result %}
-                <p>Last run: <strong>{{ report.result.created }}</strong></p>
-            {% endif %}
-            {% if report.result %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>Report Methods</strong>
-                    </div>
-                    <table class="table table-hover panel-body">
-                        {% for method, data in report.result.data.items %}
-                            <tr>
-                                <td><code><a href="#{{ method }}">{{ method }}</a></code></td>
-                                <td class="text-right report-stats">
-                                    <label class="label label-success">{{ data.success }}</label>
-                                    <label class="label label-info">{{ data.info }}</label>
-                                    <label class="label label-warning">{{ data.warning }}</label>
-                                    <label class="label label-danger">{{ data.failure }}</label>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>Report Results</strong>
-                    </div>
-                    <table class="table table-hover panel-body report">
-                        <thead>
-                            <tr class="table-headings">
-                                <th>Time</th>
-                                <th>Level</th>
-                                <th>Object</th>
-                                <th>Message</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for method, data in report.result.data.items %}
-                                <tr>
-                                    <th colspan="4" style="font-family: monospace">
-                                        <a name="{{ method }}"></a>{{ method }}
-                                    </th>
-                                </tr>
-                                {% for time, level, obj, url, message in data.log %}
-                                    <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
-                                        <td>{{ time }}</td>
-                                        <td>
-                                            <label class="label label-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
-                                        </td>
-                                        <td>
-                                            {% if obj and url %}
-                                                <a href="{{ url }}">{{ obj }}</a>
-                                            {% elif obj %}
-                                                {{ obj }}
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ message }}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="well">No results are available for this report. Please run the report first.</div>
-            {% endif %}
-        </div>
-        <div class="col-md-3">
-            {% if report.result %}
+                Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
+                    <strong>{{ report.result.created }}</strong>
+                </a>
             {% endif %}
         </div>
     </div>

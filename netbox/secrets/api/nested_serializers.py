@@ -1,11 +1,20 @@
 from rest_framework import serializers
 
-from secrets.models import SecretRole
-from utilities.api import WritableNestedSerializer
+from netbox.api import WritableNestedSerializer
+from secrets.models import Secret, SecretRole
 
 __all__ = [
-    'NestedSecretRoleSerializer'
+    'NestedSecretRoleSerializer',
+    'NestedSecretSerializer',
 ]
+
+
+class NestedSecretSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secret-detail')
+
+    class Meta:
+        model = Secret
+        fields = ['id', 'url', 'name']
 
 
 class NestedSecretRoleSerializer(WritableNestedSerializer):

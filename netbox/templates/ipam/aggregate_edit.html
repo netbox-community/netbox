@@ -1,4 +1,4 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
 {% block form %}
@@ -9,6 +9,13 @@
             {% render_field form.rir %}
             {% render_field form.date_added %}
             {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tenancy</strong></div>
+        <div class="panel-body">
+            {% render_field form.tenant_group %}
+            {% render_field form.tenant %}
         </div>
     </div>
     {% if form.custom_fields %}

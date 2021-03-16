@@ -1,0 +1,21 @@
+# lock-threads (https://github.com/marketplace/actions/lock-threads)
+name: 'Lock threads'
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/lock-threads@v2
+        with:
+          github-token: ${{ github.token }}
+          issue-lock-inactive-days: '90'
+          issue-exclude-created-before: ''
+          issue-exclude-labels: ''
+          issue-lock-labels: ''
+          issue-lock-comment: ''
+          issue-lock-reason: 'resolved'
+          process-only: 'issues'

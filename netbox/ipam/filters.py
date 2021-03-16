@@ -5,15 +5,15 @@ from django.db.models import Q
 from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site
-from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
+from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, TagFilter,
+    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericArrayFilter, TagFilter,
     TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
 
 __all__ = (
@@ -22,6 +22,7 @@ __all__ = (
     'PrefixFilterSet',
     'RIRFilterSet',
     'RoleFilterSet',
+    'RouteTargetFilterSet',
     'ServiceFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
@@ -29,10 +30,32 @@ __all__ = (
 )
 
 
-class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    import_target_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='import_targets',
+        queryset=RouteTarget.objects.all(),
+        label='Import target',
+    )
+    import_target = django_filters.ModelMultipleChoiceFilter(
+        field_name='import_targets__name',
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        label='Import target (name)',
+    )
+    export_target_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='export_targets',
+        queryset=RouteTarget.objects.all(),
+        label='Export target',
+    )
+    export_target = django_filters.ModelMultipleChoiceFilter(
+        field_name='export_targets__name',
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        label='Export target (name)',
     )
     tag = TagFilter()
 
@@ -50,6 +73,48 @@ class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Create
         fields = ['id', 'name', 'rd', 'enforce_unique']
 
 
+class RouteTargetFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    importing_vrf_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='importing_vrfs',
+        queryset=VRF.objects.all(),
+        label='Importing VRF',
+    )
+    importing_vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='importing_vrfs__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='Import VRF (RD)',
+    )
+    exporting_vrf_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='exporting_vrfs',
+        queryset=VRF.objects.all(),
+        label='Exporting VRF',
+    )
+    exporting_vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='exporting_vrfs__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='Export VRF (RD)',
+    )
+    tag = TagFilter()
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+    class Meta:
+        model = RouteTarget
+        fields = ['id', 'name']
+
+
 class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
@@ -57,7 +122,7 @@ class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'is_private', 'description']
 
 
-class AggregateFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class AggregateFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -118,7 +183,7 @@ class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -144,8 +209,16 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
         label='Prefixes which contain this prefix or IP',
     )
     mask_length = django_filters.NumberFilter(
-        method='filter_mask_length',
-        label='Mask length',
+        field_name='prefix',
+        lookup_expr='net_mask_length'
+    )
+    mask_length__gte = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='net_mask_length__gte'
+    )
+    mask_length__lte = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='net_mask_length__lte'
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
@@ -154,6 +227,17 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
     vrf = django_filters.ModelMultipleChoiceFilter(
         field_name='vrf__rd',
         queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='VRF (RD)',
+    )
+    present_in_vrf_id = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
+        label='VRF'
+    )
+    present_in_vrf = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
         to_field_name='rd',
         label='VRF (RD)',
     )
@@ -262,13 +346,16 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
         except (AddrFormatError, ValueError):
             return queryset.none()
 
-    def filter_mask_length(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(prefix__net_mask_length=value)
+    def filter_present_in_vrf(self, queryset, name, vrf):
+        if vrf is None:
+            return queryset.none
+        return queryset.filter(
+            Q(vrf=vrf) |
+            Q(vrf__export_targets__in=vrf.import_targets.all())
+        )
 
 
-class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -299,6 +386,17 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         to_field_name='rd',
         label='VRF (RD)',
     )
+    present_in_vrf_id = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
+        label='VRF'
+    )
+    present_in_vrf = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
+        to_field_name='rd',
+        label='VRF (RD)',
+    )
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -309,26 +407,37 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         field_name='pk',
         label='Device (ID)',
     )
-    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__virtual_machine',
-        queryset=VirtualMachine.objects.all(),
-        label='Virtual machine (ID)',
-    )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__virtual_machine__name',
-        queryset=VirtualMachine.objects.all(),
-        to_field_name='name',
+    virtual_machine = MultiValueCharFilter(
+        method='filter_virtual_machine',
+        field_name='name',
         label='Virtual machine (name)',
+    )
+    virtual_machine_id = MultiValueNumberFilter(
+        method='filter_virtual_machine',
+        field_name='pk',
+        label='Virtual machine (ID)',
     )
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
-        label='Interface (ID)',
+        label='Interface (name)',
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface',
         queryset=Interface.objects.all(),
         label='Interface (ID)',
+    )
+    vminterface = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__name',
+        queryset=VMInterface.objects.all(),
+        to_field_name='name',
+        label='VM interface (name)',
+    )
+    vminterface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface',
+        queryset=VMInterface.objects.all(),
+        label='VM interface (ID)',
     )
     assigned_to_interface = django_filters.BooleanFilter(
         method='_assigned_to_interface',
@@ -378,18 +487,38 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
             return queryset
         return queryset.filter(address__net_mask_length=value)
 
+    def filter_present_in_vrf(self, queryset, name, vrf):
+        if vrf is None:
+            return queryset.none
+        return queryset.filter(
+            Q(vrf=vrf) |
+            Q(vrf__export_targets__in=vrf.import_targets.all())
+        )
+
     def filter_device(self, queryset, name, value):
-        try:
-            devices = Device.objects.prefetch_related('device_type').filter(**{'{}__in'.format(name): value})
-            vc_interface_ids = []
-            for device in devices:
-                vc_interface_ids.extend([i['id'] for i in device.vc_interfaces.values('id')])
-            return queryset.filter(interface_id__in=vc_interface_ids)
-        except Device.DoesNotExist:
+        devices = Device.objects.filter(**{'{}__in'.format(name): value})
+        if not devices.exists():
             return queryset.none()
+        interface_ids = []
+        for device in devices:
+            interface_ids.extend(device.vc_interfaces.values_list('id', flat=True))
+        return queryset.filter(
+            interface__in=interface_ids
+        )
+
+    def filter_virtual_machine(self, queryset, name, value):
+        virtual_machines = VirtualMachine.objects.filter(**{'{}__in'.format(name): value})
+        if not virtual_machines.exists():
+            return queryset.none()
+        interface_ids = []
+        for vm in virtual_machines:
+            interface_ids.extend(vm.interfaces.values_list('id', flat=True))
+        return queryset.filter(
+            vminterface__in=interface_ids
+        )
 
     def _assigned_to_interface(self, queryset, name, value):
-        return queryset.exclude(interface__isnull=value)
+        return queryset.exclude(assigned_object_id__isnull=value)
 
 
 class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
@@ -422,7 +551,7 @@ class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -516,11 +645,15 @@ class ServiceFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         to_field_name='name',
         label='Virtual machine (name)',
     )
+    port = NumericArrayFilter(
+        field_name='ports',
+        lookup_expr='contains'
+    )
     tag = TagFilter()
 
     class Meta:
         model = Service
-        fields = ['id', 'name', 'protocol', 'port']
+        fields = ['id', 'name', 'protocol']
 
     def search(self, queryset, name, value):
         if not value.strip():

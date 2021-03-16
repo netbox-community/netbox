@@ -3,26 +3,26 @@
   slug: EMUL8R-000
   region: 000 (000)
   status: active
-  custom_fields:
+  custom_field_data:
     sf_id: 51f4ca13-2658-4169-8a06-51f87d62b16f
 
 - name: Future Pending Site
   slug: FUT-000
   region: GCP (GCP)
   status: active
-  custom_fields:
+  custom_field_data:
     sf_id: 73727fc7-138b-4cbe-a184-311500cb3992
 
 - name: Virtual VEM-150
   slug: virt-01
   region: GCP (GCP)
   status: active
-  custom_fields:
+  custom_field_data:
     sf_id: 5b385220-c9d6-11e9-a32f-2a2ae2dbcce4
 
 - name: Cloud Virtual Chamber
   slug: cloud-virtual-chamber
   status: active
   region: GCP (GCP)
-  custom_fields:
+  custom_field_data:
     sf_id: 2e3b4b3d-111e-41f8-aef8-8ebdf19dfbf8

@@ -9,13 +9,13 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:vlan_list' %}">VLANs</a></li>
-                {% if vlan.site %}
-                    <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}">{{ vlan.site }}</a></li>
+                {% if object.site %}
+                    <li><a href="{% url 'ipam:vlan_list' %}?site={{ object.site.slug }}">{{ object.site }}</a></li>
                 {% endif %}
-                {% if vlan.group %}
-                    <li><a href="{% url 'ipam:vlan_list' %}?group={{ vlan.group.slug }}">{{ vlan.group }}</a></li>
+                {% if object.group %}
+                    <li><a href="{% url 'ipam:vlan_list' %}?group={{ object.group.slug }}">{{ object.group }}</a></li>
                 {% endif %}
-                <li>{{ vlan }}</li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -24,7 +24,7 @@
                 <input type="text" name="q" class="form-control" placeholder="Search VLANs" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
+                        <span class="mdi mdi-magnify" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -32,32 +32,35 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons vlan %}
+        {% plugin_buttons object %}
         {% if perms.ipam.add_vlan %}
-            {% clone_button vlan %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.ipam.change_vlan %}
-            {% edit_button vlan %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.ipam.delete_vlan %}
-            {% delete_button vlan %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}VLAN {{ vlan.display_name }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=vlan %}
+    <h1>{% block title %}VLAN {{ object.display_name }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
-        {% custom_links vlan %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs" style="margin-bottom: 20px">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{% url 'ipam:vlan' pk=vlan.pk %}">VLAN</a>
+            <a href="{% url 'ipam:vlan' pk=object.pk %}">VLAN</a>
         </li>
-        <li role="presentation"{% if active_tab == 'members' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:vlan_members' pk=vlan.pk %}">Members <span class="badge">{{ vlan.get_members.count }}</span></a>
+        <li role="presentation"{% if active_tab == 'interfaces' %} class="active"{% endif %}>
+            <a href="{% url 'ipam:vlan_interfaces' pk=object.pk %}">Device Interfaces <span class="badge">{{ object.get_interfaces.count }}</span></a>
+        </li>
+        <li role="presentation"{% if active_tab == 'vminterfaces' %} class="active"{% endif %}>
+            <a href="{% url 'ipam:vlan_vminterfaces' pk=object.pk %}">VM Interfaces <span class="badge">{{ object.get_vminterfaces.count }}</span></a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:vlan_changelog' pk=vlan.pk %}">Change Log</a>
+                <a href="{% url 'ipam:vlan_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -74,12 +77,11 @@
                     <tr>
                         <td>Site</td>
                         <td>
-                            {% if vlan.site %}
-                                {% if vlan.site.region %}
-                                    <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                            {% if object.site %}
+                                {% if object.site.region %}
+                                    <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                                 {% endif %}
-                                <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
+                                <a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -88,8 +90,8 @@
                     <tr>
                         <td>Group</td>
                         <td>
-                            {% if vlan.group %}
-                                <a href="{{ vlan.group.get_absolute_url }}">{{ vlan.group }}</a>
+                            {% if object.group %}
+                                <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -97,21 +99,20 @@
                     </tr>
                     <tr>
                         <td>VLAN ID</td>
-                        <td>{{ vlan.vid }}</td>
+                        <td>{{ object.vid }}</td>
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td>{{ vlan.name }}</td>
+                        <td>{{ object.name }}</td>
                     </tr>
                     <tr>
                         <td>Tenant</td>
                         <td>
-                            {% if vlan.tenant %}
-                                {% if vlan.tenant.group %}
-                                    <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                            {% if object.tenant %}
+                                {% if object.tenant.group %}
+                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                                 {% endif %}
-                                <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -120,14 +121,14 @@
                     <tr>
                         <td>Status</td>
                         <td>
-                            <span class="label label-{{ vlan.get_status_class }}">{{ vlan.get_status_display }}</span>
+                            <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                         </td>
                     </tr>
                     <tr>
                         <td>Role</td>
                         <td>
-                            {% if vlan.role %}
-                                <a href="{% url 'ipam:vlan_list' %}?role={{ vlan.role.slug }}">{{ vlan.role }}</a>
+                            {% if object.role %}
+                                <a href="{% url 'ipam:vlan_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -135,13 +136,13 @@
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>{{ vlan.description|placeholder }}</td>
+                        <td>{{ object.description|placeholder }}</td>
                     </tr>
                 </table>
             </div>
-            {% include 'inc/custom_fields_panel.html' with obj=vlan %}
-            {% include 'extras/inc/tags_panel.html' with tags=vlan.tags.all url='ipam:vlan_list' %}
-            {% plugin_left_page vlan %}
+            {% include 'inc/custom_fields_panel.html' %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:vlan_list' %}
+            {% plugin_left_page object %}
         </div>
         <div class="col-md-8">
             <div class="panel panel-default">
@@ -151,19 +152,19 @@
                 {% include 'responsive_table.html' with table=prefix_table %}
                 {% if perms.ipam.add_prefix %}
                     <div class="panel-footer text-right noprint">
-                        <a href="{% url 'ipam:prefix_add' %}?{% if vlan.tenant %}tenant={{ vlan.tenant.pk }}&{% endif %}site={{ vlan.site.pk }}&vlan={{ vlan.pk }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        <a href="{% url 'ipam:prefix_add' %}?{% if object.tenant %}tenant={{ object.tenant.pk }}&{% endif %}site={{ object.site.pk }}&vlan={{ object.pk }}" class="btn btn-primary btn-xs">
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                             Add a prefix
                         </a>
                     </div>
                 {% endif %}
             </div>
-            {% plugin_right_page vlan %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% plugin_full_width_page vlan %}
+            {% plugin_full_width_page object %}
         </div>
     </div>
 {% endblock %}

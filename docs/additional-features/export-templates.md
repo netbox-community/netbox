@@ -4,9 +4,11 @@ NetBox allows users to define custom templates that can be used when exporting o
 
 Each export template is associated with a certain type of object. For instance, if you create an export template for VLANs, your custom template will appear under the "Export" button on the VLANs list.
 
-Export templates are written in [Django's template language](https://docs.djangoproject.com/en/stable/ref/templates/language/), which is very similar to Jinja2. The list of objects returned from the database is stored in the `queryset` variable, which you'll typically want to iterate through using a `for` loop. Object properties can be access by name. For example:
+Export templates must be written in [Jinja2](https://jinja.palletsprojects.com/).
 
-```
+The list of objects returned from the database when rendering an export template is stored in the `queryset` variable, which you'll typically want to iterate through using a `for` loop. Object properties can be access by name. For example:
+
+```jinja2
 {% for rack in queryset %}
 Rack: {{ rack.name }}
 Site: {{ rack.site.name }}

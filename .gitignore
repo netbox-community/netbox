@@ -9,6 +9,7 @@
 /netbox/static
 /venv/
 /*.sh
+local_requirements.txt
 !upgrade.sh
 fabfile.py
 gunicorn.py

@@ -35,33 +35,3 @@
         </div>
     </form>
 {% endblock %}
-
-{% block javascript %}
-<script type="text/javascript">
-    $(document).ready(function() {
-        var device_list = $('#id_devices');
-        var disabled_indicator = device_list.attr('disabled-indicator');
-        $('#id_search').autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    type: 'GET',
-                    url: netbox_api_path + 'dcim/devices/',
-                    data: 'q=' + request.term,
-                    beforeSend: function() {
-                        device_list.empty();
-                    },
-                    success: function(data) {
-                        response($.map(data.results, function(item) {
-                            var option = $("<option></option>").attr("value", item['id']).text(item['display_name']);
-                            if (disabled_indicator && item[disabled_indicator]) {
-                                option.attr("disabled", "disabled");
-                            }
-                            device_list.append(option);
-                        }));
-                    }
-                });
-            }
-        });
-    });
-</script>
-{% endblock %}

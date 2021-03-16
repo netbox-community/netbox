@@ -7,11 +7,9 @@ about: Report a reproducible bug in the current release of NetBox
 <!--
     NOTE: IF YOUR ISSUE DOES NOT FOLLOW THIS TEMPLATE, IT WILL BE CLOSED.
 
-    This form is only for reproducible bugs. If you need assistance with
-    NetBox installation, or if you have a general question, DO NOT open an
-    issue. Instead, post to our mailing list:
-
-        https://groups.google.com/forum/#!forum/netbox-discuss
+    This form is only for reporting reproducible bugs. If you need assistance
+    with NetBox installation, or if you have a general question, please start a
+    discussion instead: https://github.com/netbox-community/netbox/discussions
 
     Please describe the environment in which you are running NetBox. Be sure
     that you are running an unmodified instance of the latest stable release

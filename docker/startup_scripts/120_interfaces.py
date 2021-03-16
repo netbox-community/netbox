@@ -1,7 +1,6 @@
 from dcim.models import Interface, Device, DeviceRole
 
-from ruamel.yaml import YAML
-from pathlib import Path
+from startup_script_utils import *
 
 import sys
 
@@ -45,14 +44,10 @@ templates = {
     'customer-locker': template_customer_locker,
 }
 
-file = Path('/opt/netbox/initializers/interfaces.yml')
-if not file.is_file():
+config = load_yaml('/opt/netbox/initializers/interfaces.yml')
+
+if config is None:
     sys.exit()
-
-with file.open('r') as stream:
-    yaml = YAML(typ='safe')
-    config = yaml.load(stream)
-
 
 for c in config:
     device_role = DeviceRole.objects.get(slug=c.get('device_role'))
@@ -66,7 +61,5 @@ for c in config:
         continue
 
     port_count = c.get('ports', 0)
-
     devices = Device.objects.all().filter(device_role=device_role.id)
-
     templates[interface_template](devices, port_count)

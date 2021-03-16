@@ -12,6 +12,9 @@ Plugins can do a lot, including:
 
 However, keep in mind that each piece of functionality is entirely optional. For example, if your plugin merely adds a piece of middleware or an API endpoint for existing data, there's no need to define any new models.
 
+!!! warning
+    While very powerful, the NetBox plugins API is necessarily limited in its scope. The plugins API is discussed here in its entirety: Any part of the NetBox code base not documented here is _not_ part of the supported plugins API, and should not be employed by a plugin. Internal elements of NetBox are subject to change at any time and without warning. Plugin authors are **strongly** encouraged to develop plugins using only the officially supported components discussed here and those provided by the underlying Django framework so as to avoid breaking changes in future releases. 
+
 ## Initial Setup
 
 ## Plugin Structure
@@ -60,10 +63,14 @@ setup(
     install_requires=[],
     packages=find_packages(),
     include_package_data=True,
+    zip_safe=False,
 )
 ```
 
 Many of these are self-explanatory, but for more information, see the [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html).
+
+!!! note
+    `zip_safe=False` is **required** as the current plugin iteration is not zip safe due to upstream python issue [issue19699](https://bugs.python.org/issue19699)  
 
 ### Define a PluginConfig
 
@@ -109,6 +116,8 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `caching_config` | Plugin-specific cache configuration
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`) |
 | `menu_items` | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`) |
+
+All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
 
 ### Install the Plugin for Development
 
@@ -196,26 +205,37 @@ class RandomAnimalView(View):
         })
 ```
 
-This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal.html`, which doesn't exist yet. To create this template, first create a directory named `templates/netbox_animal_sounds/` within the plugin source directory. (We use the plugin's name as a subdirectory to guard against naming collisions with other plugins.) Then, create `animal.html`:
+This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal.html`, which doesn't exist yet. To create this template, first create a directory named `templates/netbox_animal_sounds/` within the plugin source directory. (We use the plugin's name as a subdirectory to guard against naming collisions with other plugins.) Then, create a template named `animal.html` as described below.
+
+### Extending the Base Template
+
+NetBox provides a base template to ensure a consistent user experience, which plugins can extend with their own content. This template includes four content blocks:
+
+* `title` - The page title
+* `header` - The upper portion of the page
+* `content` - The main page body
+* `javascript` - A section at the end of the page for including Javascript code
+
+For more information on how template blocks work, consult the [Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#block).
 
 ```jinja2
 {% extends 'base.html' %}
 
 {% block content %}
-{% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}
-<h2 class="text-center" style="margin-top: 200px">
-    {% if animal %}
-        The {{ animal.name|lower }} says
-        {% if config.loud %}
-            {{ animal.sound|upper }}!
-        {% else %}
-            {{ animal.sound }}
-        {% endif %}
-    {% else %}
-        No animals have been created yet!
-    {% endif %}
-</h2>
-{% endwith %}
+    {% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}
+        <h2 class="text-center" style="margin-top: 200px">
+            {% if animal %}
+                The {{ animal.name|lower }} says
+                {% if config.loud %}
+                    {{ animal.sound|upper }}!
+                {% else %}
+                    {{ animal.sound }}
+                {% endif %}
+            {% else %}
+                No animals have been created yet!
+            {% endif %}
+        </h2>
+    {% endwith %}
 {% endblock %}
 
 ```
@@ -325,6 +345,9 @@ A `PluginMenuButton` has the following attributes:
 * `icon_class` - Button icon CSS class (NetBox currently supports [Font Awesome 4.7](https://fontawesome.com/v4.7.0/icons/))
 * `color` - One of the choices provided by `ButtonColorChoices` (optional)
 * `permissions` - A list of permissions required to display this button (optional)
+
+!!! note
+    Any buttons associated within a menu item will be shown only if the user has permission to view the link, regardless of what permissions are set on the buttons.
 
 ## Extending Core Templates
 

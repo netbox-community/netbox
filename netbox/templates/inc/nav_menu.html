@@ -1,7 +1,7 @@
 {% load static %}
 {% load helpers %}
 <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
+    <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
                 <span class="sr-only">Toggle navigation</span>
@@ -23,8 +23,8 @@
                         <li{% if not perms.dcim.view_site %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_site %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:site_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:site_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:site_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:site_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:site_list' %}">Sites</a>
@@ -32,8 +32,8 @@
                         <li{% if not perms.dcim.view_region %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_region %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:region_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:region_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:region_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:region_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:region_list' %}">Regions</a>
@@ -43,8 +43,8 @@
                         <li{% if not perms.dcim.view_rack %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rack %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:rack_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:rack_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:rack_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:rack_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rack_list' %}">Racks</a>
@@ -52,8 +52,8 @@
                         <li{% if not perms.dcim.view_rackgroup %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackgroup %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:rackgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:rackgroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:rackgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:rackgroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rackgroup_list' %}">Rack Groups</a>
@@ -61,8 +61,8 @@
                         <li{% if not perms.dcim.view_rackrole %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackrole %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:rackrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:rackrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:rackrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:rackrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rackrole_list' %}">Rack Roles</a>
@@ -70,7 +70,8 @@
                         <li{% if not perms.dcim.view_rackreservation %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackreservation %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:rackreservation_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:rackreservation_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:rackreservation_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rackreservation_list' %}">Reservations</a>
@@ -83,8 +84,8 @@
                         <li{% if not perms.tenancy.view_tenant %} class="disabled"{% endif %}>
                             {% if perms.tenancy.add_tenant %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'tenancy:tenant_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'tenancy:tenant_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'tenancy:tenant_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'tenancy:tenant_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'tenancy:tenant_list' %}">Tenants</a>
@@ -92,8 +93,8 @@
                         <li{% if not perms.tenancy.view_tenantgroup %} class="disabled"{% endif %}>
                             {% if perms.tenancy.add_tenantgroup %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'tenancy:tenantgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'tenancy:tenantgroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'tenancy:tenantgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'tenancy:tenantgroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'tenancy:tenantgroup_list' %}">Tenant Groups</a>
@@ -101,6 +102,12 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Tags</li>
                         <li{% if not perms.extras.view_tag %} class="disabled"{% endif %}>
+                            {% if perms.extras.add_tag %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'extras:tag_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'extras:tag_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'extras:tag_list' %}">Tags</a>
                         </li>
                     </ul>
@@ -112,8 +119,8 @@
                         <li{% if not perms.dcim.view_device %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_device %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:device_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:device_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:device_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:device_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:device_list' %}">Devices</a>
@@ -121,8 +128,8 @@
                         <li{% if not perms.dcim.view_devicerole %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_devicerole %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:devicerole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:devicerole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:devicerole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:devicerole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:devicerole_list' %}">Device Roles</a>
@@ -130,13 +137,19 @@
                         <li{% if not perms.dcim.view_platform %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_platform %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:platform_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:platform_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:platform_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:platform_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:platform_list' %}">Platforms</a>
                         </li>
                         <li{% if not perms.dcim.view_virtualchassis %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_virtualchassis %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:virtualchassis_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:virtualchassis_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a>
                         </li>
                         <li class="divider"></li>
@@ -144,8 +157,8 @@
                         <li{% if not perms.dcim.view_devicetype %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_devicetype %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:devicetype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:devicetype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:devicetype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:devicetype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:devicetype_list' %}">Device Types</a>
@@ -153,28 +166,18 @@
                         <li{% if not perms.dcim.view_manufacturer %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_manufacturer %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:manufacturer_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:manufacturer_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:manufacturer_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:manufacturer_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:manufacturer_list' %}">Manufacturers</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li class="dropdown-header">Inventory</li>
-                        <li{% if not perms.dcim.view_inventoryitem %} class="disabled"{% endif %}>
-                            {% if perms.dcim.add_inventoryitem %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                </div>
-                            {% endif %}
-                            <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>
                         <li{% if not perms.dcim.view_cable %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_cable %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:cable_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:cable_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:cable_list' %}">Cables</a>
@@ -193,7 +196,7 @@
                         <li{% if not perms.dcim.view_interface %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_interface %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:interface_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:interface_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:interface_list' %}">Interfaces</a>
@@ -201,7 +204,7 @@
                         <li{% if not perms.dcim.view_frontport %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_frontport %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:frontport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:frontport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:frontport_list' %}">Front Ports</a>
@@ -209,7 +212,7 @@
                         <li{% if not perms.dcim.view_rearport %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rearport %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:rearport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:rearport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rearport_list' %}">Rear Ports</a>
@@ -217,7 +220,7 @@
                         <li{% if not perms.dcim.view_consoleport %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_consoleport %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:consoleport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:consoleport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:consoleport_list' %}">Console Ports</a>
@@ -225,7 +228,7 @@
                         <li{% if not perms.dcim.view_consoleserverport %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_consoleserverport %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:consoleserverport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:consoleserverport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:consoleserverport_list' %}">Console Server Ports</a>
@@ -233,7 +236,7 @@
                         <li{% if not perms.dcim.view_powerport %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_powerport %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:powerport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:powerport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:powerport_list' %}">Power Ports</a>
@@ -241,7 +244,7 @@
                         <li{% if not perms.dcim.view_poweroutlet %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_poweroutlet %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:poweroutlet_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:poweroutlet_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:poweroutlet_list' %}">Power Outlets</a>
@@ -249,10 +252,18 @@
                         <li{% if not perms.dcim.view_devicebay %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_devicebay %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:devicebay_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:devicebay_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:devicebay_list' %}">Device Bays</a>
+                        </li>
+                        <li{% if not perms.dcim.view_inventoryitem %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_inventoryitem %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
                         </li>
                     </ul>
                 </li>
@@ -263,8 +274,8 @@
                         <li{% if not perms.ipam.view_ipaddress %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_ipaddress %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:ipaddress_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:ipaddress_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:ipaddress_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:ipaddress_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a>
@@ -274,8 +285,8 @@
                         <li{% if not perms.ipam.view_prefix %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_prefix %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:prefix_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:prefix_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:prefix_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:prefix_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:prefix_list' %}">Prefixes</a>
@@ -283,8 +294,8 @@
                         <li{% if not perms.ipam.view_role %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_role %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:role_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:role_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:role_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:role_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:role_list' %}">Prefix/VLAN Roles</a>
@@ -294,8 +305,8 @@
                         <li{% if not perms.ipam.view_aggregate %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_aggregate %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:aggregate_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:aggregate_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:aggregate_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:aggregate_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:aggregate_list' %}">Aggregates</a>
@@ -303,8 +314,8 @@
                         <li{% if not perms.ipam.view_rir %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_rir %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:rir_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:rir_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:rir_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:rir_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:rir_list' %}">RIRs</a>
@@ -314,19 +325,28 @@
                         <li{% if not perms.ipam.view_vrf %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_vrf %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:vrf_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:vrf_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:vrf_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:vrf_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:vrf_list' %}">VRFs</a>
+                        </li>
+                        <li{% if not perms.ipam.view_routetarget %} class="disabled"{% endif %}>
+                            {% if perms.ipam.add_routetarget %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'ipam:routetarget_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:routetarget_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'ipam:routetarget_list' %}">Route Targets</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">VLANs</li>
                         <li{% if not perms.ipam.view_vlan %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_vlan %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:vlan_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:vlan_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:vlan_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:vlan_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:vlan_list' %}">VLANs</a>
@@ -334,8 +354,8 @@
                         <li{% if not perms.ipam.view_vlangroup %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_vlangroup %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:vlangroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'ipam:vlangroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:vlangroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'ipam:vlangroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a>
@@ -345,7 +365,7 @@
                         <li{% if not perms.ipam.view_service %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_service %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'ipam:service_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:service_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:service_list' %}">Services</a>
@@ -359,19 +379,27 @@
                         <li{% if not perms.virtualization.view_virtualmachine %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_virtualmachine %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'virtualization:virtualmachine_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'virtualization:virtualmachine_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'virtualization:virtualmachine_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'virtualization:virtualmachine_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a>
+                        </li>
+                        <li{% if not perms.virtualization.view_vminterface%} class="disabled"{% endif %}>
+                            {% if perms.virtualization.add_vminterface %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'virtualization:vminterface_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'virtualization:vminterface_list' %}">Interfaces</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Clusters</li>
                         <li{% if not perms.virtualization.view_cluster %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_cluster %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'virtualization:cluster_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'virtualization:cluster_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'virtualization:cluster_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'virtualization:cluster_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'virtualization:cluster_list' %}">Clusters</a>
@@ -379,8 +407,8 @@
                         <li{% if not perms.virtualization.view_clustertype %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_clustertype %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'virtualization:clustertype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'virtualization:clustertype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'virtualization:clustertype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'virtualization:clustertype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'virtualization:clustertype_list' %}">Cluster Types</a>
@@ -388,8 +416,8 @@
                         <li{% if not perms.virtualization.view_clustergroup %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_clustergroup %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'virtualization:clustergroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'virtualization:clustergroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'virtualization:clustergroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'virtualization:clustergroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'virtualization:clustergroup_list' %}">Cluster Groups</a>
@@ -403,8 +431,8 @@
                         <li{% if not perms.circuits.view_circuit %} class="disabled"{% endif %}>
                             {% if perms.circuits.add_circuit %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'circuits:circuit_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'circuits:circuit_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'circuits:circuit_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'circuits:circuit_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'circuits:circuit_list' %}">Circuits</a>
@@ -412,8 +440,8 @@
                         <li{% if not perms.circuits.view_circuittype %} class="disabled"{% endif %}>
                             {% if perms.circuits.add_circuittype %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'circuits:circuittype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'circuits:circuittype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'circuits:circuittype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'circuits:circuittype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'circuits:circuittype_list' %}">Circuit Types</a>
@@ -423,8 +451,8 @@
                         <li{% if not perms.circuits.view_provider %} class="disabled"{% endif %}>
                             {% if perms.circuits.add_provider %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'circuits:provider_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'circuits:provider_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'circuits:provider_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'circuits:provider_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'circuits:provider_list' %}">Providers</a>
@@ -438,8 +466,8 @@
                         <li{% if not perms.dcim.view_powerfeed %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_powerfeed %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:powerfeed_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:powerfeed_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:powerfeed_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:powerfeed_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a>
@@ -447,8 +475,8 @@
                         <li{% if not perms.dcim.view_powerpanel %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_powerpanel %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:powerpanel_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'dcim:powerpanel_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:powerpanel_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:powerpanel_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a>
@@ -462,8 +490,8 @@
                         <li{% if not perms.secrets.view_secret %} class="disabled"{% endif %}>
                             {% if perms.secrets.add_secret %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'secrets:secret_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'secrets:secret_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'secrets:secret_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'secrets:secret_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'secrets:secret_list' %}">Secrets</a>
@@ -471,8 +499,8 @@
                         <li{% if not perms.secrets.view_secretrole %} class="disabled"{% endif %}>
                             {% if perms.secrets.add_secretrole %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'secrets:secretrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a href="{% url 'secrets:secretrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'secrets:secretrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'secrets:secretrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'secrets:secretrole_list' %}">Secret Roles</a>
@@ -491,7 +519,7 @@
                         <li{% if not perms.extras.view_configcontext %} class="disabled"{% endif %}>
                             {% if perms.extras.add_configcontext %}
                                 <div class="buttons pull-right">
-                                    <a href="{% url 'extras:configcontext_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'extras:configcontext_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'extras:configcontext_list' %}">Config Contexts</a>
@@ -499,7 +527,7 @@
                         <li{% if not perms.extras.view_script %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:script_list' %}">Scripts</a>
                         </li>
-                        <li{% if not perms.extras.view_reportresult %} class="disabled"{% endif %}>
+                        <li{% if not perms.extras.view_report %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:report_list' %}">Reports</a>
                         </li>
                     </ul>
@@ -513,25 +541,25 @@
                 {% if request.user.is_authenticated %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-user"></i>
+                            <i class="mdi mdi-account"></i>
                             <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'user:profile' %}"><i class="fa fa-user"></i> Profile</a></li>
+                            <li><a href="{% url 'user:profile' %}"><i class="mdi mdi-account-box"></i> Profile</a></li>
                             {% if request.user.is_staff %}
-                                <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs"></i> Admin</a></li>
+                                <li><a href="{% url 'admin:index' %}"><i class="mdi mdi-cogs"></i> Admin</a></li>
                             {% endif %}
                             <li class="divider"></li>
-                            <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Log out</a></li>
+                            <li><a href="{% url 'logout' %}"><i class="mdi mdi-logout"></i> Log out</a></li>
                         </ul>
                     </li>
                 {% else %}
                     {% url 'login' as login_url %}
                     {% if request.path == login_url %}
-                        <li><a href="{{ request.get_full_path }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                        <li><a href="{{ request.get_full_path }}"><i class="mdi mdi-login"></i> Log in</a></li>
                     {% else %}
-                        <li><a href="{{ login_url }}?next={{ request.get_full_path | urlencode }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                        <li><a href="{{ login_url }}?next={{ request.get_full_path | urlencode }}"><i class="mdi mdi-login"></i> Log in</a></li>
                     {% endif %}
                 {% endif %}
             </ul>
@@ -540,7 +568,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search">
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-search"></i>
+                            <i class="mdi mdi-magnify"></i>
                         </button>
                     </span>
                 </div>

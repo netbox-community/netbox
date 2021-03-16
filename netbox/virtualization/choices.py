@@ -1,4 +1,3 @@
-from dcim.choices import InterfaceTypeChoices
 from utilities.choices import ChoiceSet
 
 
@@ -24,21 +23,11 @@ class VirtualMachineStatusChoices(ChoiceSet):
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
 
-    LEGACY_MAP = {
-        STATUS_OFFLINE: 0,
-        STATUS_ACTIVE: 1,
-        STATUS_STAGED: 3,
+    CSS_CLASSES = {
+        STATUS_OFFLINE: 'warning',
+        STATUS_ACTIVE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_STAGED: 'primary',
+        STATUS_FAILED: 'danger',
+        STATUS_DECOMMISSIONING: 'warning',
     }
-
-
-#
-# Interface types (for VirtualMachines)
-#
-
-class VMInterfaceTypeChoices(ChoiceSet):
-
-    TYPE_VIRTUAL = InterfaceTypeChoices.TYPE_VIRTUAL
-
-    CHOICES = (
-        (TYPE_VIRTUAL, 'Virtual'),
-    )

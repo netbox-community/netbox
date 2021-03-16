@@ -1,18 +1,9 @@
-from rest_framework import routers
-
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 
-class CircuitsRootView(routers.APIRootView):
-    """
-    Circuits API root view
-    """
-    def get_view_name(self):
-        return 'Circuits'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = CircuitsRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.CircuitsRootView
 
 # Providers
 router.register('providers', views.ProviderViewSet)

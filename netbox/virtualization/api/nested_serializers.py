@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
 from dcim.models import Interface
-from utilities.api import WritableNestedSerializer
+from netbox.api import WritableNestedSerializer
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 __all__ = [
     'NestedClusterGroupSerializer',
     'NestedClusterSerializer',
     'NestedClusterTypeSerializer',
-    'NestedInterfaceSerializer',
+    'NestedVMInterfaceSerializer',
     'NestedVirtualMachineSerializer',
 ]
 
@@ -56,8 +56,8 @@ class NestedVirtualMachineSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'name']
 
 
-class NestedInterfaceSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:interface-detail')
+class NestedVMInterfaceSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer(read_only=True)
 
     class Meta:

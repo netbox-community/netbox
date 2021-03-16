@@ -1,4 +1,4 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load static %}
 {% load form_helpers %}
 
@@ -24,6 +24,12 @@
         <div class="panel-body">
             {% render_field model_form.tenant_group %}
             {% render_field model_form.tenant %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tags</strong></div>
+        <div class="panel-body">
+            {% render_field model_form.tags %}
         </div>
     </div>
     {% if model_form.custom_fields %}

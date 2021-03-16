@@ -1,9 +1,20 @@
-{% extends 'utilities/obj_list.html' %}
+{% extends 'generic/object_list.html' %}
 {% load helpers %}
 
 {% block buttons %}
     <div class="btn-group" role="group">
-        <a href="{% url 'ipam:prefix_list' %}{% querystring request expand=None page=1 %}" class="btn btn-default{% if not request.GET.expand %} active{% endif %}">Collapse</a>
-        <a href="{% url 'ipam:prefix_list' %}{% querystring request expand='on' page=1 %}" class="btn btn-default{% if request.GET.expand %} active{% endif %}">Expand</a>
+        <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="max_length" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                Max Length{% if "mask_length__lte" in request.GET %}: {{ request.GET.mask_length__lte }}{% endif %}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="max_length">
+                {% for i in "4,8,12,16,20,24,28,32,40,48,56,64"|split %}
+                    <li><a href="{% url 'ipam:prefix_list' %}{% querystring request mask_length__lte=i page=1 %}">
+                        {{ i }} {% if request.GET.mask_length__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}
+                    </a></li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 {% endblock %}

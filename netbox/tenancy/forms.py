@@ -2,11 +2,11 @@ from django import forms
 
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelCSVForm,
-    TagField,
 )
+from extras.models import Tag
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, TagFilterField,
+    BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
 
@@ -18,10 +18,7 @@ from .models import Tenant, TenantGroup
 class TenantGroupForm(BootstrapMixin, forms.ModelForm):
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/tenancy/tenant-groups/"
-        )
+        required=False
     )
     slug = SlugField()
 
@@ -57,7 +54,8 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -108,10 +106,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-            null_option=True,
-        )
+        null_option='None'
     )
     tag = TagFilterField(model)
 
@@ -124,30 +119,18 @@ class TenancyForm(forms.Form):
     tenant_group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        widget=APISelect(
-            filter_for={
-                'tenant': 'group_id',
-            },
-            attrs={
-                'nullable': 'true',
-            }
-        )
+        null_option='None',
+        initial_params={
+            'tenants': '$tenant'
+        }
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$tenant_group'
+        }
     )
-
-    def __init__(self, *args, **kwargs):
-
-        # Initialize helper selector
-        instance = kwargs.get('instance')
-        if instance and instance.tenant is not None:
-            initial = kwargs.get('initial', {}).copy()
-            initial['tenant_group'] = instance.tenant.group
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
 
 
 class TenancyFilterForm(forms.Form):
@@ -155,20 +138,14 @@ class TenancyFilterForm(forms.Form):
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-            null_option=True,
-            filter_for={
-                'tenant': 'group'
-            }
-        )
+        null_option='None'
     )
     tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-            null_option=True,
-        )
+        null_option='None',
+        query_params={
+            'group': '$tenant_group'
+        }
     )

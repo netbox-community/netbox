@@ -1,29 +1,24 @@
 from dcim.models import DeviceRole
-from ruamel.yaml import YAML
 from utilities.choices import ColorChoices
 
-from pathlib import Path
+from startup_script_utils import load_yaml
 import sys
 
-file = Path('/opt/netbox/initializers/device_roles.yml')
-if not file.is_file():
+device_roles = load_yaml('/opt/netbox/initializers/device_roles.yml')
+
+if device_roles is None:
   sys.exit()
 
-with file.open('r') as stream:
-  yaml=YAML(typ='safe')
-  device_roles = yaml.load(stream)
+for params in device_roles:
 
-  if device_roles is not None:
-    for params in device_roles:
+  if 'color' in params:
+    color = params.pop('color')
 
-      if 'color' in params:
-        color = params.pop('color')
+    for color_tpl in ColorChoices:
+      if color in color_tpl:
+        params['color'] = color_tpl[0]
 
-        for color_tpl in ColorChoices:
-          if color in color_tpl:
-            params['color'] = color_tpl[0]
+  device_role, created = DeviceRole.objects.get_or_create(**params)
 
-      device_role, created = DeviceRole.objects.update_or_create(name=params['name'], defaults=params)
-
-      if created:
-        print("🎨 Created device role", device_role.name)
+  if created:
+    print("🎨 Created device role", device_role.name)

@@ -1,4 +1,4 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
 {% block form %}
@@ -21,7 +21,9 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Location</strong></div>
         <div class="panel-body">
+            {% render_field form.region %}
             {% render_field form.site %}
+            {% render_field form.rack_group %}
             {% render_field form.rack %}
             {% if obj.device_type.is_child_device and obj.parent_bay %}
                 <div class="form-group">
@@ -39,7 +41,7 @@
                             {{ obj.parent_bay.name }}
                             {% if perms.dcim.change_devicebay %}
                                 <a href="{% url 'dcim:devicebay_depopulate' pk=obj.parent_bay.pk %}" class="btn btn-danger btn-xs">
-                                    <i class="glyphicon glyphicon-remove" aria-hidden="true" title="Remove device"></i> Remove
+                                    <i class="mdi mdi-close-thick" aria-hidden="true" title="Remove device"></i> Remove
                                 </a>
                             {% endif %}
                         </p>

@@ -1,25 +1,35 @@
 import django_filters
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.forms import DateField, IntegerField, NullBooleanField
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
-from utilities.filters import BaseFilterSet
+from utilities.filters import BaseFilterSet, ContentTypeFilter
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag
+from .models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, JobResult, ObjectChange, Tag
 
 
 __all__ = (
     'ConfigContextFilterSet',
+    'ContentTypeFilterSet',
     'CreatedUpdatedFilterSet',
     'CustomFieldFilter',
-    'CustomFieldFilterSet',
+    'CustomFieldModelFilterSet',
     'ExportTemplateFilterSet',
-    'GraphFilterSet',
+    'ImageAttachmentFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
     'TagFilterSet',
+)
+
+EXACT_FILTER_TYPES = (
+    CustomFieldTypeChoices.TYPE_BOOLEAN,
+    CustomFieldTypeChoices.TYPE_DATE,
+    CustomFieldTypeChoices.TYPE_INTEGER,
+    CustomFieldTypeChoices.TYPE_SELECT,
 )
 
 
@@ -27,62 +37,34 @@ class CustomFieldFilter(django_filters.Filter):
     """
     Filter objects by the presence of a CustomFieldValue. The filter's name is used as the CustomField name.
     """
-
     def __init__(self, custom_field, *args, **kwargs):
-        self.cf_type = custom_field.type
-        self.filter_logic = custom_field.filter_logic
+        self.custom_field = custom_field
+
+        if custom_field.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            self.field_class = IntegerField
+        elif custom_field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            self.field_class = NullBooleanField
+        elif custom_field.type == CustomFieldTypeChoices.TYPE_DATE:
+            self.field_class = DateField
+
         super().__init__(*args, **kwargs)
 
-    def filter(self, queryset, value):
+        self.field_name = f'custom_field_data__{self.field_name}'
 
-        # Skip filter on empty value
-        if value is None or not value.strip():
-            return queryset
-
-        # Selection fields get special treatment (values must be integers)
-        if self.cf_type == CustomFieldTypeChoices.TYPE_SELECT:
-            try:
-                # Treat 0 as None
-                if int(value) == 0:
-                    return queryset.exclude(
-                        custom_field_values__field__name=self.field_name,
-                    )
-                # Match on exact CustomFieldChoice PK
-                else:
-                    return queryset.filter(
-                        custom_field_values__field__name=self.field_name,
-                        custom_field_values__serialized_value=value,
-                    )
-            except ValueError:
-                return queryset.none()
-
-        # Apply the assigned filter logic (exact or loose)
-        if (self.cf_type == CustomFieldTypeChoices.TYPE_BOOLEAN or
-                self.filter_logic == CustomFieldFilterLogicChoices.FILTER_EXACT):
-            queryset = queryset.filter(
-                custom_field_values__field__name=self.field_name,
-                custom_field_values__serialized_value=value
-            )
-        else:
-            queryset = queryset.filter(
-                custom_field_values__field__name=self.field_name,
-                custom_field_values__serialized_value__icontains=value
-            )
-
-        return queryset
+        if custom_field.type not in EXACT_FILTER_TYPES:
+            if custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
+                self.lookup_expr = 'icontains'
 
 
-class CustomFieldFilterSet(django_filters.FilterSet):
+class CustomFieldModelFilterSet(django_filters.FilterSet):
     """
     Dynamically add a Filter for each CustomField applicable to the parent model.
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        obj_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(
-            obj_type=obj_type
+            content_types=ContentType.objects.get_for_model(self._meta.model)
         ).exclude(
             filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
         )
@@ -90,18 +72,26 @@ class CustomFieldFilterSet(django_filters.FilterSet):
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
 
 
-class GraphFilterSet(BaseFilterSet):
+class CustomFieldFilterSet(django_filters.FilterSet):
 
     class Meta:
-        model = Graph
-        fields = ['id', 'type', 'name', 'template_language']
+        model = CustomField
+        fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight']
 
 
 class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_type', 'name', 'template_language']
+        fields = ['id', 'content_type', 'name']
+
+
+class ImageAttachmentFilterSet(BaseFilterSet):
+    content_type = ContentTypeFilter()
+
+    class Meta:
+        model = ImageAttachment
+        fields = ['id', 'content_type_id', 'object_id', 'name']
 
 
 class TagFilterSet(BaseFilterSet):
@@ -251,11 +241,22 @@ class ObjectChangeFilterSet(BaseFilterSet):
         label='Search',
     )
     time = django_filters.DateTimeFromToRangeFilter()
+    changed_object_type = ContentTypeFilter()
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        label='User (ID)',
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User name',
+    )
 
     class Meta:
         model = ObjectChange
         fields = [
-            'id', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
+            'id', 'user', 'user_name', 'request_id', 'action', 'changed_object_type_id', 'changed_object_id',
             'object_repr',
         ]
 
@@ -287,3 +288,44 @@ class CreatedUpdatedFilterSet(django_filters.FilterSet):
         field_name='last_updated',
         lookup_expr='lte'
     )
+
+
+#
+# Job Results
+#
+
+class JobResultFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    created = django_filters.DateTimeFilter()
+    completed = django_filters.DateTimeFilter()
+    status = django_filters.MultipleChoiceFilter(
+        choices=JobResultStatusChoices,
+        null_value=None
+    )
+
+    class Meta:
+        model = JobResult
+        fields = [
+            'id', 'created', 'completed', 'status', 'user', 'obj_type', 'name'
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(user__username__icontains=value)
+        )
+
+
+#
+# ContentTypes
+#
+
+class ContentTypeFilterSet(django_filters.FilterSet):
+
+    class Meta:
+        model = ContentType
+        fields = ['id', 'app_label', 'model']

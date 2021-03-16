@@ -2,7 +2,7 @@
 
 ## Replicating the Database
 
-NetBox uses [PostgreSQL](https://www.postgresql.org/) for its database, so general PostgreSQL best practices will apply to NetBox. You can dump and restore the database using the `pg_dump` and `psql` utilities, respectively.
+NetBox employs a [PostgreSQL](https://www.postgresql.org/) database, so general PostgreSQL best practices apply here. The database can be written to a file and restored using the `pg_dump` and `psql` utilities, respectively.
 
 !!! note
     The examples below assume that your database is named `netbox`.
@@ -23,8 +23,10 @@ pg_dump --exclude-table-data=extras_objectchange netbox > netbox.sql
 
 ### Load an Exported Database
 
+When restoring a database from a file, it's recommended to delete any existing database first to avoid potential conflicts.
+
 !!! warning
-    This will destroy and replace any existing instance of the database.
+    The following will destroy and replace any existing instance of the database.
 
 ```no-highlight
 psql -c 'drop database netbox'
@@ -41,17 +43,15 @@ If you want to export only the database schema, and not the data itself (e.g. fo
 ```no-highlight
 pg_dump -s netbox > netbox_schema.sql
 ```
-If you are migrating your instance of NetBox to a different machine, please make sure you invalidate the cache by performing this command:
-
-```no-highlight
-python3 manage.py invalidate all
-```
 
 ---
 
-## Replicating Media
+## Replicating Uploaded Media
 
-NetBox stored uploaded files (such as image attachments) in its media directory. To fully replicate an instance of NetBox, you'll need to copy both the database and the media files.
+By default, NetBox stores uploaded files (such as image attachments) in its media directory. To fully replicate an instance of NetBox, you'll need to copy both the database and the media files.
+
+!!! note
+    These operations are not necessary if your installation is utilizing a [remote storage backend](../../configuration/optional-settings/#storage_backend).
 
 ### Archive the Media Directory
 
@@ -67,4 +67,15 @@ To extract the saved archive into a new installation, run the following from the
 
 ```no-highlight
 tar -xf netbox_media.tar.gz
+```
+
+---
+
+## Cache Invalidation
+
+If you are migrating your instance of NetBox to a different machine, be sure to first invalidate the cache on the original instance by issuing the `invalidate all` management command (within the Python virtual environment):
+
+```no-highlight
+# source /opt/netbox/venv/bin/activate
+(venv) # python3 manage.py invalidate all
 ```

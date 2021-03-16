@@ -27,12 +27,12 @@ def _get_viewname(instance, action):
 
 @register.inclusion_tag('buttons/clone.html')
 def clone_button(instance):
-    viewname = _get_viewname(instance, 'add')
+    url = reverse(_get_viewname(instance, 'add'))
 
     # Populate cloned field values
     param_string = prepare_cloned_fields(instance)
     if param_string:
-        url = '{}?{}'.format(reverse(viewname), param_string)
+        url = f'{url}?{param_string}'
 
     return {
         'url': url,
@@ -97,7 +97,8 @@ def import_button(url):
 @register.inclusion_tag('buttons/export.html', takes_context=True)
 def export_button(context, content_type=None):
     if content_type is not None:
-        export_templates = ExportTemplate.objects.filter(content_type=content_type)
+        user = context['request'].user
+        export_templates = ExportTemplate.objects.restrict(user, 'view').filter(content_type=content_type)
     else:
         export_templates = []
 

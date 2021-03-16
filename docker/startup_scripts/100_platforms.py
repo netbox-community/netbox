@@ -1,32 +1,26 @@
 from dcim.models import Manufacturer, Platform
-from ruamel.yaml import YAML
-
-from pathlib import Path
+from startup_script_utils import load_yaml
 import sys
 
-file = Path('/opt/netbox/initializers/platforms.yml')
-if not file.is_file():
+platforms = load_yaml('/opt/netbox/initializers/platforms.yml')
+
+if platforms is None:
   sys.exit()
 
-with file.open('r') as stream:
-  yaml = YAML(typ='safe')
-  platforms = yaml.load(stream)
+optional_assocs = {
+  'manufacturer': (Manufacturer, 'name'),
+}
 
-  optional_assocs = {
-    'manufacturer': (Manufacturer, 'name'),
-  }
+for params in platforms:
 
-  if platforms is not None:
-    for params in platforms:
+  for assoc, details in optional_assocs.items():
+    if assoc in params:
+      model, field = details
+      query = { field: params.pop(assoc) }
 
-      for assoc, details in optional_assocs.items():
-        if assoc in params:
-          model, field = details
-          query = { field: params.pop(assoc) }
+      params[assoc] = model.objects.get(**query)
 
-          params[assoc] = model.objects.get(**query)
+  platform, created = Platform.objects.get_or_create(**params)
 
-      platform, created = Platform.objects.get_or_create(**params)
-
-      if created:
-        print("💾 Created platform", platform.name)
+  if created:
+    print("💾 Created platform", platform.name)

@@ -2,7 +2,12 @@
 
 ## ALLOWED_HOSTS
 
-This is a list of valid fully-qualified domain names (FQDNs) that is used to reach the NetBox service. Usually this is the same as the hostname for the NetBox server, but can also be different (e.g. when using a reverse proxy serving the NetBox website under a different FQDN than the hostname of the NetBox server). NetBox will not permit access to the server via any other hostnames (or IPs). The value of this option is also used to set `CSRF_TRUSTED_ORIGINS`, which restricts `HTTP POST` to the same set of hosts (more about this [here](https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS)). Keep in mind that NetBox, by default, has `USE_X_FORWARDED_HOST = True` (in `netbox/netbox/settings.py`) which means that if you're using a reverse proxy, it's the FQDN used to reach that reverse proxy which needs to be in this list (more about this [here](https://docs.djangoproject.com/en/stable/ref/settings/#allowed-hosts)).
+This is a list of valid fully-qualified domain names (FQDNs) and/or IP addresses that can be used to reach the NetBox service. Usually this is the same as the hostname for the NetBox server, but can also be different; for example, when using a reverse proxy serving the NetBox website under a different FQDN than the hostname of the NetBox server. To help guard against [HTTP Host header attackes](https://docs.djangoproject.com/en/3.0/topics/security/#host-headers-virtual-hosting), NetBox will not permit access to the server via any other hostnames (or IPs).
+
+!!! note
+    This parameter must always be defined as a list or tuple, even if only value is provided.
+
+The value of this option is also used to set `CSRF_TRUSTED_ORIGINS`, which restricts POST requests to the same set of hosts (more about this [here](https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS)). Keep in mind that NetBox, by default, sets `USE_X_FORWARDED_HOST` to true, which means that if you're using a reverse proxy, it's the FQDN used to reach that reverse proxy which needs to be in this list (more about this [here](https://docs.djangoproject.com/en/stable/ref/settings/#allowed-hosts)).
 
 Example:
 
@@ -10,18 +15,24 @@ Example:
 ALLOWED_HOSTS = ['netbox.example.com', '192.0.2.123']
 ```
 
+If you are not yet sure what the domain name and/or IP address of the NetBox installation will be, and are comfortable accepting the risks in doing so, you can set this to a wildcard (asterisk) to allow all host values:
+
+```
+ALLOWED_HOSTS = ['*']
+```
+
 ---
 
 ## DATABASE
 
-NetBox requires access to a PostgreSQL database service to store data. This service can run locally or on a remote system. The following parameters must be defined within the `DATABASE` dictionary:
+NetBox requires access to a PostgreSQL 9.6 or later database service to store data. This service can run locally on the NetBox server or on a remote system. The following parameters must be defined within the `DATABASE` dictionary:
 
 * `NAME` - Database name
 * `USER` - PostgreSQL username
 * `PASSWORD` - PostgreSQL password
 * `HOST` - Name or IP address of the database server (use `localhost` if running locally)
-* `PORT` - TCP port of the PostgreSQL service; leave blank for default port (5432)
-* `CONN_MAX_AGE` - Lifetime of a [persistent database connection](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections), in seconds (150-300 is recommended)
+* `PORT` - TCP port of the PostgreSQL service; leave blank for default port (TCP/5432)
+* `CONN_MAX_AGE` - Lifetime of a [persistent database connection](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections), in seconds (300 is the default)
 
 Example:
 
@@ -54,10 +65,9 @@ Redis is configured using a configuration setting similar to `DATABASE` and thes
 * `PORT` - TCP port of the Redis service; leave blank for default port (6379)
 * `PASSWORD` - Redis password (if set)
 * `DATABASE` - Numeric database ID
-* `DEFAULT_TIMEOUT` - Connection timeout in seconds
 * `SSL` - Use SSL connection to Redis
 
-Example:
+An example configuration is provided below:
 
 ```python
 REDIS = {
@@ -66,7 +76,6 @@ REDIS = {
         'PORT': 1234,
         'PASSWORD': 'foobar',
         'DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
     'caching': {
@@ -74,15 +83,15 @@ REDIS = {
         'PORT': 6379,
         'PASSWORD': '',
         'DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }
 ```
 
 !!! note
-    If you are upgrading from a version prior to v2.7, please note that the Redis connection configuration settings have
-    changed. Manual modification to bring the `REDIS` section inline with the above specification is necessary
+    If you are upgrading from a NetBox release older than v2.7.0, please note that the Redis connection configuration
+    settings have changed. Manual modification to bring the `REDIS` section inline with the above specification is
+    necessary
 
 !!! warning
     It is highly recommended to keep the task and cache databases separate. Using the same database number on the
@@ -97,6 +106,7 @@ above and the addition of two new keys.
 * `SENTINELS`: List of tuples or tuple of tuples with each inner tuple containing the name or IP address 
 of the Redis server and port for each sentinel instance to connect to
 * `SENTINEL_SERVICE`: Name of the master / service to connect to
+* `SENTINEL_TIMEOUT`: Connection timeout, in seconds
 
 Example:
 
@@ -105,9 +115,9 @@ REDIS = {
     'tasks': {
         'SENTINELS': [('mysentinel.redis.example.com', 6379)],
         'SENTINEL_SERVICE': 'netbox',
+        'SENTINEL_TIMEOUT': 10,
         'PASSWORD': '',
         'DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
     'caching': {
@@ -118,24 +128,20 @@ REDIS = {
         'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }
 ```
 
 !!! note
-    It is possible to have only one or the other Redis configurations to use Sentinel functionality. It is possible
-    for example to have the tasks database use sentinel via `HOST`/`PORT` and for caching to use Sentinel via
-    `SENTINELS`/`SENTINEL_SERVICE`.
-
+    It is permissible to use Sentinel for only one database and not the other.
 
 ---
 
 ## SECRET_KEY
 
-This is a secret cryptographic key is used to improve the security of cookies and password resets. The key defined here should not be shared outside of the configuration file. `SECRET_KEY` can be changed at any time, however be aware that doing so will invalidate all existing sessions.
+This is a secret, random string used to assist in the creation new cryptographic hashes for passwords and HTTP cookies. The key defined here should not be shared outside of the configuration file. `SECRET_KEY` can be changed at any time, however be aware that doing so will invalidate all existing sessions.
 
-Please note that this key is **not** used for hashing user passwords or for the encrypted storage of secret data in NetBox.
+Please note that this key is **not** used directly for hashing user passwords or for the encrypted storage of secret data in NetBox.
 
-`SECRET_KEY` should be at least 50 characters in length and contain a random mix of letters, digits, and symbols. The script located at `netbox/generate_secret_key.py` may be used to generate a suitable key.
+`SECRET_KEY` should be at least 50 characters in length and contain a random mix of letters, digits, and symbols. The script located at `$INSTALL_ROOT/netbox/generate_secret_key.py` may be used to generate a suitable key.

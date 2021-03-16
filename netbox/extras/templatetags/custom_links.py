@@ -16,12 +16,12 @@ GROUP_BUTTON = '<div class="btn-group">\n' \
                '{} <span class="caret"></span>\n' \
                '</button>\n' \
                '<ul class="dropdown-menu pull-right">\n' \
-               '{}</ul></div>'
+               '{}</ul></div>\n'
 GROUP_LINK = '<li><a href="{}"{}>{}</a></li>\n'
 
 
-@register.simple_tag()
-def custom_links(obj):
+@register.simple_tag(takes_context=True)
+def custom_links(context, obj):
     """
     Render all applicable links for the given object.
     """
@@ -30,8 +30,13 @@ def custom_links(obj):
     if not custom_links:
         return ''
 
-    context = {
+    # Pass select context data when rendering the CustomLink
+    link_context = {
         'obj': obj,
+        'debug': context.get('debug', False),  # django.template.context_processors.debug
+        'request': context['request'],  # django.template.context_processors.request
+        'user': context['user'],  # django.contrib.auth.context_processors.auth
+        'perms': context['perms'],  # django.contrib.auth.context_processors.auth
     }
     template_code = ''
     group_names = OrderedDict()
@@ -47,16 +52,16 @@ def custom_links(obj):
         # Add non-grouped links
         else:
             try:
-                text_rendered = render_jinja2(cl.text, context)
+                text_rendered = render_jinja2(cl.text, link_context)
                 if text_rendered:
-                    link_rendered = render_jinja2(cl.url, context)
+                    link_rendered = render_jinja2(cl.url, link_context)
                     link_target = ' target="_blank"' if cl.new_window else ''
                     template_code += LINK_BUTTON.format(
                         link_rendered, link_target, cl.button_class, text_rendered
                     )
             except Exception as e:
                 template_code += '<a class="btn btn-sm btn-default" disabled="disabled" title="{}">' \
-                                 '<i class="fa fa-warning"></i> {}</a>\n'.format(e, cl.name)
+                                 '<i class="mdi mdi-alert"></i> {}</a>\n'.format(e, cl.name)
 
     # Add grouped links to template
     for group, links in group_names.items():
@@ -65,17 +70,17 @@ def custom_links(obj):
 
         for cl in links:
             try:
-                text_rendered = render_jinja2(cl.text, context)
+                text_rendered = render_jinja2(cl.text, link_context)
                 if text_rendered:
                     link_target = ' target="_blank"' if cl.new_window else ''
-                    link_rendered = render_jinja2(cl.url, context)
+                    link_rendered = render_jinja2(cl.url, link_context)
                     links_rendered.append(
                         GROUP_LINK.format(link_rendered, link_target, text_rendered)
                     )
             except Exception as e:
                 links_rendered.append(
                     '<li><a disabled="disabled" title="{}"><span class="text-muted">'
-                    '<i class="fa fa-warning"></i> {}</span></a></li>'.format(e, cl.name)
+                    '<i class="mdi mdi-alert"></i> {}</span></a></li>'.format(e, cl.name)
                 )
 
         if links_rendered:

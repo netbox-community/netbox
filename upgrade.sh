@@ -40,11 +40,12 @@ echo "Installing core dependencies ($COMMAND)..."
 eval $COMMAND || exit 1
 
 # Install optional packages (if any)
-if [ -f "local_requirements.txt" ]
-then
+if [ -s "local_requirements.txt" ]; then
   COMMAND="pip3 install -r local_requirements.txt"
   echo "Installing local dependencies ($COMMAND)..."
   eval $COMMAND || exit 1
+elif [ -f "local_requirements.txt" ]; then
+  echo "Skipping local dependencies (local_requirements.txt is empty)"
 else
   echo "Skipping local dependencies (local_requirements.txt not found)"
 fi
@@ -52,6 +53,11 @@ fi
 # Apply any database migrations
 COMMAND="python3 netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
+eval $COMMAND || exit 1
+
+# Trace any missing cable paths (not typically needed)
+COMMAND="python3 netbox/manage.py trace_paths --no-input"
+echo "Checking for missing cable paths ($COMMAND)..."
 eval $COMMAND || exit 1
 
 # Collect static files
@@ -78,7 +84,8 @@ if [ -v WARN_MISSING_VENV ]; then
   echo "--------------------------------------------------------------------"
   echo "WARNING: No existing virtual environment was detected. A new one has"
   echo "been created. Update your systemd service files to reflect the new"
-  echo "Python and gunicorn executables."
+  echo "Python and gunicorn executables. (If this is a new installation,"
+  echo "this warning can be ignored.)"
   echo ""
   echo "netbox.service ExecStart:"
   echo "  ${VIRTUALENV}/bin/gunicorn"

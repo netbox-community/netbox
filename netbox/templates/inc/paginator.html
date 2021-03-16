@@ -5,35 +5,35 @@
         <nav>
             <ul class="pagination pull-right">
                 {% if page.has_previous %}
-                    <li><a href="{% querystring request page=page.previous_page_number %}"><i class="fa fa-angle-double-left"></i></a></li>
+                    <li><a href="{% querystring request page=page.previous_page_number %}"><i class="mdi mdi-chevron-double-left"></i></a></li>
                 {% endif %}
                 {% for p in page.smart_pages %}
                     {% if p %}
-                        <li{% ifequal page.number p %} class="active"{% endifequal %}><a href="{% querystring request page=p %}">{{ p }}</a></li>
+                        <li{% if page.number == p %} class="active"{% endif %}><a href="{% querystring request page=p %}">{{ p }}</a></li>
                     {% else %}
                         <li class="disabled"><span>&hellip;</span></li>
                     {% endif %}
                 {% endfor %}
                 {% if page.has_next %}
-                    <li><a href="{% querystring request page=page.next_page_number %}"><i class="fa fa-angle-double-right"></i></a></li>
+                    <li><a href="{% querystring request page=page.next_page_number %}"><i class="mdi mdi-chevron-double-right"></i></a></li>
                 {% endif %}
             </ul>
         </nav>
-        <form method="get">
-            {% for k, v_list in request.GET.lists %}
-                {% if k != 'per_page' %}
-                    {% for v in v_list %}
-                        <input type="hidden" name="{{ k }}" value="{{ v }}" />
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-            <select name="per_page" id="per_page">
-                {% for n in settings.PER_PAGE_DEFAULTS %}
-                    <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
-                {% endfor %}
-            </select> per page
-        </form>
     {% endif %}
+    <form method="get">
+        {% for k, v_list in request.GET.lists %}
+            {% if k != 'per_page' %}
+                {% for v in v_list %}
+                    <input type="hidden" name="{{ k }}" value="{{ v }}" />
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <select name="per_page" id="per_page">
+            {% for n in settings.PER_PAGE_DEFAULTS %}
+                <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
+            {% endfor %}
+        </select> per page
+    </form>
     {% if page %}
         <div class="text-right text-muted">
             Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}

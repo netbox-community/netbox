@@ -1,20 +1,30 @@
-from tenancy.models import Tenant
-from ruamel.yaml import YAML
-from pathlib import Path
 import sys
 
-file = Path('/opt/netbox/initializers/tenants.yml')
-if not file.is_file():
+from startup_script_utils import *
+from tenancy.models import Tenant, TenantGroup
+
+tenants = load_yaml('/opt/netbox/initializers/tenants.yml')
+
+if tenants is None:
   sys.exit()
 
-with file.open('r') as stream:
-  yaml = YAML(typ='safe')
-  tenants = yaml.load(stream)
+optional_assocs = {
+  'group': (TenantGroup, 'name')
+}
 
-  if tenants is not None:
-    for params in tenants:
+for params in tenants:
+  custom_field_data = pop_custom_fields(params)
 
-      tenant, created = Tenant.objects.update_or_create(name=params['name'], defaults=params)
+  for assoc, details in optional_assocs.items():
+    if assoc in params:
+      model, field = details
+      query = { field: params.pop(assoc) }
 
-      if created:
-        print("🏠 Created tenant", tenant.name)
+      params[assoc] = model.objects.get(**query)
+
+  tenant, created = Tenant.objects.get_or_create(**params)
+
+  if created:
+    set_custom_fields_values(tenant, custom_field_data)
+
+    print("👩‍💻 Created Tenant", tenant.name)

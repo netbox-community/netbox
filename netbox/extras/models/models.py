@@ -1,22 +1,24 @@
 import json
+import uuid
 from collections import OrderedDict
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
-from django.template import Template, Context
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.utils.encoders import JSONEncoder
 
-from utilities.utils import deepmerge, render_jinja2
 from extras.choices import *
 from extras.constants import *
+from extras.models import ChangeLoggedModel
 from extras.querysets import ConfigContextQuerySet
-from extras.utils import FeatureQuery, image_upload
+from extras.utils import extras_features, FeatureQuery, image_upload
+from utilities.querysets import RestrictedQuerySet
+from utilities.utils import deepmerge, render_jinja2
 
 
 #
@@ -29,7 +31,7 @@ class Webhook(models.Model):
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
-    obj_type = models.ManyToManyField(
+    content_types = models.ManyToManyField(
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',
@@ -115,11 +117,15 @@ class Webhook(models.Model):
         return self.name
 
     def clean(self):
+        super().clean()
+
+        # At least one action type must be selected
         if not self.type_create and not self.type_delete and not self.type_update:
             raise ValidationError(
                 "You must select at least one type: create, update, and/or delete."
             )
 
+        # CA file path requires SSL verification enabled
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError({
                 'ca_file_path': 'Do not specify a CA certificate file if SSL verification is disabled.'
@@ -201,67 +207,6 @@ class CustomLink(models.Model):
 
 
 #
-# Graphs
-#
-
-class Graph(models.Model):
-    type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuery('graphs')
-    )
-    weight = models.PositiveSmallIntegerField(
-        default=1000
-    )
-    name = models.CharField(
-        max_length=100,
-        verbose_name='Name'
-    )
-    template_language = models.CharField(
-        max_length=50,
-        choices=TemplateLanguageChoices,
-        default=TemplateLanguageChoices.LANGUAGE_JINJA2
-    )
-    source = models.CharField(
-        max_length=500,
-        verbose_name='Source URL'
-    )
-    link = models.URLField(
-        blank=True,
-        verbose_name='Link URL'
-    )
-
-    class Meta:
-        ordering = ('type', 'weight', 'name', 'pk')  # (type, weight, name) may be non-unique
-
-    def __str__(self):
-        return self.name
-
-    def embed_url(self, obj):
-        context = {'obj': obj}
-
-        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
-            template = Template(self.source)
-            return template.render(Context(context))
-
-        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
-            return render_jinja2(self.source, context)
-
-    def embed_link(self, obj):
-        if self.link is None:
-            return ''
-
-        context = {'obj': obj}
-
-        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
-            template = Template(self.link)
-            return template.render(Context(context))
-
-        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
-            return render_jinja2(self.link, context)
-
-
-#
 # Export templates
 #
 
@@ -278,11 +223,6 @@ class ExportTemplate(models.Model):
         max_length=200,
         blank=True
     )
-    template_language = models.CharField(
-        max_length=50,
-        choices=TemplateLanguageChoices,
-        default=TemplateLanguageChoices.LANGUAGE_JINJA2
-    )
     template_code = models.TextField(
         help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
     )
@@ -297,6 +237,8 @@ class ExportTemplate(models.Model):
         blank=True,
         help_text='Extension to append to the rendered filename'
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['content_type', 'name']
@@ -314,16 +256,7 @@ class ExportTemplate(models.Model):
         context = {
             'queryset': queryset
         }
-
-        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
-            template = Template(self.template_code)
-            output = template.render(Context(context))
-
-        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
-            output = render_jinja2(self.template_code, context)
-
-        else:
-            return None
+        output = render_jinja2(self.template_code, context)
 
         # Replace CRLF-style line terminators
         output = output.replace('\r\n', '\n')
@@ -380,6 +313,8 @@ class ImageAttachment(models.Model):
         auto_now_add=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
 
@@ -426,7 +361,7 @@ class ImageAttachment(models.Model):
 # Config contexts
 #
 
-class ConfigContext(models.Model):
+class ConfigContext(ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -491,7 +426,7 @@ class ConfigContext(models.Model):
         related_name='+',
         blank=True
     )
-    data = JSONField()
+    data = models.JSONField()
 
     objects = ConfigContextQuerySet.as_manager()
 
@@ -505,6 +440,7 @@ class ConfigContext(models.Model):
         return reverse('extras:configcontext', kwargs={'pk': self.pk})
 
     def clean(self):
+        super().clean()
 
         # Verify that JSON data is provided as an object
         if type(self.data) is not dict:
@@ -518,7 +454,7 @@ class ConfigContextModel(models.Model):
     A model which includes local configuration context data. This local data will override any inherited data from
     ConfigContexts.
     """
-    local_context_data = JSONField(
+    local_context_data = models.JSONField(
         blank=True,
         null=True,
     )
@@ -533,8 +469,16 @@ class ConfigContextModel(models.Model):
 
         # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
         data = OrderedDict()
-        for context in ConfigContext.objects.get_for_object(self):
-            data = deepmerge(data, context.data)
+
+        if not hasattr(self, 'config_context_data'):
+            # The annotation is not available, so we fall back to manually querying for the config context objects
+            config_context_data = ConfigContext.objects.get_for_object(self, aggregate_data=True)
+        else:
+            # The attribute may exist, but the annotated value could be None if there is no config context data
+            config_context_data = self.config_context_data or []
+
+        for context in config_context_data:
+            data = deepmerge(data, context)
 
         # If the object has local config context data defined, merge it last
         if self.local_context_data:
@@ -543,7 +487,6 @@ class ConfigContextModel(models.Model):
         return data
 
     def clean(self):
-
         super().clean()
 
         # Verify that JSON data is provided as an object
@@ -557,32 +500,54 @@ class ConfigContextModel(models.Model):
 # Custom scripts
 #
 
+@extras_features('job_results')
 class Script(models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
     class Meta:
         managed = False
-        permissions = (
-            ('run_script', 'Can run script'),
-        )
 
 
 #
-# Report results
+# Reports
 #
 
-class ReportResult(models.Model):
+@extras_features('job_results')
+class Report(models.Model):
+    """
+    Dummy model used to generate permissions for reports. Does not exist in the database.
+    """
+    class Meta:
+        managed = False
+
+
+#
+# Job results
+#
+
+class JobResult(models.Model):
     """
     This model stores the results from running a user-defined report.
     """
-    report = models.CharField(
-        max_length=255,
-        unique=True
+    name = models.CharField(
+        max_length=255
+    )
+    obj_type = models.ForeignKey(
+        to=ContentType,
+        related_name='job_results',
+        verbose_name='Object types',
+        limit_choices_to=FeatureQuery('job_results'),
+        help_text="The object type to which this job result applies",
+        on_delete=models.CASCADE,
     )
     created = models.DateTimeField(
         auto_now_add=True
     )
+    completed = models.DateTimeField(
+        null=True,
+        blank=True
+    )
     user = models.ForeignKey(
         to=User,
         on_delete=models.SET_NULL,
@@ -590,126 +555,63 @@ class ReportResult(models.Model):
         blank=True,
         null=True
     )
-    failed = models.BooleanField()
-    data = JSONField()
+    status = models.CharField(
+        max_length=30,
+        choices=JobResultStatusChoices,
+        default=JobResultStatusChoices.STATUS_PENDING
+    )
+    data = models.JSONField(
+        null=True,
+        blank=True
+    )
+    job_id = models.UUIDField(
+        unique=True
+    )
 
     class Meta:
-        ordering = ['report']
+        ordering = ['obj_type', 'name', '-created']
 
     def __str__(self):
-        return "{} {} at {}".format(
-            self.report,
-            "passed" if not self.failed else "failed",
-            self.created
+        return str(self.job_id)
+
+    @property
+    def duration(self):
+        if not self.completed:
+            return None
+
+        duration = self.completed - self.created
+        minutes, seconds = divmod(duration.total_seconds(), 60)
+
+        return f"{int(minutes)} minutes, {seconds:.2f} seconds"
+
+    def set_status(self, status):
+        """
+        Helper method to change the status of the job result. If the target status is terminal, the  completion
+        time is also set.
+        """
+        self.status = status
+        if status in JobResultStatusChoices.TERMINAL_STATE_CHOICES:
+            self.completed = timezone.now()
+
+    @classmethod
+    def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
+        """
+        Create a JobResult instance and enqueue a job using the given callable
+
+        func: The callable object to be enqueued for execution
+        name: Name for the JobResult instance
+        obj_type: ContentType to link to the JobResult instance obj_type
+        user: User object to link to the JobResult instance
+        args: additional args passed to the callable
+        kwargs: additional kargs passed to the callable
+        """
+        job_result = cls.objects.create(
+            name=name,
+            obj_type=obj_type,
+            user=user,
+            job_id=uuid.uuid4()
         )
 
+        func.delay(*args, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
-#
-# Change logging
-#
-
-class ObjectChange(models.Model):
-    """
-    Record a change to an object and the user account associated with that change. A change record may optionally
-    indicate an object related to the one being changed. For example, a change to an interface may also indicate the
-    parent device. This will ensure changes made to component models appear in the parent model's changelog.
-    """
-    time = models.DateTimeField(
-        auto_now_add=True,
-        editable=False,
-        db_index=True
-    )
-    user = models.ForeignKey(
-        to=User,
-        on_delete=models.SET_NULL,
-        related_name='changes',
-        blank=True,
-        null=True
-    )
-    user_name = models.CharField(
-        max_length=150,
-        editable=False
-    )
-    request_id = models.UUIDField(
-        editable=False
-    )
-    action = models.CharField(
-        max_length=50,
-        choices=ObjectChangeActionChoices
-    )
-    changed_object_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.PROTECT,
-        related_name='+'
-    )
-    changed_object_id = models.PositiveIntegerField()
-    changed_object = GenericForeignKey(
-        ct_field='changed_object_type',
-        fk_field='changed_object_id'
-    )
-    related_object_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.PROTECT,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    related_object_id = models.PositiveIntegerField(
-        blank=True,
-        null=True
-    )
-    related_object = GenericForeignKey(
-        ct_field='related_object_type',
-        fk_field='related_object_id'
-    )
-    object_repr = models.CharField(
-        max_length=200,
-        editable=False
-    )
-    object_data = JSONField(
-        editable=False
-    )
-
-    csv_headers = [
-        'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
-        'related_object_type', 'related_object_id', 'object_repr', 'object_data',
-    ]
-
-    class Meta:
-        ordering = ['-time']
-
-    def __str__(self):
-        return '{} {} {} by {}'.format(
-            self.changed_object_type,
-            self.object_repr,
-            self.get_action_display().lower(),
-            self.user_name
-        )
-
-    def save(self, *args, **kwargs):
-
-        # Record the user's name and the object's representation as static strings
-        if not self.user_name:
-            self.user_name = self.user.username
-        if not self.object_repr:
-            self.object_repr = str(self.changed_object)
-
-        return super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('extras:objectchange', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.time,
-            self.user,
-            self.user_name,
-            self.request_id,
-            self.get_action_display(),
-            self.changed_object_type,
-            self.changed_object_id,
-            self.related_object_type,
-            self.related_object_id,
-            self.object_repr,
-            self.object_data,
-        )
+        return job_result

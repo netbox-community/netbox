@@ -1,12 +1,12 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 
-from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
-from utilities.models import ChangeLoggedModel
+from utilities.mptt import TreeManager
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 
 
@@ -21,10 +21,11 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
     An arbitrary collection of Tenants.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     parent = TreeForeignKey(
@@ -39,6 +40,8 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = TreeManager()
 
     csv_headers = ['name', 'slug', 'parent', 'description']
 
@@ -79,10 +82,11 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
     department.
     """
     name = models.CharField(
-        max_length=30,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     group = models.ForeignKey(
@@ -99,13 +103,9 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
     clone_fields = [

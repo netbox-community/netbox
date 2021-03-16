@@ -3,13 +3,13 @@ import inspect
 from packaging import version
 
 from django.apps import AppConfig
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
-from django.utils.module_loading import import_string
 
 from extras.registry import registry
 from utilities.choices import ButtonColorChoices
+
+from extras.plugins.utils import import_object
 
 
 # Initialize plugin registry stores
@@ -60,24 +60,20 @@ class PluginConfig(AppConfig):
     def ready(self):
 
         # Register template content
-        try:
-            template_extensions = import_string(f"{self.__module__}.{self.template_extensions}")
+        template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
+        if template_extensions is not None:
             register_template_extensions(template_extensions)
-        except ImportError:
-            pass
 
         # Register navigation menu items (if defined)
-        try:
-            menu_items = import_string(f"{self.__module__}.{self.menu_items}")
+        menu_items = import_object(f"{self.__module__}.{self.menu_items}")
+        if menu_items is not None:
             register_menu_items(self.verbose_name, menu_items)
-        except ImportError:
-            pass
 
     @classmethod
-    def validate(cls, user_config):
+    def validate(cls, user_config, netbox_version):
 
         # Enforce version constraints
-        current_version = version.parse(settings.VERSION)
+        current_version = version.parse(netbox_version)
         if cls.min_version is not None:
             min_version = version.parse(cls.min_version)
             if current_version < min_version:

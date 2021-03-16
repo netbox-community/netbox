@@ -4,7 +4,8 @@ from netaddr import IPNetwork
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from tenancy.models import Tenant
 from utilities.testing import ViewTestCases
 
 
@@ -14,19 +15,27 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        tenants = (
+            Tenant(name='Tenant A', slug='tenant-a'),
+            Tenant(name='Tenant B', slug='tenant-b'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         VRF.objects.bulk_create([
             VRF(name='VRF 1', rd='65000:1'),
             VRF(name='VRF 2', rd='65000:2'),
             VRF(name='VRF 3', rd='65000:3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'VRF X',
             'rd': '65000:999',
-            'tenant': None,
+            'tenant': tenants[0].pk,
             'enforce_unique': True,
             'description': 'A new VRF',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -37,8 +46,48 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'tenant': None,
+            'tenant': tenants[1].pk,
             'enforce_unique': False,
+            'description': 'New description',
+        }
+
+
+class RouteTargetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = RouteTarget
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tenants = (
+            Tenant(name='Tenant A', slug='tenant-a'),
+            Tenant(name='Tenant B', slug='tenant-b'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
+        route_targets = (
+            RouteTarget(name='65000:1001', tenant=tenants[0]),
+            RouteTarget(name='65000:1002', tenant=tenants[1]),
+            RouteTarget(name='65000:1003'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
+        cls.form_data = {
+            'name': '65000:100',
+            'description': 'A new route target',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,tenant,description",
+            "65000:1004,Tenant A,Foo",
+            "65000:1005,Tenant B,Bar",
+            "65000:1006,,No tenant",
+        )
+
+        cls.bulk_edit_data = {
+            'tenant': tenants[1].pk,
             'description': 'New description',
         }
 
@@ -88,12 +137,14 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Aggregate(prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'prefix': IPNetwork('10.99.0.0/16'),
             'rir': rirs[1].pk,
             'date_added': datetime.date(2020, 1, 1),
             'description': 'A new aggregate',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -166,6 +217,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
             'site': sites[1].pk,
@@ -176,14 +229,14 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': roles[1].pk,
             'is_pool': True,
             'description': 'A new prefix',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
             "vrf,prefix,status",
-            "VRF 1,10.4.0.0/16,Active",
-            "VRF 1,10.5.0.0/16,Active",
-            "VRF 1,10.6.0.0/16,Active",
+            "VRF 1,10.4.0.0/16,active",
+            "VRF 1,10.5.0.0/16,active",
+            "VRF 1,10.6.0.0/16,active",
         )
 
         cls.bulk_edit_data = {
@@ -215,24 +268,25 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             IPAddress(address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'vrf': vrfs[1].pk,
             'address': IPNetwork('192.0.2.99/24'),
             'tenant': None,
             'status': IPAddressStatusChoices.STATUS_RESERVED,
             'role': IPAddressRoleChoices.ROLE_ANYCAST,
-            'interface': None,
             'nat_inside': None,
             'dns_name': 'example',
             'description': 'A new IP address',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
             "vrf,address,status",
-            "VRF 1,192.0.2.4/24,Active",
-            "VRF 1,192.0.2.5/24,Active",
-            "VRF 1,192.0.2.6/24,Active",
+            "VRF 1,192.0.2.4/24,active",
+            "VRF 1,192.0.2.5/24,active",
+            "VRF 1,192.0.2.6/24,active",
         )
 
         cls.bulk_edit_data = {
@@ -304,6 +358,8 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VLAN(group=vlangroups[0], vid=103, name='VLAN103', site=sites[0], role=roles[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'site': sites[1].pk,
             'group': vlangroups[1].pk,
@@ -313,14 +369,14 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': VLANStatusChoices.STATUS_RESERVED,
             'role': roles[1].pk,
             'description': 'A new VLAN',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
             "vid,name,status",
-            "104,VLAN104,Active",
-            "105,VLAN105,Active",
-            "106,VLAN106,Active",
+            "104,VLAN104,active",
+            "105,VLAN105,active",
+            "106,VLAN106,active",
         )
 
         cls.bulk_edit_data = {
@@ -333,11 +389,19 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Update base class to PrimaryObjectViewTestCase
+# Blocked by absence of standard creation view
+class ServiceTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = Service
-
-    # TODO: Resolve URL for Service creation
-    test_create_object = None
 
     @classmethod
     def setUpTestData(cls):
@@ -349,31 +413,33 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
 
         Service.objects.bulk_create([
-            Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=101),
-            Service(device=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=102),
-            Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=103),
+            Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
+            Service(device=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
+            Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
         ])
+
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
             'virtual_machine': None,
             'name': 'Service X',
             'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-            'port': 999,
+            'ports': '104,105',
             'ipaddresses': [],
             'description': 'A new service',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "device,name,protocol,port,description",
-            "Device 1,Service 1,TCP,1,First service",
-            "Device 1,Service 2,TCP,2,Second service",
-            "Device 1,Service 3,UDP,3,Third service",
+            "device,name,protocol,ports,description",
+            "Device 1,Service 1,tcp,1,First service",
+            "Device 1,Service 2,tcp,2,Second service",
+            "Device 1,Service 3,udp,3,Third service",
         )
 
         cls.bulk_edit_data = {
             'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'port': 888,
+            'ports': '106,107',
             'description': 'New description',
         }

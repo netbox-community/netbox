@@ -2,22 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
 from .models import Circuit, CircuitType, Provider
-
-CIRCUITTYPE_ACTIONS = """
-<a href="{% url 'circuits:circuittype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.circuit.change_circuittype %}
-    <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}?return_url={{ request.path }}"
-      class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
-STATUS_LABEL = """
-<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
-"""
 
 
 #
@@ -53,11 +39,7 @@ class CircuitTypeTable(BaseTable):
     circuit_count = tables.Column(
         verbose_name='Circuits'
     )
-    actions = tables.TemplateColumn(
-        template_code=CIRCUITTYPE_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(CircuitType, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = CircuitType
@@ -76,11 +58,9 @@ class CircuitTable(BaseTable):
     )
     provider = tables.LinkColumn(
         viewname='circuits:provider',
-        args=[Accessor('provider.slug')]
+        args=[Accessor('provider__slug')]
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )

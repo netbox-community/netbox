@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from utilities.api import WritableNestedSerializer
+from netbox.api import WritableNestedSerializer
 
 __all__ = [
     'NestedCircuitSerializer',
@@ -51,4 +51,4 @@ class NestedCircuitTerminationSerializer(WritableNestedSerializer):
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'url', 'circuit', 'term_side']
+        fields = ['id', 'url', 'circuit', 'term_side', 'cable']

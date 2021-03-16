@@ -1,4 +1,4 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
 {% block form %}
@@ -8,10 +8,16 @@
             {% render_field form.vid %}
             {% render_field form.name %}
             {% render_field form.status %}
-            {% render_field form.site %}
-            {% render_field form.group %}
             {% render_field form.role %}
             {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Assignment</strong></div>
+        <div class="panel-body">
+            {% render_field form.region %}
+            {% render_field form.site %}
+            {% render_field form.group %}
         </div>
     </div>
     <div class="panel panel-default">

@@ -4,19 +4,19 @@
 only: issues
 
 # Number of days of inactivity before an issue becomes stale
-daysUntilStale: 14
+daysUntilStale: 45
 
 # Number of days of inactivity before a stale issue is closed
-daysUntilClose: 7
+daysUntilClose: 15
 
 # Issues with these labels will never be considered stale
 exemptLabels:
   - "status: accepted"
-  - "status: gathering feedback"
   - "status: blocked"
+  - "status: needs milestone"
 
 # Label to use when marking an issue as stale
-staleLabel: wontfix
+staleLabel: "pending closure"
 
 # Comment to post when marking an issue as stale. Set to `false` to disable
 markComment: >

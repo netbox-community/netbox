@@ -64,6 +64,15 @@ PLUGINS_CONFIG = {
 }
 ```
 
+### Run Database Migrations
+
+If the plugin introduces new database models, run the provided schema migrations:
+
+```no-highlight
+(venv) $ cd /opt/netbox/netbox/
+(venv) $ python3 manage.py migrate
+```
+
 ### Collect Static Files
 
 Plugins may package static files to be served directly by the HTTP front end. Ensure that these are copied to the static root directory with the `collectstatic` management command:

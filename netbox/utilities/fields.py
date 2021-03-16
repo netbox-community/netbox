@@ -68,6 +68,6 @@ class NaturalOrderingField(models.CharField):
         return (
             self.name,
             'utilities.fields.NaturalOrderingField',
-            ['target_field'],
+            [self.target_field],
             kwargs,
         )

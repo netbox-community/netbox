@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from .choices import IPAddressRoleChoices
 
 # BGP ASN bounds
@@ -14,6 +16,7 @@ BGP_ASN_MAX = 2**32 - 1
 #   * Type 1 (32-bit IPv4 address : 16-bit integer)
 #   * Type 2 (32-bit AS number : 16-bit integer)
 # 21 characters are sufficient to convey the longest possible string value (255.255.255.255:65535)
+# Also used for RouteTargets
 VRF_RD_MAX_LENGTH = 21
 
 
@@ -28,6 +31,11 @@ PREFIX_LENGTH_MAX = 127  # IPv6
 #
 # IPAddresses
 #
+
+IPADDRESS_ASSIGNMENT_MODELS = Q(
+    Q(app_label='dcim', model='interface') |
+    Q(app_label='virtualization', model='vminterface')
+)
 
 IPADDRESS_MASK_LENGTH_MIN = 1
 IPADDRESS_MASK_LENGTH_MAX = 128  # IPv6

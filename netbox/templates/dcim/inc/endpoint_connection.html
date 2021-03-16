@@ -1,0 +1,8 @@
+{% if path.destination_id %}
+    {% with endpoint=path.destination %}
+        <td><a href="{{ endpoint.parent.get_absolute_url }}">{{ endpoint.parent }}</a></td>
+        <td><a href="{{ endpoint.get_absolute_url }}">{{ endpoint }}</a></td>
+    {% endwith %}
+{% else %}
+    <td colspan="2" class="text-muted">Not connected</td>
+{% endif %}

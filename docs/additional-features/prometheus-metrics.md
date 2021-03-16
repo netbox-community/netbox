@@ -23,16 +23,7 @@ For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on you
 
 ## Multi Processing Notes
 
-When deploying NetBox in a multiprocess mannor--such as using Gunicorn as recomented in the installation docs--the Prometheus client library requires the use of a shared directory
-to collect metrics from all the worker processes. This can be any arbitrary directory to which the processes have read/write access. This directory is then made available by use of the
-`prometheus_multiproc_dir` environment variable.
+When deploying NetBox in a multiprocess manner (e.g. running multiple Gunicorn workers) the Prometheus client library requires the use of a shared directory to collect metrics from all worker processes. To configure this, first create or designate a local directory to which the worker processes have read and write access, and then configure your WSGI service (e.g. Gunicorn) to define this path as the `prometheus_multiproc_dir` environment variable.
 
-This can be setup by first creating a shared directory and then adding this line (with the appropriate directory) to the `[program:netbox]` section of the supervisor config file.
-
-```
-environment=prometheus_multiproc_dir=/tmp/prometheus_metrics
-```
-
-#### Accuracy
-
-If having accurate long-term metrics in a multiprocess environment is important to you then it's recommended you use the `uwsgi` library instead of `gunicorn`. The issue lies in the way `gunicorn` tracks worker processes (vs `uwsgi`) which helps manage the metrics files created by the above configurations. If you're using Netbox with gunicorn in a containerized enviroment following the one-process-per-container methodology, then you will likely not need to change to `uwsgi`. More details can be found in  [issue #3779](https://github.com/netbox-community/netbox/issues/3779#issuecomment-590547562).
+!!! warning
+    If having accurate long-term metrics in a multiprocess environment is crucial to your deployment, it's recommended you use the `uwsgi` library instead of `gunicorn`. The issue lies in the way `gunicorn` tracks worker processes (vs `uwsgi`) which helps manage the metrics files created by the above configurations. If you're using Netbox with gunicorn in a containerized enviroment following the one-process-per-container methodology, then you will likely not need to change to `uwsgi`. More details can be found in  [issue #3779](https://github.com/netbox-community/netbox/issues/3779#issuecomment-590547562).

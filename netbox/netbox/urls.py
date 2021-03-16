@@ -1,26 +1,15 @@
 from django.conf import settings
 from django.conf.urls import include
-from django.urls import path, re_path, reverse
-from django.views.generic.base import RedirectView
+from django.urls import path, re_path
 from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
-from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
+from netbox.api.views import APIRootView, StatusView
+from netbox.views import HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
-
-
-# TODO: Remove in v2.9
-class RQRedirectView(RedirectView):
-    """
-    Temporary 301 redirect from the old URL to the new one.
-    """
-    permanent = True
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('rq_home')
 
 
 openapi_info = openapi.Info(
@@ -68,8 +57,10 @@ _patterns = [
     path('api/ipam/', include('ipam.api.urls')),
     path('api/secrets/', include('secrets.api.urls')),
     path('api/tenancy/', include('tenancy.api.urls')),
+    path('api/users/', include('users.api.urls')),
     path('api/virtualization/', include('virtualization.api.urls')),
     path('api/vapor/', include('vapor.api.urls')),
+    path('api/status/', StatusView.as_view(), name='api-status'),
     path('api/docs/', schema_view.with_ui('swagger'), name='api_docs'),
     path('api/redoc/', schema_view.with_ui('redoc'), name='api_redocs'),
     re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(), name='schema_swagger'),
@@ -80,8 +71,6 @@ _patterns = [
     # Admin
     path('admin/', admin_site.urls),
     path('admin/background-tasks/', include('django_rq.urls')),
-    # TODO: Remove in v2.9
-    path('admin/webhook-backend-status/', RQRedirectView.as_view()),
 
     # Errors
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
@@ -109,4 +98,4 @@ urlpatterns = [
     path('{}'.format(settings.BASE_PATH), include(_patterns))
 ]
 
-handler500 = 'utilities.views.server_error'
+handler500 = 'netbox.views.server_error'

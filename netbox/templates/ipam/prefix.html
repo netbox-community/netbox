@@ -9,10 +9,10 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></li>
-                {% if prefix.vrf %}
-                    <li><a href="{% url 'ipam:vrf' pk=prefix.vrf.pk %}">{{ prefix.vrf }}</a></li>
+                {% if object.vrf %}
+                    <li><a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a></li>
                 {% endif %}
-                <li>{{ prefix }}</li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search prefixes" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -29,49 +29,49 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons prefix %}
+        {% plugin_buttons object %}
         {% if perms.ipam.add_prefix and active_tab == 'prefixes' and first_available_prefix %}
-            <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ prefix.vrf.pk }}&site={{ prefix.site.pk }}&tenant_group={{ prefix.tenant.group.pk }}&tenant={{ prefix.tenant.pk }}" class="btn btn-success">
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Child Prefix
+            <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ object.vrf.pk }}&site={{ object.site.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-success">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Child Prefix
             </a>
         {% endif %}
         {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and first_available_ip %}
-            <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}&vrf={{ prefix.vrf.pk }}&tenant_group={{ prefix.tenant.group.pk }}&tenant={{ prefix.tenant.pk }}" class="btn btn-success">
-                <span class="fa fa-plus" aria-hidden="true"></span>
+            <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}&vrf={{ object.vrf.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-success">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                 Add an IP Address
             </a>
         {% endif %}
         {% if perms.ipam.add_prefix %}
-            {% clone_button prefix %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.ipam.change_prefix %}
-            {% edit_button prefix %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.ipam.delete_prefix %}
-            {% delete_button prefix %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}{{ prefix }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=prefix %}
+    <h1>{% block title %}{{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     {% include 'ipam/inc/toggle_available.html' %}
     <div class="pull-right noprint">
-        {% custom_links prefix %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs" style="margin-bottom: 20px">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a>
+            <a href="{% url 'ipam:prefix' pk=object.pk %}">Prefix</a>
         </li>
         <li role="presentation"{% if active_tab == 'prefixes' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:prefix_prefixes' pk=prefix.pk %}">Child Prefixes <span class="badge">{{ prefix.get_child_prefixes.count }}</span></a>
+            <a href="{% url 'ipam:prefix_prefixes' pk=object.pk %}">Child Prefixes <span class="badge">{{ object.get_child_prefixes.count }}</span></a>
         </li>
-        {% if perms.ipam.view_ipaddress %}
+        {% if perms.ipam.view_ipaddress and object.status != 'container' %}
             <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses <span class="badge">{{ prefix.get_child_ips.count }}</span></a>
+                <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">IP Addresses <span class="badge">{{ object.get_child_ips.count }}</span></a>
             </li>
         {% endif %}
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:prefix_changelog' pk=prefix.pk %}">Change Log</a>
+                <a href="{% url 'ipam:prefix_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -87,13 +87,13 @@
                 <table class="table table-hover panel-body attr-table">
                     <tr>
                         <td>Family</td>
-                        <td>IPv{{ prefix.family }}</td>
+                        <td>IPv{{ object.family }}</td>
                     </tr>
                     <tr>
                         <td>VRF</td>
                         <td>
-                            {% if prefix.vrf %}
-                                <a href="{% url 'ipam:vrf' pk=prefix.vrf.pk %}">{{ prefix.vrf }}</a> ({{ prefix.vrf.rd }})
+                            {% if object.vrf %}
+                                <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a> ({{ object.vrf.rd }})
                             {% else %}
                                 <span>Global</span>
                             {% endif %}
@@ -102,12 +102,11 @@
                     <tr>
                         <td>Tenant</td>
                         <td>
-                            {% if prefix.tenant %}
-                                {% if prefix.tenant.group %}
-                                    <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                            {% if object.tenant %}
+                                {% if object.tenant.group %}
+                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                                 {% endif %}
-                                <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -126,12 +125,11 @@
                     <tr>
                         <td>Site</td>
                         <td>
-                            {% if prefix.site %}
-                                {% if prefix.site.region %}
-                                    <a href="{{ prefix.site.region.get_absolute_url }}">{{ prefix.site.region }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                            {% if object.site %}
+                                {% if object.site.region %}
+                                    <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                                 {% endif %}
-                                <a href="{% url 'dcim:site' slug=prefix.site.slug %}">{{ prefix.site }}</a>
+                                <a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -140,12 +138,11 @@
                     <tr>
                         <td>VLAN</td>
                         <td>
-                            {% if prefix.vlan %}
-                                {% if prefix.vlan.group %}
-                                    <a href="{{ prefix.vlan.group.get_absolute_url }}">{{ prefix.vlan.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                            {% if object.vlan %}
+                                {% if object.vlan.group %}
+                                    <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
                                 {% endif %}
-                                <a href="{% url 'ipam:vlan' pk=prefix.vlan.pk %}">{{ prefix.vlan.display_name }}</a>
+                                <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan.display_name }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -154,14 +151,14 @@
                     <tr>
                         <td>Status</td>
                         <td>
-                            <span class="label label-{{ prefix.get_status_class }}">{{ prefix.get_status_display }}</span>
+                            <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                         </td>
                     </tr>
                     <tr>
                         <td>Role</td>
                         <td>
-                            {% if prefix.role %}
-                                <a href="{% url 'ipam:prefix_list' %}?role={{ prefix.role.slug }}">{{ prefix.role }}</a>
+                            {% if object.role %}
+                                <a href="{% url 'ipam:prefix_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -169,39 +166,39 @@
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>{{ prefix.description|placeholder }}</td>
+                        <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Is a pool</td>
                         <td>
-                            {% if prefix.is_pool %}
-                                <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                            {% if object.is_pool %}
+                                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
                             {% else %}
-                                <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                                <i class="mdi mdi-close-thick text-danger" title="No"></i>
                             {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <td>Utilization</td>
-                        <td>{% utilization_graph prefix.get_utilization %}</td>
+                        <td>{% utilization_graph object.get_utilization %}</td>
                     </tr>
                 </table>
             </div>
-            {% include 'inc/custom_fields_panel.html' with obj=prefix %}
-            {% include 'extras/inc/tags_panel.html' with tags=prefix.tags.all url='ipam:prefix_list' %}
-            {% plugin_left_page prefix %}
+            {% include 'inc/custom_fields_panel.html' %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:prefix_list' %}
+            {% plugin_left_page object %}
         </div>
         <div class="col-md-7">
             {% if duplicate_prefix_table.rows %}
                 {% include 'panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' panel_class='danger' %}
             {% endif %}
             {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' panel_class='default' %}
-            {% plugin_right_page prefix %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% plugin_full_width_page prefix %}
+            {% plugin_full_width_page object %}
         </div>
     </div>
 {% endblock %}

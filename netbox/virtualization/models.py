@@ -5,10 +5,15 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.models import Device
-from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
+from dcim.models import BaseInterface, Device
+from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
-from utilities.models import ChangeLoggedModel
+from utilities.fields import NaturalOrderingField
+from utilities.ordering import naturalize_interface
+from utilities.query_functions import CollateAsChar
+from utilities.querysets import RestrictedQuerySet
+from utilities.utils import serialize_object
 from .choices import *
 
 
@@ -17,6 +22,7 @@ __all__ = (
     'ClusterGroup',
     'ClusterType',
     'VirtualMachine',
+    'VMInterface',
 )
 
 
@@ -29,16 +35,19 @@ class ClusterType(ChangeLoggedModel):
     A type of Cluster.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -68,16 +77,19 @@ class ClusterGroup(ChangeLoggedModel):
     An organizational group of Clusters.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -140,13 +152,9 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
     clone_fields = [
@@ -163,6 +171,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
         return reverse('virtualization:cluster', args=[self.pk])
 
     def clean(self):
+        super().clean()
 
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
         if self.pk and self.site:
@@ -264,13 +273,15 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
+    secrets = GenericRelation(
+        to='secrets.Secret',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='virtual_machine'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = ConfigContextModelQuerySet.as_manager()
 
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
@@ -278,15 +289,6 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     clone_fields = [
         'cluster', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     ]
-
-    STATUS_CLASS_MAP = {
-        VirtualMachineStatusChoices.STATUS_OFFLINE: 'warning',
-        VirtualMachineStatusChoices.STATUS_ACTIVE: 'success',
-        VirtualMachineStatusChoices.STATUS_PLANNED: 'info',
-        VirtualMachineStatusChoices.STATUS_STAGED: 'primary',
-        VirtualMachineStatusChoices.STATUS_FAILED: 'danger',
-        VirtualMachineStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-    }
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
@@ -306,16 +308,15 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
-                name=self.name, tenant__isnull=True
+                name=self.name, cluster=self.cluster, tenant__isnull=True
         ):
             raise ValidationError({
-                'name': 'A virtual machine with this name already exists.'
+                'name': 'A virtual machine with this name already exists in the assigned cluster.'
             })
 
         super().validate_unique(exclude)
 
     def clean(self):
-
         super().clean()
 
         # Validate primary IP addresses
@@ -323,13 +324,13 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         for field in ['primary_ip4', 'primary_ip6']:
             ip = getattr(self, field)
             if ip is not None:
-                if ip.interface in interfaces:
+                if ip.assigned_object in interfaces:
                     pass
-                elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in interfaces:
+                elif ip.nat_inside is not None and ip.nat_inside.assigned_object in interfaces:
                     pass
                 else:
                     raise ValidationError({
-                        field: "The specified IP address ({}) is not assigned to this VM.".format(ip),
+                        field: f"The specified IP address ({ip}) is not assigned to this VM.",
                     })
 
     def to_csv(self):
@@ -347,7 +348,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return VirtualMachineStatusChoices.CSS_CLASSES.get(self.status)
 
     @property
     def primary_ip(self):
@@ -363,3 +364,109 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     @property
     def site(self):
         return self.cluster.site
+
+
+#
+# Interfaces
+#
+
+@extras_features('export_templates', 'webhooks')
+class VMInterface(BaseInterface):
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='interfaces'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
+        blank=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    untagged_vlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.SET_NULL,
+        related_name='vminterfaces_as_untagged',
+        null=True,
+        blank=True,
+        verbose_name='Untagged VLAN'
+    )
+    tagged_vlans = models.ManyToManyField(
+        to='ipam.VLAN',
+        related_name='vminterfaces_as_tagged',
+        blank=True,
+        verbose_name='Tagged VLANs'
+    )
+    ip_addresses = GenericRelation(
+        to='ipam.IPAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='vminterface'
+    )
+    tags = TaggableManager(
+        through=TaggedItem,
+        related_name='vminterface'
+    )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    csv_headers = [
+        'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+    ]
+
+    class Meta:
+        verbose_name = 'interface'
+        ordering = ('virtual_machine', CollateAsChar('_name'))
+        unique_together = ('virtual_machine', 'name')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('virtualization:vminterface', kwargs={'pk': self.pk})
+
+    def to_csv(self):
+        return (
+            self.virtual_machine.name,
+            self.name,
+            self.enabled,
+            self.mac_address,
+            self.mtu,
+            self.description,
+            self.get_mode_display(),
+        )
+
+    def clean(self):
+        super().clean()
+
+        # Validate untagged VLAN
+        if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
+            raise ValidationError({
+                'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
+                                 f"interface's parent virtual machine, or it must be global"
+            })
+
+    def to_objectchange(self, action):
+        # Annotate the parent VirtualMachine
+        return ObjectChange(
+            changed_object=self,
+            object_repr=str(self),
+            action=action,
+            related_object=self.virtual_machine,
+            object_data=serialize_object(self)
+        )
+
+    @property
+    def parent(self):
+        return self.virtual_machine
+
+    @property
+    def count_ipaddresses(self):
+        return self.ip_addresses.count()

@@ -9,8 +9,8 @@
     <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:service_list' %}">Services</a></li>
-            <li><a href="{{ service.parent.get_absolute_url }}">{{ service.parent }}</a></li>
-            <li>{{ service }}</li>
+            <li><a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a></li>
+            <li>{{ object }}</li>
         </ol>
     </div>
     <div class="col-sm-4 col-md-3">
@@ -19,7 +19,7 @@
                 <input type="text" name="q" class="form-control" placeholder="Search Services" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
+                        <span class="mdi mdi-magnify" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -27,18 +27,18 @@
     </div>
 </div>
 <div class="pull-right">
-    {% plugin_buttons service %}
+    {% plugin_buttons object %}
     {% if perms.dcim.change_service %}
-        {% edit_button service %}
+        {% edit_button object %}
     {% endif %}
     {% if perms.dcim.delete_service %}
-        {% delete_button service %}
+        {% delete_button object %}
     {% endif %}
 </div>
-<h1>{% block title %}{{ service }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=service %}
+<h1>{% block title %}{{ object }}{% endblock %}</h1>
+{% include 'inc/created_updated.html' %}
 <div class="pull-right noprint">
-    {% custom_links service %}
+    {% custom_links object %}
 </div>
 <div class="row">
 	<div class="col-md-6">
@@ -49,26 +49,26 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Name</td>
-                    <td>{{ service.name }}</td>
+                    <td>{{ object.name }}</td>
                 </tr>
                 <tr>
                     <td>Parent</td>
                     <td>
-                        <a href="{{ service.parent.get_absolute_url }}">{{ service.parent }}</a>
+                        <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Protocol</td>
-                    <td>{{ service.get_protocol_display }}</td>
+                    <td>{{ object.get_protocol_display }}</td>
                 </tr>
                 <tr>
-                    <td>Port</td>
-                    <td>{{ service.port }}</td>
+                    <td>Ports</td>
+                    <td>{{ object.port_list }}</td>
                 </tr>
                 <tr>
                     <td>IP Addresses</td>
                     <td>
-                        {% for ipaddress in service.ipaddresses.all %}
+                        {% for ipaddress in object.ipaddresses.all %}
                             <a href="{{ ipaddress.get_absolute_url }}">{{ ipaddress }}</a><br />
                         {% empty %}
                             <span class="text-muted">None</span>
@@ -77,21 +77,21 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>{{ service.description|placeholder }}</td>
+                    <td>{{ object.description|placeholder }}</td>
                 </tr>
 		    </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with obj=service %}
-        {% include 'extras/inc/tags_panel.html' with tags=service.tags.all url='ipam:service_list' %}
-        {% plugin_left_page service %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:service_list' %}
+        {% plugin_left_page object %}
     </div>
     <div class="col-md-6">
-        {% plugin_right_page service %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page service %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}

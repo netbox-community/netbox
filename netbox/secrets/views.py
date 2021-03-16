@@ -1,19 +1,15 @@
 import base64
+import logging
 
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.views.generic import View
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
-from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, GetReturnURLMixin, ObjectDeleteView, ObjectEditView, ObjectListView,
-)
+from netbox.views import generic
+from utilities.utils import count_related
 from . import filters, forms, tables
-from .decorators import userkey_required
-from .models import SecretRole, Secret, SessionKey
+from .models import SecretRole, Secret, SessionKey, UserKey
 
 
 def get_session_key(request):
@@ -30,177 +26,129 @@ def get_session_key(request):
 # Secret roles
 #
 
-class SecretRoleListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'secrets.view_secretrole'
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
+class SecretRoleListView(generic.ObjectListView):
+    queryset = SecretRole.objects.annotate(
+        secret_count=count_related(Secret, 'role')
+    )
     table = tables.SecretRoleTable
 
 
-class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'secrets.add_secretrole'
-    model = SecretRole
+class SecretRoleEditView(generic.ObjectEditView):
+    queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleForm
-    default_return_url = 'secrets:secretrole_list'
 
 
-class SecretRoleEditView(SecretRoleCreateView):
-    permission_required = 'secrets.change_secretrole'
+class SecretRoleDeleteView(generic.ObjectDeleteView):
+    queryset = SecretRole.objects.all()
 
 
-class SecretRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'secrets.add_secretrole'
+class SecretRoleBulkImportView(generic.BulkImportView):
+    queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleCSVForm
     table = tables.SecretRoleTable
-    default_return_url = 'secrets:secretrole_list'
 
 
-class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'secrets.delete_secretrole'
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
+class SecretRoleBulkDeleteView(generic.BulkDeleteView):
+    queryset = SecretRole.objects.annotate(
+        secret_count=count_related(Secret, 'role')
+    )
     table = tables.SecretRoleTable
-    default_return_url = 'secrets:secretrole_list'
 
 
 #
 # Secrets
 #
 
-class SecretListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'secrets.view_secret'
-    queryset = Secret.objects.prefetch_related('role', 'device')
+class SecretListView(generic.ObjectListView):
+    queryset = Secret.objects.all()
     filterset = filters.SecretFilterSet
     filterset_form = forms.SecretFilterForm
     table = tables.SecretTable
     action_buttons = ('import', 'export')
 
 
-class SecretView(PermissionRequiredMixin, View):
-    permission_required = 'secrets.view_secret'
+class SecretView(generic.ObjectView):
+    queryset = Secret.objects.all()
 
-    def get(self, request, pk):
 
-        secret = get_object_or_404(Secret, pk=pk)
+class SecretEditView(generic.ObjectEditView):
+    queryset = Secret.objects.all()
+    model_form = forms.SecretForm
+    template_name = 'secrets/secret_edit.html'
 
-        return render(request, 'secrets/secret.html', {
-            'secret': secret,
+    def dispatch(self, request, *args, **kwargs):
+
+        # Check that the user has a valid UserKey
+        try:
+            uk = UserKey.objects.get(user=request.user)
+        except UserKey.DoesNotExist:
+            messages.warning(request, "This operation requires an active user key, but you don't have one.")
+            return redirect('user:userkey')
+        if not uk.is_active():
+            messages.warning(request, "This operation is not available. Your user key has not been activated.")
+            return redirect('user:userkey')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger = logging.getLogger('netbox.views.ObjectEditView')
+        session_key = get_session_key(request)
+        secret = self.get_object(kwargs)
+        form = self.model_form(request.POST, instance=secret)
+
+        if form.is_valid():
+            logger.debug("Form validation was successful")
+            secret = form.save(commit=False)
+
+            # We must have a session key in order to set the plaintext of a Secret
+            if form.cleaned_data['plaintext'] and session_key is None:
+                logger.debug("Unable to proceed: No session key was provided with the request")
+                form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
+
+            elif form.cleaned_data['plaintext']:
+                master_key = None
+                try:
+                    sk = SessionKey.objects.get(userkey__user=request.user)
+                    master_key = sk.get_master_key(session_key)
+                except SessionKey.DoesNotExist:
+                    logger.debug("Unable to proceed: User has no session key assigned")
+                    form.add_error(None, "No session key found for this user.")
+
+                if master_key is not None:
+                    logger.debug("Successfully resolved master key for encryption")
+                    secret.plaintext = str(form.cleaned_data['plaintext'])
+                    secret.encrypt(master_key)
+
+            secret.save()
+            form.save_m2m()
+
+            msg = '{} secret'.format('Created' if not form.instance.pk else 'Modified')
+            logger.info(f"{msg} {secret} (PK: {secret.pk})")
+            msg = f'{msg} <a href="{secret.get_absolute_url()}">{escape(secret)}</a>'
+            messages.success(request, mark_safe(msg))
+
+            return redirect(self.get_return_url(request, secret))
+
+        else:
+            logger.debug("Form validation failed")
+
+        return render(request, self.template_name, {
+            'obj': secret,
+            'obj_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, secret),
         })
 
 
-@permission_required('secrets.add_secret')
-@userkey_required()
-def secret_add(request):
-
-    secret = Secret()
-    session_key = get_session_key(request)
-
-    if request.method == 'POST':
-        form = forms.SecretForm(request.POST, instance=secret)
-        if form.is_valid():
-
-            # We need a valid session key in order to create a Secret
-            if session_key is None:
-                form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
-
-            # Create and encrypt the new Secret
-            else:
-                master_key = None
-                try:
-                    sk = SessionKey.objects.get(userkey__user=request.user)
-                    master_key = sk.get_master_key(session_key)
-                except SessionKey.DoesNotExist:
-                    form.add_error(None, "No session key found for this user.")
-
-                if master_key is not None:
-                    secret = form.save(commit=False)
-                    secret.plaintext = str(form.cleaned_data['plaintext'])
-                    secret.encrypt(master_key)
-                    secret.save()
-                    form.save_m2m()
-
-                    messages.success(request, "Added new secret: {}.".format(secret))
-                    if '_addanother' in request.POST:
-                        return redirect('secrets:secret_add')
-                    else:
-                        return redirect('secrets:secret', pk=secret.pk)
-
-    else:
-        initial_data = {
-            'device': request.GET.get('device'),
-        }
-        form = forms.SecretForm(initial=initial_data)
-
-    return render(request, 'secrets/secret_edit.html', {
-        'secret': secret,
-        'form': form,
-        'return_url': GetReturnURLMixin().get_return_url(request, secret)
-    })
+class SecretDeleteView(generic.ObjectDeleteView):
+    queryset = Secret.objects.all()
 
 
-@permission_required('secrets.change_secret')
-@userkey_required()
-def secret_edit(request, pk):
-
-    secret = get_object_or_404(Secret, pk=pk)
-    session_key = get_session_key(request)
-
-    if request.method == 'POST':
-        form = forms.SecretForm(request.POST, instance=secret)
-        if form.is_valid():
-
-            # Re-encrypt the Secret if a plaintext and session key have been provided.
-            if form.cleaned_data['plaintext'] and session_key is not None:
-
-                # Retrieve the master key using the provided session key
-                master_key = None
-                try:
-                    sk = SessionKey.objects.get(userkey__user=request.user)
-                    master_key = sk.get_master_key(session_key)
-                except SessionKey.DoesNotExist:
-                    form.add_error(None, "No session key found for this user.")
-
-                # Create and encrypt the new Secret
-                if master_key is not None:
-                    secret = form.save(commit=False)
-                    secret.plaintext = form.cleaned_data['plaintext']
-                    secret.encrypt(master_key)
-                    secret.save()
-                    messages.success(request, "Modified secret {}.".format(secret))
-                    return redirect('secrets:secret', pk=secret.pk)
-                else:
-                    form.add_error(None, "Invalid session key. Unable to encrypt secret data.")
-
-            # We can't save the plaintext without a session key.
-            elif form.cleaned_data['plaintext']:
-                form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
-
-            # If no new plaintext was specified, a session key is not needed.
-            else:
-                secret = form.save()
-                messages.success(request, "Modified secret {}.".format(secret))
-                return redirect('secrets:secret', pk=secret.pk)
-
-    else:
-        form = forms.SecretForm(instance=secret)
-
-    return render(request, 'secrets/secret_edit.html', {
-        'secret': secret,
-        'form': form,
-        'return_url': reverse('secrets:secret', kwargs={'pk': secret.pk}),
-    })
-
-
-class SecretDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'secrets.delete_secret'
-    model = Secret
-    default_return_url = 'secrets:secret_list'
-
-
-class SecretBulkImportView(BulkImportView):
-    permission_required = 'secrets.add_secret'
+class SecretBulkImportView(generic.BulkImportView):
+    queryset = Secret.objects.all()
     model_form = forms.SecretCSVForm
     table = tables.SecretTable
     template_name = 'secrets/secret_import.html'
-    default_return_url = 'secrets:secret_list'
     widget_attrs = {'class': 'requires-session-key'}
 
     master_key = None
@@ -243,18 +191,14 @@ class SecretBulkImportView(BulkImportView):
         })
 
 
-class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'secrets.change_secret'
-    queryset = Secret.objects.prefetch_related('role', 'device')
+class SecretBulkEditView(generic.BulkEditView):
+    queryset = Secret.objects.prefetch_related('role')
     filterset = filters.SecretFilterSet
     table = tables.SecretTable
     form = forms.SecretBulkEditForm
-    default_return_url = 'secrets:secret_list'
 
 
-class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'secrets.delete_secret'
-    queryset = Secret.objects.prefetch_related('role', 'device')
+class SecretBulkDeleteView(generic.BulkDeleteView):
+    queryset = Secret.objects.prefetch_related('role')
     filterset = filters.SecretFilterSet
     table = tables.SecretTable
-    default_return_url = 'secrets:secret_list'

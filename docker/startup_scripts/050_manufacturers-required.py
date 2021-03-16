@@ -1,19 +1,14 @@
 from dcim.models import Manufacturer
-from ruamel.yaml import YAML
-from pathlib import Path
+from startup_script_utils import load_yaml
 import sys
 
-file = Path('/opt/netbox/initializers/manufacturers.yml')
-if not file.is_file():
+manufacturers = load_yaml('/opt/netbox/initializers/manufacturers.yml')
+
+if manufacturers is None:
   sys.exit()
 
-with file.open('r') as stream:
-  yaml = YAML(typ='safe')
-  manufacturers = yaml.load(stream)
+for params in manufacturers:
+  manufacturer, created = Manufacturer.objects.get_or_create(**params)
 
-  if manufacturers is not None:
-    for params in manufacturers:
-      manufacturer, created = Manufacturer.objects.update_or_create(name=params['name'], defaults=params)
-
-      if created:
-        print("🏭 Created Manufacturer", manufacturer.name)
+  if created:
+    print("🏭 Created Manufacturer", manufacturer.name)

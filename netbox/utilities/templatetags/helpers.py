@@ -10,7 +10,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
-from utilities.choices import unpack_grouped_choices
+from utilities.forms import TableConfigForm
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -38,6 +38,11 @@ def render_markdown(value):
     """
     # Strip HTML tags
     value = strip_tags(value)
+
+    # Sanitize Markdown links
+    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
+    pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
+    value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
     # Render Markdown
     html = markdown(value, extensions=['fenced_code', 'tables'])
@@ -71,16 +76,24 @@ def meta(obj, attr):
 
 
 @register.filter()
-def url_name(model, action):
+def viewname(model, action):
     """
-    Return the URL name for the given model and action, or None if invalid.
+    Return the view name for the given model and action. Does not perform any validation.
     """
-    url_name = '{}:{}_{}'.format(model._meta.app_label, model._meta.model_name, action)
+    return f'{model._meta.app_label}:{model._meta.model_name}_{action}'
+
+
+@register.filter()
+def validated_viewname(model, action):
+    """
+    Return the view name for the given model and action if valid, or None if invalid.
+    """
+    viewname = f'{model._meta.app_label}:{model._meta.model_name}_{action}'
     try:
-        # Validate and return the URL name. We don't return the actual URL yet because many of the templates
+        # Validate and return the view name. We don't return the actual URL yet because many of the templates
         # are written to pass a name to {% url %}.
-        reverse(url_name)
-        return url_name
+        reverse(viewname)
+        return viewname
     except NoReverseMatch:
         return None
 
@@ -166,7 +179,7 @@ def get_docs(model):
         model._meta.model_name
     )
     try:
-        with open(path) as docfile:
+        with open(path, encoding='utf-8') as docfile:
             content = docfile.read()
     except FileNotFoundError:
         return "Unable to load documentation, file not found: {}".format(path)
@@ -185,6 +198,26 @@ def has_perms(user, permissions_list):
     Return True if the user has *all* permissions in the list.
     """
     return user.has_perms(permissions_list)
+
+
+@register.filter()
+def split(string, sep=','):
+    """
+    Split a string by the given value (default: comma)
+    """
+    return string.split(sep)
+
+
+@register.filter()
+def as_range(n):
+    """
+    Return a range of n items.
+    """
+    try:
+        int(n)
+    except TypeError:
+        return list()
+    return range(n)
 
 
 #
@@ -229,4 +262,23 @@ def tag(tag, url_name=None):
     return {
         'tag': tag,
         'url_name': url_name,
+    }
+
+
+@register.inclusion_tag('utilities/templatetags/badge.html')
+def badge(value, show_empty=False):
+    """
+    Display the specified number as a badge.
+    """
+    return {
+        'value': value,
+        'show_empty': show_empty,
+    }
+
+
+@register.inclusion_tag('utilities/templatetags/table_config_form.html')
+def table_config_form(table, table_name=None):
+    return {
+        'table_name': table_name or table.__class__.__name__,
+        'table_config_form': TableConfigForm(table=table),
     }

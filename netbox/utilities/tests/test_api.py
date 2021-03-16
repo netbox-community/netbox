@@ -18,7 +18,6 @@ class WritableNestedSerializerTest(APITestCase):
     """
 
     def setUp(self):
-
         super().setUp()
 
         self.region_a = Region.objects.create(name='Region A', slug='region-a')
@@ -26,39 +25,36 @@ class WritableNestedSerializerTest(APITestCase):
         self.site2 = Site.objects.create(region=self.region_a, name='Site 2', slug='site-2')
 
     def test_related_by_pk(self):
-
         data = {
             'vid': 100,
             'name': 'Test VLAN 100',
             'site': self.site1.pk,
         }
-
         url = reverse('ipam-api:vlan-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        self.add_permissions('ipam.add_vlan')
 
+        response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(response.data['site']['id'], self.site1.pk)
         vlan = VLAN.objects.get(pk=response.data['id'])
         self.assertEqual(vlan.site, self.site1)
 
     def test_related_by_pk_no_match(self):
-
         data = {
             'vid': 100,
             'name': 'Test VLAN 100',
             'site': 999,
         }
-
         url = reverse('ipam-api:vlan-list')
+        self.add_permissions('ipam.add_vlan')
+
         with disable_warnings('django.request'):
             response = self.client.post(url, data, format='json', **self.header)
-
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
         self.assertTrue(response.data['site'][0].startswith("Related object not found"))
 
     def test_related_by_attributes(self):
-
         data = {
             'vid': 100,
             'name': 'Test VLAN 100',
@@ -66,17 +62,16 @@ class WritableNestedSerializerTest(APITestCase):
                 'name': 'Site 1'
             },
         }
-
         url = reverse('ipam-api:vlan-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        self.add_permissions('ipam.add_vlan')
 
+        response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(response.data['site']['id'], self.site1.pk)
         vlan = VLAN.objects.get(pk=response.data['id'])
         self.assertEqual(vlan.site, self.site1)
 
     def test_related_by_attributes_no_match(self):
-
         data = {
             'vid': 100,
             'name': 'Test VLAN 100',
@@ -84,17 +79,16 @@ class WritableNestedSerializerTest(APITestCase):
                 'name': 'Site X'
             },
         }
-
         url = reverse('ipam-api:vlan-list')
+        self.add_permissions('ipam.add_vlan')
+
         with disable_warnings('django.request'):
             response = self.client.post(url, data, format='json', **self.header)
-
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
         self.assertTrue(response.data['site'][0].startswith("Related object not found"))
 
     def test_related_by_attributes_multiple_matches(self):
-
         data = {
             'vid': 100,
             'name': 'Test VLAN 100',
@@ -104,27 +98,26 @@ class WritableNestedSerializerTest(APITestCase):
                 },
             },
         }
-
         url = reverse('ipam-api:vlan-list')
+        self.add_permissions('ipam.add_vlan')
+
         with disable_warnings('django.request'):
             response = self.client.post(url, data, format='json', **self.header)
-
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
         self.assertTrue(response.data['site'][0].startswith("Multiple objects match"))
 
     def test_related_by_invalid(self):
-
         data = {
             'vid': 100,
             'name': 'Test VLAN 100',
             'site': 'XXX',
         }
-
         url = reverse('ipam-api:vlan-list')
+        self.add_permissions('ipam.add_vlan')
+
         with disable_warnings('django.request'):
             response = self.client.post(url, data, format='json', **self.header)
-
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
 
@@ -138,7 +131,7 @@ class APIDocsTestCase(TestCase):
         content_type = ContentType.objects.get_for_model(Site)
         self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='test')
         self.cf_text.save()
-        self.cf_text.obj_type.set([content_type])
+        self.cf_text.content_types.set([content_type])
         self.cf_text.save()
 
     def test_api_docs(self):

@@ -1,0 +1,116 @@
+{% extends 'dcim/device_component.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Power Outlet</strong>
+                </div>
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <td>Device</td>
+                        <td>
+                            <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Label</td>
+                        <td>{{ object.label|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td>{{ object.get_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Power Port</td>
+                        <td>{{ object.power_port }}</td>
+                    </tr>
+                    <tr>
+                        <td>Feed Leg</td>
+                        <td>{{ object.get_feed_leg_display }}</td>
+                    </tr>
+                </table>
+            </div>
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
+            {% plugin_left_page object %}
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Connection</strong>
+                </div>
+                {% if object.cable %}
+                    <table class="table table-hover panel-body attr-table">
+                        <tr>
+                            <td>Cable</td>
+                            <td>
+                                <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
+                                <a href="{% url 'dcim:poweroutlet_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                    <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% if object.connected_endpoint %}
+                            <tr>
+                                <td>Device</td>
+                                <td>
+                                    <a href="{{ object.connected_endpoint.device.get_absolute_url }}">{{ object.connected_endpoint.device }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Name</td>
+                                <td>
+                                    <a href="{{ object.connected_endpoint.get_absolute_url }}">{{ object.connected_endpoint.name }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Type</td>
+                                <td>{{ object.connected_endpoint.get_type_display|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <td>Description</td>
+                                <td>{{ object.connected_endpoint.description|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <td>Path Status</td>
+                                <td>
+                                    {% if object.path.is_active %}
+                                        <span class="label label-success">Reachable</span>
+                                    {% else %}
+                                        <span class="label label-danger">Not Reachable</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                {% else %}
+                    <div class="panel-body text-muted">
+                        Not connected
+                        {% if perms.dcim.add_cable %}
+                            <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=object.pk termination_b_type='power-port' %}?return_url={{ object.get_absolute_url }}" title="Connect" class="btn btn-primary btn-sm pull-right">
+                                <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            {% plugin_right_page object %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page object %}
+        </div>
+    </div>
+{% endblock %}

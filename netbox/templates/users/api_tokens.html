@@ -18,7 +18,7 @@
                                 <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
                             {% endif %}
                         </div>
-                        <i class="fa fa-key"></i>
+                        <i class="mdi mdi-key"></i>
                         <samp><span id="token_{{ token.pk }}">{{ token.key }}</span></samp>
                         {% if token.is_expired %}
                             <span class="label label-danger">Expired</span>
@@ -57,7 +57,7 @@
             {% endfor %}
             {% if perms.users.add_token %}
                 <a href="{% url 'user:token_add' %}" class="btn btn-primary">
-                    <span class="fa fa-plus" aria-hidden="true"></span>
+                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                     Add a token
                 </a>
             {% else %}

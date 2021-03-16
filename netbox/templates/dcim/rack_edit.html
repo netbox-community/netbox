@@ -1,14 +1,15 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
 {% block form %}
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Rack</strong></div>
         <div class="panel-body">
+            {% render_field form.region %}
             {% render_field form.site %}
+            {% render_field form.group %}
             {% render_field form.name %}
             {% render_field form.facility_id %}
-            {% render_field form.group %}
             {% render_field form.status %}
             {% render_field form.role %}
             {% render_field form.serial %}

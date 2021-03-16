@@ -33,7 +33,6 @@ REDIS = {
         # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
     'caching': {
@@ -44,7 +43,6 @@ REDIS = {
         # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }
@@ -68,6 +66,11 @@ ADMINS = [
     # ['John Doe', 'jdoe@example.com'],
 ]
 
+# URL schemes that are allowed within links in NetBox
+ALLOWED_URL_SCHEMES = (
+    'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
+)
+
 # Optionally display a persistent banner at the top and/or bottom of every page. HTML is allowed. To display the same
 # content in both banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
 BANNER_TOP = ''
@@ -76,7 +79,7 @@ BANNER_BOTTOM = ''
 # Text to include on the login page above the login form. HTML is allowed.
 BANNER_LOGIN = ''
 
-# Base URL path if accessing NetBox within a directory. For example, if installed at http://example.com/netbox/, set:
+# Base URL path if accessing NetBox within a directory. For example, if installed at https://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
@@ -180,7 +183,7 @@ NAPALM_PASSWORD = ''
 # NAPALM timeout (in seconds). (Default: 30)
 NAPALM_TIMEOUT = 30
 
-# NAPALM optional arguments (see http://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
+# NAPALM optional arguments (see https://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
 # be provided as a dictionary.
 NAPALM_ARGS = {}
 
@@ -203,13 +206,17 @@ PLUGINS = []
 # prefer IPv4 instead.
 PREFER_IPV4 = False
 
+# Rack elevation size defaults, in pixels. For best results, the ratio of width to height should be roughly 10:1.
+RACK_ELEVATION_DEFAULT_UNIT_HEIGHT = 22
+RACK_ELEVATION_DEFAULT_UNIT_WIDTH = 220
+
 # Remote authentication support
 REMOTE_AUTH_ENABLED = False
-REMOTE_AUTH_BACKEND = 'utilities.auth_backends.RemoteUserBackend'
+REMOTE_AUTH_BACKEND = 'netbox.authentication.RemoteUserBackend'
 REMOTE_AUTH_HEADER = 'HTTP_REMOTE_USER'
 REMOTE_AUTH_AUTO_CREATE_USER = True
 REMOTE_AUTH_DEFAULT_GROUPS = []
-REMOTE_AUTH_DEFAULT_PERMISSIONS = []
+REMOTE_AUTH_DEFAULT_PERMISSIONS = {}
 
 # This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
 RELEASE_CHECK_TIMEOUT = 24 * 3600
@@ -222,6 +229,9 @@ RELEASE_CHECK_URL = None
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'
+
+# Maximum execution time for background tasks, in seconds.
+RQ_DEFAULT_TIMEOUT = 300
 
 # The file path where custom scripts will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.

@@ -1,18 +1,9 @@
-from rest_framework import routers
-
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 
-class SecretsRootView(routers.APIRootView):
-    """
-    Secrets API root view
-    """
-    def get_view_name(self):
-        return 'Secrets'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = SecretsRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.SecretsRootView
 
 # Secrets
 router.register('secret-roles', views.SecretRoleViewSet)

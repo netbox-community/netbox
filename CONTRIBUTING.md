@@ -4,15 +4,31 @@ If you encounter any issues installing or using NetBox, try one of the
 following resources to get assistance. Please **do not** open a GitHub issue
 except to report bugs or request features.
 
+### GitHub Discussions
+
+GitHub's discussions are the best place to get help or propose rough ideas for
+new functionality. Their integration with GitHub allows for easily cross-
+referencing and converting posts to issues as needed. There are several
+categories for discussions:
+
+* **General** - General community discussion
+* **Ideas** - Ideas for new functionality that isn't yet ready for a formal
+  feature request
+* **Q&A** - Request help with installing or using NetBox
+
 ### Mailing List
 
-We have established a Google Groups Mailing List for issues and general
-discussion. This is the best forum for obtaining assistance with NetBox
-installation. You can find us [here](https://groups.google.com/forum/#!forum/netbox-discuss).
+We also have a Google Groups [mailing list](https://groups.google.com/g/netbox-discuss)
+for general discussion, however we're encouraging people to use GitHub
+discussions where possible, as it's much easier for newcomers to review past
+discussions.
 
 ### Slack
 
-For real-time discussion, you can join the #netbox Slack channel on [NetworkToCode](https://slack.networktocode.com/).
+For real-time chat, you can join the **#netbox** Slack channel on [NetworkToCode](https://slack.networktocode.com/).
+Unfortunately, the Slack channel does not provide long-term retention of chat
+history, so try to avoid it for any discussions would benefit from being
+preserved for future reference.
 
 ## Reporting Bugs
 
@@ -93,19 +109,31 @@ appropriate labels will be applied for categorization.
 
 ## Submitting Pull Requests
 
+* If you're interested in contributing to NetBox, be sure to check out our
+[getting started](https://netbox.readthedocs.io/en/stable/development/getting-started/)
+documentation for tips on setting up your development environment.
+
 * Be sure to open an issue **before** starting work on a pull request, and
 discuss your idea with the NetBox maintainers before beginning work. This will
 help prevent wasting time on something that might we might not be able to
 implement. When suggesting a new feature, also make sure it won't conflict with
 any work that's already in progress.
 
-* Any pull request which does _not_ relate to an accepted issue will be closed.
+* Once you've opened or identified an issue you'd like to work on, ask that it
+be assigned to you so that others are aware it's being worked on. A maintainer
+will then mark the issue as "accepted."
 
-* All major new functionality must include relevant tests where applicable.
+* Any pull request which does _not_ relate to an **accepted** issue will be closed.
+
+* All new functionality must include relevant tests where applicable.
 
 * When submitting a pull request, please be sure to work off of the `develop`
 branch, rather than `master`. The `develop` branch is used for ongoing
 development, while `master` is used for tagging stable releases.
+
+* In most cases, it is not necessary to add a changelog entry: A maintainer will
+take care of this when the PR is merged. (This helps avoid merge conflicts
+resulting from multiple PRs being submitted simultaneously.)
 
 * All code submissions should meet the following criteria (CI will enforce
 these checks):
@@ -132,18 +160,17 @@ accumulating a large backlog of work.
 The core maintainers group has chosen to make use of GitHub's [Stale bot](https://github.com/apps/stale)
 to aid in issue management.
 
-* Issues will be marked as stale after 14 days of no activity.
-* Then after 7 more days of inactivity, the issue will be closed.
+* Issues will be marked as stale after 45 days of no activity.
+* Then after 15 more days of inactivity, the issue will be closed.
 * Any issue bearing one of the following labels will be exempt from all Stale
   bot actions:
   * `status: accepted`
-  * `status: gathering feedback`
   * `status: blocked`
+  * `status: needs milestone`
 
-It is natural that some new issues get more attention than others. Often this
-is a metric of an issues's overall value to the project. In other cases in
-which issues merely get lost in the shuffle, notifications from Stale bot can
-bring renewed attention to potentially meaningful issues.
+It is natural that some new issues get more attention than others. Stale bot
+helps bring renewed attention to potentially valuable issues that may have been
+overlooked.
 
 ## Maintainer Guidance
 
@@ -160,8 +187,8 @@ bring renewed attention to potentially meaningful issues.
 
 * Official channels for communication include:
 
-    * GitHub issues/pull requests
-    * The [netbox-discuss](https://groups.google.com/forum/#!forum/netbox-discuss) mailing list
+    * GitHub issues, pull requests, and discussions
+    * The [netbox-discuss](https://groups.google.com/g/netbox-discuss) mailing list
     * The **#netbox** channel on [NetworkToCode Slack](https://networktocode.slack.com/)
 
 * Maintainers with no substantial recorded activity in a 60-day period will be

@@ -1,14 +1,12 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.fields import ASNField
-from dcim.models import CableTermination
-from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from dcim.models import CableTermination, PathEndpoint
+from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
-from utilities.models import ChangeLoggedModel
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 from .choices import *
 from .querysets import CircuitQuerySet
@@ -22,17 +20,18 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Provider(ChangeLoggedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     asn = ASNField(
@@ -61,13 +60,9 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
@@ -104,16 +99,19 @@ class CircuitType(ChangeLoggedModel):
     "Long Haul," "Metro," or "Out-of-Band".
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
         max_length=200,
         blank=True,
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -142,7 +140,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
     in Kbps.
     """
     cid = models.CharField(
-        max_length=50,
+        max_length=100,
         verbose_name='Circuit ID'
     )
     provider = models.ForeignKey(
@@ -183,11 +181,6 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
 
     objects = CircuitQuerySet.as_manager()
     tags = TaggableManager(through=TaggedItem)
@@ -198,15 +191,6 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
     clone_fields = [
         'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
     ]
-
-    STATUS_CLASS_MAP = {
-        CircuitStatusChoices.STATUS_DEPROVISIONING: 'warning',
-        CircuitStatusChoices.STATUS_ACTIVE: 'success',
-        CircuitStatusChoices.STATUS_PLANNED: 'info',
-        CircuitStatusChoices.STATUS_PROVISIONING: 'primary',
-        CircuitStatusChoices.STATUS_OFFLINE: 'danger',
-        CircuitStatusChoices.STATUS_DECOMMISSIONED: 'default',
-    }
 
     class Meta:
         ordering = ['provider', 'cid']
@@ -232,7 +216,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return CircuitStatusChoices.CSS_CLASSES.get(self.status)
 
     def _get_termination(self, side):
         for ct in self.terminations.all():
@@ -249,7 +233,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         return self._get_termination('Z')
 
 
-class CircuitTermination(CableTermination):
+class CircuitTermination(PathEndpoint, CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,
@@ -265,19 +249,10 @@ class CircuitTermination(CableTermination):
         on_delete=models.PROTECT,
         related_name='circuit_terminations'
     )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.Interface',
-        on_delete=models.SET_NULL,
-        related_name='+',
+    port_speed = models.PositiveIntegerField(
+        verbose_name='Port speed (Kbps)',
         blank=True,
         null=True
-    )
-    connection_status = models.NullBooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True
-    )
-    port_speed = models.PositiveIntegerField(
-        verbose_name='Port speed (Kbps)'
     )
     upstream_speed = models.PositiveIntegerField(
         blank=True,
@@ -299,6 +274,8 @@ class CircuitTermination(CableTermination):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['circuit', 'term_side']
@@ -330,6 +307,9 @@ class CircuitTermination(CableTermination):
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.prefetch_related('site').get(circuit=self.circuit, term_side=peer_side)
+            return CircuitTermination.objects.prefetch_related('site').get(
+                circuit=self.circuit,
+                term_side=peer_side
+            )
         except CircuitTermination.DoesNotExist:
             return None

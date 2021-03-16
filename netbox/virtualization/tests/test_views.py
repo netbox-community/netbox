@@ -1,11 +1,11 @@
 from netaddr import EUI
 
 from dcim.choices import InterfaceModeChoices
-from dcim.models import DeviceRole, Interface, Platform, Site
+from dcim.models import DeviceRole, Platform, Site
 from ipam.models import VLAN
 from utilities.testing import ViewTestCases
 from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -90,6 +90,8 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Cluster X',
             'group': clustergroups[1].pk,
@@ -97,7 +99,7 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'site': sites[1].pk,
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -148,6 +150,8 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], role=deviceroles[0], platform=platforms[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'cluster': clusters[1].pk,
             'tenant': None,
@@ -161,7 +165,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'memory': 32768,
             'disk': 4000,
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
             'local_context_data': None,
         }
 
@@ -185,19 +189,8 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class InterfaceTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.DeviceComponentViewTestCase,
-):
-    model = Interface
-
-    # Disable inapplicable tests
-    test_list_objects = None
-    test_import_objects = None
-
-    def _get_base_url(self):
-        # Interface belongs to the DCIM app, so we have to override the base URL
-        return 'virtualization:interface_{}'
+class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = VMInterface
 
     @classmethod
     def setUpTestData(cls):
@@ -212,10 +205,10 @@ class InterfaceTestCase(
         )
         VirtualMachine.objects.bulk_create(virtualmachines)
 
-        Interface.objects.bulk_create([
-            Interface(virtual_machine=virtualmachines[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(virtual_machine=virtualmachines[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(virtual_machine=virtualmachines[0], name='Interface 3', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        VMInterface.objects.bulk_create([
+            VMInterface(virtual_machine=virtualmachines[0], name='Interface 1'),
+            VMInterface(virtual_machine=virtualmachines[0], name='Interface 2'),
+            VMInterface(virtual_machine=virtualmachines[0], name='Interface 3'),
         ])
 
         vlans = (
@@ -226,49 +219,46 @@ class InterfaceTestCase(
         )
         VLAN.objects.bulk_create(vlans)
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'virtual_machine': virtualmachines[1].pk,
             'name': 'Interface X',
-            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
             'enabled': False,
-            'mgmt_only': False,
             'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 2000,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
             'virtual_machine': virtualmachines[1].pk,
             'name_pattern': 'Interface [4-6]',
-            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
             'enabled': False,
-            'mgmt_only': False,
             'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 2000,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
+        cls.csv_data = (
+            "virtual_machine,name",
+            "Virtual Machine 2,Interface 4",
+            "Virtual Machine 2,Interface 5",
+            "Virtual Machine 2,Interface 6",
+        )
+
         cls.bulk_edit_data = {
-            'virtual_machine': virtualmachines[1].pk,
             'enabled': False,
             'mtu': 2000,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
-            # 'untagged_vlan': vlans[0].pk,
-            # 'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
         }
-
-        cls.csv_data = (
-            "device,name,type",
-            "Device 1,Interface 4,1000BASE-T (1GE)",
-            "Device 1,Interface 5,1000BASE-T (1GE)",
-            "Device 1,Interface 6,1000BASE-T (1GE)",
-        )

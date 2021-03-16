@@ -1,0 +1,138 @@
+{% extends 'dcim/device/base.html' %}
+{% load static %}
+
+{% block title %}{{ device }} - Status{% endblock %}
+
+{% block content %}
+    {% include 'inc/ajax_loader.html' %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading"><strong>Device Facts</strong></div>
+                <table class="table panel-body">
+                    <tr>
+                        <th>Hostname</th>
+                        <td id="hostname"></td>
+                    </tr>
+                    <tr>
+                        <th>FQDN</th>
+                        <td id="fqdn"></td>
+                    </tr>
+                    <tr>
+                        <th>Vendor</th>
+                        <td id="vendor"></td>
+                    </tr>
+                    <tr>
+                        <th>Model</th>
+                        <td id="model"></td>
+                    </tr>
+                    <tr>
+                        <th>Serial Number</th>
+                        <td id="serial_number"></td>
+                    </tr>
+                    <tr>
+                        <th>OS Version</th>
+                        <td id="os_version"></td>
+                    </tr>
+                    <tr>
+                        <th>Uptime</th>
+                        <td id="uptime"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading"><strong>Environment</strong></div>
+                <table class="table panel-body">
+                    <tr id="cpu">
+                        <th colspan="2"><i class="mdi mdi-gauge"></i> CPU</th>
+                    </tr>
+                    <tr id="memory">
+                        <th colspan="2"><i class="mdi mdi-chip"></i> Memory</th>
+                    </tr>
+                    <tr id="temperature">
+                        <th colspan="2"><i class="mdi mdi-thermometer"></i> Temperature</th>
+                    </tr>
+                    <tr id="fans">
+                        <th colspan="2"><i class="mdi mdi-fan"></i> Fans</th>
+                    </tr>
+                    <tr id="power">
+                        <th colspan="2"><i class="mdi mdi-power"></i> Power</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $.ajax({
+        url: "{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_facts&method=get_environment",
+        dataType: 'json',
+        success: function(json) {
+            if (!json['get_facts']['error']) {
+                $('#hostname').html(json['get_facts']['hostname']);
+                $('#fqdn').html(json['get_facts']['fqdn']);
+                $('#vendor').html(json['get_facts']['vendor']);
+                $('#model').html(json['get_facts']['model']);
+                $('#serial_number').html(json['get_facts']['serial_number']);
+                $('#os_version').html(json['get_facts']['os_version']);
+                // Calculate uptime
+                var uptime = json['get_facts']['uptime'];
+                console.log(uptime);
+                var uptime_days = Math.floor(uptime / 86400);
+                var uptime_hours = Math.floor(uptime % 86400 / 3600);
+                var uptime_minutes = Math.floor(uptime % 3600 / 60);
+                $('#uptime').html(uptime_days + "d " + uptime_hours + "h " + uptime_minutes + "m");
+            }
+            
+            if (!json['get_environment']['error']) {
+                $.each(json['get_environment']['cpu'], function(name, obj) {
+                    var row="<tr><td>" + name + "</td><td>" + obj['%usage'] + "%</td></tr>";
+                    $("#cpu").after(row)
+                });
+                if (json['get_environment']['memory']) {
+                    var memory = $('#memory');
+                    memory.after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "</td></tr>");
+                    memory.after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "</td></tr>");
+                }
+                $.each(json['get_environment']['temperature'], function(name, obj) {
+                    var style = "success";
+                    if (obj['is_alert']) {
+                        style = "warning";
+                    } else if (obj['is_critical']) {
+                        style = "danger";
+                    }
+                    var row="<tr class=\"" + style +"\"><td>" + name + "</td><td>" + obj['temperature'] + "°C</td></tr>";
+                    $("#temperature").after(row)
+                });
+                $.each(json['get_environment']['fans'], function(name, obj) {
+                    var row;
+                    if (obj['status']) {
+                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"mdi mdi-check-bold text-success\"></i></td></tr>";
+                    } else {
+                        row="<tr class=\"error\"><td>" + name + "</td><td><i class=\"mdi mdi-close text-error\"></i></td></tr>";
+                    }
+                    $("#fans").after(row)
+                });
+                $.each(json['get_environment']['power'], function(name, obj) {
+                    var row;
+                    if (obj['status']) {
+                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"mdi mdi-check-bold text-success\"></i></td></tr>";
+                    } else {
+                        row="<tr class=\"danger\"><td>" + name + "</td><td><i class=\"mdi mdi-close text-danger\"></i></td></tr>";
+                    }
+                    $("#power").after(row)
+                });
+            }
+        },
+        error: function(xhr) {
+            alert(xhr.responseText);
+        }
+    });
+});
+</script>
+{% endblock %}

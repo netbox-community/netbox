@@ -14,7 +14,6 @@ class ChoiceSetMeta(type):
 class ChoiceSet(metaclass=ChoiceSetMeta):
 
     CHOICES = list()
-    LEGACY_MAP = dict()
 
     @classmethod
     def values(cls):
@@ -24,25 +23,6 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
     def as_dict(cls):
         # Unpack grouped choices before casting as a dict
         return dict(unpack_grouped_choices(cls.CHOICES))
-
-    @classmethod
-    def slug_to_id(cls, slug):
-        """
-        Return the legacy integer value corresponding to a slug.
-        """
-        return cls.LEGACY_MAP.get(slug)
-
-    @classmethod
-    def id_to_slug(cls, legacy_id):
-        """
-        Return the slug value corresponding to a legacy integer value.
-        """
-        if legacy_id in cls.LEGACY_MAP.values():
-            # Invert the legacy map to allow lookup by integer
-            legacy_map = dict([
-                (id, slug) for slug, id in cls.LEGACY_MAP.items()
-            ])
-            return legacy_map.get(legacy_id)
 
 
 def unpack_grouped_choices(choices):

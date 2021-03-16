@@ -3,8 +3,8 @@ from django.test import TestCase
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site
 from ipam.choices import *
 from ipam.filters import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from virtualization.models import Cluster, ClusterType, VirtualMachine
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from virtualization.models import Cluster, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
 
@@ -14,6 +14,13 @@ class VRFTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+
+        route_targets = (
+            RouteTarget(name='65000:1001'),
+            RouteTarget(name='65000:1002'),
+            RouteTarget(name='65000:1003'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -39,6 +46,12 @@ class VRFTestCase(TestCase):
             VRF(name='VRF 6', rd='65000:600', tenant=tenants[2], enforce_unique=True),
         )
         VRF.objects.bulk_create(vrfs)
+        vrfs[0].import_targets.add(route_targets[0])
+        vrfs[0].export_targets.add(route_targets[0])
+        vrfs[1].import_targets.add(route_targets[1])
+        vrfs[1].export_targets.add(route_targets[1])
+        vrfs[2].import_targets.add(route_targets[2])
+        vrfs[2].export_targets.add(route_targets[2])
 
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
@@ -58,6 +71,20 @@ class VRFTestCase(TestCase):
         params = {'enforce_unique': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_import_target(self):
+        route_targets = RouteTarget.objects.all()[:2]
+        params = {'import_target_id': [route_targets[0].pk, route_targets[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'import_target': [route_targets[0].name, route_targets[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_export_target(self):
+        route_targets = RouteTarget.objects.all()[:2]
+        params = {'export_target_id': [route_targets[0].pk, route_targets[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'export_target': [route_targets[0].name, route_targets[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
@@ -71,6 +98,92 @@ class VRFTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
+class RouteTargetTestCase(TestCase):
+    queryset = RouteTarget.objects.all()
+    filterset = RouteTargetFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tenant_groups = (
+            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        route_targets = (
+            RouteTarget(name='65000:1001', tenant=tenants[0]),
+            RouteTarget(name='65000:1002', tenant=tenants[0]),
+            RouteTarget(name='65000:1003', tenant=tenants[0]),
+            RouteTarget(name='65000:1004', tenant=tenants[0]),
+            RouteTarget(name='65000:2001', tenant=tenants[1]),
+            RouteTarget(name='65000:2002', tenant=tenants[1]),
+            RouteTarget(name='65000:2003', tenant=tenants[1]),
+            RouteTarget(name='65000:2004', tenant=tenants[1]),
+            RouteTarget(name='65000:3001', tenant=tenants[2]),
+            RouteTarget(name='65000:3002', tenant=tenants[2]),
+            RouteTarget(name='65000:3003', tenant=tenants[2]),
+            RouteTarget(name='65000:3004', tenant=tenants[2]),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
+        vrfs = (
+            VRF(name='VRF 1', rd='65000:100'),
+            VRF(name='VRF 2', rd='65000:200'),
+            VRF(name='VRF 3', rd='65000:300'),
+        )
+        VRF.objects.bulk_create(vrfs)
+        vrfs[0].import_targets.add(route_targets[0], route_targets[1])
+        vrfs[0].export_targets.add(route_targets[2], route_targets[3])
+        vrfs[1].import_targets.add(route_targets[4], route_targets[5])
+        vrfs[1].export_targets.add(route_targets[6], route_targets[7])
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['65000:1001', '65000:1002', '65000:1003']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_importing_vrf(self):
+        vrfs = VRF.objects.all()[:2]
+        params = {'importing_vrf_id': [vrfs[0].pk, vrfs[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'importing_vrf': [vrfs[0].rd, vrfs[1].rd]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_exporting_vrf(self):
+        vrfs = VRF.objects.all()[:2]
+        params = {'exporting_vrf_id': [vrfs[0].pk, vrfs[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'exporting_vrf': [vrfs[0].rd, vrfs[1].rd]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
 class RIRTestCase(TestCase):
@@ -127,13 +240,28 @@ class AggregateTestCase(TestCase):
         )
         RIR.objects.bulk_create(rirs)
 
+        tenant_groups = (
+            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         aggregates = (
-            Aggregate(prefix='10.1.0.0/16', rir=rirs[0], date_added='2020-01-01'),
-            Aggregate(prefix='10.2.0.0/16', rir=rirs[0], date_added='2020-01-02'),
-            Aggregate(prefix='10.3.0.0/16', rir=rirs[1], date_added='2020-01-03'),
-            Aggregate(prefix='2001:db8:1::/48', rir=rirs[1], date_added='2020-01-04'),
-            Aggregate(prefix='2001:db8:2::/48', rir=rirs[2], date_added='2020-01-05'),
-            Aggregate(prefix='2001:db8:3::/48', rir=rirs[2], date_added='2020-01-06'),
+            Aggregate(prefix='10.1.0.0/16', rir=rirs[0], tenant=tenants[0], date_added='2020-01-01'),
+            Aggregate(prefix='10.2.0.0/16', rir=rirs[0], tenant=tenants[1], date_added='2020-01-02'),
+            Aggregate(prefix='10.3.0.0/16', rir=rirs[1], tenant=tenants[2], date_added='2020-01-03'),
+            Aggregate(prefix='2001:db8:1::/48', rir=rirs[1], tenant=tenants[0], date_added='2020-01-04'),
+            Aggregate(prefix='2001:db8:2::/48', rir=rirs[2], tenant=tenants[1], date_added='2020-01-05'),
+            Aggregate(prefix='2001:db8:3::/48', rir=rirs[2], tenant=tenants[2], date_added='2020-01-06'),
         )
         Aggregate.objects.bulk_create(aggregates)
 
@@ -159,6 +287,20 @@ class AggregateTestCase(TestCase):
         params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
@@ -212,12 +354,22 @@ class PrefixTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
+        route_targets = (
+            RouteTarget(name='65000:100'),
+            RouteTarget(name='65000:200'),
+            RouteTarget(name='65000:300'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
         vrfs = (
             VRF(name='VRF 1', rd='65000:100'),
             VRF(name='VRF 2', rd='65000:200'),
             VRF(name='VRF 3', rd='65000:300'),
         )
         VRF.objects.bulk_create(vrfs)
+        vrfs[0].import_targets.add(route_targets[0], route_targets[1], route_targets[2])
+        vrfs[1].export_targets.add(route_targets[1])
+        vrfs[2].export_targets.add(route_targets[2])
 
         vlans = (
             VLAN(vid=1, name='VLAN 1'),
@@ -301,6 +453,14 @@ class PrefixTestCase(TestCase):
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_present_in_vrf(self):
+        vrf1 = VRF.objects.get(name='VRF 1')
+        vrf2 = VRF.objects.get(name='VRF 2')
+        self.assertEqual(self.filterset({'present_in_vrf_id': vrf1.pk}, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset({'present_in_vrf_id': vrf2.pk}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'present_in_vrf': vrf1.rd}, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset({'present_in_vrf': vrf2.rd}, self.queryset).qs.count(), 2)
+
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -375,6 +535,13 @@ class IPAddressTestCase(TestCase):
         )
         Device.objects.bulk_create(devices)
 
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1'),
+            Interface(device=devices[1], name='Interface 2'),
+            Interface(device=devices[2], name='Interface 3'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         cluster = Cluster.objects.create(type=clustertype, name='Cluster 1')
 
@@ -385,15 +552,12 @@ class IPAddressTestCase(TestCase):
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 
-        interfaces = (
-            Interface(device=devices[0], name='Interface 1'),
-            Interface(device=devices[1], name='Interface 2'),
-            Interface(device=devices[2], name='Interface 3'),
-            Interface(virtual_machine=virtual_machines[0], name='Interface 1'),
-            Interface(virtual_machine=virtual_machines[1], name='Interface 2'),
-            Interface(virtual_machine=virtual_machines[2], name='Interface 3'),
+        vminterfaces = (
+            VMInterface(virtual_machine=virtual_machines[0], name='Interface 1'),
+            VMInterface(virtual_machine=virtual_machines[1], name='Interface 2'),
+            VMInterface(virtual_machine=virtual_machines[2], name='Interface 3'),
         )
-        Interface.objects.bulk_create(interfaces)
+        VMInterface.objects.bulk_create(vminterfaces)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -411,16 +575,16 @@ class IPAddressTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         ipaddresses = (
-            IPAddress(address='10.0.0.1/24', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(address='10.0.0.2/24', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(address='10.0.0.3/24', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(address='10.0.0.4/24', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(address='10.0.0.1/25', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
-            IPAddress(address='2001:db8::1/64', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(address='2001:db8::2/64', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(address='2001:db8::3/64', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(address='2001:db8::4/64', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(address='2001:db8::1/65', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(address='10.0.0.1/24', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='10.0.0.2/24', tenant=tenants[0], vrf=vrfs[0], assigned_object=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='10.0.0.3/24', tenant=tenants[1], vrf=vrfs[1], assigned_object=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='10.0.0.4/24', tenant=tenants[2], vrf=vrfs[2], assigned_object=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='10.0.0.1/25', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(address='2001:db8::1/64', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='2001:db8::2/64', tenant=tenants[0], vrf=vrfs[0], assigned_object=vminterfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='2001:db8::3/64', tenant=tenants[1], vrf=vrfs[1], assigned_object=vminterfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='2001:db8::4/64', tenant=tenants[2], vrf=vrfs[2], assigned_object=vminterfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='2001:db8::1/65', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
@@ -487,7 +651,14 @@ class IPAddressTestCase(TestCase):
         params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'interface': ['Interface 1', 'Interface 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vminterface(self):
+        vminterfaces = VMInterface.objects.all()[:2]
+        params = {'vminterface_id': [vminterfaces[0].pk, vminterfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'vminterface': ['Interface 1', 'Interface 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_assigned_to_interface(self):
         params = {'assigned_to_interface': 'true'}
@@ -731,12 +902,12 @@ class ServiceTestCase(TestCase):
         VirtualMachine.objects.bulk_create(virtual_machines)
 
         services = (
-            Service(device=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=1001),
-            Service(device=devices[1], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=1002),
-            Service(device=devices[2], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, port=1003),
-            Service(virtual_machine=virtual_machines[0], name='Service 4', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=2001),
-            Service(virtual_machine=virtual_machines[1], name='Service 5', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=2002),
-            Service(virtual_machine=virtual_machines[2], name='Service 6', protocol=ServiceProtocolChoices.PROTOCOL_UDP, port=2003),
+            Service(device=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1001]),
+            Service(device=devices[1], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1002]),
+            Service(device=devices[2], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
+            Service(virtual_machine=virtual_machines[0], name='Service 4', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2001]),
+            Service(virtual_machine=virtual_machines[1], name='Service 5', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2002]),
+            Service(virtual_machine=virtual_machines[2], name='Service 6', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2003]),
         )
         Service.objects.bulk_create(services)
 
@@ -753,8 +924,8 @@ class ServiceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_port(self):
-        params = {'port': ['1001', '1002', '1003']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'port': '1001'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_device(self):
         devices = Device.objects.all()[:2]

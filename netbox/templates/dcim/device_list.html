@@ -1,10 +1,10 @@
-{% extends 'utilities/obj_list.html' %}
+{% extends 'generic/object_list.html' %}
 
 {% block bulk_buttons %}
     {% if perms.dcim.change_device %}
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
                 {% if perms.dcim.add_consoleport %}<li><a href="{% url 'dcim:device_bulk_add_consoleport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Console Ports</a></li>{% endif %}
@@ -14,12 +14,8 @@
                 {% if perms.dcim.add_interface %}<li><a href="{% url 'dcim:device_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Interfaces</a></li>{% endif %}
                 {% if perms.dcim.add_rearport %}<li><a href="{% url 'dcim:device_bulk_add_rearport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Rear Ports</a></li>{% endif %}
                 {% if perms.dcim.add_devicebay %}<li><a href="{% url 'dcim:device_bulk_add_devicebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Device Bays</a></li>{% endif %}
+                {% if perms.dcim.add_inventoryitem %}<li><a href="{% url 'dcim:device_bulk_add_inventoryitem' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Inventory Items</a></li>{% endif %}
             </ul>
         </div>
-    {% endif %}
-    {% if perms.dcim.add_virtualchassis %}
-        <button type="submit" name="_edit" formaction="{% url 'dcim:virtualchassis_add' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-primary btn-sm">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create Virtual Chassis
-        </button>
     {% endif %}
 {% endblock %}

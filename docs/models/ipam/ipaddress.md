@@ -2,16 +2,17 @@
 
 An IP address comprises a single host address (either IPv4 or IPv6) and its subnet mask. Its mask should match exactly how the IP address is configured on an interface in the real world.
 
-Like prefixes, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically organized under parent prefixes within their respective VRFs.
+Like a prefix, an IP address can optionally be assigned to a VRF (otherwise, it will appear in the "global" table). IP addresses are automatically arranged under parent prefixes within their respective VRFs according to the IP hierarchy.
 
-Also like prefixes, each IP address can be assigned a status and a role. Statuses are hard-coded in NetBox and include the following:
+Each IP address can also be assigned an operational status and a functional role. Statuses are hard-coded in NetBox and include the following:
 
 * Active
 * Reserved
 * Deprecated
 * DHCP
+* SLAAC (IPv6 Stateless Address Autoconfiguration)
 
-Each IP address can optionally be assigned a special role. Roles are used to indicate some special attribute of an IP address: for example, it is used as a loopback, or is a virtual IP maintained using VRRP. (Note that this differs in purpose from a _functional_ role, and thus cannot be customized.) Available roles include:
+Roles are used to indicate some special attribute of an IP address; for example, use as a loopback or as the the virtual IP for a VRRP group. (Note that functional roles are conceptual in nature, and thus cannot be customized by the user.) Available roles include:
 
 * Loopback
 * Secondary
@@ -21,7 +22,10 @@ Each IP address can optionally be assigned a special role. Roles are used to ind
 * HSRP
 * GLBP
 
-An IP address can be assigned to a device or virtual machine interface, and an interface may have multiple IP addresses assigned to it. Further, each device and virtual machine may have one of its interface IPs designated as its primary IP address (one for IPv4 and one for IPv6).
+An IP address can be assigned to any device or virtual machine interface, and an interface may have multiple IP addresses assigned to it. Further, each device and virtual machine may have one of its interface IPs designated as its primary IP per address family (one for IPv4 and one for IPv6).
+
+!!! note
+    When primary IPs are set for both IPv4 and IPv6, NetBox will prefer IPv6. This can be changed by setting the `PREFER_IPV4` configuration parameter.
 
 ## Network Address Translation (NAT)
 

@@ -16,7 +16,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
             ],
             options={
-                'permissions': (('run_script', 'Can run script'),),
                 'managed': False,
             },
         ),

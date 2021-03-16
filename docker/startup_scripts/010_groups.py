@@ -1,33 +1,23 @@
-from django.contrib.auth.models import Permission, Group, User
-from ruamel.yaml import YAML
-from pathlib import Path
 import sys
 
-file = Path('/opt/netbox/initializers/groups.yml')
-if not file.is_file():
+from django.contrib.auth.models import Group, User
+from startup_script_utils import load_yaml, set_permissions
+
+groups = load_yaml('/opt/netbox/initializers/groups.yml')
+if groups is None:
   sys.exit()
 
-with file.open('r') as stream:
-  yaml=YAML(typ='safe')
-  groups = yaml.load(stream)
+for groupname, group_details in groups.items():
+  group, created = Group.objects.get_or_create(name=groupname)
 
-  if groups is not None:
-    for groupname, group_details in groups.items():
-      group, created = Group.objects.get_or_create(name=groupname)
+  if created:
+    print("👥 Created group", groupname)
 
-      if created:
-        print("👥 Created group", groupname)
+  for username in group_details.get('users', []):
+    user = User.objects.get(username=username)
 
-      for username in group_details.get('users', []):
-        user = User.objects.get(username=username)
+    if user:
+      user.groups.add(group)
 
-        if user:
-          user.groups.add(group)
-
-      group_permissions = group_details.get('permissions', [])
-      if group_permissions:
-        group.permissions.clear()
-        print("Permissions:", group.permissions.all())
-        for permission_codename in group_details.get('permissions', []):
-          for permission in Permission.objects.filter(codename=permission_codename):
-            group.permissions.add(permission)
+  yaml_permissions = group_details.get('permissions', [])
+  set_permissions(group.permissions, yaml_permissions)

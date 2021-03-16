@@ -13,7 +13,7 @@ class SiteContent(PluginTemplateExtension):
     def full_width_page(self):
         return "SITE CONTENT - FULL WIDTH PAGE"
 
-    def full_buttons(self):
+    def buttons(self):
         return "SITE CONTENT - BUTTONS"
 
 

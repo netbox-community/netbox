@@ -8,14 +8,14 @@
           href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}"
           onerror="window.location='{% url 'media_failure' %}?filename=bootstrap-3.4.1-dist/css/bootstrap.min.css'">
     <link rel="stylesheet"
-          href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=font-awesome-4.7.0/css/font-awesome.min.css'">
+          href="{% static 'materialdesignicons-5.4.55/css/materialdesignicons.min.css' %}"
+          onerror="window.location='{% url 'media_failure' %}?filename=materialdesignicons-5.4.55/css/materialdesignicons.min.css'">
     <link rel="stylesheet"
           href="{% static 'jquery-ui-1.12.1/jquery-ui.css' %}"
           onerror="window.location='{% url 'media_failure' %}?filename=jquery-ui-1.12.1/jquery-ui.css'">
     <link rel="stylesheet"
-          href="{% static 'select2-4.0.12/dist/css/select2.min.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=select2-4.0.12/dist/css/select2.min.css'">
+          href="{% static 'select2-4.0.13/dist/css/select2.min.css' %}"
+          onerror="window.location='{% url 'media_failure' %}?filename=select2-4.0.13/dist/css/select2.min.css'">
     <link rel="stylesheet"
           href="{% static 'select2-bootstrap-0.1.0-beta.10/select2-bootstrap.min.css' %}"
           onerror="window.location='{% url 'media_failure' %}?filename=select2-bootstrap-0.1.0-beta.10/select2-bootstrap.min.css'">
@@ -31,7 +31,7 @@
 </head>
 <body>
     {% include 'inc/nav_menu.html' %}
-    <div class="container wrapper">
+    <div class="container-fluid wrapper">
         {% if settings.BANNER_TOP %}
             <div class="alert alert-info text-center" role="alert">
                 {{ settings.BANNER_TOP|safe }}
@@ -39,7 +39,7 @@
         {% endif %}
         {% if settings.MAINTENANCE_MODE %}
             <div class="alert alert-warning text-center" role="alert">
-                <h4><i class="fa fa-exclamation-triangle"></i> Maintenance Mode</h4>
+                <h4><i class="mdi mdi-alert"></i> Maintenance Mode</h4>
                 <p>NetBox is currently in maintenance mode. Functionality may be limited.</p>
             </div>
         {% endif %}
@@ -61,7 +61,7 @@
         {% endif %}
     </div>
     <footer class="footer">
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-xs-4">
                     <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
@@ -71,31 +71,32 @@
                 </div>
                 <div class="col-xs-4 text-right noprint">
                     <p class="text-muted">
-                        <i class="fa fa-fw fa-book text-primary"></i> <a href="http://netbox.readthedocs.io/">Docs</a> &middot;
-                        <i class="fa fa-fw fa-cloud text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
-                        <i class="fa fa-fw fa-code text-primary"></i> <a href="https://github.com/netbox-community/netbox">Code</a> &middot;
-                        <i class="fa fa-fw fa-support text-primary"></i> <a href="https://github.com/netbox-community/netbox/wiki">Help</a>
+                        <i class="mdi mdi-book-open-page-variant text-primary"></i> <a href="https://netbox.readthedocs.io/">Docs</a> &middot;
+                        <i class="mdi mdi-cloud-braces text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
+                        <i class="mdi mdi-xml text-primary"></i> <a href="https://github.com/netbox-community/netbox">Code</a> &middot;
+                        <i class="mdi mdi-lifebuoy text-primary"></i> <a href="https://github.com/netbox-community/netbox/wiki">Help</a>
                     </p>
                 </div>
             </div>
         </div>
     </footer>
-<script src="{% static 'jquery/jquery-3.4.1.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=jquery/jquery-3.4.1.min.js'"></script>
+<script src="{% static 'jquery/jquery-3.5.1.min.js' %}"
+        onerror="window.location='{% url 'media_failure' %}?filename=jquery/jquery-3.5.1.min.js'"></script>
 <script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"
         onerror="window.location='{% url 'media_failure' %}?filename=jquery-ui-1.12.1/jquery-ui.min.js'"></script>
 <script src="{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"
         onerror="window.location='{% url 'media_failure' %}?filename=bootstrap-3.4.1-dist/js/bootstrap.min.js'"></script>
-<script src="{% static 'select2-4.0.12/dist/js/select2.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=select2-4.0.12/dist/js/select2.min.js'"></script>
-<script src="{% static 'clipboard.js/clipboard-2.0.4.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=clipboard.js/clipboard-2.0.4.min.js'"></script>
+<script src="{% static 'select2-4.0.13/dist/js/select2.min.js' %}"
+        onerror="window.location='{% url 'media_failure' %}?filename=select2-4.0.13/dist/js/select2.min.js'"></script>
+<script src="{% static 'clipboard.js/clipboard-2.0.6.min.js' %}"
+        onerror="window.location='{% url 'media_failure' %}?filename=clipboard.js/clipboard-2.0.6.min.js'"></script>
 <script src="{% static 'flatpickr-4.6.3/flatpickr.min.js' %}"
         onerror="window.location='{% url 'media_failure' %}?filename=flatpickr-4.6.3/flatpickr.min.js'"></script>
 <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"
         onerror="window.location='{% url 'media_failure' %}?filename=js/forms.js'"></script>
 <script type="text/javascript">
     var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
+    var netbox_csrf_token = "{{ csrf_token }}";
     var loading = $(".loading");
     $(document).ajaxStart(function() {
         loading.show();

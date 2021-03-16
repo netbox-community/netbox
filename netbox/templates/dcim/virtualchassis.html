@@ -9,8 +9,10 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a></li>
-                <li><a href="{% url 'dcim:virtualchassis_list' %}?site={{ virtualchassis.master.site.slug }}">{{ virtualchassis.master.site }}</a></li>
-                <li>{{ virtualchassis }}</li>
+                {% if object.master %}
+                    <li><a href="{% url 'dcim:virtualchassis_list' %}?site={{ object.master.site.slug }}">{{ object.master.site }}</a></li>
+                {% endif %}
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -19,7 +21,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search virtual chassis" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -27,26 +29,26 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons virtualchassis %}
+        {% plugin_buttons object %}
         {% if perms.dcim.change_virtualchassis %}
-            {% edit_button virtualchassis %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.dcim.delete_virtualchassis %}
-            {% delete_button virtualchassis %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}{{ virtualchassis }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=virtualchassis %}
+    <h1>{% block title %}{{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
-        {% custom_links virtualchassis %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ virtualchassis.get_absolute_url }}">Virtual Chassis</a>
+            <a href="{{ object.get_absolute_url }}">Virtual Chassis</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:virtualchassis_changelog' pk=virtualchassis.pk %}">Change Log</a>
+                <a href="{% url 'dcim:virtualchassis_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -62,12 +64,23 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Domain</td>
-                    <td>{{ virtualchassis.domain|placeholder }}</td>
-
+                    <td>{{ object.domain|placeholder }}</td>
+                </tr>
+                <tr>
+                    <td>Master</td>
+                    <td>
+                        {% if object.master %}
+                            <a href="{{ object.master.get_absolute_url }}">{{ object.master }}</a>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
-        {% include 'extras/inc/tags_panel.html' with tags=virtualchassis.tags.all url='dcim:virtualchassis_list' %}
-        {% plugin_left_page virtualchassis %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:virtualchassis_list' %}
+        {% plugin_left_page object %}
     </div>
     <div class="col-md-8">
         <div class="panel panel-default">
@@ -81,31 +94,31 @@
                     <th>Master</th>
                     <th>Priority</th>
                 </tr>
-                {% for vc_member in virtualchassis.members.all %}
+                {% for vc_member in members %}
                     <tr{% if vc_member == device %} class="info"{% endif %}>
                         <td>
                             <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                         </td>
                         <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
-                        <td>{% if virtualchassis.master == vc_member %}<i class="fa fa-check text-success"></i>{% endif %}</td>
+                        <td>{% if object.master == vc_member %}<i class="mdi mdi-check-bold text-success"></i>{% endif %}</td>
                         <td>{{ vc_member.vc_priority|placeholder }}</td>
                     </tr>
                 {% endfor %}
             </table>
             {% if perms.dcim.change_virtualchassis %}
                 <div class="panel-footer text-right noprint">
-                    <a href="{% url 'dcim:virtualchassis_add_member' pk=virtualchassis.pk %}?site={{ virtualchassis.master.site.pk }}&rack={{ virtualchassis.master.rack.pk }}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Member
+                    <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}" class="btn btn-primary btn-xs">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Member
                     </a>
                 </div>
             {% endif %}
         </div>
-        {% plugin_right_page virtualchassis %}
+        {% plugin_right_page object %}
 	</div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page virtualchassis %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}

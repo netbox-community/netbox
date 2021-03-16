@@ -8,6 +8,6 @@ $('button.toggle-images').click(function() {
         $('.device-image', rack_elevation.contents()).removeClass('hidden');
     }
     $(this).attr('selected', !selected);
-    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    $(this).children('span').toggleClass('mdi-checkbox-marked-circle-outline mdi-checkbox-blank-circle-outline');
     return false;
 });

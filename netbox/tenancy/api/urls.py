@@ -1,18 +1,9 @@
-from rest_framework import routers
-
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 
-class TenancyRootView(routers.APIRootView):
-    """
-    Tenancy API root view
-    """
-    def get_view_name(self):
-        return 'Tenancy'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = TenancyRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.TenancyRootView
 
 # Tenants
 router.register('tenant-groups', views.TenantGroupViewSet)

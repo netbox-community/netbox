@@ -1,24 +1,12 @@
-from rest_framework import routers
-
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 
-class ExtrasRootView(routers.APIRootView):
-    """
-    Extras API root view
-    """
-    def get_view_name(self):
-        return 'Extras'
+router = OrderedDefaultRouter()
+router.APIRootView = views.ExtrasRootView
 
-
-router = routers.DefaultRouter()
-router.APIRootView = ExtrasRootView
-
-# Custom field choices
-router.register('_custom_field_choices', views.CustomFieldChoicesViewSet, basename='custom-field-choice')
-
-# Graphs
-router.register('graphs', views.GraphViewSet)
+# Custom fields
+router.register('custom-fields', views.CustomFieldViewSet)
 
 # Export templates
 router.register('export-templates', views.ExportTemplateViewSet)
@@ -40,6 +28,12 @@ router.register('scripts', views.ScriptViewSet, basename='script')
 
 # Change logging
 router.register('object-changes', views.ObjectChangeViewSet)
+
+# Job Results
+router.register('job-results', views.JobResultViewSet)
+
+# ContentTypes
+router.register('content-types', views.ContentTypeViewSet)
 
 app_name = 'extras-api'
 urlpatterns = router.urls

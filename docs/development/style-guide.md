@@ -5,8 +5,8 @@ NetBox generally follows the [Django style guide](https://docs.djangoproject.com
 ## PEP 8 Exceptions
 
 * Wildcard imports (for example, `from .constants import *`) are acceptable under any of the following conditions:
-    * The library being import contains only constant declarations (`constants.py`)
-    * The library being imported explicitly defines `__all__` (e.g. `<app>.api.nested_serializers`)
+    * The library being import contains only constant declarations (e.g. `constants.py`)
+    * The library being imported explicitly defines `__all__`
 
 * Maximum line length is 120 characters (E501)
     * This does not apply to HTML templates or to automatically generated code (e.g. database migrations).
@@ -45,7 +45,7 @@ When adding a new dependency, a short description of the package and the URL of 
 
 * When in doubt, remain consistent: It is better to be consistently incorrect than inconsistently correct. If you notice in the course of unrelated work a pattern that should be corrected, continue to follow the pattern for now and open a bug so that the entire code base can be evaluated at a later point.
 
-* Prioritize readability over concision. Python is a very flexible language that typically gives us several options for expressing a given piece of logic, but some may be more friendly to the reader than others. (List comprehensions are particularly vulnerable to over-optimization.) Always remain considerate of the future reader who may need to interpret your code without the benefit of the context within which you are writing it.
+* Prioritize readability over concision. Python is a very flexible language that typically offers several options for expressing a given piece of logic, but some may be more friendly to the reader than others. (List comprehensions are particularly vulnerable to over-optimization.) Always remain considerate of the future reader who may need to interpret your code without the benefit of the context within which you are writing it.
 
 * No easter eggs. While they can be fun, NetBox must be considered as a business-critical tool. The potential, however minor, for introducing a bug caused by unnecessary logic is best avoided entirely.
 

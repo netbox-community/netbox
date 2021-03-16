@@ -1,21 +1,15 @@
-from rest_framework import routers
-
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 
-class IPAMRootView(routers.APIRootView):
-    """
-    IPAM API root view
-    """
-    def get_view_name(self):
-        return 'IPAM'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = IPAMRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.IPAMRootView
 
 # VRFs
 router.register('vrfs', views.VRFViewSet)
+
+# Route targets
+router.register('route-targets', views.RouteTargetViewSet)
 
 # RIRs
 router.register('rirs', views.RIRViewSet)

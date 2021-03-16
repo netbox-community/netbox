@@ -6,7 +6,7 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'extras:tag_list' %}">Tags</a></li>
-                <li>{{ tag }}</li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -15,7 +15,7 @@
                     <input type="text" name="q" class="form-control" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -24,27 +24,27 @@
     </div>
     <div class="pull-right">
         {% if perms.taggit.change_tag %}
-            <a href="{% url 'extras:tag_edit' slug=tag.slug %}" class="btn btn-warning">
-                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            <a href="{% url 'extras:tag_edit' slug=object.slug %}" class="btn btn-warning">
+                <span class="mdi mdi-pencil" aria-hidden="true"></span>
                 Edit this tag
             </a>
         {% endif %}
         {% if perms.taggit.delete_tag %}
-            <a href="{% url 'extras:tag_delete' slug=tag.slug %}" class="btn btn-danger">
-                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            <a href="{% url 'extras:tag_delete' slug=object.slug %}" class="btn btn-danger">
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                 Delete this tag
             </a>
         {% endif %}
     </div>
-    <h1>{% block title %}Tag: {{ tag }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=tag %}
+    <h1>{% block title %}Tag: {{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ tag.get_absolute_url }}">Tag</a>
+            <a href="{{ object.get_absolute_url }}">Tag</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'extras:tag_changelog' slug=tag.slug %}">Change Log</a>
+                <a href="{% url 'extras:tag_changelog' slug=object.slug %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -61,13 +61,13 @@
                     <tr>
                         <td>Name</td>
                         <td>
-                            {{ tag.name }}
+                            {{ object.name }}
                         </td>
                     </tr>
                     <tr>
                         <td>Slug</td>
                         <td>
-                            {{ tag.slug }}
+                            {{ object.slug }}
                         </td>
                     </tr>
                     <tr>
@@ -79,13 +79,13 @@
                     <tr>
                         <td>Color</td>
                         <td>
-                            <span class="label color-block" style="background-color: #{{ tag.color }}">&nbsp;</span>
+                            <span class="label color-block" style="background-color: #{{ object.color }}">&nbsp;</span>
                         </td>
                     </tr>
                     <tr>
                         <td>Description</td>
                         <td>
-                            {{ tag.description }}
+                            {{ object.description|placeholder }}
                         </td>
                 </table>
             </div>

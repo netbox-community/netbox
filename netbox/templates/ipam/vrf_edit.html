@@ -1,4 +1,4 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
 {% block form %}
@@ -9,6 +9,13 @@
             {% render_field form.rd %}
             {% render_field form.enforce_unique %}
             {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Route Targets</strong></div>
+        <div class="panel-body">
+            {% render_field form.import_targets %}
+            {% render_field form.export_targets %}
         </div>
     </div>
     <div class="panel panel-default">

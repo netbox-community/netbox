@@ -1,23 +1,28 @@
 from django.contrib.postgres.fields import JSONField
 from drf_yasg import openapi
-from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector, SwaggerAutoSchema
+from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, SwaggerAutoSchema
 from drf_yasg.utils import get_serializer_ref_name
 from rest_framework.fields import ChoiceField
 from rest_framework.relations import ManyRelatedField
-from taggit_serializer.serializers import TagListSerializerField
 
-from dcim.api.serializers import InterfaceSerializer as DeviceInterfaceSerializer
-from extras.api.customfields import CustomFieldsSerializer
-from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
-from virtualization.api.serializers import InterfaceSerializer as VirtualMachineInterfaceSerializer
-
-# this might be ugly, but it limits drf_yasg-specific code to this file
-DeviceInterfaceSerializer.Meta.ref_name = 'DeviceInterface'
-VirtualMachineInterfaceSerializer.Meta.ref_name = 'VirtualMachineInterface'
+from extras.api.customfields import CustomFieldsDataField
+from netbox.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
 
 
 class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
     writable_serializers = {}
+
+    def get_operation_id(self, operation_keys=None):
+        operation_keys = operation_keys or self.operation_keys
+        operation_id = self.overrides.get('operation_id', '')
+        if not operation_id:
+            # Overwrite the action for bulk update/bulk delete views to ensure they get an operation ID that's
+            # unique from their single-object counterparts (see #3436)
+            if operation_keys[-1] in ('delete', 'partial_update', 'update') and not self.view.detail:
+                operation_keys[-1] = f'bulk_{operation_keys[-1]}'
+            operation_id = '_'.join(operation_keys)
+
+        return operation_id
 
     def get_request_serializer(self):
         serializer = super().get_request_serializer()
@@ -56,20 +61,7 @@ class SerializedPKRelatedFieldInspector(FieldInspector):
         return NotHandled
 
 
-class TagListFieldInspector(FieldInspector):
-    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
-        if isinstance(field, TagListSerializerField):
-            child_schema = self.probe_field_inspectors(field.child, ChildSwaggerType, use_references)
-            return SwaggerType(
-                type=openapi.TYPE_ARRAY,
-                items=child_schema,
-            )
-
-        return NotHandled
-
-
-class CustomChoiceFieldInspector(FieldInspector):
+class ChoiceFieldInspector(FieldInspector):
     def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
         # this returns a callable which extracts title, description and other stuff
         # https://drf-yasg.readthedocs.io/en/stable/_modules/drf_yasg/inspectors/base.html#FieldInspector._get_partial_types
@@ -82,8 +74,8 @@ class CustomChoiceFieldInspector(FieldInspector):
             value_schema = openapi.Schema(type=openapi.TYPE_STRING, enum=choice_value)
 
             if set([None] + choice_value) == {None, True, False}:
-                # DeviceType.subdevice_role, Device.face and InterfaceConnection.connection_status all need to be
-                # differentiated since they each have subtly different values in their choice keys.
+                # DeviceType.subdevice_role and Device.face need to be differentiated since they each have
+                # subtly different values in their choice keys.
                 # - subdevice_role and connection_status are booleans, although subdevice_role includes None
                 # - face is an integer set {0, 1} which is easily confused with {False, True}
                 schema_type = openapi.TYPE_STRING
@@ -103,10 +95,6 @@ class CustomChoiceFieldInspector(FieldInspector):
 
             return schema
 
-        elif isinstance(field, CustomFieldsSerializer):
-            schema = SwaggerType(type=openapi.TYPE_OBJECT)
-            return schema
-
         return NotHandled
 
 
@@ -120,6 +108,17 @@ class NullableBooleanFieldInspector(FieldInspector):
                 result.type = 'boolean'
 
         return result
+
+
+class CustomFieldsDataFieldInspector(FieldInspector):
+
+    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+
+        if isinstance(field, CustomFieldsDataField) and swagger_object_type == openapi.Schema:
+            return SwaggerType(type=openapi.TYPE_OBJECT)
+
+        return NotHandled
 
 
 class JSONFieldInspector(FieldInspector):

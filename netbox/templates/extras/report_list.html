@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-md-9">
             {% if reports %}
-            {% for module, module_reports in reports %}
+                {% for module, module_reports in reports %}
                     <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
                     <table class="table table-hover table-headings reports">
                         <thead>
@@ -15,27 +15,48 @@
                                 <th>Status</th>
                                 <th>Description</th>
                                 <th class="text-right">Last Run</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for report in module_reports %}
                                 <tr>
                                     <td>
-                                        <a href="{% url 'extras:report' name=report.full_name %}" name="report.{{ report.name }}"><strong>{{ report.name }}</strong></a>
+                                        <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">
+                                            <strong>{{ report.name }}</strong>
+                                        </a>
                                     </td>
                                     <td>
-                                        {% include 'extras/inc/report_label.html' with result=report.result %}
+                                        {% include 'extras/inc/job_label.html' with result=report.result %}
                                     </td>
-                                    <td>{{ report.description|default:"" }}</td>
-                                    {% if report.result %}
-                                        <td class="text-right">{{ report.result.created }}</td>
-                                    {% else %}
-                                        <td class="text-right text-muted">Never</td>
+                                    <td>{{ report.description|placeholder }}</td>
+                                    <td class="text-right">
+                                        {% if report.result %}
+                                            <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created }}</a>
+                                        {% else %}
+                                            <span class="text-muted">Never</span>
+                                        {% endif %}
+                                    </td>
+                                <td>
+                                    {% if perms.extras.run_report %}
+                                        <div class="pull-right noprint">
+                                            <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" name="_run" class="btn btn-primary btn-xs">
+                                                    {% if report.result %}
+                                                        <i class="mdi mdi-replay"></i> Run Again
+                                                    {% else %}
+                                                        <i class="mdi mdi-play"></i> Run Report
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                        </div>
                                     {% endif %}
+                                </td>
                                 </tr>
                                 {% for method, stats in report.result.data.items %}
                                     <tr>
-                                        <td colspan="3" class="method">
+                                        <td colspan="4" class="method">
                                             {{ method }}
                                         </td>
                                         <td class="text-right text-nowrap report-stats">
@@ -66,10 +87,10 @@
                         </div>
                         <ul class="list-group">
                             {% for report in module_reports %}
-                                <a href="#report.{{ report.name }}" class="list-group-item">
-                                    <i class="fa fa-list-alt"></i> {{ report.name }}
+                                <a href="#{{ report.module }}.{{ report.class_name }}" class="list-group-item">
+                                    <i class="mdi mdi-file-chart-outline"></i> {{ report.name }}
                                     <div class="pull-right">
-                                        {% include 'extras/inc/report_label.html' with result=report.result %}
+                                        {% include 'extras/inc/job_label.html' with result=report.result %}
                                     </div>
                                 </a>
                             {% endfor %}

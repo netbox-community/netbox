@@ -1,12 +1,18 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
 {% block form %}
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Power Feed</strong></div>
+        <div class="panel-heading"><strong>Power Panel</strong></div>
         <div class="panel-body">
+            {% render_field form.region %}
             {% render_field form.site %}
             {% render_field form.power_panel %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Power Feed</strong></div>
+        <div class="panel-body">
             {% render_field form.rack %}
             {% render_field form.name %}
             {% render_field form.status %}

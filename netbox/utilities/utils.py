@@ -1,14 +1,16 @@
 import datetime
 import json
 from collections import OrderedDict
+from itertools import count, groupby
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
-from django.http import QueryDict
+from django.db.models.functions import Coalesce
 from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
 from extras.utils import is_taggable
+from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
 def csv_format(data):
@@ -64,7 +66,7 @@ def dynamic_import(name):
     return mod
 
 
-def get_subquery(model, field):
+def count_related(model, field):
     """
     Return a Subquery suitable for annotating a child object count.
     """
@@ -78,7 +80,7 @@ def get_subquery(model, field):
         ).values('c')
     )
 
-    return subquery
+    return Coalesce(subquery, 0)
 
 
 def serialize_object(obj, extra=None, exclude=None):
@@ -91,15 +93,14 @@ def serialize_object(obj, extra=None, exclude=None):
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
 
-    # Include any custom fields
-    if hasattr(obj, 'get_custom_fields'):
-        data['custom_fields'] = {
-            field: str(value) for field, value in obj.cf.items()
-        }
+    # Include custom_field_data as "custom_fields"
+    if hasattr(obj, 'custom_field_data'):
+        data['custom_fields'] = data.pop('custom_field_data')
 
-    # Include any tags
+    # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
-        data['tags'] = [tag.name for tag in obj.tags.all()]
+        tags = getattr(obj, '_tags', obj.tags.all())
+        data['tags'] = [tag.name for tag in tags]
 
     # Append any extra data
     if extra is not None:
@@ -148,6 +149,24 @@ def dict_to_filter_params(d, prefix=''):
         else:
             params[k] = val
     return params
+
+
+def normalize_querydict(querydict):
+    """
+    Convert a QueryDict to a normal, mutable dictionary, preserving list values. For example,
+
+        QueryDict('foo=1&bar=2&bar=3&baz=')
+
+    becomes:
+
+        {'foo': '1', 'bar': ['2', '3'], 'baz': ''}
+
+    This function is necessary because QueryDict does not provide any built-in mechanism which preserves multiple
+    values.
+    """
+    return {
+        k: v if len(v) > 1 else v[0] for k, v in querydict.lists()
+    }
 
 
 def deepmerge(original, new):
@@ -200,7 +219,7 @@ def prepare_cloned_fields(instance):
     Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
     applicable.
     """
-    params = {}
+    params = []
     for field_name in getattr(instance, 'clone_fields', []):
         field = instance._meta.get_field(field_name)
         field_value = field.value_from_object(instance)
@@ -211,16 +230,15 @@ def prepare_cloned_fields(instance):
 
         # Omit empty values
         if field_value not in (None, ''):
-            params[field_name] = field_value
+            params.append((field_name, field_value))
 
-        # Copy tags
-        if is_taggable(instance):
-            params['tags'] = ','.join([t.name for t in instance.tags.all()])
+    # Copy tags
+    if is_taggable(instance):
+        for tag in instance.tags.all():
+            params.append(('tags', tag.pk))
 
     # Concatenate parameters into a URL query string
-    param_string = '&'.join(
-        ['{}={}'.format(k, v) for k, v in params.items()]
-    )
+    param_string = '&'.join([f'{k}={v}' for k, v in params])
 
     return param_string
 
@@ -257,3 +275,54 @@ def flatten_dict(d, prefix='', separator='.'):
         else:
             ret[key] = v
     return ret
+
+
+# Taken from django.utils.functional (<3.0)
+def curry(_curried_func, *args, **kwargs):
+    def _curried(*moreargs, **morekwargs):
+        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
+    return _curried
+
+
+def array_to_string(array):
+    """
+    Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.
+    For example:
+        [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
+    """
+    group = (list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x))
+    return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+
+
+#
+# Fake request object
+#
+
+class NetBoxFakeRequest:
+    """
+    A fake request object which is explicitly defined at the module level so it is able to be pickled. It simply
+    takes what is passed to it as kwargs on init and sets them as instance variables.
+    """
+    def __init__(self, _dict):
+        self.__dict__ = _dict
+
+
+def copy_safe_request(request):
+    """
+    Copy selected attributes from a request object into a new fake request object. This is needed in places where
+    thread safe pickling of the useful request data is needed.
+    """
+    meta = {
+        k: request.META[k]
+        for k in HTTP_REQUEST_META_SAFE_COPY
+        if k in request.META and isinstance(request.META[k], str)
+    }
+    return NetBoxFakeRequest({
+        'META': meta,
+        'POST': request.POST,
+        'GET': request.GET,
+        'FILES': request.FILES,
+        'user': request.user,
+        'path': request.path,
+        'id': getattr(request, 'id', None),  # UUID assigned by middleware
+    })

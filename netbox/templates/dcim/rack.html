@@ -10,8 +10,14 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
-                <li><a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}">{{ rack.site }}</a></li>
-                <li>{{ rack }}</li>
+                <li><a href="{% url 'dcim:rack_list' %}?site={{ object.site.slug }}">{{ object.site }}</a></li>
+                {% if object.group %}
+                    {% for group in object.group.get_ancestors %}
+                        <li><a href="{{ group.get_absolute_url }}">{{ group }}</a></li>
+                    {% endfor %}
+                    <li><a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a></li>
+                {% endif %}
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -20,7 +26,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search racks" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -28,38 +34,38 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons rack %}
+        {% plugin_buttons object %}
         <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-            <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous Rack
+            <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous Rack
         </a>
         <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-            <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
+            <span class="mdi mdi-chevron-right" aria-hidden="true"></span> Next Rack
         </a>
         {% if perms.dcim.add_rack %}
-            {% clone_button rack %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.dcim.change_rack %}
-            {% edit_button rack %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.dcim.delete_rack %}
-            {% delete_button rack %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=rack %}
+    <h1>{% block title %}Rack {{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
         <button class="btn btn-sm btn-default toggle-images" selected="selected">
-            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show Images
+            <span class="mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
         </button>
-        {% custom_links rack %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ rack.get_absolute_url }}">Rack</a>
+            <a href="{{ object.get_absolute_url }}">Rack</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:rack_changelog' pk=rack.pk %}">Change Log</a>
+                <a href="{% url 'dcim:rack_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -76,18 +82,20 @@
                 <tr>
                     <td>Site</td>
                     <td>
-                        {% if rack.site.region %}
-                            <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a>
-                            <i class="fa fa-angle-right"></i>
+                        {% if object.site.region %}
+                            <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                         {% endif %}
-                        <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
+                        <a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Group</td>
                     <td>
-                        {% if rack.group %}
-                            <a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}&group={{ rack.group.slug }}">{{ rack.group }}</a>
+                        {% if object.group %}
+                            {% for group in object.group.get_ancestors %}
+                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> /
+                            {% endfor %}
+                            <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -95,17 +103,16 @@
                 </tr>
                 <tr>
                     <td>Facility ID</td>
-                    <td>{{ rack.facility_id|placeholder }}</td>
+                    <td>{{ object.facility_id|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Tenant</td>
                     <td>
-                        {% if rack.tenant %}
-                            {% if rack.tenant.group %}
-                                <a href="{{ rack.tenant.group.get_absolute_url }}">{{ rack.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                        {% if object.tenant %}
+                            {% if object.tenant.group %}
+                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                             {% endif %}
-                            <a href="{{ rack.tenant.get_absolute_url }}">{{ rack.tenant }}</a>
+                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -114,14 +121,14 @@
                 <tr>
                     <td>Status</td>
                     <td>
-                        {{ rack.get_status_display }}
+                        {{ object.get_status_display }}
                     </td>
                 </tr>
                 <tr>
                     <td>Role</td>
                     <td>
-                        {% if rack.role %}
-                            <a href="{{ rack.role.get_absolute_url }}">{{ rack.role }}</a>
+                        {% if object.role %}
+                            <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -129,22 +136,26 @@
                 </tr>
                 <tr>
                     <td>Serial Number</td>
-                    <td>{{ rack.serial|placeholder }}</td>
+                    <td>{{ object.serial|placeholder }}</td>
                 </tr>
                     <tr>
                         <td>Asset Tag</td>
-                        <td>{{ rack.asset_tag|placeholder }}</td>
+                        <td>{{ object.asset_tag|placeholder }}</td>
                     </tr>
                 <tr>
                     <td>Devices</td>
                     <td>
-                        <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ rack.devices.count }}</a>
+                        <a href="{% url 'dcim:device_list' %}?rack_id={{ object.id }}">{{ device_count }}</a>
                     </td>
                 </tr>
-                    <tr>
-                        <td>Utilization</td>
-                        <td>{% utilization_graph rack.get_utilization %}</td>
-                    </tr>
+                <tr>
+                    <td>Space Utilization</td>
+                    <td>{% utilization_graph object.get_utilization %}</td>
+                </tr>
+                <tr>
+                    <td>Power Utilization</td>
+                    <td>{% utilization_graph object.get_power_utilization %}</td>
+                </tr>
             </table>
         </div>
         <div class="panel panel-default">
@@ -155,8 +166,8 @@
                 <tr>
                     <td>Type</td>
                     <td>
-                        {% if rack.type %}
-                            {{ rack.get_type_display }}
+                        {% if object.type %}
+                            {{ object.get_type_display }}
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -164,17 +175,17 @@
                 </tr>
                 <tr>
                     <td>Width</td>
-                    <td>{{ rack.get_width_display }}</td>
+                    <td>{{ object.get_width_display }}</td>
                 </tr>
                 <tr>
                     <td>Height</td>
-                    <td>{{ rack.u_height }}U ({% if rack.desc_units %}descending{% else %}ascending{% endif %})</td>
+                    <td>{{ object.u_height }}U ({% if object.desc_units %}descending{% else %}ascending{% endif %})</td>
                 </tr>
                 <tr>
                     <td>Outer Width</td>
                     <td>
-                        {% if rack.outer_width %}
-                            <span>{{ rack.outer_width }} {{ rack.get_outer_unit_display }}</span>
+                        {% if object.outer_width %}
+                            <span>{{ object.outer_width }} {{ object.get_outer_unit_display }}</span>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}
@@ -183,8 +194,8 @@
                 <tr>
                     <td>Outer Depth</td>
                     <td>
-                        {% if rack.outer_depth %}
-                            <span>{{ rack.outer_depth }} {{ rack.get_outer_unit_display }}</span>
+                        {% if object.outer_depth %}
+                            <span>{{ object.outer_depth }} {{ object.get_outer_unit_display }}</span>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}
@@ -192,15 +203,15 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with obj=rack %}
-        {% include 'extras/inc/tags_panel.html' with tags=rack.tags.all url='dcim:rack_list' %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:rack_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>
             </div>
             <div class="panel-body rendered-markdown">
-                {% if rack.comments %}
-                    {{ rack.comments|render_markdown }}
+                {% if object.comments %}
+                    {{ object.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}
@@ -249,11 +260,11 @@
             <div class="panel-heading">
                 <strong>Images</strong>
             </div>
-            {% include 'inc/image_attachments.html' with images=rack.images.all %}
+            {% include 'inc/image_attachments.html' with images=object.images.all %}
             {% if perms.extras.add_imageattachment %}
                 <div class="panel-footer text-right noprint">
-                    <a href="{% url 'dcim:rack_add_image' object_id=rack.pk %}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    <a href="{% url 'dcim:rack_add_image' object_id=object.pk %}" class="btn btn-primary btn-xs">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Attach an image
                     </a>
                 </div>
@@ -289,13 +300,13 @@
                             </td>
                             <td class="text-right noprint">
                                 {% if perms.dcim.change_rackreservation %}
-                                    <a href="{% url 'dcim:rackreservation_edit' pk=resv.pk %}?return_url={{ rack.get_absolute_url }}" class="btn btn-warning btn-xs" title="Edit reservation">
-                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                                    <a href="{% url 'dcim:rackreservation_edit' pk=resv.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-xs" title="Edit reservation">
+                                        <i class="mdi mdi-pencil" aria-hidden="true"></i>
                                     </a>
                                 {% endif %}
                                 {% if perms.dcim.delete_rackreservation %}
-                                    <a href="{% url 'dcim:rackreservation_delete' pk=resv.pk %}?return_url={{ rack.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete reservation">
-                                        <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                                    <a href="{% url 'dcim:rackreservation_delete' pk=resv.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete reservation">
+                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                                     </a>
                                 {% endif %}
                             </td>
@@ -307,28 +318,28 @@
             {% endif %}
             {% if perms.dcim.add_rackreservation %}
                 <div class="panel-footer text-right noprint">
-                    <a href="{% url 'dcim:rackreservation_add' %}?rack={{ rack.pk }}&return_url={{ rack.get_absolute_url }}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    <a href="{% url 'dcim:rackreservation_add' %}?rack={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-xs">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Add a reservation
                     </a>
                 </div>
             {% endif %}
         </div>
-        {% plugin_left_page rack %}
+        {% plugin_left_page object %}
 	</div>
     <div class="col-md-6">
         <div class="row" style="margin-bottom: 20px">
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <div class="rack_header">
-                    <h4>Front</h4>
-                </div>
+            <div class="col-md-6 col-sm-6 col-xs-12 text-center">
+              <div style="margin-left: 30px">
+                <h4>Front</h4>
                 {% include 'dcim/inc/rack_elevation.html' with face='front' %}
+              </div>
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <div class="rack_header">
-                    <h4>Rear</h4>
-                </div>
+            <div class="col-md-6 col-sm-6 col-xs-12 text-center">
+              <div style="margin-left: 30px">
+                <h4>Rear</h4>
                 {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
+              </div>
             </div>
         </div>
         <div class="panel panel-default">
@@ -341,7 +352,7 @@
                         <th>Name</th>
                         <th>Role</th>
                         <th>Type</th>
-                        <th>Parent</th>
+                        <th colspan="2">Parent Device</th>
                     </tr>
                     {% for device in nonracked_devices %}
                         <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
@@ -350,13 +361,12 @@
                             </td>
                             <td>{{ device.device_role }}</td>
                             <td>{{ device.device_type.display_name }}</td>
-                            <td>
-                                {% if device.parent_bay %}
-                                    <a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay }}</a>
-                                {% else %}
-                                    <span class="text-muted">&mdash;</span>
-                                {% endif %}
-                            </td>
+                            {% if device.parent_bay %}
+                                <td><a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay.device }}</a></td>
+                                <td>{{ device.parent_bay }}</td>
+                            {% else %}
+                                <td colspan="2" class="text-muted">&mdash;</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </table>
@@ -365,19 +375,19 @@
             {% endif %}
             {% if perms.dcim.add_device %}
                 <div class="panel-footer text-right noprint">
-                    <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&rack={{ object.pk }}" class="btn btn-primary btn-xs">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Add a non-racked device
                     </a>
                 </div>
             {% endif %}
         </div>
-        {% plugin_right_page rack %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page rack %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}

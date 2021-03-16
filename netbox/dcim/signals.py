@@ -1,23 +1,88 @@
 import logging
 
-from django.db.models.signals import post_save, pre_delete
+from cacheops import invalidate_obj
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.signals import post_save, post_delete, pre_delete
+from django.db import transaction
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
-from .models import Cable, Device, VirtualChassis
+from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, RackGroup, VirtualChassis
 
+
+def create_cablepath(node):
+    """
+    Create CablePaths for all paths originating from the specified node.
+    """
+    cp = CablePath.from_origin(node)
+    if cp:
+        try:
+            cp.save()
+        except Exception as e:
+            print(node, node.pk)
+            raise e
+
+
+def rebuild_paths(obj):
+    """
+    Rebuild all CablePaths which traverse the specified node
+    """
+    cable_paths = CablePath.objects.filter(path__contains=obj)
+
+    with transaction.atomic():
+        for cp in cable_paths:
+            invalidate_obj(cp.origin)
+            cp.delete()
+            create_cablepath(cp.origin)
+
+
+#
+# Site/rack/device assignment
+#
+
+@receiver(post_save, sender=RackGroup)
+def handle_rackgroup_site_change(instance, created, **kwargs):
+    """
+    Update child RackGroups and Racks if Site assignment has changed. We intentionally recurse through each child
+    object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
+    """
+    if not created:
+        for rackgroup in instance.get_children():
+            rackgroup.site = instance.site
+            rackgroup.save()
+        for rack in Rack.objects.filter(group=instance).exclude(site=instance.site):
+            rack.site = instance.site
+            rack.save()
+        for powerpanel in PowerPanel.objects.filter(rack_group=instance).exclude(site=instance.site):
+            powerpanel.site = instance.site
+            powerpanel.save()
+
+
+@receiver(post_save, sender=Rack)
+def handle_rack_site_change(instance, created, **kwargs):
+    """
+    Update child Devices if Site assignment has changed.
+    """
+    if not created:
+        for device in Device.objects.filter(rack=instance).exclude(site=instance.site):
+            device.site = instance.site
+            device.save()
+
+
+#
+# Virtual chassis
+#
 
 @receiver(post_save, sender=VirtualChassis)
 def assign_virtualchassis_master(instance, created, **kwargs):
     """
-    When a VirtualChassis is created, automatically assign its master device to the VC.
+    When a VirtualChassis is created, automatically assign its master device (if any) to the VC.
     """
-    if created:
-        devices = Device.objects.filter(pk=instance.master.pk)
-        for device in devices:
-            device.virtual_chassis = instance
-            device.vc_position = None
-            device.save()
+    if created and instance.master:
+        master = Device.objects.get(pk=instance.master.pk)
+        master.virtual_chassis = instance
+        master.vc_position = 1
+        master.save()
 
 
 @receiver(pre_delete, sender=VirtualChassis)
@@ -32,70 +97,79 @@ def clear_virtualchassis_members(instance, **kwargs):
         device.save()
 
 
+#
+# Cables
+#
+
+
 @receiver(post_save, sender=Cable)
-def update_connected_endpoints(instance, **kwargs):
+def update_connected_endpoints(instance, created, raw=False, **kwargs):
     """
     When a Cable is saved, check for and update its two connected endpoints
     """
     logger = logging.getLogger('netbox.dcim.cable')
+    if raw:
+        logger.debug(f"Skipping endpoint updates for imported cable {instance}")
+        return
 
     # Cache the Cable on its two termination points
     if instance.termination_a.cable != instance:
-        logger.debug("Updating termination A for cable {}".format(instance))
+        logger.debug(f"Updating termination A for cable {instance}")
         instance.termination_a.cable = instance
+        instance.termination_a._cable_peer = instance.termination_b
         instance.termination_a.save()
     if instance.termination_b.cable != instance:
-        logger.debug("Updating termination B for cable {}".format(instance))
+        logger.debug(f"Updating termination B for cable {instance}")
         instance.termination_b.cable = instance
+        instance.termination_b._cable_peer = instance.termination_a
         instance.termination_b.save()
 
-    # Update any endpoints for this Cable.
-    endpoints = instance.termination_a.get_path_endpoints() + instance.termination_b.get_path_endpoints()
-    for endpoint in endpoints:
-        path, split_ends = endpoint.trace()
-        # Determine overall path status (connected or planned)
-        path_status = True
-        for segment in path:
-            if segment[1] is None or segment[1].status != CableStatusChoices.STATUS_CONNECTED:
-                path_status = False
-                break
-
-        endpoint_a = path[0][0]
-        endpoint_b = path[-1][2]
-
-        if getattr(endpoint_a, 'is_path_endpoint', False) and getattr(endpoint_b, 'is_path_endpoint', False):
-            logger.debug("Updating path endpoints: {} <---> {}".format(endpoint_a, endpoint_b))
-            endpoint_a.connected_endpoint = endpoint_b
-            endpoint_a.connection_status = path_status
-            endpoint_a.save()
-            endpoint_b.connected_endpoint = endpoint_a
-            endpoint_b.connection_status = path_status
-            endpoint_b.save()
+    # Create/update cable paths
+    if created:
+        for termination in (instance.termination_a, instance.termination_b):
+            if isinstance(termination, PathEndpoint):
+                create_cablepath(termination)
+            else:
+                rebuild_paths(termination)
+    elif instance.status != instance._orig_status:
+        # We currently don't support modifying either termination of an existing Cable. (This
+        # may change in the future.) However, we do need to capture status changes and update
+        # any CablePaths accordingly.
+        if instance.status != CableStatusChoices.STATUS_CONNECTED:
+            CablePath.objects.filter(path__contains=instance).update(is_active=False)
+        else:
+            rebuild_paths(instance)
 
 
-@receiver(pre_delete, sender=Cable)
+@receiver(post_delete, sender=Cable)
 def nullify_connected_endpoints(instance, **kwargs):
     """
     When a Cable is deleted, check for and update its two connected endpoints
     """
     logger = logging.getLogger('netbox.dcim.cable')
 
-    endpoints = instance.termination_a.get_path_endpoints() + instance.termination_b.get_path_endpoints()
-
     # Disassociate the Cable from its termination points
     if instance.termination_a is not None:
-        logger.debug("Nullifying termination A for cable {}".format(instance))
+        logger.debug(f"Nullifying termination A for cable {instance}")
         instance.termination_a.cable = None
+        instance.termination_a._cable_peer = None
         instance.termination_a.save()
     if instance.termination_b is not None:
-        logger.debug("Nullifying termination B for cable {}".format(instance))
+        logger.debug(f"Nullifying termination B for cable {instance}")
         instance.termination_b.cable = None
+        instance.termination_b._cable_peer = None
         instance.termination_b.save()
 
-    # If this Cable was part of any complete end-to-end paths, tear them down.
-    for endpoint in endpoints:
-        logger.debug(f"Removing path information for {endpoint}")
-        if hasattr(endpoint, 'connected_endpoint'):
-            endpoint.connected_endpoint = None
-            endpoint.connection_status = None
-            endpoint.save()
+    # Delete and retrace any dependent cable paths
+    for cablepath in CablePath.objects.filter(path__contains=instance):
+        cp = CablePath.from_origin(cablepath.origin)
+        if cp:
+            CablePath.objects.filter(pk=cablepath.pk).update(
+                path=cp.path,
+                destination_type=ContentType.objects.get_for_model(cp.destination) if cp.destination else None,
+                destination_id=cp.destination.pk if cp.destination else None,
+                is_active=cp.is_active,
+                is_split=cp.is_split
+            )
+        else:
+            cablepath.delete()

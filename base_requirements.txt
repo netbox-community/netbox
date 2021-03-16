@@ -42,10 +42,6 @@ django-tables2
 # https://github.com/alex/django-taggit
 django-taggit
 
-# A Django REST Framework serializer which represents tags
-# https://github.com/glemmaPaul/django-taggit-serializer
-django-taggit-serializer
-
 # A Django field for representing time zones
 # https://github.com/mfogel/django-timezone-field/
 django-timezone-field

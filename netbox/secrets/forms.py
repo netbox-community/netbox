@@ -1,16 +1,18 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Device
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
-    TagField,
 )
+from extras.models import Tag
 from utilities.forms import (
-    APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
+    BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    SlugField, TagFilterField,
 )
+from virtualization.models import VirtualMachine
 from .constants import *
 from .models import Secret, SecretRole, UserKey
 
@@ -46,13 +48,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = SecretRole
-        fields = [
-            'name', 'slug', 'description', 'users', 'groups',
-        ]
-        widgets = {
-            'users': StaticSelect2Multiple(),
-            'groups': StaticSelect2Multiple(),
-        }
+        fields = ('name', 'slug', 'description')
 
 
 class SecretRoleCSVForm(CSVModelForm):
@@ -69,7 +65,13 @@ class SecretRoleCSVForm(CSVModelForm):
 
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
+        queryset=Device.objects.all(),
+        required=False,
+        display_field='display_name'
+    )
+    virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False
     )
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
@@ -90,17 +92,29 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     role = DynamicModelChoiceField(
         queryset=SecretRole.objects.all()
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
     class Meta:
         model = Secret
         fields = [
-            'device', 'role', 'name', 'plaintext', 'plaintext2', 'tags',
+            'device', 'virtual_machine', 'role', 'name', 'plaintext', 'plaintext2', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
+
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+        if instance:
+            if type(instance.assigned_object) is Device:
+                initial['device'] = instance.assigned_object
+            elif type(instance.assigned_object) is VirtualMachine:
+                initial['virtual_machine'] = instance.assigned_object
+        kwargs['initial'] = initial
+
         super().__init__(*args, **kwargs)
 
         # A plaintext value is required when creating a new Secret
@@ -108,6 +122,13 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
             self.fields['plaintext'].required = True
 
     def clean(self):
+        super().clean()
+
+        if not self.cleaned_data['device'] and not self.cleaned_data['virtual_machine']:
+            raise forms.ValidationError("Secrets must be assigned to a device or virtual machine.")
+
+        if self.cleaned_data['device'] and self.cleaned_data['virtual_machine']:
+            raise forms.ValidationError("Cannot select both a device and virtual machine for secret assignment.")
 
         # Verify that the provided plaintext values match
         if self.cleaned_data['plaintext'] != self.cleaned_data['plaintext2']:
@@ -115,17 +136,30 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
                 'plaintext2': "The two given plaintext values do not match. Please check your input."
             })
 
+    def save(self, *args, **kwargs):
+        # Set assigned object
+        self.instance.assigned_object = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
+
+        return super().save(*args, **kwargs)
+
 
 class SecretCSVForm(CustomFieldModelCSVForm):
-    device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Assigned device'
-    )
     role = CSVModelChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='name',
         help_text='Assigned role'
+    )
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned device'
+    )
+    virtual_machine = CSVModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned VM'
     )
     plaintext = forms.CharField(
         help_text='Plaintext secret data'
@@ -133,14 +167,33 @@ class SecretCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Secret
-        fields = Secret.csv_headers
+        fields = ['role', 'name', 'plaintext', 'device', 'virtual_machine']
         help_texts = {
             'name': 'Name or username',
         }
 
+    def clean(self):
+        super().clean()
+
+        device = self.cleaned_data.get('device')
+        virtual_machine = self.cleaned_data.get('virtual_machine')
+
+        # Validate device OR VM is assigned
+        if not device and not virtual_machine:
+            raise forms.ValidationError("Secret must be assigned to a device or a virtual machine")
+        if device and virtual_machine:
+            raise forms.ValidationError("Secret cannot be assigned to both a device and a virtual machine")
+
     def save(self, *args, **kwargs):
+
+        # Set device/VM assignment
+        self.instance.assigned_object = self.cleaned_data['device'] or self.cleaned_data['virtual_machine']
+
         s = super().save(*args, **kwargs)
+
+        # Set plaintext on instance
         s.plaintext = str(self.cleaned_data['plaintext'])
+
         return s
 
 
@@ -173,10 +226,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     role = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     tag = TagFilterField(model)
 

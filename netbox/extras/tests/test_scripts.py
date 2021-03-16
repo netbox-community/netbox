@@ -5,6 +5,12 @@ from netaddr import IPAddress, IPNetwork
 from dcim.models import DeviceRole
 from extras.scripts import *
 
+CHOICES = (
+    ('ff0000', 'Red'),
+    ('00ff00', 'Green'),
+    ('0000ff', 'Blue')
+)
+
 
 class ScriptVariablesTest(TestCase):
 
@@ -101,12 +107,6 @@ class ScriptVariablesTest(TestCase):
 
     def test_choicevar(self):
 
-        CHOICES = (
-            ('ff0000', 'Red'),
-            ('00ff00', 'Green'),
-            ('0000ff', 'Blue')
-        )
-
         class TestScript(Script):
 
             var1 = ChoiceVar(
@@ -114,12 +114,37 @@ class ScriptVariablesTest(TestCase):
             )
 
         # Validate valid choice
-        data = {'var1': CHOICES[0][0]}
+        data = {'var1': 'ff0000'}
         form = TestScript().as_form(data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['var1'], CHOICES[0][0])
+        self.assertEqual(form.cleaned_data['var1'], 'ff0000')
 
-        # Validate invalid choices
+        # Validate invalid choice
+        data = {'var1': 'taupe'}
+        form = TestScript().as_form(data)
+        self.assertFalse(form.is_valid())
+
+    def test_multichoicevar(self):
+
+        class TestScript(Script):
+
+            var1 = MultiChoiceVar(
+                choices=CHOICES
+            )
+
+        # Validate single choice
+        data = {'var1': ['ff0000']}
+        form = TestScript().as_form(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['var1'], ['ff0000'])
+
+        # Validate multiple choices
+        data = {'var1': ('ff0000', '00ff00')}
+        form = TestScript().as_form(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['var1'], ['ff0000', '00ff00'])
+
+        # Validate invalid choice
         data = {'var1': 'taupe'}
         form = TestScript().as_form(data)
         self.assertFalse(form.is_valid())
@@ -127,10 +152,7 @@ class ScriptVariablesTest(TestCase):
     def test_objectvar(self):
 
         class TestScript(Script):
-
-            var1 = ObjectVar(
-                queryset=DeviceRole.objects.all()
-            )
+            var1 = ObjectVar(model=DeviceRole)
 
         # Populate some objects
         for i in range(1, 6):
@@ -148,10 +170,7 @@ class ScriptVariablesTest(TestCase):
     def test_multiobjectvar(self):
 
         class TestScript(Script):
-
-            var1 = MultiObjectVar(
-                queryset=DeviceRole.objects.all()
-            )
+            var1 = MultiObjectVar(model=DeviceRole)
 
         # Populate some objects
         for i in range(1, 6):

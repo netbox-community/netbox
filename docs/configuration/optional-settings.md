@@ -4,7 +4,7 @@
 
 NetBox will email details about critical errors to the administrators listed here. This should be a list of (name, email) tuples. For example:
 
-```
+```python
 ADMINS = [
     ['Hank Hill', 'hhill@example.com'],
     ['Dale Gribble', 'dgribble@example.com'],
@@ -13,13 +13,21 @@ ADMINS = [
 
 ---
 
+## ALLOWED_URL_SCHEMES
+
+Default: `('file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp')`
+
+A list of permitted URL schemes referenced when rendering links within NetBox. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate all of the default values as well (excluding those schemes which are not desirable).
+
+---
+
 ## BANNER_TOP
 
 ## BANNER_BOTTOM
 
-Setting these variables will display content in a banner at the top and/or bottom of the page, respectively. HTML is allowed. To replicate the content of the top banner in the bottom banner, set:
+Setting these variables will display custom content in a banner at the top and/or bottom of the page, respectively. HTML is allowed. To replicate the content of the top banner in the bottom banner, set:
 
-```
+```python
 BANNER_TOP = 'Your banner text'
 BANNER_BOTTOM = BANNER_TOP
 ```
@@ -28,7 +36,7 @@ BANNER_BOTTOM = BANNER_TOP
 
 ## BANNER_LOGIN
 
-The value of this variable will be displayed on the login page above the login form. HTML is allowed.
+This defines custom content to be displayed on the login page above the login form. HTML is allowed.
 
 ---
 
@@ -36,9 +44,9 @@ The value of this variable will be displayed on the login page above the login f
 
 Default: None
 
-The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at http://example.com/netbox/, set:
+The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at https://example.com/netbox/, set:
 
-```
+```python
 BASE_PATH = 'netbox/'
 ```
 
@@ -48,7 +56,7 @@ BASE_PATH = 'netbox/'
 
 Default: 900
 
-The number of seconds to retain cache entries before automatically invalidating them.
+The number of seconds to cache entries will be retained before expiring.
 
 ---
 
@@ -56,7 +64,11 @@ The number of seconds to retain cache entries before automatically invalidating 
 
 Default: 90
 
-The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain changes in the database indefinitely. (Warning: This will greatly increase database size over time.)
+The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain
+changes in the database indefinitely.
+
+!!! warning
+    If enabling indefinite changelog retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
 
 ---
 
@@ -72,9 +84,11 @@ If True, cross-origin resource sharing (CORS) requests will be accepted from all
 
 ## CORS_ORIGIN_REGEX_WHITELIST
 
-These settings specify a list of origins that are authorized to make cross-site API requests. Use `CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) For example:
+These settings specify a list of origins that are authorized to make cross-site API requests. Use
+`CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular 
+expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) For example:
 
-```
+```python
 CORS_ORIGIN_WHITELIST = [
     'https://example.com',
 ]
@@ -86,12 +100,13 @@ CORS_ORIGIN_WHITELIST = [
 
 Default: False
 
-This setting enables debugging. This should be done only during development or troubleshooting. Note that only clients
-which access NetBox from a recognized [internal IP address](#internal_ips) will see debugging tools in the user
+This setting enables debugging. Debugging should be enabled only during development or troubleshooting. Note that only
+clients which access NetBox from a recognized [internal IP address](#internal_ips) will see debugging tools in the user
 interface.
 
 !!! warning
-    Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users.
+    Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users and impose a
+    substantial performance penalty.
 
 ---
 
@@ -105,9 +120,9 @@ This parameter serves as a safeguard to prevent some potentially dangerous behav
 
 ## DOCS_ROOT
 
-Default: `$INSTALL_DIR/docs/`
+Default: `$INSTALL_ROOT/docs/`
 
-The file path to NetBox's documentation. This is used when presenting context-sensitive documentation in the web UI. by default, this will be the `docs/` directory within the root NetBox installation path. (Set this to `None` to disable the embedded documentation.)
+The filesystem path to NetBox's documentation. This is used when presenting context-sensitive documentation in the web UI. By default, this will be the `docs/` directory within the root NetBox installation path. (Set this to `None` to disable the embedded documentation.)
 
 ---
 
@@ -115,20 +130,23 @@ The file path to NetBox's documentation. This is used when presenting context-se
 
 In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` configuration parameter:
 
-* `SERVER` - Host name or IP address of the email server (use `localhost` if running locally)
+* `SERVER` - Hostname or IP address of the email server (use `localhost` if running locally)
 * `PORT` - TCP port to use for the connection (default: `25`)
 * `USERNAME` - Username with which to authenticate
 * `PASSSWORD` - Password with which to authenticate
-* `USE_SSL` - Use SSL when connecting to the server (default: `False`). Mutually exclusive with `USE_TLS`.
-* `USE_TLS` - Use TLS when connecting to the server (default: `False`). Mutually exclusive with `USE_SSL`.
+* `USE_SSL` - Use SSL when connecting to the server (default: `False`)
+* `USE_TLS` - Use TLS when connecting to the server (default: `False`)
 * `SSL_CERTFILE` - Path to the PEM-formatted SSL certificate file (optional)
 * `SSL_KEYFILE` - Path to the PEM-formatted SSL private key file (optional)
 * `TIMEOUT` - Amount of time to wait for a connection, in seconds (default: `10`)
-* `FROM_EMAIL` - Sender address for emails sent by NetBox (default: `root@localhost`)
+* `FROM_EMAIL` - Sender address for emails sent by NetBox
 
-Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
+!!! note
+    The `USE_SSL` and `USE_TLS` parameters are mutually exclusive.
 
-```
+Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) fuction accessible within the NetBox shell:
+
+```no-highlight
 # python ./manage.py nbshell
 >>> from django.core.mail import send_mail
 >>> send_mail(
@@ -142,15 +160,23 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ---
 
+## ENFORCE_GLOBAL_UNIQUE
+
+Default: False
+
+By default, NetBox will permit users to create duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This behavior can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to True.
+
+---
+
 ## EXEMPT_VIEW_PERMISSIONS
 
 Default: Empty list
 
-A list of models to exempt from the enforcement of view permissions. Models listed here will be viewable by all users and by anonymous users.
+A list of NetBox models to exempt from the enforcement of view permissions. Models listed here will be viewable by all users, both authenticated and anonymous.
 
 List models in the form `<app>.<model>`. For example:
 
-```
+```python
 EXEMPT_VIEW_PERMISSIONS = [
     'dcim.site',
     'dcim.region',
@@ -160,17 +186,12 @@ EXEMPT_VIEW_PERMISSIONS = [
 
 To exempt _all_ models from view permission enforcement, set the following. (Note that `EXEMPT_VIEW_PERMISSIONS` must be an iterable.)
 
-```
+```python
 EXEMPT_VIEW_PERMISSIONS = ['*']
 ```
 
----
-
-## ENFORCE_GLOBAL_UNIQUE
-
-Default: False
-
-Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce unique IP space within the global table (all prefixes and IP addresses not assigned to a VRF), set `ENFORCE_GLOBAL_UNIQUE` to True.
+!!! note
+    Using a wildcard will not affect certain potentially sensitive models, such as user permissions. If there is a need to exempt these models, they must be specified individually.
 
 ---
 
@@ -178,7 +199,7 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 Default: None
 
-A dictionary of HTTP proxies to use for outbound requests originating from NetBox (e.g. when sending webhooks). Proxies should be specified by schema as per the [Python requests library documentation](https://2.python-requests.org/en/master/user/advanced/). For example:
+A dictionary of HTTP proxies to use for outbound requests originating from NetBox (e.g. when sending webhook requests). Proxies should be specified by schema (HTTP and HTTPS) as per the [Python requests library documentation](https://2.python-requests.org/en/master/user/advanced/). For example:
 
 ```python
 HTTP_PROXIES = {
@@ -191,7 +212,7 @@ HTTP_PROXIES = {
 
 ## INTERNAL_IPS
 
-Default: `('127.0.0.1', '::1',)`
+Default: `('127.0.0.1', '::1')`
 
 A list of IP addresses recognized as internal to the system, used to control the display of debugging output. For
 example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
@@ -201,11 +222,11 @@ addresses (and [`DEBUG`](#debug) is true).
 
 ## LOGGING
 
-By default, all messages of INFO severity or higher will be logged to the console. Additionally, if `DEBUG` is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in `ADMINS`.
+By default, all messages of INFO severity or higher will be logged to the console. Additionally, if [`DEBUG`](#debug) is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in [`ADMINS`](#admins).
 
-The Django framework on which NetBox runs allows for the customization of logging, e.g. to write logs to file. Please consult the [Django logging documentation](https://docs.djangoproject.com/en/stable/topics/logging/) for more information on configuring this setting. Below is an example which will write all INFO and higher messages to a file:
+The Django framework on which NetBox runs allows for the customization of logging format and destination. Please consult the [Django logging documentation](https://docs.djangoproject.com/en/stable/topics/logging/) for more information on configuring this setting. Below is an example which will write all INFO and higher messages to a local file:
 
-```
+```python
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -227,6 +248,7 @@ LOGGING = {
 
 ### Available Loggers
 
+* `netbox.<app>.<model>` - Generic form for model-specific log messages
 * `netbox.auth.*` - Authentication events
 * `netbox.api.views.*` - Views which handle business logic for the REST API
 * `netbox.reports.*` - Report execution (`module.name`)
@@ -247,7 +269,7 @@ Setting this to True will permit only authenticated users to access any part of 
 
 Default: 1209600 seconds (14 days)
 
-The liftetime (in seconds) of the authentication cookie issued to a NetBox user upon login.
+The lifetime (in seconds) of the authentication cookie issued to a NetBox user upon login.
 
 ---
 
@@ -255,7 +277,7 @@ The liftetime (in seconds) of the authentication cookie issued to a NetBox user 
 
 Default: False
 
-Setting this to True will display a "maintenance mode" banner at the top of every page.
+Setting this to True will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
 
 ---
 
@@ -263,13 +285,13 @@ Setting this to True will display a "maintenance mode" banner at the top of ever
 
 Default: 1000
 
-An API consumer can request an arbitrary number of objects by appending the "limit" parameter to the URL (e.g. `?limit=1000`). This setting defines the maximum limit. Setting it to `0` or `None` will allow an API consumer to request all objects by specifying `?limit=0`.
+A web user or API consumer can request an arbitrary number of objects by appending the "limit" parameter to the URL (e.g. `?limit=1000`). This parameter defines the maximum acceptable limit. Setting this to `0` or `None` will allow a client to retrieve _all_ matching objects at once with no limit by specifying `?limit=0`.
 
 ---
 
 ## MEDIA_ROOT
 
-Default: $BASE_DIR/netbox/media/
+Default: $INSTALL_ROOT/netbox/media/
 
 The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media/` directory within the base NetBox installation path.
 
@@ -279,7 +301,7 @@ The file path to the location where media files (such as image attachments) are 
 
 Default: False
 
-Toggle exposing Prometheus metrics at `/metrics`. See the [Prometheus Metrics](../../additional-features/prometheus-metrics/) documentation for more details.
+Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../../additional-features/prometheus-metrics/) documentation for more details.
 
 ---
 
@@ -289,24 +311,25 @@ Toggle exposing Prometheus metrics at `/metrics`. See the [Prometheus Metrics](.
 
 NetBox will use these credentials when authenticating to remote devices via the [NAPALM library](https://napalm-automation.net/), if installed. Both parameters are optional.
 
-Note: If SSH public key authentication has been set up for the system account under which NetBox runs, these parameters are not needed.
+!!! note
+    If SSH public key authentication has been set up on the remote device(s) for the system account under which NetBox runs, these parameters are not needed.
 
 ---
 
 ## NAPALM_ARGS
 
-A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](http://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
+A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](https://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
 
-```
+```python
 NAPALM_ARGS = {
     'api_key': '472071a93b60a1bd1fafb401d9f8ef41',
     'port': 2222,
 }
 ```
 
-Note: Some platforms (e.g. Cisco IOS) require an argument named `secret` to be passed in addition to the normal password. If desired, you can use the configured `NAPALM_PASSWORD` as the value for this argument:
+Some platforms (e.g. Cisco IOS) require an argument named `secret` to be passed in addition to the normal password. If desired, you can use the configured `NAPALM_PASSWORD` as the value for this argument:
 
-```
+```python
 NAPALM_USERNAME = 'username'
 NAPALM_PASSWORD = 'MySecretPassword'
 NAPALM_ARGS = {
@@ -329,7 +352,7 @@ The amount of time (in seconds) to wait for NAPALM to connect to a device.
 
 Default: 50
 
-Determine how many objects to display per page within each list of objects.
+The default maximum number of objects to display per page within each list of objects.
 
 ---
 
@@ -374,27 +397,19 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
-## REMOTE_AUTH_ENABLED
+## RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
 
-Default: `False`
+Default: 22
 
-NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authentication will still take effect as a fallback.)
-
----
-
-## REMOTE_AUTH_BACKEND
-
-Default: `'utilities.auth_backends.RemoteUserBackend'`
-
-Python path to the custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to use for external user authentication, if not using NetBox's built-in backend. (Requires `REMOTE_AUTH_ENABLED`.)
+Default height (in pixels) of a unit within a rack elevation. For best results, this should be approximately one tenth of `RACK_ELEVATION_DEFAULT_UNIT_WIDTH`.
 
 ---
 
-## REMOTE_AUTH_HEADER
+## RACK_ELEVATION_DEFAULT_UNIT_WIDTH
 
-Default: `'HTTP_REMOTE_USER'`
+Default: 220
 
-When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. (Requires `REMOTE_AUTH_ENABLED`.)
+Default width (in pixels) of a unit within a rack elevation.
 
 ---
 
@@ -403,6 +418,17 @@ When remote user authentication is in use, this is the name of the HTTP header w
 Default: `False`
 
 If true, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_BACKEND
+
+Default: `'netbox.authentication.RemoteUserBackend'`
+
+This is the Python path to the custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to use for external user authentication. NetBox provides two built-in backends (listed below), though custom authentication backends may also be provided by other packages or plugins.
+
+* `netbox.authentication.RemoteUserBackend`
+* `netbox.authentication.LDAPBackend`
 
 ---
 
@@ -416,9 +442,25 @@ The list of groups to assign a new user account when created using remote authen
 
 ## REMOTE_AUTH_DEFAULT_PERMISSIONS
 
-Default: `[]` (Empty list)
+Default: `{}` (Empty dictionary)
 
-The list of permissions to assign a new user account when created using remote authentication. (Requires `REMOTE_AUTH_ENABLED`.)
+A mapping of permissions to assign a new user account when created using remote authentication. Each key in the dictionary should be set to a dictionary of the attributes to be applied to the permission, or `None` to allow all objects. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_ENABLED
+
+Default: `False`
+
+NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authentication will still take effect as a fallback.)
+
+---
+
+## REMOTE_AUTH_HEADER
+
+Default: `'HTTP_REMOTE_USER'`
+
+When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. For example, to use the request header `X-Remote-User` it needs to be set to `HTTP_X_REMOTE_USER`. (Requires `REMOTE_AUTH_ENABLED`.)
 
 ---
 
@@ -432,25 +474,34 @@ The number of seconds to retain the latest version that is fetched from the GitH
 
 ## RELEASE_CHECK_URL
 
-Default: None
+Default: None (disabled)
 
-The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check. The URL provided **must** be compatible with the GitHub API.
+This parameter defines the URL of the repository that will be checked periodically for new NetBox releases. When a new release is detected, a message will be displayed to administrative users on the home page. This can be set to the official repository (`'https://api.github.com/repos/netbox-community/netbox/releases'`) or a custom fork. Set this to `None` to disable automatic update checks.
 
-Use `'https://api.github.com/repos/netbox-community/netbox/releases'` to check for release in the official NetBox repository.
+!!! note
+    The URL provided **must** be compatible with the [GitHub REST API](https://docs.github.com/en/rest).
 
 ---
 
 ## REPORTS_ROOT
 
-Default: $BASE_DIR/netbox/reports/
+Default: `$INSTALL_ROOT/netbox/reports/`
 
 The file path to the location where custom reports will be kept. By default, this is the `netbox/reports/` directory within the base NetBox installation path.
 
 ---
 
+## RQ_DEFAULT_TIMEOUT
+
+Default: `300`
+
+The maximum execution time of a background task (such as running a custom script), in seconds.
+
+---
+
 ## SCRIPTS_ROOT
 
-Default: $BASE_DIR/netbox/scripts/
+Default: `$INSTALL_ROOT/netbox/scripts/`
 
 The file path to the location where custom scripts will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
 
@@ -460,7 +511,7 @@ The file path to the location where custom scripts will be kept. By default, thi
 
 Default: None
 
-Session data is used to track authenticated users when they access NetBox. By default, NetBox stores session data in the PostgreSQL database. However, this inhibits authentication to a standby instance of NetBox without write access to the database. Alternatively, a local file path may be specified here and NetBox will store session data as files instead of using the database. Note that the user as which NetBox runs must have read and write permissions to this path.
+HTTP session data is used to track authenticated users when they access NetBox. By default, NetBox stores session data in its PostgreSQL database. However, this inhibits authentication to a standby instance of NetBox without write access to the database. Alternatively, a local file path may be specified here and NetBox will store session data as files instead of using the database. Note that the NetBox system user must have read and write permissions to this path.
 
 ---
 
@@ -488,21 +539,19 @@ If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 
 Default: UTC
 
-The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. [List of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. Please see the [list of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 ---
 
 ## Date and Time Formatting
 
-You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date).
+You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date). Default formats are listed below.
 
-Defaults:
-
-```
+```python
 DATE_FORMAT = 'N j, Y'               # June 26, 2016
-SHORT_DATE_FORMAT = 'Y-m-d'          # 2016-06-27
+SHORT_DATE_FORMAT = 'Y-m-d'          # 2016-06-26
 TIME_FORMAT = 'g:i a'                # 1:23 p.m.
 SHORT_TIME_FORMAT = 'H:i:s'          # 13:23:00
 DATETIME_FORMAT = 'N j, Y g:i a'     # June 26, 2016 1:23 p.m.
-SHORT_DATETIME_FORMAT = 'Y-m-d H:i'  # 2016-06-27 13:23
+SHORT_DATETIME_FORMAT = 'Y-m-d H:i'  # 2016-06-26 13:23
 ```

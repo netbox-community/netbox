@@ -149,7 +149,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['id', 'name', 'connection_status', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
+        fields = ['id', 'name', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -21,56 +21,17 @@
         <li role="presentation" class="active">
             <a href="#run" role="tab" data-toggle="tab" class="active">Run</a>
         </li>
-        <li role="presentation"{% if not output %} class="disabled"{% endif %}>
-            <a href="#output" role="tab" data-toggle="tab">Output</a>
-        </li>
         <li role="presentation">
             <a href="#source" role="tab" data-toggle="tab">Source</a>
         </li>
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="run">
-            {% if execution_time or script.log %}
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <strong>Script Log</strong>
-                            </div>
-                            <table class="table table-hover panel-body">
-                                <tr>
-                                    <th>Line</th>
-                                    <th>Level</th>
-                                    <th>Message</th>
-                                </tr>
-                                {% for level, message in script.log %}
-                                    <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>{% log_level level %}</td>
-                                        <td class="rendered-markdown">{{ message|render_markdown }}</td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted">
-                                            No log output
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                            {% if execution_time %}
-                                <div class="panel-footer text-right text-muted">
-                                    <small>Exec time: {{ execution_time|floatformat:3 }}s</small>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
             <div class="row">
                 <div class="col-md-6 col-md-offset-3">
                     {% if not perms.extras.run_script %}
                         <div class="alert alert-warning">
-                            <i class="fa fa-warning"></i>
+                            <i class="mdi mdi-alert"></i>
                             You do not have permission to run scripts.
                         </div>
                     {% endif %}
@@ -87,21 +48,18 @@
                             </div>
                         {% else %}
                              <div class="alert alert-info">
-                                <i class="fa fa-exclamation-circle"></i>
+                                <i class="mdi mdi-information"></i>
                                 This script does not require any input to run.
                             </div>
                             {% render_form form %}
                         {% endif %}
                         <div class="pull-right">
-                            <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="fa fa-play"></i> Run Script</button>
+                            <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
                             <a href="{% url 'extras:script_list' %}" class="btn btn-default">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="output">
-            <pre>{{ output }}</pre>
         </div>
         <div role="tabpanel" class="tab-pane" id="source">
             <p><code>{{ script.filename }}</code></p>

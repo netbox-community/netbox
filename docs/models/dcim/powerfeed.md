@@ -1,8 +1,21 @@
 # Power Feed
 
-A power feed identifies the power outlet/drop that goes to a rack and is terminated to a power panel. Power feeds have a supply type (AC/DC), voltage, amperage, and phase type (single/three).
+A power feed represents the distribution of power from a power panel to a particular device, typically a power distribution unit (PDU). The power pot (inlet) on a device can be connected via a cable to a power feed. A power feed may optionally be assigned to a rack to allow more easily tracking the distribution of power among racks.
 
-Power feeds are optionally assigned to a rack. In addition, a power port – and only one – can connect to a power feed; in the context of a PDU, the power feed is analogous to the power outlet that a PDU's power port/inlet connects to.
+Each power feed is assigned an operational type (primary or redundant) and one of the following statuses:
+
+* Offline
+* Active
+* Planned
+* Failed
+
+Each power feed also defines the electrical characteristics of the circuit which it represents. These include the following:
+
+* Supply type (AC or DC)
+* Phase (single or three-phase)
+* Voltage
+* Amperage
+* Maximum utilization (percentage)
 
 !!! info
-    The power usage of a rack is calculated when a power feed (or multiple) is assigned to that rack and connected to a power port.
+    The power utilization of a rack is calculated when one or more power feeds are assigned to the rack and connected to devices that draw power.

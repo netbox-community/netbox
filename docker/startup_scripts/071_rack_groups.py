@@ -1,31 +1,24 @@
-from dcim.models import Site, RackGroup
-from ruamel.yaml import YAML
-
-from pathlib import Path
+from dcim.models import Site,RackGroup
+from startup_script_utils import load_yaml
 import sys
 
-file = Path('/opt/netbox/initializers/rack_groups.yml')
-if not file.is_file():
+rack_groups = load_yaml('/opt/netbox/initializers/rack_groups.yml')
+
+if rack_groups is None:
   sys.exit()
 
-with file.open('r') as stream:
-  yaml=YAML(typ='safe')
-  rack_groups = yaml.load(stream)
+required_assocs = {
+  'site': (Site, 'name')
+}
 
-  required_assocs = {
-    'site': (Site, 'name')
-  }
+for params in rack_groups:
 
-  if rack_groups is not None:
-    for params in rack_groups:
+  for assoc, details in required_assocs.items():
+    model, field = details
+    query = { field: params.pop(assoc) }
+    params[assoc] = model.objects.get(**query)
 
-      for assoc, details in required_assocs.items():
-        model, field = details
-        query = { field: params.pop(assoc) }
+  rack_group, created = RackGroup.objects.get_or_create(**params)
 
-        params[assoc] = model.objects.get(**query)
-
-      rack_group, created = RackGroup.objects.get_or_create(**params)
-
-      if created:
-        print("👪 Created rack group", rack_group.name)
+  if created:
+    print("🎨 Created rack group", rack_group.name)

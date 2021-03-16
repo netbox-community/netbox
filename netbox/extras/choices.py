@@ -23,15 +23,6 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_SELECT, 'Selection'),
     )
 
-    LEGACY_MAP = {
-        TYPE_TEXT: 100,
-        TYPE_INTEGER: 200,
-        TYPE_BOOLEAN: 300,
-        TYPE_DATE: 400,
-        TYPE_URL: 500,
-        TYPE_SELECT: 600,
-    }
-
 
 class CustomFieldFilterLogicChoices(ChoiceSet):
 
@@ -44,12 +35,6 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
         (FILTER_LOOSE, 'Loose'),
         (FILTER_EXACT, 'Exact'),
     )
-
-    LEGACY_MAP = {
-        FILTER_DISABLED: 0,
-        FILTER_LOOSE: 1,
-        FILTER_EXACT: 2,
-    }
 
 
 #
@@ -93,31 +78,67 @@ class ObjectChangeActionChoices(ChoiceSet):
         (ACTION_DELETE, 'Deleted'),
     )
 
-    LEGACY_MAP = {
-        ACTION_CREATE: 1,
-        ACTION_UPDATE: 2,
-        ACTION_DELETE: 3,
+    CSS_CLASSES = {
+        ACTION_CREATE: 'success',
+        ACTION_UPDATE: 'primary',
+        ACTION_DELETE: 'danger',
     }
 
 
 #
-# ExportTemplates
+# Log Levels for Reports and Scripts
 #
 
-class TemplateLanguageChoices(ChoiceSet):
+class LogLevelChoices(ChoiceSet):
 
-    LANGUAGE_DJANGO = 'django'
-    LANGUAGE_JINJA2 = 'jinja2'
+    LOG_DEFAULT = 'default'
+    LOG_SUCCESS = 'success'
+    LOG_INFO = 'info'
+    LOG_WARNING = 'warning'
+    LOG_FAILURE = 'failure'
 
     CHOICES = (
-        (LANGUAGE_DJANGO, 'Django'),
-        (LANGUAGE_JINJA2, 'Jinja2'),
+        (LOG_DEFAULT, 'Default'),
+        (LOG_SUCCESS, 'Success'),
+        (LOG_INFO, 'Info'),
+        (LOG_WARNING, 'Warning'),
+        (LOG_FAILURE, 'Failure'),
     )
 
-    LEGACY_MAP = {
-        LANGUAGE_DJANGO: 10,
-        LANGUAGE_JINJA2: 20,
+    CSS_CLASSES = {
+        LOG_DEFAULT: 'default',
+        LOG_SUCCESS: 'success',
+        LOG_INFO: 'info',
+        LOG_WARNING: 'warning',
+        LOG_FAILURE: 'danger',
     }
+
+
+#
+# Job results
+#
+
+class JobResultStatusChoices(ChoiceSet):
+
+    STATUS_PENDING = 'pending'
+    STATUS_RUNNING = 'running'
+    STATUS_COMPLETED = 'completed'
+    STATUS_ERRORED = 'errored'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = (
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_RUNNING, 'Running'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_ERRORED, 'Errored'),
+        (STATUS_FAILED, 'Failed'),
+    )
+
+    TERMINAL_STATE_CHOICES = (
+        STATUS_COMPLETED,
+        STATUS_ERRORED,
+        STATUS_FAILED,
+    )
 
 
 #

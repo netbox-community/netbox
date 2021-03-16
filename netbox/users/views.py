@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseForbidden, HttpResponseRedirect
@@ -38,6 +38,10 @@ class LoginView(View):
     def get(self, request):
         form = LoginForm(request)
 
+        if request.user.is_authenticated:
+            logger = logging.getLogger('netbox.auth.login')
+            return self.redirect_to_next(request, logger)
+
         return render(request, self.template_name, {
             'form': form,
         })
@@ -48,12 +52,6 @@ class LoginView(View):
 
         if form.is_valid():
             logger.debug("Login form validation was successful")
-
-            # Determine where to direct user after successful login
-            redirect_to = request.POST.get('next')
-            if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
-                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
-                redirect_to = reverse('home')
 
             # If maintenance mode is enabled, assume the database is read-only, and disable updating the user's
             # last_login time upon authentication.
@@ -66,8 +64,7 @@ class LoginView(View):
             logger.info(f"User {request.user} successfully authenticated")
             messages.info(request, "Logged in as {}.".format(request.user))
 
-            logger.debug(f"Redirecting user to {redirect_to}")
-            return HttpResponseRedirect(redirect_to)
+            return self.redirect_to_next(request, logger)
 
         else:
             logger.debug("Login form validation failed")
@@ -75,6 +72,19 @@ class LoginView(View):
         return render(request, self.template_name, {
             'form': form,
         })
+
+    def redirect_to_next(self, request, logger):
+        if request.method == "POST":
+            redirect_to = request.POST.get('next', reverse('home'))
+        else:
+            redirect_to = request.GET.get('next', reverse('home'))
+
+        if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
+            logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
+            redirect_to = reverse('home')
+
+        logger.debug(f"Redirecting user to {redirect_to}")
+        return HttpResponseRedirect(redirect_to)
 
 
 class LogoutView(View):
@@ -175,7 +185,7 @@ class UserKeyView(LoginRequiredMixin, View):
             userkey = None
 
         return render(request, self.template_name, {
-            'userkey': userkey,
+            'object': userkey,
             'active_tab': 'userkey',
         })
 
@@ -195,7 +205,7 @@ class UserKeyEditView(LoginRequiredMixin, View):
         form = UserKeyForm(instance=self.userkey)
 
         return render(request, self.template_name, {
-            'userkey': self.userkey,
+            'object': self.userkey,
             'form': form,
             'active_tab': 'userkey',
         })
@@ -283,7 +293,7 @@ class TokenEditView(LoginRequiredMixin, View):
 
         form = TokenForm(instance=token)
 
-        return render(request, 'utilities/obj_edit.html', {
+        return render(request, 'generic/object_edit.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
@@ -312,7 +322,7 @@ class TokenEditView(LoginRequiredMixin, View):
             else:
                 return redirect('user:token_list')
 
-        return render(request, 'utilities/obj_edit.html', {
+        return render(request, 'generic/object_edit.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
@@ -320,8 +330,7 @@ class TokenEditView(LoginRequiredMixin, View):
         })
 
 
-class TokenDeleteView(PermissionRequiredMixin, View):
-    permission_required = 'users.delete_token'
+class TokenDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
 
@@ -331,7 +340,7 @@ class TokenDeleteView(PermissionRequiredMixin, View):
         }
         form = ConfirmationForm(initial=initial_data)
 
-        return render(request, 'utilities/obj_delete.html', {
+        return render(request, 'generic/object_delete.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
@@ -347,7 +356,7 @@ class TokenDeleteView(PermissionRequiredMixin, View):
             messages.success(request, "Token deleted")
             return redirect('user:token_list')
 
-        return render(request, 'utilities/obj_delete.html', {
+        return render(request, 'generic/object_delete.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,

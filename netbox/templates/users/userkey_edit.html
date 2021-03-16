@@ -5,7 +5,7 @@
 {% block title %}User Key{% endblock %}
 
 {% block usercontent %}
-    {% if userkey.is_active %}
+    {% if object.is_active %}
         <div class="alert alert-danger" role="alert">
             <strong>Warning:</strong> Changing your public key will require your user key to be re-activated by another
             user. You will be unable to retrieve any secrets until your key has been reactivated.

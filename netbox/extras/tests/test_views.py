@@ -2,20 +2,18 @@ import urllib.parse
 import uuid
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
-from extras.models import ConfigContext, ObjectChange, Tag
+from extras.models import ConfigContext, CustomLink, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
-class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Tag
-
-    # Disable inapplicable tests
-    test_create_object = None
-    test_import_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -33,20 +31,29 @@ class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'Some comments',
         }
 
+        cls.csv_data = (
+            "name,slug,color,description",
+            "Tag 4,tag-4,ff0000,Fourth tag",
+            "Tag 5,tag-5,00ff00,Fifth tag",
+            "Tag 6,tag-6,0000ff,Sixth tag",
+        )
+
         cls.bulk_edit_data = {
             'color': '00ff00',
         }
 
 
-class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by absence of standard create/edit, bulk create views
+class ConfigContextTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = ConfigContext
-
-    # Disable inapplicable tests
-    test_import_objects = None
-
-    # TODO: Resolve model discrepancies when creating/editing ConfigContexts
-    test_create_object = None
-    test_edit_object = None
 
     @classmethod
     def setUpTestData(cls):
@@ -108,7 +115,7 @@ class ObjectChangeTestCase(TestCase):
 
         url = reverse('extras:objectchange_list')
         params = {
-            "user": User.objects.first(),
+            "user": User.objects.first().pk,
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
@@ -119,3 +126,24 @@ class ObjectChangeTestCase(TestCase):
         objectchange = ObjectChange.objects.first()
         response = self.client.get(objectchange.get_absolute_url())
         self.assertHttpStatus(response, 200)
+
+
+class CustomLinkTest(TestCase):
+    user_permissions = ['dcim.view_site']
+
+    def test_view_object_with_custom_link(self):
+        customlink = CustomLink(
+            content_type=ContentType.objects.get_for_model(Site),
+            name='Test',
+            text='FOO {{ obj.name }} BAR',
+            url='http://example.com/?site={{ obj.slug }}',
+            new_window=False
+        )
+        customlink.save()
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        response = self.client.get(site.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f'FOO {site.name} BAR', str(response.content))

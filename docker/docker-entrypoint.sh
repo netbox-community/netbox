@@ -1,37 +1,45 @@
 #!/bin/bash
 set -e
 
-# wait shortly and then run db migrations (retry on error)
-while ! ./manage.py migrate 2>&1; do
-  echo "⏳ Waiting on DB..."
-  sleep 3
-done
+# Allows Netbox to be run as non-root users
+umask 002
 
-# create superuser silently
-if [ -z ${SUPERUSER_NAME+x} ]; then
-  SUPERUSER_NAME='admin'
+# Try to connect to the DB
+DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT-3}
+MAX_DB_WAIT_TIME=${MAX_DB_WAIT_TIME-30}
+CUR_DB_WAIT_TIME=0
+while ! ./manage.py migrate 2>&1 && [ "${CUR_DB_WAIT_TIME}" -lt "${MAX_DB_WAIT_TIME}" ]; do
+  echo "⏳ Waiting on DB... (${CUR_DB_WAIT_TIME}s / ${MAX_DB_WAIT_TIME}s)"
+  sleep "${DB_WAIT_TIMEOUT}"
+  CUR_DB_WAIT_TIME=$(( CUR_DB_WAIT_TIME + DB_WAIT_TIMEOUT ))
+done
+if [ "${CUR_DB_WAIT_TIME}" -ge "${MAX_DB_WAIT_TIME}" ]; then
+  echo "❌ Waited ${MAX_DB_WAIT_TIME}s or more for the DB to become ready."
+  exit 1
 fi
-if [ -z ${SUPERUSER_EMAIL+x} ]; then
-  SUPERUSER_EMAIL='admin@example.com'
-fi
-if [ -z ${SUPERUSER_PASSWORD+x} ]; then
+
+# Create Superuser if required
+if [ "$SKIP_SUPERUSER" == "true" ]; then
+  echo "↩️ Skip creating the superuser"
+else
+  if [ -z ${SUPERUSER_NAME+x} ]; then
+    SUPERUSER_NAME='admin'
+  fi
+  if [ -z ${SUPERUSER_EMAIL+x} ]; then
+    SUPERUSER_EMAIL='admin@example.com'
+  fi
   if [ -f "/run/secrets/superuser_password" ]; then
     SUPERUSER_PASSWORD="$(< /run/secrets/superuser_password)"
-  else
+  elif [ -z ${SUPERUSER_PASSWORD+x} ]; then
     SUPERUSER_PASSWORD='admin'
   fi
-fi
-if [ -z ${SUPERUSER_API_TOKEN+x} ]; then
   if [ -f "/run/secrets/superuser_api_token" ]; then
     SUPERUSER_API_TOKEN="$(< /run/secrets/superuser_api_token)"
-  else
+  elif [ -z ${SUPERUSER_API_TOKEN+x} ]; then
     SUPERUSER_API_TOKEN='0123456789abcdef0123456789abcdef01234567'
   fi
-fi
 
-echo "💡 Username: ${SUPERUSER_NAME}, E-Mail: ${SUPERUSER_EMAIL}"
-
-./manage.py shell --interface python << END
+  ./manage.py shell --interface python << END
 from django.contrib.auth.models import User
 from users.models import Token
 if not User.objects.filter(username='${SUPERUSER_NAME}'):
@@ -39,17 +47,15 @@ if not User.objects.filter(username='${SUPERUSER_NAME}'):
     Token.objects.create(user=u, key='${SUPERUSER_API_TOKEN}')
 END
 
-startup_scripts=/opt/netbox/startup_scripts/*.py
-
-if [ "$SKIP_STARTUP_SCRIPTS" == "true" ]; then
-  echo "☇ Skipping startup scripts"
-  startup_scripts=/opt/netbox/startup_scripts/*required*.py
+  echo "💡 Superuser Username: ${SUPERUSER_NAME}, E-Mail: ${SUPERUSER_EMAIL}"
 fi
 
-for script in $startup_scripts; do
-  echo "⚙️ Executing '$script'"
-  ./manage.py shell --interface python < "${script}"
-done
+# Run the startup scripts (and initializers)
+if [ "$SKIP_STARTUP_SCRIPTS" == "true" ]; then
+  echo "↩️ Skipping startup scripts"
+else
+  echo "import runpy; runpy.run_path('../startup_scripts')" | ./manage.py shell --interface python
+fi
 
 # copy static files
 ./manage.py collectstatic --no-input
@@ -58,4 +64,4 @@ echo "✅ Initialisation is done."
 
 # launch whatever is passed by docker
 # (i.e. the RUN instruction in the Dockerfile)
-exec ${@}
+exec $@

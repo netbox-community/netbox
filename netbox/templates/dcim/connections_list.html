@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load buttons %}
+
+{% block content %}
+<div class="pull-right noprint">
+    {% export_button content_type %}
+</div>
+<h1>{% block title %}{{ title }}{% endblock %}</h1>
+<div class="row">
+	  <div class="col-md-12">
+        <div class="col-md-3 pull-right right-side-panel noprint">
+            {% include 'inc/search_panel.html' %}
+        </div>
+        {% include 'responsive_table.html' %}
+        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+    </div>
+</div>
+{% endblock %}

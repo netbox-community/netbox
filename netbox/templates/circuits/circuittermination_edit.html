@@ -40,6 +40,7 @@
                                 <p class="form-control-static">{{ form.term_side.value }}</p>
                             </div>
                         </div>
+                        {% render_field form.region %}
                         {% render_field form.site %}
                     </div>
                 </div>
@@ -47,7 +48,7 @@
                     <div class="panel-heading"><strong>Termination Details</strong></div>
                     <div class="panel-body">
                         <div class="form-group">
-                            <label class="col-md-3 control-label required" for="id_port_speed">{{ form.port_speed.label }}</label>
+                            <label class="col-md-3 control-label" for="id_port_speed">{{ form.port_speed.label }}</label>
                             <div class="col-md-9">
                                 <div class="input-group">
                                     {{ form.port_speed }}
@@ -87,7 +88,6 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{% static 'js/livesearch.js' %}?v{{ settings.VERSION }}"></script>
 <script type="text/javascript">
     $("a.set_speed").click(function(e) {
         e.preventDefault();

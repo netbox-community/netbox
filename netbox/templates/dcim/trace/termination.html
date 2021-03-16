@@ -1,0 +1,8 @@
+{% load helpers %}
+<div class="termination{% if obj == termination %} active{% endif %}">
+    <strong><a href="{{ termination.get_absolute_url }}">{{ termination }}</a></strong><br />
+    {{ termination|meta:"verbose_name"|bettertitle }}
+    {% if termination.type %}
+        ({{ termination.get_type_display }})
+    {% endif %}
+</div>

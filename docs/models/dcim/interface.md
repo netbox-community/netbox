@@ -1,9 +1,12 @@
 ## Interfaces
 
-Interfaces connect to one another in a symmetric manner: If interface A connects to interface B, interface B therefore connects to interface A. Each type of connection can be classified as either *planned* or *connected*.
+Interfaces in NetBox represent network interfaces used to exchange data with connected devices. On modern networks, these are most commonly Ethernet, but other types are supported as well. Each interface must be assigned a type, and may optionally be assigned a MAC address, MTU, and IEEE 802.1Q mode (tagged or access). Each interface can also be enabled or disabled, and optionally designated as management-only (for out-of-band management).
 
-Each interface is a assigned a type denoting its physical properties. Two special types exist: the "virtual" type can be used to designate logical interfaces (such as SVIs), and the "LAG" type can be used to desinate link aggregation groups to which physical interfaces can be assigned.
+Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables. Cables can connect interfaces to pass-through ports, circuit terminations, or other interfaces.
 
-Each interface can also be enabled or disabled, and optionally designated as management-only (for out-of-band management). Fields are also provided to store an interface's MTU and MAC address.
+Physical interfaces may be arranged into a link aggregation group (LAG) and associated with a parent LAG (virtual) interface. LAG interfaces can be recursively nested to model bonding of trunk groups. Like all virtual interfaces, LAG interfaces cannot be connected physically.
 
-VLANs can be assigned to each interface as either tagged or untagged. (An interface may have only one untagged VLAN.)
+IP addresses can be assigned to interfaces. VLANs can also be assigned to each interface as either tagged or untagged. (An interface may have only one untagged VLAN.)
+
+!!! note
+    Although devices and virtual machines both can have interfaces, a separate model is used for each. Thus, device interfaces have some properties that are not present on virtual machine interfaces and vice versa.

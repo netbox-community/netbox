@@ -1,22 +1,54 @@
 import binascii
 import os
 
-from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
+from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 
 
 __all__ = (
+    'AdminGroup',
+    'AdminUser',
+    'ObjectPermission',
     'Token',
     'UserConfig',
 )
 
+
+#
+# Proxy models for admin
+#
+
+class AdminGroup(Group):
+    """
+    Proxy contrib.auth.models.Group for the admin UI
+    """
+    class Meta:
+        verbose_name = 'Group'
+        proxy = True
+
+
+class AdminUser(User):
+    """
+    Proxy contrib.auth.models.User for the admin UI
+    """
+    class Meta:
+        verbose_name = 'User'
+        proxy = True
+
+
+#
+# User preferences
+#
 
 class UserConfig(models.Model):
     """
@@ -27,7 +59,7 @@ class UserConfig(models.Model):
         on_delete=models.CASCADE,
         related_name='config'
     )
-    data = JSONField(
+    data = models.JSONField(
         default=dict
     )
 
@@ -130,6 +162,7 @@ class UserConfig(models.Model):
 
 
 @receiver(post_save, sender=User)
+@receiver(post_save, sender=AdminUser)
 def create_userconfig(instance, created, **kwargs):
     """
     Automatically create a new UserConfig when a new User is created.
@@ -137,6 +170,10 @@ def create_userconfig(instance, created, **kwargs):
     if created:
         UserConfig(user=instance).save()
 
+
+#
+# REST API
+#
 
 class Token(models.Model):
     """
@@ -190,3 +227,69 @@ class Token(models.Model):
         if self.expires is None or timezone.now() < self.expires:
             return False
         return True
+
+
+#
+# Permissions
+#
+
+class ObjectPermission(models.Model):
+    """
+    A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
+    identified by ORM query parameters.
+    """
+    name = models.CharField(
+        max_length=100
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    object_types = models.ManyToManyField(
+        to=ContentType,
+        limit_choices_to=Q(
+            ~Q(app_label__in=['admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users']) |
+            Q(app_label='auth', model__in=['group', 'user']) |
+            Q(app_label='users', model__in=['objectpermission', 'token'])
+        ),
+        related_name='object_permissions'
+    )
+    groups = models.ManyToManyField(
+        to=Group,
+        blank=True,
+        related_name='object_permissions'
+    )
+    users = models.ManyToManyField(
+        to=User,
+        blank=True,
+        related_name='object_permissions'
+    )
+    actions = ArrayField(
+        base_field=models.CharField(max_length=30),
+        help_text="The list of actions granted by this permission"
+    )
+    constraints = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="Queryset filter matching the applicable objects of the selected type(s)"
+    )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = "permission"
+
+    def __str__(self):
+        return self.name
+
+    def list_constraints(self):
+        """
+        Return all constraint sets as a list (even if only a single set is defined).
+        """
+        if type(self.constraints) is not list:
+            return [self.constraints]
+        return self.constraints

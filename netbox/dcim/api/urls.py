@@ -1,18 +1,9 @@
-from rest_framework import routers
-
+from netbox.api import OrderedDefaultRouter
 from . import views
 
 
-class DCIMRootView(routers.APIRootView):
-    """
-    DCIM API root view
-    """
-    def get_view_name(self):
-        return 'DCIM'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = DCIMRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.DCIMRootView
 
 # Sites
 router.register('regions', views.RegionViewSet)

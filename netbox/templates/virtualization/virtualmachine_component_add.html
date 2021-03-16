@@ -2,7 +2,7 @@
 {% load helpers %}
 {% load form_helpers %}
 
-{% block title %}Create {{ component_type }} ({{ parent }}){% endblock %}
+{% block title %}Create {{ component_type }}{% endblock %}
 
 {% block content %}
 <form action="" method="post" class="form form-horizontal">
@@ -22,12 +22,6 @@
                     <strong>{{ component_type|bettertitle }}</strong>
                 </div>
                 <div class="panel-body">
-                    <div class="form-group">
-                        <label class="col-md-3 control-label required">Virtual Machine</label>
-                        <div class="col-md-9">
-                            <p class="form-control-static">{{ parent }}</p>
-                        </div>
-                    </div>
                     {% render_form form %}
                 </div>
             </div>

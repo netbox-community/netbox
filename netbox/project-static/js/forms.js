@@ -74,7 +74,7 @@ $(document).ready(function() {
         form.submit();
     });
 
-    // Parse URLs which may contain variable refrences to other field values
+    // Parse URLs which may contain variable references to other field values
     function parseURL(url) {
         var filter_regex = /\{\{([a-z_]+)\}\}/g;
         var match;
@@ -87,7 +87,7 @@ $(document).ready(function() {
                 rendered_url = rendered_url.replace(match[0], custom_attr);
             } else if (filter_field.val()) {
                 rendered_url = rendered_url.replace(match[0], filter_field.val());
-            } else if (filter_field.attr('nullable') == 'true') {
+            } else if (filter_field.attr('data-null-option')) {
                 rendered_url = rendered_url.replace(match[0], 'null');
             }
         }
@@ -123,7 +123,7 @@ $(document).ready(function() {
 
     // API backed selection
     // Includes live search and chained fields
-    // The `multiple` setting may be controled via a data-* attribute
+    // The `multiple` setting may be controlled via a data-* attribute
     $('.netbox-select2-api').select2({
         allowClear: true,
         placeholder: "---------",
@@ -157,47 +157,23 @@ $(document).ready(function() {
                 // Allow for controlling the brief setting from within APISelect
                 parameters.brief = ( $(element).is('[data-full]') ? undefined : true );
 
-                // filter-for fields from a chain
-                var attr_name = "data-filter-for-" + $(element).attr("name");
-                var form = $(element).closest('form');
-                var filter_for_elements = form.find("select[" + attr_name + "]");
-
-                filter_for_elements.each(function(index, filter_for_element) {
-                    var param_name = $(filter_for_element).attr(attr_name);
-                    var is_required = $(filter_for_element).attr("required");
-                    var is_nullable = $(filter_for_element).attr("nullable");
-                    var is_visible = $(filter_for_element).is(":visible");
-                    var value = $(filter_for_element).val();
-
-                    if (param_name && is_visible) {
-                        if (value) {
-                            parameters[param_name] = value;
-                        } else if (is_required && is_nullable) {
-                            parameters[param_name] = "null";
-                        }
-                    }
-                });
-
-                // Conditional query params
+                // Attach any extra query parameters
                 $.each(element.attributes, function(index, attr){
-                    if (attr.name.includes("data-conditional-query-param-")){
-                        var conditional = attr.name.split("data-conditional-query-param-")[1].split("__");
-                        var field = $("#id_" + conditional[0]);
-                        var field_value = conditional[1];
-
-                        if ($('option:selected', field).attr('api-value') === field_value){
-                            var _val = attr.value.split("=");
-                            parameters[_val[0]] = _val[1];
-                        }
-                    }
-                });
-
-                // Additional query params
-                $.each(element.attributes, function(index, attr){
-                    if (attr.name.includes("data-additional-query-param-")){
-                        var param_name = attr.name.split("data-additional-query-param-")[1];
+                    if (attr.name.includes("data-query-param-")){
+                        var param_name = attr.name.split("data-query-param-")[1];
 
                         $.each($.parseJSON(attr.value), function(index, value) {
+                            // Referencing the value of another form field
+                            if (value.startsWith('$')) {
+                                let ref_field = $('#id_' + value.slice(1));
+                                if (ref_field.val() && ref_field.is(":visible")) {
+                                    value = ref_field.val();
+                                } else if (ref_field.attr("required") && ref_field.attr("data-null-option")) {
+                                    value = "null";
+                                } else {
+                                    return true;  // Skip if ref_field has no value
+                                }
+                            }
                             if (param_name in parameters) {
                                 if (Array.isArray(parameters[param_name])) {
                                     parameters[param_name].push(value);
@@ -222,6 +198,10 @@ $(document).ready(function() {
 
                 results = results.reduce((results,record,idx) => {
                     record.text = record[element.getAttribute('display-field')] || record.name;
+                    if (record._depth) {
+                        // Annotate hierarchical depth for MPTT objects
+                        record.text = '--'.repeat(record._depth) + ' ' + record.text;
+                    }
                     record.id = record[element.getAttribute('value-field')] || record.id;
                     if(element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
                         // The disabled-indicator equated to true, so we disable this option
@@ -257,7 +237,7 @@ $(document).ready(function() {
                 if (element.getAttribute('data-null-option') && data.previous === null) {
                     results.unshift({
                         id: 'null',
-                        text: 'None'
+                        text: element.getAttribute('data-null-option')
                     });
                 }
 

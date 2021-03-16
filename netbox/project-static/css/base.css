@@ -11,31 +11,32 @@ html, body {
 body {
     padding-top: 70px;
 }
-.container {
-    width: auto;
-    max-width: 1600px;
-}
 .wrapper {
     min-height: 100%;
     height: auto !important;
-    margin: 0 auto -61px; /* the bottom margin is the negative value of the footer's height */
+    margin: 0 auto -48px; /* the bottom margin is the negative value of the footer's height */
     padding-bottom: 30px;
 }
 .navbar-brand {
     padding: 12px 15px 8px;
 }
 .footer, .push {
-    height: 60px; /* .push must be the same height as .footer */
+    height: 48px; /* .push must be the same height as .footer */
 }
 .footer {
     background-color: #f5f5f5;
     border-top: 1px solid #d0d0d0;
 }
 footer p {
-    margin: 20px 0;
+    margin: 12px 0;
 }
 #navbar_search {
     padding: 0 8px;
+}
+.right-side-panel {
+    max-width: 400px;
+    min-width: 300px;
+    padding-right: 0;
 }
 
 /* Hide the username in the navigation menu on displays less than 1400px wide */
@@ -120,18 +121,12 @@ footer p {
 }
 
 /* Navigation menu */
-li.subnav > a {
-    padding-left: 30px;
-}
 ul.dropdown-menu {
     width: 250px;
 }
 ul.dropdown-menu div.buttons {
     padding-right: 10px;
     padding-top: 2px;
-}
-ul.dropdown-menu div.buttons a {
-    width: 26px;
 }
 ul.dropdown-menu > li > a {
     clear: left;
@@ -183,13 +178,6 @@ nav ul.pagination {
     margin-bottom: 8px !important;
 }
 
-/* Racks */
-div.rack_header {
-    margin-left: 32px;
-    text-align: center;
-    width: 220px;
-}
-
 /* Devices */
 table.component-list td.subtable {
     padding: 0;
@@ -199,10 +187,6 @@ table.component-list td.subtable td {
     border: none;
     padding-bottom: 6px;
     padding-top: 6px;
-}
-table.interface-ips th {
-    font-size: 80%;
-    font-weight: normal;
 }
 
 /* Reports */
@@ -238,6 +222,46 @@ table.report th a {
 }
 .rendered-markdown :last-child {
     margin-bottom: 0;
+}
+
+/* Cable tracing */
+.cable-trace {
+    max-width: 600px;
+    margin: 16px auto;
+    text-align: center;
+}
+.cable-trace .node {
+    background-color: #f0f0f0;
+    border: 1px solid #909090;
+    border-radius: 8px;
+    padding: 24px 16px;
+    position: relative;
+    z-index: 1;
+}
+.cable-trace .termination {
+    background-color: #f7f7f7;
+    border: 1px solid #909090;
+    border-radius: 4px;
+    margin: -16px auto;
+    padding: 12px;
+    position: relative;
+    width: 60%;
+    z-index: 2;
+}
+.cable-trace .active {
+    border: 3px solid #30C030;
+}
+.cable-trace .cable {
+    border-left-style: solid;
+    border-left-width: 4px;
+    margin: 12px 0 12px 50%;
+    padding: 24px;
+    text-align: left;
+    width: 50%;
+}
+.cable-trace .trace-end {
+    margin-top: 48px;
+    text-align: center;
 }
 
 /* Admonition (docs) */
@@ -353,6 +377,9 @@ table.report th a {
 ul.nav-tabs, ul.nav-pills {
     margin-bottom: 20px;
 }
+ul.nav-tabs li a {
+    padding: 8px 10px;
+}
 /* Fix progress bar margin inside table cells */
 td .progress {
     margin-bottom: 0;
@@ -360,4 +387,80 @@ td .progress {
 }
 textarea {
     font-family: Consolas, Lucida Console, monospace;
+}
+
+/* MDI icons */
+.mdi::before {
+    font-size: 20px;
+    line-height: 20px;
+    position: relative;
+    top: 2px;
+}
+.btn .mdi {
+    margin: 0 -2px;
+}
+.btn .mdi::before {
+    font-size: 20px;
+    line-height: 14px;
+    position: relative;
+    top: 2px;
+}
+.btn-xs .mdi::before {
+    font-size: 18px;
+    top: 3px;
+}
+.btn-sm .mdi::before {
+    font-size: 18px;
+    top: 3px;
+}
+.dropdown-menu .mdi {
+    margin-left: 2px;
+}
+.nav .mdi::before {
+    left: -2px;
+    position: relative;
+    top: 2px;
+}
+.navbar .navbar-toggle .mdi::before {
+    position: relative;
+    top: 4px;
+    color: #FFF;
+}
+.breadcrumb .mdi::before {
+    position: relative;
+    top: 4px;
+}
+.breadcrumb a:hover {
+    text-decoration: none;
+}
+.breadcrumb a:hover span {
+    text-decoration: underline;
+}
+.alert .mdi::before {
+    position: relative;
+    top: 4px;
+    margin-right: 2px;
+}
+.input-group-addon .mdi::before {
+    position: relative;
+    top: 3px;
+}
+.input-group-btn .mdi::before {
+    font-size: 20px;
+}
+.navbar-brand .mdi::before {
+    position: relative;
+    top: 2px;
+    margin-right: 2px;
+}
+.list-group-item .mdi::before {
+    position: relative;
+    top: 3px;
+    left: -3px
+}
+.badge .mdi::before {
+    font-size: 12px;
+    left: 0;
+    line-height: 12px;
+    top: 0;
 }

@@ -1,10 +1,10 @@
-{% extends 'utilities/obj_list.html' %}
+{% extends 'generic/object_list.html' %}
 {% load humanize %}
 
 {% block sidebar %}
     <div class="panel panel-default">
         <div class="panel-heading">
-            <strong><i class="fa fa-bar-chart"></i> Statistics</strong>
+            <strong><i class="mdi mdi-chart-areaspline"></i> Statistics</strong>
         </div>
         <ul class="list-group">
             <li class="list-group-item">Total IPv4 IPs <span class="badge">{{ ipv4_total|intcomma }}</span></li>

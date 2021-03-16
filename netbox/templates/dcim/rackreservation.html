@@ -10,8 +10,8 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:rackreservation_list' %}">Rack Reservations</a></li>
-                <li><a href="{{ rackreservation.rack.get_absolute_url }}">{{ rackreservation.rack }}</a></li>
-                <li>Units {{ rackreservation.unit_list }}</li>
+                <li><a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a></li>
+                <li>Units {{ object.unit_list }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -20,7 +20,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search racks" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -28,26 +28,26 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons rackreservation %}
+        {% plugin_buttons object %}
         {% if perms.dcim.change_rackreservation %}
-            {% edit_button rackreservation %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.dcim.delete_rackreservation %}
-            {% delete_button rackreservation %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}{{ rackreservation }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=rackreservation %}
+    <h1>{% block title %}{{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
-        {% custom_links rackreservation %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ rackreservation.get_absolute_url }}">Rack</a>
+            <a href="{{ object.get_absolute_url }}">Rack</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:rackreservation_changelog' pk=rackreservation.pk %}">Change Log</a>
+                <a href="{% url 'dcim:rackreservation_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -61,13 +61,12 @@
                 <strong>Rack</strong>
             </div>
             <table class="table table-hover panel-body attr-table">
-                {% with rack=rackreservation.rack %}
+                {% with rack=object.rack %}
                     <tr>
                         <td>Site</td>
                         <td>
                             {% if rack.site.region %}
-                                <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
                             {% endif %}
                             <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
                         </td>
@@ -98,17 +97,16 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Units</td>
-                    <td>{{ rackreservation.unit_list }}</td>
+                    <td>{{ object.unit_list }}</td>
                 </tr>
                 <tr>
                     <td>Tenant</td>
                     <td>
-                        {% if rackreservation.tenant %}
-                            {% if rackreservation.tenant.group %}
-                                <a href="{{ rackreservation.tenant.group.get_absolute_url }}">{{ rackreservation.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                        {% if object.tenant %}
+                            {% if object.tenant.group %}
+                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                             {% endif %}
-                            <a href="{{ rackreservation.tenant.get_absolute_url }}">{{ rackreservation.tenant }}</a>
+                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -116,18 +114,20 @@
                 </tr>
                 <tr>
                     <td>User</td>
-                    <td>{{ rackreservation.user }}</td>
+                    <td>{{ object.user }}</td>
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>{{ rackreservation.description }}</td>
+                    <td>{{ object.description }}</td>
                 </tr>
             </table>
         </div>
-        {% plugin_left_page rackreservation %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:rackreservation_list' %}
+        {% plugin_left_page object %}
 	</div>
     <div class="col-md-6">
-        {% with rack=rackreservation.rack %}
+        {% with rack=object.rack %}
             <div class="row" style="margin-bottom: 20px">
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="rack_header">
@@ -143,12 +143,12 @@
                 </div>
             </div>
         {% endwith %}
-        {% plugin_right_page rackreservation %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page rackreservation %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}

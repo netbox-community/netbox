@@ -5,7 +5,7 @@
 <head>
     <title>Server Error</title>
     <link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'materialdesignicons-5.4.55/css/materialdesignicons.min.css' %}">
     <meta charset="UTF-8">
 </head>
 
@@ -16,7 +16,7 @@
                 <div class="panel panel-danger" style="margin-top: 200px">
                     <div class="panel-heading">
                         <strong>
-                            <i class="fa fa-warning"></i>
+                            <i class="mdi mdi-alert"></i>
                             Server Error
                         </strong>
                     </div>
@@ -31,9 +31,12 @@
                             The complete exception is provided below:
                         </p>
 <pre><strong>{{ exception }}</strong><br />
-{{ error }}</pre>
+{{ error }}
+
+Python version: {{ python_version }}
+NetBox version: {{ netbox_version }}</pre>
                         <p>
-                            If further assistance is required, please post to the <a href="https://groups.google.com/forum/#!forum/netbox-discuss">NetBox mailing list</a>.
+                            If further assistance is required, please post to the <a href="https://groups.google.com/g/netbox-discuss">NetBox mailing list</a>.
                         </p>
                         <div class="text-right">
                             <a href="{% url 'home' %}" class="btn btn-primary">Home Page</a>

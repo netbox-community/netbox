@@ -6,6 +6,7 @@
 ---
 
 {!docs/models/ipam/prefix.md!}
+{!docs/models/ipam/role.md!}
 
 ---
 
@@ -14,3 +15,4 @@
 ---
 
 {!docs/models/ipam/vrf.md!}
+{!docs/models/ipam/routetarget.md!}

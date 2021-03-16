@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='device',
-            options={'ordering': ('name', 'pk'), 'permissions': (('napalm_read', 'Read-only access to devices via NAPALM'), ('napalm_write', 'Read/write access to devices via NAPALM'))},
+            options={'ordering': ('name', 'pk')},
         ),
         migrations.AlterModelOptions(
             name='rack',

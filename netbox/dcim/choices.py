@@ -7,26 +7,30 @@ from utilities.choices import ChoiceSet
 
 class SiteStatusChoices(ChoiceSet):
 
-    STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
+    STATUS_STAGING = 'staging'
+    STATUS_ACTIVE = 'active'
+    STATUS_DECOMMISSIONING = 'decommissioning'
     STATUS_RETIRED = 'retired'
     STATUS_CONSTRUCTION = 'construction'
     STATUS_COMMISSIONING = 'commissioning'
 
     CHOICES = (
-        (STATUS_ACTIVE, 'Active'),
         (STATUS_PLANNED, 'Planned'),
+        (STATUS_STAGING, 'Staging'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning'),
         (STATUS_RETIRED, 'Retired'),
         (STATUS_CONSTRUCTION, 'Construction'),
         (STATUS_COMMISSIONING, 'Commissioning'),
     )
 
-    LEGACY_MAP = {
-        STATUS_ACTIVE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_RETIRED: 4,
-        STATUS_CONSTRUCTION: 90,
-        STATUS_COMMISSIONING: 91,
+    CSS_CLASSES = {
+        STATUS_PLANNED: 'info',
+        STATUS_STAGING: 'primary',
+        STATUS_ACTIVE: 'success',
+        STATUS_DECOMMISSIONING: 'warning',
+        STATUS_RETIRED: 'danger',
     }
 
 
@@ -49,14 +53,6 @@ class RackTypeChoices(ChoiceSet):
         (TYPE_WALLFRAME, 'Wall-mounted frame'),
         (TYPE_WALLCABINET, 'Wall-mounted cabinet'),
     )
-
-    LEGACY_MAP = {
-        TYPE_2POST: 100,
-        TYPE_4POST: 200,
-        TYPE_CABINET: 300,
-        TYPE_WALLFRAME: 1000,
-        TYPE_WALLCABINET: 1100,
-    }
 
 
 class RackWidthChoices(ChoiceSet):
@@ -90,12 +86,12 @@ class RackStatusChoices(ChoiceSet):
         (STATUS_DEPRECATED, 'Deprecated'),
     )
 
-    LEGACY_MAP = {
-        STATUS_RESERVED: 0,
-        STATUS_AVAILABLE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_ACTIVE: 3,
-        STATUS_DEPRECATED: 4,
+    CSS_CLASSES = {
+        STATUS_RESERVED: 'warning',
+        STATUS_AVAILABLE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_ACTIVE: 'primary',
+        STATUS_DEPRECATED: 'danger',
     }
 
 
@@ -108,11 +104,6 @@ class RackDimensionUnitChoices(ChoiceSet):
         (UNIT_MILLIMETER, 'Millimeters'),
         (UNIT_INCH, 'Inches'),
     )
-
-    LEGACY_MAP = {
-        UNIT_MILLIMETER: 1000,
-        UNIT_INCH: 2000,
-    }
 
 
 class RackElevationDetailRenderChoices(ChoiceSet):
@@ -140,11 +131,6 @@ class SubdeviceRoleChoices(ChoiceSet):
         (ROLE_CHILD, 'Child'),
     )
 
-    LEGACY_MAP = {
-        ROLE_PARENT: True,
-        ROLE_CHILD: False,
-    }
-
 
 #
 # Devices
@@ -159,11 +145,6 @@ class DeviceFaceChoices(ChoiceSet):
         (FACE_FRONT, 'Front'),
         (FACE_REAR, 'Rear'),
     )
-
-    LEGACY_MAP = {
-        FACE_FRONT: 0,
-        FACE_REAR: 1,
-    }
 
 
 class DeviceStatusChoices(ChoiceSet):
@@ -186,14 +167,14 @@ class DeviceStatusChoices(ChoiceSet):
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
 
-    LEGACY_MAP = {
-        STATUS_OFFLINE: 0,
-        STATUS_ACTIVE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_STAGED: 3,
-        STATUS_FAILED: 4,
-        STATUS_INVENTORY: 5,
-        STATUS_DECOMMISSIONING: 6,
+    CSS_CLASSES = {
+        STATUS_OFFLINE: 'warning',
+        STATUS_ACTIVE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_STAGED: 'primary',
+        STATUS_FAILED: 'danger',
+        STATUS_INVENTORY: 'default',
+        STATUS_DECOMMISSIONING: 'warning',
     }
 
 
@@ -266,6 +247,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
     # NEMA non-locking
+    TYPE_NEMA_115P = 'nema-1-15p'
     TYPE_NEMA_515P = 'nema-5-15p'
     TYPE_NEMA_520P = 'nema-5-20p'
     TYPE_NEMA_530P = 'nema-5-30p'
@@ -274,16 +256,36 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_620P = 'nema-6-20p'
     TYPE_NEMA_630P = 'nema-6-30p'
     TYPE_NEMA_650P = 'nema-6-50p'
+    TYPE_NEMA_1030P = 'nema-10-30p'
+    TYPE_NEMA_1050P = 'nema-10-50p'
+    TYPE_NEMA_1420P = 'nema-14-20p'
+    TYPE_NEMA_1430P = 'nema-14-30p'
+    TYPE_NEMA_1450P = 'nema-14-50p'
+    TYPE_NEMA_1460P = 'nema-14-60p'
+    TYPE_NEMA_1515P = 'nema-15-15p'
+    TYPE_NEMA_1520P = 'nema-15-20p'
+    TYPE_NEMA_1530P = 'nema-15-30p'
+    TYPE_NEMA_1550P = 'nema-15-50p'
+    TYPE_NEMA_1560P = 'nema-15-60p'
     # NEMA locking
+    TYPE_NEMA_L115P = 'nema-l1-15p'
     TYPE_NEMA_L515P = 'nema-l5-15p'
     TYPE_NEMA_L520P = 'nema-l5-20p'
     TYPE_NEMA_L530P = 'nema-l5-30p'
-    TYPE_NEMA_L615P = 'nema-l5-50p'
+    TYPE_NEMA_L550P = 'nema-l5-50p'
+    TYPE_NEMA_L615P = 'nema-l6-15p'
     TYPE_NEMA_L620P = 'nema-l6-20p'
     TYPE_NEMA_L630P = 'nema-l6-30p'
     TYPE_NEMA_L650P = 'nema-l6-50p'
+    TYPE_NEMA_L1030P = 'nema-l10-30p'
     TYPE_NEMA_L1420P = 'nema-l14-20p'
     TYPE_NEMA_L1430P = 'nema-l14-30p'
+    TYPE_NEMA_L1450P = 'nema-l14-50p'
+    TYPE_NEMA_L1460P = 'nema-l14-60p'
+    TYPE_NEMA_L1520P = 'nema-l15-20p'
+    TYPE_NEMA_L1530P = 'nema-l15-30p'
+    TYPE_NEMA_L1550P = 'nema-l15-50p'
+    TYPE_NEMA_L1560P = 'nema-l15-60p'
     TYPE_NEMA_L2120P = 'nema-l21-20p'
     TYPE_NEMA_L2130P = 'nema-l21-30p'
     # California style
@@ -306,6 +308,16 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # USB
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_B = 'usb-b'
+    TYPE_USB_C = 'usb-c'
+    TYPE_USB_MINI_A = 'usb-mini-a'
+    TYPE_USB_MINI_B = 'usb-mini-b'
+    TYPE_USB_MICRO_A = 'usb-micro-a'
+    TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_3_B = 'usb-3-b'
+    TYPE_USB_3_MICROB = 'usb-3-micro-b'
 
     CHOICES = (
         ('IEC 60320', (
@@ -330,6 +342,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
         )),
         ('NEMA (Non-locking)', (
+            (TYPE_NEMA_115P, 'NEMA 1-15P'),
             (TYPE_NEMA_515P, 'NEMA 5-15P'),
             (TYPE_NEMA_520P, 'NEMA 5-20P'),
             (TYPE_NEMA_530P, 'NEMA 5-30P'),
@@ -338,17 +351,37 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_620P, 'NEMA 6-20P'),
             (TYPE_NEMA_630P, 'NEMA 6-30P'),
             (TYPE_NEMA_650P, 'NEMA 6-50P'),
+            (TYPE_NEMA_1030P, 'NEMA 10-30P'),
+            (TYPE_NEMA_1050P, 'NEMA 10-50P'),
+            (TYPE_NEMA_1420P, 'NEMA 14-20P'),
+            (TYPE_NEMA_1430P, 'NEMA 14-30P'),
+            (TYPE_NEMA_1450P, 'NEMA 14-50P'),
+            (TYPE_NEMA_1460P, 'NEMA 14-60P'),
+            (TYPE_NEMA_1515P, 'NEMA 15-15P'),
+            (TYPE_NEMA_1520P, 'NEMA 15-20P'),
+            (TYPE_NEMA_1530P, 'NEMA 15-30P'),
+            (TYPE_NEMA_1550P, 'NEMA 15-50P'),
+            (TYPE_NEMA_1560P, 'NEMA 15-60P'),
         )),
         ('NEMA (Locking)', (
+            (TYPE_NEMA_L115P, 'NEMA L1-15P'),
             (TYPE_NEMA_L515P, 'NEMA L5-15P'),
             (TYPE_NEMA_L520P, 'NEMA L5-20P'),
             (TYPE_NEMA_L530P, 'NEMA L5-30P'),
+            (TYPE_NEMA_L550P, 'NEMA L5-50P'),
             (TYPE_NEMA_L615P, 'NEMA L6-15P'),
             (TYPE_NEMA_L620P, 'NEMA L6-20P'),
             (TYPE_NEMA_L630P, 'NEMA L6-30P'),
             (TYPE_NEMA_L650P, 'NEMA L6-50P'),
+            (TYPE_NEMA_L1030P, 'NEMA L10-30P'),
             (TYPE_NEMA_L1420P, 'NEMA L14-20P'),
             (TYPE_NEMA_L1430P, 'NEMA L14-30P'),
+            (TYPE_NEMA_L1450P, 'NEMA L14-50P'),
+            (TYPE_NEMA_L1460P, 'NEMA L14-60P'),
+            (TYPE_NEMA_L1520P, 'NEMA L15-20P'),
+            (TYPE_NEMA_L1530P, 'NEMA L15-30P'),
+            (TYPE_NEMA_L1550P, 'NEMA L15-50P'),
+            (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
             (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
             (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
         )),
@@ -373,6 +406,17 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        )),
+        ('USB', (
+            (TYPE_USB_A, 'USB Type A'),
+            (TYPE_USB_B, 'USB Type B'),
+            (TYPE_USB_C, 'USB Type C'),
+            (TYPE_USB_MINI_A, 'USB Mini A'),
+            (TYPE_USB_MINI_B, 'USB Mini B'),
+            (TYPE_USB_MICRO_A, 'USB Micro A'),
+            (TYPE_USB_MICRO_B, 'USB Micro B'),
+            (TYPE_USB_3_B, 'USB 3.0 Type B'),
+            (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
     )
 
@@ -403,6 +447,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
     # NEMA non-locking
+    TYPE_NEMA_115R = 'nema-1-15r'
     TYPE_NEMA_515R = 'nema-5-15r'
     TYPE_NEMA_520R = 'nema-5-20r'
     TYPE_NEMA_530R = 'nema-5-30r'
@@ -411,16 +456,36 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_620R = 'nema-6-20r'
     TYPE_NEMA_630R = 'nema-6-30r'
     TYPE_NEMA_650R = 'nema-6-50r'
+    TYPE_NEMA_1030R = 'nema-10-30r'
+    TYPE_NEMA_1050R = 'nema-10-50r'
+    TYPE_NEMA_1420R = 'nema-14-20r'
+    TYPE_NEMA_1430R = 'nema-14-30r'
+    TYPE_NEMA_1450R = 'nema-14-50r'
+    TYPE_NEMA_1460R = 'nema-14-60r'
+    TYPE_NEMA_1515R = 'nema-15-15r'
+    TYPE_NEMA_1520R = 'nema-15-20r'
+    TYPE_NEMA_1530R = 'nema-15-30r'
+    TYPE_NEMA_1550R = 'nema-15-50r'
+    TYPE_NEMA_1560R = 'nema-15-60r'
     # NEMA locking
+    TYPE_NEMA_L115R = 'nema-l1-15r'
     TYPE_NEMA_L515R = 'nema-l5-15r'
     TYPE_NEMA_L520R = 'nema-l5-20r'
     TYPE_NEMA_L530R = 'nema-l5-30r'
-    TYPE_NEMA_L615R = 'nema-l5-50r'
+    TYPE_NEMA_L550R = 'nema-l5-50r'
+    TYPE_NEMA_L615R = 'nema-l6-15r'
     TYPE_NEMA_L620R = 'nema-l6-20r'
     TYPE_NEMA_L630R = 'nema-l6-30r'
     TYPE_NEMA_L650R = 'nema-l6-50r'
+    TYPE_NEMA_L1030R = 'nema-l10-30r'
     TYPE_NEMA_L1420R = 'nema-l14-20r'
     TYPE_NEMA_L1430R = 'nema-l14-30r'
+    TYPE_NEMA_L1450R = 'nema-l14-50r'
+    TYPE_NEMA_L1460R = 'nema-l14-60r'
+    TYPE_NEMA_L1520R = 'nema-l15-20r'
+    TYPE_NEMA_L1530R = 'nema-l15-30r'
+    TYPE_NEMA_L1550R = 'nema-l15-50r'
+    TYPE_NEMA_L1560R = 'nema-l15-60r'
     TYPE_NEMA_L2120R = 'nema-l21-20r'
     TYPE_NEMA_L2130R = 'nema-l21-30r'
     # California style
@@ -442,6 +507,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # USB
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_MICROB = 'usb-micro-b'
+    TYPE_USB_C = 'usb-c'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
 
@@ -468,6 +537,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
         )),
         ('NEMA (Non-locking)', (
+            (TYPE_NEMA_115R, 'NEMA 1-15R'),
             (TYPE_NEMA_515R, 'NEMA 5-15R'),
             (TYPE_NEMA_520R, 'NEMA 5-20R'),
             (TYPE_NEMA_530R, 'NEMA 5-30R'),
@@ -476,17 +546,37 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_620R, 'NEMA 6-20R'),
             (TYPE_NEMA_630R, 'NEMA 6-30R'),
             (TYPE_NEMA_650R, 'NEMA 6-50R'),
+            (TYPE_NEMA_1030R, 'NEMA 10-30R'),
+            (TYPE_NEMA_1050R, 'NEMA 10-50R'),
+            (TYPE_NEMA_1420R, 'NEMA 14-20R'),
+            (TYPE_NEMA_1430R, 'NEMA 14-30R'),
+            (TYPE_NEMA_1450R, 'NEMA 14-50R'),
+            (TYPE_NEMA_1460R, 'NEMA 14-60R'),
+            (TYPE_NEMA_1515R, 'NEMA 15-15R'),
+            (TYPE_NEMA_1520R, 'NEMA 15-20R'),
+            (TYPE_NEMA_1530R, 'NEMA 15-30R'),
+            (TYPE_NEMA_1550R, 'NEMA 15-50R'),
+            (TYPE_NEMA_1560R, 'NEMA 15-60R'),
         )),
         ('NEMA (Locking)', (
+            (TYPE_NEMA_L115R, 'NEMA L1-15R'),
             (TYPE_NEMA_L515R, 'NEMA L5-15R'),
             (TYPE_NEMA_L520R, 'NEMA L5-20R'),
             (TYPE_NEMA_L530R, 'NEMA L5-30R'),
+            (TYPE_NEMA_L550R, 'NEMA L5-50R'),
             (TYPE_NEMA_L615R, 'NEMA L6-15R'),
             (TYPE_NEMA_L620R, 'NEMA L6-20R'),
             (TYPE_NEMA_L630R, 'NEMA L6-30R'),
             (TYPE_NEMA_L650R, 'NEMA L6-50R'),
+            (TYPE_NEMA_L1030R, 'NEMA L10-30R'),
             (TYPE_NEMA_L1420R, 'NEMA L14-20R'),
             (TYPE_NEMA_L1430R, 'NEMA L14-30R'),
+            (TYPE_NEMA_L1450R, 'NEMA L14-50R'),
+            (TYPE_NEMA_L1460R, 'NEMA L14-60R'),
+            (TYPE_NEMA_L1520R, 'NEMA L15-20R'),
+            (TYPE_NEMA_L1530R, 'NEMA L15-30R'),
+            (TYPE_NEMA_L1550R, 'NEMA L15-50R'),
+            (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
             (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
             (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
         )),
@@ -511,6 +601,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
         )),
+        ('USB', (
+            (TYPE_USB_A, 'USB Type A'),
+            (TYPE_USB_MICROB, 'USB Micro B'),
+            (TYPE_USB_C, 'USB Type C'),
+        )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
         )),
@@ -528,12 +623,6 @@ class PowerOutletFeedLegChoices(ChoiceSet):
         (FEED_LEG_B, 'B'),
         (FEED_LEG_C, 'C'),
     )
-
-    LEGACY_MAP = {
-        FEED_LEG_A: 1,
-        FEED_LEG_B: 2,
-        FEED_LEG_C: 3,
-    }
 
 
 #
@@ -766,81 +855,6 @@ class InterfaceTypeChoices(ChoiceSet):
         ),
     )
 
-    LEGACY_MAP = {
-        TYPE_VIRTUAL: 0,
-        TYPE_LAG: 200,
-        TYPE_100ME_FIXED: 800,
-        TYPE_1GE_FIXED: 1000,
-        TYPE_1GE_GBIC: 1050,
-        TYPE_1GE_SFP: 1100,
-        TYPE_2GE_FIXED: 1120,
-        TYPE_5GE_FIXED: 1130,
-        TYPE_10GE_FIXED: 1150,
-        TYPE_10GE_CX4: 1170,
-        TYPE_10GE_SFP_PLUS: 1200,
-        TYPE_10GE_XFP: 1300,
-        TYPE_10GE_XENPAK: 1310,
-        TYPE_10GE_X2: 1320,
-        TYPE_25GE_SFP28: 1350,
-        TYPE_40GE_QSFP_PLUS: 1400,
-        TYPE_50GE_QSFP28: 1420,
-        TYPE_100GE_CFP: 1500,
-        TYPE_100GE_CFP2: 1510,
-        TYPE_100GE_CFP4: 1520,
-        TYPE_100GE_CPAK: 1550,
-        TYPE_100GE_QSFP28: 1600,
-        TYPE_200GE_CFP2: 1650,
-        TYPE_200GE_QSFP56: 1700,
-        TYPE_400GE_QSFP_DD: 1750,
-        TYPE_400GE_OSFP: 1800,
-        TYPE_80211A: 2600,
-        TYPE_80211G: 2610,
-        TYPE_80211N: 2620,
-        TYPE_80211AC: 2630,
-        TYPE_80211AD: 2640,
-        TYPE_GSM: 2810,
-        TYPE_CDMA: 2820,
-        TYPE_LTE: 2830,
-        TYPE_SONET_OC3: 6100,
-        TYPE_SONET_OC12: 6200,
-        TYPE_SONET_OC48: 6300,
-        TYPE_SONET_OC192: 6400,
-        TYPE_SONET_OC768: 6500,
-        TYPE_SONET_OC1920: 6600,
-        TYPE_SONET_OC3840: 6700,
-        TYPE_1GFC_SFP: 3010,
-        TYPE_2GFC_SFP: 3020,
-        TYPE_4GFC_SFP: 3040,
-        TYPE_8GFC_SFP_PLUS: 3080,
-        TYPE_16GFC_SFP_PLUS: 3160,
-        TYPE_32GFC_SFP28: 3320,
-        TYPE_128GFC_QSFP28: 3400,
-        TYPE_INFINIBAND_SDR: 7010,
-        TYPE_INFINIBAND_DDR: 7020,
-        TYPE_INFINIBAND_QDR: 7030,
-        TYPE_INFINIBAND_FDR10: 7040,
-        TYPE_INFINIBAND_FDR: 7050,
-        TYPE_INFINIBAND_EDR: 7060,
-        TYPE_INFINIBAND_HDR: 7070,
-        TYPE_INFINIBAND_NDR: 7080,
-        TYPE_INFINIBAND_XDR: 7090,
-        TYPE_T1: 4000,
-        TYPE_E1: 4010,
-        TYPE_T3: 4040,
-        TYPE_E3: 4050,
-        TYPE_STACKWISE: 5000,
-        TYPE_STACKWISE_PLUS: 5050,
-        TYPE_FLEXSTACK: 5100,
-        TYPE_FLEXSTACK_PLUS: 5150,
-        TYPE_JUNIPER_VCP: 5200,
-        TYPE_SUMMITSTACK: 5300,
-        TYPE_SUMMITSTACK128: 5310,
-        TYPE_SUMMITSTACK256: 5320,
-        TYPE_SUMMITSTACK512: 5330,
-        TYPE_OTHER: 32767,
-        TYPE_KEYSTONE: 32766,
-    }
-
 
 class InterfaceModeChoices(ChoiceSet):
 
@@ -854,12 +868,6 @@ class InterfaceModeChoices(ChoiceSet):
         (MODE_TAGGED_ALL, 'Tagged (All)'),
     )
 
-    LEGACY_MAP = {
-        MODE_ACCESS: 100,
-        MODE_TAGGED: 200,
-        MODE_TAGGED_ALL: 300,
-    }
-
 
 #
 # FrontPorts/RearPorts
@@ -868,6 +876,9 @@ class InterfaceModeChoices(ChoiceSet):
 class PortTypeChoices(ChoiceSet):
 
     TYPE_8P8C = '8p8c'
+    TYPE_8P6C = '8p6c'
+    TYPE_8P4C = '8p4c'
+    TYPE_8P2C = '8p2c'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
     TYPE_MRJ21 = 'mrj21'
@@ -881,12 +892,18 @@ class PortTypeChoices(ChoiceSet):
     TYPE_MPO = 'mpo'
     TYPE_LSH = 'lsh'
     TYPE_LSH_APC = 'lsh-apc'
+    TYPE_SPLICE = 'splice'
+    TYPE_CS = 'cs'
+    TYPE_SN = 'sn'
 
     CHOICES = (
         (
             'Copper',
             (
                 (TYPE_8P8C, '8P8C'),
+                (TYPE_8P6C, '8P6C'),
+                (TYPE_8P4C, '8P4C'),
+                (TYPE_8P2C, '8P2C'),
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
                 (TYPE_MRJ21, 'MRJ21'),
@@ -905,25 +922,12 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_SC, 'SC'),
                 (TYPE_SC_APC, 'SC/APC'),
                 (TYPE_ST, 'ST'),
+                (TYPE_CS, 'CS'),
+                (TYPE_SN, 'SN'),
+                (TYPE_SPLICE, 'Splice'),
             )
         )
     )
-
-    LEGACY_MAP = {
-        TYPE_8P8C: 1000,
-        TYPE_110_PUNCH: 1100,
-        TYPE_BNC: 1200,
-        TYPE_ST: 2000,
-        TYPE_SC: 2100,
-        TYPE_SC_APC: 2110,
-        TYPE_FC: 2200,
-        TYPE_LC: 2300,
-        TYPE_LC_APC: 2310,
-        TYPE_MTRJ: 2400,
-        TYPE_MPO: 2500,
-        TYPE_LSH: 2600,
-        TYPE_LSH_APC: 2610,
-    }
 
 
 #
@@ -984,28 +988,6 @@ class CableTypeChoices(ChoiceSet):
         (TYPE_POWER, 'Power'),
     )
 
-    LEGACY_MAP = {
-        TYPE_CAT3: 1300,
-        TYPE_CAT5: 1500,
-        TYPE_CAT5E: 1510,
-        TYPE_CAT6: 1600,
-        TYPE_CAT6A: 1610,
-        TYPE_CAT7: 1700,
-        TYPE_DAC_ACTIVE: 1800,
-        TYPE_DAC_PASSIVE: 1810,
-        TYPE_COAXIAL: 1900,
-        TYPE_MMF: 3000,
-        TYPE_MMF_OM1: 3010,
-        TYPE_MMF_OM2: 3020,
-        TYPE_MMF_OM3: 3030,
-        TYPE_MMF_OM4: 3040,
-        TYPE_SMF: 3500,
-        TYPE_SMF_OS1: 3510,
-        TYPE_SMF_OS2: 3520,
-        TYPE_AOC: 3800,
-        TYPE_POWER: 5000,
-    }
-
 
 class CableStatusChoices(ChoiceSet):
 
@@ -1019,9 +1001,10 @@ class CableStatusChoices(ChoiceSet):
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
 
-    LEGACY_MAP = {
-        STATUS_CONNECTED: True,
-        STATUS_PLANNED: False,
+    CSS_CLASSES = {
+        STATUS_CONNECTED: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_DECOMMISSIONING: 'warning',
     }
 
 
@@ -1038,13 +1021,6 @@ class CableLengthUnitChoices(ChoiceSet):
         (UNIT_FOOT, 'Feet'),
         (UNIT_INCH, 'Inches'),
     )
-
-    LEGACY_MAP = {
-        UNIT_METER: 1200,
-        UNIT_CENTIMETER: 1100,
-        UNIT_FOOT: 2100,
-        UNIT_INCH: 2000,
-    }
 
 
 #
@@ -1065,11 +1041,11 @@ class PowerFeedStatusChoices(ChoiceSet):
         (STATUS_FAILED, 'Failed'),
     )
 
-    LEGACY_MAP = {
-        STATUS_OFFLINE: 0,
-        STATUS_ACTIVE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_FAILED: 4,
+    CSS_CLASSES = {
+        STATUS_OFFLINE: 'warning',
+        STATUS_ACTIVE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_FAILED: 'danger',
     }
 
 
@@ -1083,9 +1059,9 @@ class PowerFeedTypeChoices(ChoiceSet):
         (TYPE_REDUNDANT, 'Redundant'),
     )
 
-    LEGACY_MAP = {
-        TYPE_PRIMARY: 1,
-        TYPE_REDUNDANT: 2,
+    CSS_CLASSES = {
+        TYPE_PRIMARY: 'success',
+        TYPE_REDUNDANT: 'info',
     }
 
 
@@ -1099,11 +1075,6 @@ class PowerFeedSupplyChoices(ChoiceSet):
         (SUPPLY_DC, 'DC'),
     )
 
-    LEGACY_MAP = {
-        SUPPLY_AC: 1,
-        SUPPLY_DC: 2,
-    }
-
 
 class PowerFeedPhaseChoices(ChoiceSet):
 
@@ -1114,8 +1085,3 @@ class PowerFeedPhaseChoices(ChoiceSet):
         (PHASE_SINGLE, 'Single phase'),
         (PHASE_3PHASE, 'Three-phase'),
     )
-
-    LEGACY_MAP = {
-        PHASE_SINGLE: 1,
-        PHASE_3PHASE: 3,
-    }

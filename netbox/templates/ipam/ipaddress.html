@@ -3,16 +3,17 @@
 {% load custom_links %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block header %}
     <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
-                {% if ipaddress.vrf %}
-                    <li><a href="{% url 'ipam:vrf' pk=ipaddress.vrf.pk %}">{{ ipaddress.vrf }}</a></li>
+                {% if object.vrf %}
+                    <li><a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a></li>
                 {% endif %}
-                <li>{{ ipaddress }}</li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -21,7 +22,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search IPs" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -29,29 +30,29 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons ipaddress %}
+        {% plugin_buttons object %}
         {% if perms.ipam.add_ipaddress %}
-            {% clone_button ipaddress %}
+            {% clone_button object %}
         {% endif %}
         {% if perms.ipam.change_ipaddress %}
-            {%edit_button ipaddress %}
+            {%edit_button object %}
         {% endif %}
         {% if perms.ipam.delete_ipaddress %}
-            {% delete_button ipaddress %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}{{ ipaddress }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=ipaddress %}
+    <h1>{% block title %}{{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
-        {% custom_links ipaddress %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ ipaddress.get_absolute_url }}">IP Address</a>
+            <a href="{{ object.get_absolute_url }}">IP Address</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:ipaddress_changelog' pk=ipaddress.pk %}">Change Log</a>
+                <a href="{% url 'ipam:ipaddress_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -67,13 +68,13 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Family</td>
-                    <td>IPv{{ ipaddress.family }}</td>
+                    <td>IPv{{ object.family }}</td>
                 </tr>
                 <tr>
                     <td>VRF</td>
                     <td>
-                        {% if ipaddress.vrf %}
-                            <a href="{% url 'ipam:vrf' pk=ipaddress.vrf.pk %}">{{ ipaddress.vrf }}</a>
+                        {% if object.vrf %}
+                            <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
                         {% else %}
                             <span>Global</span>
                         {% endif %}
@@ -82,12 +83,11 @@
                 <tr>
                     <td>Tenant</td>
                     <td>
-                        {% if ipaddress.tenant %}
-                            {% if ipaddress.tenant.group %}
-                                <a href="{{ ipaddress.tenant.group.get_absolute_url }}">{{ ipaddress.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                        {% if object.tenant %}
+                            {% if object.tenant.group %}
+                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                             {% endif %}
-                            <a href="{{ ipaddress.tenant.get_absolute_url }}">{{ ipaddress.tenant }}</a>
+                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -96,14 +96,14 @@
                 <tr>
                     <td>Status</td>
                     <td>
-                        <span class="label label-{{ ipaddress.get_status_class }}">{{ ipaddress.get_status_display }}</span>
+                        <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                     </td>
                 </tr>
                 <tr>
                     <td>Role</td>
                     <td>
-                        {% if ipaddress.role %}
-                            <a href="{% url 'ipam:ipaddress_list' %}?role={{ ipaddress.role }}">{{ ipaddress.get_role_display }}</a>
+                        {% if object.role %}
+                            <a href="{% url 'ipam:ipaddress_list' %}?role={{ object.role }}">{{ object.get_role_display }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -111,17 +111,17 @@
                 </tr>
                 <tr>
                     <td>DNS Name</td>
-                    <td>{{ ipaddress.dns_name|placeholder }}</td>
+                    <td>{{ object.dns_name|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>{{ ipaddress.description|placeholder }}</td>
+                    <td>{{ object.description|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Assignment</td>
                     <td>
-                        {% if ipaddress.interface %}
-                            <span><a href="{{ ipaddress.interface.parent.get_absolute_url }}">{{ ipaddress.interface.parent }}</a> ({{ ipaddress.interface }})</span>
+                        {% if object.assigned_object %}
+                            <span><a href="{{ object.assigned_object.parent.get_absolute_url }}">{{ object.assigned_object.parent }}</a> ({{ object.assigned_object }})</span>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}
@@ -130,10 +130,10 @@
                 <tr>
                     <td>NAT (inside)</td>
                     <td>
-                        {% if ipaddress.nat_inside %}
-                            <a href="{% url 'ipam:ipaddress' pk=ipaddress.nat_inside.pk %}">{{ ipaddress.nat_inside }}</a>
-                            {% if ipaddress.nat_inside.interface %}
-                                (<a href="{{ ipaddress.nat_inside.interface.parent.get_absolute_url }}">{{ ipaddress.nat_inside.interface.parent }}</a>)
+                        {% if object.nat_inside %}
+                            <a href="{% url 'ipam:ipaddress' pk=object.nat_inside.pk %}">{{ object.nat_inside }}</a>
+                            {% if object.nat_inside.assigned_object %}
+                                (<a href="{{ object.nat_inside.assigned_object.parent.get_absolute_url }}">{{ object.nat_inside.assigned_object.parent }}</a>)
                             {% endif %}
                         {% else %}
                             <span class="text-muted">None</span>
@@ -143,8 +143,8 @@
                 <tr>
                     <td>NAT (outside)</td>
                     <td>
-                        {% if ipaddress.nat_outside %}
-                            <a href="{% url 'ipam:ipaddress' pk=ipaddress.nat_outside.pk %}">{{ ipaddress.nat_outside }}</a>
+                        {% if object.nat_outside %}
+                            <a href="{% url 'ipam:ipaddress' pk=object.nat_outside.pk %}">{{ object.nat_outside }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -152,22 +152,39 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with obj=ipaddress %}
-        {% include 'extras/inc/tags_panel.html' with tags=ipaddress.tags.all url='ipam:ipaddress_list' %}
-        {% plugin_left_page ipaddress %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:ipaddress_list' %}
+        {% plugin_left_page object %}
 	</div>
 	<div class="col-md-8">
         {% include 'panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}
         {% if duplicate_ips_table.rows %}
-            {% include 'panel_table.html' with table=duplicate_ips_table heading='Duplicate IP Addresses' panel_class='danger' %}
+            {# Custom version of panel_table.html #}
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <strong>Duplicate IP Addresses</strong>
+                    {% if more_duplicate_ips %}
+                    <div class="pull-right">
+                        <a type="button" class="btn btn-primary btn-xs"
+                        {% if object.vrf %}
+                        href="{% url 'ipam:ipaddress_list' %}?address={{ object.address.ip }}&vrf_id={{ object.vrf.pk }}"
+                        {% else %}
+                        href="{% url 'ipam:ipaddress_list' %}?address={{ object.address.ip }}&vrf_id=null"
+                        {% endif %}
+                        >Show all</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% render_table duplicate_ips_table 'inc/table.html' %}
+            </div>
         {% endif %}
         {% include 'utilities/obj_table.html' with table=related_ips_table table_template='panel_table.html' heading='Related IP Addresses' panel_class='default noprint' %}
-        {% plugin_right_page ipaddress %}
+        {% plugin_right_page object %}
 	</div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page ipaddress %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}

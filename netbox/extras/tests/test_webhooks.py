@@ -39,16 +39,16 @@ class WebhookTest(APITestCase):
             Webhook(name='Site Delete Webhook', type_delete=True, payload_url=DUMMY_URL, secret=DUMMY_SECRET),
         ))
         for webhook in webhooks:
-            webhook.obj_type.set([site_ct])
+            webhook.content_types.set([site_ct])
 
     def test_enqueue_webhook_create(self):
-
         # Create an object via the REST API
         data = {
             'name': 'Test Site',
             'slug': 'test-site',
         }
         url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Site.objects.count(), 1)
@@ -62,14 +62,13 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.args[3], ObjectChangeActionChoices.ACTION_CREATE)
 
     def test_enqueue_webhook_update(self):
-
-        site = Site.objects.create(name='Site 1', slug='site-1')
-
         # Update an object via the REST API
+        site = Site.objects.create(name='Site 1', slug='site-1')
         data = {
             'comments': 'Updated the site',
         }
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+        self.add_permissions('dcim.change_site')
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
@@ -82,11 +81,10 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.args[3], ObjectChangeActionChoices.ACTION_UPDATE)
 
     def test_enqueue_webhook_delete(self):
-
-        site = Site.objects.create(name='Site 1', slug='site-1')
-
         # Delete an object via the REST API
+        site = Site.objects.create(name='Site 1', slug='site-1')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+        self.add_permissions('dcim.delete_site')
         response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
 

@@ -10,11 +10,11 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></li>
-                <li><a href="{{ powerpanel.site.get_absolute_url }}">{{ powerpanel.site }}</a></li>
-                {% if powerpanel.rack_group %}
-                    <li><a href="{{ powerpanel.rack_group.get_absolute_url }}">{{ powerpanel.rack_group }}</a></li>
+                <li><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></li>
+                {% if object.rack_group %}
+                    <li><a href="{{ object.rack_group.get_absolute_url }}">{{ object.rack_group }}</a></li>
                 {% endif %}
-                <li>{{ powerpanel }}</li>
+                <li>{{ object }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -23,7 +23,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search power panels" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -31,26 +31,26 @@
         </div>
     </div>
     <div class="pull-right noprint">
-        {% plugin_buttons powerpanel %}
+        {% plugin_buttons object %}
         {% if perms.dcim.change_powerpanel %}
-            {% edit_button powerpanel %}
+            {% edit_button object %}
         {% endif %}
         {% if perms.dcim.delete_powerpanel %}
-            {% delete_button powerpanel %}
+            {% delete_button object %}
         {% endif %}
     </div>
-    <h1>{% block title %}{{ powerpanel }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' with obj=powerpanel %}
+    <h1>{% block title %}{{ object }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' %}
     <div class="pull-right noprint">
-        {% custom_links powerpanel %}
+        {% custom_links object %}
     </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ powerpanel.get_absolute_url }}">Cable</a>
+            <a href="{{ object.get_absolute_url }}">Cable</a>
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:powerpanel_changelog' pk=powerpanel.pk %}">Change Log</a>
+                <a href="{% url 'dcim:powerpanel_changelog' pk=object.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -58,7 +58,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-3">
+	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Power Panel</strong>
@@ -67,14 +67,14 @@
                 <tr>
                     <td>Site</td>
                     <td>
-                        <a href="{{ powerpanel.site.get_absolute_url }}">{{ powerpanel.site }}</a>
+                        <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Rack Group</td>
                     <td>
-                        {% if powerpanel.rack_group %}
-                            <a href="{{ powerpanel.rack_group.get_absolute_url }}">{{ powerpanel.rack_group }}</a>
+                        {% if object.rack_group %}
+                            <a href="{{ object.rack_group.get_absolute_url }}">{{ object.rack_group }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -82,16 +82,18 @@
                 </tr>
             </table>
         </div>
-        {% plugin_left_page powerpanel %}
+        {% plugin_left_page object %}
     </div>
-	<div class="col-md-9">
-        {% include 'panel_table.html' with table=powerfeed_table heading='Connected Feeds' %}
-        {% plugin_right_page powerpanel %}
+	<div class="col-md-6">
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:powerpanel_list' %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% plugin_full_width_page powerpanel %}
+        {% include 'panel_table.html' with table=powerfeed_table heading='Connected Feeds' %}
+        {% plugin_full_width_page object %}
     </div>
 </div>
 {% endblock %}

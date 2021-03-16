@@ -1,4 +1,4 @@
-{% extends 'utilities/obj_edit.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
 
 {% block form %}
@@ -22,10 +22,11 @@
             {% endif %}
             {% render_field form.name %}
             <div class="form-group form-inline">
-                <label class="col-md-3 control-label required">Port</label>
+                <label class="col-md-3 control-label required">Port(s)</label>
                 <div class="col-md-9">
                     {{ form.protocol }}
-                    {{ form.port }}
+                    {{ form.ports }}
+                    <span class="help-block">{{ form.ports.help_text }}</span>
                 </div>
             </div>
             {% render_field form.ipaddresses %}

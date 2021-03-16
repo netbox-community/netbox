@@ -4,7 +4,7 @@
         <strong>Tags</strong>
     </div>
     <div class="panel-body">
-        {% for tag in tags %}
+        {% for tag in tags.all %}
             {% tag tag url %}
         {% empty %}
             <span class="text-muted">No tags assigned</span>
