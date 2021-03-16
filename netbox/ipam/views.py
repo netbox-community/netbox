@@ -672,7 +672,7 @@ class VLANGroupBulkImportView(generic.BulkImportView):
 
 
 class VLANGroupBulkEditView(generic.BulkEditView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     filterset = filters.VLANGroupFilterSet
