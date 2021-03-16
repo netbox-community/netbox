@@ -118,7 +118,8 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
         queryset=ContentType.objects.filter(
             app_label='dcim',
             model__in=['region', 'sitegroup', 'site', 'location', 'rack']
-        )
+        ),
+        required=False
     )
     scope = serializers.SerializerMethodField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)

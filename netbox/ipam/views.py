@@ -631,7 +631,7 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
 #
 
 class VLANGroupListView(generic.ObjectListView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     filterset = filters.VLANGroupFilterSet

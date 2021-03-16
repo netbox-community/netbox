@@ -1265,6 +1265,8 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             ('dcim.site', 'Site'),
             ('dcim.location', 'Location'),
             ('dcim.rack', 'Rack'),
+            ('virtualization.clustergroup', 'Cluster group'),
+            ('virtualization.cluster', 'Cluster'),
         ),
         required=False,
         widget=StaticSelect2,
@@ -1371,15 +1373,6 @@ class VLANCSVForm(CustomFieldModelCSVForm):
             'vid': 'Numeric VLAN ID (1-4095)',
             'name': 'VLAN name',
         }
-
-    def __init__(self, data=None, *args, **kwargs):
-        super().__init__(data, *args, **kwargs)
-
-        if data:
-
-            # Limit vlan queryset by assigned group
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
-            self.fields['group'].queryset = self.fields['group'].queryset.filter(**params)
 
 
 class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

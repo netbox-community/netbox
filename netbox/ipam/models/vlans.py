@@ -72,6 +72,15 @@ class VLANGroup(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('ipam:vlangroup_vlans', args=[self.pk])
 
+    def clean(self):
+        super().clean()
+
+        # Validate scope assignment
+        if self.scope_type and not self.scope_id:
+            raise ValidationError("Cannot set scope_type without scope_id.")
+        if self.scope_id and not self.scope_type:
+            raise ValidationError("Cannot set scope_id without scope_type.")
+
     def to_csv(self):
         return (
             self.name,
