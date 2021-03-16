@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 
@@ -255,10 +256,15 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         null=True,
         verbose_name='Primary IPv6'
     )
-    vcpus = models.PositiveSmallIntegerField(
+    vcpus = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
         blank=True,
         null=True,
-        verbose_name='vCPUs'
+        verbose_name='vCPUs',
+        validators=(
+            MinValueValidator(0.01),
+        )
     )
     memory = models.PositiveIntegerField(
         blank=True,

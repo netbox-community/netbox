@@ -79,6 +79,7 @@ The ObjectChange model (which is used to record the creation, modification, and 
 * [#5895](https://github.com/netbox-community/netbox/issues/5895) - Rename RackGroup to Location
 * [#5901](https://github.com/netbox-community/netbox/issues/5901) - Add `created` and `last_updated` fields to device component models
 * [#5972](https://github.com/netbox-community/netbox/issues/5972) - Enable bulk editing for organizational models
+* [#5975](https://github.com/netbox-community/netbox/issues/5975) - Allow partial vCPU allocations for virtual machines
 
 ### Other Changes
 
@@ -129,3 +130,5 @@ The ObjectChange model (which is used to record the creation, modification, and 
 * ipam.VLANGroup
   * Added the `scope_type`, `scope_id`, and `scope` fields (`scope` is a generic foreign key)
   * Dropped the `site` foreign key field
+* virtualization.VirtualMachine
+  * `vcpus` has been changed from an integer to a decimal value
