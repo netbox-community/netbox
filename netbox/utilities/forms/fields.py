@@ -276,7 +276,7 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, display_field='name', query_params=None, initial_params=None, null_option=None,
+    def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
                  disabled_indicator=None, brief_mode=True, *args, **kwargs):
         self.display_field = display_field
         self.query_params = query_params or {}

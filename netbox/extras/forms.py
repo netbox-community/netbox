@@ -399,7 +399,6 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
-        display_field='username',
         label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
@@ -408,7 +407,6 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     changed_object_type_id = DynamicModelMultipleChoiceField(
         queryset=ContentType.objects.all(),
         required=False,
-        display_field='display_name',
         label=_('Object Type'),
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
