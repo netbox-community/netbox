@@ -119,21 +119,31 @@ class ImageAttachmentFilterSet(BaseFilterSet):
 
 
 class JournalEntryFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    created = django_filters.DateTimeFromToRangeFilter()
     assigned_object_type = ContentTypeFilter()
-    # created_by_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=User.objects.all(),
-    #     label='User (ID)',
-    # )
-    # created_by = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='user__username',
-    #     queryset=User.objects.all(),
-    #     to_field_name='username',
-    #     label='User (name)',
-    # )
+    created_by_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        label='User (ID)',
+    )
+    created_by = django_filters.ModelMultipleChoiceFilter(
+        field_name='created_by__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User (name)',
+    )
 
     class Meta:
         model = JournalEntry
         fields = ['id', 'assigned_object_type_id', 'assigned_object_id', 'created']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(comments__icontains=value)
 
 
 class TagFilterSet(BaseFilterSet):

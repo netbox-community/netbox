@@ -27,4 +27,5 @@
         </div>
     {% endif %}
     {% include 'panel_table.html' %}
+    {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
 {% endblock %}

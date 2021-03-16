@@ -286,6 +286,14 @@ class ImageAttachmentDeleteView(generic.ObjectDeleteView):
 # Journal entries
 #
 
+class JournalEntryListView(generic.ObjectListView):
+    queryset = JournalEntry.objects.all()
+    filterset = filters.JournalEntryFilterSet
+    filterset_form = forms.JournalEntryFilterForm
+    table = tables.JournalEntryTable
+    action_buttons = ('export',)
+
+
 class JournalEntryEditView(generic.ObjectEditView):
     queryset = JournalEntry.objects.all()
     model_form = forms.JournalEntryForm

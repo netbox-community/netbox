@@ -520,6 +520,9 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Other <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Logging</li>
+                        <li{% if not perms.extras.view_journalentry %} class="disabled"{% endif %}>
+                            <a href="{% url 'extras:journalentry_list' %}">Journal Entries</a>
+                        </li>
                         <li{% if not perms.extras.view_objectchange %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:objectchange_list' %}">Change Log</a>
                         </li>

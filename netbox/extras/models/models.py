@@ -405,6 +405,7 @@ class JournalEntry(BigIDModel):
 
     class Meta:
         ordering = ('-created',)
+        verbose_name_plural = 'journal entries'
 
     def __str__(self):
         return f"{self.created}"

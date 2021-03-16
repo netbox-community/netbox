@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
                 ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
             options={
+                'verbose_name_plural': 'journal entries',
                 'ordering': ('-created',),
             },
         ),

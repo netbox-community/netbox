@@ -386,6 +386,40 @@ class JournalEntryForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class JournalEntryFilterForm(BootstrapMixin, forms.Form):
+    model = JournalEntry
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
+    created_after = forms.DateTimeField(
+        required=False,
+        label=_('After'),
+        widget=DateTimePicker()
+    )
+    created_before = forms.DateTimeField(
+        required=False,
+        label=_('Before'),
+        widget=DateTimePicker()
+    )
+    created_by_id = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label=_('User'),
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
+    )
+    assigned_object_type_id = DynamicModelMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        required=False,
+        label=_('Object Type'),
+        widget=APISelectMultiple(
+            api_url='/api/extras/content-types/',
+        )
+    )
+
+
 #
 # Change logging
 #
