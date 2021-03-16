@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.conf import settings
 
 from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ToggleColumn
-from .models import ConfigContext, ObjectChange, Tag, TaggedItem
+from .models import ConfigContext, JournalEntry, ObjectChange, Tag, TaggedItem
 
 TAGGED_ITEM = """
 {% if value.get_absolute_url %}
@@ -96,3 +96,17 @@ class ObjectChangeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ObjectChange
         fields = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
+
+
+class ObjectJournalTable(BaseTable):
+    created = tables.DateTimeColumn(
+        format=settings.SHORT_DATETIME_FORMAT
+    )
+    actions = ButtonsColumn(
+        model=JournalEntry,
+        buttons=('edit', 'delete')
+    )
+
+    class Meta(BaseTable.Meta):
+        model = JournalEntry
+        fields = ('created', 'created_by', 'comments', 'actions')

@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.views import ObjectChangeLogView, ObjectConfigContextView
+from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
 from ipam.models import IPAddress, Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
@@ -1380,6 +1380,10 @@ class DeviceConfigContextView(ObjectConfigContextView):
 
 
 class DeviceChangeLogView(ObjectChangeLogView):
+    base_template = 'dcim/device/base.html'
+
+
+class DeviceJournalView(ObjectJournalView):
     base_template = 'dcim/device/base.html'
 
 

@@ -52,6 +52,12 @@
       <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
         <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
       </li>
+      {% if perms.extras.view_journalentry %}
+        <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
+          {# TODO: Fix journal URL resolution hack #}
+          <a href="{{ object.get_absolute_url }}journal/">Journal</a>
+        </li>
+      {% endif %}
       {% if perms.extras.view_objectchange %}
         <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
           {# TODO: Fix changelog URL resolution hack #}

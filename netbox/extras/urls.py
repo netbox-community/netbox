@@ -31,6 +31,11 @@ urlpatterns = [
     path('image-attachments/<int:pk>/edit/', views.ImageAttachmentEditView.as_view(), name='imageattachment_edit'),
     path('image-attachments/<int:pk>/delete/', views.ImageAttachmentDeleteView.as_view(), name='imageattachment_delete'),
 
+    # Journal entries
+    path('journal-entries/add/', views.JournalEntryEditView.as_view(), name='journalentry_add'),
+    path('journal-entries/<int:pk>/edit/', views.JournalEntryEditView.as_view(), name='journalentry_edit'),
+    path('journal-entries/<int:pk>/delete/', views.JournalEntryDeleteView.as_view(), name='journalentry_delete'),
+
     # Change logging
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
     path('changelog/<int:pk>/', views.ObjectChangeView.as_view(), name='objectchange'),

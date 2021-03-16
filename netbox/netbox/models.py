@@ -1,6 +1,7 @@
 import logging
 from collections import OrderedDict
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import ValidationError
 from django.db import models
@@ -149,7 +150,14 @@ class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
-    tags = TaggableManager(through='extras.TaggedItem')
+    journal_entries = GenericRelation(
+        to='extras.JournalEntry',
+        object_id_field='assigned_object_id',
+        content_type_field='assigned_object_type'
+    )
+    tags = TaggableManager(
+        through='extras.TaggedItem'
+    )
 
     class Meta:
         abstract = True

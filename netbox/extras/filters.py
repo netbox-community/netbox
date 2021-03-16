@@ -21,6 +21,7 @@ __all__ = (
     'CustomFieldModelFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
+    'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
     'TagFilterSet',
@@ -115,6 +116,24 @@ class ImageAttachmentFilterSet(BaseFilterSet):
     class Meta:
         model = ImageAttachment
         fields = ['id', 'content_type_id', 'object_id', 'name']
+
+
+class JournalEntryFilterSet(BaseFilterSet):
+    assigned_object_type = ContentTypeFilter()
+    # created_by_id = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=User.objects.all(),
+    #     label='User (ID)',
+    # )
+    # created_by = django_filters.ModelMultipleChoiceFilter(
+    #     field_name='user__username',
+    #     queryset=User.objects.all(),
+    #     to_field_name='username',
+    #     label='User (name)',
+    # )
+
+    class Meta:
+        model = JournalEntry
+        fields = ['id', 'assigned_object_type_id', 'assigned_object_id', 'created']
 
 
 class TagFilterSet(BaseFilterSet):

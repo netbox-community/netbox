@@ -13,7 +13,7 @@ from utilities.forms import (
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, ImageAttachment, ObjectChange, Tag
+from .models import ConfigContext, CustomField, ImageAttachment, JournalEntry, ObjectChange, Tag
 
 
 #
@@ -369,6 +369,21 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'name', 'image',
         ]
+
+
+#
+# Journal entries
+#
+
+class JournalEntryForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = JournalEntry
+        fields = ['assigned_object_type', 'assigned_object_id', 'comments']
+        widgets = {
+            'assigned_object_type': forms.HiddenInput,
+            'assigned_object_id': forms.HiddenInput,
+        }
 
 
 #
