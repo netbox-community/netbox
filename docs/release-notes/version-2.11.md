@@ -85,6 +85,7 @@ The ObjectChange model (which is used to record the creation, modification, and 
 * [#1638](https://github.com/netbox-community/netbox/issues/1638) - Migrate all primary keys to 64-bit integers
 * [#5873](https://github.com/netbox-community/netbox/issues/5873) - Use numeric IDs in all object URLs
 * [#5990](https://github.com/netbox-community/netbox/issues/5990) - Deprecated `display_field` parameter for custom script ObjectVar and MultiObjectVar fields
+* [#5995](https://github.com/netbox-community/netbox/issues/5995) - Dropped backward compatibility for `queryset` parameter on ObjectVar and MultiObjectVar (use `model` instead)
 
 ### REST API Changes
 

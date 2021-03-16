@@ -186,7 +186,7 @@ class ObjectVar(ScriptVariable):
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, model=None, queryset=None, query_params=None, null_option=None, *args, **kwargs):
+    def __init__(self, model, query_params=None, null_option=None, *args, **kwargs):
 
         # TODO: Remove display_field in v2.12
         if 'display_field' in kwargs:
@@ -198,18 +198,8 @@ class ObjectVar(ScriptVariable):
 
         super().__init__(*args, **kwargs)
 
-        # Set the form field's queryset. Support backward compatibility for the "queryset" argument for now.
-        if model is not None:
-            self.field_attrs['queryset'] = model.objects.all()
-        elif queryset is not None:
-            warnings.warn(
-                f'{self}: Specifying a queryset for ObjectVar is no longer supported. Please use "model" instead.'
-            )
-            self.field_attrs['queryset'] = queryset
-        else:
-            raise TypeError('ObjectVar must specify a model')
-
         self.field_attrs.update({
+            'queryset': model.objects.all(),
             'display_field': display_field,
             'query_params': query_params,
             'null_option': null_option,
