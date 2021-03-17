@@ -212,6 +212,17 @@ class ChoiceFieldColumn(tables.Column):
         return value
 
 
+class ContentTypeColumn(tables.Column):
+    """
+    Display a ContentType instance.
+    """
+    def render(self, value):
+        return value.name[0].upper() + value.name[1:]
+
+    def value(self, value):
+        return f"{value.app_label}.{value.model}"
+
+
 class ColorColumn(tables.Column):
     """
     Display a color (#RRGGBB).

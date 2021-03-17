@@ -1,7 +1,9 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ToggleColumn,
+)
 from .models import ConfigContext, JournalEntry, ObjectChange, Tag, TaggedItem
 
 TAGGED_ITEM = """
@@ -81,7 +83,7 @@ class ObjectChangeTable(BaseTable):
         format=settings.SHORT_DATETIME_FORMAT
     )
     action = ChoiceFieldColumn()
-    changed_object_type = tables.Column(
+    changed_object_type = ContentTypeColumn(
         verbose_name='Type'
     )
     object_repr = tables.TemplateColumn(
@@ -103,7 +105,7 @@ class JournalEntryTable(BaseTable):
     created = tables.DateTimeColumn(
         format=settings.SHORT_DATETIME_FORMAT
     )
-    assigned_object_type = tables.Column(
+    assigned_object_type = ContentTypeColumn(
         verbose_name='Object type'
     )
     assigned_object = tables.Column(
