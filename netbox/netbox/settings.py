@@ -123,13 +123,16 @@ TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
-    try:
-        URLValidator(RELEASE_CHECK_URL)
-    except ValidationError:
-        raise ImproperlyConfigured(
+    validator = URLValidator(
+        message=(
             "RELEASE_CHECK_URL must be a valid API URL. Example: "
             "https://api.github.com/repos/netbox-community/netbox"
         )
+    )
+    try:
+        validator(RELEASE_CHECK_URL)
+    except ValidationError as err:
+        raise ImproperlyConfigured(str(err))
 
 # Enforce a minimum cache timeout for update checks
 if RELEASE_CHECK_TIMEOUT < 3600:
