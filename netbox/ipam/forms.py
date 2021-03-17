@@ -833,7 +833,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
 
         # Initialize primary_for_parent if IP address is already assigned
         if self.instance.pk and self.instance.assigned_object:
-            parent = self.instance.assigned_object.parent
+            parent = self.instance.assigned_object.parent_object
             if (
                 self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
                 self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
@@ -860,18 +860,20 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
         interface = self.instance.assigned_object
-        if interface and self.cleaned_data['primary_for_parent']:
-            if ipaddress.address.version == 4:
-                interface.parent.primary_ip4 = ipaddress
-            else:
-                interface.parent.primary_ip6 = ipaddress
-            interface.parent.save()
-        elif interface and ipaddress.address.version == 4 and interface.parent.primary_ip4 == ipaddress:
-            interface.parent.primary_ip4 = None
-            interface.parent.save()
-        elif interface and ipaddress.address.version == 6 and interface.parent.primary_ip6 == ipaddress:
-            interface.parent.primary_ip6 = None
-            interface.parent.save()
+        if interface:
+            parent = interface.parent_object
+            if self.cleaned_data['primary_for_parent']:
+                if ipaddress.address.version == 4:
+                    parent.primary_ip4 = ipaddress
+                else:
+                    parent.primary_ip6 = ipaddress
+                parent.save()
+            elif ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
+                parent.primary_ip4 = None
+                parent.save()
+            elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
+                parent.primary_ip6 = None
+                parent.save()
 
         return ipaddress
 

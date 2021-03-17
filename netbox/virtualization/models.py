@@ -459,7 +459,7 @@ class VMInterface(PrimaryModel, BaseInterface):
         return super().to_objectchange(action, related_object=self.virtual_machine)
 
     @property
-    def parent(self):
+    def parent_object(self):
         return self.virtual_machine
 
     @property
