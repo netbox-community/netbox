@@ -3,39 +3,26 @@
 
 {% block title %}Add {{ component_type }} to {{ parent }}{% endblock %}
 
+{% render_errors form %}
+
 {% block content %}
-<form action="." method="post" class="form form-horizontal">
+<form action="." method="post">
     {% csrf_token %}
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            {% if form.non_field_errors %}
-                <div class="panel panel-danger">
-                    <div class="panel-heading"><strong>Errors</strong></div>
-                    <div class="panel-body">
-                        {{ form.non_field_errors }}
-                    </div>
-                </div>
-            {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>New {{ component_type }}</strong>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label class="col-md-3 control-label required">Device Type</label>
-                        <div class="col-md-9">
-                            <p class="form-control-static">{{ parent }}</p>
-                        </div>
+            <div class="field-group mb-3">
+                <h4>New {{ component_type }}</h4>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" value="{{ parent }}" disabled />
+                        <label>Device Type</label>
                     </div>
                     {% render_form form %}
                 </div>
             </div>
-		    <div class="form-group">
-                <div class="col-md-9 col-md-offset-3">
-                    <button type="submit" name="_update" class="btn btn-primary">Save</button>
-                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-                </div>
-		    </div>
+            <div class="col-md-9 col-md-offset-3">
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                <button type="submit" name="_update" class="btn btn-primary">Save</button>
+            </div>
         </div>
     </div>
 </form>
