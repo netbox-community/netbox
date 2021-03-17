@@ -5,6 +5,23 @@ export function isApiError(data: Record<string, unknown>): data is APIError {
 }
 
 /**
+ * Type guard to determine if a value is not null, undefined, or empty.
+ */
+export function isTruthy<V extends string | number | boolean | null | undefined>(
+  value: V,
+): value is NonNullable<V> {
+  const badStrings = ['', 'null', 'undefined'];
+  if (typeof value === 'string' && !badStrings.includes(value)) {
+    return true;
+  } else if (typeof value === 'number') {
+    return true;
+  } else if (typeof value === 'boolean') {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Retrieve the CSRF token from cookie storage.
  */
 export function getCsrfToken(): string {

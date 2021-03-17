@@ -1,3 +1,7 @@
+type Primitives = string | number | boolean | undefined | null;
+
+type JSONAble = Primitives | Primitives[] | { [k: string]: JSONAble } | JSONAble[];
+
 type Nullable<T> = T | null;
 
 type APIAnswer<T> = {
@@ -16,18 +20,19 @@ type APIError = {
 
 type APIObjectBase = {
   id: number;
+  display?: string;
   name: string;
   url: string;
-  [k: string]: unknown;
+  [k: string]: JSONAble;
 };
 
-interface APIReference {
+type APIReference = {
   id: number;
   name: string;
   slug: string;
   url: string;
   _depth: number;
-}
+};
 
 interface ObjectWithGroup extends APIObjectBase {
   group: Nullable<APIReference>;

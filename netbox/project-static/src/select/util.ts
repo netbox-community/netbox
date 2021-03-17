@@ -92,38 +92,66 @@ div.ss-list div.ss-option:not(.ss-disabled)[data-id="${id}"]
  * If the attribute exists, parse out the raw value. In the above example, this would be `name`.
  *
  * @param element Element to scan
- * @returns Attribute name, or null if it was not found.
+ * @returns Map of attributes to values. An empty value indicates a dynamic property that will
+ *          be updated later.
  */
-export function getFilteredBy<T extends HTMLElement>(element: T): string[] {
+export function getFilteredBy<T extends HTMLElement>(element: T): Map<string, string> {
   const pattern = new RegExp(/\[|\]|"|\$/g);
-  const keys = Object.keys(element.dataset);
-  const filteredBy = [] as string[];
+  const keyPattern = new RegExp(/data-query-param-/g);
+
+  // Extract data attributes.
+  const keys = Object.values(element.attributes)
+    .map(v => v.name)
+    .filter(v => v.includes('data'));
+
+  const filterMap = new Map<string, string>();
 
   // Process the URL attribute in a separate loop so that it comes first.
   for (const key of keys) {
-    if (key === 'url' && element.dataset.url?.includes(`{{`)) {
-      /**
-       * If the URL contains a Django/Jinja template variable tag we need to extract the variable
-       * name and consider this a field to monitor for changes.
-       */
-      const value = element.dataset.url.match(/\{\{(.+)\}\}/);
+    const url = element.getAttribute('data-url');
+    if (key === 'data-url' && url !== null && url.includes(`{{`)) {
+      // If the URL contains a Django/Jinja template variable tag we need to extract the variable
+      // name and consider this a field to monitor for changes.
+      const value = url.match(/\{\{(.+)\}\}/);
       if (value !== null) {
-        filteredBy.push(value[1]);
+        filterMap.set(value[1], '');
       }
     }
   }
   for (const key of keys) {
-    if (key.includes('queryParam') && key !== 'queryParamExclude') {
-      const value = element.dataset[key];
-      if (typeof value !== 'undefined') {
-        const parsed = JSON.parse(value) as string | string[];
-        if (Array.isArray(parsed)) {
-          filteredBy.push(parsed[0].replaceAll(pattern, ''));
-        } else {
-          filteredBy.push(value.replaceAll(pattern, ''));
+    if (key.match(keyPattern) && key !== 'data-query-param-exclude') {
+      const value = element.getAttribute(key);
+      if (value !== null) {
+        try {
+          const parsed = JSON.parse(value) as string | string[];
+          if (Array.isArray(parsed)) {
+            for (const item of parsed) {
+              if (item.match(/^\$.+$/g)) {
+                const replaced = item.replaceAll(pattern, '');
+                filterMap.set(replaced, '');
+              } else {
+                filterMap.set(key.replaceAll(keyPattern, ''), item);
+              }
+            }
+          } else {
+            if (parsed.match(/^\$.+$/g)) {
+              const replaced = parsed.replaceAll(pattern, '');
+              filterMap.set(replaced, '');
+            } else {
+              filterMap.set(key.replaceAll(keyPattern, ''), parsed);
+            }
+          }
+        } catch (err) {
+          console.warn(err);
+          if (value.match(/^\$.+$/g)) {
+            const replaced = value.replaceAll(pattern, '');
+            filterMap.set(replaced, '');
+          } else {
+            filterMap.set(key.replaceAll(keyPattern, ''), value);
+          }
         }
       }
     }
   }
-  return filteredBy;
+  return filterMap;
 }
