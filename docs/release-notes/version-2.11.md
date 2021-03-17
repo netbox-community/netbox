@@ -9,6 +9,10 @@ later will be required.
 
 ### New Features
 
+#### Journaling Support ([#151](https://github.com/netbox-community/netbox/issues/151))
+
+NetBox now supports journaling for all primary objects. The journal is a collection of human-generated notes and comments about an object maintained for historical context. It supplements NetBox's change log to provide additional information about why changes have been made or to convey events which occur outside of NetBox. Unlike the change log, which is typically limited in the amount of history it retains, journal entries never expire.
+
 #### Parent Interface Assignments ([#1519](https://github.com/netbox-community/netbox/issues/1519))
 
 Virtual interfaces can now be assigned to a "parent" physical interface, by setting the `parent` field on the Interface model. This is helpful for associating subinterfaces with their physical counterpart. For example, you might assign virtual interfaces Gi0/0.100 and Gi0/0.200 to the physical interface Gi0/0.
