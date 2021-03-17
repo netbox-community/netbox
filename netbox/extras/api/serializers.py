@@ -192,12 +192,16 @@ class JournalEntrySerializer(ValidatedModelSerializer):
         queryset=ContentType.objects.all()
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
+    kind = ChoiceField(
+        choices=JournalEntryKindChoices,
+        required=False
+    )
 
     class Meta:
         model = JournalEntry
         fields = [
             'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'comments',
+            'created_by', 'kind', 'comments',
         ]
 
     def validate(self, data):

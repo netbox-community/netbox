@@ -379,7 +379,7 @@ class JournalEntryForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = JournalEntry
-        fields = ['assigned_object_type', 'assigned_object_id', 'comments']
+        fields = ['assigned_object_type', 'assigned_object_id', 'kind', 'comments']
         widgets = {
             'assigned_object_type': forms.HiddenInput,
             'assigned_object_id': forms.HiddenInput,
@@ -390,6 +390,10 @@ class JournalEntryBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=JournalEntry.objects.all(),
         widget=forms.MultipleHiddenInput
+    )
+    kind = forms.ChoiceField(
+        choices=JournalEntryKindChoices,
+        required=False
     )
     comments = forms.CharField(
         required=False,
@@ -431,6 +435,11 @@ class JournalEntryFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
         )
+    )
+    kind = forms.ChoiceField(
+        choices=add_blank_choice(JournalEntryKindChoices),
+        required=False,
+        widget=StaticSelect2()
     )
 
 

@@ -399,6 +399,11 @@ class JournalEntry(BigIDModel):
         blank=True,
         null=True
     )
+    kind = models.CharField(
+        max_length=30,
+        choices=JournalEntryKindChoices,
+        default=JournalEntryKindChoices.KIND_INFO
+    )
     comments = models.TextField()
 
     objects = RestrictedQuerySet.as_manager()
@@ -408,7 +413,10 @@ class JournalEntry(BigIDModel):
         verbose_name_plural = 'journal entries'
 
     def __str__(self):
-        return f"{self.created}"
+        return f"{self.created} - {self.get_kind_display()}"
+
+    def get_kind_class(self):
+        return JournalEntryKindChoices.CSS_CLASSES.get(self.kind)
 
 
 #

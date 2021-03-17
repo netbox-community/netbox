@@ -111,6 +111,7 @@ class JournalEntryTable(BaseTable):
         orderable=False,
         verbose_name='Object'
     )
+    kind = ChoiceFieldColumn()
     actions = ButtonsColumn(
         model=JournalEntry,
         buttons=('edit', 'delete')
@@ -118,7 +119,9 @@ class JournalEntryTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
-        fields = ('pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'comments', 'actions')
+        fields = (
+            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments', 'actions'
+        )
 
 
 class ObjectJournalTable(BaseTable):
@@ -128,6 +131,7 @@ class ObjectJournalTable(BaseTable):
     created = tables.DateTimeColumn(
         format=settings.SHORT_DATETIME_FORMAT
     )
+    kind = ChoiceFieldColumn()
     actions = ButtonsColumn(
         model=JournalEntry,
         buttons=('edit', 'delete')
@@ -135,4 +139,4 @@ class ObjectJournalTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
-        fields = ('created', 'created_by', 'comments', 'actions')
+        fields = ('created', 'created_by', 'kind', 'comments', 'actions')

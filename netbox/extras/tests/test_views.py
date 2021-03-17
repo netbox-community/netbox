@@ -154,10 +154,12 @@ class JournalEntryTestCase(
         cls.form_data = {
             'assigned_object_type': site_ct.pk,
             'assigned_object_id': site.pk,
+            'kind': 'info',
             'comments': 'A new entry',
         }
 
         cls.bulk_edit_data = {
+            'kind': 'success',
             'comments': 'Overwritten',
         }
 

@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('assigned_object_id', models.PositiveIntegerField()),
                 ('created', models.DateTimeField(auto_now_add=True)),
+                ('kind', models.CharField(default='info', max_length=30)),
                 ('comments', models.TextField()),
                 ('assigned_object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
                 ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
