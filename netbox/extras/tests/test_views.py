@@ -133,8 +133,8 @@ class JournalEntryTestCase(
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
-    # ViewTestCases.BulkEditObjectsViewTestCase,
-    # ViewTestCases.BulkDeleteObjectsViewTestCase
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
 ):
     model = JournalEntry
 

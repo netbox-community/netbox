@@ -34,6 +34,8 @@ urlpatterns = [
     # Journal entries
     path('journal-entries/', views.JournalEntryListView.as_view(), name='journalentry_list'),
     path('journal-entries/add/', views.JournalEntryEditView.as_view(), name='journalentry_add'),
+    path('journal-entries/edit/', views.JournalEntryBulkEditView.as_view(), name='journalentry_bulk_edit'),
+    path('journal-entries/delete/', views.JournalEntryBulkDeleteView.as_view(), name='journalentry_bulk_delete'),
     path('journal-entries/<int:pk>/edit/', views.JournalEntryEditView.as_view(), name='journalentry_edit'),
     path('journal-entries/<int:pk>/delete/', views.JournalEntryDeleteView.as_view(), name='journalentry_delete'),
 

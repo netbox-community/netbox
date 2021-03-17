@@ -99,6 +99,7 @@ class ObjectChangeTable(BaseTable):
 
 
 class JournalEntryTable(BaseTable):
+    pk = ToggleColumn()
     created = tables.DateTimeColumn(
         format=settings.SHORT_DATETIME_FORMAT
     )
@@ -117,7 +118,7 @@ class JournalEntryTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
-        fields = ('created', 'created_by', 'assigned_object_type', 'assigned_object', 'comments', 'actions')
+        fields = ('pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'comments', 'actions')
 
 
 class ObjectJournalTable(BaseTable):

@@ -320,6 +320,19 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
         return reverse(viewname, kwargs={'pk': obj.pk})
 
 
+class JournalEntryBulkEditView(generic.BulkEditView):
+    queryset = JournalEntry.objects.prefetch_related('created_by')
+    filterset = filters.JournalEntryFilterSet
+    table = tables.JournalEntryTable
+    form = forms.JournalEntryBulkEditForm
+
+
+class JournalEntryBulkDeleteView(generic.BulkDeleteView):
+    queryset = JournalEntry.objects.prefetch_related('created_by')
+    filterset = filters.JournalEntryFilterSet
+    table = tables.JournalEntryTable
+
+
 class ObjectJournalView(View):
     """
     Show all journal entries for an object.

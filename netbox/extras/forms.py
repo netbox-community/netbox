@@ -8,7 +8,7 @@ from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
+    CommentField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
@@ -384,6 +384,20 @@ class JournalEntryForm(BootstrapMixin, forms.ModelForm):
             'assigned_object_type': forms.HiddenInput,
             'assigned_object_id': forms.HiddenInput,
         }
+
+
+class JournalEntryBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=JournalEntry.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    comments = forms.CharField(
+        required=False,
+        widget=forms.Textarea()
+    )
+
+    class Meta:
+        nullable_fields = []
 
 
 class JournalEntryFilterForm(BootstrapMixin, forms.Form):
