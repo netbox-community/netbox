@@ -88,6 +88,32 @@ class ObjectChangeActionChoices(ChoiceSet):
 
 
 #
+# Jounral entries
+#
+
+class JournalEntryKindChoices(ChoiceSet):
+
+    KIND_INFO = 'info'
+    KIND_SUCCESS = 'success'
+    KIND_WARNING = 'warning'
+    KIND_DANGER = 'danger'
+
+    CHOICES = (
+        (KIND_INFO, 'Info'),
+        (KIND_SUCCESS, 'Success'),
+        (KIND_WARNING, 'Warning'),
+        (KIND_DANGER, 'Danger'),
+    )
+
+    CSS_CLASSES = {
+        KIND_INFO: 'default',
+        KIND_SUCCESS: 'success',
+        KIND_WARNING: 'warning',
+        KIND_DANGER: 'danger',
+    }
+
+
+#
 # Log Levels for Reports and Scripts
 #
 

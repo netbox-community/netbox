@@ -139,6 +139,17 @@ class ImageAttachmentViewSet(ModelViewSet):
 
 
 #
+# Journal entries
+#
+
+class JournalEntryViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = JournalEntry.objects.all()
+    serializer_class = serializers.JournalEntrySerializer
+    filterset_class = filters.JournalEntryFilterSet
+
+
+#
 # Config contexts
 #
 

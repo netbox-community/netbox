@@ -580,7 +580,7 @@ class ViewTestCases:
             if hasattr(self.model, 'name'):
                 self.assertIn(instance1.name, content)
                 self.assertNotIn(instance2.name, content)
-            else:
+            elif hasattr(self.model, 'get_absolute_url'):
                 self.assertIn(instance1.get_absolute_url(), content)
                 self.assertNotIn(instance2.get_absolute_url(), content)
 

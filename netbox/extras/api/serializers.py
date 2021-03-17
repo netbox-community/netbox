@@ -183,6 +183,51 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
 
 #
+# Journal entries
+#
+
+class JournalEntrySerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
+    kind = ChoiceField(
+        choices=JournalEntryKindChoices,
+        required=False
+    )
+
+    class Meta:
+        model = JournalEntry
+        fields = [
+            'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
+            'created_by', 'kind', 'comments',
+        ]
+
+    def validate(self, data):
+
+        # Validate that the parent object exists
+        if 'assigned_object_type' in data and 'assigned_object_id' in data:
+            try:
+                data['assigned_object_type'].get_object_for_this_type(id=data['assigned_object_id'])
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError(
+                    f"Invalid assigned_object: {data['assigned_object_type']} ID {data['assigned_object_id']}"
+                )
+
+        # Enforce model validation
+        super().validate(data)
+
+        return data
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_assigned_object(self, instance):
+        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(instance.assigned_object, context=context).data
+
+
+#
 # Config contexts
 #
 

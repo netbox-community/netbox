@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLogView, ImageAttachmentEditView
+from extras.views import ImageAttachmentEditView, ObjectChangeLogView, ObjectJournalView
 from ipam.views import ServiceEditView
 from . import views
 from .models import *
@@ -38,6 +38,7 @@ urlpatterns = [
     path('sites/<int:pk>/edit/', views.SiteEditView.as_view(), name='site_edit'),
     path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
     path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
+    path('sites/<int:pk>/journal/', ObjectJournalView.as_view(), name='site_journal', kwargs={'model': Site}),
     path('sites/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
     # Locations
@@ -70,6 +71,7 @@ urlpatterns = [
     path('rack-reservations/<int:pk>/edit/', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
     path('rack-reservations/<int:pk>/delete/', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
     path('rack-reservations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackreservation_changelog', kwargs={'model': RackReservation}),
+    path('rack-reservations/<int:pk>/journal/', ObjectJournalView.as_view(), name='rackreservation_journal', kwargs={'model': RackReservation}),
 
     # Racks
     path('racks/', views.RackListView.as_view(), name='rack_list'),
@@ -82,6 +84,7 @@ urlpatterns = [
     path('racks/<int:pk>/edit/', views.RackEditView.as_view(), name='rack_edit'),
     path('racks/<int:pk>/delete/', views.RackDeleteView.as_view(), name='rack_delete'),
     path('racks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rack_changelog', kwargs={'model': Rack}),
+    path('racks/<int:pk>/journal/', ObjectJournalView.as_view(), name='rack_journal', kwargs={'model': Rack}),
     path('racks/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
     # Manufacturers
@@ -104,6 +107,7 @@ urlpatterns = [
     path('device-types/<int:pk>/edit/', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     path('device-types/<int:pk>/delete/', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
     path('device-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
+    path('device-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='devicetype_journal', kwargs={'model': DeviceType}),
 
     # Console port templates
     path('console-port-templates/add/', views.ConsolePortTemplateCreateView.as_view(), name='consoleporttemplate_add'),
@@ -210,6 +214,7 @@ urlpatterns = [
     path('devices/<int:pk>/inventory/', views.DeviceInventoryView.as_view(), name='device_inventory'),
     path('devices/<int:pk>/config-context/', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
     path('devices/<int:pk>/changelog/', views.DeviceChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
+    path('devices/<int:pk>/journal/', views.DeviceJournalView.as_view(), name='device_journal', kwargs={'model': Device}),
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
@@ -365,6 +370,7 @@ urlpatterns = [
     path('cables/<int:pk>/edit/', views.CableEditView.as_view(), name='cable_edit'),
     path('cables/<int:pk>/delete/', views.CableDeleteView.as_view(), name='cable_delete'),
     path('cables/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cable_changelog', kwargs={'model': Cable}),
+    path('cables/<int:pk>/journal/', ObjectJournalView.as_view(), name='cable_journal', kwargs={'model': Cable}),
 
     # Console/power/interface connections (read-only)
     path('console-connections/', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
@@ -381,6 +387,7 @@ urlpatterns = [
     path('virtual-chassis/<int:pk>/edit/', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
     path('virtual-chassis/<int:pk>/delete/', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
     path('virtual-chassis/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='virtualchassis_changelog', kwargs={'model': VirtualChassis}),
+    path('virtual-chassis/<int:pk>/journal/', ObjectJournalView.as_view(), name='virtualchassis_journal', kwargs={'model': VirtualChassis}),
     path('virtual-chassis/<int:pk>/add-member/', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
     path('virtual-chassis-members/<int:pk>/delete/', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
 
@@ -394,6 +401,7 @@ urlpatterns = [
     path('power-panels/<int:pk>/edit/', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),
     path('power-panels/<int:pk>/delete/', views.PowerPanelDeleteView.as_view(), name='powerpanel_delete'),
     path('power-panels/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerpanel_changelog', kwargs={'model': PowerPanel}),
+    path('power-panels/<int:pk>/journal/', ObjectJournalView.as_view(), name='powerpanel_journal', kwargs={'model': PowerPanel}),
 
     # Power feeds
     path('power-feeds/', views.PowerFeedListView.as_view(), name='powerfeed_list'),
@@ -406,6 +414,7 @@ urlpatterns = [
     path('power-feeds/<int:pk>/delete/', views.PowerFeedDeleteView.as_view(), name='powerfeed_delete'),
     path('power-feeds/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerfeed_trace', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
+    path('power-feeds/<int:pk>/journal/', ObjectJournalView.as_view(), name='powerfeed_journal', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='powerfeed_connect', kwargs={'termination_a_type': PowerFeed}),
 
 ]

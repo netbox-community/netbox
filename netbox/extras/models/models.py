@@ -23,6 +23,7 @@ __all__ = (
     'ExportTemplate',
     'ImageAttachment',
     'JobResult',
+    'JournalEntry',
     'Report',
     'Script',
     'Webhook',
@@ -368,6 +369,54 @@ class ImageAttachment(BigIDModel):
             return self.image.size
         except tuple(expected_exceptions):
             return None
+
+
+#
+# Journal entries
+#
+
+class JournalEntry(BigIDModel):
+    """
+    A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
+    preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
+    might record a new journal entry when a device undergoes maintenance, or when a prefix is expanded.
+    """
+    assigned_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE
+    )
+    assigned_object_id = models.PositiveIntegerField()
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
+    )
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    created_by = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    kind = models.CharField(
+        max_length=30,
+        choices=JournalEntryKindChoices,
+        default=JournalEntryKindChoices.KIND_INFO
+    )
+    comments = models.TextField()
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('-created',)
+        verbose_name_plural = 'journal entries'
+
+    def __str__(self):
+        return f"{self.created} - {self.get_kind_display()}"
+
+    def get_kind_class(self):
+        return JournalEntryKindChoices.CSS_CLASSES.get(self.kind)
 
 
 #

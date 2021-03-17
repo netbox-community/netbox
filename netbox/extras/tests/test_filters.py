@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import DeviceRole, Platform, Rack, Region, Site, SiteGroup
-from extras.choices import ObjectChangeActionChoices
+from extras.choices import JournalEntryKindChoices, ObjectChangeActionChoices
 from extras.filters import *
 from extras.models import *
 from ipam.models import IPAddress
@@ -253,6 +253,100 @@ class ImageAttachmentTestCase(TestCase):
             'object_id': [Site.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class JournalEntryTestCase(TestCase):
+    queryset = JournalEntry.objects.all()
+    filterset = JournalEntryFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        users = (
+            User(username='Alice'),
+            User(username='Bob'),
+            User(username='Charlie'),
+        )
+        User.objects.bulk_create(users)
+
+        journal_entries = (
+            JournalEntry(
+                assigned_object=sites[0],
+                created_by=users[0],
+                kind=JournalEntryKindChoices.KIND_INFO,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=sites[0],
+                created_by=users[1],
+                kind=JournalEntryKindChoices.KIND_SUCCESS,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=sites[1],
+                created_by=users[2],
+                kind=JournalEntryKindChoices.KIND_WARNING,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=racks[0],
+                created_by=users[0],
+                kind=JournalEntryKindChoices.KIND_INFO,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=racks[0],
+                created_by=users[1],
+                kind=JournalEntryKindChoices.KIND_SUCCESS,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=racks[1],
+                created_by=users[2],
+                kind=JournalEntryKindChoices.KIND_WARNING,
+                comments='New journal entry'
+            ),
+        )
+        JournalEntry.objects.bulk_create(journal_entries)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_created_by(self):
+        users = User.objects.filter(username__in=['Alice', 'Bob'])
+        params = {'created_by': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'created_by_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_assigned_object_type(self):
+        params = {'assigned_object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'assigned_object_type_id': ContentType.objects.get(app_label='dcim', model='site').pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_assigned_object(self):
+        params = {
+            'assigned_object_type': 'dcim.site',
+            'assigned_object_id': [Site.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_kind(self):
+        params = {'kind': [JournalEntryKindChoices.KIND_INFO, JournalEntryKindChoices.KIND_SUCCESS]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class ConfigContextTestCase(TestCase):

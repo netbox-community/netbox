@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLogView
+from extras.views import ObjectChangeLogView, ObjectJournalView
 from . import views
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
@@ -17,6 +17,7 @@ urlpatterns = [
     path('vrfs/<int:pk>/edit/', views.VRFEditView.as_view(), name='vrf_edit'),
     path('vrfs/<int:pk>/delete/', views.VRFDeleteView.as_view(), name='vrf_delete'),
     path('vrfs/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vrf_changelog', kwargs={'model': VRF}),
+    path('vrfs/<int:pk>/journal/', ObjectJournalView.as_view(), name='vrf_journal', kwargs={'model': VRF}),
 
     # Route targets
     path('route-targets/', views.RouteTargetListView.as_view(), name='routetarget_list'),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('route-targets/<int:pk>/edit/', views.RouteTargetEditView.as_view(), name='routetarget_edit'),
     path('route-targets/<int:pk>/delete/', views.RouteTargetDeleteView.as_view(), name='routetarget_delete'),
     path('route-targets/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='routetarget_changelog', kwargs={'model': RouteTarget}),
+    path('route-targets/<int:pk>/journal/', ObjectJournalView.as_view(), name='routetarget_journal', kwargs={'model': RouteTarget}),
 
     # RIRs
     path('rirs/', views.RIRListView.as_view(), name='rir_list'),
@@ -49,6 +51,7 @@ urlpatterns = [
     path('aggregates/<int:pk>/edit/', views.AggregateEditView.as_view(), name='aggregate_edit'),
     path('aggregates/<int:pk>/delete/', views.AggregateDeleteView.as_view(), name='aggregate_delete'),
     path('aggregates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='aggregate_changelog', kwargs={'model': Aggregate}),
+    path('aggregates/<int:pk>/journal/', ObjectJournalView.as_view(), name='aggregate_journal', kwargs={'model': Aggregate}),
 
     # Roles
     path('roles/', views.RoleListView.as_view(), name='role_list'),
@@ -70,6 +73,7 @@ urlpatterns = [
     path('prefixes/<int:pk>/edit/', views.PrefixEditView.as_view(), name='prefix_edit'),
     path('prefixes/<int:pk>/delete/', views.PrefixDeleteView.as_view(), name='prefix_delete'),
     path('prefixes/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='prefix_changelog', kwargs={'model': Prefix}),
+    path('prefixes/<int:pk>/journal/', ObjectJournalView.as_view(), name='prefix_journal', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/prefixes/', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
     path('prefixes/<int:pk>/ip-addresses/', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
 
@@ -81,6 +85,7 @@ urlpatterns = [
     path('ip-addresses/edit/', views.IPAddressBulkEditView.as_view(), name='ipaddress_bulk_edit'),
     path('ip-addresses/delete/', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),
     path('ip-addresses/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='ipaddress_changelog', kwargs={'model': IPAddress}),
+    path('ip-addresses/<int:pk>/journal/', ObjectJournalView.as_view(), name='ipaddress_journal', kwargs={'model': IPAddress}),
     path('ip-addresses/assign/', views.IPAddressAssignView.as_view(), name='ipaddress_assign'),
     path('ip-addresses/<int:pk>/', views.IPAddressView.as_view(), name='ipaddress'),
     path('ip-addresses/<int:pk>/edit/', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
@@ -109,6 +114,7 @@ urlpatterns = [
     path('vlans/<int:pk>/edit/', views.VLANEditView.as_view(), name='vlan_edit'),
     path('vlans/<int:pk>/delete/', views.VLANDeleteView.as_view(), name='vlan_delete'),
     path('vlans/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vlan_changelog', kwargs={'model': VLAN}),
+    path('vlans/<int:pk>/journal/', ObjectJournalView.as_view(), name='vlan_journal', kwargs={'model': VLAN}),
 
     # Services
     path('services/', views.ServiceListView.as_view(), name='service_list'),
@@ -119,5 +125,6 @@ urlpatterns = [
     path('services/<int:pk>/edit/', views.ServiceEditView.as_view(), name='service_edit'),
     path('services/<int:pk>/delete/', views.ServiceDeleteView.as_view(), name='service_delete'),
     path('services/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='service_changelog', kwargs={'model': Service}),
+    path('services/<int:pk>/journal/', ObjectJournalView.as_view(), name='service_journal', kwargs={'model': Service}),
 
 ]

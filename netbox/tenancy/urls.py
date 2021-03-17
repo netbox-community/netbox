@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLogView
+from extras.views import ObjectChangeLogView, ObjectJournalView
 from . import views
 from .models import Tenant, TenantGroup
 
@@ -27,5 +27,6 @@ urlpatterns = [
     path('tenants/<int:pk>/edit/', views.TenantEditView.as_view(), name='tenant_edit'),
     path('tenants/<int:pk>/delete/', views.TenantDeleteView.as_view(), name='tenant_delete'),
     path('tenants/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='tenant_changelog', kwargs={'model': Tenant}),
+    path('tenants/<int:pk>/journal/', ObjectJournalView.as_view(), name='tenant_journal', kwargs={'model': Tenant}),
 
 ]

@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.conf import settings
 
 from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ToggleColumn
-from .models import ConfigContext, ObjectChange, Tag, TaggedItem
+from .models import ConfigContext, JournalEntry, ObjectChange, Tag, TaggedItem
 
 TAGGED_ITEM = """
 {% if value.get_absolute_url %}
@@ -96,3 +96,47 @@ class ObjectChangeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ObjectChange
         fields = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
+
+
+class JournalEntryTable(BaseTable):
+    pk = ToggleColumn()
+    created = tables.DateTimeColumn(
+        format=settings.SHORT_DATETIME_FORMAT
+    )
+    assigned_object_type = tables.Column(
+        verbose_name='Object type'
+    )
+    assigned_object = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name='Object'
+    )
+    kind = ChoiceFieldColumn()
+    actions = ButtonsColumn(
+        model=JournalEntry,
+        buttons=('edit', 'delete')
+    )
+
+    class Meta(BaseTable.Meta):
+        model = JournalEntry
+        fields = (
+            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments', 'actions'
+        )
+
+
+class ObjectJournalTable(BaseTable):
+    """
+    Used for displaying a set of JournalEntries within the context of a single object.
+    """
+    created = tables.DateTimeColumn(
+        format=settings.SHORT_DATETIME_FORMAT
+    )
+    kind = ChoiceFieldColumn()
+    actions = ButtonsColumn(
+        model=JournalEntry,
+        buttons=('edit', 'delete')
+    )
+
+    class Meta(BaseTable.Meta):
+        model = JournalEntry
+        fields = ('created', 'created_by', 'kind', 'comments', 'actions')

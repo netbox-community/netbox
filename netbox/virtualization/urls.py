@@ -1,6 +1,6 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLogView
+from extras.views import ObjectChangeLogView, ObjectJournalView
 from ipam.views import ServiceEditView
 from . import views
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -38,6 +38,7 @@ urlpatterns = [
     path('clusters/<int:pk>/edit/', views.ClusterEditView.as_view(), name='cluster_edit'),
     path('clusters/<int:pk>/delete/', views.ClusterDeleteView.as_view(), name='cluster_delete'),
     path('clusters/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cluster_changelog', kwargs={'model': Cluster}),
+    path('clusters/<int:pk>/journal/', ObjectJournalView.as_view(), name='cluster_journal', kwargs={'model': Cluster}),
     path('clusters/<int:pk>/devices/add/', views.ClusterAddDevicesView.as_view(), name='cluster_add_devices'),
     path('clusters/<int:pk>/devices/remove/', views.ClusterRemoveDevicesView.as_view(), name='cluster_remove_devices'),
 
@@ -52,6 +53,7 @@ urlpatterns = [
     path('virtual-machines/<int:pk>/delete/', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
     path('virtual-machines/<int:pk>/config-context/', views.VirtualMachineConfigContextView.as_view(), name='virtualmachine_configcontext'),
     path('virtual-machines/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='virtualmachine_changelog', kwargs={'model': VirtualMachine}),
+    path('virtual-machines/<int:pk>/journal/', ObjectJournalView.as_view(), name='virtualmachine_journal', kwargs={'model': VirtualMachine}),
     path('virtual-machines/<int:virtualmachine>/services/assign/', ServiceEditView.as_view(), name='virtualmachine_service_assign'),
 
     # VM interfaces
