@@ -135,10 +135,13 @@ class JournalEntryFilterSet(BaseFilterSet):
         to_field_name='username',
         label='User (name)',
     )
+    kind = django_filters.MultipleChoiceFilter(
+        choices=JournalEntryKindChoices
+    )
 
     class Meta:
         model = JournalEntry
-        fields = ['id', 'assigned_object_type_id', 'assigned_object_id', 'created']
+        fields = ['id', 'assigned_object_type_id', 'assigned_object_id', 'created', 'kind']
 
     def search(self, queryset, name, value):
         if not value.strip():

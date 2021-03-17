@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import DeviceRole, Platform, Rack, Region, Site, SiteGroup
-from extras.choices import ObjectChangeActionChoices
+from extras.choices import JournalEntryKindChoices, ObjectChangeActionChoices
 from extras.filters import *
 from extras.models import *
 from ipam.models import IPAddress
@@ -284,31 +284,37 @@ class JournalEntryTestCase(TestCase):
             JournalEntry(
                 assigned_object=sites[0],
                 created_by=users[0],
+                kind=JournalEntryKindChoices.KIND_INFO,
                 comments='New journal entry'
             ),
             JournalEntry(
                 assigned_object=sites[0],
                 created_by=users[1],
+                kind=JournalEntryKindChoices.KIND_SUCCESS,
                 comments='New journal entry'
             ),
             JournalEntry(
                 assigned_object=sites[1],
                 created_by=users[2],
+                kind=JournalEntryKindChoices.KIND_WARNING,
                 comments='New journal entry'
             ),
             JournalEntry(
                 assigned_object=racks[0],
                 created_by=users[0],
+                kind=JournalEntryKindChoices.KIND_INFO,
                 comments='New journal entry'
             ),
             JournalEntry(
                 assigned_object=racks[0],
                 created_by=users[1],
+                kind=JournalEntryKindChoices.KIND_SUCCESS,
                 comments='New journal entry'
             ),
             JournalEntry(
                 assigned_object=racks[1],
                 created_by=users[2],
+                kind=JournalEntryKindChoices.KIND_WARNING,
                 comments='New journal entry'
             ),
         )
@@ -337,6 +343,10 @@ class JournalEntryTestCase(TestCase):
             'assigned_object_id': [Site.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_kind(self):
+        params = {'kind': [JournalEntryKindChoices.KIND_INFO, JournalEntryKindChoices.KIND_SUCCESS]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class ConfigContextTestCase(TestCase):
