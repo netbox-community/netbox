@@ -132,6 +132,11 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSe
         to_field_name='slug',
         label='Provider (slug)',
     )
+    cloud_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='terminations__cloud',
+        queryset=Cloud.objects.all(),
+        label='Cloud (ID)',
+    )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitType.objects.all(),
         label='Circuit type (ID)',

@@ -357,7 +357,8 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
     field_order = [
-        'q', 'type_id', 'provider_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id', 'commit_rate',
+        'q', 'type_id', 'provider_id', 'cloud_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',
+        'commit_rate',
     ]
     q = forms.CharField(
         required=False,
@@ -372,6 +373,14 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         queryset=Provider.objects.all(),
         required=False,
         label=_('Provider')
+    )
+    cloud_id = DynamicModelMultipleChoiceField(
+        queryset=Cloud.objects.all(),
+        required=False,
+        query_params={
+            'provider_id': '$provider_id'
+        },
+        label=_('Cloud')
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
