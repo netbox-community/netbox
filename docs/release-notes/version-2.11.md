@@ -70,6 +70,10 @@ This release introduces the new Site Group model, which can be used to organize 
 
 The ObjectChange model (which is used to record the creation, modification, and deletion of NetBox objects) now explicitly records the pre-change and post-change state of each object, rather than only the post-change state. This was done to present a more clear depiction of each change being made, and to prevent the erroneous association of a previous unlogged change with its successor.
 
+#### Improved Change Logging ([#5986](https://github.com/netbox-community/netbox/issues/5986))
+
+A new cloud model has been introduced for representing the boundary of a network that exists outside the scope of NetBox. This is analogous to using a cloud icon on a topology drawing to represent an abstracted network. Each cloud must be assigned to a provider, and circuits can terminate to either clouds or sites.
+
 ### Enhancements
 
 * [#5370](https://github.com/netbox-community/netbox/issues/5370) - Extend custom field support to organizational models
@@ -108,6 +112,10 @@ The ObjectChange model (which is used to record the creation, modification, and 
   * Added `_occupied` read-only boolean field as common attribute for determining whether an object is occupied
 * Renamed RackGroup to Location
   * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
+* circuits.CircuitTermination
+  * Added the `cloud` field
+* circuits.Cloud
+  * Added the `/api/circuits/clouds/` endpoint
 * dcim.Device
   * Added the `location` field
 * dcim.Interface
