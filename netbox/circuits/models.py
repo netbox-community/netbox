@@ -351,7 +351,11 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
         if self.site:
             return str(self.site)
         return str(self.cloud)
-        return f"Side {self.get_term_side_display()}"
+
+    def get_absolute_url(self):
+        if self.site:
+            return self.site.get_absolute_url()
+        return self.cloud.get_absolute_url()
 
     def clean(self):
         super().clean()

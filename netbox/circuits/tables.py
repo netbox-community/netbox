@@ -84,9 +84,11 @@ class CircuitTable(BaseTable):
     status = ChoiceFieldColumn()
     tenant = TenantColumn()
     termination_a = tables.Column(
+        linkify=True,
         verbose_name='Side A'
     )
     termination_z = tables.Column(
+        linkify=True,
         verbose_name='Side Z'
     )
     tags = TagColumn(
