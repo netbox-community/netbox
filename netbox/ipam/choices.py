@@ -31,7 +31,7 @@ class PrefixStatusChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        STATUS_CONTAINER: 'default',
+        STATUS_CONTAINER: 'secondary',
         STATUS_ACTIVE: 'primary',
         STATUS_RESERVED: 'info',
         STATUS_DEPRECATED: 'danger',
@@ -90,7 +90,7 @@ class IPAddressRoleChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        ROLE_LOOPBACK: 'default',
+        ROLE_LOOPBACK: 'secondary',
         ROLE_SECONDARY: 'primary',
         ROLE_ANYCAST: 'warning',
         ROLE_VIP: 'success',
