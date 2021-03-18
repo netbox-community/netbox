@@ -24,6 +24,7 @@ __all__ = (
     'CSVContentTypeField',
     'CSVDataField',
     'CSVModelChoiceField',
+    'CSVTypedChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
     'ExpandableIPAddressField',
@@ -123,6 +124,10 @@ class CSVChoiceField(forms.ChoiceField):
     def __init__(self, *, choices=(), **kwargs):
         super().__init__(choices=choices, **kwargs)
         self.choices = unpack_grouped_choices(choices)
+
+
+class CSVTypedChoiceField(forms.TypedChoiceField):
+    STATIC_CHOICES = True
 
 
 class CSVModelChoiceField(forms.ModelChoiceField):
@@ -271,7 +276,8 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, display_field='name', query_params=None, initial_params=None, null_option=None,
+    # TODO: Remove display_field in v2.12
+    def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
                  disabled_indicator=None, brief_mode=True, *args, **kwargs):
         self.display_field = display_field
         self.query_params = query_params or {}

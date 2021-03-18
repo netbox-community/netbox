@@ -59,6 +59,20 @@ class SecretRoleCSVForm(CustomFieldModelCSVForm):
         fields = SecretRole.csv_headers
 
 
+class SecretRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=SecretRole.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
+
+
 #
 # Secrets
 #
@@ -66,8 +80,7 @@ class SecretRoleCSVForm(CustomFieldModelCSVForm):
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        required=False,
-        display_field='display_name'
+        required=False
     )
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all(),

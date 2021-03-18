@@ -73,6 +73,10 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Circuit Type 6,circuit-type-6",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'Foo',
+        }
+
 
 class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Circuit

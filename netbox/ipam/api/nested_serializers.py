@@ -27,7 +27,7 @@ class NestedVRFSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VRF
-        fields = ['id', 'url', 'name', 'rd', 'display_name', 'prefix_count']
+        fields = ['id', 'url', 'display', 'name', 'rd', 'display_name', 'prefix_count']
 
 
 #
@@ -39,7 +39,7 @@ class NestedRouteTargetSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.RouteTarget
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 #
@@ -52,7 +52,7 @@ class NestedRIRSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.RIR
-        fields = ['id', 'url', 'name', 'slug', 'aggregate_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'aggregate_count']
 
 
 class NestedAggregateSerializer(WritableNestedSerializer):
@@ -61,7 +61,7 @@ class NestedAggregateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Aggregate
-        fields = ['id', 'url', 'family', 'prefix']
+        fields = ['id', 'url', 'display', 'family', 'prefix']
 
 
 #
@@ -75,7 +75,7 @@ class NestedRoleSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Role
-        fields = ['id', 'url', 'name', 'slug', 'prefix_count', 'vlan_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'prefix_count', 'vlan_count']
 
 
 class NestedVLANGroupSerializer(WritableNestedSerializer):
@@ -84,7 +84,7 @@ class NestedVLANGroupSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VLANGroup
-        fields = ['id', 'url', 'name', 'slug', 'vlan_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'vlan_count']
 
 
 class NestedVLANSerializer(WritableNestedSerializer):
@@ -92,7 +92,7 @@ class NestedVLANSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VLAN
-        fields = ['id', 'url', 'vid', 'name', 'display_name']
+        fields = ['id', 'url', 'display', 'vid', 'name', 'display_name']
 
 
 #
@@ -105,7 +105,7 @@ class NestedPrefixSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Prefix
-        fields = ['id', 'url', 'family', 'prefix']
+        fields = ['id', 'url', 'display', 'family', 'prefix']
 
 
 #
@@ -118,7 +118,7 @@ class NestedIPAddressSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.IPAddress
-        fields = ['id', 'url', 'family', 'address']
+        fields = ['id', 'url', 'display', 'family', 'address']
 
 
 #
@@ -130,4 +130,4 @@ class NestedServiceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Service
-        fields = ['id', 'url', 'name', 'protocol', 'ports']
+        fields = ['id', 'url', 'display', 'name', 'protocol', 'ports']

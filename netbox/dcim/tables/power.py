@@ -33,8 +33,8 @@ class PowerPanelTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPanel
-        fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count', 'tags')
-        default_columns = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
+        fields = ('pk', 'name', 'site', 'location', 'powerfeed_count', 'tags')
+        default_columns = ('pk', 'name', 'site', 'location', 'powerfeed_count')
 
 
 #

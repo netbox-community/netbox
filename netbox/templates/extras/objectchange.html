@@ -86,8 +86,8 @@
                 </div>
             </div>
             <div class="card">
-                <h5 class="card-header">
-                    Difference
+                <div class="card-header">
+                    <h5>Difference</h5>
                     <div class="btn-group btn-group-xs pull-right noprint">
                         <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
                             <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous
@@ -96,7 +96,7 @@
                             Next <span class="mdi mdi-chevron-right" aria-hidden="true"></span>
                         </a>
                     </div>
-                </h5>
+                </div>
                 <div class="card-body">
                     {% if diff_added == diff_removed %}
                         <span class="text-muted" style="margin-left: 10px;">
@@ -115,14 +115,38 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+        <div class="col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    Object Data
+                    Pre-Change Data
                 </h5>
                 <div class="card-body">
-                    <pre>{{ object.object_data|render_json }}</pre>
+                {% if object.prechange_data %}
+                    <pre>{% for k, v in object.prechange_data.items %}{% spaceless %}
+                      <span{% if k in diff_removed %} style="background-color: #ffdce0"{% endif %}>{{ k }}: {{ v|render_json }}</span>
+                    {% endspaceless %}{% endfor %}
+                    </pre>
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Post-Change Data
+            </h5>
+            <div class="card-body">
+                {% if object.postchange_data %}
+                <pre>{% for k, v in object.postchange_data.items %}{% spaceless %}
+                    <span{% if k in diff_added %} style="background-color: #cdffd8"{% endif %}>{{ k }}: {{ v|render_json }}</span>
+                    {% endspaceless %}{% endfor %}
+                </pre>
+                {% else %}
+                <span class="text-muted">None</span>
+                {% endif %}
             </div>
         </div>
     </div>

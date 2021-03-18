@@ -3,13 +3,7 @@ from django.test import TestCase
 
 from dcim.choices import *
 from dcim.filters import *
-from dcim.models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerPortTemplate, PowerOutlet,
-    PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
-)
+from dcim.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterType
@@ -65,6 +59,56 @@ class RegionTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
+class SiteGroupTestCase(TestCase):
+    queryset = SiteGroup.objects.all()
+    filterset = SiteGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sitegroups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1', description='A'),
+            SiteGroup(name='Site Group 2', slug='site-group-2', description='B'),
+            SiteGroup(name='Site Group 3', slug='site-group-3', description='C'),
+        )
+        for sitegroup in sitegroups:
+            sitegroup.save()
+
+        child_sitegroups = (
+            SiteGroup(name='Site Group 1A', slug='site-group-1a', parent=sitegroups[0]),
+            SiteGroup(name='Site Group 1B', slug='site-group-1b', parent=sitegroups[0]),
+            SiteGroup(name='Site Group 2A', slug='site-group-2a', parent=sitegroups[1]),
+            SiteGroup(name='Site Group 2B', slug='site-group-2b', parent=sitegroups[1]),
+            SiteGroup(name='Site Group 3A', slug='site-group-3a', parent=sitegroups[2]),
+            SiteGroup(name='Site Group 3B', slug='site-group-3b', parent=sitegroups[2]),
+        )
+        for sitegroup in child_sitegroups:
+            sitegroup.save()
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Site Group 1', 'Site Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['site-group-1', 'site-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent(self):
+        parent_sitegroups = SiteGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [parent_sitegroups[0].pk, parent_sitegroups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'parent': [parent_sitegroups[0].slug, parent_sitegroups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
 class SiteTestCase(TestCase):
     queryset = Site.objects.all()
     filterset = SiteFilterSet
@@ -79,6 +123,14 @@ class SiteTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -96,9 +148,9 @@ class SiteTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
-            Site(name='Site 2', slug='site-2', region=regions[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
-            Site(name='Site 3', slug='site-3', region=regions[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
         )
         Site.objects.bulk_create(sites)
 
@@ -153,6 +205,13 @@ class SiteTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        groups = SiteGroup.objects.all()[:2]
+        params = {'group_id': [groups[0].pk, groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [groups[0].slug, groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
@@ -168,9 +227,9 @@ class SiteTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackGroupTestCase(TestCase):
-    queryset = RackGroup.objects.all()
-    filterset = RackGroupFilterSet
+class LocationTestCase(TestCase):
+    queryset = Location.objects.all()
+    filterset = LocationFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -183,39 +242,47 @@ class RackGroupTestCase(TestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
         )
         Site.objects.bulk_create(sites)
 
-        parent_rack_groups = (
-            RackGroup(name='Parent Rack Group 1', slug='parent-rack-group-1', site=sites[0]),
-            RackGroup(name='Parent Rack Group 2', slug='parent-rack-group-2', site=sites[1]),
-            RackGroup(name='Parent Rack Group 3', slug='parent-rack-group-3', site=sites[2]),
+        parent_locations = (
+            Location(name='Parent Location 1', slug='parent-location-1', site=sites[0]),
+            Location(name='Parent Location 2', slug='parent-location-2', site=sites[1]),
+            Location(name='Parent Location 3', slug='parent-location-3', site=sites[2]),
         )
-        for rackgroup in parent_rack_groups:
-            rackgroup.save()
+        for location in parent_locations:
+            location.save()
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0], parent=parent_rack_groups[0], description='A'),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1], parent=parent_rack_groups[1], description='B'),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2], parent=parent_rack_groups[2], description='C'),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0], parent=parent_locations[0], description='A'),
+            Location(name='Location 2', slug='location-2', site=sites[1], parent=parent_locations[1], description='B'),
+            Location(name='Location 3', slug='location-3', site=sites[2], parent=parent_locations[2], description='C'),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
-        params = {'name': ['Rack Group 1', 'Rack Group 2']}
+        params = {'name': ['Location 1', 'Location 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
-        params = {'slug': ['rack-group-1', 'rack-group-2']}
+        params = {'slug': ['location-1', 'location-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -229,6 +296,13 @@ class RackGroupTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -237,7 +311,7 @@ class RackGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_parent(self):
-        parent_groups = RackGroup.objects.filter(name__startswith='Parent')[:2]
+        parent_groups = Location.objects.filter(name__startswith='Parent')[:2]
         params = {'parent_id': [parent_groups[0].pk, parent_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
@@ -290,20 +364,28 @@ class RackTestCase(TestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -328,9 +410,9 @@ class RackTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         racks = (
-            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], group=rack_groups[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], group=rack_groups[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], group=rack_groups[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
+            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], location=locations[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], location=locations[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_21IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], location=locations[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
         )
         Rack.objects.bulk_create(racks)
 
@@ -388,6 +470,13 @@ class RackTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -395,11 +484,11 @@ class RackTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_group(self):
-        groups = RackGroup.objects.all()[:2]
-        params = {'group_id': [groups[0].pk, groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'group': [groups[0].slug, groups[1].slug]}
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
@@ -448,18 +537,18 @@ class RackReservationTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         racks = (
-            Rack(name='Rack 1', site=sites[0], group=rack_groups[0]),
-            Rack(name='Rack 2', site=sites[1], group=rack_groups[1]),
-            Rack(name='Rack 3', site=sites[2], group=rack_groups[2]),
+            Rack(name='Rack 1', site=sites[0], location=locations[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2]),
         )
         Rack.objects.bulk_create(racks)
 
@@ -503,11 +592,11 @@ class RackReservationTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_group(self):
-        groups = RackGroup.objects.all()[:2]
-        params = {'group_id': [groups[0].pk, groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'group': [groups[0].slug, groups[1].slug]}
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
@@ -1161,25 +1250,33 @@ class DeviceTestCase(TestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         racks = (
-            Rack(name='Rack 1', site=sites[0], group=rack_groups[0]),
-            Rack(name='Rack 2', site=sites[1], group=rack_groups[1]),
-            Rack(name='Rack 3', site=sites[2], group=rack_groups[2]),
+            Rack(name='Rack 1', site=sites[0], location=locations[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2]),
         )
         Rack.objects.bulk_create(racks)
 
@@ -1207,9 +1304,9 @@ class DeviceTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], tenant=tenants[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED, cluster=clusters[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED, cluster=clusters[2]),
+            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], tenant=tenants[0], serial='ABC', asset_tag='1001', site=sites[0], location=locations[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
+            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], location=locations[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED, cluster=clusters[1]),
+            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], location=locations[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED, cluster=clusters[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -1324,6 +1421,13 @@ class DeviceTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -1331,9 +1435,9 @@ class DeviceTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_rackgroup(self):
-        rack_groups = RackGroup.objects.all()[:2]
-        params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rack(self):
@@ -1463,10 +1567,19 @@ class ConsolePortTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -1524,6 +1637,13 @@ class ConsolePortTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -1559,10 +1679,19 @@ class ConsoleServerPortTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -1620,6 +1749,13 @@ class ConsoleServerPortTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -1655,10 +1791,19 @@ class PowerPortTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -1724,6 +1869,13 @@ class PowerPortTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -1759,10 +1911,19 @@ class PowerOutletTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -1825,6 +1986,13 @@ class PowerOutletTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -1860,10 +2028,19 @@ class InterfaceTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -1931,11 +2108,46 @@ class InterfaceTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_parent(self):
+        # Create child interfaces
+        parent_interface = Interface.objects.first()
+        child_interfaces = (
+            Interface(device=parent_interface.device, name='Child 1', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=parent_interface.device, name='Child 2', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=parent_interface.device, name='Child 3', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        )
+        Interface.objects.bulk_create(child_interfaces)
+
+        params = {'parent_id': [parent_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_lag(self):
+        # Create LAG members
+        device = Device.objects.first()
+        lag_interface = Interface(device=device, name='LAG', type=InterfaceTypeChoices.TYPE_LAG)
+        lag_interface.save()
+        lag_members = (
+            Interface(device=device, name='Member 1', lag=lag_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=device, name='Member 2', lag=lag_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=device, name='Member 3', lag=lag_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(lag_members)
+
+        params = {'lag_id': [lag_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
@@ -1987,10 +2199,19 @@ class FrontPortTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -2054,6 +2275,13 @@ class FrontPortTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -2089,10 +2317,19 @@ class RearPortTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -2150,6 +2387,13 @@ class RearPortTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -2185,10 +2429,19 @@ class DeviceBayTestCase(TestCase):
         )
         for region in regions:
             region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -2226,6 +2479,13 @@ class DeviceBayTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
@@ -2268,10 +2528,18 @@ class InventoryItemTestCase(TestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -2328,6 +2596,13 @@ class InventoryItemTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -2381,10 +2656,18 @@ class VirtualChassisTestCase(TestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -2433,6 +2716,13 @@ class VirtualChassisTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
@@ -2582,25 +2872,33 @@ class PowerPanelTestCase(TestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         power_panels = (
-            PowerPanel(name='Power Panel 1', site=sites[0], rack_group=rack_groups[0]),
-            PowerPanel(name='Power Panel 2', site=sites[1], rack_group=rack_groups[1]),
-            PowerPanel(name='Power Panel 3', site=sites[2], rack_group=rack_groups[2]),
+            PowerPanel(name='Power Panel 1', site=sites[0], location=locations[0]),
+            PowerPanel(name='Power Panel 2', site=sites[1], location=locations[1]),
+            PowerPanel(name='Power Panel 3', site=sites[2], location=locations[2]),
         )
         PowerPanel.objects.bulk_create(power_panels)
 
@@ -2619,6 +2917,13 @@ class PowerPanelTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -2626,9 +2931,9 @@ class PowerPanelTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_rack_group(self):
-        rack_groups = RackGroup.objects.all()[:2]
-        params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -2647,10 +2952,18 @@ class PowerFeedTestCase(TestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -2729,6 +3042,13 @@ class PowerFeedTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):

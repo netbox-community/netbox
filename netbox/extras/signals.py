@@ -36,6 +36,9 @@ def _handle_changed_object(request, sender, instance, **kwargs):
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
         objectchange = instance.to_objectchange(action)
+        # TODO: Move this to to_objectchange()
+        if hasattr(instance, '_prechange_snapshot'):
+            objectchange.prechange_data = instance._prechange_snapshot
         objectchange.user = request.user
         objectchange.request_id = request.id
         objectchange.save()
@@ -62,6 +65,9 @@ def _handle_deleted_object(request, sender, instance, **kwargs):
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
         objectchange = instance.to_objectchange(ObjectChangeActionChoices.ACTION_DELETE)
+        # TODO: Move this to to_objectchange()
+        if hasattr(instance, '_prechange_snapshot'):
+            objectchange.prechange_data = instance._prechange_snapshot
         objectchange.user = request.user
         objectchange.request_id = request.id
         objectchange.save()

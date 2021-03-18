@@ -67,15 +67,22 @@ class ObjectChange(BigIDModel):
         max_length=200,
         editable=False
     )
-    object_data = models.JSONField(
-        editable=False
+    prechange_data = models.JSONField(
+        editable=False,
+        blank=True,
+        null=True
+    )
+    postchange_data = models.JSONField(
+        editable=False,
+        blank=True,
+        null=True
     )
 
     objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
-        'related_object_type', 'related_object_id', 'object_repr', 'object_data',
+        'related_object_type', 'related_object_id', 'object_repr', 'prechange_data', 'postchange_data',
     ]
 
     class Meta:
@@ -114,7 +121,8 @@ class ObjectChange(BigIDModel):
             self.related_object_type,
             self.related_object_id,
             self.object_repr,
-            self.object_data,
+            self.prechange_data,
+            self.postchange_data,
         )
 
     def get_action_class(self):

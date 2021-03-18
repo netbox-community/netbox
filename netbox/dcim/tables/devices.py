@@ -1,11 +1,12 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.conf import settings
 
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem, Platform,
     PowerOutlet, PowerPort, RearPort, VirtualChassis,
 )
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     TagColumn, ToggleColumn,
@@ -109,10 +110,11 @@ class DeviceTable(BaseTable):
         template_code=DEVICE_LINK
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     site = tables.Column(
+        linkify=True
+    )
+    location = tables.Column(
         linkify=True
     )
     rack = tables.Column(
@@ -127,11 +129,18 @@ class DeviceTable(BaseTable):
         verbose_name='Type',
         text=lambda record: record.device_type.display_name
     )
-    primary_ip = tables.Column(
-        linkify=True,
-        order_by=('primary_ip6', 'primary_ip4'),
-        verbose_name='IP Address'
-    )
+    if settings.PREFER_IPV4:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip4', 'primary_ip6'),
+            verbose_name='IP Address'
+        )
+    else:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip6', 'primary_ip4'),
+            verbose_name='IP Address'
+        )
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'
@@ -162,11 +171,11 @@ class DeviceTable(BaseTable):
         model = Device
         fields = (
             'pk', 'name', 'status', 'tenant', 'device_role', 'device_type', 'platform', 'serial', 'asset_tag', 'site',
-            'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'tags',
+            'location', 'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster',
+            'virtual_chassis', 'vc_position', 'vc_priority', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip',
+            'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'device_type', 'primary_ip',
         )
 
 
@@ -175,9 +184,7 @@ class DeviceImportTable(BaseTable):
         template_code=DEVICE_LINK
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )
@@ -249,10 +256,10 @@ class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'pk', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
             'connection', 'tags',
         )
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'speed', 'description')
 
 
 class DeviceConsolePortTable(ConsolePortTable):
@@ -269,10 +276,10 @@ class DeviceConsolePortTable(ConsolePortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer', 'connection',
-            'tags', 'actions'
+            'pk', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
         }
@@ -286,10 +293,10 @@ class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'pk', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
             'connection', 'tags',
         )
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'speed', 'description')
 
 
 class DeviceConsoleServerPortTable(ConsoleServerPortTable):
@@ -307,10 +314,10 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'mark_connected', 'cable', 'cable_peer', 'connection', 'tags',
-            'actions',
+            'pk', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
         }
@@ -437,6 +444,10 @@ class DeviceInterfaceTable(InterfaceTable):
                       '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         attrs={'td': {'class': 'text-nowrap'}}
     )
+    parent = tables.Column(
+        linkify=True,
+        verbose_name='Parent'
+    )
     lag = tables.Column(
         linkify=True,
         verbose_name='LAG'
@@ -450,13 +461,13 @@ class DeviceInterfaceTable(InterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
-            'mark_connected', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan',
-            'tagged_vlans', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address',
+            'description', 'mark_connected', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mtu', 'mode', 'description', 'ip_addresses', 'cable',
-            'connection', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
+            'cable', 'connection', 'actions',
         )
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else '',

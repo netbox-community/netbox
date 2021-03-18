@@ -1,7 +1,7 @@
 from django.urls import path
 
 from dcim.views import CableCreateView, PathTraceView
-from extras.views import ObjectChangeLogView
+from extras.views import ObjectChangeLogView, ObjectJournalView
 from . import views
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
@@ -18,11 +18,13 @@ urlpatterns = [
     path('providers/<int:pk>/edit/', views.ProviderEditView.as_view(), name='provider_edit'),
     path('providers/<int:pk>/delete/', views.ProviderDeleteView.as_view(), name='provider_delete'),
     path('providers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
+    path('providers/<int:pk>/journal/', ObjectJournalView.as_view(), name='provider_journal', kwargs={'model': Provider}),
 
     # Circuit types
     path('circuit-types/', views.CircuitTypeListView.as_view(), name='circuittype_list'),
     path('circuit-types/add/', views.CircuitTypeEditView.as_view(), name='circuittype_add'),
     path('circuit-types/import/', views.CircuitTypeBulkImportView.as_view(), name='circuittype_import'),
+    path('circuit-types/edit/', views.CircuitTypeBulkEditView.as_view(), name='circuittype_bulk_edit'),
     path('circuit-types/delete/', views.CircuitTypeBulkDeleteView.as_view(), name='circuittype_bulk_delete'),
     path('circuit-types/<int:pk>/edit/', views.CircuitTypeEditView.as_view(), name='circuittype_edit'),
     path('circuit-types/<int:pk>/delete/', views.CircuitTypeDeleteView.as_view(), name='circuittype_delete'),
@@ -38,6 +40,7 @@ urlpatterns = [
     path('circuits/<int:pk>/edit/', views.CircuitEditView.as_view(), name='circuit_edit'),
     path('circuits/<int:pk>/delete/', views.CircuitDeleteView.as_view(), name='circuit_delete'),
     path('circuits/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='circuit_changelog', kwargs={'model': Circuit}),
+    path('circuits/<int:pk>/journal/', ObjectJournalView.as_view(), name='circuit_journal', kwargs={'model': Circuit}),
     path('circuits/<int:pk>/terminations/swap/', views.CircuitSwapTerminations.as_view(), name='circuit_terminations_swap'),
 
     # Circuit terminations

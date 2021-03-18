@@ -2,11 +2,10 @@ from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
-from netbox.api.serializers import CustomFieldModelSerializer
-from extras.api.serializers import TaggedObjectSerializer
+from netbox.api import ContentTypeField
+from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from secrets.constants import SECRET_ASSIGNMENT_MODELS
 from secrets.models import Secret, SecretRole
-from netbox.api import ContentTypeField, ValidatedModelSerializer
 from utilities.api import get_serializer_for_model
 from .nested_serializers import *
 
@@ -15,18 +14,19 @@ from .nested_serializers import *
 # Secrets
 #
 
-class SecretRoleSerializer(CustomFieldModelSerializer):
+class SecretRoleSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
     secret_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = SecretRole
         fields = [
-            'id', 'url', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated', 'secret_count',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'secret_count',
         ]
 
 
-class SecretSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class SecretSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secret-detail')
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.filter(SECRET_ASSIGNMENT_MODELS)
@@ -38,8 +38,8 @@ class SecretSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Secret
         fields = [
-            'id', 'url', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'role', 'name', 'plaintext',
-            'hash', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'role', 'name',
+            'plaintext', 'hash', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 

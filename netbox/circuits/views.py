@@ -107,6 +107,15 @@ class CircuitTypeBulkImportView(generic.BulkImportView):
     table = tables.CircuitTypeTable
 
 
+class CircuitTypeBulkEditView(generic.BulkEditView):
+    queryset = CircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
+    filterset = filters.CircuitTypeFilterSet
+    table = tables.CircuitTypeTable
+    form = forms.CircuitTypeBulkEditForm
+
+
 class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = CircuitType.objects.annotate(
         circuit_count=count_related(Circuit, 'type')

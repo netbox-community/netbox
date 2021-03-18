@@ -42,6 +42,15 @@ class ClusterTypeBulkImportView(generic.BulkImportView):
     table = tables.ClusterTypeTable
 
 
+class ClusterTypeBulkEditView(generic.BulkEditView):
+    queryset = ClusterType.objects.annotate(
+        cluster_count=count_related(Cluster, 'type')
+    )
+    filterset = filters.ClusterTypeFilterSet
+    table = tables.ClusterTypeTable
+    form = forms.ClusterTypeBulkEditForm
+
+
 class ClusterTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
@@ -70,9 +79,20 @@ class ClusterGroupDeleteView(generic.ObjectDeleteView):
 
 
 class ClusterGroupBulkImportView(generic.BulkImportView):
-    queryset = ClusterGroup.objects.all()
+    queryset = ClusterGroup.objects.annotate(
+        cluster_count=count_related(Cluster, 'group')
+    )
     model_form = forms.ClusterGroupCSVForm
     table = tables.ClusterGroupTable
+
+
+class ClusterGroupBulkEditView(generic.BulkEditView):
+    queryset = ClusterGroup.objects.annotate(
+        cluster_count=count_related(Cluster, 'group')
+    )
+    filterset = filters.ClusterGroupFilterSet
+    table = tables.ClusterGroupTable
+    form = forms.ClusterGroupBulkEditForm
 
 
 class ClusterGroupBulkDeleteView(generic.BulkDeleteView):

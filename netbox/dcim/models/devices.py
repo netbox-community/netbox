@@ -9,11 +9,10 @@ from django.db import models
 from django.db.models import F, ProtectedError
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ConfigContextModel, TaggedItem
+from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -136,7 +135,6 @@ class DeviceType(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -517,6 +515,13 @@ class Device(PrimaryModel, ConfigContextModel):
         on_delete=models.PROTECT,
         related_name='devices'
     )
+    location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
     rack = models.ForeignKey(
         to='dcim.Rack',
         on_delete=models.PROTECT,
@@ -594,16 +599,15 @@ class Device(PrimaryModel, ConfigContextModel):
         object_id_field='assigned_object_id',
         related_query_name='device'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = ConfigContextModelQuerySet.as_manager()
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-        'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
+        'site', 'location', 'rack_name', 'position', 'face', 'comments',
     ]
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
     ]
 
     class Meta:
@@ -640,11 +644,17 @@ class Device(PrimaryModel, ConfigContextModel):
     def clean(self):
         super().clean()
 
-        # Validate site/rack combination
+        # Validate site/location/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to site {self.site}.",
             })
+        if self.rack and self.location and self.rack.location != self.location:
+            raise ValidationError({
+                'rack': f"Rack {self.rack} does not belong to location {self.location}.",
+            })
+        elif self.rack:
+            self.location = self.rack.location
 
         if self.rack is None:
             if self.face:
@@ -799,7 +809,7 @@ class Device(PrimaryModel, ConfigContextModel):
             self.asset_tag,
             self.get_status_display(),
             self.site.name,
-            self.rack.group.name if self.rack and self.rack.group else None,
+            self.rack.location.name if self.rack and self.rack.location else None,
             self.rack.name if self.rack else None,
             self.position,
             self.get_face_display(),
@@ -903,7 +913,6 @@ class VirtualChassis(PrimaryModel):
         max_length=30,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

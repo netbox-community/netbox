@@ -1,18 +1,18 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, RackGroup, RackReservation, RackRole
-from tenancy.tables import COL_TENANT
+from dcim.models import Rack, Location, RackReservation, RackRole
+from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn,
-    ToggleColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MPTTColumn,
+    TagColumn, ToggleColumn, UtilizationColumn,
 )
-from .template_code import MPTT_LINK, RACKGROUP_ELEVATIONS, UTILIZATION_GRAPH
+from .template_code import LOCATION_ELEVATIONS
 
 __all__ = (
     'RackTable',
     'RackDetailTable',
-    'RackGroupTable',
+    'LocationTable',
     'RackReservationTable',
     'RackRoleTable',
 )
@@ -22,13 +22,9 @@ __all__ = (
 # Rack groups
 #
 
-class RackGroupTable(BaseTable):
+class LocationTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(
-        template_code=MPTT_LINK,
-        orderable=False,
-        attrs={'td': {'class': 'text-nowrap'}}
-    )
+    name = MPTTColumn()
     site = tables.Column(
         linkify=True
     )
@@ -36,12 +32,12 @@ class RackGroupTable(BaseTable):
         verbose_name='Racks'
     )
     actions = ButtonsColumn(
-        model=RackGroup,
-        prepend_template=RACKGROUP_ELEVATIONS
+        model=Location,
+        prepend_template=LOCATION_ELEVATIONS
     )
 
     class Meta(BaseTable.Meta):
-        model = RackGroup
+        model = Location
         fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
         default_columns = ('pk', 'name', 'site', 'rack_count', 'description', 'actions')
 
@@ -79,9 +75,7 @@ class RackTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     status = ChoiceFieldColumn()
     role = ColoredLabelColumn()
     u_height = tables.TemplateColumn(
@@ -104,13 +98,10 @@ class RackDetailTable(RackTable):
         url_params={'rack_id': 'pk'},
         verbose_name='Devices'
     )
-    get_utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
-        orderable=False,
+    get_utilization = UtilizationColumn(
         verbose_name='Space'
     )
-    get_power_utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
+    get_power_utilization = UtilizationColumn(
         orderable=False,
         verbose_name='Power'
     )
@@ -143,9 +134,7 @@ class RackReservationTable(BaseTable):
         accessor=Accessor('rack__site'),
         linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     rack = tables.Column(
         linkify=True
     )

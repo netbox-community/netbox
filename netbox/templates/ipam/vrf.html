@@ -30,11 +30,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Route Distinguisher</td>
+                        <th scope="row">Route Distinguisher</th>
                         <td><code>{{ object.rd }}</code></td>
                     </tr>
                     <tr>
-                        <td>Tenant</td>
+                        <th scope="row">Tenant</th>
                         <td>
                             {% if object.tenant %}
                                 <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
@@ -44,13 +44,19 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Description</td>
+                        <th scope="row">Description</th>
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
-                        <td>Prefixes</td>
+                        <th scope="row">Prefixes</th>
                         <td>
                             <a href="{% url 'ipam:prefix_list' %}?vrf_id={{ object.pk }}">{{ prefix_count }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IP Addresses</th>
+                        <td>
+                            <a href="{% url 'ipam:ipaddress_list' %}?vrf_id={{ object.pk }}">{{ ipaddress_count }}</a>
                         </td>
                     </tr>
                 </table>

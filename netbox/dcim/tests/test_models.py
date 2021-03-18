@@ -7,39 +7,66 @@ from dcim.models import *
 from tenancy.models import Tenant
 
 
-class RackGroupTestCase(TestCase):
+class LocationTestCase(TestCase):
 
-    def test_change_rackgroup_site(self):
+    def test_change_location_site(self):
         """
-        Check that all child RackGroups and Racks get updated when a RackGroup is moved to a new Site. Topology:
+        Check that all child Locations and Racks get updated when a Location is moved to a new Site. Topology:
         Site A
-          - RackGroup A1
-            - RackGroup A2
+          - Location A1
+            - Location A2
               - Rack 2
+              - Device 2
             - Rack 1
+            - Device 1
         """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Device Role 1', slug='device-role-1', color='ff0000'
+        )
+
         site_a = Site.objects.create(name='Site A', slug='site-a')
         site_b = Site.objects.create(name='Site B', slug='site-b')
 
-        rackgroup_a1 = RackGroup(site=site_a, name='RackGroup A1', slug='rackgroup-a1')
-        rackgroup_a1.save()
-        rackgroup_a2 = RackGroup(site=site_a, parent=rackgroup_a1, name='RackGroup A2', slug='rackgroup-a2')
-        rackgroup_a2.save()
+        location_a1 = Location(site=site_a, name='Location A1', slug='location-a1')
+        location_a1.save()
+        location_a2 = Location(site=site_a, parent=location_a1, name='Location A2', slug='location-a2')
+        location_a2.save()
 
-        rack1 = Rack.objects.create(site=site_a, group=rackgroup_a1, name='Rack 1')
-        rack2 = Rack.objects.create(site=site_a, group=rackgroup_a2, name='Rack 2')
+        rack1 = Rack.objects.create(site=site_a, location=location_a1, name='Rack 1')
+        rack2 = Rack.objects.create(site=site_a, location=location_a2, name='Rack 2')
 
-        powerpanel1 = PowerPanel.objects.create(site=site_a, rack_group=rackgroup_a1, name='Power Panel 1')
+        device1 = Device.objects.create(
+            site=site_a,
+            location=location_a1,
+            name='Device 1',
+            device_type=device_type,
+            device_role=device_role
+        )
+        device2 = Device.objects.create(
+            site=site_a,
+            location=location_a2,
+            name='Device 2',
+            device_type=device_type,
+            device_role=device_role
+        )
 
-        # Move RackGroup A1 to Site B
-        rackgroup_a1.site = site_b
-        rackgroup_a1.save()
+        powerpanel1 = PowerPanel.objects.create(site=site_a, location=location_a1, name='Power Panel 1')
 
-        # Check that all objects within RackGroup A1 now belong to Site B
-        self.assertEqual(RackGroup.objects.get(pk=rackgroup_a1.pk).site, site_b)
-        self.assertEqual(RackGroup.objects.get(pk=rackgroup_a2.pk).site, site_b)
+        # Move Location A1 to Site B
+        location_a1.site = site_b
+        location_a1.save()
+
+        # Check that all objects within Location A1 now belong to Site B
+        self.assertEqual(Location.objects.get(pk=location_a1.pk).site, site_b)
+        self.assertEqual(Location.objects.get(pk=location_a2.pk).site, site_b)
         self.assertEqual(Rack.objects.get(pk=rack1.pk).site, site_b)
         self.assertEqual(Rack.objects.get(pk=rack2.pk).site, site_b)
+        self.assertEqual(Device.objects.get(pk=device1.pk).site, site_b)
+        self.assertEqual(Device.objects.get(pk=device2.pk).site, site_b)
         self.assertEqual(PowerPanel.objects.get(pk=powerpanel1.pk).site, site_b)
 
 
@@ -55,12 +82,12 @@ class RackTestCase(TestCase):
             name='TestSite2',
             slug='test-site-2'
         )
-        self.group1 = RackGroup.objects.create(
+        self.location1 = Location.objects.create(
             name='TestGroup1',
             slug='test-group-1',
             site=self.site1
         )
-        self.group2 = RackGroup.objects.create(
+        self.location2 = Location.objects.create(
             name='TestGroup2',
             slug='test-group-2',
             site=self.site2
@@ -69,7 +96,7 @@ class RackTestCase(TestCase):
             name='TestRack1',
             facility_id='A101',
             site=self.site1,
-            group=self.group1,
+            location=self.location1,
             u_height=42
         )
         self.manufacturer = Manufacturer.objects.create(
@@ -134,19 +161,19 @@ class RackTestCase(TestCase):
         with self.assertRaises(ValidationError):
             rack1.clean()
 
-    def test_rack_group_site(self):
+    def test_location_site(self):
 
-        rack_invalid_group = Rack(
+        rack_invalid_location = Rack(
             name='TestRack2',
             facility_id='A102',
             site=self.site1,
             u_height=42,
-            group=self.group2
+            location=self.location2
         )
-        rack_invalid_group.save()
+        rack_invalid_location.save()
 
         with self.assertRaises(ValidationError):
-            rack_invalid_group.clean()
+            rack_invalid_location.clean()
 
     def test_mount_single_device(self):
 

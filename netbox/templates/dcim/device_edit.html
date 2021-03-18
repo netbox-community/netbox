@@ -20,8 +20,9 @@
     <div class="field-group">
         <h4>Location</h4>
         {% render_field form.region %}
+        {% render_field form.site_group %}
         {% render_field form.site %}
-        {% render_field form.rack_group %}
+        {% render_field form.location %}
         {% render_field form.rack %}
         {% if obj.device_type.is_child_device and obj.parent_bay %}
             <div class="form-group">

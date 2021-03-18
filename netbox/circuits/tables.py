@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
 from .models import Circuit, CircuitType, Provider
 
@@ -60,9 +60,7 @@ class CircuitTable(BaseTable):
         linkify=True
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     a_side = tables.Column(
         verbose_name='A Side'
     )

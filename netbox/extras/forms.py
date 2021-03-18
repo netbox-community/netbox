@@ -4,16 +4,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from dcim.models import DeviceRole, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
+    CommentField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, ImageAttachment, ObjectChange, Tag
+from .models import ConfigContext, CustomField, ImageAttachment, JournalEntry, ObjectChange, Tag
 
 
 #
@@ -210,6 +210,10 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Region.objects.all(),
         required=False
     )
+    site_groups = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False
@@ -249,8 +253,8 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConfigContext
         fields = (
-            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'cluster_groups',
-            'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
+            'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites', 'roles', 'platforms',
+            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
         )
 
 
@@ -280,8 +284,8 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     field_order = [
-        'q', 'region_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id', 'cluster_id', 'tenant_group_id',
-        'tenant_id',
+        'q', 'region_id', 'site_group_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id', 'cluster_id',
+        'tenant_group_id', 'tenant_id',
     ]
     q = forms.CharField(
         required=False,
@@ -291,6 +295,11 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         queryset=Region.objects.all(),
         required=False,
         label=_('Regions')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site groups')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -363,6 +372,78 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 
 
 #
+# Journal entries
+#
+
+class JournalEntryForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = JournalEntry
+        fields = ['assigned_object_type', 'assigned_object_id', 'kind', 'comments']
+        widgets = {
+            'assigned_object_type': forms.HiddenInput,
+            'assigned_object_id': forms.HiddenInput,
+        }
+
+
+class JournalEntryBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=JournalEntry.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    kind = forms.ChoiceField(
+        choices=JournalEntryKindChoices,
+        required=False
+    )
+    comments = forms.CharField(
+        required=False,
+        widget=forms.Textarea()
+    )
+
+    class Meta:
+        nullable_fields = []
+
+
+class JournalEntryFilterForm(BootstrapMixin, forms.Form):
+    model = JournalEntry
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
+    created_after = forms.DateTimeField(
+        required=False,
+        label=_('After'),
+        widget=DateTimePicker()
+    )
+    created_before = forms.DateTimeField(
+        required=False,
+        label=_('Before'),
+        widget=DateTimePicker()
+    )
+    created_by_id = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label=_('User'),
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
+    )
+    assigned_object_type_id = DynamicModelMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        required=False,
+        label=_('Object Type'),
+        widget=APISelectMultiple(
+            api_url='/api/extras/content-types/',
+        )
+    )
+    kind = forms.ChoiceField(
+        choices=add_blank_choice(JournalEntryKindChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+
+#
 # Change logging
 #
 
@@ -390,7 +471,6 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
-        display_field='username',
         label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
@@ -399,7 +479,6 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     changed_object_type_id = DynamicModelMultipleChoiceField(
         queryset=ContentType.objects.all(),
         required=False,
-        display_field='display_name',
         label=_('Object Type'),
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',

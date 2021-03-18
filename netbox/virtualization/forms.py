@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
-from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
+from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
@@ -46,6 +46,20 @@ class ClusterTypeCSVForm(CustomFieldModelCSVForm):
         fields = ClusterType.csv_headers
 
 
+class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ClusterType.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
+
+
 #
 # Cluster groups
 #
@@ -68,6 +82,20 @@ class ClusterGroupCSVForm(CustomFieldModelCSVForm):
         fields = ClusterGroup.csv_headers
 
 
+class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
+
+
 #
 # Clusters
 #
@@ -87,11 +115,19 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'sites': '$site'
         }
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     comments = CommentField()
@@ -103,10 +139,10 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'tenant', 'region', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'tenant', 'region', 'site_group', 'site', 'comments', 'tags',
         )
         fieldsets = (
-            ('Cluster', ('name', 'type', 'group', 'region', 'site', 'tags')),
+            ('Cluster', ('name', 'type', 'group', 'region', 'site_group', 'site', 'tags')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
 
@@ -162,11 +198,16 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         queryset=Region.objects.all(),
         required=False,
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     comments = CommentField(
@@ -223,25 +264,29 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         required=False,
         null_option='None'
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        null_option='None'
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
-        display_field='display_name',
         query_params={
             'site_id': '$site'
         }
     )
     devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
-        display_field='display_name',
         query_params={
             'site_id': '$site',
             'rack_id': '$rack',
@@ -557,12 +602,11 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
 # VM interfaces
 #
 
-class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, forms.ModelForm):
+class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         label='Untagged VLAN',
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -572,7 +616,6 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, forms.ModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         label='Tagged VLANs',
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -647,7 +690,6 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -656,7 +698,6 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -737,7 +778,6 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',
@@ -746,7 +786,6 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        display_field='display_name',
         brief_mode=False,
         query_params={
             'site_id': 'null',

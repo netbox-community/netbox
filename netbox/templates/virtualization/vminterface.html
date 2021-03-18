@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block title %}{{ object.virtual_machine }} / {{ object.name }}{% endblock %}
 
@@ -56,16 +57,33 @@
                 </tr>
             </table>
         </div>
-          {% plugin_left_page object %}
+        {% plugin_left_page object %}
     </div>
     <div class="col-md-6">
+        {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
           {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% include 'panel_table.html' with table=ipaddress_table heading="IP Addresses" %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>IP Addresses</strong>
+            </div>
+            {% if ipaddress_table.rows %}
+                {% render_table ipaddress_table 'inc/table.html' %}
+            {% else %}
+                <div class="panel-body text-muted">None</div>
+            {% endif %}
+            {% if perms.ipam.add_ipaddress %}
+                <div class="panel-footer text-right noprint">
+                    <a href="{% url 'ipam:ipaddress_add' %}?virtual_machine={{ object.virtual_machine.pk }}&vminterface={{ object.pk }}" class="btn btn-xs btn-primary">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add IP Address
+                    </a>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 <div class="row">

@@ -1,6 +1,5 @@
 import json
 import uuid
-from collections import OrderedDict
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -8,17 +7,27 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
-from django.urls import reverse
 from django.utils import timezone
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
 from extras.constants import *
-from extras.querysets import ConfigContextQuerySet
 from extras.utils import extras_features, FeatureQuery, image_upload
-from netbox.models import BigIDModel, ChangeLoggingMixin
+from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import deepmerge, render_jinja2
+from utilities.utils import render_jinja2
+
+
+__all__ = (
+    'CustomLink',
+    'ExportTemplate',
+    'ImageAttachment',
+    'JobResult',
+    'JournalEntry',
+    'Report',
+    'Script',
+    'Webhook',
+)
 
 
 #
@@ -109,6 +118,8 @@ class Webhook(BigIDModel):
                   'Leave blank to use the system defaults.'
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         ordering = ('name',)
         unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
@@ -172,13 +183,13 @@ class CustomLink(BigIDModel):
         max_length=100,
         unique=True
     )
-    text = models.CharField(
+    link_text = models.CharField(
         max_length=500,
         help_text="Jinja2 template code for link text"
     )
-    url = models.CharField(
+    link_url = models.CharField(
         max_length=500,
-        verbose_name='URL',
+        verbose_name='Link URL',
         help_text="Jinja2 template code for link URL"
     )
     weight = models.PositiveSmallIntegerField(
@@ -196,8 +207,11 @@ class CustomLink(BigIDModel):
         help_text="The class of the first link in a group will be used for the dropdown button"
     )
     new_window = models.BooleanField(
+        default=False,
         help_text="Force link to open in a new window"
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
@@ -358,142 +372,51 @@ class ImageAttachment(BigIDModel):
 
 
 #
-# Config contexts
+# Journal entries
 #
 
-class ConfigContext(ChangeLoggingMixin, BigIDModel):
+class JournalEntry(BigIDModel):
     """
-    A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
-    qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
-    will be available to a Device in site A assigned to tenant B. Data is stored in JSON format.
+    A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
+    preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
+    might record a new journal entry when a device undergoes maintenance, or when a prefix is expanded.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
+    assigned_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE
     )
-    weight = models.PositiveSmallIntegerField(
-        default=1000
+    assigned_object_id = models.PositiveIntegerField()
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True
+    created = models.DateTimeField(
+        auto_now_add=True
     )
-    is_active = models.BooleanField(
-        default=True,
+    created_by = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
     )
-    regions = models.ManyToManyField(
-        to='dcim.Region',
-        related_name='+',
-        blank=True
+    kind = models.CharField(
+        max_length=30,
+        choices=JournalEntryKindChoices,
+        default=JournalEntryKindChoices.KIND_INFO
     )
-    sites = models.ManyToManyField(
-        to='dcim.Site',
-        related_name='+',
-        blank=True
-    )
-    roles = models.ManyToManyField(
-        to='dcim.DeviceRole',
-        related_name='+',
-        blank=True
-    )
-    platforms = models.ManyToManyField(
-        to='dcim.Platform',
-        related_name='+',
-        blank=True
-    )
-    cluster_groups = models.ManyToManyField(
-        to='virtualization.ClusterGroup',
-        related_name='+',
-        blank=True
-    )
-    clusters = models.ManyToManyField(
-        to='virtualization.Cluster',
-        related_name='+',
-        blank=True
-    )
-    tenant_groups = models.ManyToManyField(
-        to='tenancy.TenantGroup',
-        related_name='+',
-        blank=True
-    )
-    tenants = models.ManyToManyField(
-        to='tenancy.Tenant',
-        related_name='+',
-        blank=True
-    )
-    tags = models.ManyToManyField(
-        to='extras.Tag',
-        related_name='+',
-        blank=True
-    )
-    data = models.JSONField()
+    comments = models.TextField()
 
-    objects = ConfigContextQuerySet.as_manager()
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        ordering = ['weight', 'name']
+        ordering = ('-created',)
+        verbose_name_plural = 'journal entries'
 
     def __str__(self):
-        return self.name
+        return f"{self.created} - {self.get_kind_display()}"
 
-    def get_absolute_url(self):
-        return reverse('extras:configcontext', kwargs={'pk': self.pk})
-
-    def clean(self):
-        super().clean()
-
-        # Verify that JSON data is provided as an object
-        if type(self.data) is not dict:
-            raise ValidationError(
-                {'data': 'JSON data must be in object form. Example: {"foo": 123}'}
-            )
-
-
-class ConfigContextModel(models.Model):
-    """
-    A model which includes local configuration context data. This local data will override any inherited data from
-    ConfigContexts.
-    """
-    local_context_data = models.JSONField(
-        blank=True,
-        null=True,
-    )
-
-    class Meta:
-        abstract = True
-
-    def get_config_context(self):
-        """
-        Return the rendered configuration context for a device or VM.
-        """
-
-        # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
-        data = OrderedDict()
-
-        if not hasattr(self, 'config_context_data'):
-            # The annotation is not available, so we fall back to manually querying for the config context objects
-            config_context_data = ConfigContext.objects.get_for_object(self, aggregate_data=True)
-        else:
-            # The attribute may exist, but the annotated value could be None if there is no config context data
-            config_context_data = self.config_context_data or []
-
-        for context in config_context_data:
-            data = deepmerge(data, context)
-
-        # If the object has local config context data defined, merge it last
-        if self.local_context_data:
-            data = deepmerge(data, self.local_context_data)
-
-        return data
-
-    def clean(self):
-        super().clean()
-
-        # Verify that JSON data is provided as an object
-        if self.local_context_data and type(self.local_context_data) is not dict:
-            raise ValidationError(
-                {'local_context_data': 'JSON data must be in object form. Example: {"foo": 123}'}
-            )
+    def get_kind_class(self):
+        return JournalEntryKindChoices.CSS_CLASSES.get(self.kind)
 
 
 #

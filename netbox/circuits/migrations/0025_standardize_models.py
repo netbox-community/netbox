@@ -34,4 +34,14 @@ class Migration(migrations.Migration):
             name='id',
             field=models.BigAutoField(primary_key=True, serialize=False),
         ),
+        migrations.AddField(
+            model_name='circuittermination',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='circuittermination',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
+        ),
     ]

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from dcim.models import Device, Interface, Rack, Region, Site
+from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
@@ -13,7 +13,7 @@ from utilities.forms import (
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, NumericArrayField,
     ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import Cluster, VirtualMachine, VMInterface
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
@@ -217,6 +217,24 @@ class RIRCSVForm(CustomFieldModelCSVForm):
         }
 
 
+class RIRBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RIR.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    is_private = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['is_private', 'description']
+
+
 class RIRFilterForm(BootstrapMixin, forms.Form):
     is_private = forms.NullBooleanField(
         required=False,
@@ -351,6 +369,23 @@ class RoleCSVForm(CustomFieldModelCSVForm):
         fields = Role.csv_headers
 
 
+class RoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Role.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
+
+
 #
 # Prefixes
 #
@@ -359,11 +394,17 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        display_field='display_name'
+        label='VRF'
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
         required=False,
         initial_params={
             'sites': '$site'
@@ -374,7 +415,8 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False,
         null_option='None',
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     vlan_group = DynamicModelChoiceField(
@@ -393,7 +435,6 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         label='VLAN',
-        display_field='display_name',
         query_params={
             'site_id': '$site',
             'group_id': '$vlan_group',
@@ -416,7 +457,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         ]
         fieldsets = (
             ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'description', 'tags')),
-            ('Site/VLAN Assignment', ('region', 'site', 'vlan_group', 'vlan')),
+            ('Site/VLAN Assignment', ('region', 'site_group', 'site', 'vlan_group', 'vlan')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
         widgets = {
@@ -497,18 +538,22 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=Region.objects.all(),
         required=False
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        display_field='display_name'
+        label='VRF'
     )
     prefix_length = forms.IntegerField(
         min_value=PREFIX_LENGTH_MIN,
@@ -547,8 +592,8 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Prefix
     field_order = [
-        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region_id', 'site_id',
-        'role_id', 'tenant_group_id', 'tenant_id', 'is_pool',
+        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region_id',
+        'site_group_id', 'site_id', 'role_id', 'tenant_group_id', 'tenant_id', 'is_pool',
     ]
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()
@@ -599,6 +644,11 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         required=False,
         label=_('Region')
     )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -632,7 +682,6 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        display_field='display_name',
         initial_params={
             'interfaces': '$interface'
         }
@@ -662,8 +711,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        display_field='display_name'
+        label='VRF'
     )
     nat_region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
@@ -673,19 +721,27 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             'sites': '$nat_site'
         }
     )
+    nat_site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label='Site group',
+        initial_params={
+            'sites': '$nat_site'
+        }
+    )
     nat_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         label='Site',
         query_params={
-            'region_id': '$nat_region'
+            'region_id': '$nat_region',
+            'group_id': '$nat_site_group',
         }
     )
     nat_rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
-        display_field='display_name',
         null_option='None',
         query_params={
             'site_id': '$site'
@@ -695,7 +751,6 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         queryset=Device.objects.all(),
         required=False,
         label='Device',
-        display_field='display_name',
         query_params={
             'site_id': '$site',
             'rack_id': '$nat_rack',
@@ -717,14 +772,12 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     nat_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        display_field='display_name'
+        label='VRF'
     )
     nat_inside = DynamicModelChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
         label='IP Address',
-        display_field='address',
         query_params={
             'device_id': '$nat_device',
             'virtual_machine_id': '$nat_virtual_machine',
@@ -833,8 +886,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        display_field='display_name'
+        label='VRF'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -965,8 +1017,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        display_field='display_name'
+        label='VRF'
     )
     mask_length = forms.IntegerField(
         min_value=IPADDRESS_MASK_LENGTH_MIN,
@@ -1089,11 +1140,54 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             'sites': '$site'
         }
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
+        initial_params={
+            'locations': '$location'
+        },
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
+        }
+    )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        initial_params={
+            'racks': '$rack'
+        },
+        query_params={
+            'site_id': '$site',
+        }
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site',
+            'location_id': '$location',
+        }
+    )
+    cluster_group = DynamicModelChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        initial_params={
+            'clusters': '$cluster'
+        }
+    )
+    cluster = DynamicModelChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False,
+        query_params={
+            'group_id': '$cluster_group',
         }
     )
     slug = SlugField()
@@ -1101,8 +1195,42 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'region', 'site', 'name', 'slug', 'description',
+            'name', 'slug', 'description', 'region', 'site_group', 'site', 'location', 'rack', 'cluster_group',
+            'cluster',
         ]
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.scope:
+            if type(instance.scope) is Rack:
+                initial['rack'] = instance.scope
+            elif type(instance.scope) is Location:
+                initial['location'] = instance.scope
+            elif type(instance.scope) is Site:
+                initial['site'] = instance.scope
+            elif type(instance.scope) is SiteGroup:
+                initial['site_group'] = instance.scope
+            elif type(instance.scope) is Region:
+                initial['region'] = instance.scope
+            elif type(instance.scope) is Cluster:
+                initial['cluster'] = instance.scope
+            elif type(instance.scope) is ClusterGroup:
+                initial['cluster_group'] = instance.scope
+
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Assign scope object
+        self.instance.scope = self.cleaned_data['rack'] or self.cleaned_data['location'] or \
+            self.cleaned_data['site'] or self.cleaned_data['site_group'] or \
+            self.cleaned_data['region'] or self.cleaned_data['cluster'] or \
+            self.cleaned_data['cluster_group'] or None
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):
@@ -1119,20 +1247,49 @@ class VLANGroupCSVForm(CustomFieldModelCSVForm):
         fields = VLANGroup.csv_headers
 
 
+class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=VLANGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['site', 'description']
+
+
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
-    region_id = DynamicModelMultipleChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
     )
-    site_id = DynamicModelMultipleChoiceField(
+    sitegroup = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region_id'
-        },
         label=_('Site')
+    )
+    location = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
+    )
+    rack = DynamicModelMultipleChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        label=_('Rack')
     )
 
 
@@ -1141,28 +1298,59 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
 #
 
 class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    # VLANGroup assignment fields
+    scope_type = forms.ChoiceField(
+        choices=(
+            ('', ''),
+            ('dcim.region', 'Region'),
+            ('dcim.sitegroup', 'Site group'),
+            ('dcim.site', 'Site'),
+            ('dcim.location', 'Location'),
+            ('dcim.rack', 'Rack'),
+            ('virtualization.clustergroup', 'Cluster group'),
+            ('virtualization.cluster', 'Cluster'),
+        ),
+        required=False,
+        widget=StaticSelect2,
+        label='Group scope'
+    )
+    group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        query_params={
+            'scope_type': '$scope_type',
+        },
+        label='VLAN Group'
+    )
+
+    # Site assignment fields
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
         initial_params={
             'sites': '$site'
-        }
+        },
+        label='Region'
+    )
+    sitegroup = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        },
+        label='Site group'
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$sitegroup',
         }
     )
-    group = DynamicModelChoiceField(
-        queryset=VLANGroup.objects.all(),
-        required=False,
-        query_params={
-            'site_id': '$site'
-        }
-    )
+
+    # Other fields
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
         required=False
@@ -1177,11 +1365,6 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         fields = [
             'site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
         ]
-        fieldsets = (
-            ('VLAN', ('vid', 'name', 'status', 'role', 'description', 'tags')),
-            ('Assignment', ('region', 'site', 'group')),
-            ('Tenancy', ('tenant_group', 'tenant')),
-        )
         help_texts = {
             'site': "Leave blank if this VLAN spans multiple sites",
             'group': "VLAN group (optional)",
@@ -1233,15 +1416,6 @@ class VLANCSVForm(CustomFieldModelCSVForm):
             'name': 'VLAN name',
         }
 
-    def __init__(self, data=None, *args, **kwargs):
-        super().__init__(data, *args, **kwargs)
-
-        if data:
-
-            # Limit vlan queryset by assigned group
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
-            self.fields['group'].queryset = self.fields['group'].queryset.filter(**params)
-
 
 class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
@@ -1252,11 +1426,16 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         queryset=Region.objects.all(),
         required=False
     )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region'
+            'region_id': '$region',
+            'group_id': '$site_group',
         }
     )
     group = DynamicModelChoiceField(
@@ -1292,7 +1471,9 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VLAN
-    field_order = ['q', 'region_id', 'site_id', 'group_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
+    field_order = [
+        'q', 'region_id', 'site_group_id', 'site_id', 'group_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
+    ]
     q = forms.CharField(
         required=False,
         label='Search'
@@ -1301,6 +1482,11 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),

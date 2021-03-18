@@ -17,7 +17,7 @@ class NestedGroupSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Group
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedUserSerializer(WritableNestedSerializer):
@@ -25,7 +25,7 @@ class NestedUserSerializer(WritableNestedSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'url', 'username']
+        fields = ['id', 'url', 'display', 'username']
 
 
 class NestedObjectPermissionSerializer(WritableNestedSerializer):
@@ -39,7 +39,7 @@ class NestedObjectPermissionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = ObjectPermission
-        fields = ['id', 'url', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions']
+        fields = ['id', 'url', 'display', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions']
 
     def get_groups(self, obj):
         return [g.name for g in obj.groups.all()]

@@ -217,6 +217,29 @@ class ConsolePortTypeChoices(ChoiceSet):
     )
 
 
+class ConsolePortSpeedChoices(ChoiceSet):
+
+    SPEED_1200 = 1200
+    SPEED_2400 = 2400
+    SPEED_4800 = 4800
+    SPEED_9600 = 9600
+    SPEED_19200 = 19200
+    SPEED_38400 = 38400
+    SPEED_57600 = 57600
+    SPEED_115200 = 115200
+
+    CHOICES = (
+        (SPEED_1200, '1200 bps'),
+        (SPEED_2400, '2400 bps'),
+        (SPEED_4800, '4800 bps'),
+        (SPEED_9600, '9600 bps'),
+        (SPEED_19200, '19.2 kbps'),
+        (SPEED_38400, '38.4 kbps'),
+        (SPEED_57600, '57.6 kbps'),
+        (SPEED_115200, '115.2 kbps'),
+    )
+
+
 #
 # PowerPorts
 #
@@ -686,6 +709,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_8GFC_SFP_PLUS = '8gfc-sfpp'
     TYPE_16GFC_SFP_PLUS = '16gfc-sfpp'
     TYPE_32GFC_SFP28 = '32gfc-sfp28'
+    TYPE_64GFC_QSFP_PLUS = '64gfc-qsfpp'
     TYPE_128GFC_QSFP28 = '128gfc-sfp28'
 
     # InfiniBand
@@ -801,6 +825,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_8GFC_SFP_PLUS, 'SFP+ (8GFC)'),
                 (TYPE_16GFC_SFP_PLUS, 'SFP+ (16GFC)'),
                 (TYPE_32GFC_SFP28, 'SFP28 (32GFC)'),
+                (TYPE_64GFC_QSFP_PLUS, 'QSFP+ (64GFC)'),
                 (TYPE_128GFC_QSFP28, 'QSFP28 (128GFC)'),
             )
         ),

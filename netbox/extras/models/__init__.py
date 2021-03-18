@@ -1,9 +1,7 @@
 from .change_logging import ObjectChange
+from .configcontexts import ConfigContext, ConfigContextModel
 from .customfields import CustomField
-from .models import (
-    ConfigContext, ConfigContextModel, CustomLink, ExportTemplate, ImageAttachment, JobResult, Report, Script,
-    Webhook,
-)
+from .models import CustomLink, ExportTemplate, ImageAttachment, JobResult, JournalEntry, Report, Script, Webhook
 from .tags import Tag, TaggedItem
 
 __all__ = (
@@ -14,6 +12,7 @@ __all__ = (
     'ExportTemplate',
     'ImageAttachment',
     'JobResult',
+    'JournalEntry',
     'ObjectChange',
     'Report',
     'Script',

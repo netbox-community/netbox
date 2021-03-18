@@ -16,13 +16,7 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
 from dcim import filters
-from dcim.models import (
-    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
-)
+from dcim.models import *
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from ipam.models import Prefix, VLAN
 from netbox.api.views import ModelViewSet
@@ -112,6 +106,22 @@ class RegionViewSet(CustomFieldModelViewSet):
 
 
 #
+# Site groups
+#
+
+class SiteGroupViewSet(CustomFieldModelViewSet):
+    queryset = SiteGroup.objects.add_related_count(
+        SiteGroup.objects.all(),
+        Site,
+        'group',
+        'site_count',
+        cumulative=True
+    )
+    serializer_class = serializers.SiteGroupSerializer
+    filterset_class = filters.SiteGroupFilterSet
+
+
+#
 # Sites
 #
 
@@ -134,16 +144,16 @@ class SiteViewSet(CustomFieldModelViewSet):
 # Rack groups
 #
 
-class RackGroupViewSet(CustomFieldModelViewSet):
-    queryset = RackGroup.objects.add_related_count(
-        RackGroup.objects.all(),
+class LocationViewSet(CustomFieldModelViewSet):
+    queryset = Location.objects.add_related_count(
+        Location.objects.all(),
         Rack,
-        'group',
+        'location',
         'rack_count',
         cumulative=True
     ).prefetch_related('site')
-    serializer_class = serializers.RackGroupSerializer
-    filterset_class = filters.RackGroupFilterSet
+    serializer_class = serializers.LocationSerializer
+    filterset_class = filters.LocationFilterSet
 
 
 #
@@ -164,7 +174,7 @@ class RackRoleViewSet(CustomFieldModelViewSet):
 
 class RackViewSet(CustomFieldModelViewSet):
     queryset = Rack.objects.prefetch_related(
-        'site', 'group__site', 'role', 'tenant', 'tags'
+        'site', 'location__site', 'role', 'tenant', 'tags'
     ).annotate(
         device_count=count_related(Device, 'rack'),
         powerfeed_count=count_related(PowerFeed, 'rack')
@@ -345,7 +355,7 @@ class PlatformViewSet(CustomFieldModelViewSet):
 
 class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
     queryset = Device.objects.prefetch_related(
-        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
+        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
     )
     filterset_class = filters.DeviceFilterSet
@@ -522,7 +532,7 @@ class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
+        'device', 'parent', 'lag', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilterSet
@@ -619,7 +629,7 @@ class VirtualChassisViewSet(ModelViewSet):
 
 class PowerPanelViewSet(ModelViewSet):
     queryset = PowerPanel.objects.prefetch_related(
-        'site', 'rack_group'
+        'site', 'location'
     ).annotate(
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )

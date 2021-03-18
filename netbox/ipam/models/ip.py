@@ -6,10 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.models import Device
-from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
 from ipam.choices import *
@@ -19,7 +17,6 @@ from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
 
 
@@ -108,7 +105,6 @@ class Aggregate(PrimaryModel):
         max_length=200,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -293,7 +289,6 @@ class Prefix(PrimaryModel):
         max_length=200,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = PrefixQuerySet.as_manager()
 
@@ -565,7 +560,6 @@ class IPAddress(PrimaryModel):
         max_length=200,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = IPAddressManager()
 
@@ -649,13 +643,7 @@ class IPAddress(PrimaryModel):
 
     def to_objectchange(self, action):
         # Annotate the assigned object, if any
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=self.assigned_object,
-            object_data=serialize_object(self)
-        )
+        return super().to_objectchange(action, related_object=self.assigned_object)
 
     def to_csv(self):
 

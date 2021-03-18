@@ -16,7 +16,7 @@ class AppTest(APITestCase):
 
 class TenantGroupTest(APIViewTestCases.APIViewTestCase):
     model = TenantGroup
-    brief_fields = ['_depth', 'id', 'name', 'slug', 'tenant_count', 'url']
+    brief_fields = ['_depth', 'display', 'id', 'name', 'slug', 'tenant_count', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -54,7 +54,7 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
 
 class TenantTest(APIViewTestCases.APIViewTestCase):
     model = Tenant
-    brief_fields = ['id', 'name', 'slug', 'url']
+    brief_fields = ['display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'group': None,
         'description': 'New description',

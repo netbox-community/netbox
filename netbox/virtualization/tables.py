@@ -1,7 +1,7 @@
 import django_tables2 as tables
-
+from django.conf import settings
 from dcim.tables.devices import BaseInterfaceTable
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn, ToggleColumn,
 )
@@ -107,9 +107,7 @@ class VirtualMachineTable(BaseTable):
         linkify=True
     )
     role = ColoredLabelColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
@@ -125,10 +123,18 @@ class VirtualMachineDetailTable(VirtualMachineTable):
         linkify=True,
         verbose_name='IPv6 Address'
     )
-    primary_ip = tables.Column(
-        linkify=True,
-        verbose_name='IP Address'
-    )
+    if settings.PREFER_IPV4:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip4', 'primary_ip6'),
+            verbose_name='IP Address'
+        )
+    else:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip6', 'primary_ip4'),
+            verbose_name='IP Address'
+        )
     tags = TagColumn(
         url_name='virtualization:virtualmachine_list'
     )

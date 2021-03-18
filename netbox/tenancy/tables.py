@@ -1,22 +1,32 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn
 from .models import Tenant, TenantGroup
 
-MPTT_LINK = """
-{% for i in record.get_ancestors %}
-    <i class="mdi mdi-circle-small"></i>
-{% endfor %}
-<a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
-"""
 
-COL_TENANT = """
-{% if record.tenant %}
-    <a href="{{ record.tenant.get_absolute_url }}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-{% else %}
-    &mdash;
-{% endif %}
-"""
+#
+# Table columns
+#
+
+class TenantColumn(tables.TemplateColumn):
+    """
+    Render a colored label (e.g. for DeviceRoles).
+    """
+    template_code = """
+    {% if record.tenant %}
+        <a href="{{ record.tenant.get_absolute_url }}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
+    {% elif record.vrf.tenant %}
+        <a href="{{ record.vrf.tenant.get_absolute_url }}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
+    {% else %}
+        &mdash;
+    {% endif %}
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        return str(value)
 
 
 #
@@ -25,11 +35,7 @@ COL_TENANT = """
 
 class TenantGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(
-        template_code=MPTT_LINK,
-        orderable=False,
-        attrs={'td': {'class': 'text-nowrap'}}
-    )
+    name = MPTTColumn()
     tenant_count = LinkedCountColumn(
         viewname='tenancy:tenant_list',
         url_params={'group': 'slug'},

@@ -4,13 +4,148 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from dcim.models import DeviceRole, Platform, Rack, Region, Site
-from extras.choices import ObjectChangeActionChoices
+from dcim.models import DeviceRole, Platform, Rack, Region, Site, SiteGroup
+from extras.choices import JournalEntryKindChoices, ObjectChangeActionChoices
 from extras.filters import *
-from extras.models import ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, Tag
+from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+
+
+class WebhookTestCase(TestCase):
+    queryset = Webhook.objects.all()
+    filterset = WebhookFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        webhooks = (
+            Webhook(
+                name='Webhook 1',
+                type_create=True,
+                payload_url='http://example.com/?1',
+                enabled=True,
+                http_method='GET',
+                ssl_verification=True,
+            ),
+            Webhook(
+                name='Webhook 2',
+                type_update=True,
+                payload_url='http://example.com/?2',
+                enabled=True,
+                http_method='POST',
+                ssl_verification=True,
+            ),
+            Webhook(
+                name='Webhook 3',
+                type_delete=True,
+                payload_url='http://example.com/?3',
+                enabled=False,
+                http_method='PATCH',
+                ssl_verification=False,
+            ),
+        )
+        Webhook.objects.bulk_create(webhooks)
+        webhooks[0].content_types.add(content_types[0])
+        webhooks[1].content_types.add(content_types[1])
+        webhooks[2].content_types.add(content_types[2])
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Webhook 1', 'Webhook 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_types(self):
+        params = {'content_types': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_create(self):
+        params = {'type_create': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_update(self):
+        params = {'type_update': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_delete(self):
+        params = {'type_delete': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_http_method(self):
+        params = {'http_method': ['GET', 'POST']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ssl_verification(self):
+        params = {'ssl_verification': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class CustomLinkTestCase(TestCase):
+    queryset = CustomLink.objects.all()
+    filterset = CustomLinkFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        custom_links = (
+            CustomLink(
+                name='Custom Link 1',
+                content_type=content_types[0],
+                weight=100,
+                new_window=False,
+                link_text='Link 1',
+                link_url='http://example.com/?1'
+            ),
+            CustomLink(
+                name='Custom Link 2',
+                content_type=content_types[1],
+                weight=200,
+                new_window=False,
+                link_text='Link 1',
+                link_url='http://example.com/?2'
+            ),
+            CustomLink(
+                name='Custom Link 3',
+                content_type=content_types[2],
+                weight=300,
+                new_window=True,
+                link_text='Link 1',
+                link_url='http://example.com/?3'
+            ),
+        )
+        CustomLink.objects.bulk_create(custom_links)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Custom Link 1', 'Custom Link 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_type(self):
+        params = {'content_type': ContentType.objects.get(model='site').pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_weight(self):
+        params = {'weight': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_new_window(self):
+        params = {'new_window': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'new_window': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ExportTemplateTestCase(TestCase):
@@ -120,6 +255,100 @@ class ImageAttachmentTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
+class JournalEntryTestCase(TestCase):
+    queryset = JournalEntry.objects.all()
+    filterset = JournalEntryFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        users = (
+            User(username='Alice'),
+            User(username='Bob'),
+            User(username='Charlie'),
+        )
+        User.objects.bulk_create(users)
+
+        journal_entries = (
+            JournalEntry(
+                assigned_object=sites[0],
+                created_by=users[0],
+                kind=JournalEntryKindChoices.KIND_INFO,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=sites[0],
+                created_by=users[1],
+                kind=JournalEntryKindChoices.KIND_SUCCESS,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=sites[1],
+                created_by=users[2],
+                kind=JournalEntryKindChoices.KIND_WARNING,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=racks[0],
+                created_by=users[0],
+                kind=JournalEntryKindChoices.KIND_INFO,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=racks[0],
+                created_by=users[1],
+                kind=JournalEntryKindChoices.KIND_SUCCESS,
+                comments='New journal entry'
+            ),
+            JournalEntry(
+                assigned_object=racks[1],
+                created_by=users[2],
+                kind=JournalEntryKindChoices.KIND_WARNING,
+                comments='New journal entry'
+            ),
+        )
+        JournalEntry.objects.bulk_create(journal_entries)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_created_by(self):
+        users = User.objects.filter(username__in=['Alice', 'Bob'])
+        params = {'created_by': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'created_by_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_assigned_object_type(self):
+        params = {'assigned_object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'assigned_object_type_id': ContentType.objects.get(app_label='dcim', model='site').pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_assigned_object(self):
+        params = {
+            'assigned_object_type': 'dcim.site',
+            'assigned_object_id': [Site.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_kind(self):
+        params = {'kind': [JournalEntryKindChoices.KIND_INFO, JournalEntryKindChoices.KIND_SUCCESS]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
 class ConfigContextTestCase(TestCase):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
@@ -132,9 +361,16 @@ class ConfigContextTestCase(TestCase):
             Region(name='Test Region 2', slug='test-region-2'),
             Region(name='Test Region 3', slug='test-region-3'),
         )
-        # Can't use bulk_create for models with MPTT fields
         for r in regions:
             r.save()
+
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
 
         sites = (
             Site(name='Test Site 1', slug='test-site-1'),
@@ -195,6 +431,7 @@ class ConfigContextTestCase(TestCase):
                 data='{"foo": 123}'
             )
             c.regions.set([regions[i]])
+            c.site_groups.set([site_groups[i]])
             c.sites.set([sites[i]])
             c.roles.set([device_roles[i]])
             c.platforms.set([platforms[i]])
@@ -222,6 +459,13 @@ class ConfigContextTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
@@ -327,7 +571,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_CREATE,
                 changed_object=site,
                 object_repr=str(site),
-                object_data={'name': site.name, 'slug': site.slug}
+                postchange_data={'name': site.name, 'slug': site.slug}
             ),
             ObjectChange(
                 user=users[0],
@@ -336,7 +580,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_UPDATE,
                 changed_object=site,
                 object_repr=str(site),
-                object_data={'name': site.name, 'slug': site.slug}
+                postchange_data={'name': site.name, 'slug': site.slug}
             ),
             ObjectChange(
                 user=users[1],
@@ -345,7 +589,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_DELETE,
                 changed_object=site,
                 object_repr=str(site),
-                object_data={'name': site.name, 'slug': site.slug}
+                postchange_data={'name': site.name, 'slug': site.slug}
             ),
             ObjectChange(
                 user=users[1],
@@ -354,7 +598,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_CREATE,
                 changed_object=ipaddress,
                 object_repr=str(ipaddress),
-                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
             ),
             ObjectChange(
                 user=users[2],
@@ -363,7 +607,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_UPDATE,
                 changed_object=ipaddress,
                 object_repr=str(ipaddress),
-                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
             ),
             ObjectChange(
                 user=users[2],
@@ -372,7 +616,7 @@ class ObjectChangeTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_DELETE,
                 changed_object=ipaddress,
                 object_repr=str(ipaddress),
-                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
             ),
         )
         ObjectChange.objects.bulk_create(object_changes)

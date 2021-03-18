@@ -1,6 +1,7 @@
 {% extends 'dcim/device_component.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
     <div class="row">
@@ -253,7 +254,23 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% include 'panel_table.html' with table=ipaddress_table heading="IP Addresses" %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>IP Addresses</strong>
+                </div>
+                {% if ipaddress_table.rows %}
+                    {% render_table ipaddress_table 'inc/table.html' %}
+                {% else %}
+                    <div class="panel-body text-muted">None</div>
+                {% endif %}
+                {% if perms.ipam.add_ipaddress %}
+                    <div class="panel-footer text-right noprint">
+                        <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}" class="btn btn-xs btn-primary">
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add IP Address
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
     <div class="row">

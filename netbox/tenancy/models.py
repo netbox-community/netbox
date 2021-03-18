@@ -1,12 +1,9 @@
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
-from taggit.managers import TaggableManager
 
-from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
-from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
 
 
@@ -41,8 +38,6 @@ class TenantGroup(NestedGroupModel):
         max_length=200,
         blank=True
     )
-
-    objects = TreeManager()
 
     csv_headers = ['name', 'slug', 'parent', 'description']
 
@@ -89,7 +84,6 @@ class Tenant(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

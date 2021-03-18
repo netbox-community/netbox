@@ -45,9 +45,20 @@
                                 </div>
                             {% endif %}
                         </li>
-
+                        <li class="dropdown-item{% if not perms.dcim.view_sitegroup %} disabled{% endif %}">
+                            <a class="text-decoration-none" href="{% url 'dcim:sitegroup_list' %}">Site Groups</a>
+                            {% if perms.dcim.add_sitegroup %}
+                                <div class="btn-group btn-group-sm float-end">
+                                    <a href="{% url 'dcim:sitegroup_add' %}" class="btn btn-sm btn-success" title="Add">
+                                        <i class="bi bi-plus"></i>
+                                    </a>
+                                    <a href="{% url 'dcim:sitegroup_import' %}" class="btn btn-sm btn-info" title="Import">
+                                        <i class="bi-download fs-6"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </li>
                         <li><hr class="dropdown-divider"></li>
-                        
                         <li class="dropdown-header">Racks</li>
                         <li class="dropdown-item dropdown-item-btns {% if not perms.dcim.view_rack %}disabled{% endif %}">
                             <a class="text-decoration-none" href="{% url 'dcim:rack_list' %}">Racks</a>
@@ -63,14 +74,14 @@
                             {% endif %}
                             
                         </li>
-                        <li class="dropdown-item dropdown-item-btns {% if not perms.dcim.view_rackgroup %}disabled{% endif %}">
-                            <a class="text-decoration-none" href="{% url 'dcim:rackgroup_list' %}">Rack Groups</a>
-                            {% if perms.dcim.add_rackgroup %}
+                        <li class="dropdown-item dropdown-item-btns {% if not perms.dcim.view_location %}disabled{% endif %}">
+                            <a class="text-decoration-none" href="{% url 'dcim:location_list' %}">Locations</a>
+                            {% if perms.dcim.add_location %}
                                 <div class="btn-group btn-group-sm float-end">
-                                    <a href="{% url 'dcim:rackgroup_add' %}" class="btn btn-sm btn-success" title="Add">
+                                    <a href="{% url 'dcim:location_add' %}" class="btn btn-sm btn-success" title="Add">
                                         <i class="bi-plus fs-6"></i>
                                     </a>
-                                    <a href="{% url 'dcim:rackgroup_import' %}" class="btn btn-sm btn-info" title="Import">
+                                    <a href="{% url 'dcim:location_import' %}" class="btn btn-sm btn-info" title="Import">
                                         <i class="bi-download fs-6"></i>
                                     </a>
                                 </div>
@@ -553,6 +564,9 @@
                     <a a class="nav-link dropdown-toggle" href="#" id="other" role="button" data-bs-toggle="dropdown" aria-expanded="false">Other</a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Logging</li>
+                        <li{% if not perms.extras.view_journalentry %} class="disabled"{% endif %}>
+                            <a href="{% url 'extras:journalentry_list' %}">Journal Entries</a>
+                        </li>
                         <li{% if not perms.extras.view_objectchange %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:objectchange_list' %}">Change Log</a>
                         </li>

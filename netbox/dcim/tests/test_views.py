@@ -57,6 +57,44 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Region 6,region-6,Sixth region",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
+class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = SiteGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        # Create three SiteGroups
+        sitegroups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for sitegroup in sitegroups:
+            sitegroup.save()
+
+        cls.form_data = {
+            'name': 'Site Group X',
+            'slug': 'site-group-x',
+            'parent': sitegroups[2].pk,
+            'description': 'A new site group',
+        }
+
+        cls.csv_data = (
+            "name,slug,description",
+            "Site Group 4,site-group-4,Fourth site group",
+            "Site Group 5,site-group-5,Fifth site group",
+            "Site Group 6,site-group-6,Sixth site group",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Site
@@ -71,10 +109,17 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+        )
+        for group in groups:
+            group.save()
+
         Site.objects.bulk_create([
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[0]),
-            Site(name='Site 3', slug='site-3', region=regions[0]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[1]),
+            Site(name='Site 2', slug='site-2', region=regions[0], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[0], group=groups[1]),
         ])
 
         tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
@@ -84,6 +129,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'slug': 'site-x',
             'status': SiteStatusChoices.STATUS_PLANNED,
             'region': regions[1].pk,
+            'group': groups[1].pk,
             'tenant': None,
             'facility': 'Facility X',
             'asn': 65001,
@@ -110,6 +156,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'status': SiteStatusChoices.STATUS_PLANNED,
             'region': regions[1].pk,
+            'group': groups[1].pk,
             'tenant': None,
             'asn': 65009,
             'time_zone': pytz.timezone('US/Eastern'),
@@ -117,8 +164,8 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class RackGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
-    model = RackGroup
+class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = Location
 
     @classmethod
     def setUpTestData(cls):
@@ -126,27 +173,31 @@ class RackGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         site = Site(name='Site 1', slug='site-1')
         site.save()
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=site),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=site),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=site),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=site),
+            Location(name='Location 2', slug='location-2', site=site),
+            Location(name='Location 3', slug='location-3', site=site),
         )
-        for rackgroup in rack_groups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         cls.form_data = {
-            'name': 'Rack Group X',
-            'slug': 'rack-group-x',
+            'name': 'Location X',
+            'slug': 'location-x',
             'site': site.pk,
-            'description': 'A new rack group',
+            'description': 'A new location',
         }
 
         cls.csv_data = (
             "site,name,slug,description",
-            "Site 1,Rack Group 4,rack-group-4,Fourth rack group",
-            "Site 1,Rack Group 5,rack-group-5,Fifth rack group",
-            "Site 1,Rack Group 6,rack-group-6,Sixth rack group",
+            "Site 1,Location 4,location-4,Fourth location",
+            "Site 1,Location 5,location-5,Fifth location",
+            "Site 1,Location 6,location-6,Sixth location",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -175,6 +226,11 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Rack Role 6,rack-role-6,0000ff",
         )
 
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
+
 
 class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = RackReservation
@@ -187,10 +243,10 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         site = Site.objects.create(name='Site 1', slug='site-1')
 
-        rack_group = RackGroup(name='Rack Group 1', slug='rack-group-1', site=site)
-        rack_group.save()
+        location = Location(name='Location 1', slug='location-1', site=site)
+        location.save()
 
-        rack = Rack(name='Rack 1', site=site, group=rack_group)
+        rack = Rack(name='Rack 1', site=site, location=location)
         rack.save()
 
         RackReservation.objects.bulk_create([
@@ -211,10 +267,10 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'site,rack_group,rack,units,description',
-            'Site 1,Rack Group 1,Rack 1,"10,11,12",Reservation 1',
-            'Site 1,Rack Group 1,Rack 1,"13,14,15",Reservation 2',
-            'Site 1,Rack Group 1,Rack 1,"16,17,18",Reservation 3',
+            'site,location,rack,units,description',
+            'Site 1,Location 1,Rack 1,"10,11,12",Reservation 1',
+            'Site 1,Location 1,Rack 1,"13,14,15",Reservation 2',
+            'Site 1,Location 1,Rack 1,"16,17,18",Reservation 3',
         )
 
         cls.bulk_edit_data = {
@@ -236,12 +292,12 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rackgroups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1])
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1])
         )
-        for rackgroup in rackgroups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         rackroles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -261,7 +317,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Rack X',
             'facility_id': 'Facility X',
             'site': sites[1].pk,
-            'group': rackgroups[1].pk,
+            'location': locations[1].pk,
             'tenant': None,
             'status': RackStatusChoices.STATUS_PLANNED,
             'role': rackroles[1].pk,
@@ -279,15 +335,15 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,group,name,width,u_height",
+            "site,location,name,width,u_height",
             "Site 1,,Rack 4,19,42",
-            "Site 1,Rack Group 1,Rack 5,19,42",
-            "Site 2,Rack Group 2,Rack 6,19,42",
+            "Site 1,Location 1,Rack 5,19,42",
+            "Site 2,Location 2,Rack 6,19,42",
         )
 
         cls.bulk_edit_data = {
             'site': sites[1].pk,
-            'group': rackgroups[1].pk,
+            'location': locations[1].pk,
             'tenant': None,
             'status': RackStatusChoices.STATUS_DEPRECATED,
             'role': rackroles[1].pk,
@@ -335,6 +391,10 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Manufacturer 5,manufacturer-5,Fifth manufacturer",
             "Manufacturer 6,manufacturer-6,Sixth manufacturer",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
@@ -885,6 +945,11 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Device Role 6,device-role-6,0000ff",
         )
 
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
+
 
 class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Platform
@@ -916,6 +981,11 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Platform 6,platform-6,Sixth platform",
         )
 
+        cls.bulk_edit_data = {
+            'napalm_driver': 'ios',
+            'description': 'New description',
+        }
+
 
 class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Device
@@ -929,11 +999,11 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_group = RackGroup(site=sites[0], name='Rack Group 1', slug='rack-group-1')
-        rack_group.save()
+        location = Location(site=sites[0], name='Location 1', slug='location-1')
+        location.save()
 
         racks = (
-            Rack(name='Rack 1', site=sites[0], group=rack_group),
+            Rack(name='Rack 1', site=sites[0], location=location),
             Rack(name='Rack 2', site=sites[1]),
         )
         Rack.objects.bulk_create(racks)
@@ -991,10 +1061,10 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "device_role,manufacturer,device_type,status,name,site,rack_group,rack,position,face",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Rack Group 1,Rack 1,10,front",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Rack Group 1,Rack 1,20,front",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Rack Group 1,Rack 1,30,front",
+            "device_role,manufacturer,device_type,status,name,site,location,rack,position,face",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Location 1,Rack 1,10,front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Location 1,Rack 1,20,front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Location 1,Rack 1,30,front",
         )
 
         cls.bulk_edit_data = {
@@ -1771,38 +1841,38 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rackgroups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
         )
-        for rackgroup in rackgroups:
-            rackgroup.save()
+        for location in locations:
+            location.save()
 
         PowerPanel.objects.bulk_create((
-            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 1'),
-            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 2'),
-            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 3'),
+            PowerPanel(site=sites[0], location=locations[0], name='Power Panel 1'),
+            PowerPanel(site=sites[0], location=locations[0], name='Power Panel 2'),
+            PowerPanel(site=sites[0], location=locations[0], name='Power Panel 3'),
         ))
 
         tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'site': sites[1].pk,
-            'rack_group': rackgroups[1].pk,
+            'location': locations[1].pk,
             'name': 'Power Panel X',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "site,rack_group,name",
-            "Site 1,Rack Group 1,Power Panel 4",
-            "Site 1,Rack Group 1,Power Panel 5",
-            "Site 1,Rack Group 1,Power Panel 6",
+            "site,location,name",
+            "Site 1,Location 1,Power Panel 4",
+            "Site 1,Location 1,Power Panel 5",
+            "Site 1,Location 1,Power Panel 6",
         )
 
         cls.bulk_edit_data = {
             'site': sites[1].pk,
-            'rack_group': rackgroups[1].pk,
+            'location': locations[1].pk,
         }
 
 

@@ -1,14 +1,12 @@
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.fields import ASNField
 from dcim.models import CableTermination, PathEndpoint
-from extras.models import ObjectChange, TaggedItem
+from extras.models import ObjectChange
 from extras.utils import extras_features
-from netbox.models import BigIDModel, OrganizationalModel, PrimaryModel
+from netbox.models import BigIDModel, ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
 from .choices import *
 from .querysets import CircuitQuerySet
 
@@ -61,7 +59,6 @@ class Provider(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -185,7 +182,6 @@ class Circuit(PrimaryModel):
     )
 
     objects = CircuitQuerySet.as_manager()
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
@@ -235,7 +231,8 @@ class Circuit(PrimaryModel):
         return self._get_termination('Z')
 
 
-class CircuitTermination(BigIDModel, PathEndpoint, CableTermination):
+@extras_features('webhooks')
+class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,
@@ -289,21 +286,14 @@ class CircuitTermination(BigIDModel, PathEndpoint, CableTermination):
     def to_objectchange(self, action):
         # Annotate the parent Circuit
         try:
-            related_object = self.circuit
+            circuit = self.circuit
         except Circuit.DoesNotExist:
             # Parent circuit has been deleted
-            related_object = None
-
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=related_object,
-            object_data=serialize_object(self)
-        )
+            circuit = None
+        return super().to_objectchange(action, related_object=circuit)
 
     @property
-    def parent(self):
+    def parent_object(self):
         return self.circuit
 
     def get_peer_termination(self):

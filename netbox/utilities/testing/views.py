@@ -559,12 +559,6 @@ class ViewTestCases:
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(self._get_url('list')), 200)
 
-            # Built-in CSV export
-            if hasattr(self.model, 'csv_headers'):
-                response = self.client.get('{}?export'.format(self._get_url('list')))
-                self.assertHttpStatus(response, 200)
-                self.assertEqual(response.get('Content-Type'), 'text/csv')
-
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_with_constrained_permission(self):
             instance1, instance2 = self._get_queryset().all()[:2]
@@ -586,9 +580,26 @@ class ViewTestCases:
             if hasattr(self.model, 'name'):
                 self.assertIn(instance1.name, content)
                 self.assertNotIn(instance2.name, content)
-            else:
+            elif hasattr(self.model, 'get_absolute_url'):
                 self.assertIn(instance1.get_absolute_url(), content)
                 self.assertNotIn(instance2.get_absolute_url(), content)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_export_objects(self):
+            url = self._get_url('list')
+
+            # Test default CSV export
+            response = self.client.get(f'{url}?export')
+            self.assertHttpStatus(response, 200)
+            if hasattr(self.model, 'csv_headers'):
+                self.assertEqual(response.get('Content-Type'), 'text/csv')
+                content = response.content.decode('utf-8')
+                self.assertEqual(content.splitlines()[0], ','.join(self.model.csv_headers))
+
+            # Test table-based export
+            response = self.client.get(f'{url}?export=table')
+            self.assertHttpStatus(response, 200)
+            self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
 
     class CreateMultipleObjectsViewTestCase(ModelViewTestCase):
         """
@@ -1013,6 +1024,7 @@ class ViewTestCases:
         DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
         BulkImportObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
         """

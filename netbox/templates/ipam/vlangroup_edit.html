@@ -1,0 +1,49 @@
+{% extends 'generic/object_edit.html' %}
+{% load form_helpers %}
+{% load helpers %}
+
+{% block form %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>VLAN Group</strong></div>
+        <div class="panel-body">
+            {% render_field form.name %}
+            {% render_field form.slug %}
+            {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Scope</strong>
+        </div>
+        <div class="panel-body">
+            {% with virtual_tab_active=form.initial.cluster %}
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation"{% if not virtual_tab_active %} class="active"{% endif %}><a href="#physical" role="tab" data-toggle="tab">Physical</a></li>
+                    <li role="presentation"{% if virtual_tab_active %} class="active"{% endif %}><a href="#virtual" role="tab" data-toggle="tab">Virtual</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane{% if not virtual_tab_active %} active{% endif %}" id="physical">
+                        {% render_field form.region %}
+                        {% render_field form.site_group %}
+                        {% render_field form.site %}
+                        {% render_field form.location %}
+                        {% render_field form.rack %}
+                    </div>
+                    <div class="tab-pane{% if virtual_tab_active %} active{% endif %}" id="virtual">
+                        {% render_field form.cluster_group %}
+                        {% render_field form.cluster %}
+                    </div>
+                </div>
+                <span class="help-block">The VLAN group will be limited in scope to the most-specific object selected above.</span>
+            {% endwith %}
+        </div>
+    </div>
+    {% if form.custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Custom Fields</strong></div>
+            <div class="panel-body">
+                {% render_custom_fields form %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
