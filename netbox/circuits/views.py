@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
@@ -94,6 +95,28 @@ class CloudListView(generic.ObjectListView):
 
 class CloudView(generic.ObjectView):
     queryset = Cloud.objects.all()
+
+    def get_extra_context(self, request, instance):
+        circuits = Circuit.objects.restrict(request.user, 'view').filter(
+            Q(termination_a__cloud=instance.pk) |
+            Q(termination_z__cloud=instance.pk)
+        ).prefetch_related(
+            'type', 'tenant', 'terminations__site'
+        )
+
+        circuits_table = tables.CircuitTable(circuits)
+        circuits_table.columns.hide('termination_a')
+        circuits_table.columns.hide('termination_z')
+
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': get_paginate_count(request)
+        }
+        RequestConfig(request, paginate).configure(circuits_table)
+
+        return {
+            'circuits_table': circuits_table,
+        }
 
 
 class CloudEditView(generic.ObjectEditView):
