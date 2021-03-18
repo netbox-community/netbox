@@ -6,6 +6,9 @@ menus:
           - label: Sites
             url: 'dcim:site_list'
             disabled: true
+          - label: Site Groups
+            url: 'dcim:sitegroup_list'
+            disabled: true
           - label: Regions
             url: 'dcim:region_list'
             disabled: true
@@ -14,8 +17,8 @@ menus:
           - label: Racks
             url: 'dcim:rack_list'
             disabled: true
-          - label: Rack Groups
-            url: 'dcim:rackgroup_list'
+          - label: Locations
+            url: 'dcim:location_list'
             disabled: true
           - label: Rack Roles
             url: 'dcim:rackrole_list'
