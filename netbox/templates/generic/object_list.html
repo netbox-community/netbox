@@ -8,19 +8,16 @@
 {% block controls %}
 <div class="container mb-2 mx-0">
   <div class="d-flex flex-wrap justify-content-end">
-  {% if permissions.add and 'add' in action_buttons %}
+    {% if permissions.add and 'add' in action_buttons %}
         {% add_button content_type.model_class|validated_viewname:"add" %}
     {% endif %}
-    <div class="d-flex flex-shrink-1">
-        <div class="btn-group m-1">
-        {% if permissions.add and 'import' in action_buttons %}
-            {% import_button content_type.model_class|validated_viewname:"import" %}
-        {% endif %}
-        {% if 'export' in action_buttons %}
-            {% export_button content_type %}
-        {% endif %}
-        </div>
-    </div>
+    {% if permissions.add and 'import' in action_buttons %}
+        {% import_button content_type.model_class|validated_viewname:"import" %}
+    {% endif %}
+    {% if 'export' in action_buttons %}
+        {% export_button content_type %}
+    {% endif %}
+    
     <div class="d-flex flex-shrink-1">
     {% if request.user.is_authenticated and table_config_form %}
 

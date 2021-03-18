@@ -1,10 +1,10 @@
-<div class="btn-group m-1">
+<div class="dropdown m-1">
     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="bi bi-download"></i>&nbsp;Export
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export=table">Current view</a></li>
-        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Default format</a></li>
+        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export=table">Current View</a></li>
+        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Default Format</a></li>
         {% if export_templates %}
         <li class="divider"></li>
         {% for et in export_templates %}
