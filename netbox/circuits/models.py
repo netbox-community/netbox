@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
@@ -8,13 +9,13 @@ from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from .choices import *
-from .querysets import CircuitQuerySet
 
 
 __all__ = (
     'Circuit',
     'CircuitTermination',
     'CircuitType',
+    'Cloud',
     'Provider',
 )
 
@@ -87,6 +88,59 @@ class Provider(PrimaryModel):
             self.portal_url,
             self.noc_contact,
             self.admin_contact,
+            self.comments,
+        )
+
+
+#
+# Clouds
+#
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class Cloud(PrimaryModel):
+    name = models.CharField(
+        max_length=100
+    )
+    provider = models.ForeignKey(
+        to='circuits.Provider',
+        on_delete=models.PROTECT,
+        related_name='clouds'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
+
+    csv_headers = [
+        'provider', 'name', 'description', 'comments',
+    ]
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('provider', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('provider', 'name'),
+                name='circuits_cloud_provider_name'
+            ),
+        )
+        unique_together = ('provider', 'name')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('circuits:cloud', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.provider.name,
+            self.name,
+            self.description,
             self.comments,
         )
 
@@ -181,7 +235,25 @@ class Circuit(PrimaryModel):
         blank=True
     )
 
-    objects = CircuitQuerySet.as_manager()
+    # Cache associated CircuitTerminations
+    termination_a = models.ForeignKey(
+        to='circuits.CircuitTermination',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        editable=False,
+        blank=True,
+        null=True
+    )
+    termination_z = models.ForeignKey(
+        to='circuits.CircuitTermination',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        editable=False,
+        blank=True,
+        null=True
+    )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
@@ -216,20 +288,6 @@ class Circuit(PrimaryModel):
     def get_status_class(self):
         return CircuitStatusChoices.CSS_CLASSES.get(self.status)
 
-    def _get_termination(self, side):
-        for ct in self.terminations.all():
-            if ct.term_side == side:
-                return ct
-        return None
-
-    @property
-    def termination_a(self):
-        return self._get_termination('A')
-
-    @property
-    def termination_z(self):
-        return self._get_termination('Z')
-
 
 @extras_features('webhooks')
 class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
@@ -246,7 +304,16 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,
-        related_name='circuit_terminations'
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
+    cloud = models.ForeignKey(
+        to=Cloud,
+        on_delete=models.PROTECT,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
     )
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)',
@@ -281,7 +348,23 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
         unique_together = ['circuit', 'term_side']
 
     def __str__(self):
-        return 'Side {}'.format(self.get_term_side_display())
+        if self.site:
+            return str(self.site)
+        return str(self.cloud)
+
+    def get_absolute_url(self):
+        if self.site:
+            return self.site.get_absolute_url()
+        return self.cloud.get_absolute_url()
+
+    def clean(self):
+        super().clean()
+
+        # Must define either site *or* cloud
+        if self.site is None and self.cloud is None:
+            raise ValidationError("A circuit termination must attach to either a site or a cloud.")
+        if self.site and self.cloud:
+            raise ValidationError("A circuit termination cannot attach to both a site and a cloud.")
 
     def to_objectchange(self, action):
         # Annotate the parent Circuit

@@ -1,14 +1,27 @@
 from rest_framework import serializers
 
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from circuits.models import *
 from netbox.api import WritableNestedSerializer
 
 __all__ = [
     'NestedCircuitSerializer',
     'NestedCircuitTerminationSerializer',
     'NestedCircuitTypeSerializer',
+    'NestedCloudSerializer',
     'NestedProviderSerializer',
 ]
+
+
+#
+# Clouds
+#
+
+class NestedCloudSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:cloud-detail')
+
+    class Meta:
+        model = Provider
+        fields = ['id', 'url', 'display', 'name']
 
 
 #

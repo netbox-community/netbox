@@ -26,62 +26,71 @@
     </div>
     {% if termination %}
         <table class="table table-hover panel-body attr-table">
-            <tr>
-                <td>Site</td>
-                <td>
-                    {% if termination.site.region %}
-                        <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a> /
-                    {% endif %}
-                    <a href="{{ termination.site.get_absolute_url }}">{{ termination.site }}</a>
-                </td>
-            </tr>
-            <tr>
-                <td>Termination</td>
-                <td>
-                    {% if termination.mark_connected %}
-                        <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                        <span class="text-muted">Marked as connected</span>
-                    {% elif termination.cable %}
-                        {% if perms.dcim.delete_cable %}
-                            <div class="pull-right">
-                                <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">
-                                    <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> Disconnect
-                                </a>
-                            </div>
+            {% if termination.site %}
+                <tr>
+                    <td>Site</td>
+                    <td>
+                        {% if termination.site.region %}
+                            <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a> /
                         {% endif %}
-                        <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
-                        <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-xs" title="Trace">
-                            <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
-                        </a>
-                        {% with peer=termination.get_cable_peer %}
-                            to
-                            {% if peer.device %}
-                                <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a>
-                            {% elif peer.circuit %}
-                                <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a>
+                        <a href="{{ termination.site.get_absolute_url }}">{{ termination.site }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Termination</td>
+                    <td>
+                        {% if termination.mark_connected %}
+                            <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                            <span class="text-muted">Marked as connected</span>
+                        {% elif termination.cable %}
+                            {% if perms.dcim.delete_cable %}
+                                <div class="pull-right">
+                                    <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">
+                                        <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> Disconnect
+                                    </a>
+                                </div>
                             {% endif %}
-                            ({{ peer }})
-                        {% endwith %}
-                    {% else %}
-                        {% if perms.dcim.add_cable %}
-                            <div class="pull-right">
-                                <span class="dropdown">
-                                    <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='interface' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Interface</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='front-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Front Port</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='rear-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Rear Port</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='circuit-termination' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
-                                    </ul>
-                                </span>
-                            </div>
+                            <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
+                            <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+                            </a>
+                            {% with peer=termination.get_cable_peer %}
+                                to
+                                {% if peer.device %}
+                                    <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a>
+                                {% elif peer.circuit %}
+                                    <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a>
+                                {% endif %}
+                                ({{ peer }})
+                            {% endwith %}
+                        {% else %}
+                            {% if perms.dcim.add_cable %}
+                                <div class="pull-right">
+                                    <span class="dropdown">
+                                        <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='interface' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Interface</a></li>
+                                            <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='front-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Front Port</a></li>
+                                            <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='rear-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Rear Port</a></li>
+                                            <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='circuit-termination' %}?termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
+                                        </ul>
+                                    </span>
+                                </div>
+                            {% endif %}
+                            <span class="text-muted">Not defined</span>
                         {% endif %}
-                        <span class="text-muted">Not defined</span>
-                    {% endif %}
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>Cloud</td>
+                    <td>
+                        <a href="{{ termination.cloud.get_absolute_url }}">{{ termination.cloud }}</a>
+                    </td>
+                </tr>
+            {% endif %}
             <tr>
                 <td>Speed</td>
                 <td>

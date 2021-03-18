@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from circuits.choices import *
 from circuits.filters import *
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from circuits.models import *
 from dcim.models import Cable, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 
@@ -186,6 +186,13 @@ class CircuitTestCase(TestCase):
         )
         Provider.objects.bulk_create(providers)
 
+        clouds = (
+            Cloud(name='Cloud 1', provider=providers[1]),
+            Cloud(name='Cloud 2', provider=providers[1]),
+            Cloud(name='Cloud 3', provider=providers[1]),
+        )
+        Cloud.objects.bulk_create(clouds)
+
         circuits = (
             Circuit(provider=providers[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE),
             Circuit(provider=providers[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE),
@@ -200,6 +207,9 @@ class CircuitTestCase(TestCase):
             CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
             CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A'),
             CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A'),
+            CircuitTermination(circuit=circuits[3], cloud=clouds[0], term_side='A'),
+            CircuitTermination(circuit=circuits[4], cloud=clouds[1], term_side='A'),
+            CircuitTermination(circuit=circuits[5], cloud=clouds[2], term_side='A'),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -225,6 +235,11 @@ class CircuitTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'provider': [provider.slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_cloud(self):
+        clouds = Cloud.objects.all()[:2]
+        params = {'cloud_id': [clouds[0].pk, clouds[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         circuit_type = CircuitType.objects.first()
@@ -281,14 +296,14 @@ class CircuitTerminationTestCase(TestCase):
     def setUpTestData(cls):
 
         sites = (
-            Site(name='Test Site 1', slug='test-site-1'),
-            Site(name='Test Site 2', slug='test-site-2'),
-            Site(name='Test Site 3', slug='test-site-3'),
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
         )
         Site.objects.bulk_create(sites)
 
         circuit_types = (
-            CircuitType(name='Test Circuit Type 1', slug='test-circuit-type-1'),
+            CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
         )
         CircuitType.objects.bulk_create(circuit_types)
 
@@ -297,10 +312,20 @@ class CircuitTerminationTestCase(TestCase):
         )
         Provider.objects.bulk_create(providers)
 
+        clouds = (
+            Cloud(name='Cloud 1', provider=providers[0]),
+            Cloud(name='Cloud 2', provider=providers[0]),
+            Cloud(name='Cloud 3', provider=providers[0]),
+        )
+        Cloud.objects.bulk_create(clouds)
+
         circuits = (
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 1'),
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 2'),
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 3'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 1'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 2'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 3'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 4'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 5'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 6'),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -311,6 +336,9 @@ class CircuitTerminationTestCase(TestCase):
             CircuitTermination(circuit=circuits[1], site=sites[2], term_side='Z', port_speed=2000, upstream_speed=2000, xconnect_id='JKL'),
             CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A', port_speed=3000, upstream_speed=3000, xconnect_id='MNO'),
             CircuitTermination(circuit=circuits[2], site=sites[0], term_side='Z', port_speed=3000, upstream_speed=3000, xconnect_id='PQR'),
+            CircuitTermination(circuit=circuits[3], cloud=clouds[0], term_side='A'),
+            CircuitTermination(circuit=circuits[4], cloud=clouds[1], term_side='A'),
+            CircuitTermination(circuit=circuits[5], cloud=clouds[2], term_side='A'),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -318,7 +346,7 @@ class CircuitTerminationTestCase(TestCase):
 
     def test_term_side(self):
         params = {'term_side': 'A'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_port_speed(self):
         params = {'port_speed': ['1000', '2000']}
@@ -344,6 +372,11 @@ class CircuitTerminationTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_cloud(self):
+        clouds = Cloud.objects.all()[:2]
+        params = {'cloud_id': [clouds[0].pk, clouds[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cabled(self):
         params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -352,4 +385,41 @@ class CircuitTerminationTestCase(TestCase):
         params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
+
+
+class CloudTestCase(TestCase):
+    queryset = Cloud.objects.all()
+    filterset = CloudFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        clouds = (
+            Cloud(name='Cloud 1', provider=providers[0]),
+            Cloud(name='Cloud 2', provider=providers[1]),
+            Cloud(name='Cloud 3', provider=providers[2]),
+        )
+        Cloud.objects.bulk_create(clouds)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Cloud 1', 'Cloud 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider': [providers[0].slug, providers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

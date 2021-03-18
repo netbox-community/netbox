@@ -1,7 +1,7 @@
 import datetime
 
 from circuits.choices import *
-from circuits.models import Circuit, CircuitType, Provider
+from circuits.models import *
 from utilities.testing import ViewTestCases
 
 
@@ -130,6 +130,48 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
             'commit_rate': 2000,
+            'description': 'New description',
+            'comments': 'New comments',
+        }
+
+
+class CloudTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = Cloud
+
+    @classmethod
+    def setUpTestData(cls):
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        Cloud.objects.bulk_create([
+            Cloud(name='Cloud 1', provider=providers[0]),
+            Cloud(name='Cloud 2', provider=providers[0]),
+            Cloud(name='Cloud 3', provider=providers[0]),
+        ])
+
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Cloud X',
+            'provider': providers[1].pk,
+            'description': 'A new cloud',
+            'comments': 'Longer description goes here',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,provider,description",
+            "Cloud 4,Provider 1,Foo",
+            "Cloud 5,Provider 1,Bar",
+            "Cloud 6,Provider 1,Baz",
+        )
+
+        cls.bulk_edit_data = {
+            'provider': providers[1].pk,
             'description': 'New description',
             'comments': 'New comments',
         }

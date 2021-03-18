@@ -242,6 +242,16 @@ class Cable(PrimaryModel):
         ):
             raise ValidationError("A front port cannot be connected to it corresponding rear port")
 
+        # A CircuitTermination attached to a Cloud cannot have a Cable
+        if isinstance(self.termination_a, CircuitTermination) and self.termination_a.cloud is not None:
+            raise ValidationError({
+                'termination_a_id': "Circuit terminations attached to a cloud may not be cabled."
+            })
+        if isinstance(self.termination_b, CircuitTermination) and self.termination_b.cloud is not None:
+            raise ValidationError({
+                'termination_b_id': "Circuit terminations attached to a cloud may not be cabled."
+            })
+
         # Check for an existing Cable connected to either termination object
         if self.termination_a.cable not in (None, self):
             raise ValidationError("{} already has a cable attached (#{})".format(

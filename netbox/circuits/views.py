@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
@@ -9,7 +10,7 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import count_related
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 
 #
@@ -33,7 +34,7 @@ class ProviderView(generic.ObjectView):
             provider=instance
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
-        ).annotate_sites()
+        )
 
         circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('provider')
@@ -79,6 +80,71 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
+
+
+#
+# Clouds
+#
+
+class CloudListView(generic.ObjectListView):
+    queryset = Cloud.objects.all()
+    filterset = filters.CloudFilterSet
+    filterset_form = forms.CloudFilterForm
+    table = tables.CloudTable
+
+
+class CloudView(generic.ObjectView):
+    queryset = Cloud.objects.all()
+
+    def get_extra_context(self, request, instance):
+        circuits = Circuit.objects.restrict(request.user, 'view').filter(
+            Q(termination_a__cloud=instance.pk) |
+            Q(termination_z__cloud=instance.pk)
+        ).prefetch_related(
+            'type', 'tenant', 'terminations__site'
+        )
+
+        circuits_table = tables.CircuitTable(circuits)
+        circuits_table.columns.hide('termination_a')
+        circuits_table.columns.hide('termination_z')
+
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': get_paginate_count(request)
+        }
+        RequestConfig(request, paginate).configure(circuits_table)
+
+        return {
+            'circuits_table': circuits_table,
+        }
+
+
+class CloudEditView(generic.ObjectEditView):
+    queryset = Cloud.objects.all()
+    model_form = forms.CloudForm
+
+
+class CloudDeleteView(generic.ObjectDeleteView):
+    queryset = Cloud.objects.all()
+
+
+class CloudBulkImportView(generic.BulkImportView):
+    queryset = Cloud.objects.all()
+    model_form = forms.CloudCSVForm
+    table = tables.CloudTable
+
+
+class CloudBulkEditView(generic.BulkEditView):
+    queryset = Cloud.objects.all()
+    filterset = filters.CloudFilterSet
+    table = tables.CloudTable
+    form = forms.CloudBulkEditForm
+
+
+class CloudBulkDeleteView(generic.BulkDeleteView):
+    queryset = Cloud.objects.all()
+    filterset = filters.CloudFilterSet
+    table = tables.CloudTable
 
 
 #
@@ -129,8 +195,8 @@ class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
 
 class CircuitListView(generic.ObjectListView):
     queryset = Circuit.objects.prefetch_related(
-        'provider', 'type', 'tenant', 'terminations'
-    ).annotate_sites()
+        'provider', 'type', 'tenant', 'termination_a', 'termination_z'
+    )
     filterset = filters.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
     table = tables.CircuitTable
