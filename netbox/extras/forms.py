@@ -377,6 +377,12 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 
 class JournalEntryForm(BootstrapMixin, forms.ModelForm):
 
+    kind = forms.ChoiceField(
+        choices=add_blank_choice(JournalEntryKindChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
     class Meta:
         model = JournalEntry
         fields = ['assigned_object_type', 'assigned_object_id', 'kind', 'comments']
