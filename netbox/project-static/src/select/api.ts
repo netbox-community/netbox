@@ -181,6 +181,9 @@ export function initApiSelect() {
     const groupBy = [] as HTMLSelectElement[];
 
     if (isCustomSelect(select)) {
+      // Store the original URL, so it can be referred back to as filter-by elements change.
+      const originalUrl = JSON.parse(JSON.stringify(select.dataset.url)) as string;
+      // Unpack the original URL with the intent of reassigning it as context updates.
       let { url } = select.dataset;
 
       const placeholder = getPlaceholder(select);
@@ -297,6 +300,8 @@ export function initApiSelect() {
           query[name] = target.value;
           // Create a URL with all relevant query parameters.
           url = queryString.stringifyUrl({ url, query });
+        } else {
+          url = originalUrl;
         }
 
         // Disable the element while data is loading.
