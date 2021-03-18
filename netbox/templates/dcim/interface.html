@@ -42,7 +42,7 @@
                     <tr>
                         <td>LAG</td>
                         <td>
-                            {% if object.lag%}
+                            {% if object.lag %}
                                 <a href="{{ object.lag.get_absolute_url }}">{{ object.lag }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
@@ -118,7 +118,7 @@
                                     <tr>
                                         <td>LAG</td>
                                         <td>
-                                            {% if iface.lag%}
+                                            {% if iface.lag %}
                                                 <a href="{{ iface.lag.get_absolute_url }}">{{ iface.lag }}</a>
                                             {% else %}
                                                 <span class="text-muted">None</span>

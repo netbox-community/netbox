@@ -385,7 +385,7 @@
                             {% endif %}
                             <a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a>
                         </li>
-                        <li{% if not perms.virtualization.view_vminterface%} class="disabled"{% endif %}>
+                        <li{% if not perms.virtualization.view_vminterface %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_vminterface %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'virtualization:vminterface_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>

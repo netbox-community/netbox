@@ -18,7 +18,7 @@
                             {% include 'dcim/trace/termination.html' with termination=near_end %}
                         {% elif near_end.power_panel %}
                             {% include 'dcim/trace/powerpanel.html' with powerpanel=near_end.power_panel %}
-                            {% include 'dcim/trace/termination.html' with termination=far_end%}
+                            {% include 'dcim/trace/termination.html' with termination=far_end %}
                         {% elif near_end.circuit %}
                             {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
                             {% include 'dcim/trace/termination.html' with termination=near_end %}
