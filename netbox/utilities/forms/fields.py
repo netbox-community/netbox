@@ -216,10 +216,10 @@ class CommentField(forms.CharField):
     """
     A textarea with support for Markdown rendering. Exists mostly just to add a standard help_text.
     """
-    widget = forms.Textarea
+    widget = forms.Textarea(attrs={"class": "markdown"})
     default_label = ''
     # TODO: Port Markdown cheat sheet to internal documentation
-    default_helptext = '<i class="bi bi-info-circle"></i> '\
+    default_helptext = '<i class="bi bi-markdown"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
                        'Markdown</a> syntax is supported'
 
