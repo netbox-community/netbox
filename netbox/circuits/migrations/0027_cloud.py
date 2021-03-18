@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Create the new Cloud model
         migrations.CreateModel(
             name='Cloud',
             fields=[
@@ -37,6 +38,8 @@ class Migration(migrations.Migration):
             name='cloud',
             unique_together={('provider', 'name')},
         ),
+
+        # Add cloud FK to CircuitTermination
         migrations.AddField(
             model_name='circuittermination',
             name='cloud',
@@ -46,5 +49,17 @@ class Migration(migrations.Migration):
             model_name='circuittermination',
             name='site',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='circuit_terminations', to='dcim.site'),
+        ),
+
+        # Add FKs to CircuitTermination on Circuit
+        migrations.AddField(
+            model_name='circuit',
+            name='termination_a',
+            field=models.ForeignKey(blank=True, editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='circuits.circuittermination'),
+        ),
+        migrations.AddField(
+            model_name='circuit',
+            name='termination_z',
+            field=models.ForeignKey(blank=True, editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='circuits.circuittermination'),
         ),
     ]

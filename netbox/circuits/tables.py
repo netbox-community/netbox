@@ -83,11 +83,11 @@ class CircuitTable(BaseTable):
     )
     status = ChoiceFieldColumn()
     tenant = TenantColumn()
-    a_side = tables.Column(
-        verbose_name='A Side'
+    termination_a = tables.Column(
+        verbose_name='Side A'
     )
-    z_side = tables.Column(
-        verbose_name='Z Side'
+    termination_z = tables.Column(
+        verbose_name='Side Z'
     )
     tags = TagColumn(
         url_name='circuits:circuit_list'
@@ -96,7 +96,9 @@ class CircuitTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Circuit
         fields = (
-            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'install_date', 'commit_rate',
-            'description', 'tags',
+            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
+            'commit_rate', 'description', 'tags',
         )
-        default_columns = ('pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'description')
+        default_columns = (
+            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',
+        )

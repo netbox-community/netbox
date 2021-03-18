@@ -33,7 +33,7 @@ class ProviderView(generic.ObjectView):
             provider=instance
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
-        ).annotate_sites()
+        )
 
         circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('provider')
@@ -172,8 +172,8 @@ class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
 
 class CircuitListView(generic.ObjectListView):
     queryset = Circuit.objects.prefetch_related(
-        'provider', 'type', 'tenant', 'terminations'
-    ).annotate_sites()
+        'provider', 'type', 'tenant', 'termination_a', 'termination_z'
+    )
     filterset = filters.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
     table = tables.CircuitTable

@@ -48,8 +48,7 @@ class CircuitTypeViewSet(CustomFieldModelViewSet):
 
 class CircuitViewSet(CustomFieldModelViewSet):
     queryset = Circuit.objects.prefetch_related(
-        Prefetch('terminations', queryset=CircuitTermination.objects.prefetch_related('site')),
-        'type', 'tenant', 'provider',
+        'type', 'tenant', 'provider', 'termination_a', 'termination_z'
     ).prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filterset_class = filters.CircuitFilterSet

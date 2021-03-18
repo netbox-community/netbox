@@ -40,7 +40,7 @@ SEARCH_TYPES = OrderedDict((
     ('circuit', {
         'queryset': Circuit.objects.prefetch_related(
             'type', 'provider', 'tenant', 'terminations__site'
-        ).annotate_sites(),
+        ),
         'filterset': CircuitFilterSet,
         'table': CircuitTable,
         'url': 'circuits:circuit_list',

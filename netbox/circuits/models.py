@@ -9,7 +9,6 @@ from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from .choices import *
-from .querysets import CircuitQuerySet
 
 
 __all__ = (
@@ -236,7 +235,25 @@ class Circuit(PrimaryModel):
         blank=True
     )
 
-    objects = CircuitQuerySet.as_manager()
+    # Cache associated CircuitTerminations
+    termination_a = models.ForeignKey(
+        to='circuits.CircuitTermination',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        editable=False,
+        blank=True,
+        null=True
+    )
+    termination_z = models.ForeignKey(
+        to='circuits.CircuitTermination',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        editable=False,
+        blank=True,
+        null=True
+    )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
@@ -270,20 +287,6 @@ class Circuit(PrimaryModel):
 
     def get_status_class(self):
         return CircuitStatusChoices.CSS_CLASSES.get(self.status)
-
-    def _get_termination(self, side):
-        for ct in self.terminations.all():
-            if ct.term_side == side:
-                return ct
-        return None
-
-    @property
-    def termination_a(self):
-        return self._get_termination('A')
-
-    @property
-    def termination_z(self):
-        return self._get_termination('Z')
 
 
 @extras_features('webhooks')
@@ -345,6 +348,9 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
         unique_together = ['circuit', 'term_side']
 
     def __str__(self):
+        if self.site:
+            return str(self.site)
+        return str(self.cloud)
         return f"Side {self.get_term_side_display()}"
 
     def clean(self):
