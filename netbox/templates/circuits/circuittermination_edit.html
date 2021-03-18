@@ -6,7 +6,7 @@
 
 {% block form %}
   <div class="panel panel-default">
-      <div class="panel-heading"><strong>Location</strong></div>
+      <div class="panel-heading"><strong>Termination</strong></div>
       <div class="panel-body">
           <div class="form-group">
               <label class="col-md-3 control-label">Provider</label>
@@ -26,9 +26,22 @@
                   <p class="form-control-static">{{ form.term_side.value }}</p>
               </div>
           </div>
-          {% render_field form.region %}
-          {% render_field form.site_group %}
-          {% render_field form.site %}
+          {% with cloud_tab_active=form.initial.cloud %}
+              <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation"{% if not cloud_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
+                  <li role="presentation"{% if cloud_tab_active %} class="active"{% endif %}><a href="#cloud" role="tab" data-toggle="tab">Cloud</a></li>
+              </ul>
+              <div class="tab-content">
+                  <div class="tab-pane{% if not cloud_tab_active %} active{% endif %}" id="site">
+                      {% render_field form.region %}
+                      {% render_field form.site_group %}
+                      {% render_field form.site %}
+                  </div>
+                  <div class="tab-pane{% if cloud_tab_active %} active{% endif %}" id="cloud">
+                      {% render_field form.cloud %}
+                  </div>
+              </div>
+          {% endwith %}
           {% render_field form.mark_connected %}
       </div>
   </div>

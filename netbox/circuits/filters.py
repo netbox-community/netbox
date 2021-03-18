@@ -221,6 +221,10 @@ class CircuitTerminationFilterSet(BaseFilterSet, CableTerminationFilterSet, Path
         to_field_name='slug',
         label='Site (slug)',
     )
+    cloud_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cloud.objects.all(),
+        label='Cloud (ID)',
+    )
 
     class Meta:
         model = CircuitTermination

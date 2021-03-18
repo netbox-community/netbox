@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
@@ -300,7 +301,16 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,
-        related_name='circuit_terminations'
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
+    cloud = models.ForeignKey(
+        to=Cloud,
+        on_delete=models.PROTECT,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
     )
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)',
@@ -335,7 +345,16 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
         unique_together = ['circuit', 'term_side']
 
     def __str__(self):
-        return 'Side {}'.format(self.get_term_side_display())
+        return f"Side {self.get_term_side_display()}"
+
+    def clean(self):
+        super().clean()
+
+        # Must define either site *or* cloud
+        if self.site is None and self.cloud is None:
+            raise ValidationError("A circuit termination must attach to either a site or a cloud.")
+        if self.site and self.cloud:
+            raise ValidationError("A circuit termination cannot attach to both a site and a cloud.")
 
     def to_objectchange(self, action):
         # Annotate the parent Circuit

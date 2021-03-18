@@ -18,6 +18,12 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
+                    <td>Provider</td>
+                    <td>
+                        <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
+                    </td>
+                </tr>
+                <tr>
                     <td>Name</td>
                     <td>{{ object.name }}</td>
                 </tr>

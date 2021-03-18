@@ -63,12 +63,13 @@ class CircuitTypeSerializer(OrganizationalModelSerializer):
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     site = NestedSiteSerializer()
+    cloud = NestedCloudSerializer()
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'connected_endpoint',
-            'connected_endpoint_type', 'connected_endpoint_reachable',
+            'id', 'url', 'display', 'site', 'cloud', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable',
         ]
 
 
@@ -93,13 +94,14 @@ class CircuitSerializer(PrimaryModelSerializer):
 class CircuitTerminationSerializer(BaseModelSerializer, CableTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     circuit = NestedCircuitSerializer()
-    site = NestedSiteSerializer()
+    site = NestedSiteSerializer(required=False)
+    cloud = NestedCloudSerializer(required=False)
     cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display', 'circuit', 'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id',
-            'pp_info', 'description', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'connected_endpoint',
-            'connected_endpoint_type', 'connected_endpoint_reachable', '_occupied',
+            'id', 'url', 'display', 'circuit', 'term_side', 'site', 'cloud', 'port_speed', 'upstream_speed',
+            'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', '_occupied',
         ]

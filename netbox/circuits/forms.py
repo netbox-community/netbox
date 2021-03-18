@@ -423,13 +423,18 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
-        }
+        },
+        required=False
+    )
+    cloud = DynamicModelChoiceField(
+        queryset=Cloud.objects.all(),
+        required=False
     )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'region', 'site_group', 'site', 'mark_connected', 'port_speed', 'upstream_speed',
+            'term_side', 'region', 'site_group', 'site', 'cloud', 'mark_connected', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {
@@ -442,3 +447,8 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
             'port_speed': SelectSpeedWidget(),
             'upstream_speed': SelectSpeedWidget(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['cloud'].widget.add_query_param('provider_id', self.instance.circuit.provider_id)

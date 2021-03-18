@@ -37,4 +37,14 @@ class Migration(migrations.Migration):
             name='cloud',
             unique_together={('provider', 'name')},
         ),
+        migrations.AddField(
+            model_name='circuittermination',
+            name='cloud',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='circuit_terminations', to='circuits.cloud'),
+        ),
+        migrations.AlterField(
+            model_name='circuittermination',
+            name='site',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='circuit_terminations', to='dcim.site'),
+        ),
     ]
