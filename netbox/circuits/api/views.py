@@ -2,7 +2,7 @@ from django.db.models import Prefetch
 from rest_framework.routers import APIRootView
 
 from circuits import filters
-from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
+from circuits.models import *
 from dcim.api.views import PathEndpointMixin
 from extras.api.views import CustomFieldModelViewSet
 from netbox.api.views import ModelViewSet
@@ -66,3 +66,13 @@ class CircuitTerminationViewSet(PathEndpointMixin, ModelViewSet):
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filters.CircuitTerminationFilterSet
     brief_prefetch_fields = ['circuit']
+
+
+#
+# Clouds
+#
+
+class CloudViewSet(CustomFieldModelViewSet):
+    queryset = Cloud.objects.prefetch_related('tags')
+    serializer_class = serializers.CloudSerializer
+    filterset_class = filters.CloudFilterSet

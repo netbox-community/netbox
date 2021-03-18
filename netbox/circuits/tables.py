@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from tenancy.tables import TenantColumn
 from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
-from .models import Circuit, CircuitType, Provider
+from .models import *
 
 
 #
@@ -27,6 +27,28 @@ class ProviderTable(BaseTable):
             'pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count', 'tags',
         )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
+
+
+#
+# Clouds
+#
+
+class CloudTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    provider = tables.Column(
+        linkify=True
+    )
+    tags = TagColumn(
+        url_name='circuits:cloud_list'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Cloud
+        fields = ('pk', 'name', 'provider', 'description', 'tags')
+        default_columns = ('pk', 'name', 'provider', 'description')
 
 
 #

@@ -13,5 +13,8 @@ router.register('circuit-types', views.CircuitTypeViewSet)
 router.register('circuits', views.CircuitViewSet)
 router.register('circuit-terminations', views.CircuitTerminationViewSet)
 
+# Clouds
+router.register('clouds', views.CloudViewSet)
+
 app_name = 'circuits-api'
 urlpatterns = router.urls

@@ -9,12 +9,13 @@ from utilities.filters import (
     BaseFilterSet, NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter
 )
 from .choices import *
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 __all__ = (
     'CircuitFilterSet',
     'CircuitTerminationFilterSet',
     'CircuitTypeFilterSet',
+    'CloudFilterSet',
     'ProviderFilterSet',
 )
 
@@ -77,6 +78,36 @@ class ProviderFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdated
             Q(admin_contact__icontains=value) |
             Q(comments__icontains=value)
         )
+
+
+class CloudFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    provider_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Provider.objects.all(),
+        label='Provider (ID)',
+    )
+    provider = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider__slug',
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        label='Provider (slug)',
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = Cloud
+        fields = ['id', 'name']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        ).distinct()
 
 
 class CircuitTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet):

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from circuits.choices import CircuitStatusChoices
-from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
+from circuits.models import *
 from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
 from dcim.api.serializers import CableTerminationSerializer, ConnectedEndpointSerializer
 from netbox.api import ChoiceField
@@ -25,6 +25,22 @@ class ProviderSerializer(PrimaryModelSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
+        ]
+
+
+#
+# Clouds
+#
+
+class CloudSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:cloud-detail')
+    provider = NestedProviderSerializer()
+
+    class Meta:
+        model = Cloud
+        fields = [
+            'id', 'url', 'display', 'provider', 'name', 'description', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
 
 

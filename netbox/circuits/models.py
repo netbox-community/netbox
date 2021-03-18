@@ -15,6 +15,7 @@ __all__ = (
     'Circuit',
     'CircuitTermination',
     'CircuitType',
+    'Cloud',
     'Provider',
 )
 
@@ -87,6 +88,59 @@ class Provider(PrimaryModel):
             self.portal_url,
             self.noc_contact,
             self.admin_contact,
+            self.comments,
+        )
+
+
+#
+# Clouds
+#
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class Cloud(PrimaryModel):
+    name = models.CharField(
+        max_length=100
+    )
+    provider = models.ForeignKey(
+        to='circuits.Provider',
+        on_delete=models.PROTECT,
+        related_name='clouds'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
+
+    csv_headers = [
+        'provider', 'name', 'description', 'comments',
+    ]
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('provider', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('provider', 'name'),
+                name='circuits_cloud_provider_name'
+            ),
+        )
+        unique_together = ('provider', 'name')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('circuits:cloud', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.provider.name,
+            self.name,
+            self.description,
             self.comments,
         )
 

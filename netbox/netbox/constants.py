@@ -1,10 +1,8 @@
 from collections import OrderedDict
 
-from django.db.models import Count
-
-from circuits.filters import CircuitFilterSet, ProviderFilterSet
-from circuits.models import Circuit, Provider
-from circuits.tables import CircuitTable, ProviderTable
+from circuits.filters import CircuitFilterSet, CloudFilterSet, ProviderFilterSet
+from circuits.models import Circuit, Cloud, Provider
+from circuits.tables import CircuitTable, CloudTable, ProviderTable
 from dcim.filters import (
     CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, LocationFilterSet,
     SiteFilterSet, VirtualChassisFilterSet,
@@ -46,6 +44,12 @@ SEARCH_TYPES = OrderedDict((
         'filterset': CircuitFilterSet,
         'table': CircuitTable,
         'url': 'circuits:circuit_list',
+    }),
+    ('cloud', {
+        'queryset': Cloud.objects.prefetch_related('provider'),
+        'filterset': CloudFilterSet,
+        'table': CloudTable,
+        'url': 'circuits:cloud_list',
     }),
     # DCIM
     ('site', {

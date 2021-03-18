@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from circuits.choices import *
 from circuits.filters import *
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from circuits.models import *
 from dcim.models import Cable, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 
@@ -353,3 +353,40 @@ class CircuitTerminationTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
+class CloudTestCase(TestCase):
+    queryset = Cloud.objects.all()
+    filterset = CloudFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        clouds = (
+            Cloud(name='Cloud 1', provider=providers[0]),
+            Cloud(name='Cloud 2', provider=providers[1]),
+            Cloud(name='Cloud 3', provider=providers[2]),
+        )
+        Cloud.objects.bulk_create(clouds)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Cloud 1', 'Cloud 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider': [providers[0].slug, providers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

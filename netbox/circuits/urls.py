@@ -3,7 +3,7 @@ from django.urls import path
 from dcim.views import CableCreateView, PathTraceView
 from extras.views import ObjectChangeLogView, ObjectJournalView
 from . import views
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 app_name = 'circuits'
 urlpatterns = [
@@ -19,6 +19,18 @@ urlpatterns = [
     path('providers/<int:pk>/delete/', views.ProviderDeleteView.as_view(), name='provider_delete'),
     path('providers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
     path('providers/<int:pk>/journal/', ObjectJournalView.as_view(), name='provider_journal', kwargs={'model': Provider}),
+
+    # Clouds
+    path('clouds/', views.CloudListView.as_view(), name='cloud_list'),
+    path('clouds/add/', views.CloudEditView.as_view(), name='cloud_add'),
+    path('clouds/import/', views.CloudBulkImportView.as_view(), name='cloud_import'),
+    path('clouds/edit/', views.CloudBulkEditView.as_view(), name='cloud_bulk_edit'),
+    path('clouds/delete/', views.CloudBulkDeleteView.as_view(), name='cloud_bulk_delete'),
+    path('clouds/<int:pk>/', views.CloudView.as_view(), name='cloud'),
+    path('clouds/<int:pk>/edit/', views.CloudEditView.as_view(), name='cloud_edit'),
+    path('clouds/<int:pk>/delete/', views.CloudDeleteView.as_view(), name='cloud_delete'),
+    path('clouds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cloud_changelog', kwargs={'model': Cloud}),
+    path('clouds/<int:pk>/journal/', ObjectJournalView.as_view(), name='cloud_journal', kwargs={'model': Cloud}),
 
     # Circuit types
     path('circuit-types/', views.CircuitTypeListView.as_view(), name='circuittype_list'),

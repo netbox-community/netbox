@@ -14,7 +14,7 @@ from utilities.forms import (
     StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 
 #
@@ -124,6 +124,83 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     asn = forms.IntegerField(
         required=False,
         label=_('ASN')
+    )
+    tag = TagFilterField(model)
+
+
+#
+# Clouds
+#
+
+class CloudForm(BootstrapMixin, CustomFieldModelForm):
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all()
+    )
+    comments = CommentField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = Cloud
+        fields = [
+            'provider', 'name', 'description', 'comments', 'tags',
+        ]
+        fieldsets = (
+            ('Cloud', ('provider', 'name', 'description', 'tags')),
+        )
+
+
+class CloudCSVForm(CustomFieldModelCSVForm):
+    provider = CSVModelChoiceField(
+        queryset=Provider.objects.all(),
+        to_field_name='name',
+        help_text='Assigned provider'
+    )
+
+    class Meta:
+        model = Cloud
+        fields = [
+            'provider', 'name', 'description', 'comments',
+        ]
+
+
+class CloudBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Cloud.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
+
+    class Meta:
+        nullable_fields = [
+            'description', 'comments',
+        ]
+
+
+class CloudFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Cloud
+    field_order = ['q', 'provider_id']
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
     )
     tag = TagFilterField(model)
 

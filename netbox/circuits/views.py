@@ -9,7 +9,7 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import count_related
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 
 #
@@ -79,6 +79,49 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
+
+
+#
+# Clouds
+#
+
+class CloudListView(generic.ObjectListView):
+    queryset = Cloud.objects.all()
+    filterset = filters.CloudFilterSet
+    filterset_form = forms.CloudFilterForm
+    table = tables.CloudTable
+
+
+class CloudView(generic.ObjectView):
+    queryset = Cloud.objects.all()
+
+
+class CloudEditView(generic.ObjectEditView):
+    queryset = Cloud.objects.all()
+    model_form = forms.CloudForm
+
+
+class CloudDeleteView(generic.ObjectDeleteView):
+    queryset = Cloud.objects.all()
+
+
+class CloudBulkImportView(generic.BulkImportView):
+    queryset = Cloud.objects.all()
+    model_form = forms.CloudCSVForm
+    table = tables.CloudTable
+
+
+class CloudBulkEditView(generic.BulkEditView):
+    queryset = Cloud.objects.all()
+    filterset = filters.CloudFilterSet
+    table = tables.CloudTable
+    form = forms.CloudBulkEditForm
+
+
+class CloudBulkDeleteView(generic.BulkDeleteView):
+    queryset = Cloud.objects.all()
+    filterset = filters.CloudFilterSet
+    table = tables.CloudTable
 
 
 #
