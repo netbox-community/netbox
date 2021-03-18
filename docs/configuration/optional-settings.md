@@ -301,7 +301,7 @@ The file path to the location where media files (such as image attachments) are 
 
 Default: False
 
-Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../../additional-features/prometheus-metrics/) documentation for more details.
+Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics.md) documentation for more details.
 
 ---
 
