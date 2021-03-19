@@ -465,12 +465,14 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
 
         if data:
 
-            # Limit vlan queryset by assigned site and group
-            params = {
-                f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"group__{self.fields['vlan_group'].to_field_name}": data.get('vlan_group'),
-            }
-            self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
+            # Limit VLAN queryset by assigned site and/or group (if specified)
+            params = {}
+            if data.get('site'):
+                params[f"site__{self.fields['site'].to_field_name}"] = data.get('site')
+            if data.get('vlan_group'):
+                params[f"group__{self.fields['vlan_group'].to_field_name}"] = data.get('vlan_group')
+            if params:
+                self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
 
 
 class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

@@ -9,6 +9,7 @@
 * [#5962](https://github.com/netbox-community/netbox/issues/5962) - Ensure consistent display of change log action labels
 * [#5966](https://github.com/netbox-community/netbox/issues/5966) - Skip Markdown reference link when tabbing through form fields
 * [#5977](https://github.com/netbox-community/netbox/issues/5977) - Correct validation of `RELEASE_CHECK_URL` config parameter
+* [#6006](https://github.com/netbox-community/netbox/issues/6006) - Fix VLAN group/site association for bulk prefix import
 
 ---
 
