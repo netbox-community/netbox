@@ -142,7 +142,7 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 `systemctl restart netbox` restarts the NetBox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
 
-For troubleshooting LDAP user/group queries, add or merge the following [logging](/configuration/optional-settings.md#logging) configuration to `configuration.py`:
+For troubleshooting LDAP user/group queries, add or merge the following [logging](../configuration/optional-settings.md#logging) configuration to `configuration.py`:
 
 ```python
 LOGGING = {

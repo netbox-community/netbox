@@ -1,6 +1,6 @@
 # Caching
 
-NetBox supports database query caching using [django-cacheops](https://github.com/Suor/django-cacheops) and Redis. When a query is made, the results are cached in Redis for a short period of time, as defined by the [CACHE_TIMEOUT](../../configuration/optional-settings/#cache_timeout) parameter (15 minutes by default). Within that time, all recurrences of that specific query will return the pre-fetched results from the cache.
+NetBox supports database query caching using [django-cacheops](https://github.com/Suor/django-cacheops) and Redis. When a query is made, the results are cached in Redis for a short period of time, as defined by the [CACHE_TIMEOUT](../configuration/optional-settings.md#cache_timeout) parameter (15 minutes by default). Within that time, all recurrences of that specific query will return the pre-fetched results from the cache.
 
 If a change is made to any of the objects returned by the query within that time, or if the timeout expires, the results are automatically invalidated and the next request for those results will be sent to the database.
 

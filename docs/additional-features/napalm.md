@@ -22,7 +22,7 @@ GET /api/dcim/devices/1/napalm/?method=get_environment
 
 ## Authentication
 
-By default, the [`NAPALM_USERNAME`](../../configuration/optional-settings/#napalm_username) and [`NAPALM_PASSWORD`](../../configuration/optional-settings/#napalm_password) configuration parameters are used for NAPALM authentication. They can be overridden for an individual API call by specifying the `X-NAPALM-Username` and `X-NAPALM-Password` headers.
+By default, the [`NAPALM_USERNAME`](../configuration/optional-settings.md#napalm_username) and [`NAPALM_PASSWORD`](../configuration/optional-settings.md#napalm_password) configuration parameters are used for NAPALM authentication. They can be overridden for an individual API call by specifying the `X-NAPALM-Username` and `X-NAPALM-Password` headers.
 
 ```
 $ curl "http://localhost/api/dcim/devices/1/napalm/?method=get_environment" \

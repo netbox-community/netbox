@@ -113,7 +113,7 @@ cd /opt/netbox/netbox/netbox/
 sudo cp configuration.example.py configuration.py
 ```
 
-Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](/configuration/), but only the following four are required for new installations:
+Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following four are required for new installations:
 
 * `ALLOWED_HOSTS`
 * `DATABASE`
@@ -136,7 +136,7 @@ ALLOWED_HOSTS = ['*']
 
 ### DATABASE
 
-This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](/configuration/required-settings/#database) for more detail on individual parameters.
+This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](../configuration/required-settings.md#database) for more detail on individual parameters.
 
 ```python
 DATABASE = {
@@ -151,7 +151,7 @@ DATABASE = {
 
 ### REDIS
 
-Redis is a in-memory key-value store used by NetBox for caching and background task queuing. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](/configuration/required-settings/#redis) for more detail on individual parameters.
+Redis is a in-memory key-value store used by NetBox for caching and background task queuing. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](../configuration/required-settings.md#redis) for more detail on individual parameters.
 
 Note that NetBox requires the specification of two separate Redis databases: `tasks` and `caching`. These may both be provided by the same Redis service, however each should have a unique numeric database ID.
 
@@ -203,7 +203,7 @@ sudo echo napalm >> /opt/netbox/local_requirements.txt
 
 ### Remote File Storage
 
-By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](/configuration/optional-settings/#storage_backend) in `configuration.py`.
+By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/optional-settings.md#storage_backend) in `configuration.py`.
 
 ```no-highlight
 sudo echo django-storages >> /opt/netbox/local_requirements.txt
