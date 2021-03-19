@@ -351,3 +351,7 @@ i.bi-plus:before,
 span.bi-plus:before {
   font-weight: $font-weight-bold !important;
 }
+
+table tbody tr.success {
+  background-color: rgba($success, 0.15);
+}

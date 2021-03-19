@@ -11,7 +11,7 @@ from utilities.tables import (
 from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
-AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>')
+AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 PREFIX_LINK = """
 {% load helpers %}
