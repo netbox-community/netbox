@@ -4,6 +4,7 @@ import { initApiSelect, initStaticSelect, initColorSelect } from './select';
 import { initDateSelector } from './dateSelector';
 import { initMessageToasts } from './toast';
 import { initSpeedSelector, initForms } from './forms';
+import { initRackElevation } from './buttons';
 import { initSearchBar } from './search';
 import { getElements } from './util';
 
@@ -16,6 +17,7 @@ const INITIALIZERS = [
   initDateSelector,
   initSpeedSelector,
   initColorSelect,
+  initRackElevation,
 ] as (() => void)[];
 
 /**

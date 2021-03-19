@@ -63,10 +63,10 @@
 </ul>
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}{% block tab_buttons %}{% endblock %}{% endblock %}
 {% block components %}{% endblock %}
 
-{% block header %}
+{% comment %} {% block header %}
   <div class="row noprint">
     <div class="col-sm-8 col-md-9">
       <nav aria-label="breadcrumb">
@@ -89,7 +89,7 @@
       </form>
     </div>
   </div>
-  {% comment %} <div class="pull-right noprint">
+  <div class="pull-right noprint">
     {% plugin_buttons object %}
     {% block buttons %}
       {% if request.user|can_add:object %}
@@ -104,7 +104,7 @@
     {% endblock %}
   </div>
   <h1>{% block title %}{{ object }}{% endblock %}</h1>
-  {% endcomment %}
+  
   {% include 'inc/created_updated.html' %}
   <div class="float-end noprint">
     {% block tab_buttons %}
@@ -112,4 +112,4 @@
     {% endblock %}
   </div>
   
-{% endblock %}
+{% endblock %} {% endcomment %}

@@ -18,29 +18,17 @@
   <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
-{% block buttons %}
-  <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-    <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous Rack
-  </a>
-  <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-    <span class="mdi mdi-chevron-right" aria-hidden="true"></span> Next Rack
-  </a>
-  {% if perms.dcim.add_rack %}
-    {% clone_button object %}
-  {% endif %}
-  {% if perms.dcim.change_rack %}
-    {% edit_button object %}
-  {% endif %}
-  {% if perms.dcim.delete_rack %}
-    {% delete_button object %}
-  {% endif %}
-{% endblock %}
-
-{% block tab_buttons %}
-  <button class="btn btn-sm btn-default toggle-images" selected="selected">
-    <span class="mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
+{% block extra_controls %}
+  <button class="btn btn-sm btn-outline-primary m-1 toggle-images" selected="selected">
+    <i class="bi bi-file-image"></i> 
+    Hide Images
   </button>
-  {{ block.super }}
+  <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-sm btn-primary m-1">
+    <i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous Rack
+  </a>
+  <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-sm btn-primary m-1">
+    <i class="mdi mdi-chevron-right" aria-hidden="true"></i> Next Rack
+  </a>
 {% endblock %}
 
 {% block content %}
@@ -388,8 +376,4 @@
         {% plugin_full_width_page object %}
     </div>
 </div>
-{% endblock %}
-
-{% block javascript %}
-<script src="{% static 'js/rack_elevations.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

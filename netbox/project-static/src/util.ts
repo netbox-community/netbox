@@ -49,18 +49,20 @@ export async function getApiData<T extends APIObjectBase>(
 }
 
 export function getElements<K extends keyof SVGElementTagNameMap>(
-  key: K,
+  ...key: K[]
 ): Generator<SVGElementTagNameMap[K]>;
 export function getElements<K extends keyof HTMLElementTagNameMap>(
-  key: K,
+  ...key: K[]
 ): Generator<HTMLElementTagNameMap[K]>;
-export function getElements<E extends Element>(key: string): Generator<E>;
+export function getElements<E extends Element>(...key: string[]): Generator<E>;
 export function* getElements(
-  key: string | keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap,
+  ...key: (string | keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap)[]
 ) {
-  for (const element of document.querySelectorAll(key)) {
-    if (element !== null) {
-      yield element;
+  for (const query of key) {
+    for (const element of document.querySelectorAll(query)) {
+      if (element !== null) {
+        yield element;
+      }
     }
   }
 }
