@@ -36,9 +36,10 @@ const DISABLED_ATTRIBUTES = ['occupied'] as string[];
 const REPLACE_PATTERNS = [
   // Don't query `termination_a_device=1`, but rather `device=1`.
   [new RegExp(/termination_(a|b)_(.+)/g), '$2_id'],
-  // For example, a tenant's group relationship field is `group`, but the field name
-  // is `tenant_group`.
-  [new RegExp(/.+_(group)/g), '$1_id'],
+  // A tenant's group relationship field is `group`, but the field name is `tenant_group`.
+  [new RegExp(/tenant_(group)/g), '$1_id'],
+  // Append `_id` to any fields 
+  [new RegExp(/^([A-Za-z0-9]+)(_id)?$/g), '$1_id'],
 ] as ReplaceTuple[];
 
 const PLACEHOLDER = {
@@ -248,6 +249,7 @@ export function initApiSelect() {
           // Check the query param key to see if we should modify it.
           if (key.match(pattern)) {
             key = key.replaceAll(pattern, replacement);
+            break;
           }
         }
 
@@ -282,6 +284,7 @@ export function initApiSelect() {
             // Check the query param key to see if we should modify it.
             if (name.match(pattern)) {
               name = name.replaceAll(pattern, replacement);
+              break;
             }
           }
 
