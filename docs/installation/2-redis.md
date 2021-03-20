@@ -17,8 +17,8 @@ sudo apt install -y redis-server
 
 ```no-highlight
 sudo yum install -y redis
-sudo systemctl start redis
-sudo systemctl enable redis
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
 ```
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/redis/redis.conf`, however in most cases the default configuration is sufficient.
