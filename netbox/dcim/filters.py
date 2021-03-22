@@ -1075,7 +1075,7 @@ class VirtualChassisFilterSet(BaseFilterSet):
             Q(members__name__icontains=value) |
             Q(domain__icontains=value)
         )
-        return queryset.filter(qs_filter)
+        return queryset.filter(qs_filter).distinct()
 
 
 class CableFilterSet(BaseFilterSet):
