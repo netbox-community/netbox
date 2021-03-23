@@ -53,9 +53,10 @@ fi
 # Run the startup scripts (and initializers)
 if [ "$SKIP_STARTUP_SCRIPTS" == "true" ]; then
   echo "↩️ Skipping startup scripts"
-else
-  echo "import runpy; runpy.run_path('../startup_scripts')" | ./manage.py shell --interface python
 fi
+
+echo "import runpy; runpy.run_path('../startup_scripts')" | ./manage.py shell --interface python
+
 
 # copy static files
 ./manage.py collectstatic --no-input

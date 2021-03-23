@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 
 import runpy
-from os import scandir
+import os
+
+from distutils.util import strtobool
 from os.path import dirname, abspath
 
 this_dir = dirname(abspath(__file__))
+skip_startup_scripts = bool(strtobool(os.environ.get('SKIP_STARTUP_SCRIPTS', "false")))
 
 def filename(f):
   return f.name
 
-with scandir(this_dir) as it:
+with os.scandir(this_dir) as it:
   for f in sorted(it, key = filename):
     if not f.is_file():
       continue
@@ -18,6 +21,9 @@ with scandir(this_dir) as it:
       continue
 
     if not f.name.endswith('.py'):
+      continue
+
+    if skip_startup_scripts and "required" not in f.name:
       continue
 
     print(f"▶️ Running the startup script {f.path}")
