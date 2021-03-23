@@ -117,6 +117,7 @@ spec:
         }
       }
     }
+/* Muting this until Helm 3 chart is updated and tested
     stage('Deployment'){
       when {
         branch 'develop'
@@ -128,6 +129,6 @@ spec:
           parameters: [string(name: 'IMAGE_TAG', value: "${env.TAG}")]
         )
       }
-    }
+    } */
   }
 }
