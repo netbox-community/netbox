@@ -177,6 +177,10 @@ nav ul.pagination {
     margin-top: 0;
     margin-bottom: 8px !important;
 }
+.pagination > li > a > .mdi::before {
+    top: 0;
+    font-size: 14px;
+}
 
 /* Devices */
 table.component-list td.subtable {

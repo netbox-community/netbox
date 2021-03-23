@@ -25,7 +25,7 @@ discussions.
 
 ### Slack
 
-For real-time chat, you can join the **#netbox** Slack channel on [NetworkToCode](https://slack.networktocode.com/).
+For real-time chat, you can join the **#netbox** Slack channel on [NetDev Community](https://join.slack.com/t/netdev-community/shared_invite/zt-mtts8g0n-Sm6Wutn62q_M4OdsaIycrQ).
 Unfortunately, the Slack channel does not provide long-term retention of chat
 history, so try to avoid it for any discussions would benefit from being
 preserved for future reference.
@@ -184,12 +184,6 @@ overlooked.
 * Maintainers are expected to attend (where feasible) our biweekly ~30-minute
   sync to review agenda items. This meeting provides opportunity to present and
   discuss pressing topics. Meetings are held as virtual audio/video conferences.
-
-* Official channels for communication include:
-
-    * GitHub issues, pull requests, and discussions
-    * The [netbox-discuss](https://groups.google.com/g/netbox-discuss) mailing list
-    * The **#netbox** channel on [NetworkToCode Slack](https://networktocode.slack.com/)
 
 * Maintainers with no substantial recorded activity in a 60-day period will be
   removed from the project.

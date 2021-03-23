@@ -127,21 +127,21 @@ class InterfaceFilter(django_filters.FilterSet):
     )
 
     vc_context = django_filters.ModelMultipleChoiceFilter(
-        field_name='tagged_vlans__vlan_of__virtual_circuit__context',
+        field_name='tagged_vlans__virtual_circuit__virtual_circuit__context',
         queryset=VirtualCircuit.objects.all(),
         to_field_name='context',
         label='Virtual Circuit (context)',
     )
 
     vc_name = django_filters.ModelMultipleChoiceFilter(
-        field_name='tagged_vlans__vlan_of__virtual_circuit__name',
+        field_name='tagged_vlans__virtual_circuit__virtual_circuit__name',
         queryset=VirtualCircuit.objects.all(),
         to_field_name='name',
         label='Virtual Circuit (name)',
     )
 
     vc_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='tagged_vlans__vlan_of__virtual_circuit__vcid',
+        field_name='tagged_vlans__virtual_circuit__virtual_circuit__vcid',
         queryset=VirtualCircuit.objects.all(),
         to_field_name='vcid',
         label='Virtual Circuit (vcid)',

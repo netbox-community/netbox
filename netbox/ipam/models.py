@@ -734,13 +734,12 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                 })
 
             # Enforce unique IP space (if applicable)
-            if self.role not in IPADDRESS_ROLES_NONUNIQUE and ((
-                self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE
-            ) or (
-                self.vrf and self.vrf.enforce_unique
-            )):
+            if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_ips = self.get_duplicates()
-                if duplicate_ips:
+                if duplicate_ips and (
+                        self.role not in IPADDRESS_ROLES_NONUNIQUE or
+                        any(dip.role not in IPADDRESS_ROLES_NONUNIQUE for dip in duplicate_ips)
+                ):
                     raise ValidationError({
                         'address': "Duplicate IP address found in {}: {}".format(
                             "VRF {}".format(self.vrf) if self.vrf else "global table",

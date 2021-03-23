@@ -40,14 +40,16 @@ class CircuitTypeSerializer(ValidatedModelSerializer):
         fields = ['id', 'url', 'name', 'slug', 'description', 'circuit_count']
 
 
-class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
+class CircuitCircuitTerminationSerializer(WritableNestedSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     site = NestedSiteSerializer()
-    connected_endpoint = NestedInterfaceSerializer()
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'url', 'site', 'connected_endpoint', 'port_speed', 'upstream_speed', 'xconnect_id']
+        fields = [
+            'id', 'url', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'connected_endpoint',
+            'connected_endpoint_type', 'connected_endpoint_reachable',
+        ]
 
 
 class CircuitSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):

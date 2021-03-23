@@ -264,7 +264,7 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         )
 
 
-class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
+class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1016,6 +1016,16 @@ class VirtualChassisFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
+    master_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label='Master (ID)',
+    )
+    master = django_filters.ModelMultipleChoiceFilter(
+        field_name='master__name',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Master (name)',
+    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='master__site__region',
@@ -1055,7 +1065,7 @@ class VirtualChassisFilterSet(BaseFilterSet):
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'domain']
+        fields = ['id', 'domain', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1142,7 +1152,7 @@ class ConnectionFilterSet:
     def filter_device(self, queryset, name, value):
         if not value:
             return queryset
-        return queryset.filter(device_id__in=value)
+        return queryset.filter(**{f'{name}__in': value})
 
 
 class ConsoleConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):

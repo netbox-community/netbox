@@ -740,7 +740,10 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+            manufacturer=manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
         )
 
         device_bay_templates = (

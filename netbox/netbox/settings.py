@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.10.3'
+VERSION = '2.10.6'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -398,6 +398,7 @@ if CACHING_REDIS_USING_SENTINEL:
         'locations': CACHING_REDIS_SENTINELS,
         'service_name': CACHING_REDIS_SENTINEL_SERVICE,
         'db': CACHING_REDIS_DATABASE,
+        'password': CACHING_REDIS_PASSWORD,
     }
 else:
     if CACHING_REDIS_SSL:

@@ -2352,6 +2352,11 @@ class ConsolePortCSVForm(CSVModelForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
+    type = CSVChoiceField(
+        choices=ConsolePortTypeChoices,
+        required=False,
+        help_text='Port type'
+    )
 
     class Meta:
         model = ConsolePort
@@ -2424,6 +2429,11 @@ class ConsoleServerPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
+    )
+    type = CSVChoiceField(
+        choices=ConsolePortTypeChoices,
+        required=False,
+        help_text='Port type'
     )
 
     class Meta:
@@ -2509,6 +2519,11 @@ class PowerPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name'
+    )
+    type = CSVChoiceField(
+        choices=PowerPortTypeChoices,
+        required=False,
+        help_text='Port type'
     )
 
     class Meta:
@@ -2630,6 +2645,11 @@ class PowerOutletCSVForm(CSVModelForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
+    type = CSVChoiceField(
+        choices=PowerOutletTypeChoices,
+        required=False,
+        help_text='Outlet type'
+    )
     power_port = CSVModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
@@ -2682,6 +2702,12 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         widget=StaticSelect2Multiple()
     )
     enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    mgmt_only = forms.NullBooleanField(
         required=False,
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES

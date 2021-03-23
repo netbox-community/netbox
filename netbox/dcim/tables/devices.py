@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.conf import settings
 
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem, Platform,
@@ -127,10 +128,18 @@ class DeviceTable(BaseTable):
         verbose_name='Type',
         text=lambda record: record.device_type.display_name
     )
-    primary_ip = tables.Column(
-        linkify=True,
-        verbose_name='IP Address'
-    )
+    if settings.PREFER_IPV4:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip4', 'primary_ip6'),
+            verbose_name='IP Address'
+        )
+    else:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip6', 'primary_ip4'),
+            verbose_name='IP Address'
+        )
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'
@@ -406,6 +415,7 @@ class BaseInterfaceTable(BaseTable):
 
 
 class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
+    mgmt_only = BooleanColumn()
     tags = TagColumn(
         url_name='dcim:interface_list'
     )

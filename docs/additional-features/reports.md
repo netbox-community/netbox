@@ -66,7 +66,7 @@ class DeviceConnectionsReport(Report):
             for power_port in PowerPort.objects.filter(device=device):
                 if power_port.connected_endpoint is not None:
                     connected_ports += 1
-                    if not power_port.connection_status:
+                    if not power_port.path.is_active:
                         self.log_warning(
                             device,
                             "Power connection for {} marked as planned".format(power_port.name)

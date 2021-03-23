@@ -204,7 +204,7 @@
                             {% plugin_left_page object %}
                         </div>
                         <div class="col-md-6">
-                            {% if power_ports and poweroutlets %}
+                            {% if object.powerports.exists and object.poweroutlets.exists %}
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
                                         <strong>Power Utilization</strong>
@@ -217,10 +217,10 @@
                                             <th>Available</th>
                                             <th>Utilization</th>
                                         </tr>
-                                        {% for pp in power_ports %}
-                                            {% with utilization=pp.get_power_draw powerfeed=pp.connected_endpoint %}
+                                        {% for powerport in object.powerports.all %}
+                                            {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoint %}
                                                 <tr>
-                                                    <td>{{ pp }}</td>
+                                                    <td>{{ powerport }}</td>
                                                     <td>{{ utilization.outlet_count }}</td>
                                                     <td>{{ utilization.allocated }}VA</td>
                                                     {% if powerfeed.available_power %}

@@ -29,19 +29,25 @@ eval $COMMAND || {
 # Activate the virtual environment
 source "${VIRTUALENV}/bin/activate"
 
+# Upgrade pip
+COMMAND="pip install --upgrade pip"
+echo "Updating pip ($COMMAND)..."
+eval $COMMAND || exit 1
+pip -V
+
 # Install necessary system packages
-COMMAND="pip3 install wheel"
+COMMAND="pip install wheel"
 echo "Installing Python system packages ($COMMAND)..."
 eval $COMMAND || exit 1
 
 # Install required Python packages
-COMMAND="pip3 install -r requirements.txt"
+COMMAND="pip install -r requirements.txt"
 echo "Installing core dependencies ($COMMAND)..."
 eval $COMMAND || exit 1
 
 # Install optional packages (if any)
 if [ -s "local_requirements.txt" ]; then
-  COMMAND="pip3 install -r local_requirements.txt"
+  COMMAND="pip install -r local_requirements.txt"
   echo "Installing local dependencies ($COMMAND)..."
   eval $COMMAND || exit 1
 elif [ -f "local_requirements.txt" ]; then

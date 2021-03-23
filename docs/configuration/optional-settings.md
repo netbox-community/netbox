@@ -56,7 +56,7 @@ BASE_PATH = 'netbox/'
 
 Default: 900
 
-The number of seconds to cache entries will be retained before expiring.
+The number of seconds that cache entries will be retained before expiring.
 
 ---
 

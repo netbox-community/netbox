@@ -4,7 +4,6 @@ from rest_framework.decorators import action
 
 from dcim.api.views import PathEndpointMixin
 from dcim.models import Interface
-from dcim.filters import InterfaceFilterSet
 from extras.api.views import CustomFieldModelViewSet
 from tenancy.models import Tenant as Customer
 from netbox.api.views import ModelViewSet
@@ -26,5 +25,5 @@ class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
         'device', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
-    filterset_class = InterfaceFilterSet
+    filterset_class = filters.InterfaceFilter
     brief_prefetch_fields = ['device']

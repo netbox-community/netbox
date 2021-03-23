@@ -68,7 +68,6 @@ class NestedVaporVLANSerializer(WritableNestedSerializer):
     )
 
     virtual_circuit = SerializedPKRelatedField(
-        source='vlan_of',
         queryset=VirtualCircuitVLAN.objects.all(),
         serializer=NestedVirtualCircuitSerializer,
         pk_field='vlan',

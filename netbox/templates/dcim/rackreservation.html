@@ -127,22 +127,20 @@
         {% plugin_left_page object %}
 	</div>
     <div class="col-md-6">
-        {% with rack=object.rack %}
-            <div class="row" style="margin-bottom: 20px">
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    <div class="rack_header">
-                        <h4>Front</h4>
-                    </div>
-                    {% include 'dcim/inc/rack_elevation.html' with face='front' %}
+        <div class="row" style="margin-bottom: 20px">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="rack_header">
+                    <h4>Front</h4>
                 </div>
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    <div class="rack_header">
-                        <h4>Rear</h4>
-                    </div>
-                    {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
-                </div>
+                {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='front' %}
             </div>
-        {% endwith %}
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="rack_header">
+                    <h4>Rear</h4>
+                </div>
+                {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='rear' %}
+            </div>
+        </div>
         {% plugin_right_page object %}
     </div>
 </div>

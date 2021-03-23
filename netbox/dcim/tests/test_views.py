@@ -396,6 +396,7 @@ manufacturer: Generic
 model: TEST-1000
 slug: test-1000
 u_height: 2
+subdevice_role: parent
 comments: test comment
 console-ports:
   - name: Console Port 1
@@ -831,8 +832,8 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetypes = (
-            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2', subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
         )
         DeviceType.objects.bulk_create(devicetypes)
 

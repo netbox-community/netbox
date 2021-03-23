@@ -114,7 +114,10 @@ class ContentTypeSelect(StaticSelect2):
 class NumericArrayField(SimpleArrayField):
 
     def to_python(self, value):
-        value = ','.join([str(n) for n in parse_numeric_range(value)])
+        if not value:
+            return []
+        if isinstance(value, str):
+            value = ','.join([str(n) for n in parse_numeric_range(value)])
         return super().to_python(value)
 
 

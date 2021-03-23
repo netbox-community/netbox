@@ -220,6 +220,14 @@ def as_range(n):
     return range(n)
 
 
+@register.filter()
+def meters_to_feet(n):
+    """
+    Convert a length from meters to feet.
+    """
+    return float(n) * 3.28084
+
+
 #
 # Tags
 #

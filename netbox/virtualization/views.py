@@ -396,3 +396,6 @@ class VirtualMachineBulkAddInterfaceView(generic.BulkComponentCreateView):
     model_form = forms.VMInterfaceForm
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
+
+    def get_required_permission(self):
+        return f'virtualization.add_vminterface'

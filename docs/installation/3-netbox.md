@@ -7,12 +7,12 @@ This section of the documentation discusses installing and configuring the NetBo
 Begin by installing all system packages required by NetBox and its dependencies.
 
 !!! note
-    NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8. This documentation assumes Python 3.6.
+    NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8.
 
 ### Ubuntu
 
 ```no-highlight
-sudo apt install -y python3.6 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
+sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
 ```
 
 ### CentOS
