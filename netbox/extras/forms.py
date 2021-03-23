@@ -60,7 +60,7 @@ class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):
     def _append_customfield_fields(self):
 
         # Append form fields
-        for cf in CustomField.objects.filter(content_types=self.obj_type):
+        for cf in CustomField.objects.filter(content_types=self.obj_type).exclude(type=CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE):
             field_name = 'cf_{}'.format(cf.name)
             self.fields[field_name] = cf.to_form_field(for_csv_import=True)
 

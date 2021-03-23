@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 
 from extras.choices import *
 from extras.utils import FeatureQuery
-from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, StaticSelect2Multiple, add_blank_choice
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
@@ -121,7 +121,8 @@ class CustomField(models.Model):
         blank=True,
         null=True,
         help_text='Default value for the field (must be a JSON value). Encapsulate '
-                  'strings with double quotes (e.g. "Foo").'
+                  'strings with double quotes (e.g. "Foo") and multiple selection '
+                  'as ["choice1", "choice2"].'
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
@@ -203,13 +204,13 @@ class CustomField(models.Model):
             })
 
         # Choices can be set only on selection fields
-        if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
+        if self.choices and self.type not in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE):
             raise ValidationError({
                 'choices': "Choices may be set only for custom selection fields."
             })
 
         # A selection field must have at least two choices defined
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.choices and len(self.choices) < 2:
+        if self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE) and self.choices is not None and len(self.choices) < 2:
             raise ValidationError({
                 'choices': "Selection fields must specify at least two choices."
             })
@@ -218,6 +219,12 @@ class CustomField(models.Model):
         if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.default and self.default not in self.choices:
             raise ValidationError({
                 'default': f"The specified default value ({self.default}) is not listed as an available choice."
+            })
+
+        # A multiple selection field's defaults (if any) must be present in its available choices
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE and self.default and not all(i in self.choices for i in self.default):
+            raise ValidationError({
+                'default': f"The specified default values ({self.default}) are not all listed as an available choice."
             })
 
     def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
@@ -256,7 +263,7 @@ class CustomField(models.Model):
             field = forms.DateField(required=required, initial=initial, widget=DatePicker())
 
         # Select
-        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+        elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE):
             choices = [(c, c) for c in self.choices]
             default_choice = self.default if self.default in self.choices else None
 
@@ -267,9 +274,15 @@ class CustomField(models.Model):
             if set_initial and default_choice:
                 initial = default_choice
 
-            field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
+            if for_csv_import:
+                if self.type == CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE:
+                    raise NotImplementedError('CSV fields do not support multiple select')
+                field_class = CSVChoiceField
+            else:
+                field_class = forms.MultipleChoiceField if self.type == CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE else forms.ChoiceField
+            widget = StaticSelect2Multiple if self.type == CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE else StaticSelect2
             field = field_class(
-                choices=choices, required=required, initial=initial, widget=StaticSelect2()
+                choices=choices, required=required, initial=initial, widget=widget()
             )
 
         # URL
@@ -298,7 +311,7 @@ class CustomField(models.Model):
         """
         Validate a value according to the field's type validation rules.
         """
-        if value not in [None, '']:
+        if value not in [None, '', []]:
 
             # Validate text field
             if self.type == CustomFieldTypeChoices.TYPE_TEXT and self.validation_regex:
@@ -334,6 +347,18 @@ class CustomField(models.Model):
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
                     )
+
+            # Validate selected choices
+            if self.type == CustomFieldTypeChoices.TYPE_SELECT_MULTIPLE:
+                if type(value) is not list:
+                    raise ValidationError(
+                        f"Invalid value ({value}). Select multiple values should be in format [\"choice1\"]"
+                    )
+                for val in value:
+                    if val not in self.choices:
+                        raise ValidationError(
+                            f"Invalid choice ({val}). Available choices are: {', '.join(self.choices)}"
+                        )
 
         elif self.required:
             raise ValidationError("Required field cannot be empty.")

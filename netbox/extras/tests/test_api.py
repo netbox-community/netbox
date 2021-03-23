@@ -49,6 +49,11 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
             'name': 'cf6',
             'type': 'select',
         },
+        {
+            'content_types': ['dcim.site'],
+            'name': 'cf7',
+            'type': 'select-multiple',
+        },
     ]
     bulk_update_data = {
         'description': 'New description',
