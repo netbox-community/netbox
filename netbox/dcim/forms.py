@@ -665,7 +665,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Rack
-    field_order = ['q', 'region', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
+    field_order = ['q', 'region', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant', 'asset_tag']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -712,6 +712,9 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         null_option='None'
+    )
+    asset_tag = forms.CharField(
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -2123,7 +2126,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     model = Device
     field_order = [
         'q', 'region', 'site', 'rack_group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
-        'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
+        'manufacturer_id', 'device_type_id', 'asset_tag', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
         required=False,
@@ -2190,6 +2193,9 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         choices=DeviceStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    asset_tag = forms.CharField(
+        required=False
     )
     mac_address = forms.CharField(
         required=False,
