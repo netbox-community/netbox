@@ -2,6 +2,10 @@
 
 ## v2.10.7 (FUTURE)
 
+### Enhancements
+
+* [#5641](https://github.com/netbox-community/netbox/issues/5641) - Allow filtering device components by label
+
 ### Bug Fixes
 
 * [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image

@@ -60,11 +60,17 @@ def get_device_by_name_or_pk(name):
 
 class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
     field_order = [
-        'q', 'region', 'site'
+        'q', 'name', 'label', 'region', 'site'
     ]
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    name = forms.CharField(
+        required=False
+    )
+    label = forms.CharField(
+        required=False
     )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

@@ -1488,9 +1488,9 @@ class ConsolePortTestCase(TestCase):
         ConsoleServerPort.objects.bulk_create(console_server_ports)
 
         console_ports = (
-            ConsolePort(device=devices[0], name='Console Port 1', description='First'),
-            ConsolePort(device=devices[1], name='Console Port 2', description='Second'),
-            ConsolePort(device=devices[2], name='Console Port 3', description='Third'),
+            ConsolePort(device=devices[0], name='Console Port 1', label='A', description='First'),
+            ConsolePort(device=devices[1], name='Console Port 2', label='B', description='Second'),
+            ConsolePort(device=devices[2], name='Console Port 3', label='C', description='Third'),
         )
         ConsolePort.objects.bulk_create(console_ports)
 
@@ -1505,6 +1505,10 @@ class ConsolePortTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Console Port 1', 'Console Port 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -1584,9 +1588,9 @@ class ConsoleServerPortTestCase(TestCase):
         ConsolePort.objects.bulk_create(console_ports)
 
         console_server_ports = (
-            ConsoleServerPort(device=devices[0], name='Console Server Port 1', description='First'),
-            ConsoleServerPort(device=devices[1], name='Console Server Port 2', description='Second'),
-            ConsoleServerPort(device=devices[2], name='Console Server Port 3', description='Third'),
+            ConsoleServerPort(device=devices[0], name='Console Server Port 1', label='A', description='First'),
+            ConsoleServerPort(device=devices[1], name='Console Server Port 2', label='B', description='Second'),
+            ConsoleServerPort(device=devices[2], name='Console Server Port 3', label='C', description='Third'),
         )
         ConsoleServerPort.objects.bulk_create(console_server_ports)
 
@@ -1601,6 +1605,10 @@ class ConsoleServerPortTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Console Server Port 1', 'Console Server Port 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -1680,9 +1688,9 @@ class PowerPortTestCase(TestCase):
         PowerOutlet.objects.bulk_create(power_outlets)
 
         power_ports = (
-            PowerPort(device=devices[0], name='Power Port 1', maximum_draw=100, allocated_draw=50, description='First'),
-            PowerPort(device=devices[1], name='Power Port 2', maximum_draw=200, allocated_draw=100, description='Second'),
-            PowerPort(device=devices[2], name='Power Port 3', maximum_draw=300, allocated_draw=150, description='Third'),
+            PowerPort(device=devices[0], name='Power Port 1', label='A', maximum_draw=100, allocated_draw=50, description='First'),
+            PowerPort(device=devices[1], name='Power Port 2', label='B', maximum_draw=200, allocated_draw=100, description='Second'),
+            PowerPort(device=devices[2], name='Power Port 3', label='C', maximum_draw=300, allocated_draw=150, description='Third'),
         )
         PowerPort.objects.bulk_create(power_ports)
 
@@ -1697,6 +1705,10 @@ class PowerPortTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Power Port 1', 'Power Port 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -1784,9 +1796,9 @@ class PowerOutletTestCase(TestCase):
         PowerPort.objects.bulk_create(power_ports)
 
         power_outlets = (
-            PowerOutlet(device=devices[0], name='Power Outlet 1', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First'),
-            PowerOutlet(device=devices[1], name='Power Outlet 2', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second'),
-            PowerOutlet(device=devices[2], name='Power Outlet 3', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third'),
+            PowerOutlet(device=devices[0], name='Power Outlet 1', label='A', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First'),
+            PowerOutlet(device=devices[1], name='Power Outlet 2', label='B', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second'),
+            PowerOutlet(device=devices[2], name='Power Outlet 3', label='C', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third'),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
@@ -1801,6 +1813,10 @@ class PowerOutletTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Power Outlet 1', 'Power Outlet 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -1879,12 +1895,12 @@ class InterfaceTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
-            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
-            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
-            Interface(device=devices[3], name='Interface 4', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 5', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 6', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False),
+            Interface(device=devices[0], name='Interface 1', label='A', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
+            Interface(device=devices[1], name='Interface 2', label='B', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
+            Interface(device=devices[2], name='Interface 3', label='C', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
+            Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
+            Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
+            Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -1899,6 +1915,10 @@ class InterfaceTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_connected(self):
@@ -2016,12 +2036,12 @@ class FrontPortTestCase(TestCase):
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
-            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
-            FrontPort(device=devices[2], name='Front Port 3', type=PortTypeChoices.TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
-            FrontPort(device=devices[3], name='Front Port 4', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 5', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 6', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
+            FrontPort(device=devices[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
+            FrontPort(device=devices[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
+            FrontPort(device=devices[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
+            FrontPort(device=devices[3], name='Front Port 4', label='D', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 5', label='E', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 6', label='F', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
         )
         FrontPort.objects.bulk_create(front_ports)
 
@@ -2036,6 +2056,10 @@ class FrontPortTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Front Port 1', 'Front Port 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -2108,12 +2132,12 @@ class RearPortTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1, description='First'),
-            RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2, description='Second'),
-            RearPort(device=devices[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3, description='Third'),
-            RearPort(device=devices[3], name='Rear Port 4', type=PortTypeChoices.TYPE_FC, positions=4),
-            RearPort(device=devices[3], name='Rear Port 5', type=PortTypeChoices.TYPE_FC, positions=5),
-            RearPort(device=devices[3], name='Rear Port 6', type=PortTypeChoices.TYPE_FC, positions=6),
+            RearPort(device=devices[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, positions=1, description='First'),
+            RearPort(device=devices[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, positions=2, description='Second'),
+            RearPort(device=devices[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, positions=3, description='Third'),
+            RearPort(device=devices[3], name='Rear Port 4', label='D', type=PortTypeChoices.TYPE_FC, positions=4),
+            RearPort(device=devices[3], name='Rear Port 5', label='E', type=PortTypeChoices.TYPE_FC, positions=5),
+            RearPort(device=devices[3], name='Rear Port 6', label='F', type=PortTypeChoices.TYPE_FC, positions=6),
         )
         RearPort.objects.bulk_create(rear_ports)
 
@@ -2128,6 +2152,10 @@ class RearPortTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Rear Port 1', 'Rear Port 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -2203,9 +2231,9 @@ class DeviceBayTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         device_bays = (
-            DeviceBay(device=devices[0], name='Device Bay 1', description='First'),
-            DeviceBay(device=devices[1], name='Device Bay 2', description='Second'),
-            DeviceBay(device=devices[2], name='Device Bay 3', description='Third'),
+            DeviceBay(device=devices[0], name='Device Bay 1', label='A', description='First'),
+            DeviceBay(device=devices[1], name='Device Bay 2', label='B', description='Second'),
+            DeviceBay(device=devices[2], name='Device Bay 3', label='C', description='Third'),
         )
         DeviceBay.objects.bulk_create(device_bays)
 
@@ -2215,6 +2243,10 @@ class DeviceBayTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Device Bay 1', 'Device Bay 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -2283,9 +2315,9 @@ class InventoryItemTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         inventory_items = (
-            InventoryItem(device=devices[0], manufacturer=manufacturers[0], name='Inventory Item 1', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First'),
-            InventoryItem(device=devices[1], manufacturer=manufacturers[1], name='Inventory Item 2', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
-            InventoryItem(device=devices[2], manufacturer=manufacturers[2], name='Inventory Item 3', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
+            InventoryItem(device=devices[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First'),
+            InventoryItem(device=devices[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
+            InventoryItem(device=devices[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
         )
         for i in inventory_items:
             i.save()
@@ -2304,6 +2336,10 @@ class InventoryItemTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Inventory Item 1', 'Inventory Item 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_part_id(self):
