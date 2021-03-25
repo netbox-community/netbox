@@ -55,7 +55,7 @@
         {% block content %}{% endblock %}
         <div class="push"></div>
          {% if settings.BANNER_BOTTOM %}
-            <div class="alert alert-info text-center banner-bottom" role="alert">
+            <div class="alert alert-info text-center" style="margin-bottom: 50px" role="alert">
                  {{ settings.BANNER_BOTTOM|safe }}
             </div>
         {% endif %}

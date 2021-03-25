@@ -14,17 +14,19 @@ body:
         - Cleanup (formatting, typos, etc.)
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     attributes:
       label: Area
-      description: To what section(s) of the documentation does this change pertain?
+      description: To what section of the documentation does this change primarily pertain?
       options:
-        - label: Installation instructions
-        - label: Configuration parameters
-        - label: Functionality/features
-        - label: REST API
-        - label: Administration/development
-        - label: Other
+        - Installation instructions
+        - Configuration parameters
+        - Functionality/features
+        - REST API
+        - Administration/development
+        - Other
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Proposed Changes

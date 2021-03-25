@@ -281,6 +281,14 @@ Setting this to True will display a "maintenance mode" banner at the top of ever
 
 ---
 
+## MAPS_URL
+
+Default: `https://maps.google.com/?q=` (Google Maps)
+
+This specifies the URL to use when presenting a map of a physical location by street address or GPS coordinates. The URL must accept either a free-form street address or a comma-separated pair of numeric coordinates appended to it.
+
+---
+
 ## MAX_PAGE_SIZE
 
 Default: 1000
@@ -301,7 +309,7 @@ The file path to the location where media files (such as image attachments) are 
 
 Default: False
 
-Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../../additional-features/prometheus-metrics/) documentation for more details.
+Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics.md) documentation for more details.
 
 ---
 

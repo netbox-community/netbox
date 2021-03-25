@@ -12,13 +12,16 @@ NetBox employs a [PostgreSQL](https://www.postgresql.org/) database, so general 
 Use the `pg_dump` utility to export the entire database to a file:
 
 ```no-highlight
-pg_dump netbox > netbox.sql
+pg_dump --username netbox --password --host localhost netbox > netbox.sql
 ```
+
+!!! note
+    You may need to change the username, host, and/or database in the command above to match your installation.
 
 When replicating a production database for development purposes, you may find it convenient to exclude changelog data, which can easily account for the bulk of a database's size. To do this, exclude the `extras_objectchange` table data from the export. The table will still be included in the output file, but will not be populated with any data.
 
 ```no-highlight
-pg_dump --exclude-table-data=extras_objectchange netbox > netbox.sql
+pg_dump ... --exclude-table-data=extras_objectchange netbox > netbox.sql
 ```
 
 ### Load an Exported Database
@@ -41,7 +44,7 @@ Keep in mind that PostgreSQL user accounts and permissions are not included with
 If you want to export only the database schema, and not the data itself (e.g. for development reference), do the following:
 
 ```no-highlight
-pg_dump -s netbox > netbox_schema.sql
+pg_dump --username netbox --password --host localhost -s netbox > netbox_schema.sql
 ```
 
 ---

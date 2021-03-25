@@ -5,8 +5,8 @@
 Getting started with NetBox development is pretty straightforward, and should feel very familiar to anyone with Django development experience. There are a few things you'll need:
 
 * A Linux system or environment
-* A PostgreSQL server, which can be installed locally [per the documentation](/installation/1-postgresql/)
-* A Redis server, which can also be [installed locally](/installation/2-redis/)
+* A PostgreSQL server, which can be installed locally [per the documentation](../installation/1-postgresql.md)
+* A Redis server, which can also be [installed locally](../installation/2-redis.md)
 * A supported version of Python
 
 ### Fork the Repo

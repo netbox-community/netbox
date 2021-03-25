@@ -488,17 +488,23 @@ class CablePath(BigIDModel):
 
     def get_total_length(self):
         """
-        Return the sum of the length of each cable in the path.
+        Return a tuple containing the sum of the length of each cable in the path
+        and a flag indicating whether the length is definitive.
         """
         cable_ids = [
             # Starting from the first element, every third element in the path should be a Cable
             decompile_path_node(self.path[i])[1] for i in range(0, len(self.path), 3)
         ]
-        return Cable.objects.filter(id__in=cable_ids).aggregate(total=Sum('_abs_length'))['total']
+        cables = Cable.objects.filter(id__in=cable_ids, _abs_length__isnull=False)
+        total_length = cables.aggregate(total=Sum('_abs_length'))['total']
+        is_definitive = len(cables) == len(cable_ids)
+
+        return total_length, is_definitive
 
     def get_split_nodes(self):
         """
         Return all available next segments in a split cable path.
         """
         rearport = path_node_to_object(self.path[-1])
+
         return FrontPort.objects.filter(rear_port=rearport)

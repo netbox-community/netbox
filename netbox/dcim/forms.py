@@ -56,11 +56,17 @@ def get_device_by_name_or_pk(name):
 
 class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
     field_order = [
-        'q', 'region_id', 'site_group_id', 'site_id'
+        'q', 'name', 'label', 'region_id', 'site_group_id', 'site_id',
     ]
     q = forms.CharField(
         required=False,
         label=_('Search')
+    )
+    name = forms.CharField(
+        required=False
+    )
+    label = forms.CharField(
+        required=False
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -880,6 +886,9 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         null_option='None',
         label=_('Role')
     )
+    asset_tag = forms.CharField(
+        required=False
+    )
     tag = TagFilterField(model)
 
 
@@ -1149,10 +1158,10 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         widgets = {
             'subdevice_role': StaticSelect2(),
             # Exclude SVG images (unsupported by PIL)
-            'front_image': forms.FileInput(attrs={
+            'front_image': forms.ClearableFileInput(attrs={
                 'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
             }),
-            'rear_image': forms.FileInput(attrs={
+            'rear_image': forms.ClearableFileInput(attrs={
                 'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
             })
         }
@@ -2344,6 +2353,10 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=DeviceRole.objects.all(),
         required=False
     )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -2373,7 +2386,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     model = Device
     field_order = [
         'q', 'region_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
-        'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
+        'manufacturer_id', 'device_type_id', 'asset_tag', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
         required=False,
@@ -2436,6 +2449,9 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         choices=DeviceStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    asset_tag = forms.CharField(
+        required=False
     )
     mac_address = forms.CharField(
         required=False,

@@ -304,13 +304,7 @@
                     {% for change in changelog %}
                         {% with action=change.get_action_display|lower %}
                             <div class="list-group-item">
-                                {% if action == 'created' %}
-                                    <span class="label label-success">Created</span>
-                                {% elif action == 'updated' %}
-                                    <span class="label label-warning">Modified</span>
-                                {% elif action == 'deleted' %}
-                                    <span class="label label-danger">Deleted</span>
-                                {% endif %}
+                                <span class="label label-{{ change.get_action_class }}">{{ change.get_action_display }}</span>
                                 {{ change.changed_object_type.name|bettertitle }}
                                 {% if change.changed_object.get_absolute_url %}
                                     <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>

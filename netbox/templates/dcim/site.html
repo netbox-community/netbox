@@ -102,7 +102,7 @@
                     <td>
                         {% if object.physical_address %}
                             <div class="pull-right noprint">
-                                <a href="https://maps.google.com/?q={{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
+                                <a href="{{ settings.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
                                     <i class="mdi mdi-map-marker"></i> Map it
                                 </a>
                             </div>
@@ -121,7 +121,7 @@
                     <td>
                         {% if object.latitude and object.longitude %}
                             <div class="pull-right noprint">
-                                <a href="https://maps.google.com/?q={{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-xs">
+                                <a href="{{ settings.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-xs">
                                     <i class="mdi mdi-map-marker"></i> Map it
                                 </a>
                             </div>
