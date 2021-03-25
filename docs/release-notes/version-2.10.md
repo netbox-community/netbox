@@ -1,19 +1,19 @@
 # NetBox v2.10
 
-## v2.10.7 (FUTURE)
+## v2.10.7 (2021-03-25)
 
 ### Enhancements
 
 * [#5641](https://github.com/netbox-community/netbox/issues/5641) - Allow filtering device components by label
 * [#5723](https://github.com/netbox-community/netbox/issues/5723) - Allow customization of the geographic mapping service via `MAPS_URL` config parameter
 * [#5736](https://github.com/netbox-community/netbox/issues/5736) - Allow changing site assignment when bulk editing devices
+* [#5953](https://github.com/netbox-community/netbox/issues/5953) - Support Markdown rendering for custom script descriptions
 * [#6040](https://github.com/netbox-community/netbox/issues/6040) - Add UI search fields for asset tag for devices and racks
 
 ### Bug Fixes
 
 * [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image
 * [#5650](https://github.com/netbox-community/netbox/issues/5650) - Denote when the total length of a cable trace may exceed the indicated value
-* [#5953](https://github.com/netbox-community/netbox/issues/5953) - Support Markdown rendering for custom script descriptions
 * [#5962](https://github.com/netbox-community/netbox/issues/5962) - Ensure consistent display of change log action labels
 * [#5966](https://github.com/netbox-community/netbox/issues/5966) - Skip Markdown reference link when tabbing through form fields
 * [#5977](https://github.com/netbox-community/netbox/issues/5977) - Correct validation of `RELEASE_CHECK_URL` config parameter
