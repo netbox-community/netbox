@@ -2134,10 +2134,14 @@ class PathTraceView(generic.ObjectView):
             else:
                 path = related_paths.first()
 
+        # Get the total length of the cable and whether the length is definitive (fully defined)
+        total_length, is_definitive = path.get_total_length if path else (None, False)
+
         return {
             'path': path,
             'related_paths': related_paths,
-            'total_length': path.get_total_length() if path else None,
+            'total_length': total_length,
+            'is_definitive': is_definitive
         }
 
 
