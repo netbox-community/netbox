@@ -215,7 +215,7 @@ class CommentField(forms.CharField):
     default_label = ''
     # TODO: Port Markdown cheat sheet to internal documentation
     default_helptext = '<i class="mdi mdi-information-outline"></i> '\
-                       '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
+                       '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank" tabindex="-1">'\
                        'Markdown</a> syntax is supported'
 
     def __init__(self, *args, **kwargs):

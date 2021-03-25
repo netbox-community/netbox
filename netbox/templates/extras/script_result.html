@@ -18,7 +18,7 @@
         </div>
     </div>
     <h1>{{ script }}</h1>
-    <p>{{ script.Meta.description }}</p>
+    <p>{{ script.Meta.description|render_markdown }}</p>
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active">
             <a href="#log" role="tab" data-toggle="tab" class="active">Log</a>

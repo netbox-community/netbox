@@ -12,7 +12,7 @@ A NetBox report is a mechanism for validating the integrity of data within NetBo
 
 ## Writing Reports
 
-Reports must be saved as files in the [`REPORTS_ROOT`](../../configuration/optional-settings/#reports_root) path (which defaults to `netbox/reports/`). Each file created within this path is considered a separate module. Each module holds one or more reports (Python classes), each of which performs a certain function. The logic of each report is broken into discrete test methods, each of which applies a small portion of the logic comprising the overall test.
+Reports must be saved as files in the [`REPORTS_ROOT`](../configuration/optional-settings.md#reports_root) path (which defaults to `netbox/reports/`). Each file created within this path is considered a separate module. Each module holds one or more reports (Python classes), each of which performs a certain function. The logic of each report is broken into discrete test methods, each of which applies a small portion of the logic comprising the overall test.
 
 !!! warning
     The reports path includes a file named `__init__.py`, which registers the path as a Python module. Do not delete this file.

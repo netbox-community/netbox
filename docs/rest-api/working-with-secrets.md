@@ -4,7 +4,7 @@ As with most other objects, the REST API can be used to view, create, modify, an
 
 ## Generating a Session Key
 
-In order to encrypt or decrypt secret data, a session key must be attached to the API request. To generate a session key, send an authenticated request to the `/api/secrets/get-session-key/` endpoint with the private RSA key which matches your [UserKey](../../core-functionality/secrets/#user-keys). The private key must be POSTed with the name `private_key`.
+In order to encrypt or decrypt secret data, a session key must be attached to the API request. To generate a session key, send an authenticated request to the `/api/secrets/get-session-key/` endpoint with the private RSA key which matches your [UserKey](../core-functionality/secrets.md#user-keys). The private key must be POSTed with the name `private_key`.
 
 ```no-highlight
 $ curl -X POST http://netbox/api/secrets/get-session-key/ \

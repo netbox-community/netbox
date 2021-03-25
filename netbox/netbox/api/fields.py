@@ -104,21 +104,6 @@ class ContentTypeField(RelatedField):
         return f"{obj.app_label}.{obj.model}"
 
 
-class TimeZoneField(serializers.Field):
-    """
-    Represent a pytz time zone.
-    """
-    def to_representation(self, obj):
-        return obj.zone if obj else None
-
-    def to_internal_value(self, data):
-        if not data:
-            return ""
-        if data not in pytz.common_timezones:
-            raise ValidationError('Unknown time zone "{}" (see pytz.common_timezones for all options)'.format(data))
-        return pytz.timezone(data)
-
-
 class SerializedPKRelatedField(PrimaryKeyRelatedField):
     """
     Extends PrimaryKeyRelatedField to return a serialized object on read. This is useful for representing related

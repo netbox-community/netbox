@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.10.6'
+VERSION = '2.10.7'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -88,10 +88,9 @@ LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
+MAPS_URL = getattr(configuration, 'MAPS_URL', 'https://maps.google.com/?q=')
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
-STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
-STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
@@ -118,18 +117,23 @@ SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
+STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
+STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
-    try:
-        URLValidator(RELEASE_CHECK_URL)
-    except ValidationError:
-        raise ImproperlyConfigured(
+    validator = URLValidator(
+        message=(
             "RELEASE_CHECK_URL must be a valid API URL. Example: "
             "https://api.github.com/repos/netbox-community/netbox"
         )
+    )
+    try:
+        validator(RELEASE_CHECK_URL)
+    except ValidationError as err:
+        raise ImproperlyConfigured(str(err))
 
 # Enforce a minimum cache timeout for update checks
 if RELEASE_CHECK_TIMEOUT < 3600:

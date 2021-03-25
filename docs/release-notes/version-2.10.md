@@ -1,5 +1,29 @@
 # NetBox v2.10
 
+## v2.10.7 (2021-03-25)
+
+### Enhancements
+
+* [#5641](https://github.com/netbox-community/netbox/issues/5641) - Allow filtering device components by label
+* [#5723](https://github.com/netbox-community/netbox/issues/5723) - Allow customization of the geographic mapping service via `MAPS_URL` config parameter
+* [#5736](https://github.com/netbox-community/netbox/issues/5736) - Allow changing site assignment when bulk editing devices
+* [#5953](https://github.com/netbox-community/netbox/issues/5953) - Support Markdown rendering for custom script descriptions
+* [#6040](https://github.com/netbox-community/netbox/issues/6040) - Add UI search fields for asset tag for devices and racks
+
+### Bug Fixes
+
+* [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image
+* [#5650](https://github.com/netbox-community/netbox/issues/5650) - Denote when the total length of a cable trace may exceed the indicated value
+* [#5962](https://github.com/netbox-community/netbox/issues/5962) - Ensure consistent display of change log action labels
+* [#5966](https://github.com/netbox-community/netbox/issues/5966) - Skip Markdown reference link when tabbing through form fields
+* [#5977](https://github.com/netbox-community/netbox/issues/5977) - Correct validation of `RELEASE_CHECK_URL` config parameter
+* [#6006](https://github.com/netbox-community/netbox/issues/6006) - Fix VLAN group/site association for bulk prefix import
+* [#6010](https://github.com/netbox-community/netbox/issues/6010) - Eliminate duplicate virtual chassis search results
+* [#6012](https://github.com/netbox-community/netbox/issues/6012) - Pre-populate attributes when creating an available child prefix via the UI
+* [#6023](https://github.com/netbox-community/netbox/issues/6023) - Fix display of bottom banner with uBlock Origin enabled
+
+---
+
 ## v2.10.6 (2021-03-09)
 
 ### Enhancements
@@ -18,6 +42,8 @@
 * [#5922](https://github.com/netbox-community/netbox/issues/5922) - Fix options for filtering object permissions in admin UI
 * [#5935](https://github.com/netbox-community/netbox/issues/5935) - Fix filtering prefixes list by multiple prefix values
 * [#5948](https://github.com/netbox-community/netbox/issues/5948) - Invalidate cached queries when running `renaturalize`
+
+---
 
 ## v2.10.5 (2021-02-24)
 

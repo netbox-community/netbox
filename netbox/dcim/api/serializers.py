@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from timezone_field.rest_framework import TimeZoneSerializerField
 
 from dcim.choices import *
 from dcim.constants import *
@@ -13,13 +14,12 @@ from dcim.models import (
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-from dcim.utils import decompile_path_node
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
 from netbox.api import (
-    ChoiceField, ContentTypeField, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer,
+    ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer,
     WritableNestedSerializer,
 )
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -98,7 +98,7 @@ class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = NestedRegionSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    time_zone = TimeZoneField(required=False)
+    time_zone = TimeZoneSerializerField(required=False)
     circuit_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
