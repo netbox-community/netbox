@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5641](https://github.com/netbox-community/netbox/issues/5641) - Allow filtering device components by label
+* [#5736](https://github.com/netbox-community/netbox/issues/5736) - Allow changing site assignment when bulk editing devices
 * [#6040](https://github.com/netbox-community/netbox/issues/6040) - Add UI search fields for asset tag for devices and racks
 
 ### Bug Fixes
