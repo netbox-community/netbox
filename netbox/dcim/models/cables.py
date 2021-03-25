@@ -490,11 +490,13 @@ class CablePath(models.Model):
         cables = Cable.objects.filter(id__in=cable_ids, _abs_length__isnull=False)
         total_length = cables.aggregate(total=Sum('_abs_length'))['total']
         is_definitive = len(cables) == len(cable_ids)
-        return (total_length, is_definitive)
+
+        return total_length, is_definitive
 
     def get_split_nodes(self):
         """
         Return all available next segments in a split cable path.
         """
         rearport = path_node_to_object(self.path[-1])
+
         return FrontPort.objects.filter(rear_port=rearport)

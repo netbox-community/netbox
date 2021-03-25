@@ -12,6 +12,7 @@
 ### Bug Fixes
 
 * [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image
+* [#5650](https://github.com/netbox-community/netbox/issues/5650) - Denote when the total length of a cable trace may exceed the indicated value
 * [#5953](https://github.com/netbox-community/netbox/issues/5953) - Support Markdown rendering for custom script descriptions
 * [#5962](https://github.com/netbox-community/netbox/issues/5962) - Ensure consistent display of change log action labels
 * [#5966](https://github.com/netbox-community/netbox/issues/5966) - Skip Markdown reference link when tabbing through form fields
