@@ -281,6 +281,14 @@ Setting this to True will display a "maintenance mode" banner at the top of ever
 
 ---
 
+## MAPS_URL
+
+Default: `https://maps.google.com/?q=` (Google Maps)
+
+This specifies the URL to use when presenting a map of a physical location by street address or GPS coordinates. The URL must accept either a free-form street address or a comma-separated pair of numeric coordinates appended to it.
+
+---
+
 ## MAX_PAGE_SIZE
 
 Default: 1000
