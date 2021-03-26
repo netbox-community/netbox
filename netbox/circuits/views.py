@@ -147,6 +147,23 @@ class CircuitTypeListView(generic.ObjectListView):
     table = tables.CircuitTypeTable
 
 
+class CircuitTypeView(generic.ObjectView):
+    queryset = CircuitType.objects.all()
+
+    def get_extra_context(self, request, instance):
+        circuits = Circuit.objects.restrict(request.user, 'view').filter(
+            type=instance
+        )
+
+        circuits_table = tables.CircuitTable(circuits)
+        circuits_table.columns.hide('type')
+        paginate_table(circuits_table, request)
+
+        return {
+            'circuits_table': circuits_table,
+        }
+
+
 class CircuitTypeEditView(generic.ObjectEditView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeForm

@@ -59,7 +59,7 @@ class ClusterType(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?type={}".format(reverse('virtualization:cluster_list'), self.slug)
+        return reverse('virtualization:clustertype', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -102,7 +102,7 @@ class ClusterGroup(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?group={}".format(reverse('virtualization:cluster_list'), self.slug)
+        return reverse('virtualization:clustergroup', args=[self.pk])
 
     def to_csv(self):
         return (

@@ -50,6 +50,9 @@ __all__ = (
 
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
     device_count = LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'role': 'slug'},
@@ -76,6 +79,9 @@ class DeviceRoleTable(BaseTable):
 
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
     device_count = LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'platform': 'slug'},

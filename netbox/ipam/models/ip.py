@@ -66,7 +66,7 @@ class RIR(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?rir={}".format(reverse('ipam:aggregate_list'), self.slug)
+        return reverse('ipam:rir', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -215,6 +215,9 @@ class Role(OrganizationalModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('ipam:role', args=[self.pk])
 
     def to_csv(self):
         return (

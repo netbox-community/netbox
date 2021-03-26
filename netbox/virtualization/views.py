@@ -11,6 +11,7 @@ from ipam.models import IPAddress, Service
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
 from secrets.models import Secret
+from utilities.tables import paginate_table
 from utilities.utils import count_related
 from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -25,6 +26,23 @@ class ClusterTypeListView(generic.ObjectListView):
         cluster_count=count_related(Cluster, 'type')
     )
     table = tables.ClusterTypeTable
+
+
+class ClusterTypeView(generic.ObjectView):
+    queryset = ClusterType.objects.all()
+
+    def get_extra_context(self, request, instance):
+        clusters = Cluster.objects.restrict(request.user, 'view').filter(
+            type=instance
+        )
+
+        clusters_table = tables.ClusterTable(clusters)
+        clusters_table.columns.hide('type')
+        paginate_table(clusters_table, request)
+
+        return {
+            'clusters_table': clusters_table,
+        }
 
 
 class ClusterTypeEditView(generic.ObjectEditView):
@@ -67,6 +85,23 @@ class ClusterGroupListView(generic.ObjectListView):
         cluster_count=count_related(Cluster, 'group')
     )
     table = tables.ClusterGroupTable
+
+
+class ClusterGroupView(generic.ObjectView):
+    queryset = ClusterGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        clusters = Cluster.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+
+        clusters_table = tables.ClusterTable(clusters)
+        clusters_table.columns.hide('group')
+        paginate_table(clusters_table, request)
+
+        return {
+            'clusters_table': clusters_table,
+        }
 
 
 class ClusterGroupEditView(generic.ObjectEditView):

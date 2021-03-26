@@ -263,7 +263,7 @@ class SecretRole(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?role={}".format(reverse('secrets:secret_list'), self.slug)
+        return reverse('secrets:secretrole', args=[self.pk])
 
     def to_csv(self):
         return (

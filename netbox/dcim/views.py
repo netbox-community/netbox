@@ -20,6 +20,7 @@ from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
+from utilities.tables import paginate_table
 from utilities.utils import csv_format, count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine
@@ -341,6 +342,23 @@ class RackRoleListView(generic.ObjectListView):
     table = tables.RackRoleTable
 
 
+class RackRoleView(generic.ObjectView):
+    queryset = RackRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        racks = Rack.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+
+        racks_table = tables.RackTable(racks)
+        racks_table.columns.hide('role')
+        paginate_table(racks_table, request)
+
+        return {
+            'racks_table': racks_table,
+        }
+
+
 class RackRoleEditView(generic.ObjectEditView):
     queryset = RackRole.objects.all()
     model_form = forms.RackRoleForm
@@ -565,6 +583,23 @@ class ManufacturerListView(generic.ObjectListView):
         platform_count=count_related(Platform, 'manufacturer')
     )
     table = tables.ManufacturerTable
+
+
+class ManufacturerView(generic.ObjectView):
+    queryset = Manufacturer.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devicetypes = DeviceType.objects.restrict(request.user, 'view').filter(
+            manufacturer=instance
+        )
+
+        devicetypes_table = tables.DeviceTypeTable(devicetypes)
+        devicetypes_table.columns.hide('manufacturer')
+        paginate_table(devicetypes_table, request)
+
+        return {
+            'devicetypes_table': devicetypes_table,
+        }
 
 
 class ManufacturerEditView(generic.ObjectEditView):
@@ -1017,6 +1052,23 @@ class DeviceRoleListView(generic.ObjectListView):
     table = tables.DeviceRoleTable
 
 
+class DeviceRoleView(generic.ObjectView):
+    queryset = DeviceRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devices = Device.objects.restrict(request.user, 'view').filter(
+            device_role=instance
+        )
+
+        devices_table = tables.DeviceTable(devices)
+        devices_table.columns.hide('device_role')
+        paginate_table(devices_table, request)
+
+        return {
+            'devices_table': devices_table,
+        }
+
+
 class DeviceRoleEditView(generic.ObjectEditView):
     queryset = DeviceRole.objects.all()
     model_form = forms.DeviceRoleForm
@@ -1054,6 +1106,23 @@ class PlatformListView(generic.ObjectListView):
         vm_count=count_related(VirtualMachine, 'platform')
     )
     table = tables.PlatformTable
+
+
+class PlatformView(generic.ObjectView):
+    queryset = Platform.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devices = Device.objects.restrict(request.user, 'view').filter(
+            platform=instance
+        )
+
+        devices_table = tables.DeviceTable(devices)
+        devices_table.columns.hide('platform')
+        paginate_table(devices_table, request)
+
+        return {
+            'devices_table': devices_table,
+        }
 
 
 class PlatformEditView(generic.ObjectEditView):

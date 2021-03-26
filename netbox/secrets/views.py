@@ -7,6 +7,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from netbox.views import generic
+from utilities.tables import paginate_table
 from utilities.utils import count_related
 from . import filters, forms, tables
 from .models import SecretRole, Secret, SessionKey, UserKey
@@ -31,6 +32,23 @@ class SecretRoleListView(generic.ObjectListView):
         secret_count=count_related(Secret, 'role')
     )
     table = tables.SecretRoleTable
+
+
+class SecretRoleView(generic.ObjectView):
+    queryset = SecretRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        secrets = Secret.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+
+        secrets_table = tables.SecretTable(secrets)
+        secrets_table.columns.hide('role')
+        paginate_table(secrets_table, request)
+
+        return {
+            'secrets_table': secrets_table,
+        }
 
 
 class SecretRoleEditView(generic.ObjectEditView):

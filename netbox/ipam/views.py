@@ -148,6 +148,23 @@ class RIRListView(generic.ObjectListView):
     template_name = 'ipam/rir_list.html'
 
 
+class RIRView(generic.ObjectView):
+    queryset = RIR.objects.all()
+
+    def get_extra_context(self, request, instance):
+        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(
+            rir=instance
+        )
+
+        aggregates_table = tables.AggregateTable(aggregates)
+        aggregates_table.columns.hide('rir')
+        paginate_table(aggregates_table, request)
+
+        return {
+            'aggregates_table': aggregates_table,
+        }
+
+
 class RIREditView(generic.ObjectEditView):
     queryset = RIR.objects.all()
     model_form = forms.RIRForm
@@ -284,6 +301,23 @@ class RoleListView(generic.ObjectListView):
         vlan_count=count_related(VLAN, 'role')
     )
     table = tables.RoleTable
+
+
+class RoleView(generic.ObjectView):
+    queryset = Role.objects.all()
+
+    def get_extra_context(self, request, instance):
+        prefixes = Prefix.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+
+        prefixes_table = tables.PrefixTable(prefixes)
+        prefixes_table.columns.hide('role')
+        paginate_table(prefixes_table, request)
+
+        return {
+            'prefixes_table': prefixes_table,
+        }
 
 
 class RoleEditView(generic.ObjectEditView):
@@ -633,6 +667,29 @@ class VLANGroupListView(generic.ObjectListView):
     table = tables.VLANGroupTable
 
 
+class VLANGroupView(generic.ObjectView):
+    queryset = VLANGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
+            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user))
+        )
+        vlans_count = vlans.count()
+        vlans = add_available_vlans(instance, vlans)
+
+        vlans_table = tables.VLANDetailTable(vlans)
+        if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
+            vlans_table.columns.show('pk')
+        vlans_table.columns.hide('site')
+        vlans_table.columns.hide('group')
+        paginate_table(vlans_table, request)
+
+        return {
+            'vlans_count': vlans_count,
+            'vlans_table': vlans_table,
+        }
+
+
 class VLANGroupEditView(generic.ObjectEditView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
@@ -664,38 +721,6 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filters.VLANGroupFilterSet
     table = tables.VLANGroupTable
-
-
-class VLANGroupVLANsView(generic.ObjectView):
-    queryset = VLANGroup.objects.all()
-    template_name = 'ipam/vlangroup_vlans.html'
-
-    def get_extra_context(self, request, instance):
-        vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
-            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user))
-        )
-        vlans = add_available_vlans(instance, vlans)
-
-        vlan_table = tables.VLANDetailTable(vlans)
-        if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
-            vlan_table.columns.show('pk')
-        vlan_table.columns.hide('site')
-        vlan_table.columns.hide('group')
-        paginate_table(vlan_table, request)
-
-        # Compile permissions list for rendering the object table
-        permissions = {
-            'add': request.user.has_perm('ipam.add_vlan'),
-            'change': request.user.has_perm('ipam.change_vlan'),
-            'delete': request.user.has_perm('ipam.delete_vlan'),
-        }
-
-        return {
-            'first_available_vlan': instance.get_next_available_vid(),
-            'bulk_querystring': f'group_id={instance.pk}',
-            'vlan_table': vlan_table,
-            'permissions': permissions,
-        }
 
 
 #

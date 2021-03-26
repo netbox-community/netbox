@@ -70,7 +70,7 @@ class VLANGroup(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('ipam:vlangroup_vlans', args=[self.pk])
+        return reverse('ipam:vlangroup', args=[self.pk])
 
     def clean(self):
         super().clean()

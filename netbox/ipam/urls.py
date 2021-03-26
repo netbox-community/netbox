@@ -37,6 +37,7 @@ urlpatterns = [
     path('rirs/import/', views.RIRBulkImportView.as_view(), name='rir_import'),
     path('rirs/edit/', views.RIRBulkEditView.as_view(), name='rir_bulk_edit'),
     path('rirs/delete/', views.RIRBulkDeleteView.as_view(), name='rir_bulk_delete'),
+    path('rirs/<int:pk>/', views.RIRView.as_view(), name='rir'),
     path('rirs/<int:pk>/edit/', views.RIREditView.as_view(), name='rir_edit'),
     path('rirs/<int:pk>/delete/', views.RIRDeleteView.as_view(), name='rir_delete'),
     path('rirs/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rir_changelog', kwargs={'model': RIR}),
@@ -59,6 +60,7 @@ urlpatterns = [
     path('roles/import/', views.RoleBulkImportView.as_view(), name='role_import'),
     path('roles/edit/', views.RoleBulkEditView.as_view(), name='role_bulk_edit'),
     path('roles/delete/', views.RoleBulkDeleteView.as_view(), name='role_bulk_delete'),
+    path('roles/<int:pk>/', views.RoleView.as_view(), name='role'),
     path('roles/<int:pk>/edit/', views.RoleEditView.as_view(), name='role_edit'),
     path('roles/<int:pk>/delete/', views.RoleDeleteView.as_view(), name='role_delete'),
     path('roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='role_changelog', kwargs={'model': Role}),
@@ -97,9 +99,9 @@ urlpatterns = [
     path('vlan-groups/import/', views.VLANGroupBulkImportView.as_view(), name='vlangroup_import'),
     path('vlan-groups/edit/', views.VLANGroupBulkEditView.as_view(), name='vlangroup_bulk_edit'),
     path('vlan-groups/delete/', views.VLANGroupBulkDeleteView.as_view(), name='vlangroup_bulk_delete'),
+    path('vlan-groups/<int:pk>/', views.VLANGroupView.as_view(), name='vlangroup'),
     path('vlan-groups/<int:pk>/edit/', views.VLANGroupEditView.as_view(), name='vlangroup_edit'),
     path('vlan-groups/<int:pk>/delete/', views.VLANGroupDeleteView.as_view(), name='vlangroup_delete'),
-    path('vlan-groups/<int:pk>/vlans/', views.VLANGroupVLANsView.as_view(), name='vlangroup_vlans'),
     path('vlan-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vlangroup_changelog', kwargs={'model': VLANGroup}),
 
     # VLANs
