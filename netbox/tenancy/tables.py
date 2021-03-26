@@ -35,7 +35,9 @@ class TenantColumn(tables.TemplateColumn):
 
 class TenantGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = MPTTColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
     tenant_count = LinkedCountColumn(
         viewname='tenancy:tenant_list',
         url_params={'group': 'slug'},

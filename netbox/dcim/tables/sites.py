@@ -17,7 +17,9 @@ __all__ = (
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    name = MPTTColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
     site_count = tables.Column(
         verbose_name='Sites'
     )
@@ -35,7 +37,9 @@ class RegionTable(BaseTable):
 
 class SiteGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = MPTTColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
     site_count = tables.Column(
         verbose_name='Sites'
     )

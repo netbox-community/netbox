@@ -112,6 +112,23 @@ class RegionListView(generic.ObjectListView):
     table = tables.RegionTable
 
 
+class RegionView(generic.ObjectView):
+    queryset = Region.objects.all()
+
+    def get_extra_context(self, request, instance):
+        sites = Site.objects.restrict(request.user, 'view').filter(
+            region=instance
+        )
+
+        sites_table = tables.SiteTable(sites)
+        sites_table.columns.hide('region')
+        paginate_table(sites_table, request)
+
+        return {
+            'sites_table': sites_table,
+        }
+
+
 class RegionEditView(generic.ObjectEditView):
     queryset = Region.objects.all()
     model_form = forms.RegionForm
@@ -167,6 +184,23 @@ class SiteGroupListView(generic.ObjectListView):
     filterset = filters.SiteGroupFilterSet
     filterset_form = forms.SiteGroupFilterForm
     table = tables.SiteGroupTable
+
+
+class SiteGroupView(generic.ObjectView):
+    queryset = SiteGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        sites = Site.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+
+        sites_table = tables.SiteTable(sites)
+        sites_table.columns.hide('group')
+        paginate_table(sites_table, request)
+
+        return {
+            'sites_table': sites_table,
+        }
 
 
 class SiteGroupEditView(generic.ObjectEditView):
@@ -289,6 +323,23 @@ class LocationListView(generic.ObjectListView):
     filterset = filters.LocationFilterSet
     filterset_form = forms.LocationFilterForm
     table = tables.LocationTable
+
+
+class LocationView(generic.ObjectView):
+    queryset = Location.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devices = Device.objects.restrict(request.user, 'view').filter(
+            location=instance
+        )
+
+        devices_table = tables.DeviceTable(devices)
+        devices_table.columns.hide('location')
+        paginate_table(devices_table, request)
+
+        return {
+            'devices_table': devices_table,
+        }
 
 
 class LocationEditView(generic.ObjectEditView):

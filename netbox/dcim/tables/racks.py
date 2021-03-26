@@ -19,12 +19,14 @@ __all__ = (
 
 
 #
-# Rack groups
+# Locations
 #
 
 class LocationTable(BaseTable):
     pk = ToggleColumn()
-    name = MPTTColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
     site = tables.Column(
         linkify=True
     )
