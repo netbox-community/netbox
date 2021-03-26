@@ -34,6 +34,17 @@ class TagListView(generic.ObjectListView):
     table = tables.TagTable
 
 
+class TagView(generic.ObjectView):
+    queryset = Tag.objects.all()
+
+    def get_extra_context(self, request, instance):
+        tagged_items = TaggedItem.objects.filter(tag=instance)
+
+        return {
+            'tagged_item_count': tagged_items.count(),
+        }
+
+
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm

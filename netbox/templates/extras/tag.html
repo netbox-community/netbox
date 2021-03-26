@@ -1,98 +1,51 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
+{% load plugins %}
 
-{% block header %}
-    <div class="row">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'extras:tag_list' %}">Tags</a></li>
-                <li>{{ object }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'extras:tag_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right">
-        {% if perms.taggit.change_tag %}
-            <a href="{% url 'extras:tag_edit' slug=object.slug %}" class="btn btn-warning">
-                <span class="mdi mdi-pencil" aria-hidden="true"></span>
-                Edit this tag
-            </a>
-        {% endif %}
-        {% if perms.taggit.delete_tag %}
-            <a href="{% url 'extras:tag_delete' slug=object.slug %}" class="btn btn-danger">
-                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
-                Delete this tag
-            </a>
-        {% endif %}
-    </div>
-    <h1>{% block title %}Tag: {{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' %}
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Tag</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'extras:tag_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block breadcrumbs %}
+  <li><a href="{% url 'extras:tag_list' %}">Tags</a></li>
+  <li>{{ object }}</li>
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Tag</strong>
-                </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Name</td>
-                        <td>
-                            {{ object.name }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Slug</td>
-                        <td>
-                            {{ object.slug }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Tagged Items</td>
-                        <td>
-                            {{ items_count }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Color</td>
-                        <td>
-                            <span class="label color-block" style="background-color: #{{ object.color }}">&nbsp;</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>
-                            {{ object.description|placeholder }}
-                        </td>
-                </table>
-            </div>
-        </div>
-        <div class="col-md-6">
-            {% include 'panel_table.html' with table=items_table heading='Tagged Objects' %}
-            {% include 'inc/paginator.html' with paginator=items_table.paginator page=items_table.page %}
-        </div>
+<div class="row">
+	<div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Tag</strong>
+      </div>
+      <table class="table table-hover panel-body attr-table">
+        <tr>
+          <td>Name</td>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <td>Color</td>
+          <td>
+            <span class="label color-block" style="background-color: #{{ object.color }}">&nbsp;</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Tagged Items</td>
+          <td>
+            {{ tagged_item_count }}
+          </td>
+        </tr>
+      </table>
     </div>
+    {% plugin_left_page object %}
+  </div>
+	<div class="col-md-6">
+    {% plugin_right_page object %}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+      {% plugin_full_width_page object %}
+  </div>
+</div>
 {% endblock %}
