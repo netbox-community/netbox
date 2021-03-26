@@ -5,7 +5,10 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django_tables2 import RequestConfig
 from django_tables2.data import TableQuerysetData
+
+from .paginator import EnhancedPaginator, get_paginate_count
 
 
 class BaseTable(tables.Table):
@@ -331,3 +334,18 @@ class UtilizationColumn(tables.TemplateColumn):
 
     def value(self, value):
         return f'{value}%'
+
+
+#
+# Pagination
+#
+
+def paginate_table(table, request):
+    """
+    Paginate a table given a request context.
+    """
+    paginate = {
+        'paginator_class': EnhancedPaginator,
+        'per_page': get_paginate_count(request)
+    }
+    RequestConfig(request, paginate).configure(table)

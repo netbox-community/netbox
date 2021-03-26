@@ -2,11 +2,10 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django_tables2 import RequestConfig
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.tables import paginate_table
 from utilities.utils import count_related
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
@@ -38,12 +37,7 @@ class ProviderView(generic.ObjectView):
 
         circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('provider')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(circuits_table)
+        paginate_table(circuits_table, request)
 
         return {
             'circuits_table': circuits_table,
@@ -107,12 +101,7 @@ class CloudView(generic.ObjectView):
         circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('termination_a')
         circuits_table.columns.hide('termination_z')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(circuits_table)
+        paginate_table(circuits_table, request)
 
         return {
             'circuits_table': circuits_table,

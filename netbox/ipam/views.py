@@ -1,11 +1,10 @@
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
-from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
 from netbox.views import generic
-from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
 from . import filters, forms, tables
@@ -231,12 +230,7 @@ class AggregateView(generic.ObjectView):
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.columns.show('pk')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(prefix_table)
+        paginate_table(prefix_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -388,12 +382,7 @@ class PrefixPrefixesView(generic.ObjectView):
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.columns.show('pk')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(prefix_table)
+        paginate_table(prefix_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -431,12 +420,7 @@ class PrefixIPAddressesView(generic.ObjectView):
         ip_table = tables.IPAddressTable(ipaddresses)
         if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
             ip_table.columns.show('pk')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(ip_table)
+        paginate_table(ip_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -533,12 +517,6 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
         )
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(related_ips_table)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -703,12 +681,7 @@ class VLANGroupVLANsView(generic.ObjectView):
             vlan_table.columns.show('pk')
         vlan_table.columns.hide('site')
         vlan_table.columns.hide('group')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request),
-        }
-        RequestConfig(request, paginate).configure(vlan_table)
+        paginate_table(vlan_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -758,12 +731,7 @@ class VLANInterfacesView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         interfaces = instance.get_interfaces().prefetch_related('device')
         members_table = tables.VLANDevicesTable(interfaces)
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(members_table)
+        paginate_table(members_table, request)
 
         return {
             'members_table': members_table,
@@ -778,12 +746,7 @@ class VLANVMInterfacesView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         interfaces = instance.get_vminterfaces().prefetch_related('virtual_machine')
         members_table = tables.VLANVirtualMachinesTable(interfaces)
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(members_table)
+        paginate_table(members_table, request)
 
         return {
             'members_table': members_table,

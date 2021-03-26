@@ -7,12 +7,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 from django_rq.queues import get_connection
-from django_tables2 import RequestConfig
 from rq import Worker
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.tables import paginate_table
 from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filters, forms, tables
@@ -230,13 +229,7 @@ class ObjectChangeLogView(View):
             data=objectchanges,
             orderable=False
         )
-
-        # Apply the request context
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(objectchanges_table)
+        paginate_table(objectchanges_table, request)
 
         # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
         # fall back to using base.html.
@@ -359,13 +352,7 @@ class ObjectJournalView(View):
             data=journalentries,
             orderable=False
         )
-
-        # Apply the request context
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(journalentry_table)
+        paginate_table(journalentry_table, request)
 
         if request.user.has_perm('extras.add_journalentry'):
             form = forms.JournalEntryForm(
