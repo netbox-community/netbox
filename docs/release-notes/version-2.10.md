@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.8 (2021-03-26)
+
+### Bug Fixes
+
+* [#6060](https://github.com/netbox-community/netbox/issues/6060) - Fix exception on cable trace in UI (regression from #5650)
+
+---
+
 ## v2.10.7 (2021-03-25)
 
 ### Enhancements
