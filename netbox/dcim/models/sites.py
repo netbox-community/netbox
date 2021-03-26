@@ -56,7 +56,7 @@ class Region(NestedGroupModel):
     csv_headers = ['name', 'slug', 'parent', 'description']
 
     def get_absolute_url(self):
-        return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+        return reverse('dcim:region', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -108,7 +108,7 @@ class SiteGroup(NestedGroupModel):
     csv_headers = ['name', 'slug', 'parent', 'description']
 
     def get_absolute_url(self):
-        return "{}?group={}".format(reverse('dcim:site_list'), self.slug)
+        return reverse('dcim:sitegroup', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -324,7 +324,7 @@ class Location(NestedGroupModel):
         ]
 
     def get_absolute_url(self):
-        return "{}?location_id={}".format(reverse('dcim:rack_list'), self.pk)
+        return reverse('dcim:location', args=[self.pk])
 
     def to_csv(self):
         return (

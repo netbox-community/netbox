@@ -34,6 +34,17 @@ class TagListView(generic.ObjectListView):
     table = tables.TagTable
 
 
+class TagView(generic.ObjectView):
+    queryset = Tag.objects.all()
+
+    def get_extra_context(self, request, instance):
+        tagged_items = TaggedItem.objects.filter(tag=instance)
+
+        return {
+            'tagged_item_count': tagged_items.count(),
+        }
+
+
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
@@ -235,11 +246,6 @@ class ObjectChangeLogView(View):
         # fall back to using base.html.
         if self.base_template is None:
             self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-            # TODO: This can be removed once an object view has been established for every model.
-            try:
-                template.loader.get_template(self.base_template)
-            except template.TemplateDoesNotExist:
-                self.base_template = 'base.html'
 
         return render(request, 'extras/object_changelog.html', {
             'object': obj,
@@ -368,11 +374,6 @@ class ObjectJournalView(View):
         # fall back to using base.html.
         if self.base_template is None:
             self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-            # TODO: This can be removed once an object view has been established for every model.
-            try:
-                template.loader.get_template(self.base_template)
-            except template.TemplateDoesNotExist:
-                self.base_template = 'base.html'
 
         return render(request, 'extras/object_journal.html', {
             'object': obj,

@@ -38,6 +38,9 @@ OBJECTCHANGE_REQUEST_ID = """
 
 class TagTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
     color = ColorColumn()
     actions = ButtonsColumn(Tag)
 

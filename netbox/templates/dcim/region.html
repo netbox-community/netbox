@@ -1,0 +1,73 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'dcim:region_list' %}">Region</a></li>
+  {% for region in object.get_ancestors %}
+    <li><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
+  {% endfor %}
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Region</strong>
+      </div>
+      <table class="table table-hover panel-body attr-table">
+        <tr>
+          <td>Name</td>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <td>Parent</td>
+          <td>
+            {% if object.parent %}
+              <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+            {% else %}
+              <span class="text-muted">&mdash;</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Sites</td>
+          <td>
+            <a href="{% url 'dcim:site_list' %}?region_id={{ object.pk }}">{{ sites_table.rows|length }}</a>
+          </td>
+        </tr>
+      </table>
+    </div>
+    {% plugin_left_page object %}
+  </div>
+	<div class="col-md-6">
+    {% include 'inc/custom_fields_panel.html' %}
+    {% plugin_right_page object %}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Sites</strong>
+      </div>
+      {% include 'inc/table.html' with table=sites_table %}
+      {% if perms.dcim.add_site %}
+        <div class="panel-footer text-right noprint">
+          <a href="{% url 'dcim:site_add' %}?region={{ object.pk }}" class="btn btn-xs btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add site
+          </a>
+        </div>
+      {% endif %}
+      </div>
+      {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
+      {% plugin_full_width_page object %}
+  </div>
+</div>
+{% endblock %}

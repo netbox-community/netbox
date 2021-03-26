@@ -3,7 +3,7 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'extras:tag_list' %}">Tags</a></li>
+  <li><a href="{% url 'dcim:rackrole_list' %}">Rack Roles</a></li>
   <li>{{ object }}</li>
 {% endblock %}
 
@@ -12,7 +12,7 @@
 	<div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <strong>Tag</strong>
+        <strong>Rack Role</strong>
       </div>
       <table class="table table-hover panel-body attr-table">
         <tr>
@@ -30,22 +30,37 @@
           </td>
         </tr>
         <tr>
-          <td>Tagged Items</td>
+          <td>Racks</td>
           <td>
-            {{ tagged_item_count }}
+            <a href="{% url 'dcim:rack_list' %}?role_id={{ object.pk }}">{{ racks_table.rows|length }}</a>
           </td>
         </tr>
       </table>
     </div>
     {% plugin_left_page object %}
-  </div>
-	<div class="col-md-6">
-    {% plugin_right_page object %}
 	</div>
+	<div class="col-md-6">
+    {% include 'inc/custom_fields_panel.html' %}
+    {% plugin_right_page object %}
+  </div>
 </div>
 <div class="row">
 	<div class="col-md-12">
-      {% plugin_full_width_page object %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Racks</strong>
+      </div>
+      {% include 'inc/table.html' with table=racks_table %}
+      {% if perms.dcim.add_rack %}
+        <div class="panel-footer text-right noprint">
+          <a href="{% url 'dcim:rack_add' %}?role={{ object.pk }}" class="btn btn-xs btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add rack
+          </a>
+        </div>
+      {% endif %}
+    </div>
+    {% include 'inc/paginator.html' with paginator=racks_table.paginator page=racks_table.page %}
+    {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}
