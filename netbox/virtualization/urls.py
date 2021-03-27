@@ -51,6 +51,7 @@ urlpatterns = [
     path('virtual-machines/edit/', views.VirtualMachineBulkEditView.as_view(), name='virtualmachine_bulk_edit'),
     path('virtual-machines/delete/', views.VirtualMachineBulkDeleteView.as_view(), name='virtualmachine_bulk_delete'),
     path('virtual-machines/<int:pk>/', views.VirtualMachineView.as_view(), name='virtualmachine'),
+    path('virtual-machines/<int:pk>/interfaces/', views.VirtualMachineInterfacesView.as_view(), name='virtualmachine_interfaces'),
     path('virtual-machines/<int:pk>/edit/', views.VirtualMachineEditView.as_view(), name='virtualmachine_edit'),
     path('virtual-machines/<int:pk>/delete/', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
     path('virtual-machines/<int:pk>/config-context/', views.VirtualMachineConfigContextView.as_view(), name='virtualmachine_configcontext'),

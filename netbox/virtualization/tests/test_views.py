@@ -1,3 +1,5 @@
+from django.test import override_settings
+from django.urls import reverse
 from netaddr import EUI
 
 from dcim.choices import InterfaceModeChoices
@@ -195,6 +197,19 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'disk': 8000,
             'comments': 'New comments',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_interfaces(self):
+        virtualmachine = VirtualMachine.objects.first()
+        vminterfaces = (
+            VMInterface(virtual_machine=virtualmachine, name='Interface 1'),
+            VMInterface(virtual_machine=virtualmachine, name='Interface 2'),
+            VMInterface(virtual_machine=virtualmachine, name='Interface 3'),
+        )
+        VMInterface.objects.bulk_create(vminterfaces)
+
+        url = reverse('virtualization:virtualmachine_interfaces', kwargs={'pk': virtualmachine.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
 
 
 class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):

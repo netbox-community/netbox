@@ -322,6 +322,30 @@ class VirtualMachineView(generic.ObjectView):
         }
 
 
+class VirtualMachineInterfacesView(generic.ObjectView):
+    queryset = VirtualMachine.objects.all()
+    template_name = 'virtualization/virtualmachine/interfaces.html'
+
+    def get_extra_context(self, request, instance):
+        interfaces = instance.interfaces.restrict(request.user, 'view').prefetch_related(
+            Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
+            'tags',
+        )
+        interface_table = tables.VirtualMachineVMInterfaceTable(
+            data=interfaces,
+            user=request.user,
+            orderable=False
+        )
+        if request.user.has_perm('virtualization.change_vminterface') or \
+                request.user.has_perm('virtualization.delete_vminterface'):
+            interface_table.columns.show('pk')
+
+        return {
+            'interface_table': interface_table,
+            'active_tab': 'interfaces',
+        }
+
+
 class VirtualMachineConfigContextView(ObjectConfigContextView):
     queryset = VirtualMachine.objects.annotate_config_context_data()
     base_template = 'virtualization/virtualmachine.html'
