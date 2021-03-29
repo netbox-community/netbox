@@ -2113,8 +2113,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
-            'position', 'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'cluster_group', 'cluster',
-            'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
+            'location', 'position', 'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'cluster_group',
+            'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
@@ -2356,6 +2356,13 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False
+    )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
