@@ -47,6 +47,15 @@
                             {% endif %}
                             <a href="{% url 'dcim:sitegroup_list' %}">Site Groups</a>
                         </li>
+                        <li{% if not perms.dcim.view_location %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_location %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:location_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:location_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:location_list' %}">Locations</a>
+                        </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Racks</li>
                         <li{% if not perms.dcim.view_rack %} class="disabled"{% endif %}>
@@ -57,15 +66,6 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rack_list' %}">Racks</a>
-                        </li>
-                        <li{% if not perms.dcim.view_location %} class="disabled"{% endif %}>
-                            {% if perms.dcim.add_location %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:location_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
-                                    <a href="{% url 'dcim:location_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
-                                </div>
-                            {% endif %}
-                            <a href="{% url 'dcim:location_list' %}">Locations</a>
                         </li>
                         <li{% if not perms.dcim.view_rackrole %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackrole %}
