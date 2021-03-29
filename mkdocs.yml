@@ -50,6 +50,7 @@ nav:
         - Custom Links: 'additional-features/custom-links.md'
         - Custom Scripts: 'additional-features/custom-scripts.md'
         - Export Templates: 'additional-features/export-templates.md'
+        - Journaling: 'additional-features/journaling.md'
         - NAPALM: 'additional-features/napalm.md'
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
         - Reports: 'additional-features/reports.md'
