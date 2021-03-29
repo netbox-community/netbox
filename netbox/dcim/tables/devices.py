@@ -263,6 +263,12 @@ class PathEndpointTable(CableTerminationTable):
 
 
 class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_consoleports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:consoleport_list'
     )
@@ -300,6 +306,12 @@ class DeviceConsolePortTable(ConsolePortTable):
 
 
 class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_consoleserverports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:consoleserverport_list'
     )
@@ -338,6 +350,12 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
 
 
 class PowerPortTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_powerports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -379,6 +397,12 @@ class DevicePowerPortTable(PowerPortTable):
 
 
 class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_poweroutlets',
+            'args': [Accessor('device_id')],
+        }
+    )
     power_port = tables.Column(
         linkify=True
     )
@@ -436,6 +460,12 @@ class BaseInterfaceTable(BaseTable):
 
 
 class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_interfaces',
+            'args': [Accessor('device_id')],
+        }
+    )
     mgmt_only = BooleanColumn()
     tags = TagColumn(
         url_name='dcim:interface_list'
@@ -490,6 +520,12 @@ class DeviceInterfaceTable(InterfaceTable):
 
 
 class FrontPortTable(DeviceComponentTable, CableTerminationTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_frontports',
+            'args': [Accessor('device_id')],
+        }
+    )
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
@@ -537,6 +573,12 @@ class DeviceFrontPortTable(FrontPortTable):
 
 
 class RearPortTable(DeviceComponentTable, CableTerminationTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_rearports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:rearport_list'
     )
@@ -577,6 +619,12 @@ class DeviceRearPortTable(RearPortTable):
 
 
 class DeviceBayTable(DeviceComponentTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_devicebays',
+            'args': [Accessor('device_id')],
+        }
+    )
     status = tables.TemplateColumn(
         template_code=DEVICEBAY_STATUS
     )
@@ -616,6 +664,12 @@ class DeviceDeviceBayTable(DeviceBayTable):
 
 
 class InventoryItemTable(DeviceComponentTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_inventory',
+            'args': [Accessor('device_id')],
+        }
+    )
     manufacturer = tables.Column(
         linkify=True
     )
