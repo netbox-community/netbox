@@ -4,22 +4,30 @@
 
 **WARNING:** This is a beta release and is not suitable for production use. It is intended for development and evaluation purposes only. No upgrade path to the final v2.11 release will be provided from this beta, and users should assume that all data entered into the application will be lost.
 
-**Note:** NetBox v2.11 is the last major release that will support Python 3.6. Beginning with NetBox v2.12, Python 3.7 or
-later will be required.
+**Note:** NetBox v2.11 is the last major release that will support Python 3.6. Beginning with NetBox v2.12, Python 3.7 or later will be required.
+
+### Breaking Changes
+
+* All objects now use numeric IDs in their UI view URLs instead of slugs. You may need to update external references to NetBox objects. (Note that this does _not_ affect the REST API.)
+* The UI now uses numeric IDs when filtering object lists. You may need to update external links to filtered object lists. (Note that the slug- and name-based filters will continue to work, however the filter selection fields within the UI will not be automatically populated.)
+* The RackGroup model has been renamed to Location (see [#4971](https://github.com/netbox-community/netbox/issues/4971)). Its REST API endpoint has changed from `/api/dcim/rack-groups/` to `/api/dcim/locations/`.
+* The foreign key field `group` on dcim.Rack has been renamed to `location`.
+* The foreign key field `site` on ipam.VLANGroup has been replaced with the `scope` generic foreign key (see [#5284](https://github.com/netbox-community/netbox/issues/5284)).
+* Custom script ObjectVars no longer support the `queryset` parameter: Use `model` instead (see [#5995](https://github.com/netbox-community/netbox/issues/5995)).
 
 ### New Features
 
 #### Journaling Support ([#151](https://github.com/netbox-community/netbox/issues/151))
 
-NetBox now supports journaling for all primary objects. The journal is a collection of human-generated notes and comments about an object maintained for historical context. It supplements NetBox's change log to provide additional information about why changes have been made or to convey events which occur outside of NetBox. Unlike the change log, which is typically limited in the amount of history it retains, journal entries never expire.
+NetBox now supports journaling for all primary objects. The journal is a collection of human-generated notes and comments about an object maintained for historical context. It supplements NetBox's change log to provide additional information about why changes have been made or to convey events which occur outside NetBox. Unlike the change log, in which records typically expire after some time, journal entries persist for the life of the associated object.
 
 #### Parent Interface Assignments ([#1519](https://github.com/netbox-community/netbox/issues/1519))
 
-Virtual interfaces can now be assigned to a "parent" physical interface, by setting the `parent` field on the Interface model. This is helpful for associating subinterfaces with their physical counterpart. For example, you might assign virtual interfaces Gi0/0.100 and Gi0/0.200 to the physical interface Gi0/0.
+Virtual interfaces can now be assigned to a "parent" physical interface by setting the `parent` field on the interface object. This is helpful for associating subinterfaces with their physical counterpart. For example, you might assign virtual interfaces Gi0/0.100 and Gi0/0.200 as children of the physical interface Gi0/0.
 
 #### Pre- and Post-Change Snapshots in Webhooks ([#3451](https://github.com/netbox-community/netbox/issues/3451))
 
-In conjunction with the newly improved change logging functionality ([#5913](https://github.com/netbox-community/netbox/issues/5913)), outgoing webhooks now include a pre- and post-change representation of the modified object. These are available in the rendering context as a dictionary named `snapshots` with keys `prechange` and `postchange`. For example, here are the abridged snapshots resulting from renaming a site and changing its status:
+In conjunction with the newly improved change logging functionality ([#5913](https://github.com/netbox-community/netbox/issues/5913)), outgoing webhooks now include both pre- and post-change representations of the modified object. These are available in the rendering context as a dictionary named `snapshots` with keys `prechange` and `postchange`. For example, here are the abridged snapshots resulting from renaming a site and changing its status:
 
 ```json
 "snapshots": {
@@ -38,11 +46,11 @@ In conjunction with the newly improved change logging functionality ([#5913](htt
 }
 ```
 
-Note: The pre-change snapshot for an object creation will always be null, as will the post-change snapshot for an object deletion.
+Note: The pre-change snapshot for a newly created will always be null, as will the post-change snapshot for a deleted object.
 
 #### Mark as Connected Without a Cable ([#3648](https://github.com/netbox-community/netbox/issues/3648))
 
-Cable termination objects (circuit terminations, power feeds, and most device components) can now be marked as "connected" without actually attaching a cable. This helps simplify the process of modeling an infrastructure boundary where you don't necessarily know or care what is connected to the far end of a cable, but still need to designate the near end termination.
+Cable termination objects (circuit terminations, power feeds, and most device components) can now be marked as "connected" without actually attaching a cable. This helps simplify the process of modeling an infrastructure boundary where we don't necessarily know or care what is connected to an attachment point, but still need to reflect the termination as being occupied.
 
 In addition to the new `mark_connected` boolean field, the REST API representation of these objects now also includes a read-only boolean field named `_occupied`. This conveniently returns true if either a cable is attached or `mark_connected` is true.
 
@@ -52,7 +60,7 @@ Devices can now be assigned to locations (formerly known as rack groups) within 
 
 #### Dynamic Object Exports ([#4999](https://github.com/netbox-community/netbox/issues/4999))
 
-When exporting a list of objects in NetBox, users now have the option of selecting the "current view". This will render CSV output matching the configuration of the current table. For example, if you modify the sites list to display on the site name, tenant, and status, the rendered CSV will include only these columns.
+When exporting a list of objects in NetBox, users now have the option of selecting the "current view". This will render CSV output matching the current configuration of the table being viewed. For example, if you modify the sites list to display only the site name, tenant, and status, the rendered CSV will include only these columns, and they will appear in the order chosen.
 
 The legacy static export behavior has been retained to ensure backward compatibility for dependent integrations. However, users are strongly encouraged to adapt custom export templates where needed as this functionality will be removed in v2.12.
 
@@ -64,7 +72,7 @@ For example, a VLAN within a group assigned to a location will be available only
 
 #### New Site Group Model ([#5892](https://github.com/netbox-community/netbox/issues/5892))
 
-This release introduces the new Site Group model, which can be used to organize sites similar to the existing Region model. Whereas regions are intended for geographically arranging sites into countries, states, and so on, the new site group model can be used to organize sites by role or other arbitrary classification. Using regions and site groups in conjunction provides two dimensions along which sites can be organized, offering greater flexibility to the user.
+This release introduces the new SiteGroup model, which can be used to organize sites similar to the existing Region model. Whereas regions are intended for geographically arranging sites into countries, states, and so on, the new site group model can be used to organize sites by functional role or other arbitrary classification. Using regions and site groups in conjunction provides two dimensions along which sites can be organized, offering greater flexibility to the user.
 
 #### Improved Change Logging ([#5913](https://github.com/netbox-community/netbox/issues/5913))
 
@@ -72,7 +80,7 @@ The ObjectChange model (which is used to record the creation, modification, and 
 
 #### Cloud Modeling for Circuits ([#5986](https://github.com/netbox-community/netbox/issues/5986))
 
-A new cloud model has been introduced for representing the boundary of a network that exists outside the scope of NetBox. This is analogous to using a cloud icon on a topology drawing to represent an abstracted network. Each cloud must be assigned to a provider, and circuits can terminate to either clouds or sites.
+A new Cloud model has been introduced to represent the boundary of a network that exists outside the scope of NetBox. This is analogous to using a cloud icon on a topology drawing to represent an abstracted network. Each cloud must be assigned to a provider, and circuits can terminate to either clouds or sites. The use of this model will likely be extended by future releases to support overlay and virtual circuit modeling.
 
 ### Enhancements
 
@@ -88,15 +96,16 @@ A new cloud model has been introduced for representing the boundary of a network
 * [#5901](https://github.com/netbox-community/netbox/issues/5901) - Add `created` and `last_updated` fields to device component models
 * [#5971](https://github.com/netbox-community/netbox/issues/5971) - Add dedicated views for organizational models
 * [#5972](https://github.com/netbox-community/netbox/issues/5972) - Enable bulk editing for organizational models
-* [#5975](https://github.com/netbox-community/netbox/issues/5975) - Allow partial vCPU allocations for virtual machines
+* [#5975](https://github.com/netbox-community/netbox/issues/5975) - Allow partial (decimal) vCPU allocations for virtual machines
 
 ### Other Changes
 
 * [#1638](https://github.com/netbox-community/netbox/issues/1638) - Migrate all primary keys to 64-bit integers
 * [#5873](https://github.com/netbox-community/netbox/issues/5873) - Use numeric IDs in all object URLs
+* [#5938](https://github.com/netbox-community/netbox/issues/5938) - Deprecated support for Python 3.6
 * [#5990](https://github.com/netbox-community/netbox/issues/5990) - Deprecated `display_field` parameter for custom script ObjectVar and MultiObjectVar fields
 * [#5995](https://github.com/netbox-community/netbox/issues/5995) - Dropped backward compatibility for `queryset` parameter on ObjectVar and MultiObjectVar (use `model` instead)
-* [#6014](https://github.com/netbox-community/netbox/issues/6014) - Moved virtual machine interfaces list to a separate view
+* [#6014](https://github.com/netbox-community/netbox/issues/6014) - Moved the virtual machine interfaces list to a separate view
 
 ### REST API Changes
 
