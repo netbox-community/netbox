@@ -949,7 +949,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Rack.objects.all(),
         query_params={
             'site_id': '$site',
-            'location_id': 'location',
+            'location_id': '$location',
         }
     )
     units = NumericArrayField(
@@ -4766,7 +4766,6 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
@@ -4790,7 +4789,7 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
             'region', 'site_group', 'site', 'location', 'name', 'tags',
         ]
         fieldsets = (
-            ('Power Panel', ('region', 'site', 'location', 'name', 'tags')),
+            ('Power Panel', ('region', 'site_group', 'site', 'location', 'name', 'tags')),
         )
 
 
