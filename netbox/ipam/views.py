@@ -401,7 +401,7 @@ class PrefixView(generic.ObjectView):
 
 class PrefixPrefixesView(generic.ObjectView):
     queryset = Prefix.objects.all()
-    template_name = 'ipam/prefix_prefixes.html'
+    template_name = 'ipam/prefix/prefixes.html'
 
     def get_extra_context(self, request, instance):
         # Child prefixes table
@@ -439,7 +439,7 @@ class PrefixPrefixesView(generic.ObjectView):
 
 class PrefixIPAddressesView(generic.ObjectView):
     queryset = Prefix.objects.all()
-    template_name = 'ipam/prefix_ipaddresses.html'
+    template_name = 'ipam/prefix/ip_addresses.html'
 
     def get_extra_context(self, request, instance):
         # Find all IPAddresses belonging to this Prefix
@@ -751,7 +751,7 @@ class VLANView(generic.ObjectView):
 
 class VLANInterfacesView(generic.ObjectView):
     queryset = VLAN.objects.all()
-    template_name = 'ipam/vlan_interfaces.html'
+    template_name = 'ipam/vlan/interfaces.html'
 
     def get_extra_context(self, request, instance):
         interfaces = instance.get_interfaces().prefetch_related('device')
@@ -766,7 +766,7 @@ class VLANInterfacesView(generic.ObjectView):
 
 class VLANVMInterfacesView(generic.ObjectView):
     queryset = VLAN.objects.all()
-    template_name = 'ipam/vlan_vminterfaces.html'
+    template_name = 'ipam/vlan/vminterfaces.html'
 
     def get_extra_context(self, request, instance):
         interfaces = instance.get_vminterfaces().prefetch_related('virtual_machine')
