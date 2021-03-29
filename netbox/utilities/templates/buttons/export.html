@@ -5,7 +5,7 @@
   </button>
   <ul class="dropdown-menu dropdown-menu-right">
     <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export=table">Current view</a></li>
-    <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Default format</a></li>
+    <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Legacy CSV</a></li>
     {% if export_templates %}
       <li class="divider"></li>
       {% for et in export_templates %}

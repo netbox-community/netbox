@@ -2,7 +2,10 @@
 
 NetBox allows users to define custom templates that can be used when exporting objects. To create an export template, navigate to Extras > Export Templates under the admin interface.
 
-Each export template is associated with a certain type of object. For instance, if you create an export template for VLANs, your custom template will appear under the "Export" button on the VLANs list.
+Each export template is associated with a certain type of object. For instance, if you create an export template for VLANs, your custom template will appear under the "Export" button on the VLANs list. Each export template must have a name, and may optionally designate a specific export [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types) and/or file extension.
+
+!!! note
+    The name `table` is reserved for internal use.
 
 Export templates must be written in [Jinja2](https://jinja.palletsprojects.com/).
 

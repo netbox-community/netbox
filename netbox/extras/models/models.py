@@ -261,7 +261,15 @@ class ExportTemplate(BigIDModel):
         ]
 
     def __str__(self):
-        return '{}: {}'.format(self.content_type, self.name)
+        return f"{self.content_type}: {self.name}"
+
+    def clean(self):
+        super().clean()
+
+        if self.name.lower() == 'table':
+            raise ValidationError({
+                'name': f'"{self.name}" is a reserved name. Please choose a different name.'
+            })
 
     def render(self, queryset):
         """
