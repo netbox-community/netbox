@@ -31,13 +31,15 @@ class ConfigContextQuerySet(RestrictedQuerySet):
 
         # Match against the directly assigned region as well as any parent regions.
         region = getattr(obj.site, 'region', None)
-        if region:
-            regions = region.get_ancestors(include_self=True)
-        else:
-            regions = []
+        regions = region.get_ancestors(include_self=True) if region else []
+
+        # Match against the directly assigned site group as well as any parent site groups.
+        sitegroup = getattr(obj.site, 'group', None)
+        sitegroups = sitegroup.get_ancestors(include_self=True) if sitegroup else []
 
         queryset = self.filter(
             Q(regions__in=regions) | Q(regions=None),
+            Q(site_groups__in=sitegroups) | Q(site_groups=None),
             Q(sites=obj.site) | Q(sites=None),
             Q(device_types=device_type) | Q(device_types=None),
             Q(roles=role) | Q(roles=None),
@@ -116,11 +118,13 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             base_query.add((Q(roles=OuterRef('device_role')) | Q(roles=None)), Q.AND)
             base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
             region_field = 'site__region'
+            sitegroup_field = 'site__group'
 
         elif self.model._meta.model_name == 'virtualmachine':
             base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
             base_query.add((Q(sites=OuterRef('cluster__site')) | Q(sites=None)), Q.AND)
             region_field = 'cluster__site__region'
+            sitegroup_field = 'cluster__site__group'
 
         base_query.add(
             (Q(
@@ -129,6 +133,16 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
                 regions__lft__lte=OuterRef(f'{region_field}__lft'),
                 regions__rght__gte=OuterRef(f'{region_field}__rght'),
             ) | Q(regions=None)),
+            Q.AND
+        )
+
+        base_query.add(
+            (Q(
+                site_groups__tree_id=OuterRef(f'{sitegroup_field}__tree_id'),
+                site_groups__level__lte=OuterRef(f'{sitegroup_field}__level'),
+                site_groups__lft__lte=OuterRef(f'{sitegroup_field}__lft'),
+                site_groups__rght__gte=OuterRef(f'{sitegroup_field}__rght'),
+            ) | Q(site_groups=None)),
             Q.AND
         )
 

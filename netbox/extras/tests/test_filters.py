@@ -441,7 +441,7 @@ class ConfigContextTestCase(TestCase):
             c.regions.set([regions[i]])
             c.site_groups.set([site_groups[i]])
             c.sites.set([sites[i]])
-            c.roles.set([device_types[i]])
+            c.device_types.set([device_types[i]])
             c.roles.set([device_roles[i]])
             c.platforms.set([platforms[i]])
             c.cluster_groups.set([cluster_groups[i]])
