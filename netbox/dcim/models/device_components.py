@@ -141,7 +141,9 @@ class CableTermination(models.Model):
         super().clean()
 
         if self.mark_connected and self.cable_id:
-            raise ValidationError("Cannot set mark_connected with a cable connected.")
+            raise ValidationError({
+                "mark_connected": "Cannot mark as connected with a cable attached."
+            })
 
     def get_cable_peer(self):
         return self._cable_peer
@@ -596,12 +598,15 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         super().clean()
 
         # Virtual interfaces cannot be connected
-        if self.type in NONCONNECTABLE_IFACE_TYPES and (
-                self.cable or getattr(self, 'circuit_termination', False)
-        ):
+        if not self.is_connectable and self.cable:
             raise ValidationError({
-                'type': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
-                        "Disconnect the interface or choose a suitable type."
+                'type': f"{self.get_type_display()} interfaces cannot have a cable attached."
+            })
+
+        # Non-connectable interfaces cannot be marked as connected
+        if not self.is_connectable and self.mark_connected:
+            raise ValidationError({
+                'mark_connected': f"{self.get_type_display()} interfaces cannot be marked as connected."
             })
 
         # An interface's parent must belong to the same device or virtual chassis
