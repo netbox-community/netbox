@@ -37,6 +37,8 @@ urlpatterns = [
     path('clusters/edit/', views.ClusterBulkEditView.as_view(), name='cluster_bulk_edit'),
     path('clusters/delete/', views.ClusterBulkDeleteView.as_view(), name='cluster_bulk_delete'),
     path('clusters/<int:pk>/', views.ClusterView.as_view(), name='cluster'),
+    path('clusters/<int:pk>/devices/', views.ClusterDevicesView.as_view(), name='cluster_devices'),
+    path('clusters/<int:pk>/virtual-machines/', views.ClusterVirtualMachinesView.as_view(), name='cluster_virtualmachines'),
     path('clusters/<int:pk>/edit/', views.ClusterEditView.as_view(), name='cluster_edit'),
     path('clusters/<int:pk>/delete/', views.ClusterDeleteView.as_view(), name='cluster_delete'),
     path('clusters/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cluster_changelog', kwargs={'model': Cluster}),

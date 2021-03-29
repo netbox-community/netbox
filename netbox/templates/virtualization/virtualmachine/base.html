@@ -36,6 +36,11 @@
         <a href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
       </li>
     {% endif %}
+    {% if perms.extras.view_journalentry %}
+      <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
+        <a href="{% url 'virtualization:virtualmachine_journal' pk=object.pk %}">Journal</a>
+      </li>
+    {% endif %}
     {% if perms.extras.view_objectchange %}
       <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
         <a href="{% url 'virtualization:virtualmachine_changelog' pk=object.pk %}">Change Log</a>

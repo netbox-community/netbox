@@ -87,6 +87,7 @@ A new Cloud model has been introduced to represent the boundary of a network tha
 * [#5370](https://github.com/netbox-community/netbox/issues/5370) - Extend custom field support to organizational models
 * [#5375](https://github.com/netbox-community/netbox/issues/5375) - Add `speed` attribute to console port models
 * [#5401](https://github.com/netbox-community/netbox/issues/5401) - Extend custom field support to device component models
+* [#5425](https://github.com/netbox-community/netbox/issues/5425) - Create separate tabs for VMs and devices under the cluster view
 * [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add support for multiple-selection custom fields
 * [#5608](https://github.com/netbox-community/netbox/issues/5608) - Add REST API endpoint for custom links
 * [#5610](https://github.com/netbox-community/netbox/issues/5610) - Add REST API endpoint for webhooks

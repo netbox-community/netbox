@@ -155,16 +155,38 @@ class ClusterListView(generic.ObjectListView):
 class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
+
+class ClusterVirtualMachinesView(generic.ObjectView):
+    queryset = Cluster.objects.all()
+    template_name = 'virtualization/cluster/virtual_machines.html'
+
+    def get_extra_context(self, request, instance):
+        virtualmachines = VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=instance)
+        virtualmachines_table = tables.VirtualMachineTable(virtualmachines, orderable=False)
+        if request.user.has_perm('virtualization.change_cluster'):
+            virtualmachines_table.columns.show('pk')
+
+        return {
+            'virtualmachines_table': virtualmachines_table,
+            'active_tab': 'virtual-machines',
+        }
+
+
+class ClusterDevicesView(generic.ObjectView):
+    queryset = Cluster.objects.all()
+    template_name = 'virtualization/cluster/devices.html'
+
     def get_extra_context(self, request, instance):
         devices = Device.objects.restrict(request.user, 'view').filter(cluster=instance).prefetch_related(
             'site', 'rack', 'tenant', 'device_type__manufacturer'
         )
-        device_table = DeviceTable(list(devices), orderable=False)
+        devices_table = DeviceTable(list(devices), orderable=False)
         if request.user.has_perm('virtualization.change_cluster'):
-            device_table.columns.show('pk')
+            devices_table.columns.show('pk')
 
         return {
-            'device_table': device_table,
+            'devices_table': devices_table,
+            'active_tab': 'devices',
         }
 
 

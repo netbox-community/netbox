@@ -127,6 +127,20 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_cluster_virtualmachines(self):
+        cluster = Cluster.objects.first()
+
+        url = reverse('virtualization:cluster_virtualmachines', kwargs={'pk': cluster.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_cluster_devices(self):
+        cluster = Cluster.objects.first()
+
+        url = reverse('virtualization:cluster_devices', kwargs={'pk': cluster.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
 
 class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualMachine
@@ -199,7 +213,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_device_interfaces(self):
+    def test_virtualmachine_interfaces(self):
         virtualmachine = VirtualMachine.objects.first()
         vminterfaces = (
             VMInterface(virtual_machine=virtualmachine, name='Interface 1'),
