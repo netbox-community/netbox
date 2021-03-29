@@ -19,7 +19,10 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         # `device_role` for Device; `role` for VirtualMachine
         role = getattr(obj, 'device_role', None) or obj.role
 
-        # Virtualization cluster for VirtualMachine
+        # Device type assignment is relevant only for Devices
+        device_type = getattr(obj, 'device_type', None)
+
+        # Cluster assignment is relevant only for VirtualMachines
         cluster = getattr(obj, 'cluster', None)
         cluster_group = getattr(cluster, 'group', None)
 
@@ -36,6 +39,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         queryset = self.filter(
             Q(regions__in=regions) | Q(regions=None),
             Q(sites=obj.site) | Q(sites=None),
+            Q(device_types=device_type) | Q(device_types=None),
             Q(roles=role) | Q(roles=None),
             Q(platforms=obj.platform) | Q(platforms=None),
             Q(cluster_groups=cluster_group) | Q(cluster_groups=None),
@@ -108,6 +112,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         )
 
         if self.model._meta.model_name == 'device':
+            base_query.add((Q(device_types=OuterRef('device_type')) | Q(device_types=None)), Q.AND)
             base_query.add((Q(roles=OuterRef('device_role')) | Q(roles=None)), Q.AND)
             base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
             region_field = 'site__region'

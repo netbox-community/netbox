@@ -4,11 +4,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
+    CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
@@ -218,6 +218,10 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Site.objects.all(),
         required=False
     )
+    device_types = DynamicModelMultipleChoiceField(
+        queryset=DeviceType.objects.all(),
+        required=False
+    )
     roles = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False
@@ -253,8 +257,8 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConfigContext
         fields = (
-            'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites', 'roles', 'platforms',
-            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
+            'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites', 'roles', 'device_types',
+            'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
         )
 
 
@@ -305,6 +309,11 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         queryset=Site.objects.all(),
         required=False,
         label=_('Sites')
+    )
+    device_type_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceType.objects.all(),
+        required=False,
+        label=_('Device types')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from dcim.models import DeviceRole, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import JournalEntryKindChoices, ObjectChangeActionChoices
 from extras.filters import *
 from extras.models import *
@@ -379,6 +379,14 @@ class ConfigContextTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-3'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 3', slug='device-type-4'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
         device_roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
@@ -433,6 +441,7 @@ class ConfigContextTestCase(TestCase):
             c.regions.set([regions[i]])
             c.site_groups.set([site_groups[i]])
             c.sites.set([sites[i]])
+            c.roles.set([device_types[i]])
             c.roles.set([device_roles[i]])
             c.platforms.set([platforms[i]])
             c.cluster_groups.set([cluster_groups[i]])
@@ -473,6 +482,11 @@ class ConfigContextTestCase(TestCase):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_device_type(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_role(self):

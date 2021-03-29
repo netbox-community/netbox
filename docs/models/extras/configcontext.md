@@ -3,11 +3,13 @@
 Sometimes it is desirable to associate additional data with a group of devices or virtual machines to aid in automated configuration. For example, you might want to associate a set of syslog servers for all devices within a particular region. Context data enables the association of extra user-defined data with devices and virtual machines grouped by one or more of the following assignments:
 
 * Region
+* Site group
 * Site
+* Device type (devices only)
 * Role
 * Platform
-* Cluster group
-* Cluster
+* Cluster group (VMs only)
+* Cluster (VMs only)
 * Tenant group
 * Tenant
 * Tag

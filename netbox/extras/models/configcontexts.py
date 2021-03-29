@@ -56,6 +56,11 @@ class ConfigContext(ChangeLoggedModel):
         related_name='+',
         blank=True
     )
+    device_types = models.ManyToManyField(
+        to='dcim.DeviceType',
+        related_name='+',
+        blank=True
+    )
     roles = models.ManyToManyField(
         to='dcim.DeviceRole',
         related_name='+',

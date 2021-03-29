@@ -14,4 +14,9 @@ class Migration(migrations.Migration):
             name='site_groups',
             field=models.ManyToManyField(blank=True, related_name='_extras_configcontext_site_groups_+', to='dcim.SiteGroup'),
         ),
+        migrations.AddField(
+            model_name='configcontext',
+            name='device_types',
+            field=models.ManyToManyField(blank=True, related_name='_extras_configcontext_device_types_+', to='dcim.DeviceType'),
+        ),
     ]

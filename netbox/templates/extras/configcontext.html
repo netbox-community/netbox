@@ -95,12 +95,26 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Device Types</td>
+                        <td>
+                            {% if object.device_types.all %}
+                                <ul>
+                                    {% for devicetype in object.device_types.all %}
+                                        <li><a href="{{ devicetype.get_absolute_url }}">{{ devicetype }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Roles</td>
                         <td>
                             {% if object.roles.all %}
                                 <ul>
-                                    {% for role in object.roles.all %}
-                                        <li><a href="{% url 'dcim:device_list' %}?role={{ role.slug }}">{{ role }}</a></li>
+                                    {% for devicerole in object.roles.all %}
+                                        <li><a href="{{ devicerole.get_absolute_url }}">{{ devicerole }}</a></li>
                                     {% endfor %}
                                 </ul>
                             {% else %}

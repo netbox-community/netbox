@@ -84,6 +84,7 @@ A new Cloud model has been introduced to represent the boundary of a network tha
 
 ### Enhancements
 
+* [#4833](https://github.com/netbox-community/netbox/issues/4833) - Allow assigning config contexts by device type
 * [#5370](https://github.com/netbox-community/netbox/issues/5370) - Extend custom field support to organizational models
 * [#5375](https://github.com/netbox-community/netbox/issues/5375) - Add `speed` attribute to console port models
 * [#5401](https://github.com/netbox-community/netbox/issues/5401) - Extend custom field support to device component models
