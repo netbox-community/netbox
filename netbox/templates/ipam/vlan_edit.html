@@ -33,11 +33,11 @@
                     <li role="presentation"{% if site_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
                 </ul>
                 <div class="tab-content">
-                    <div class="tab-pane{% if not vm_tab_active %} active{% endif %}" id="group">
+                    <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
                         {% render_field form.scope_type %}
                         {% render_field form.group %}
                     </div>
-                    <div class="tab-pane{% if vm_tab_active %} active{% endif %}" id="site">
+                    <div class="tab-pane{% if site_tab_active %} active{% endif %}" id="site">
                         {% render_field form.region %}
                         {% render_field form.sitegroup %}
                         {% render_field form.site %}
