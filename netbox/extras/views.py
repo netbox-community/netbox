@@ -354,10 +354,7 @@ class ObjectJournalView(View):
             assigned_object_type=content_type,
             assigned_object_id=obj.pk
         )
-        journalentry_table = tables.ObjectJournalTable(
-            data=journalentries,
-            orderable=False
-        )
+        journalentry_table = tables.ObjectJournalTable(journalentries)
         paginate_table(journalentry_table, request)
 
         if request.user.has_perm('extras.add_journalentry'):
