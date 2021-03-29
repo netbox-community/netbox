@@ -41,7 +41,7 @@ First, enable the LDAP authentication backend in `configuration.py`. (Be sure to
 REMOTE_AUTH_BACKEND = 'netbox.authentication.LDAPBackend'
 ```
 
-Next, create a file in the same directory as `configuration.py` (typically `/opt/netbox/netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](http://django-auth-ldap.readthedocs.io/).
+Next, create a file in the same directory as `configuration.py` (typically `/opt/netbox/netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](https://django-auth-ldap.readthedocs.io/).
 
 ### General Server Configuration
 
@@ -140,9 +140,9 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 ## Troubleshooting LDAP
 
-`systemctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
+`systemctl restart netbox` restarts the NetBox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
 
-For troubleshooting LDAP user/group queries, add or merge the following [logging](/configuration/optional-settings.md#logging) configuration to `configuration.py`:
+For troubleshooting LDAP user/group queries, add or merge the following [logging](../configuration/optional-settings.md#logging) configuration to `configuration.py`:
 
 ```python
 LOGGING = {

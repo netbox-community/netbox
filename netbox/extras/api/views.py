@@ -11,9 +11,7 @@ from rq import Worker
 
 from extras import filters
 from extras.choices import JobResultStatusChoices
-from extras.models import (
-    ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
-)
+from extras.models import *
 from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
@@ -21,7 +19,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.views import ModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.utils import copy_safe_request, get_subquery
+from utilities.utils import copy_safe_request, count_related
 from . import serializers
 
 
@@ -39,7 +37,6 @@ class ConfigContextQuerySetMixin:
     Provides a get_queryset() method which deals with adding the config context
     data annotation or not.
     """
-
     def get_queryset(self):
         """
         Build the proper queryset based on the request context
@@ -49,11 +46,22 @@ class ConfigContextQuerySetMixin:
 
         Else, return the queryset annotated with config context data
         """
-
+        queryset = super().get_queryset()
         request = self.get_serializer_context()['request']
-        if request.query_params.get('brief') or 'config_context' in request.query_params.get('exclude', []):
-            return self.queryset
-        return self.queryset.annotate_config_context_data()
+        if self.brief or 'config_context' in request.query_params.get('exclude', []):
+            return queryset
+        return queryset.annotate_config_context_data()
+
+
+#
+# Webhooks
+#
+
+class WebhookViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Webhook.objects.all()
+    serializer_class = serializers.WebhookSerializer
+    filterset_class = filters.WebhookFilterSet
 
 
 #
@@ -86,6 +94,17 @@ class CustomFieldModelViewSet(ModelViewSet):
 
 
 #
+# Custom links
+#
+
+class CustomLinkViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = CustomLink.objects.all()
+    serializer_class = serializers.CustomLinkSerializer
+    filterset_class = filters.CustomLinkFilterSet
+
+
+#
 # Export templates
 #
 
@@ -102,7 +121,7 @@ class ExportTemplateViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=get_subquery(TaggedItem, 'tag')
+        tagged_items=count_related(TaggedItem, 'tag')
     )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet
@@ -120,12 +139,23 @@ class ImageAttachmentViewSet(ModelViewSet):
 
 
 #
+# Journal entries
+#
+
+class JournalEntryViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = JournalEntry.objects.all()
+    serializer_class = serializers.JournalEntrySerializer
+    filterset_class = filters.JournalEntryFilterSet
+
+
+#
 # Config contexts
 #
 
 class ConfigContextViewSet(ModelViewSet):
     queryset = ConfigContext.objects.prefetch_related(
-        'regions', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
+        'regions', 'site_groups', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
     filterset_class = filters.ConfigContextFilterSet

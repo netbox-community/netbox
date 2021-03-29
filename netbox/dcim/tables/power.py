@@ -19,9 +19,8 @@ __all__ = (
 class PowerPanelTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')]
+    site = tables.Column(
+        linkify=True
     )
     powerfeed_count = LinkedCountColumn(
         viewname='dcim:powerfeed_list',
@@ -34,8 +33,8 @@ class PowerPanelTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPanel
-        fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count', 'tags')
-        default_columns = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
+        fields = ('pk', 'name', 'site', 'location', 'powerfeed_count', 'tags')
+        default_columns = ('pk', 'name', 'site', 'location', 'powerfeed_count')
 
 
 #
@@ -69,7 +68,7 @@ class PowerFeedTable(CableTerminationTable):
         model = PowerFeed
         fields = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'cable', 'cable_peer', 'connection', 'available_power', 'tags',
+            'max_utilization', 'mark_connected', 'cable', 'cable_peer', 'connection', 'available_power', 'tags',
         )
         default_columns = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',

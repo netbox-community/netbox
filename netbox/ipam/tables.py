@@ -3,28 +3,22 @@ from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
 from dcim.models import Interface
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn, TagColumn,
+    ToggleColumn, UtilizationColumn,
 )
 from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
 AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>')
 
-UTILIZATION_GRAPH = """
-{% load helpers %}
-{% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
-"""
-
 PREFIX_LINK = """
-{% if record.children %}
-    <span class="text-nowrap" style="padding-left: {{ record.parents }}0px "><i class="mdi mdi-chevron-right"></i></a>
-{% else %}
-    <span class="text-nowrap" style="padding-left: {{ record.parents }}9px">
-{% endif %}
-    <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% if parent.tenant %}&tenant_group={{ parent.tenant.group.pk }}&tenant={{ parent.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
-</span>
+{% load helpers %}
+{% for i in record.parents|as_range %}
+    <i class="mdi mdi-circle-small"></i>
+{% endfor %}
+<a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 """
 
 PREFIX_ROLE_LINK = """
@@ -39,7 +33,7 @@ IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
 {% elif perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if prefix.vrf %}&vrf={{ prefix.vrf.pk }}{% endif %}{% if prefix.tenant %}&tenant={{ prefix.tenant.pk }}{% endif %}" class="btn btn-xs btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-xs btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
 {% else %}
     {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
 {% endif %}
@@ -52,8 +46,8 @@ IPADDRESS_ASSIGN_LINK = """
 VRF_LINK = """
 {% if record.vrf %}
     <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
-{% elif prefix.vrf %}
-    {{ prefix.vrf }}
+{% elif object.vrf %}
+    <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
 {% else %}
     Global
 {% endif %}
@@ -96,7 +90,7 @@ VLAN_ROLE_LINK = """
 VLANGROUP_ADD_VLAN = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
-        <a href="{% url 'ipam:vlan_add' %}?site={{ record.site_id }}&group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
+        <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
         </a>
     {% endif %}
@@ -104,20 +98,10 @@ VLANGROUP_ADD_VLAN = """
 """
 
 VLAN_MEMBER_TAGGED = """
-{% if record.untagged_vlan_id == vlan.pk %}
+{% if record.untagged_vlan_id == object.pk %}
     <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
 {% else %}
     <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-{% endif %}
-"""
-
-TENANT_LINK = """
-{% if record.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-{% elif record.vrf.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
-{% else %}
-    &mdash;
 {% endif %}
 """
 
@@ -132,9 +116,7 @@ class VRFTable(BaseTable):
     rd = tables.Column(
         verbose_name='RD'
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     enforce_unique = BooleanColumn(
         verbose_name='Unique'
     )
@@ -165,9 +147,7 @@ class VRFTable(BaseTable):
 class RouteTargetTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     tags = TagColumn(
         url_name='ipam:vrf_list'
     )
@@ -193,7 +173,7 @@ class RIRTable(BaseTable):
         url_params={'rir': 'slug'},
         verbose_name='Aggregates'
     )
-    actions = ButtonsColumn(RIR, pk_field='slug')
+    actions = ButtonsColumn(RIR)
 
     class Meta(BaseTable.Meta):
         model = RIR
@@ -210,9 +190,7 @@ class AggregateTable(BaseTable):
     prefix = tables.LinkColumn(
         verbose_name='Aggregate'
     )
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
-    )
+    tenant = TenantColumn()
     date_added = tables.DateColumn(
         format="Y-m-d",
         verbose_name='Added'
@@ -227,8 +205,8 @@ class AggregateDetailTable(AggregateTable):
     child_count = tables.Column(
         verbose_name='Prefixes'
     )
-    utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
+    utilization = UtilizationColumn(
+        accessor='get_utilization',
         orderable=False
     )
     tags = TagColumn(
@@ -246,6 +224,9 @@ class AggregateDetailTable(AggregateTable):
 
 class RoleTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
     prefix_count = LinkedCountColumn(
         viewname='ipam:prefix_list',
         url_params={'role': 'slug'},
@@ -256,7 +237,7 @@ class RoleTable(BaseTable):
         url_params={'role': 'slug'},
         verbose_name='VLANs'
     )
-    actions = ButtonsColumn(Role, pk_field='slug')
+    actions = ButtonsColumn(Role)
 
     class Meta(BaseTable.Meta):
         model = Role
@@ -272,7 +253,7 @@ class PrefixTable(BaseTable):
     pk = ToggleColumn()
     prefix = tables.TemplateColumn(
         template_code=PREFIX_LINK,
-        attrs={'th': {'style': 'padding-left: 17px'}}
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     status = ChoiceFieldColumn(
         default=AVAILABLE_LABEL
@@ -281,9 +262,7 @@ class PrefixTable(BaseTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
-    )
+    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )
@@ -310,13 +289,11 @@ class PrefixTable(BaseTable):
 
 
 class PrefixDetailTable(PrefixTable):
-    utilization = tables.TemplateColumn(
-        template_code=UTILIZATION_GRAPH,
+    utilization = UtilizationColumn(
+        accessor='get_utilization',
         orderable=False
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     tags = TagColumn(
         url_name='ipam:prefix_list'
     )
@@ -349,9 +326,7 @@ class IPAddressTable(BaseTable):
         default=AVAILABLE_LABEL
     )
     role = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
-    )
+    tenant = TenantColumn()
     assigned_object = tables.Column(
         linkify=True,
         orderable=False,
@@ -381,9 +356,7 @@ class IPAddressDetailTable(IPAddressTable):
         orderable=False,
         verbose_name='NAT (Inside)'
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     assigned = BooleanColumn(
         accessor='assigned_object_id',
         verbose_name='Assigned'
@@ -430,8 +403,9 @@ class InterfaceIPAddressTable(BaseTable):
         verbose_name='VRF'
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
+    tenant = TenantColumn()
+    actions = ButtonsColumn(
+        model=IPAddress
     )
 
     class Meta(BaseTable.Meta):
@@ -446,9 +420,9 @@ class InterfaceIPAddressTable(BaseTable):
 class VLANGroupTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(linkify=True)
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')]
+    scope_type = ContentTypeColumn()
+    scope = tables.Column(
+        linkify=True
     )
     vlan_count = LinkedCountColumn(
         viewname='ipam:vlan_list',
@@ -462,8 +436,8 @@ class VLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'description', 'actions')
-        default_columns = ('pk', 'name', 'site', 'vlan_count', 'description', 'actions')
+        fields = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'actions')
+        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description', 'actions')
 
 
 #
@@ -476,17 +450,13 @@ class VLANTable(BaseTable):
         template_code=VLAN_LINK,
         verbose_name='ID'
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')]
+    site = tables.Column(
+        linkify=True
     )
-    group = tables.LinkColumn(
-        viewname='ipam:vlangroup_vlans',
-        args=[Accessor('group__pk')]
+    group = tables.Column(
+        linkify=True
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     status = ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
@@ -508,9 +478,7 @@ class VLANDetailTable(VLANTable):
         orderable=False,
         verbose_name='Prefixes'
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     tags = TagColumn(
         url_name='ipam:vlan_list'
     )
@@ -568,9 +536,7 @@ class InterfaceVLANTable(BaseTable):
         accessor=Accessor('group__name'),
         verbose_name='Group'
     )
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     status = ChoiceFieldColumn()
     role = tables.TemplateColumn(
         template_code=VLAN_ROLE_LINK

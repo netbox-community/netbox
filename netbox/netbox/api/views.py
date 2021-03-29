@@ -9,11 +9,11 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError
 from django_rq.queues import get_connection
-from rest_framework import mixins, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ModelViewSet as ModelViewSet_
 from rq.worker import Worker
 
 from netbox.api import BulkOperationSerializer
@@ -76,6 +76,8 @@ class BulkUpdateModelMixin:
             data_list = []
             for obj in objects:
                 data = update_data.get(obj.id)
+                if hasattr(obj, 'snapshot'):
+                    obj.snapshot()
                 serializer = self.get_serializer(obj, data=data, partial=partial)
                 serializer.is_valid(raise_exception=True)
                 self.perform_update(serializer)
@@ -113,6 +115,8 @@ class BulkDestroyModelMixin:
     def perform_bulk_destroy(self, objects):
         with transaction.atomic():
             for obj in objects:
+                if hasattr(obj, 'snapshot'):
+                    obj.snapshot()
                 self.perform_destroy(obj)
 
 
@@ -120,17 +124,23 @@ class BulkDestroyModelMixin:
 # Viewsets
 #
 
-class ModelViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   BulkUpdateModelMixin,
-                   BulkDestroyModelMixin,
-                   GenericViewSet):
+class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
     """
-    Accept either a single object or a list of objects to create.
+    Extend DRF's ModelViewSet to support bulk update and delete functions.
     """
+    brief = False
+    brief_prefetch_fields = []
+
+    def get_object_with_snapshot(self):
+        """
+        Save a pre-change snapshot of the object immediately after retrieving it. This snapshot will be used to
+        record the "before" data in the changelog.
+        """
+        obj = super().get_object()
+        if hasattr(obj, 'snapshot'):
+            obj.snapshot()
+        return obj
+
     def get_serializer(self, *args, **kwargs):
 
         # If a list of objects has been provided, initialize the serializer with many=True
@@ -142,21 +152,33 @@ class ModelViewSet(mixins.CreateModelMixin,
     def get_serializer_class(self):
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
 
-        # If 'brief' has been passed as a query param, find and return the nested serializer for this model, if one
-        # exists
-        request = self.get_serializer_context()['request']
-        if request.query_params.get('brief'):
+        # If using 'brief' mode, find and return the nested serializer for this model, if one exists
+        if self.brief:
             logger.debug("Request is for 'brief' format; initializing nested serializer")
             try:
                 serializer = get_serializer_for_model(self.queryset.model, prefix='Nested')
                 logger.debug(f"Using serializer {serializer}")
                 return serializer
             except SerializerNotFound:
-                pass
+                logger.debug(f"Nested serializer for {self.queryset.model} not found!")
 
         # Fall back to the hard-coded serializer class
         logger.debug(f"Using serializer {self.serializer_class}")
         return self.serializer_class
+
+    def get_queryset(self):
+        # If using brief mode, clear all prefetches from the queryset and append only brief_prefetch_fields (if any)
+        if self.brief:
+            return super().get_queryset().prefetch_related(None).prefetch_related(*self.brief_prefetch_fields)
+
+        return super().get_queryset()
+
+    def initialize_request(self, request, *args, **kwargs):
+        # Check if brief=True has been passed
+        if request.method == 'GET' and request.GET.get('brief'):
+            self.brief = True
+
+        return super().initialize_request(request, *args, **kwargs)
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
@@ -213,6 +235,11 @@ class ModelViewSet(mixins.CreateModelMixin,
         except ObjectDoesNotExist:
             raise PermissionDenied()
 
+    def update(self, request, *args, **kwargs):
+        # Hotwire get_object() to ensure we save a pre-change snapshot
+        self.get_object = self.get_object_with_snapshot
+        return super().update(request, *args, **kwargs)
+
     def perform_update(self, serializer):
         model = self.queryset.model
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
@@ -225,6 +252,11 @@ class ModelViewSet(mixins.CreateModelMixin,
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
             raise PermissionDenied()
+
+    def destroy(self, request, *args, **kwargs):
+        # Hotwire get_object() to ensure we save a pre-change snapshot
+        self.get_object = self.get_object_with_snapshot
+        return super().destroy(request, *args, **kwargs)
 
     def perform_destroy(self, instance):
         model = self.queryset.model

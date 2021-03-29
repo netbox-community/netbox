@@ -1,60 +1,11 @@
-{% extends 'base.html' %}
-{% load buttons %}
-{% load custom_links %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
 
-{% block title %}{{ object }}{% endblock %}
-
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
-                <li><a href="{% url 'circuits:circuit_list' %}?provider={{ object.provider.slug }}">{{ object.provider }}</a></li>
-                <li>{{ object.cid }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'circuits:circuit_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% plugin_buttons object %}
-        {% if perms.circuits.add_circuit %}
-            {% clone_button object %}
-        {% endif %}
-        {% if perms.circuits.change_circuit %}
-            {% edit_button object %}
-        {% endif %}
-        {% if perms.circuits.delete_circuit %}
-            {% delete_button object %}
-        {% endif %}
-    </div>
-    <h1>{{ object }}</h1>
-    {% include 'inc/created_updated.html' %}
-    <div class="pull-right noprint">
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Circuit</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'circuits:circuit_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block breadcrumbs %}
+  <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
+  <li><a href="{% url 'circuits:circuit_list' %}?provider_id={{ object.provider.pk }}">{{ object.provider }}</a></li>
+  <li>{{ object.cid }}</li>
 {% endblock %}
 
 {% block content %}
@@ -74,7 +25,7 @@
                 <tr>
                     <td>Provider</td>
                     <td>
-                        <a href="{% url 'circuits:provider' slug=object.provider.slug %}">{{ object.provider }}</a>
+                        <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
                     </td>
                 </tr>
                 <tr>

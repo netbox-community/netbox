@@ -7,7 +7,8 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from netbox.views import generic
-from utilities.utils import get_subquery
+from utilities.tables import paginate_table
+from utilities.utils import count_related
 from . import filters, forms, tables
 from .models import SecretRole, Secret, SessionKey, UserKey
 
@@ -28,9 +29,26 @@ def get_session_key(request):
 
 class SecretRoleListView(generic.ObjectListView):
     queryset = SecretRole.objects.annotate(
-        secret_count=get_subquery(Secret, 'role')
+        secret_count=count_related(Secret, 'role')
     )
     table = tables.SecretRoleTable
+
+
+class SecretRoleView(generic.ObjectView):
+    queryset = SecretRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        secrets = Secret.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+
+        secrets_table = tables.SecretTable(secrets)
+        secrets_table.columns.hide('role')
+        paginate_table(secrets_table, request)
+
+        return {
+            'secrets_table': secrets_table,
+        }
 
 
 class SecretRoleEditView(generic.ObjectEditView):
@@ -48,9 +66,18 @@ class SecretRoleBulkImportView(generic.BulkImportView):
     table = tables.SecretRoleTable
 
 
+class SecretRoleBulkEditView(generic.BulkEditView):
+    queryset = SecretRole.objects.annotate(
+        secret_count=count_related(Secret, 'role')
+    )
+    filterset = filters.SecretRoleFilterSet
+    table = tables.SecretRoleTable
+    form = forms.SecretRoleBulkEditForm
+
+
 class SecretRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = SecretRole.objects.annotate(
-        secret_count=get_subquery(Secret, 'role')
+        secret_count=count_related(Secret, 'role')
     )
     table = tables.SecretRoleTable
 

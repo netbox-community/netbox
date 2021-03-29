@@ -2,7 +2,7 @@
 
 ## Review the Release Notes
 
-Prior to upgrading your NetBox instance, be sure to carefully review all [release notes](../../release-notes/) that have been published since your current version was released. Although the upgrade process typically does not involve additional work, certain releases may introduce breaking or backward-incompatible changes. These are called out in the release notes under the release in which the change went into effect.
+Prior to upgrading your NetBox instance, be sure to carefully review all [release notes](../release-notes/index.md) that have been published since your current version was released. Although the upgrade process typically does not involve additional work, certain releases may introduce breaking or backward-incompatible changes. These are called out in the release notes under the release in which the change went into effect.
 
 ## Update Dependencies to Required Versions
 

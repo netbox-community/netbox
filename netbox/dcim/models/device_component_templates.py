@@ -4,11 +4,11 @@ from django.db import models
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ObjectChange
+from extras.utils import extras_features
+from netbox.models import ChangeLoggedModel
 from utilities.fields import NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
-from utilities.utils import serialize_object
 from .device_components import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, PowerOutlet, PowerPort, RearPort,
 )
@@ -26,7 +26,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(models.Model):
+class ComponentTemplateModel(ChangeLoggedModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
@@ -73,15 +73,10 @@ class ComponentTemplateModel(models.Model):
         except ObjectDoesNotExist:
             # The parent DeviceType has already been deleted
             device_type = None
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=device_type,
-            object_data=serialize_object(self)
-        )
+        return super().to_objectchange(action, related_object=device_type)
 
 
+@extras_features('webhooks')
 class ConsolePortTemplate(ComponentTemplateModel):
     """
     A template for a ConsolePort to be created for a new Device.
@@ -105,6 +100,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
         )
 
 
+@extras_features('webhooks')
 class ConsoleServerPortTemplate(ComponentTemplateModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
@@ -128,6 +124,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         )
 
 
+@extras_features('webhooks')
 class PowerPortTemplate(ComponentTemplateModel):
     """
     A template for a PowerPort to be created for a new Device.
@@ -164,7 +161,17 @@ class PowerPortTemplate(ComponentTemplateModel):
             allocated_draw=self.allocated_draw
         )
 
+    def clean(self):
+        super().clean()
 
+        if self.maximum_draw is not None and self.allocated_draw is not None:
+            if self.allocated_draw > self.maximum_draw:
+                raise ValidationError({
+                    'allocated_draw': f"Allocated draw cannot exceed the maximum draw ({self.maximum_draw}W)."
+                })
+
+
+@extras_features('webhooks')
 class PowerOutletTemplate(ComponentTemplateModel):
     """
     A template for a PowerOutlet to be created for a new Device.
@@ -193,6 +200,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def clean(self):
+        super().clean()
 
         # Validate power port assignment
         if self.power_port and self.power_port.device_type != self.device_type:
@@ -215,6 +223,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         )
 
 
+@extras_features('webhooks')
 class InterfaceTemplate(ComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
@@ -249,6 +258,7 @@ class InterfaceTemplate(ComponentTemplateModel):
         )
 
 
+@extras_features('webhooks')
 class FrontPortTemplate(ComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
@@ -278,6 +288,7 @@ class FrontPortTemplate(ComponentTemplateModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate rear port assignment
         if self.rear_port.device_type != self.device_type:
@@ -308,6 +319,7 @@ class FrontPortTemplate(ComponentTemplateModel):
         )
 
 
+@extras_features('webhooks')
 class RearPortTemplate(ComponentTemplateModel):
     """
     Template for a pass-through port on the rear of a new Device.
@@ -338,6 +350,7 @@ class RearPortTemplate(ComponentTemplateModel):
         )
 
 
+@extras_features('webhooks')
 class DeviceBayTemplate(ComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
@@ -352,3 +365,9 @@ class DeviceBayTemplate(ComponentTemplateModel):
             name=self.name,
             label=self.label
         )
+
+    def clean(self):
+        if self.device_type and self.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:
+            raise ValidationError(
+                f"Subdevice role of device type ({self.device_type}) must be set to \"parent\" to allow device bays."
+            )

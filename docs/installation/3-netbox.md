@@ -7,19 +7,19 @@ This section of the documentation discusses installing and configuring the NetBo
 Begin by installing all system packages required by NetBox and its dependencies.
 
 !!! note
-    NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8. This documentation assumes Python 3.6.
+    NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8.
 
-### Ubuntu
+=== Ubuntu
 
-```no-highlight
-sudo apt install -y python3.6 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
-```
+    ```no-highlight
+    sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
+    ```
 
-### CentOS
+=== CentOS
 
-```no-highlight
-sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
-```
+    ```no-highlight
+    sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
+    ```
 
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:
 
@@ -57,17 +57,17 @@ sudo mkdir -p /opt/netbox/ && cd /opt/netbox/
 
 If `git` is not already installed, install it:
 
-#### Ubuntu
+=== Ubuntu
 
-```no-highlight
-sudo apt install -y git
-```
+    ```no-highlight
+    sudo apt install -y git
+    ```
 
-#### CentOS
+=== CentOS
 
-```no-highlight
-sudo yum install -y git
-```
+    ```no-highlight
+    sudo yum install -y git
+    ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
 
@@ -83,26 +83,26 @@ Checking connectivity... done.
 ```
 
 !!! note
-    Installation via git also allows you to easily try out development versions of NetBox. The `develop` branch contains all work underway for the next minor release, and the `develop-x.y` branch (if present) tracks progress on the next major release. 
+    Installation via git also allows you to easily try out development versions of NetBox. The `develop` branch contains all work underway for the next minor release, and the `feature` branch tracks progress on the next major release. 
 
 ## Create the NetBox System User
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
 
-#### Ubuntu
+=== Ubuntu
 
-```
-sudo adduser --system --group netbox
-sudo chown --recursive netbox /opt/netbox/netbox/media/
-```
+    ```
+    sudo adduser --system --group netbox
+    sudo chown --recursive netbox /opt/netbox/netbox/media/
+    ```
 
-#### CentOS
+=== CentOS
 
-```
-sudo groupadd --system netbox
-sudo adduser --system -g netbox netbox
-sudo chown --recursive netbox /opt/netbox/netbox/media/
-```
+    ```
+    sudo groupadd --system netbox
+    sudo adduser --system -g netbox netbox
+    sudo chown --recursive netbox /opt/netbox/netbox/media/
+    ```
 
 ## Configuration
 
@@ -113,7 +113,7 @@ cd /opt/netbox/netbox/netbox/
 sudo cp configuration.example.py configuration.py
 ```
 
-Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](/configuration/), but only the following four are required for new installations:
+Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following four are required for new installations:
 
 * `ALLOWED_HOSTS`
 * `DATABASE`
@@ -136,7 +136,7 @@ ALLOWED_HOSTS = ['*']
 
 ### DATABASE
 
-This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](/configuration/required-settings/#database) for more detail on individual parameters.
+This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](../configuration/required-settings.md#database) for more detail on individual parameters.
 
 ```python
 DATABASE = {
@@ -151,7 +151,7 @@ DATABASE = {
 
 ### REDIS
 
-Redis is a in-memory key-value store used by NetBox for caching and background task queuing. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](/configuration/required-settings/#redis) for more detail on individual parameters.
+Redis is a in-memory key-value store used by NetBox for caching and background task queuing. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](../configuration/required-settings.md#redis) for more detail on individual parameters.
 
 Note that NetBox requires the specification of two separate Redis databases: `tasks` and `caching`. These may both be provided by the same Redis service, however each should have a unique numeric database ID.
 
@@ -203,7 +203,7 @@ sudo echo napalm >> /opt/netbox/local_requirements.txt
 
 ### Remote File Storage
 
-By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](/configuration/optional-settings/#storage_backend) in `configuration.py`.
+By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/optional-settings.md#storage_backend) in `configuration.py`.
 
 ```no-highlight
 sudo echo django-storages >> /opt/netbox/local_requirements.txt

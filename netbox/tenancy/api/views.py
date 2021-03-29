@@ -4,10 +4,9 @@ from circuits.models import Circuit
 from dcim.models import Device, Rack, Site
 from extras.api.views import CustomFieldModelViewSet
 from ipam.models import IPAddress, Prefix, VLAN, VRF
-from netbox.api.views import ModelViewSet
 from tenancy import filters
 from tenancy.models import Tenant, TenantGroup
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from virtualization.models import VirtualMachine
 from . import serializers
 
@@ -24,7 +23,7 @@ class TenancyRootView(APIRootView):
 # Tenant Groups
 #
 
-class TenantGroupViewSet(ModelViewSet):
+class TenantGroupViewSet(CustomFieldModelViewSet):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
         Tenant,
@@ -44,15 +43,15 @@ class TenantViewSet(CustomFieldModelViewSet):
     queryset = Tenant.objects.prefetch_related(
         'group', 'tags'
     ).annotate(
-        circuit_count=get_subquery(Circuit, 'tenant'),
-        device_count=get_subquery(Device, 'tenant'),
-        ipaddress_count=get_subquery(IPAddress, 'tenant'),
-        prefix_count=get_subquery(Prefix, 'tenant'),
-        rack_count=get_subquery(Rack, 'tenant'),
-        site_count=get_subquery(Site, 'tenant'),
-        virtualmachine_count=get_subquery(VirtualMachine, 'tenant'),
-        vlan_count=get_subquery(VLAN, 'tenant'),
-        vrf_count=get_subquery(VRF, 'tenant')
+        circuit_count=count_related(Circuit, 'tenant'),
+        device_count=count_related(Device, 'tenant'),
+        ipaddress_count=count_related(IPAddress, 'tenant'),
+        prefix_count=count_related(Prefix, 'tenant'),
+        rack_count=count_related(Rack, 'tenant'),
+        site_count=count_related(Site, 'tenant'),
+        virtualmachine_count=count_related(VirtualMachine, 'tenant'),
+        vlan_count=count_related(VLAN, 'tenant'),
+        vrf_count=count_related(VRF, 'tenant')
     )
     serializer_class = serializers.TenantSerializer
     filterset_class = filters.TenantFilterSet

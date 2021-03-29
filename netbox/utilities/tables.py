@@ -6,10 +6,26 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Func, F, Value
 from django.db.models.fields.related import RelatedField
 from django.urls import reverse
+from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
+from django_tables2 import RequestConfig
 from django_tables2.data import TableQuerysetData
 
-from extras.models import CustomField
+from .models import CustomField
+from .paginator import EnhancedPaginator, get_paginate_count
+
+
+def stripped_value(self, value):
+    """
+    Replaces TemplateColumn's value() method to both strip HTML tags and remove any leading/trailing whitespace.
+    """
+    return strip_tags(value).strip()
+
+
+# TODO: We're monkey-patching TemplateColumn here to strip leading/trailing whitespace. This will no longer
+# be necessary if django-tables2 PR #794 is accepted. (See #5926)
+tables.TemplateColumn.value = stripped_value
+
 
 class BaseTable(tables.Table):
     """
@@ -155,6 +171,9 @@ class BooleanColumn(tables.Column):
             rendered = '<span class="text-danger"><i class="mdi mdi-close-thick"></i></span>'
         return mark_safe(rendered)
 
+    def value(self, value):
+        return str(value)
+
 
 class ButtonsColumn(tables.TemplateColumn):
     """
@@ -169,24 +188,23 @@ class ButtonsColumn(tables.TemplateColumn):
     # Note that braces are escaped to allow for string formatting prior to template rendering
     template_code = """
     {{% if "changelog" in buttons %}}
-        <a href="{{% url '{app_label}:{model_name}_changelog' {pk_field}=record.{pk_field} %}}" class="btn btn-default btn-xs" title="Change log">
+        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-default btn-xs" title="Change log">
             <i class="mdi mdi-history"></i>
         </a>
     {{% endif %}}
     {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_edit' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-warning" title="Edit">
+        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-warning" title="Edit">
             <i class="mdi mdi-pencil"></i>
         </a>
     {{% endif %}}
     {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_delete' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-danger" title="Delete">
+        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-danger" title="Delete">
             <i class="mdi mdi-trash-can-outline"></i>
         </a>
     {{% endif %}}
     """
 
-    def __init__(self, model, *args, pk_field='pk', buttons=None, prepend_template=None, return_url_extra='',
-                 **kwargs):
+    def __init__(self, model, *args, buttons=None, prepend_template=None, return_url_extra='', **kwargs):
         if prepend_template:
             prepend_template = prepend_template.replace('{', '{{')
             prepend_template = prepend_template.replace('}', '}}')
@@ -195,11 +213,14 @@ class ButtonsColumn(tables.TemplateColumn):
         template_code = self.template_code.format(
             app_label=model._meta.app_label,
             model_name=model._meta.model_name,
-            pk_field=pk_field,
             buttons=buttons
         )
 
         super().__init__(template_code=template_code, *args, **kwargs)
+
+        # Exclude from export by default
+        if 'exclude_from_export' not in kwargs:
+            self.exclude_from_export = True
 
         self.extra_context.update({
             'buttons': buttons or self.buttons,
@@ -225,6 +246,20 @@ class ChoiceFieldColumn(tables.Column):
             )
         return self.default
 
+    def value(self, value):
+        return value
+
+
+class ContentTypeColumn(tables.Column):
+    """
+    Display a ContentType instance.
+    """
+    def render(self, value):
+        return value.name[0].upper() + value.name[1:]
+
+    def value(self, value):
+        return f"{value.app_label}.{value.model}"
+
 
 class ColorColumn(tables.Column):
     """
@@ -234,6 +269,9 @@ class ColorColumn(tables.Column):
         return mark_safe(
             f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
         )
+
+    def value(self, value):
+        return f'#{value}'
 
 
 class ColoredLabelColumn(tables.TemplateColumn):
@@ -247,6 +285,9 @@ class ColoredLabelColumn(tables.TemplateColumn):
 
     def __init__(self, *args, **kwargs):
         super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        return str(value)
 
 
 class LinkedCountColumn(tables.Column):
@@ -271,6 +312,9 @@ class LinkedCountColumn(tables.Column):
             return mark_safe(f'<a href="{url}">{value}</a>')
         return value
 
+    def value(self, value):
+        return value
+
 
 class TagColumn(tables.TemplateColumn):
     """
@@ -290,12 +334,14 @@ class TagColumn(tables.TemplateColumn):
             extra_context={'url_name': url_name}
         )
 
+    def value(self, value):
+        return ",".join([tag.name for tag in value.all()])
+
 
 class CustomFieldColumn(tables.Column):
     """
     Display custom fields in the appropriate format.
     """
-
     def render(self, record, bound_column, value):
         if isinstance(value, list):
             if len(value):
@@ -309,4 +355,55 @@ class CustomFieldColumn(tables.Column):
         else:
             return self.default
         return mark_safe(template)
+
+    def value(self, value):
+        return value
+
+
+class MPTTColumn(tables.TemplateColumn):
+    """
+    Display a nested hierarchy for MPTT-enabled models.
+    """
+    template_code = """{% for i in record.get_ancestors %}<i class="mdi mdi-circle-small"></i>{% endfor %}""" \
+                    """<a href="{{ record.get_absolute_url }}">{{ record.name }}</a>"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            template_code=self.template_code,
+            orderable=False,
+            attrs={'td': {'class': 'text-nowrap'}},
+            *args,
+            **kwargs
+        )
+
+    def value(self, value):
+        return value
+
+
+class UtilizationColumn(tables.TemplateColumn):
+    """
+    Display a colored utilization bar graph.
+    """
+    template_code = """{% load helpers %}{% if record.pk %}{% utilization_graph value %}{% endif %}"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        return f'{value}%'
+
+
+#
+# Pagination
+#
+
+def paginate_table(table, request):
+    """
+    Paginate a table given a request context.
+    """
+    paginate = {
+        'paginator_class': EnhancedPaginator,
+        'per_page': get_paginate_count(request)
+    }
+    RequestConfig(request, paginate).configure(table)
 

@@ -23,7 +23,7 @@
                     <tr id="{{ iface.name }}">
                         <td>{{ iface }}</td>
                         {% if iface.connected_endpoint.device %}
-                            <td class="configured_device" data="{{ iface.connected_endpoint.device }}">
+                            <td class="configured_device" data="{{ iface.connected_endpoint.device }}" data-chassis="{{ iface.connected_endpoint.device.virtual_chassis.name }}">
                                 <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
                             </td>
                             <td class="configured_interface" data="{{ iface.connected_endpoint }}">
@@ -61,6 +61,7 @@ $(document).ready(function() {
 
                 // Glean configured hostnames/interfaces from the DOM
                 var configured_device = row.children('td.configured_device').attr('data');
+                var configured_chassis = row.children('td.configured_device').attr('data-chassis');
                 var configured_interface = row.children('td.configured_interface').attr('data');
                 var configured_interface_short = null;
                 if (configured_interface) {
@@ -81,9 +82,9 @@ $(document).ready(function() {
                 // Apply colors to rows
                 if (!configured_device && lldp_device) {
                     row.addClass('info');
-                } else if (configured_device == lldp_device && configured_interface == lldp_interface) {
+                } else if ((configured_device == lldp_device || configured_chassis == lldp_device) && configured_interface == lldp_interface) {
                     row.addClass('success');
-                } else if (configured_device == lldp_device && configured_interface_short == lldp_interface) {
+                } else if ((configured_device == lldp_device || configured_chassis == lldp_device) && configured_interface_short == lldp_interface) {
                     row.addClass('success');
                 } else {
                     row.addClass('danger');

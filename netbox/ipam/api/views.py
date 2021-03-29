@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_yasg.utils import swagger_auto_schema
@@ -12,7 +14,7 @@ from ipam import filters
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from netbox.api.views import ModelViewSet
 from utilities.constants import ADVISORY_LOCK_KEYS
-from utilities.utils import get_subquery
+from utilities.utils import count_related
 from . import serializers
 
 
@@ -32,8 +34,8 @@ class VRFViewSet(CustomFieldModelViewSet):
     queryset = VRF.objects.prefetch_related('tenant').prefetch_related(
         'import_targets', 'export_targets', 'tags'
     ).annotate(
-        ipaddress_count=get_subquery(IPAddress, 'vrf'),
-        prefix_count=get_subquery(Prefix, 'vrf')
+        ipaddress_count=count_related(IPAddress, 'vrf'),
+        prefix_count=count_related(Prefix, 'vrf')
     )
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilterSet
@@ -53,9 +55,9 @@ class RouteTargetViewSet(CustomFieldModelViewSet):
 # RIRs
 #
 
-class RIRViewSet(ModelViewSet):
+class RIRViewSet(CustomFieldModelViewSet):
     queryset = RIR.objects.annotate(
-        aggregate_count=get_subquery(Aggregate, 'rir')
+        aggregate_count=count_related(Aggregate, 'rir')
     )
     serializer_class = serializers.RIRSerializer
     filterset_class = filters.RIRFilterSet
@@ -75,10 +77,10 @@ class AggregateViewSet(CustomFieldModelViewSet):
 # Roles
 #
 
-class RoleViewSet(ModelViewSet):
+class RoleViewSet(CustomFieldModelViewSet):
     queryset = Role.objects.annotate(
-        prefix_count=get_subquery(Prefix, 'role'),
-        vlan_count=get_subquery(VLAN, 'role')
+        prefix_count=count_related(Prefix, 'role'),
+        vlan_count=count_related(VLAN, 'role')
     )
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilterSet
@@ -162,7 +164,12 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             # Create the new Prefix(es)
             if serializer.is_valid():
-                serializer.save()
+                try:
+                    with transaction.atomic():
+                        created = serializer.save()
+                        self._validate_objects(created)
+                except ObjectDoesNotExist:
+                    raise PermissionDenied()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -178,7 +185,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
     @swagger_auto_schema(method='get', responses={200: serializers.AvailableIPSerializer(many=True)})
     @swagger_auto_schema(method='post', responses={201: serializers.AvailableIPSerializer(many=True)},
-                         request_body=serializers.AvailableIPSerializer(many=False))
+                         request_body=serializers.AvailableIPSerializer(many=True))
     @action(detail=True, url_path='available-ips', methods=['get', 'post'], queryset=IPAddress.objects.all())
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):
@@ -225,7 +232,12 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             # Create the new IP address(es)
             if serializer.is_valid():
-                serializer.save()
+                try:
+                    with transaction.atomic():
+                        created = serializer.save()
+                        self._validate_objects(created)
+                except ObjectDoesNotExist:
+                    raise PermissionDenied()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -270,9 +282,9 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 # VLAN groups
 #
 
-class VLANGroupViewSet(ModelViewSet):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
-        vlan_count=get_subquery(VLAN, 'group')
+class VLANGroupViewSet(CustomFieldModelViewSet):
+    queryset = VLANGroup.objects.annotate(
+        vlan_count=count_related(VLAN, 'group')
     )
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filters.VLANGroupFilterSet
@@ -286,7 +298,7 @@ class VLANViewSet(CustomFieldModelViewSet):
     queryset = VLAN.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
-        prefix_count=get_subquery(Prefix, 'vlan')
+        prefix_count=count_related(Prefix, 'vlan')
     )
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilterSet

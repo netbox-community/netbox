@@ -19,7 +19,7 @@ class UserSerializer(ValidatedModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'url', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active',
+            'id', 'url', 'display', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active',
             'date_joined', 'groups',
         )
         extra_kwargs = {
@@ -44,7 +44,7 @@ class GroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Group
-        fields = ('id', 'url', 'name', 'user_count')
+        fields = ('id', 'url', 'display', 'name', 'user_count')
 
 
 class ObjectPermissionSerializer(ValidatedModelSerializer):
@@ -69,5 +69,6 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
     class Meta:
         model = ObjectPermission
         fields = (
-            'id', 'url', 'name', 'description', 'enabled', 'object_types', 'groups', 'users', 'actions', 'constraints',
+            'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'groups', 'users', 'actions',
+            'constraints',
         )

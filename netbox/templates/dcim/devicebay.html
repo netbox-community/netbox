@@ -30,6 +30,7 @@
                     </tr>
                 </table>
             </div>
+            {% include 'inc/custom_fields_panel.html' %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
             {% plugin_left_page object %}
         </div>

@@ -82,6 +82,7 @@ class BulkRenameForm(forms.Form):
     )
 
     def clean(self):
+        super().clean()
 
         # Validate regular expression in "find" field
         if self.cleaned_data['use_regex']:
@@ -124,6 +125,7 @@ class ImportForm(BootstrapMixin, forms.Form):
     )
 
     def clean(self):
+        super().clean()
 
         data = self.cleaned_data['data']
         format = self.cleaned_data['format']

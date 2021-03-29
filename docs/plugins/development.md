@@ -63,10 +63,14 @@ setup(
     install_requires=[],
     packages=find_packages(),
     include_package_data=True,
+    zip_safe=False,
 )
 ```
 
 Many of these are self-explanatory, but for more information, see the [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html).
+
+!!! note
+    `zip_safe=False` is **required** as the current plugin iteration is not zip safe due to upstream python issue [issue19699](https://bugs.python.org/issue19699)  
 
 ### Define a PluginConfig
 

@@ -5,8 +5,8 @@
 Getting started with NetBox development is pretty straightforward, and should feel very familiar to anyone with Django development experience. There are a few things you'll need:
 
 * A Linux system or environment
-* A PostgreSQL server, which can be installed locally [per the documentation](/installation/1-postgresql/)
-* A Redis server, which can also be [installed locally](/installation/2-redis/)
+* A PostgreSQL server, which can be installed locally [per the documentation](../installation/1-postgresql.md)
+* A Redis server, which can also be [installed locally](../installation/2-redis.md)
 * A supported version of Python
 
 ### Fork the Repo
@@ -27,13 +27,13 @@ base_requirements.txt  contrib          docs         mkdocs.yml  NOTICE     requ
 CHANGELOG.md           CONTRIBUTING.md  LICENSE.txt  netbox      README.md  scripts
 ```
 
-The NetBox project utilizes three long-term branches:
+The NetBox project utilizes three persistent git branches to track work:
 
 * `master` - Serves as a snapshot of the current stable release
 * `develop` - All development on the upcoming stable release occurs here
-* `develop-x.y` - Tracks work on an upcoming major release
+* `feature` - Tracks work on an upcoming major release
 
-Typically, you'll base pull requests off of the `develop` branch, or off of `develop-x.y` if you're working on a new major release. **Never** base pull requests off of the master branch, which receives merged only from the `develop` branch.
+Typically, you'll base pull requests off of the `develop` branch, or off of `feature` if you're working on a new major release. **Never** merge pull requests into the `master` branch, which receives merged only from the `develop` branch.
 
 ### Enable Pre-Commit Hooks
 

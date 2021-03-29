@@ -21,7 +21,7 @@ class AppTest(APITestCase):
 
 class SecretRoleTest(APIViewTestCases.APIViewTestCase):
     model = SecretRole
-    brief_fields = ['id', 'name', 'secret_count', 'slug', 'url']
+    brief_fields = ['display', 'id', 'name', 'secret_count', 'slug', 'url']
     create_data = [
         {
             'name': 'Secret Role 4',
@@ -53,7 +53,7 @@ class SecretRoleTest(APIViewTestCases.APIViewTestCase):
 
 class SecretTest(APIViewTestCases.APIViewTestCase):
     model = Secret
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
 
     def setUp(self):
         super().setUp()

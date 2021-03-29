@@ -9,8 +9,3 @@
         </a>
     {% endif %}
 {% endif %}
-{% if perms.dcim.delete_cable %}
-    <a href="{% url 'dcim:cable_delete' pk=cable.pk %}?return_url={{ device.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">
-            <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
-    </a>
-{% endif %}

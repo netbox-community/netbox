@@ -103,6 +103,12 @@ $(document).ready(function() {
         return data.text;
     }
 
+    // Speed selector
+    $("a.set_speed").click(function(e) {
+        e.preventDefault();
+        $("#id_" + $(this).attr("target")).val($(this).attr("data"));
+    });
+
     // Color Picker
     $('.netbox-select2-color-picker').select2({
         allowClear: true,

@@ -6,14 +6,13 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_object
-from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
+from netbox.models import BigIDModel, PrimaryModel
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
@@ -32,7 +31,7 @@ __all__ = (
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Cable(ChangeLoggedModel, CustomFieldModel):
+class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.
     """
@@ -107,7 +106,6 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -147,7 +145,8 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         return instance
 
     def __str__(self):
-        return self.label or '#{}'.format(self._pk)
+        pk = self.pk or self._pk
+        return self.label or f'#{pk}'
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
@@ -243,6 +242,16 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         ):
             raise ValidationError("A front port cannot be connected to it corresponding rear port")
 
+        # A CircuitTermination attached to a Cloud cannot have a Cable
+        if isinstance(self.termination_a, CircuitTermination) and self.termination_a.cloud is not None:
+            raise ValidationError({
+                'termination_a_id': "Circuit terminations attached to a cloud may not be cabled."
+            })
+        if isinstance(self.termination_b, CircuitTermination) and self.termination_b.cloud is not None:
+            raise ValidationError({
+                'termination_b_id': "Circuit terminations attached to a cloud may not be cabled."
+            })
+
         # Check for an existing Cable connected to either termination object
         if self.termination_a.cable not in (None, self):
             raise ValidationError("{} already has a cable attached (#{})".format(
@@ -304,7 +313,7 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
 
 
-class CablePath(models.Model):
+class CablePath(BigIDModel):
     """
     A CablePath instance represents the physical path from an origin to a destination, including all intermediate
     elements in the path. Every instance must specify an `origin`, whereas `destination` may be null (for paths which do
@@ -479,17 +488,23 @@ class CablePath(models.Model):
 
     def get_total_length(self):
         """
-        Return the sum of the length of each cable in the path.
+        Return a tuple containing the sum of the length of each cable in the path
+        and a flag indicating whether the length is definitive.
         """
         cable_ids = [
             # Starting from the first element, every third element in the path should be a Cable
             decompile_path_node(self.path[i])[1] for i in range(0, len(self.path), 3)
         ]
-        return Cable.objects.filter(id__in=cable_ids).aggregate(total=Sum('_abs_length'))['total']
+        cables = Cable.objects.filter(id__in=cable_ids, _abs_length__isnull=False)
+        total_length = cables.aggregate(total=Sum('_abs_length'))['total']
+        is_definitive = len(cables) == len(cable_ids)
+
+        return total_length, is_definitive
 
     def get_split_nodes(self):
         """
         Return all available next segments in a split cable path.
         """
         rearport = path_node_to_object(self.path[-1])
+
         return FrontPort.objects.filter(rear_port=rearport)

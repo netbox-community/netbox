@@ -1,13 +1,10 @@
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
-from taggit.managers import TaggableManager
 
-from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
-from utilities.mptt import TreeManager
+from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
 
 
 __all__ = (
@@ -16,7 +13,8 @@ __all__ = (
 )
 
 
-class TenantGroup(MPTTModel, ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class TenantGroup(NestedGroupModel):
     """
     An arbitrary collection of Tenants.
     """
@@ -41,21 +39,13 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
         blank=True
     )
 
-    objects = TreeManager()
-
     csv_headers = ['name', 'slug', 'parent', 'description']
 
     class Meta:
         ordering = ['name']
 
-    class MPTTMeta:
-        order_insertion_by = ['name']
-
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
-        return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
+        return reverse('tenancy:tenantgroup', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -65,18 +55,9 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
             self.description,
         )
 
-    def to_objectchange(self, action):
-        # Remove MPTT-internal fields
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
-        )
-
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Tenant(ChangeLoggedModel, CustomFieldModel):
+class Tenant(PrimaryModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.
@@ -103,7 +84,6 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -119,7 +99,7 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('tenancy:tenant', args=[self.slug])
+        return reverse('tenancy:tenant', args=[self.pk])
 
     def to_csv(self):
         return (

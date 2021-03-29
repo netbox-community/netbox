@@ -16,6 +16,7 @@ __all__ = (
     'DatePicker',
     'DateTimePicker',
     'NumericArrayField',
+    'SelectSpeedWidget',
     'SelectWithDisabled',
     'SelectWithPK',
     'SlugWidget',
@@ -111,10 +112,20 @@ class ContentTypeSelect(StaticSelect2):
     option_template_name = 'widgets/select_contenttype.html'
 
 
+class SelectSpeedWidget(forms.NumberInput):
+    """
+    Speed field with dropdown selections for convenience.
+    """
+    template_name = 'widgets/select_speed.html'
+
+
 class NumericArrayField(SimpleArrayField):
 
     def to_python(self, value):
-        value = ','.join([str(n) for n in parse_numeric_range(value)])
+        if not value:
+            return []
+        if isinstance(value, str):
+            value = ','.join([str(n) for n in parse_numeric_range(value)])
         return super().to_python(value)
 
 

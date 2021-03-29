@@ -1,0 +1,40 @@
+---
+name: 📖 Documentation Change
+about: Suggest an addition or modification to the NetBox documentation
+labels: ["type: documentation"]
+body:
+  - type: dropdown
+    attributes:
+      label: Change Type
+      description: What type of change are you proposing?
+      options:
+        - Addition
+        - Correction
+        - Removal
+        - Cleanup (formatting, typos, etc.)
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Area
+      description: To what section of the documentation does this change primarily pertain?
+      options:
+        - Installation instructions
+        - Configuration parameters
+        - Functionality/features
+        - REST API
+        - Administration/development
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed Changes
+      description: "Describe the proposed changes and why they are necessary"
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ### Additional information
+        You can use the space below to provide any additional information or to attach files.

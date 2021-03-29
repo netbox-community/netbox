@@ -13,6 +13,7 @@ class CustomFieldTypeChoices(ChoiceSet):
     TYPE_DATE = 'date'
     TYPE_URL = 'url'
     TYPE_SELECT = 'select'
+    TYPE_MULTISELECT = 'multiselect'
 
     CHOICES = (
         (TYPE_TEXT, 'Text'),
@@ -21,6 +22,7 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_DATE, 'Date'),
         (TYPE_URL, 'URL'),
         (TYPE_SELECT, 'Selection'),
+        (TYPE_MULTISELECT, 'Multiple selection'),
     )
 
 
@@ -82,6 +84,32 @@ class ObjectChangeActionChoices(ChoiceSet):
         ACTION_CREATE: 'success',
         ACTION_UPDATE: 'primary',
         ACTION_DELETE: 'danger',
+    }
+
+
+#
+# Jounral entries
+#
+
+class JournalEntryKindChoices(ChoiceSet):
+
+    KIND_INFO = 'info'
+    KIND_SUCCESS = 'success'
+    KIND_WARNING = 'warning'
+    KIND_DANGER = 'danger'
+
+    CHOICES = (
+        (KIND_INFO, 'Info'),
+        (KIND_SUCCESS, 'Success'),
+        (KIND_WARNING, 'Warning'),
+        (KIND_DANGER, 'Danger'),
+    )
+
+    CSS_CLASSES = {
+        KIND_INFO: 'default',
+        KIND_SUCCESS: 'success',
+        KIND_WARNING: 'warning',
+        KIND_DANGER: 'danger',
     }
 
 

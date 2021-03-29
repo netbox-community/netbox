@@ -2,13 +2,14 @@ import django_filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.forms import DateField, IntegerField, NullBooleanField
 
-from dcim.models import DeviceRole, Platform, Region, Site
+from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet, ContentTypeFilter
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, JobResult, ObjectChange, Tag
+from .models import *
 
 
 __all__ = (
@@ -16,12 +17,15 @@ __all__ = (
     'ContentTypeFilterSet',
     'CreatedUpdatedFilterSet',
     'CustomFieldFilter',
+    'CustomLinkFilterSet',
     'CustomFieldModelFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
+    'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
     'TagFilterSet',
+    'WebhookFilterSet',
 )
 
 EXACT_FILTER_TYPES = (
@@ -32,30 +36,41 @@ EXACT_FILTER_TYPES = (
 )
 
 
+class WebhookFilterSet(BaseFilterSet):
+    content_types = ContentTypeFilter()
+    http_method = django_filters.MultipleChoiceFilter(
+        choices=WebhookHttpMethodChoices
+    )
+
+    class Meta:
+        model = Webhook
+        fields = [
+            'id', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url', 'enabled',
+            'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+        ]
+
+
 class CustomFieldFilter(django_filters.Filter):
     """
     Filter objects by the presence of a CustomFieldValue. The filter's name is used as the CustomField name.
     """
     def __init__(self, custom_field, *args, **kwargs):
         self.custom_field = custom_field
+
+        if custom_field.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            self.field_class = IntegerField
+        elif custom_field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            self.field_class = NullBooleanField
+        elif custom_field.type == CustomFieldTypeChoices.TYPE_DATE:
+            self.field_class = DateField
+
         super().__init__(*args, **kwargs)
 
-    def filter(self, queryset, value):
+        self.field_name = f'custom_field_data__{self.field_name}'
 
-        # Skip filter on empty value
-        if value is None or not value.strip():
-            return queryset
-
-        # Apply the assigned filter logic (exact or loose)
-        if (
-            self.custom_field.type in EXACT_FILTER_TYPES or
-            self.custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_EXACT
-        ):
-            kwargs = {f'custom_field_data__{self.field_name}': value}
-        else:
-            kwargs = {f'custom_field_data__{self.field_name}__icontains': value}
-
-        return queryset.filter(**kwargs)
+        if custom_field.type not in EXACT_FILTER_TYPES:
+            if custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
+                self.lookup_expr = 'icontains'
 
 
 class CustomFieldModelFilterSet(django_filters.FilterSet):
@@ -81,6 +96,13 @@ class CustomFieldFilterSet(django_filters.FilterSet):
         fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight']
 
 
+class CustomLinkFilterSet(BaseFilterSet):
+
+    class Meta:
+        model = CustomLink
+        fields = ['id', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name', 'new_window']
+
+
 class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
@@ -94,6 +116,37 @@ class ImageAttachmentFilterSet(BaseFilterSet):
     class Meta:
         model = ImageAttachment
         fields = ['id', 'content_type_id', 'object_id', 'name']
+
+
+class JournalEntryFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    created = django_filters.DateTimeFromToRangeFilter()
+    assigned_object_type = ContentTypeFilter()
+    created_by_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        label='User (ID)',
+    )
+    created_by = django_filters.ModelMultipleChoiceFilter(
+        field_name='created_by__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User (name)',
+    )
+    kind = django_filters.MultipleChoiceFilter(
+        choices=JournalEntryKindChoices
+    )
+
+    class Meta:
+        model = JournalEntry
+        fields = ['id', 'assigned_object_type_id', 'assigned_object_id', 'created', 'kind']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(comments__icontains=value)
 
 
 class TagFilterSet(BaseFilterSet):
@@ -131,6 +184,17 @@ class ConfigContextFilterSet(BaseFilterSet):
         to_field_name='slug',
         label='Region (slug)',
     )
+    site_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='site_groups__slug',
+        queryset=SiteGroup.objects.all(),
+        to_field_name='slug',
+        label='Site group (slug)',
+    )
+    site_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='site_groups',
+        queryset=SiteGroup.objects.all(),
+        label='Site group',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='sites',
         queryset=Site.objects.all(),
@@ -141,6 +205,11 @@ class ConfigContextFilterSet(BaseFilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+    )
+    device_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device_types',
+        queryset=DeviceType.objects.all(),
+        label='Device type',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='roles',

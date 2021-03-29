@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.10.1-dev'
+VERSION = '2.11-beta1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -28,6 +28,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if platform.python_version_tuple() < ('3', '6'):
     raise RuntimeError(
         "NetBox requires Python 3.6 or higher (current: Python {})".format(platform.python_version())
+    )
+# TODO: Remove in NetBox v2.12
+if platform.python_version_tuple() < ('3', '7'):
+    warnings.warn(
+        "Support for Python 3.6 will be dropped in NetBox v2.12. Please upgrade to Python 3.7 or later at your "
+        "earliest convenience."
     )
 
 
@@ -88,10 +94,9 @@ LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
+MAPS_URL = getattr(configuration, 'MAPS_URL', 'https://maps.google.com/?q=')
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
-STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
-STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
@@ -118,18 +123,23 @@ SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
+STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
+STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
-    try:
-        URLValidator(RELEASE_CHECK_URL)
-    except ValidationError:
-        raise ImproperlyConfigured(
+    validator = URLValidator(
+        message=(
             "RELEASE_CHECK_URL must be a valid API URL. Example: "
             "https://api.github.com/repos/netbox-community/netbox"
         )
+    )
+    try:
+        validator(RELEASE_CHECK_URL)
+    except ValidationError as err:
+        raise ImproperlyConfigured(str(err))
 
 # Enforce a minimum cache timeout for update checks
 if RELEASE_CHECK_TIMEOUT < 3600:
@@ -375,6 +385,8 @@ LOGIN_URL = '/{}login/'.format(BASE_PATH)
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
 EXEMPT_EXCLUDE_MODELS = (
@@ -391,6 +403,7 @@ if CACHING_REDIS_USING_SENTINEL:
         'locations': CACHING_REDIS_SENTINELS,
         'service_name': CACHING_REDIS_SENTINEL_SERVICE,
         'db': CACHING_REDIS_DATABASE,
+        'password': CACHING_REDIS_PASSWORD,
     }
 else:
     if CACHING_REDIS_SSL:
@@ -425,7 +438,7 @@ CACHEOPS = {
     'circuits.*': {'ops': 'all'},
     'dcim.inventoryitem': None,  # MPTT models are exempt due to raw SQL
     'dcim.region': None,  # MPTT models are exempt due to raw SQL
-    'dcim.rackgroup': None,  # MPTT models are exempt due to raw SQL
+    'dcim.location': None,  # MPTT models are exempt due to raw SQL
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},
@@ -467,6 +480,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
         'netbox.api.authentication.TokenPermissions',

@@ -40,16 +40,9 @@ def clone_button(instance):
 
 
 @register.inclusion_tag('buttons/edit.html')
-def edit_button(instance, use_pk=False):
+def edit_button(instance):
     viewname = _get_viewname(instance, 'edit')
-
-    # Assign kwargs
-    if hasattr(instance, 'slug') and not use_pk:
-        kwargs = {'slug': instance.slug}
-    else:
-        kwargs = {'pk': instance.pk}
-
-    url = reverse(viewname, kwargs=kwargs)
+    url = reverse(viewname, kwargs={'pk': instance.pk})
 
     return {
         'url': url,
@@ -57,16 +50,9 @@ def edit_button(instance, use_pk=False):
 
 
 @register.inclusion_tag('buttons/delete.html')
-def delete_button(instance, use_pk=False):
+def delete_button(instance):
     viewname = _get_viewname(instance, 'delete')
-
-    # Assign kwargs
-    if hasattr(instance, 'slug') and not use_pk:
-        kwargs = {'slug': instance.slug}
-    else:
-        kwargs = {'pk': instance.pk}
-
-    url = reverse(viewname, kwargs=kwargs)
+    url = reverse(viewname, kwargs={'pk': instance.pk})
 
     return {
         'url': url,

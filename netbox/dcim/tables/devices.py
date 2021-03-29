@@ -1,11 +1,12 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.conf import settings
 
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem, Platform,
     PowerOutlet, PowerPort, RearPort, VirtualChassis,
 )
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     TagColumn, ToggleColumn,
@@ -43,12 +44,23 @@ __all__ = (
 )
 
 
+def get_cabletermination_row_class(record):
+    if record.mark_connected:
+        return 'success'
+    elif record.cable:
+        return record.cable.get_status_class()
+    return ''
+
+
 #
 # Device roles
 #
 
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
     device_count = LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'role': 'slug'},
@@ -61,7 +73,7 @@ class DeviceRoleTable(BaseTable):
     )
     color = ColorColumn()
     vm_role = BooleanColumn()
-    actions = ButtonsColumn(DeviceRole, pk_field='slug')
+    actions = ButtonsColumn(DeviceRole)
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
@@ -75,6 +87,9 @@ class DeviceRoleTable(BaseTable):
 
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
     device_count = LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'platform': 'slug'},
@@ -85,7 +100,7 @@ class PlatformTable(BaseTable):
         url_params={'platform': 'slug'},
         verbose_name='VMs'
     )
-    actions = ButtonsColumn(Platform, pk_field='slug')
+    actions = ButtonsColumn(Platform)
 
     class Meta(BaseTable.Meta):
         model = Platform
@@ -109,10 +124,11 @@ class DeviceTable(BaseTable):
         template_code=DEVICE_LINK
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     site = tables.Column(
+        linkify=True
+    )
+    location = tables.Column(
         linkify=True
     )
     rack = tables.Column(
@@ -127,10 +143,18 @@ class DeviceTable(BaseTable):
         verbose_name='Type',
         text=lambda record: record.device_type.display_name
     )
-    primary_ip = tables.Column(
-        linkify=True,
-        verbose_name='IP Address'
-    )
+    if settings.PREFER_IPV4:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip4', 'primary_ip6'),
+            verbose_name='IP Address'
+        )
+    else:
+        primary_ip = tables.Column(
+            linkify=True,
+            order_by=('primary_ip6', 'primary_ip4'),
+            verbose_name='IP Address'
+        )
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'
@@ -161,11 +185,11 @@ class DeviceTable(BaseTable):
         model = Device
         fields = (
             'pk', 'name', 'status', 'tenant', 'device_role', 'device_type', 'platform', 'serial', 'asset_tag', 'site',
-            'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'tags',
+            'location', 'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster',
+            'virtual_chassis', 'vc_position', 'vc_priority', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip',
+            'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'device_type', 'primary_ip',
         )
 
 
@@ -174,9 +198,7 @@ class DeviceImportTable(BaseTable):
         template_code=DEVICE_LINK
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
     site = tables.Column(
         linkify=True
     )
@@ -212,6 +234,7 @@ class DeviceComponentTable(BaseTable):
     cable = tables.Column(
         linkify=True
     )
+    mark_connected = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         order_by = ('device', 'name')
@@ -227,6 +250,7 @@ class CableTerminationTable(BaseTable):
         orderable=False,
         verbose_name='Cable Peer'
     )
+    mark_connected = BooleanColumn()
 
 
 class PathEndpointTable(CableTerminationTable):
@@ -239,6 +263,12 @@ class PathEndpointTable(CableTerminationTable):
 
 
 class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_consoleports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:consoleport_list'
     )
@@ -246,9 +276,10 @@ class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags',
         )
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'speed', 'description')
 
 
 class DeviceConsolePortTable(ConsolePortTable):
@@ -265,23 +296,33 @@ class DeviceConsolePortTable(ConsolePortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
+            'pk', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
 class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_consoleserverports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:consoleserverport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags')
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags',
+        )
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'speed', 'description')
 
 
 class DeviceConsoleServerPortTable(ConsoleServerPortTable):
@@ -299,15 +340,22 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
+            'pk', 'name', 'label', 'type', 'speed', 'description', 'mark_connected', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
 class PowerPortTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_powerports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -315,8 +363,8 @@ class PowerPortTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable',
-            'cable_peer', 'connection', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'description', 'mark_connected', 'maximum_draw', 'allocated_draw',
+            'cable', 'cable_peer', 'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
@@ -336,19 +384,25 @@ class DevicePowerPortTable(PowerPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerPort
         fields = (
-            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'cable_peer',
-            'connection', 'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'mark_connected', 'cable',
+            'cable_peer', 'connection', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'connection',
             'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
 class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_poweroutlets',
+            'args': [Accessor('device_id')],
+        }
+    )
     power_port = tables.Column(
         linkify=True
     )
@@ -359,8 +413,8 @@ class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'cable_peer',
-            'connection', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'mark_connected', 'cable',
+            'cable_peer', 'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
@@ -379,14 +433,14 @@ class DevicePowerOutletTable(PowerOutletTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
         fields = (
-            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'cable_peer', 'connection',
-            'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'mark_connected', 'cable',
+            'cable_peer', 'connection', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection', 'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
@@ -406,6 +460,13 @@ class BaseInterfaceTable(BaseTable):
 
 
 class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_interfaces',
+            'args': [Accessor('device_id')],
+        }
+    )
+    mgmt_only = BooleanColumn()
     tags = TagColumn(
         url_name='dcim:interface_list'
     )
@@ -414,7 +475,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
         model = Interface
         fields = (
             'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
-            'description', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'description', 'mark_connected', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
@@ -425,6 +487,10 @@ class DeviceInterfaceTable(InterfaceTable):
                       '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}ethernet'
                       '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         attrs={'td': {'class': 'text-nowrap'}}
+    )
+    parent = tables.Column(
+        linkify=True,
+        verbose_name='Parent'
     )
     lag = tables.Column(
         linkify=True,
@@ -439,19 +505,27 @@ class DeviceInterfaceTable(InterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
-            'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address',
+            'description', 'mark_connected', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mtu', 'mode', 'description', 'ip_addresses', 'cable',
-            'connection', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
+            'cable', 'connection', 'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class,
+            'data-name': lambda record: record.name,
         }
 
 
 class FrontPortTable(DeviceComponentTable, CableTerminationTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_frontports',
+            'args': [Accessor('device_id')],
+        }
+    )
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
@@ -465,8 +539,8 @@ class FrontPortTable(DeviceComponentTable, CableTerminationTable):
     class Meta(DeviceComponentTable.Meta):
         model = FrontPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable',
-            'cable_peer', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'mark_connected',
+            'cable', 'cable_peer', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
 
@@ -486,26 +560,35 @@ class DeviceFrontPortTable(FrontPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = FrontPort
         fields = (
-            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
-            'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'mark_connected', 'cable',
+            'cable_peer', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
             'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
 class RearPortTable(DeviceComponentTable, CableTerminationTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_rearports',
+            'args': [Accessor('device_id')],
+        }
+    )
     tags = TagColumn(
         url_name='dcim:rearport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'mark_connected', 'cable',
+            'cable_peer', 'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
@@ -524,17 +607,24 @@ class DeviceRearPortTable(RearPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
         fields = (
-            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'mark_connected', 'cable', 'cable_peer', 'tags',
+            'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
 class DeviceBayTable(DeviceComponentTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_devicebays',
+            'args': [Accessor('device_id')],
+        }
+    )
     status = tables.TemplateColumn(
         template_code=DEVICEBAY_STATUS
     )
@@ -574,6 +664,12 @@ class DeviceDeviceBayTable(DeviceBayTable):
 
 
 class InventoryItemTable(DeviceComponentTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_inventory',
+            'args': [Accessor('device_id')],
+        }
+    )
     manufacturer = tables.Column(
         linkify=True
     )

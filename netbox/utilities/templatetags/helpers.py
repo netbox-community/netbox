@@ -208,6 +208,26 @@ def split(string, sep=','):
     return string.split(sep)
 
 
+@register.filter()
+def as_range(n):
+    """
+    Return a range of n items.
+    """
+    try:
+        int(n)
+    except TypeError:
+        return list()
+    return range(n)
+
+
+@register.filter()
+def meters_to_feet(n):
+    """
+    Convert a length from meters to feet.
+    """
+    return float(n) * 3.28084
+
+
 #
 # Tags
 #

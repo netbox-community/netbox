@@ -1,12 +1,13 @@
 import logging
 
+from cacheops import invalidate_obj
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.db import transaction
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
-from .models import Cable, CablePath, Device, PathEndpoint, VirtualChassis
+from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
 
 
 def create_cablepath(node):
@@ -30,9 +31,41 @@ def rebuild_paths(obj):
 
     with transaction.atomic():
         for cp in cable_paths:
+            invalidate_obj(cp.origin)
             cp.delete()
             create_cablepath(cp.origin)
 
+
+#
+# Location/rack/device assignment
+#
+
+@receiver(post_save, sender=Location)
+def handle_location_site_change(instance, created, **kwargs):
+    """
+    Update child objects if Site assignment has changed. We intentionally recurse through each child
+    object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
+    """
+    if not created:
+        instance.get_descendants().update(site=instance.site)
+        locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
+        Rack.objects.filter(location__in=locations).update(site=instance.site)
+        Device.objects.filter(location__in=locations).update(site=instance.site)
+        PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
+
+
+@receiver(post_save, sender=Rack)
+def handle_rack_site_change(instance, created, **kwargs):
+    """
+    Update child Devices if Site or Location assignment has changed.
+    """
+    if not created:
+        Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
+
+
+#
+# Virtual chassis
+#
 
 @receiver(post_save, sender=VirtualChassis)
 def assign_virtualchassis_master(instance, created, **kwargs):
@@ -56,6 +89,11 @@ def clear_virtualchassis_members(instance, **kwargs):
         device.vc_position = None
         device.vc_priority = None
         device.save()
+
+
+#
+# Cables
+#
 
 
 @receiver(post_save, sender=Cable)

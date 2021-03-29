@@ -1,67 +1,21 @@
 import re
-from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, date
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.utils.safestring import mark_safe
 
 from extras.choices import *
 from extras.utils import FeatureQuery
-from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from netbox.models import BigIDModel
+from utilities.forms import (
+    CSVChoiceField, DatePicker, LaxURLField, StaticSelect2Multiple, StaticSelect2, add_blank_choice,
+)
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
-
-
-class CustomFieldModel(models.Model):
-    """
-    Abstract class for any model which may have custom fields associated with it.
-    """
-    custom_field_data = models.JSONField(
-        encoder=DjangoJSONEncoder,
-        blank=True,
-        default=dict
-    )
-
-    class Meta:
-        abstract = True
-
-    @property
-    def cf(self):
-        """
-        Convenience wrapper for custom field data.
-        """
-        return self.custom_field_data
-
-    def get_custom_fields(self):
-        """
-        Return a dictionary of custom fields for a single object in the form {<field>: value}.
-        """
-        fields = CustomField.objects.get_for_model(self)
-        return OrderedDict([
-            (field, self.custom_field_data.get(field.name)) for field in fields
-        ])
-
-    def clean(self):
-        custom_fields = {cf.name: cf for cf in CustomField.objects.get_for_model(self)}
-
-        # Validate all field values
-        for field_name, value in self.custom_field_data.items():
-            if field_name not in custom_fields:
-                raise ValidationError(f"Unknown field name '{field_name}' in custom field data.")
-            try:
-                custom_fields[field_name].validate(value)
-            except ValidationError as e:
-                raise ValidationError(f"Invalid value for custom field '{field_name}': {e.message}")
-
-        # Check for missing required values
-        for cf in custom_fields.values():
-            if cf.required and cf.name not in self.custom_field_data:
-                raise ValidationError(f"Missing required custom field '{cf.name}'.")
 
 
 class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
@@ -75,7 +29,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(models.Model):
+class CustomField(BigIDModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
@@ -172,6 +126,8 @@ class CustomField(models.Model):
                 obj.save()
 
     def clean(self):
+        super().clean()
+
         # Validate the field's default value (if any)
         if self.default is not None:
             try:
@@ -192,13 +148,17 @@ class CustomField(models.Model):
             })
 
         # Regex validation can be set only for text fields
-        if self.validation_regex and self.type != CustomFieldTypeChoices.TYPE_TEXT:
+        regex_types = (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_URL)
+        if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
             })
 
         # Choices can be set only on selection fields
-        if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
+        if self.choices and self.type not in (
+                CustomFieldTypeChoices.TYPE_SELECT,
+                CustomFieldTypeChoices.TYPE_MULTISELECT
+        ):
             raise ValidationError({
                 'choices': "Choices may be set only for custom selection fields."
             })
@@ -251,7 +211,7 @@ class CustomField(models.Model):
             field = forms.DateField(required=required, initial=initial, widget=DatePicker())
 
         # Select
-        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+        elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
             choices = [(c, c) for c in self.choices]
             default_choice = self.default if self.default in self.choices else None
 
@@ -262,10 +222,16 @@ class CustomField(models.Model):
             if set_initial and default_choice:
                 initial = default_choice
 
-            field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
-            field = field_class(
-                choices=choices, required=required, initial=initial, widget=StaticSelect2()
-            )
+            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
+                field = field_class(
+                    choices=choices, required=required, initial=initial, widget=StaticSelect2()
+                )
+            else:
+                field_class = CSVChoiceField if for_csv_import else forms.MultipleChoiceField
+                field = field_class(
+                    choices=choices, required=required, initial=initial, widget=StaticSelect2Multiple()
+                )
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
@@ -317,16 +283,24 @@ class CustomField(models.Model):
 
             # Validate date
             if self.type == CustomFieldTypeChoices.TYPE_DATE:
-                try:
-                    datetime.strptime(value, '%Y-%m-%d')
-                except ValueError:
-                    raise ValidationError("Date values must be in the format YYYY-MM-DD.")
+                if type(value) is not date:
+                    try:
+                        datetime.strptime(value, '%Y-%m-%d')
+                    except ValueError:
+                        raise ValidationError("Date values must be in the format YYYY-MM-DD.")
 
             # Validate selected choice
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 if value not in self.choices:
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
+                    )
+
+            # Validate all selected choices
+            if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+                if not set(value).issubset(self.choices):
+                    raise ValidationError(
+                        f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"
                     )
 
         elif self.required:

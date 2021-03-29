@@ -39,6 +39,12 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-md-3 control-label required">Site Group</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.device.site.group }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-md-3 control-label required">Site</label>
                                 <div class="col-md-9">
                                     <p class="form-control-static">{{ termination_a.device.site }}</p>
@@ -120,11 +126,14 @@
                         {% if 'termination_b_region' in form.fields %}
                             {% render_field form.termination_b_region %}
                         {% endif %}
+                        {% if 'termination_b_site_group' in form.fields %}
+                            {% render_field form.termination_b_site_group %}
+                        {% endif %}
                         {% if 'termination_b_site' in form.fields %}
                             {% render_field form.termination_b_site %}
                         {% endif %}
-                        {% if 'termination_b_rackgroup' in form.fields %}
-                            {% render_field form.termination_b_rackgroup %}
+                        {% if 'termination_b_location' in form.fields %}
+                            {% render_field form.termination_b_location %}
                         {% endif %}
                         {% if 'termination_b_rack' in form.fields %}
                             {% render_field form.termination_b_rack %}

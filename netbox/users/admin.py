@@ -169,6 +169,8 @@ class ObjectPermissionForm(forms.ModelForm):
                     self.instance.actions.remove(action)
 
     def clean(self):
+        super().clean()
+
         object_types = self.cleaned_data.get('object_types')
         constraints = self.cleaned_data.get('constraints')
 
@@ -221,7 +223,7 @@ class ObjectTypeListFilter(admin.SimpleListFilter):
     parameter_name = 'object_type'
 
     def lookups(self, request, model_admin):
-        object_types = ObjectPermission.objects.values_list('id', flat=True).distinct()
+        object_types = ObjectPermission.objects.values_list('object_types__pk', flat=True).distinct()
         content_types = ContentType.objects.filter(pk__in=object_types).order_by('app_label', 'model')
         return [
             (ct.pk, ct) for ct in content_types

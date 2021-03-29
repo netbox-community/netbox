@@ -29,6 +29,10 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Tenant Group 6,tenant-group-6,Sixth tenant group",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Tenant

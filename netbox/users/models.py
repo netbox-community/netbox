@@ -11,6 +11,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 
@@ -175,7 +176,7 @@ def create_userconfig(instance, created, **kwargs):
 # REST API
 #
 
-class Token(models.Model):
+class Token(BigIDModel):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
     It also supports setting an expiration time and toggling write ability.
@@ -233,7 +234,7 @@ class Token(models.Model):
 # Permissions
 #
 
-class ObjectPermission(models.Model):
+class ObjectPermission(BigIDModel):
     """
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
     identified by ORM query parameters.

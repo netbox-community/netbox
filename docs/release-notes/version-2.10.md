@@ -1,5 +1,162 @@
 # NetBox v2.10
 
+## v2.10.8 (2021-03-26)
+
+### Bug Fixes
+
+* [#6060](https://github.com/netbox-community/netbox/issues/6060) - Fix exception on cable trace in UI (regression from #5650)
+
+---
+
+## v2.10.7 (2021-03-25)
+
+### Enhancements
+
+* [#5641](https://github.com/netbox-community/netbox/issues/5641) - Allow filtering device components by label
+* [#5723](https://github.com/netbox-community/netbox/issues/5723) - Allow customization of the geographic mapping service via `MAPS_URL` config parameter
+* [#5736](https://github.com/netbox-community/netbox/issues/5736) - Allow changing site assignment when bulk editing devices
+* [#5953](https://github.com/netbox-community/netbox/issues/5953) - Support Markdown rendering for custom script descriptions
+* [#6040](https://github.com/netbox-community/netbox/issues/6040) - Add UI search fields for asset tag for devices and racks
+
+### Bug Fixes
+
+* [#5595](https://github.com/netbox-community/netbox/issues/5595) - Restore ability to delete an uploaded device type image
+* [#5650](https://github.com/netbox-community/netbox/issues/5650) - Denote when the total length of a cable trace may exceed the indicated value
+* [#5962](https://github.com/netbox-community/netbox/issues/5962) - Ensure consistent display of change log action labels
+* [#5966](https://github.com/netbox-community/netbox/issues/5966) - Skip Markdown reference link when tabbing through form fields
+* [#5977](https://github.com/netbox-community/netbox/issues/5977) - Correct validation of `RELEASE_CHECK_URL` config parameter
+* [#6006](https://github.com/netbox-community/netbox/issues/6006) - Fix VLAN group/site association for bulk prefix import
+* [#6010](https://github.com/netbox-community/netbox/issues/6010) - Eliminate duplicate virtual chassis search results
+* [#6012](https://github.com/netbox-community/netbox/issues/6012) - Pre-populate attributes when creating an available child prefix via the UI
+* [#6023](https://github.com/netbox-community/netbox/issues/6023) - Fix display of bottom banner with uBlock Origin enabled
+
+---
+
+## v2.10.6 (2021-03-09)
+
+### Enhancements
+
+* [#5592](https://github.com/netbox-community/netbox/issues/5592) - Add IP addresses count to VRF view
+* [#5630](https://github.com/netbox-community/netbox/issues/5630) - Add QSFP+ (64GFC) FibreChannel Interface option
+* [#5884](https://github.com/netbox-community/netbox/issues/5884) - Enable custom links for device components
+* [#5914](https://github.com/netbox-community/netbox/issues/5914) - Add edit/delete buttons for IP addresses on interface view
+* [#5942](https://github.com/netbox-community/netbox/issues/5942) - Add button to add a new IP address on interface view
+
+### Bug Fixes
+
+* [#5703](https://github.com/netbox-community/netbox/issues/5703) - Fix VRF and Tenant field population when adding IP addresses from prefix
+* [#5819](https://github.com/netbox-community/netbox/issues/5819) - Enable ordering of virtual machines by primary IP address
+* [#5872](https://github.com/netbox-community/netbox/issues/5872) - Ordering of devices by primary IP should respect `PREFER_IPV4` configuration parameter
+* [#5922](https://github.com/netbox-community/netbox/issues/5922) - Fix options for filtering object permissions in admin UI
+* [#5935](https://github.com/netbox-community/netbox/issues/5935) - Fix filtering prefixes list by multiple prefix values
+* [#5948](https://github.com/netbox-community/netbox/issues/5948) - Invalidate cached queries when running `renaturalize`
+
+---
+
+## v2.10.5 (2021-02-24)
+
+### Bug Fixes
+
+* [#5315](https://github.com/netbox-community/netbox/issues/5315) - Fix site unassignment from VLAN when using "None" option
+* [#5626](https://github.com/netbox-community/netbox/issues/5626) - Fix REST API representation for circuit terminations connected to non-interface endpoints
+* [#5716](https://github.com/netbox-community/netbox/issues/5716) - Fix filtering rack reservations by custom field
+* [#5718](https://github.com/netbox-community/netbox/issues/5718) - Fix bulk editing of services when no port(s) are defined
+* [#5735](https://github.com/netbox-community/netbox/issues/5735) - Ensure consistent treatment of duplicate IP addresses
+* [#5738](https://github.com/netbox-community/netbox/issues/5738) - Fix redirect to device components view after disconnecting a cable
+* [#5753](https://github.com/netbox-community/netbox/issues/5753) - Fix Redis Sentinel password application for caching
+* [#5786](https://github.com/netbox-community/netbox/issues/5786) - Allow setting null tenant group on tenant via REST API
+* [#5841](https://github.com/netbox-community/netbox/issues/5841) - Disallow the creation of available prefixes/IP addresses in violation of assigned permission constraints
+
+---
+
+## v2.10.4 (2021-01-26)
+
+### Enhancements
+
+* [#5542](https://github.com/netbox-community/netbox/issues/5542) - Show cable trace lengths in both meters and feet
+* [#5570](https://github.com/netbox-community/netbox/issues/5570) - Add "management only" filter widget for interfaces list
+* [#5586](https://github.com/netbox-community/netbox/issues/5586) - Allow filtering virtual chassis by name and master
+* [#5612](https://github.com/netbox-community/netbox/issues/5612) - Add GG45 and TERA port types, and CAT7a and CAT8 cable types
+* [#5678](https://github.com/netbox-community/netbox/issues/5678) - Show available type choices for all device component import forms
+
+### Bug Fixes
+
+* [#5232](https://github.com/netbox-community/netbox/issues/5232) - Correct swagger definition for ip_prefixes_available-ips_create API
+* [#5574](https://github.com/netbox-community/netbox/issues/5574) - Restrict the creation of device bay templates on non-parent device types
+* [#5584](https://github.com/netbox-community/netbox/issues/5584) - Restore power utilization panel under device view
+* [#5597](https://github.com/netbox-community/netbox/issues/5597) - Fix ordering devices by primary IP address
+* [#5603](https://github.com/netbox-community/netbox/issues/5603) - Fix display of white cables in trace view
+* [#5639](https://github.com/netbox-community/netbox/issues/5639) - Fix filtering connection lists by device name
+* [#5640](https://github.com/netbox-community/netbox/issues/5640) - Fix permissions assessment when adding VM interfaces in bulk
+* [#5648](https://github.com/netbox-community/netbox/issues/5648) - Include VC member interfaces on interfaces tab count when viewing VC master
+* [#5665](https://github.com/netbox-community/netbox/issues/5665) - Validate rack group is assigned to same site when creating a rack
+* [#5683](https://github.com/netbox-community/netbox/issues/5683) - Correct rack elevation displayed when viewing a reservation
+
+---
+
+## v2.10.3 (2021-01-05)
+
+### Bug Fixes
+
+* [#5049](https://github.com/netbox-community/netbox/issues/5049) - Add check for LLDP neighbor chassis name to lldp_neighbors
+* [#5301](https://github.com/netbox-community/netbox/issues/5301) - Fix misleading error when racking a device with invalid parameters
+* [#5311](https://github.com/netbox-community/netbox/issues/5311) - Update child objects when a rack group is moved to a new site
+* [#5518](https://github.com/netbox-community/netbox/issues/5518) - Fix persistent vertical scrollbar
+* [#5533](https://github.com/netbox-community/netbox/issues/5533) - Fix bulk editing of objects with required custom fields
+* [#5540](https://github.com/netbox-community/netbox/issues/5540) - Fix exception when viewing a provider with one or more tags assigned
+* [#5543](https://github.com/netbox-community/netbox/issues/5543) - Fix rendering of config contexts with cluster assignment for devices
+* [#5546](https://github.com/netbox-community/netbox/issues/5546) - Add custom field bulk edit support for cables, power panels, rack reservations, and virtual chassis
+* [#5547](https://github.com/netbox-community/netbox/issues/5547) - Add custom field bulk import support for cables, power panels, rack reservations, and virtual chassis
+* [#5551](https://github.com/netbox-community/netbox/issues/5551) - Restore missing import button on services list
+* [#5557](https://github.com/netbox-community/netbox/issues/5557) - Fix VRF route target assignment via REST API
+* [#5558](https://github.com/netbox-community/netbox/issues/5558) - Fix regex validation support for custom URL fields
+* [#5563](https://github.com/netbox-community/netbox/issues/5563) - Fix power feed cable trace link
+* [#5564](https://github.com/netbox-community/netbox/issues/5564) - Raise validation error if a power port template's `allocated_draw` exceeds its `maximum_draw`
+* [#5569](https://github.com/netbox-community/netbox/issues/5569) - Ensure consistent labeling of interface `mgmt_only` field
+* [#5573](https://github.com/netbox-community/netbox/issues/5573) - Report inconsistent values when migrating custom field data
+
+---
+
+## v2.10.2 (2020-12-21)
+
+### Enhancements
+
+* [#5489](https://github.com/netbox-community/netbox/issues/5489) - Add filters for type and width to racks list
+* [#5496](https://github.com/netbox-community/netbox/issues/5496) - Add form field to filter rack reservation by user
+
+### Bug Fixes
+
+* [#5254](https://github.com/netbox-community/netbox/issues/5254) - Require plugin authors to set zip_safe=False
+* [#5468](https://github.com/netbox-community/netbox/issues/5468) - Fix unlocking secrets from device/VM view
+* [#5473](https://github.com/netbox-community/netbox/issues/5473) - Fix alignment of rack names in elevations list
+* [#5478](https://github.com/netbox-community/netbox/issues/5478) - Fix display of route target description
+* [#5484](https://github.com/netbox-community/netbox/issues/5484) - Fix "tagged" indication in VLAN members list
+* [#5486](https://github.com/netbox-community/netbox/issues/5486) - Optimize retrieval of config context data for device/VM REST API views
+* [#5487](https://github.com/netbox-community/netbox/issues/5487) - Support filtering rack type/width with multiple values
+* [#5488](https://github.com/netbox-community/netbox/issues/5488) - Fix caching error when viewing cable trace after toggling cable status
+* [#5498](https://github.com/netbox-community/netbox/issues/5498) - Fix filtering rack reservations by username
+* [#5499](https://github.com/netbox-community/netbox/issues/5499) - Fix filtering of displayed device/VM interfaces by regex
+* [#5507](https://github.com/netbox-community/netbox/issues/5507) - Fix custom field data assignment via UI for IP addresses, secrets
+* [#5510](https://github.com/netbox-community/netbox/issues/5510) - Fix filtering by boolean custom fields
+
+---
+
+## v2.10.1 (2020-12-15)
+
+### Bug Fixes
+
+* [#5444](https://github.com/netbox-community/netbox/issues/5444) - Don't force overwriting of boolean fields when bulk editing interfaces
+* [#5450](https://github.com/netbox-community/netbox/issues/5450) - API serializer foreign count fields do not have a default value
+* [#5453](https://github.com/netbox-community/netbox/issues/5453) - Correct change log representation when creating a cable
+* [#5458](https://github.com/netbox-community/netbox/issues/5458) - Creating a component template throws an exception
+* [#5461](https://github.com/netbox-community/netbox/issues/5461) - Rack Elevations throw reverse match exception
+* [#5463](https://github.com/netbox-community/netbox/issues/5463) - Back-to-back Circuit Termination throws AttributeError exception
+* [#5465](https://github.com/netbox-community/netbox/issues/5465) - Correct return URL when disconnecting a cable from a device
+* [#5466](https://github.com/netbox-community/netbox/issues/5466) - Fix validation for required custom fields
+* [#5470](https://github.com/netbox-community/netbox/issues/5470) - Fix exception when making `OPTIONS` request for a REST API list endpoint
+
+---
+
 ## v2.10.0 (2020-12-14)
 
 **NOTE:** This release completely removes support for embedded graphs.

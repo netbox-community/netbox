@@ -79,7 +79,7 @@ BANNER_BOTTOM = ''
 # Text to include on the login page above the login form. HTML is allowed.
 BANNER_LOGIN = ''
 
-# Base URL path if accessing NetBox within a directory. For example, if installed at http://example.com/netbox/, set:
+# Base URL path if accessing NetBox within a directory. For example, if installed at https://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
@@ -154,6 +154,9 @@ LOGIN_TIMEOUT = None
 # Setting this to True will display a "maintenance mode" banner at the top of every page.
 MAINTENANCE_MODE = False
 
+# The URL to use when mapping physical addresses or GPS coordinates
+MAPS_URL = 'https://maps.google.com/?q='
+
 # An API consumer can request an arbitrary number of objects =by appending the "limit" parameter to the URL (e.g.
 # "?limit=1000"). This setting defines the maximum limit. Setting it to 0 or None will allow an API consumer to request
 # all objects by specifying "?limit=0".
@@ -183,7 +186,7 @@ NAPALM_PASSWORD = ''
 # NAPALM timeout (in seconds). (Default: 30)
 NAPALM_TIMEOUT = 30
 
-# NAPALM optional arguments (see http://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
+# NAPALM optional arguments (see https://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
 # be provided as a dictionary.
 NAPALM_ARGS = {}
 

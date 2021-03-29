@@ -44,7 +44,7 @@ This defines custom content to be displayed on the login page above the login fo
 
 Default: None
 
-The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at http://example.com/netbox/, set:
+The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at https://example.com/netbox/, set:
 
 ```python
 BASE_PATH = 'netbox/'
@@ -56,7 +56,7 @@ BASE_PATH = 'netbox/'
 
 Default: 900
 
-The number of seconds to cache entries will be retained before expiring.
+The number of seconds that cache entries will be retained before expiring.
 
 ---
 
@@ -281,6 +281,14 @@ Setting this to True will display a "maintenance mode" banner at the top of ever
 
 ---
 
+## MAPS_URL
+
+Default: `https://maps.google.com/?q=` (Google Maps)
+
+This specifies the URL to use when presenting a map of a physical location by street address or GPS coordinates. The URL must accept either a free-form street address or a comma-separated pair of numeric coordinates appended to it.
+
+---
+
 ## MAX_PAGE_SIZE
 
 Default: 1000
@@ -301,7 +309,7 @@ The file path to the location where media files (such as image attachments) are 
 
 Default: False
 
-Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../../additional-features/prometheus-metrics/) documentation for more details.
+Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics.md) documentation for more details.
 
 ---
 
@@ -318,7 +326,7 @@ NetBox will use these credentials when authenticating to remote devices via the 
 
 ## NAPALM_ARGS
 
-A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](http://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
+A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](https://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
 
 ```python
 NAPALM_ARGS = {
