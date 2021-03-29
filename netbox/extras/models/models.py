@@ -413,7 +413,8 @@ class JournalEntry(BigIDModel):
         verbose_name_plural = 'journal entries'
 
     def __str__(self):
-        return f"{self.created} - {self.get_kind_display()}"
+        time_created = self.created.replace(microsecond=0)
+        return f"{time_created} - {self.get_kind_display()}"
 
     def get_kind_class(self):
         return JournalEntryKindChoices.CSS_CLASSES.get(self.kind)
