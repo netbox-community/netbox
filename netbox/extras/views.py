@@ -39,8 +39,14 @@ class TagView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         tagged_items = TaggedItem.objects.filter(tag=instance)
+        taggeditem_table = tables.TaggedItemTable(
+            data=tagged_items,
+            orderable=False
+        )
+        paginate_table(taggeditem_table, request)
 
         return {
+            'taggeditem_table': taggeditem_table,
             'tagged_item_count': tagged_items.count(),
         }
 

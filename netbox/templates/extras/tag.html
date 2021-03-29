@@ -32,7 +32,7 @@
         <tr>
           <td>Tagged Items</td>
           <td>
-            {{ tagged_item_count }}
+            {{ taggeditem_table.rows|length }}
           </td>
         </tr>
       </table>
@@ -45,7 +45,14 @@
 </div>
 <div class="row">
 	<div class="col-md-12">
-      {% plugin_full_width_page object %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Device Types</strong>
+      </div>
+      {% include 'inc/table.html' with table=taggeditem_table %}
+    </div>
+    {% include 'inc/paginator.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
+    {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}

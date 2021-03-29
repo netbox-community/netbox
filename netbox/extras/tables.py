@@ -6,14 +6,6 @@ from utilities.tables import (
 )
 from .models import ConfigContext, JournalEntry, ObjectChange, Tag, TaggedItem
 
-TAGGED_ITEM = """
-{% if value.get_absolute_url %}
-    <a href="{{ value.get_absolute_url }}">{{ value }}</a>
-{% else %}
-    {{ value }}
-{% endif %}
-"""
-
 CONFIGCONTEXT_ACTIONS = """
 {% if perms.extras.change_configcontext %}
     <a href="{% url 'extras:configcontext_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="mdi mdi-pencil" aria-hidden="true"></i></a>
@@ -50,18 +42,18 @@ class TagTable(BaseTable):
 
 
 class TaggedItemTable(BaseTable):
-    content_object = tables.TemplateColumn(
-        template_code=TAGGED_ITEM,
+    content_type = ContentTypeColumn(
+        verbose_name='Type'
+    )
+    content_object = tables.Column(
+        linkify=True,
         orderable=False,
         verbose_name='Object'
-    )
-    content_type = tables.Column(
-        verbose_name='Type'
     )
 
     class Meta(BaseTable.Meta):
         model = TaggedItem
-        fields = ('content_object', 'content_type')
+        fields = ('content_type', 'content_object')
 
 
 class ConfigContextTable(BaseTable):
