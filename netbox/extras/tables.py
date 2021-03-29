@@ -134,6 +134,9 @@ class JournalEntryTable(ObjectJournalTable):
         orderable=False,
         verbose_name='Object'
     )
+    comments = tables.TemplateColumn(
+        template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
+    )
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
