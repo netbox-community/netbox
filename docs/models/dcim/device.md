@@ -8,7 +8,7 @@ A device is said to be full-depth if its installation on one rack face prevents 
 
 Each device must be instantiated from a pre-created device type, and its default components (console ports, power ports, interfaces, etc.) will be created automatically. (The device type associated with a device may be changed after its creation, however its components will not be updated retroactively.)
 
-Each device must be assigned a site, device role, and operational status, and may optionally be assigned to a specific location and/or within a site. A platform, serial number, and asset tag may optionally be assigned to each device.
+Each device must be assigned a site, device role, and operational status, and may optionally be assigned to a specific location and/or rack within a site. A platform, serial number, and asset tag may optionally be assigned to each device.
 
 Device names must be unique within a site, unless the device has been assigned to a tenant. Devices may also be unnamed.
 
