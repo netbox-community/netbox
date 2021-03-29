@@ -44,6 +44,14 @@ __all__ = (
 )
 
 
+def get_cabletermination_row_class(record):
+    if record.mark_connected:
+        return 'success'
+    elif record.cable:
+        return record.cable.get_status_class()
+    return ''
+
+
 #
 # Device roles
 #
@@ -287,7 +295,7 @@ class DeviceConsolePortTable(ConsolePortTable):
         )
         default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
@@ -325,7 +333,7 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
         )
         default_columns = ('pk', 'name', 'label', 'type', 'speed', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
@@ -366,7 +374,7 @@ class DevicePowerPortTable(PowerPortTable):
             'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
@@ -408,7 +416,7 @@ class DevicePowerOutletTable(PowerOutletTable):
             'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection', 'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
@@ -476,7 +484,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'cable', 'connection', 'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else '',
+            'class': get_cabletermination_row_class,
             'data-name': lambda record: record.name,
         }
 
@@ -524,7 +532,7 @@ class DeviceFrontPortTable(FrontPortTable):
             'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
@@ -564,7 +572,7 @@ class DeviceRearPortTable(RearPortTable):
             'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'actions',
         )
         row_attrs = {
-            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+            'class': get_cabletermination_row_class
         }
 
 
