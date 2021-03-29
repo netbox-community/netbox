@@ -3,15 +3,15 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import Func, F, Value
 from django.db.models.fields.related import RelatedField
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django_tables2 import RequestConfig
 from django_tables2.data import TableQuerysetData
+from django_tables2.utils import Accessor
 
-from .models import CustomField
+from extras.models import CustomField
 from .paginator import EnhancedPaginator, get_paginate_count
 
 
@@ -42,21 +42,14 @@ class BaseTable(tables.Table):
     def __init__(self, *args, user=None, **kwargs):
         # Add custom field columns
         obj_type = ContentType.objects.get_for_model(self._meta.model)
-        custom_fields = {}
-
         for cf in CustomField.objects.filter(content_types=obj_type):
-            name = 'cf_{}'.format(cf.name)
-            label = cf.label if cf.label != '' else cf.name
-            self.base_columns[name] = CustomFieldColumn(verbose_name=label)
-            custom_fields[name] = cf
-        self._meta.fields += tuple(custom_fields.keys())
+            self.base_columns[f'cf_{cf.name}'] = CustomFieldColumn(cf)
 
-        # Init table
         super().__init__(*args, **kwargs)
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
-            self.empty_text = 'No {} found'.format(self._meta.model._meta.verbose_name_plural)
+            self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
 
         # Hide non-default columns
         default_columns = getattr(self.Meta, 'default_columns', list())
@@ -89,11 +82,6 @@ class BaseTable(tables.Table):
 
         # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
         if isinstance(self.data, TableQuerysetData):
-            # Extract custom field values
-            cf_fields = {}
-            for key, cf in custom_fields.items():
-                cf_fields[key] = Func(F('custom_field_data'), Value(cf.name), function='jsonb_extract_path_text')
-            self.data.data = self.data.data.annotate(**cf_fields)
 
             prefetch_fields = []
             for column in self.columns:
@@ -342,22 +330,18 @@ class CustomFieldColumn(tables.Column):
     """
     Display custom fields in the appropriate format.
     """
-    def render(self, record, bound_column, value):
-        if isinstance(value, list):
-            if len(value):
-                template = ''
-                for v in value:
-                    template += f'<span class="label label-default">{v}</span> '
-            else:
-                template = '<span class="text-muted">&mdash;</span>'
-        elif value:
-            template = value
-        else:
-            return self.default
-        return mark_safe(template)
+    def __init__(self, customfield, *args, **kwargs):
+        self.customfield = customfield
+        kwargs['accessor'] = Accessor(f'custom_field_data__{customfield.name}')
+        if 'verbose_name' not in kwargs:
+            kwargs['verbose_name'] = customfield.label or customfield.name
 
-    def value(self, value):
-        return value
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        if isinstance(value, list):
+            return ', '.join(v for v in value)
+        return value or self.default
 
 
 class MPTTColumn(tables.TemplateColumn):
@@ -406,4 +390,3 @@ def paginate_table(table, request):
         'per_page': get_paginate_count(request)
     }
     RequestConfig(request, paginate).configure(table)
-
