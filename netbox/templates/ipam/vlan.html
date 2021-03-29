@@ -7,10 +7,10 @@
 {% block breadcrumbs %}
   <li><a href="{% url 'ipam:vlan_list' %}">VLANs</a></li>
   {% if object.site %}
-    <li><a href="{% url 'ipam:vlan_list' %}?site={{ object.site.slug }}">{{ object.site }}</a></li>
+    <li><a href="{% url 'ipam:vlan_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
   {% endif %}
   {% if object.group %}
-    <li><a href="{% url 'ipam:vlan_list' %}?group={{ object.group.slug }}">{{ object.group }}</a></li>
+    <li><a href="{% url 'ipam:vlan_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a></li>
   {% endif %}
   <li>{{ object }}</li>
 {% endblock %}
@@ -96,7 +96,7 @@
                         <td>Role</td>
                         <td>
                             {% if object.role %}
-                                <a href="{% url 'ipam:vlan_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
+                                <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}

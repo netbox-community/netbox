@@ -8,7 +8,7 @@
 
 {% block breadcrumbs %}
   <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
-  <li><a href="{% url 'dcim:rack_list' %}?site={{ object.site.slug }}">{{ object.site }}</a></li>
+  <li><a href="{% url 'dcim:rack_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
   {% if object.group %}
     {% for group in object.group.get_ancestors %}
       <li><a href="{{ group.get_absolute_url }}">{{ group }}</a></li>

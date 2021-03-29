@@ -24,8 +24,18 @@
           <td>{{ object.description|placeholder }}</td>
         </tr>
         <tr>
+          <td>Manufacturer</td>
+          <td>
+            {% if object.manufacturer %}
+              <a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a>
+            {% else %}
+              <span class="text-muted">None</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
           <td>NAPALM Driver</td>
-          <td>{{ object.napalm_driver }}</td>
+          <td>{{ object.napalm_driver|placeholder }}</td>
         </tr>
         <tr>
           <td>NAPALM Arguments</td>

@@ -27,7 +27,7 @@
                     <td>Role</td>
                     <td>
                         {% if object.role %}
-                            <a href="{% url 'virtualization:virtualmachine_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
+                            <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -37,7 +37,7 @@
                     <td>Platform</td>
                     <td>
                         {% if object.platform %}
-                            <a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ object.platform.slug }}">{{ object.platform }}</a>
+                            <a href="{{ object.platform.get_absolute_url }}">{{ object.platform }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

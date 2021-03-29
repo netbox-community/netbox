@@ -180,27 +180,27 @@
             </div>
             <div class="row panel-body">
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'dcim:rack_list' %}?site={{ object.slug }}" class="btn {% if stats.rack_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.rack_count }}</a></h2>
+                    <h2><a href="{% url 'dcim:rack_list' %}?site_id={{ object.pk }}" class="btn {% if stats.rack_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.rack_count }}</a></h2>
                     <p>Racks</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'dcim:device_list' %}?site={{ object.slug }}" class="btn {% if stats.device_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.device_count }}</a></h2>
+                    <h2><a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}" class="btn {% if stats.device_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.device_count }}</a></h2>
                     <p>Devices</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'ipam:prefix_list' %}?site={{ object.slug }}" class="btn {% if stats.prefix_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.prefix_count }}</a></h2>
+                    <h2><a href="{% url 'ipam:prefix_list' %}?site_id={{ object.pk }}" class="btn {% if stats.prefix_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.prefix_count }}</a></h2>
                     <p>Prefixes</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'ipam:vlan_list' %}?site={{ object.slug }}" class="btn {% if stats.vlan_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.vlan_count }}</a></h2>
+                    <h2><a href="{% url 'ipam:vlan_list' %}?site_id={{ object.pk }}" class="btn {% if stats.vlan_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.vlan_count }}</a></h2>
                     <p>VLANs</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'circuits:circuit_list' %}?site={{ object.slug }}" class="btn {% if stats.circuit_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.circuit_count }}</a></h2>
+                    <h2><a href="{% url 'circuits:circuit_list' %}?site_id={{ object.pk }}" class="btn {% if stats.circuit_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.circuit_count }}</a></h2>
                     <p>Circuits</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'virtualization:virtualmachine_list' %}?site={{ object.slug }}" class="btn {% if stats.vm_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.vm_count }}</a></h2>
+                    <h2><a href="{% url 'virtualization:virtualmachine_list' %}?site_id={{ object.pk }}" class="btn {% if stats.vm_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.vm_count }}</a></h2>
                     <p>Virtual Machines</p>
                 </div>
             </div>
@@ -227,7 +227,7 @@
                     <td><i class="mdi mdi-folder-open"></i> All racks</td>
                     <td>{{ stats.rack_count }}</td>
                     <td class="text-right noprint">
-                        <a href="{% url 'dcim:rack_elevation_list' %}?site={{ object.slug }}" class="btn btn-xs btn-primary" title="View elevations">
+                        <a href="{% url 'dcim:rack_elevation_list' %}?site_id={{ object.pk }}" class="btn btn-xs btn-primary" title="View elevations">
                             <i class="mdi mdi-server"></i>
                         </a>
                     </td>

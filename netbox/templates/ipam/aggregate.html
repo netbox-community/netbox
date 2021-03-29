@@ -6,7 +6,7 @@
 
 {% block breadcrumbs %}
   <li><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
-  <li><a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a></li>
+  <li><a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
   <li>{{ object }}</li>
 {% endblock %}
 
@@ -30,7 +30,7 @@
                 <tr>
                     <td>RIR</td>
                     <td>
-                        <a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
+                        <a href="{{ object.rir.get_absolute_url }}">{{ object.rir }}</a>
                     </td>
                 </tr>
                 <tr>
