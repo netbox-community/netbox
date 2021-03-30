@@ -93,6 +93,7 @@ A new Cloud model has been introduced to represent the boundary of a network tha
 * [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add support for multiple-selection custom fields
 * [#5608](https://github.com/netbox-community/netbox/issues/5608) - Add REST API endpoint for custom links
 * [#5610](https://github.com/netbox-community/netbox/issues/5610) - Add REST API endpoint for webhooks
+* [#5830](https://github.com/netbox-community/netbox/issues/5830) - Add `as_attachment` to ExportTemplate to control download behavior
 * [#5891](https://github.com/netbox-community/netbox/issues/5891) - Add `display` field to all REST API serializers
 * [#5894](https://github.com/netbox-community/netbox/issues/5894) - Use primary keys when filtering object lists by related objects in the UI
 * [#5895](https://github.com/netbox-community/netbox/issues/5895) - Rename RackGroup to Location
@@ -149,6 +150,8 @@ A new Cloud model has been introduced to represent the boundary of a network tha
   * Added new custom field type: `multi-select`
 * extras.CustomLink
   * Added the `/api/extras/custom-links/` endpoint
+* extras.ExportTemplate
+  * Added the `as_attachment` boolean field
 * extras.ObjectChange
   * Added the `prechange_data` field
   * Renamed `object_data` to `postchange_data`
