@@ -86,6 +86,35 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
         Region.objects.create(name='Region 3', slug='region-3')
 
 
+class SiteGroupTest(APIViewTestCases.APIViewTestCase):
+    model = SiteGroup
+    brief_fields = ['_depth', 'display', 'id', 'name', 'site_count', 'slug', 'url']
+    create_data = [
+        {
+            'name': 'Site Group 4',
+            'slug': 'site-group-4',
+        },
+        {
+            'name': 'Site Group 5',
+            'slug': 'site-group-5',
+        },
+        {
+            'name': 'Site Group 6',
+            'slug': 'site-group-6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
+        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3')
+
+
 class SiteTest(APIViewTestCases.APIViewTestCase):
     model = Site
     brief_fields = ['display', 'id', 'name', 'slug', 'url']
