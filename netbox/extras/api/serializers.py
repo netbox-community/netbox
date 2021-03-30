@@ -116,7 +116,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         model = ExportTemplate
         fields = [
             'id', 'url', 'display', 'content_type', 'name', 'description', 'template_code', 'mime_type',
-            'file_extension',
+            'file_extension', 'as_attachment',
         ]
 
 
