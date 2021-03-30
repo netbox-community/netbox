@@ -251,6 +251,10 @@ class ExportTemplate(BigIDModel):
         blank=True,
         help_text='Extension to append to the rendered filename'
     )
+    as_attachment = models.BooleanField(
+        default=True,
+        help_text="Present file as attachment"
+    )
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -298,7 +302,9 @@ class ExportTemplate(BigIDModel):
             queryset.model._meta.verbose_name_plural,
             '.{}'.format(self.file_extension) if self.file_extension else ''
         )
-        response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+
+        if self.as_attachment:
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
 
         return response
 
