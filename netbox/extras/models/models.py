@@ -253,7 +253,7 @@ class ExportTemplate(BigIDModel):
     )
     as_attachment = models.BooleanField(
         default=True,
-        help_text="Present file as attachment"
+        help_text="Download file as attachment"
     )
 
     objects = RestrictedQuerySet.as_manager()
