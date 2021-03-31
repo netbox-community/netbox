@@ -1,10 +1,8 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
 
 from dcim.models import PowerFeed, PowerPanel
 from utilities.tables import BaseTable, ChoiceFieldColumn, LinkedCountColumn, TagColumn, ToggleColumn
 from .devices import CableTerminationTable
-from .template_code import POWERFEED_CABLE, POWERFEED_CABLETERMINATION
 
 __all__ = (
     'PowerFeedTable',
@@ -68,7 +66,8 @@ class PowerFeedTable(CableTerminationTable):
         model = PowerFeed
         fields = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'mark_connected', 'cable', 'cable_peer', 'connection', 'available_power', 'tags',
+            'max_utilization', 'mark_connected', 'cable', 'cable_color', 'cable_peer', 'connection', 'available_power',
+            'tags',
         )
         default_columns = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',

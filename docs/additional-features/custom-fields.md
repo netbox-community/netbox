@@ -38,9 +38,13 @@ NetBox supports limited custom validation for custom field values. Following are
 
 Each custom selection field must have at least two choices. These are specified as a comma-separated list. Choices appear in forms in the order they are listed. Note that choice values are saved exactly as they appear, so it's best to avoid superfluous punctuation or symbols where possible.
 
-If a default value is specified for a selection field, it must exactly match one of the provided choices.
+If a default value is specified for a selection field, it must exactly match one of the provided choices. The value of a multiple selection field will always return a list, even if only one value is selected.
 
-The value of a multiple selection field will always return a list, even if only one value is selected.
+## Custom Fields in Templates
+
+Several features within NetBox, such as export templates and webhooks, utilize Jinja2 templating. For convenience, objects which support custom field assignment expose custom field data through the `cf` property. This is a bit cleaner than accessing custom field data through the actual field (`custom_field_data`).
+
+For example, a custom field named `foo123` on the Site model is accessible on an instance as `{{ site.cf.foo123 }}`.
 
 ## Custom Fields and the REST API
 

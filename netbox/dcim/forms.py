@@ -1054,7 +1054,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         nullable_fields = []
 
 
-class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
+class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = RackReservation
     field_order = ['q', 'region_id', 'site_id', 'location_id', 'user_id', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
@@ -4319,7 +4319,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFo
             })
 
 
-class CableFilterForm(BootstrapMixin, forms.Form):
+class CableFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Cable
     q = forms.CharField(
         required=False,

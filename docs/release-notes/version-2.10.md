@@ -1,5 +1,21 @@
 # NetBox v2.10
 
+## v2.10.9 (FUTURE)
+
+### Enhancements
+
+* [#5526](https://github.com/netbox-community/netbox/issues/5526) - Add MAC address search field to VM interfaces list
+* [#5756](https://github.com/netbox-community/netbox/issues/5756) - Omit child devices from non-racked devices list under rack view
+* [#5840](https://github.com/netbox-community/netbox/issues/5840) - Add column to cable termination objects to display cable color
+* [#6054](https://github.com/netbox-community/netbox/issues/6054) - Display NAPALM-enabled device tabs only when relevant
+
+### Bug Fixes
+
+* [#5805](https://github.com/netbox-community/netbox/issues/5805) - Fix missing custom field filters for cables, rack reservations
+* [#6073](https://github.com/netbox-community/netbox/issues/6073) - Permit users to manage their own REST API tokens without needing explicit permission
+
+---
+
 ## v2.10.8 (2021-03-26)
 
 ### Bug Fixes
