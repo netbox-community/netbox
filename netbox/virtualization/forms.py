@@ -640,8 +640,8 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
 
         # Limit VLAN choices by virtual machine
         vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
-        self.fields['untagged_vlan'].widget.add_query_param('available_on_vm', vm_id)
-        self.fields['tagged_vlans'].widget.add_query_param('available_on_vm', vm_id)
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
 class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
@@ -692,8 +692,8 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
 
         # Limit VLAN choices by virtual machine
         vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
-        self.fields['untagged_vlan'].widget.add_query_param('available_on_vm', vm_id)
-        self.fields['tagged_vlans'].widget.add_query_param('available_on_vm', vm_id)
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
 class VMInterfaceCSVForm(CSVModelForm):
@@ -768,8 +768,8 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 
         # Limit VLAN choices by virtual machine
         vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
-        self.fields['untagged_vlan'].widget.add_query_param('available_on_vm', vm_id)
-        self.fields['tagged_vlans'].widget.add_query_param('available_on_vm', vm_id)
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
 class VMInterfaceBulkRenameForm(BulkRenameForm):

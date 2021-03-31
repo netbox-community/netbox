@@ -60,6 +60,7 @@ class VLANQuerySet(RestrictedQuerySet):
                 scope_id=device.rack_id
             )
 
+        # Return all applicable VLANs
         return self.filter(
             Q(group__in=VLANGroup.objects.filter(q)) |
             Q(site=device.site) |
@@ -98,9 +99,14 @@ class VLANQuerySet(RestrictedQuerySet):
             scope_type=ContentType.objects.get_by_natural_key('virtualization', 'cluster'),
             scope_id=vm.cluster_id
         )
+        vlan_groups = VLANGroup.objects.filter(q)
 
-        return self.filter(
-            Q(group__in=VLANGroup.objects.filter(q)) |
-            Q(site=vm.cluster.site) |
+        # Return all applicable VLANs
+        q = (
+            Q(group__in=vlan_groups) |
             Q(group__isnull=True, site__isnull=True)  # Global VLANs
         )
+        if vm.cluster.site:
+            q |= Q(site=vm.cluster.site)
+
+        return self.filter(q)
