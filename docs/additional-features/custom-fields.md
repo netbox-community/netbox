@@ -39,6 +39,12 @@ Each custom selection field must have at least two choices. These are specified 
 
 If a default value is specified for a selection field, it must exactly match one of the provided choices.
 
+## Custom Fields in Templates
+
+Several features within NetBox, such as export templates and webhooks, utilize Jinja2 templating. For convenience, objects which support custom field assignment expose custom field data through the `cf` property. This is a bit cleaner than accessing custom field data through the actual field (`custom_field_data`).
+
+For example, a custom field named `foo123` on the Site model is accessible on an instance as `{{ site.cf.foo123 }}`.
+
 ## Custom Fields and the REST API
 
 When retrieving an object via the REST API, all of its custom data will be included within the `custom_fields` attribute. For example, below is the partial output of a site with two custom fields defined:
