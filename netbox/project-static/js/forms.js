@@ -160,9 +160,6 @@ $(document).ready(function() {
                     offset: offset,
                 };
 
-                // Allow for controlling the brief setting from within APISelect
-                parameters.brief = ( $(element).is('[data-full]') ? undefined : true );
-
                 // Attach any extra query parameters
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-query-param-")){
