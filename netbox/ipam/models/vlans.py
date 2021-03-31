@@ -9,6 +9,7 @@ from dcim.models import Interface
 from extras.utils import extras_features
 from ipam.choices import *
 from ipam.constants import *
+from ipam.querysets import VLANQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from virtualization.models import VMInterface
@@ -156,7 +157,7 @@ class VLAN(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = VLANQuerySet.as_manager()
 
     csv_headers = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
     clone_fields = [

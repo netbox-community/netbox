@@ -3077,20 +3077,12 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Untagged VLAN',
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        label='Untagged VLAN'
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Tagged VLANs',
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        label='Tagged VLANs'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -3124,9 +3116,9 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         self.fields['parent'].widget.add_query_param('device_id', device.pk)
         self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
-        # Add current site to VLANs query params
-        self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
-        self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
+        # Limit VLAN choices by device
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device.pk)
 
 
 class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
@@ -3177,19 +3169,11 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     field_order = (
         'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
@@ -3199,12 +3183,10 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Add current site to VLANs query params
-        device = Device.objects.get(
-            pk=self.initial.get('device') or self.data.get('device')
-        )
-        self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
-        self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
+        # Limit VLAN choices by device
+        device_id = self.initial.get('device') or self.data.get('device')
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device_id)
 
 
 class InterfaceBulkCreateForm(
@@ -3264,19 +3246,11 @@ class InterfaceBulkEditForm(
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
 
     class Meta:
@@ -3293,9 +3267,9 @@ class InterfaceBulkEditForm(
             self.fields['parent'].widget.add_query_param('device_id', device.pk)
             self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
-            # Add current site to VLANs query params
-            self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
-            self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
+            # Limit VLAN choices by device
+            self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)
+            self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device.pk)
 
         else:
             # See #4523
