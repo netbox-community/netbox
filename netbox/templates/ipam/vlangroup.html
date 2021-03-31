@@ -59,7 +59,7 @@
       {% include 'inc/table.html' with table=vlans_table %}
       {% if perms.ipam.add_vlan %}
         <div class="panel-footer text-right noprint">
-          <a href="{% url 'ipam:vlan_add' %}?role={{ object.pk }}" class="btn btn-xs btn-primary">
+          <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-xs btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
           </a>
         </div>
