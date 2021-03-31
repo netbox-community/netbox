@@ -820,11 +820,92 @@ class VLANTestCase(TestCase):
             site_group.save()
 
         sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=site_groups[2]),
+            Site(name='Site 4', slug='site-4', region=regions[0], group=site_groups[0]),
+            Site(name='Site 5', slug='site-5', region=regions[1], group=site_groups[1]),
+            Site(name='Site 6', slug='site-6', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0], location=locations[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        devices = (
+            Device(name='Device 1', site=sites[0], location=locations[0], rack=racks[0], device_type=device_type, device_role=device_role),
+            Device(name='Device 2', site=sites[1], location=locations[1], rack=racks[1], device_type=device_type, device_role=device_role),
+            Device(name='Device 3', site=sites[2], location=locations[2], rack=racks[2], device_type=device_type, device_role=device_role),
+        )
+        Device.objects.bulk_create(devices)
+
+        cluster_groups = (
+            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
+            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
+            ClusterGroup(name='Cluster Group 3', slug='cluster-group-3'),
+        )
+        ClusterGroup.objects.bulk_create(cluster_groups)
+
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        clusters = (
+            Cluster(name='Cluster 1', type=cluster_type, group=cluster_groups[0], site=sites[0]),
+            Cluster(name='Cluster 2', type=cluster_type, group=cluster_groups[1], site=sites[1]),
+            Cluster(name='Cluster 3', type=cluster_type, group=cluster_groups[2], site=sites[2]),
+        )
+        Cluster.objects.bulk_create(clusters)
+
+        virtual_machines = (
+            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0]),
+            VirtualMachine(name='Virtual Machine 2', cluster=clusters[1]),
+            VirtualMachine(name='Virtual Machine 3', cluster=clusters[2]),
+        )
+        VirtualMachine.objects.bulk_create(virtual_machines)
+
+        groups = (
+            # Scoped VLAN groups
+            VLANGroup(name='Region 1', slug='region-1', scope=regions[0]),
+            VLANGroup(name='Region 2', slug='region-2', scope=regions[1]),
+            VLANGroup(name='Region 3', slug='region-3', scope=regions[2]),
+            VLANGroup(name='Site Group 1', slug='site-group-1', scope=site_groups[0]),
+            VLANGroup(name='Site Group 2', slug='site-group-2', scope=site_groups[1]),
+            VLANGroup(name='Site Group 3', slug='site-group-3', scope=site_groups[2]),
+            VLANGroup(name='Site 1', slug='site-1', scope=sites[0]),
+            VLANGroup(name='Site 2', slug='site-2', scope=sites[1]),
+            VLANGroup(name='Site 3', slug='site-3', scope=sites[2]),
+            VLANGroup(name='Location 1', slug='location-1', scope=locations[0]),
+            VLANGroup(name='Location 2', slug='location-2', scope=locations[1]),
+            VLANGroup(name='Location 3', slug='location-3', scope=locations[2]),
+            VLANGroup(name='Rack 1', slug='rack-1', scope=racks[0]),
+            VLANGroup(name='Rack 2', slug='rack-2', scope=racks[1]),
+            VLANGroup(name='Rack 3', slug='rack-3', scope=racks[2]),
+            VLANGroup(name='Cluster Group 1', slug='cluster-group-1', scope=cluster_groups[0]),
+            VLANGroup(name='Cluster Group 2', slug='cluster-group-2', scope=cluster_groups[1]),
+            VLANGroup(name='Cluster Group 3', slug='cluster-group-3', scope=cluster_groups[2]),
+            VLANGroup(name='Cluster 1', slug='cluster-1', scope=clusters[0]),
+            VLANGroup(name='Cluster 2', slug='cluster-2', scope=clusters[1]),
+            VLANGroup(name='Cluster 3', slug='cluster-3', scope=clusters[2]),
+
+            # General purpose VLAN groups
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1'),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2'),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3'),
+        )
+        VLANGroup.objects.bulk_create(groups)
 
         roles = (
             Role(name='Role 1', slug='role-1'),
@@ -832,13 +913,6 @@ class VLANTestCase(TestCase):
             Role(name='Role 3', slug='role-3'),
         )
         Role.objects.bulk_create(roles)
-
-        groups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=sites[0]),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sites[1]),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=None),
-        )
-        VLANGroup.objects.bulk_create(groups)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -856,12 +930,38 @@ class VLANTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         vlans = (
-            VLAN(vid=101, name='VLAN 101', site=sites[0], group=groups[0], role=roles[0], tenant=tenants[0], status=VLANStatusChoices.STATUS_ACTIVE),
-            VLAN(vid=102, name='VLAN 102', site=sites[0], group=groups[0], role=roles[0], tenant=tenants[0], status=VLANStatusChoices.STATUS_ACTIVE),
-            VLAN(vid=201, name='VLAN 201', site=sites[1], group=groups[1], role=roles[1], tenant=tenants[1], status=VLANStatusChoices.STATUS_DEPRECATED),
-            VLAN(vid=202, name='VLAN 202', site=sites[1], group=groups[1], role=roles[1], tenant=tenants[1], status=VLANStatusChoices.STATUS_DEPRECATED),
-            VLAN(vid=301, name='VLAN 301', site=sites[2], group=groups[2], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
-            VLAN(vid=302, name='VLAN 302', site=sites[2], group=groups[2], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
+            # Create one VLAN per VLANGroup
+            VLAN(vid=1, name='Region 1', group=groups[0]),
+            VLAN(vid=2, name='Region 2', group=groups[1]),
+            VLAN(vid=3, name='Region 3', group=groups[2]),
+            VLAN(vid=4, name='Site Group 1', group=groups[3]),
+            VLAN(vid=5, name='Site Group 2', group=groups[4]),
+            VLAN(vid=6, name='Site Group 3', group=groups[5]),
+            VLAN(vid=7, name='Site 1', group=groups[6]),
+            VLAN(vid=8, name='Site 2', group=groups[7]),
+            VLAN(vid=9, name='Site 3', group=groups[8]),
+            VLAN(vid=10, name='Location 1', group=groups[9]),
+            VLAN(vid=11, name='Location 2', group=groups[10]),
+            VLAN(vid=12, name='Location 3', group=groups[11]),
+            VLAN(vid=13, name='Rack 1', group=groups[12]),
+            VLAN(vid=14, name='Rack 2', group=groups[13]),
+            VLAN(vid=15, name='Rack 3', group=groups[14]),
+            VLAN(vid=16, name='Cluster Group 1', group=groups[15]),
+            VLAN(vid=17, name='Cluster Group 2', group=groups[16]),
+            VLAN(vid=18, name='Cluster Group 3', group=groups[17]),
+            VLAN(vid=19, name='Cluster 1', group=groups[18]),
+            VLAN(vid=20, name='Cluster 2', group=groups[19]),
+            VLAN(vid=21, name='Cluster 3', group=groups[20]),
+
+            VLAN(vid=101, name='VLAN 101', site=sites[3], group=groups[21], role=roles[0], tenant=tenants[0], status=VLANStatusChoices.STATUS_ACTIVE),
+            VLAN(vid=102, name='VLAN 102', site=sites[3], group=groups[21], role=roles[0], tenant=tenants[0], status=VLANStatusChoices.STATUS_ACTIVE),
+            VLAN(vid=201, name='VLAN 201', site=sites[4], group=groups[22], role=roles[1], tenant=tenants[1], status=VLANStatusChoices.STATUS_DEPRECATED),
+            VLAN(vid=202, name='VLAN 202', site=sites[4], group=groups[22], role=roles[1], tenant=tenants[1], status=VLANStatusChoices.STATUS_DEPRECATED),
+            VLAN(vid=301, name='VLAN 301', site=sites[5], group=groups[23], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
+            VLAN(vid=302, name='VLAN 302', site=sites[5], group=groups[23], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
+
+            # Create one globally available VLAN
+            VLAN(vid=1000, name='Global VLAN'),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -873,7 +973,7 @@ class VLANTestCase(TestCase):
         params = {'name': ['VLAN 101', 'VLAN 102']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_rd(self):
+    def test_vid(self):
         params = {'vid': ['101', '201', '301']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
@@ -892,14 +992,14 @@ class VLANTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
-        sites = Site.objects.all()[:2]
-        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        sites = Site.objects.all()
+        params = {'site_id': [sites[3].pk, sites[4].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'site': [sites[0].slug, sites[1].slug]}
+        params = {'site': [sites[3].slug, sites[4].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_group(self):
-        groups = VLANGroup.objects.all()[:2]
+        groups = VLANGroup.objects.filter(name__startswith='VLAN Group')[:2]
         params = {'group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'group': [groups[0].slug, groups[1].slug]}
@@ -913,7 +1013,7 @@ class VLANTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
-        params = {'status': [VLANStatusChoices.STATUS_ACTIVE, VLANStatusChoices.STATUS_DEPRECATED]}
+        params = {'status': [VLANStatusChoices.STATUS_DEPRECATED, VLANStatusChoices.STATUS_RESERVED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant(self):
@@ -929,6 +1029,16 @@ class VLANTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_available_on_device(self):
+        device_id = Device.objects.first().pk
+        params = {'available_on_device': device_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
+
+    def test_available_on_virtualmachine(self):
+        vm_id = VirtualMachine.objects.first().pk
+        params = {'available_on_virtualmachine': vm_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
 
 
 class ServiceTestCase(TestCase):
