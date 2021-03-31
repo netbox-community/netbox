@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.9 (FUTURE)
+
+### Bug Fixes
+
+* [#6073](https://github.com/netbox-community/netbox/issues/6073) - Permit users to manage their own REST API tokens without needing explicit permission
+
+---
+
 ## v2.10.8 (2021-03-26)
 
 ### Bug Fixes
