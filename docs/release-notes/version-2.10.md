@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 
+* [#5805](https://github.com/netbox-community/netbox/issues/5805) - Fix missing custom field filters for cables, rack reservations
 * [#6073](https://github.com/netbox-community/netbox/issues/6073) - Permit users to manage their own REST API tokens without needing explicit permission
 
 ---
