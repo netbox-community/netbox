@@ -2,6 +2,10 @@
 
 ## v2.10.9 (FUTURE)
 
+### Enhancements
+
+* [#6054](https://github.com/netbox-community/netbox/issues/6054) - Display NAPALM-enabled device tabs only when relevant
+
 ### Bug Fixes
 
 * [#6073](https://github.com/netbox-community/netbox/issues/6073) - Permit users to manage their own REST API tokens without needing explicit permission
