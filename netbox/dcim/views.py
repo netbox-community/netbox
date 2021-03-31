@@ -1268,6 +1268,7 @@ class DeviceConsolePortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_consoleport') or request.user.has_perm('dcim.delete_consoleport'):
             consoleport_table.columns.show('pk')
+        paginate_table(consoleport_table, request)
 
         return {
             'consoleport_table': consoleport_table,
@@ -1293,6 +1294,7 @@ class DeviceConsoleServerPortsView(generic.ObjectView):
         if request.user.has_perm('dcim.change_consoleserverport') or \
                 request.user.has_perm('dcim.delete_consoleserverport'):
             consoleserverport_table.columns.show('pk')
+        paginate_table(consoleserverport_table, request)
 
         return {
             'consoleserverport_table': consoleserverport_table,
@@ -1315,6 +1317,7 @@ class DevicePowerPortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_powerport') or request.user.has_perm('dcim.delete_powerport'):
             powerport_table.columns.show('pk')
+        paginate_table(powerport_table, request)
 
         return {
             'powerport_table': powerport_table,
@@ -1337,6 +1340,7 @@ class DevicePowerOutletsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_poweroutlet') or request.user.has_perm('dcim.delete_poweroutlet'):
             poweroutlet_table.columns.show('pk')
+        paginate_table(poweroutlet_table, request)
 
         return {
             'poweroutlet_table': poweroutlet_table,
@@ -1361,6 +1365,7 @@ class DeviceInterfacesView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_interface') or request.user.has_perm('dcim.delete_interface'):
             interface_table.columns.show('pk')
+        paginate_table(interface_table, request)
 
         return {
             'interface_table': interface_table,
@@ -1383,6 +1388,7 @@ class DeviceFrontPortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_frontport') or request.user.has_perm('dcim.delete_frontport'):
             frontport_table.columns.show('pk')
+        paginate_table(frontport_table, request)
 
         return {
             'frontport_table': frontport_table,
@@ -1403,6 +1409,7 @@ class DeviceRearPortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_rearport') or request.user.has_perm('dcim.delete_rearport'):
             rearport_table.columns.show('pk')
+        paginate_table(rearport_table, request)
 
         return {
             'rearport_table': rearport_table,
@@ -1425,6 +1432,7 @@ class DeviceDeviceBaysView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_devicebay') or request.user.has_perm('dcim.delete_devicebay'):
             devicebay_table.columns.show('pk')
+        paginate_table(devicebay_table, request)
 
         return {
             'devicebay_table': devicebay_table,
@@ -1447,6 +1455,7 @@ class DeviceInventoryView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_inventoryitem') or request.user.has_perm('dcim.delete_inventoryitem'):
             inventoryitem_table.columns.show('pk')
+        paginate_table(inventoryitem_table, request)
 
         return {
             'inventoryitem_table': inventoryitem_table,

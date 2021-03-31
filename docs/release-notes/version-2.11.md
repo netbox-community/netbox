@@ -101,6 +101,7 @@ A new Cloud model has been introduced to represent the boundary of a network tha
 * [#5971](https://github.com/netbox-community/netbox/issues/5971) - Add dedicated views for organizational models
 * [#5972](https://github.com/netbox-community/netbox/issues/5972) - Enable bulk editing for organizational models
 * [#5975](https://github.com/netbox-community/netbox/issues/5975) - Allow partial (decimal) vCPU allocations for virtual machines
+* [#6001](https://github.com/netbox-community/netbox/issues/6001) - Paginate component tables under device views
 * [#6038](https://github.com/netbox-community/netbox/issues/6038) - Include tagged objects list on tag view
 
 ### Other Changes
