@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#5526](https://github.com/netbox-community/netbox/issues/5526) - Add MAC address search field to VM interfaces list
 * [#6054](https://github.com/netbox-community/netbox/issues/6054) - Display NAPALM-enabled device tabs only when relevant
 
 ### Bug Fixes
