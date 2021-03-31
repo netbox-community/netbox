@@ -342,10 +342,11 @@ class RackView(generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role')
 
     def get_extra_context(self, request, instance):
-        # Get 0U and child devices located within the rack
+        # Get 0U devices located within the rack
         nonracked_devices = Device.objects.filter(
             rack=instance,
-            position__isnull=True
+            position__isnull=True,
+            parent_bay__isnull=True
         ).prefetch_related('device_type__manufacturer')
 
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
