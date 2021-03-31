@@ -230,6 +230,11 @@ class CableTerminationTable(BaseTable):
     cable = tables.Column(
         linkify=True
     )
+    cable_color = ColorColumn(
+        accessor='cable.color',
+        orderable=False,
+        verbose_name='Cable Color'
+    )
     cable_peer = tables.TemplateColumn(
         accessor='_cable_peer',
         template_code=CABLETERMINATION,
@@ -255,7 +260,8 @@ class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_color', 'cable_peer', 'connection',
+            'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
@@ -274,7 +280,8 @@ class DeviceConsolePortTable(ConsolePortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
+            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_color', 'cable_peer', 'connection', 'tags',
+            'actions'
         )
         default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
@@ -289,7 +296,10 @@ class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_color', 'cable_peer', 'connection',
+            'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
@@ -308,7 +318,8 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
+            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_color', 'cable_peer', 'connection', 'tags',
+            'actions'
         )
         default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
@@ -325,7 +336,7 @@ class PowerPortTable(DeviceComponentTable, PathEndpointTable):
         model = PowerPort
         fields = (
             'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable',
-            'cable_peer', 'connection', 'tags',
+            'cable_color', 'cable_peer', 'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
@@ -345,8 +356,8 @@ class DevicePowerPortTable(PowerPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerPort
         fields = (
-            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'cable_peer',
-            'connection', 'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'cable_color',
+            'cable_peer', 'connection', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'connection',
@@ -368,8 +379,8 @@ class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'cable_peer',
-            'connection', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'cable_color',
+            'cable_peer', 'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
@@ -388,8 +399,8 @@ class DevicePowerOutletTable(PowerOutletTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
         fields = (
-            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'cable_peer', 'connection',
-            'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'cable_color',
+            'cable_peer', 'connection', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection', 'actions',
@@ -424,7 +435,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
         model = Interface
         fields = (
             'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
-            'description', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'description', 'cable', 'cable_color', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan',
+            'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
@@ -450,7 +462,8 @@ class DeviceInterfaceTable(InterfaceTable):
         model = Interface
         fields = (
             'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
-            'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'cable', 'cable_color', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mtu', 'mode', 'description', 'ip_addresses', 'cable',
@@ -477,7 +490,7 @@ class FrontPortTable(DeviceComponentTable, CableTerminationTable):
         model = FrontPort
         fields = (
             'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable',
-            'cable_peer', 'tags',
+            'cable_color', 'cable_peer', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
 
@@ -497,8 +510,8 @@ class DeviceFrontPortTable(FrontPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = FrontPort
         fields = (
-            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
-            'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_color',
+            'cable_peer', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
@@ -516,7 +529,10 @@ class RearPortTable(DeviceComponentTable, CableTerminationTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_color', 'cable_peer',
+            'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
@@ -535,7 +551,8 @@ class DeviceRearPortTable(RearPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
         fields = (
-            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags', 'actions',
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_color', 'cable_peer', 'tags',
+            'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'actions',
