@@ -1,10 +1,12 @@
 CABLETERMINATION = """
 {% if value %}
+  {% if value.parent_object %}
     <a href="{{ value.parent_object.get_absolute_url }}">{{ value.parent_object }}</a>
     <i class="mdi mdi-chevron-right"></i>
-    <a href="{{ value.get_absolute_url }}">{{ value }}</a>
+  {% endif %}
+  <a href="{{ value.get_absolute_url }}">{{ value }}</a>
 {% else %}
-    &mdash;
+  &mdash;
 {% endif %}
 """
 

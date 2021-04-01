@@ -160,7 +160,7 @@ class CableTermination(models.Model):
 class PathEndpoint(models.Model):
     """
     An abstract model inherited by any CableTermination subclass which represents the end of a CablePath; specifically,
-    these include ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, PowerFeed, and CircuitTermination.
+    these include ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, and PowerFeed.
 
     `_path` references the CablePath originating from this instance, if any. It is set or cleared by the receivers in
     dcim.signals in response to changes in the cable path, and complements the `origin` GenericForeignKey field on the
@@ -184,10 +184,11 @@ class PathEndpoint(models.Model):
 
         # Construct the complete path
         path = [self, *self._path.get_path()]
-        while (len(path) + 1) % 3:
+        if self._path.destination:
+            path.append(self._path.destination)
+        while len(path) % 3:
             # Pad to ensure we have complete three-tuples (e.g. for paths that end at a RearPort)
-            path.append(None)
-        path.append(self._path.destination)
+            path.insert(-1, None)
 
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))

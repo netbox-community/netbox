@@ -207,7 +207,7 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSe
         ).distinct()
 
 
-class CircuitTerminationFilterSet(BaseFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class CircuitTerminationFilterSet(BaseFilterSet, CableTerminationFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

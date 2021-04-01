@@ -105,21 +105,6 @@
                 </td>
             </tr>
             <tr>
-                <td>IP Addressing</td>
-                <td>
-                    {% if termination.connected_endpoint %}
-                        {% for ip in termination.ip_addresses %}
-                            {% if not forloop.first %}<br />{% endif %}
-                            <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a> ({{ ip.vrf|default:"Global" }})
-                        {% empty %}
-                            <span class="text-muted">None</span>
-                        {% endfor %}
-                    {% else %}
-                        <span class="text-muted">&mdash;</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
                 <td>Cross-Connect</td>
                 <td>{{ termination.xconnect_id|placeholder }}</td>
             </tr>

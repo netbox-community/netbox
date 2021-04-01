@@ -1,4 +1,3 @@
-from django.db.models import Prefetch
 from rest_framework.routers import APIRootView
 
 from circuits import filters
@@ -60,7 +59,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
 
 class CircuitTerminationViewSet(PathEndpointMixin, ModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
-        'circuit', 'site', '_path__destination', 'cable'
+        'circuit', 'site', 'provider_network', 'cable'
     )
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filters.CircuitTerminationFilterSet

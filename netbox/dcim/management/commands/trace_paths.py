@@ -2,12 +2,10 @@ from django.core.management.base import BaseCommand
 from django.core.management.color import no_style
 from django.db import connection
 
-from circuits.models import CircuitTermination
 from dcim.models import CablePath, ConsolePort, ConsoleServerPort, Interface, PowerFeed, PowerOutlet, PowerPort
 from dcim.signals import create_cablepath
 
 ENDPOINT_MODELS = (
-    CircuitTermination,
     ConsolePort,
     ConsoleServerPort,
     Interface,

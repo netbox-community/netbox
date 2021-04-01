@@ -219,8 +219,6 @@ class CircuitView(generic.ObjectView):
         ).filter(
             circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
-        if termination_a and termination_a.connected_endpoint and hasattr(termination_a.connected_endpoint, 'ip_addresses'):
-            termination_a.ip_addresses = termination_a.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         # Z-side termination
         termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
@@ -228,8 +226,6 @@ class CircuitView(generic.ObjectView):
         ).filter(
             circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()
-        if termination_z and termination_z.connected_endpoint and hasattr(termination_z.connected_endpoint, 'ip_addresses'):
-            termination_z.ip_addresses = termination_z.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         return {
             'termination_a': termination_a,

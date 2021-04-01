@@ -294,7 +294,7 @@ class Circuit(PrimaryModel):
 
 
 @extras_features('webhooks')
-class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
+class CircuitTermination(ChangeLoggedModel, CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,

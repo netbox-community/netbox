@@ -394,6 +394,8 @@ class CablePath(BigIDModel):
         """
         Create a new CablePath instance as traced from the given path origin.
         """
+        from circuits.models import CircuitTermination
+
         if origin is None or origin.cable is None:
             return None
 
@@ -441,6 +443,23 @@ class CablePath(BigIDModel):
                     # No corresponding FrontPort found for the RearPort
                     break
 
+            # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)
+            elif isinstance(peer_termination, CircuitTermination):
+                path.append(object_to_path_node(peer_termination))
+                # Get peer CircuitTermination
+                node = peer_termination.get_peer_termination()
+                if node:
+                    path.append(object_to_path_node(node))
+                    if node.provider_network:
+                        destination = node.provider_network
+                        break
+                    elif node.site and not node.cable:
+                        destination = node.site
+                        break
+                else:
+                    # No peer CircuitTermination exists; halt the trace
+                    break
+
             # Anything else marks the end of the path
             else:
                 destination = peer_termination
@@ -486,15 +505,26 @@ class CablePath(BigIDModel):
 
         return path
 
+    def get_cable_ids(self):
+        """
+        Return all Cable IDs within the path.
+        """
+        cable_ct = ContentType.objects.get_for_model(Cable).pk
+        cable_ids = []
+
+        for node in self.path:
+            ct, id = decompile_path_node(node)
+            if ct == cable_ct:
+                cable_ids.append(id)
+
+        return cable_ids
+
     def get_total_length(self):
         """
         Return a tuple containing the sum of the length of each cable in the path
         and a flag indicating whether the length is definitive.
         """
-        cable_ids = [
-            # Starting from the first element, every third element in the path should be a Cable
-            decompile_path_node(self.path[i])[1] for i in range(0, len(self.path), 3)
-        ]
+        cable_ids = self.get_cable_ids()
         cables = Cable.objects.filter(id__in=cable_ids, _abs_length__isnull=False)
         total_length = cables.aggregate(total=Sum('_abs_length'))['total']
         is_definitive = len(cables) == len(cable_ids)

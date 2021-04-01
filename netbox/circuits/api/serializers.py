@@ -60,7 +60,7 @@ class CircuitTypeSerializer(OrganizationalModelSerializer):
         ]
 
 
-class CircuitCircuitTerminationSerializer(WritableNestedSerializer, ConnectedEndpointSerializer):
+class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     site = NestedSiteSerializer()
     provider_network = NestedProviderNetworkSerializer()
@@ -69,7 +69,6 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer, ConnectedEnd
         model = CircuitTermination
         fields = [
             'id', 'url', 'display', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable',
         ]
 
 
@@ -91,7 +90,7 @@ class CircuitSerializer(PrimaryModelSerializer):
         ]
 
 
-class CircuitTerminationSerializer(BaseModelSerializer, CableTerminationSerializer, ConnectedEndpointSerializer):
+class CircuitTerminationSerializer(BaseModelSerializer, CableTerminationSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     circuit = NestedCircuitSerializer()
     site = NestedSiteSerializer(required=False)
@@ -103,5 +102,5 @@ class CircuitTerminationSerializer(BaseModelSerializer, CableTerminationSerializ
         fields = [
             'id', 'url', 'display', 'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type',
-            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', '_occupied',
+            '_occupied',
         ]

@@ -381,12 +381,6 @@ class CircuitTerminationTestCase(TestCase):
         params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
-
 
 class ProviderNetworkTestCase(TestCase):
     queryset = ProviderNetwork.objects.all()

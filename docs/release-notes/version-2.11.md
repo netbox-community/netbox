@@ -112,6 +112,7 @@ A new provider network model has been introduced to represent the boundary of a 
 * [#5990](https://github.com/netbox-community/netbox/issues/5990) - Deprecated `display_field` parameter for custom script ObjectVar and MultiObjectVar fields
 * [#5995](https://github.com/netbox-community/netbox/issues/5995) - Dropped backward compatibility for `queryset` parameter on ObjectVar and MultiObjectVar (use `model` instead)
 * [#6014](https://github.com/netbox-community/netbox/issues/6014) - Moved the virtual machine interfaces list to a separate view
+* [#6071](https://github.com/netbox-community/netbox/issues/6071) - Cable traces now traverse circuits
 
 ### REST API Changes
 
@@ -131,6 +132,7 @@ A new provider network model has been introduced to represent the boundary of a 
   * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
 * circuits.CircuitTermination
   * Added the `provider_network` field
+  * Removed the `connected_endpoint`, `connected_endpoint_type`, and `connected_endpoint_reachable` fields
 * circuits.ProviderNetwork
   * Added the `/api/circuits/provider-networks/` endpoint
 * dcim.Device
