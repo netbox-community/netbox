@@ -55,13 +55,8 @@
                                 <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                             </a>
                             {% with peer=termination.get_cable_peer %}
-                                to
-                                {% if peer.device %}
-                                    <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a>
-                                {% elif peer.circuit %}
-                                    <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a>
-                                {% endif %}
-                                ({{ peer }})
+                                to <a href="{{ peer.parent_object.get_absolute_url }}">{{ peer.parent_object }}</a>
+                                / {% if peer.get_absolute_url %}<a href="{{ peer.get_absolute_url }}">{{ peer }}</a>{% else %}{{ peer }}{% endif %}
                             {% endwith %}
                         {% else %}
                             {% if perms.dcim.add_cable %}
