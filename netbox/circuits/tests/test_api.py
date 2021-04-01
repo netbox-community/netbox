@@ -180,8 +180,8 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class CloudTest(APIViewTestCases.APIViewTestCase):
-    model = Cloud
+class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
+    model = ProviderNetwork
     brief_fields = ['display', 'id', 'name', 'url']
 
     @classmethod
@@ -192,24 +192,24 @@ class CloudTest(APIViewTestCases.APIViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
-        clouds = (
-            Cloud(name='Cloud 1', provider=providers[0]),
-            Cloud(name='Cloud 2', provider=providers[0]),
-            Cloud(name='Cloud 3', provider=providers[0]),
+        provider_networks = (
+            ProviderNetwork(name='Provider Network 1', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 2', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 3', provider=providers[0]),
         )
-        Cloud.objects.bulk_create(clouds)
+        ProviderNetwork.objects.bulk_create(provider_networks)
 
         cls.create_data = [
             {
-                'name': 'Cloud 4',
+                'name': 'Provider Network 4',
                 'provider': providers[0].pk,
             },
             {
-                'name': 'Cloud 5',
+                'name': 'Provider Network 5',
                 'provider': providers[0].pk,
             },
             {
-                'name': 'Cloud 6',
+                'name': 'Provider Network 6',
                 'provider': providers[0].pk,
             },
         ]

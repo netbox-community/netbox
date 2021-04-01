@@ -129,10 +129,10 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 
 #
-# Clouds
+# Provider networks
 #
 
-class CloudForm(BootstrapMixin, CustomFieldModelForm):
+class ProviderNetworkForm(BootstrapMixin, CustomFieldModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all()
     )
@@ -143,16 +143,16 @@ class CloudForm(BootstrapMixin, CustomFieldModelForm):
     )
 
     class Meta:
-        model = Cloud
+        model = ProviderNetwork
         fields = [
             'provider', 'name', 'description', 'comments', 'tags',
         ]
         fieldsets = (
-            ('Cloud', ('provider', 'name', 'description', 'tags')),
+            ('Provider Network', ('provider', 'name', 'description', 'tags')),
         )
 
 
-class CloudCSVForm(CustomFieldModelCSVForm):
+class ProviderNetworkCSVForm(CustomFieldModelCSVForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
@@ -160,15 +160,15 @@ class CloudCSVForm(CustomFieldModelCSVForm):
     )
 
     class Meta:
-        model = Cloud
+        model = ProviderNetwork
         fields = [
             'provider', 'name', 'description', 'comments',
         ]
 
 
-class CloudBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=Cloud.objects.all(),
+        queryset=ProviderNetwork.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     provider = DynamicModelChoiceField(
@@ -190,8 +190,8 @@ class CloudBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFo
         ]
 
 
-class CloudFilterForm(BootstrapMixin, CustomFieldFilterForm):
-    model = Cloud
+class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = ProviderNetwork
     field_order = ['q', 'provider_id']
     q = forms.CharField(
         required=False,
@@ -357,7 +357,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
     field_order = [
-        'q', 'type_id', 'provider_id', 'cloud_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',
+        'q', 'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',
         'commit_rate',
     ]
     q = forms.CharField(
@@ -374,13 +374,13 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         required=False,
         label=_('Provider')
     )
-    cloud_id = DynamicModelMultipleChoiceField(
-        queryset=Cloud.objects.all(),
+    provider_network_id = DynamicModelMultipleChoiceField(
+        queryset=ProviderNetwork.objects.all(),
         required=False,
         query_params={
             'provider_id': '$provider_id'
         },
-        label=_('Cloud')
+        label=_('Provider network')
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
@@ -435,16 +435,16 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         },
         required=False
     )
-    cloud = DynamicModelChoiceField(
-        queryset=Cloud.objects.all(),
+    provider_network = DynamicModelChoiceField(
+        queryset=ProviderNetwork.objects.all(),
         required=False
     )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'region', 'site_group', 'site', 'cloud', 'mark_connected', 'port_speed', 'upstream_speed',
-            'xconnect_id', 'pp_info', 'description',
+            'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected', 'port_speed',
+            'upstream_speed', 'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
@@ -460,4 +460,4 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['cloud'].widget.add_query_param('provider_id', self.instance.circuit.provider_id)
+        self.fields['provider_network'].widget.add_query_param('provider_id', self.instance.circuit.provider_id)

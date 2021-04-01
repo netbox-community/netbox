@@ -68,10 +68,10 @@ class CircuitTerminationViewSet(PathEndpointMixin, ModelViewSet):
 
 
 #
-# Clouds
+# Provider networks
 #
 
-class CloudViewSet(CustomFieldModelViewSet):
-    queryset = Cloud.objects.prefetch_related('tags')
-    serializer_class = serializers.CloudSerializer
-    filterset_class = filters.CloudFilterSet
+class ProviderNetworkViewSet(CustomFieldModelViewSet):
+    queryset = ProviderNetwork.objects.prefetch_related('tags')
+    serializer_class = serializers.ProviderNetworkSerializer
+    filterset_class = filters.ProviderNetworkFilterSet

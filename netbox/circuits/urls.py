@@ -20,17 +20,17 @@ urlpatterns = [
     path('providers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
     path('providers/<int:pk>/journal/', ObjectJournalView.as_view(), name='provider_journal', kwargs={'model': Provider}),
 
-    # Clouds
-    path('clouds/', views.CloudListView.as_view(), name='cloud_list'),
-    path('clouds/add/', views.CloudEditView.as_view(), name='cloud_add'),
-    path('clouds/import/', views.CloudBulkImportView.as_view(), name='cloud_import'),
-    path('clouds/edit/', views.CloudBulkEditView.as_view(), name='cloud_bulk_edit'),
-    path('clouds/delete/', views.CloudBulkDeleteView.as_view(), name='cloud_bulk_delete'),
-    path('clouds/<int:pk>/', views.CloudView.as_view(), name='cloud'),
-    path('clouds/<int:pk>/edit/', views.CloudEditView.as_view(), name='cloud_edit'),
-    path('clouds/<int:pk>/delete/', views.CloudDeleteView.as_view(), name='cloud_delete'),
-    path('clouds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cloud_changelog', kwargs={'model': Cloud}),
-    path('clouds/<int:pk>/journal/', ObjectJournalView.as_view(), name='cloud_journal', kwargs={'model': Cloud}),
+    # Provider networks
+    path('provider-networks/', views.ProviderNetworkListView.as_view(), name='providernetwork_list'),
+    path('provider-networks/add/', views.ProviderNetworkEditView.as_view(), name='providernetwork_add'),
+    path('provider-networks/import/', views.ProviderNetworkBulkImportView.as_view(), name='providernetwork_import'),
+    path('provider-networks/edit/', views.ProviderNetworkBulkEditView.as_view(), name='providernetwork_bulk_edit'),
+    path('provider-networks/delete/', views.ProviderNetworkBulkDeleteView.as_view(), name='providernetwork_bulk_delete'),
+    path('provider-networks/<int:pk>/', views.ProviderNetworkView.as_view(), name='providernetwork'),
+    path('provider-networks/<int:pk>/edit/', views.ProviderNetworkEditView.as_view(), name='providernetwork_edit'),
+    path('provider-networks/<int:pk>/delete/', views.ProviderNetworkDeleteView.as_view(), name='providernetwork_delete'),
+    path('provider-networks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='providernetwork_changelog', kwargs={'model': ProviderNetwork}),
+    path('provider-networks/<int:pk>/journal/', ObjectJournalView.as_view(), name='providernetwork_journal', kwargs={'model': ProviderNetwork}),
 
     # Circuit types
     path('circuit-types/', views.CircuitTypeListView.as_view(), name='circuittype_list'),

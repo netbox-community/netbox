@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
-from circuits.filters import CircuitFilterSet, CloudFilterSet, ProviderFilterSet
-from circuits.models import Circuit, Cloud, Provider
-from circuits.tables import CircuitTable, CloudTable, ProviderTable
+from circuits.filters import CircuitFilterSet, ProviderFilterSet, ProviderNetworkFilterSet
+from circuits.models import Circuit, ProviderNetwork, Provider
+from circuits.tables import CircuitTable, ProviderNetworkTable, ProviderTable
 from dcim.filters import (
     CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, LocationFilterSet,
     SiteFilterSet, VirtualChassisFilterSet,
@@ -45,11 +45,11 @@ SEARCH_TYPES = OrderedDict((
         'table': CircuitTable,
         'url': 'circuits:circuit_list',
     }),
-    ('cloud', {
-        'queryset': Cloud.objects.prefetch_related('provider'),
-        'filterset': CloudFilterSet,
-        'table': CloudTable,
-        'url': 'circuits:cloud_list',
+    ('providernetwork', {
+        'queryset': ProviderNetwork.objects.prefetch_related('provider'),
+        'filterset': ProviderNetworkFilterSet,
+        'table': ProviderNetworkTable,
+        'url': 'circuits:providernetwork_list',
     }),
     # DCIM
     ('site', {

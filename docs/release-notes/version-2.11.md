@@ -78,9 +78,9 @@ This release introduces the new SiteGroup model, which can be used to organize s
 
 The ObjectChange model (which is used to record the creation, modification, and deletion of NetBox objects) now explicitly records the pre-change and post-change state of each object, rather than only the post-change state. This was done to present a more clear depiction of each change being made, and to prevent the erroneous association of a previous unlogged change with its successor.
 
-#### Cloud Modeling for Circuits ([#5986](https://github.com/netbox-community/netbox/issues/5986))
+#### Provider Network Modeling ([#5986](https://github.com/netbox-community/netbox/issues/5986))
 
-A new Cloud model has been introduced to represent the boundary of a network that exists outside the scope of NetBox. This is analogous to using a cloud icon on a topology drawing to represent an abstracted network. Each cloud must be assigned to a provider, and circuits can terminate to either clouds or sites. The use of this model will likely be extended by future releases to support overlay and virtual circuit modeling.
+A new provider network model has been introduced to represent the boundary of a network that exists outside the scope of NetBox. Each instance of this model must be assigned to a provider, and circuits can now terminate to either provider networks or to sites. The use of this model will likely be extended by future releases to support overlay and virtual circuit modeling.
 
 ### Enhancements
 
@@ -130,9 +130,9 @@ A new Cloud model has been introduced to represent the boundary of a network tha
 * Renamed RackGroup to Location
   * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
 * circuits.CircuitTermination
-  * Added the `cloud` field
-* circuits.Cloud
-  * Added the `/api/circuits/clouds/` endpoint
+  * Added the `provider_network` field
+* circuits.ProviderNetwork
+  * Added the `/api/circuits/provider-networks/` endpoint
 * dcim.Device
   * Added the `location` field
 * dcim.Interface

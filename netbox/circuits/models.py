@@ -15,7 +15,7 @@ __all__ = (
     'Circuit',
     'CircuitTermination',
     'CircuitType',
-    'Cloud',
+    'ProviderNetwork',
     'Provider',
 )
 
@@ -93,18 +93,22 @@ class Provider(PrimaryModel):
 
 
 #
-# Clouds
+# Provider networks
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Cloud(PrimaryModel):
+class ProviderNetwork(PrimaryModel):
+    """
+    This represents a provider network which exists outside of NetBox, the details of which are unknown or
+    unimportant to the user.
+    """
     name = models.CharField(
         max_length=100
     )
     provider = models.ForeignKey(
         to='circuits.Provider',
         on_delete=models.PROTECT,
-        related_name='clouds'
+        related_name='networks'
     )
     description = models.CharField(
         max_length=200,
@@ -125,7 +129,7 @@ class Cloud(PrimaryModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('provider', 'name'),
-                name='circuits_cloud_provider_name'
+                name='circuits_providernetwork_provider_name'
             ),
         )
         unique_together = ('provider', 'name')
@@ -134,7 +138,7 @@ class Cloud(PrimaryModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('circuits:cloud', args=[self.pk])
+        return reverse('circuits:providernetwork', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -308,8 +312,8 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
         blank=True,
         null=True
     )
-    cloud = models.ForeignKey(
-        to=Cloud,
+    provider_network = models.ForeignKey(
+        to=ProviderNetwork,
         on_delete=models.PROTECT,
         related_name='circuit_terminations',
         blank=True,
@@ -348,23 +352,21 @@ class CircuitTermination(ChangeLoggedModel, PathEndpoint, CableTermination):
         unique_together = ['circuit', 'term_side']
 
     def __str__(self):
-        if self.site:
-            return str(self.site)
-        return str(self.cloud)
+        return str(self.site or self.provider_network)
 
     def get_absolute_url(self):
         if self.site:
             return self.site.get_absolute_url()
-        return self.cloud.get_absolute_url()
+        return self.provider_network.get_absolute_url()
 
     def clean(self):
         super().clean()
 
-        # Must define either site *or* cloud
-        if self.site is None and self.cloud is None:
-            raise ValidationError("A circuit termination must attach to either a site or a cloud.")
-        if self.site and self.cloud:
-            raise ValidationError("A circuit termination cannot attach to both a site and a cloud.")
+        # Must define either site *or* provider network
+        if self.site is None and self.provider_network is None:
+            raise ValidationError("A circuit termination must attach to either a site or a provider network.")
+        if self.site and self.provider_network:
+            raise ValidationError("A circuit termination cannot attach to both a site and a provider network.")
 
     def to_objectchange(self, action):
         # Annotate the parent Circuit

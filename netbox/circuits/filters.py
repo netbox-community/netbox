@@ -15,7 +15,7 @@ __all__ = (
     'CircuitFilterSet',
     'CircuitTerminationFilterSet',
     'CircuitTypeFilterSet',
-    'CloudFilterSet',
+    'ProviderNetworkFilterSet',
     'ProviderFilterSet',
 )
 
@@ -80,7 +80,7 @@ class ProviderFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdated
         )
 
 
-class CloudFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class ProviderNetworkFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -98,7 +98,7 @@ class CloudFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFil
     tag = TagFilter()
 
     class Meta:
-        model = Cloud
+        model = ProviderNetwork
         fields = ['id', 'name']
 
     def search(self, queryset, name, value):
@@ -132,10 +132,10 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSe
         to_field_name='slug',
         label='Provider (slug)',
     )
-    cloud_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='terminations__cloud',
-        queryset=Cloud.objects.all(),
-        label='Cloud (ID)',
+    provider_network_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='terminations__provider_network',
+        queryset=ProviderNetwork.objects.all(),
+        label='ProviderNetwork (ID)',
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitType.objects.all(),
@@ -226,9 +226,9 @@ class CircuitTerminationFilterSet(BaseFilterSet, CableTerminationFilterSet, Path
         to_field_name='slug',
         label='Site (slug)',
     )
-    cloud_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Cloud.objects.all(),
-        label='Cloud (ID)',
+    provider_network_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProviderNetwork.objects.all(),
+        label='ProviderNetwork (ID)',
     )
 
     class Meta:

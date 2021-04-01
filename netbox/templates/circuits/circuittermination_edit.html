@@ -26,19 +26,19 @@
                   <p class="form-control-static">{{ form.term_side.value }}</p>
               </div>
           </div>
-          {% with cloud_tab_active=form.initial.cloud %}
+          {% with providernetwork_tab_active=form.initial.provider_network %}
               <ul class="nav nav-tabs" role="tablist">
-                  <li role="presentation"{% if not cloud_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
-                  <li role="presentation"{% if cloud_tab_active %} class="active"{% endif %}><a href="#cloud" role="tab" data-toggle="tab">Cloud</a></li>
+                  <li role="presentation"{% if not providernetwork_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
+                  <li role="presentation"{% if providernetwork_tab_active %} class="active"{% endif %}><a href="#providernetwork" role="tab" data-toggle="tab">Provider Network</a></li>
               </ul>
               <div class="tab-content">
-                  <div class="tab-pane{% if not cloud_tab_active %} active{% endif %}" id="site">
+                  <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
                       {% render_field form.region %}
                       {% render_field form.site_group %}
                       {% render_field form.site %}
                   </div>
-                  <div class="tab-pane{% if cloud_tab_active %} active{% endif %}" id="cloud">
-                      {% render_field form.cloud %}
+                  <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
+                      {% render_field form.provider_network %}
                   </div>
               </div>
           {% endwith %}

@@ -77,23 +77,23 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 
 
 #
-# Clouds
+# Provider networks
 #
 
-class CloudListView(generic.ObjectListView):
-    queryset = Cloud.objects.all()
-    filterset = filters.CloudFilterSet
-    filterset_form = forms.CloudFilterForm
-    table = tables.CloudTable
+class ProviderNetworkListView(generic.ObjectListView):
+    queryset = ProviderNetwork.objects.all()
+    filterset = filters.ProviderNetworkFilterSet
+    filterset_form = forms.ProviderNetworkFilterForm
+    table = tables.ProviderNetworkTable
 
 
-class CloudView(generic.ObjectView):
-    queryset = Cloud.objects.all()
+class ProviderNetworkView(generic.ObjectView):
+    queryset = ProviderNetwork.objects.all()
 
     def get_extra_context(self, request, instance):
         circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            Q(termination_a__cloud=instance.pk) |
-            Q(termination_z__cloud=instance.pk)
+            Q(termination_a__provider_network=instance.pk) |
+            Q(termination_z__provider_network=instance.pk)
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         )
@@ -108,32 +108,32 @@ class CloudView(generic.ObjectView):
         }
 
 
-class CloudEditView(generic.ObjectEditView):
-    queryset = Cloud.objects.all()
-    model_form = forms.CloudForm
+class ProviderNetworkEditView(generic.ObjectEditView):
+    queryset = ProviderNetwork.objects.all()
+    model_form = forms.ProviderNetworkForm
 
 
-class CloudDeleteView(generic.ObjectDeleteView):
-    queryset = Cloud.objects.all()
+class ProviderNetworkDeleteView(generic.ObjectDeleteView):
+    queryset = ProviderNetwork.objects.all()
 
 
-class CloudBulkImportView(generic.BulkImportView):
-    queryset = Cloud.objects.all()
-    model_form = forms.CloudCSVForm
-    table = tables.CloudTable
+class ProviderNetworkBulkImportView(generic.BulkImportView):
+    queryset = ProviderNetwork.objects.all()
+    model_form = forms.ProviderNetworkCSVForm
+    table = tables.ProviderNetworkTable
 
 
-class CloudBulkEditView(generic.BulkEditView):
-    queryset = Cloud.objects.all()
-    filterset = filters.CloudFilterSet
-    table = tables.CloudTable
-    form = forms.CloudBulkEditForm
+class ProviderNetworkBulkEditView(generic.BulkEditView):
+    queryset = ProviderNetwork.objects.all()
+    filterset = filters.ProviderNetworkFilterSet
+    table = tables.ProviderNetworkTable
+    form = forms.ProviderNetworkBulkEditForm
 
 
-class CloudBulkDeleteView(generic.BulkDeleteView):
-    queryset = Cloud.objects.all()
-    filterset = filters.CloudFilterSet
-    table = tables.CloudTable
+class ProviderNetworkBulkDeleteView(generic.BulkDeleteView):
+    queryset = ProviderNetwork.objects.all()
+    filterset = filters.ProviderNetworkFilterSet
+    table = tables.ProviderNetworkTable
 
 
 #

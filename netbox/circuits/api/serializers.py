@@ -29,15 +29,15 @@ class ProviderSerializer(PrimaryModelSerializer):
 
 
 #
-# Clouds
+# Provider networks
 #
 
-class CloudSerializer(PrimaryModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:cloud-detail')
+class ProviderNetworkSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
     provider = NestedProviderSerializer()
 
     class Meta:
-        model = Cloud
+        model = ProviderNetwork
         fields = [
             'id', 'url', 'display', 'provider', 'name', 'description', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
@@ -63,12 +63,12 @@ class CircuitTypeSerializer(OrganizationalModelSerializer):
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     site = NestedSiteSerializer()
-    cloud = NestedCloudSerializer()
+    provider_network = NestedProviderNetworkSerializer()
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display', 'site', 'cloud', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'id', 'url', 'display', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
             'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable',
         ]
 
@@ -95,13 +95,13 @@ class CircuitTerminationSerializer(BaseModelSerializer, CableTerminationSerializ
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     circuit = NestedCircuitSerializer()
     site = NestedSiteSerializer(required=False)
-    cloud = NestedCloudSerializer(required=False)
+    provider_network = NestedProviderNetworkSerializer(required=False)
     cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display', 'circuit', 'term_side', 'site', 'cloud', 'port_speed', 'upstream_speed',
+            'id', 'url', 'display', 'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type',
             'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', '_occupied',
         ]

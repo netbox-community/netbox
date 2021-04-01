@@ -186,12 +186,12 @@ class CircuitTestCase(TestCase):
         )
         Provider.objects.bulk_create(providers)
 
-        clouds = (
-            Cloud(name='Cloud 1', provider=providers[1]),
-            Cloud(name='Cloud 2', provider=providers[1]),
-            Cloud(name='Cloud 3', provider=providers[1]),
+        provider_networks = (
+            ProviderNetwork(name='Provider Network 1', provider=providers[1]),
+            ProviderNetwork(name='Provider Network 2', provider=providers[1]),
+            ProviderNetwork(name='Provider Network 3', provider=providers[1]),
         )
-        Cloud.objects.bulk_create(clouds)
+        ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
             Circuit(provider=providers[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE),
@@ -207,9 +207,9 @@ class CircuitTestCase(TestCase):
             CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
             CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A'),
             CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A'),
-            CircuitTermination(circuit=circuits[3], cloud=clouds[0], term_side='A'),
-            CircuitTermination(circuit=circuits[4], cloud=clouds[1], term_side='A'),
-            CircuitTermination(circuit=circuits[5], cloud=clouds[2], term_side='A'),
+            CircuitTermination(circuit=circuits[3], provider_network=provider_networks[0], term_side='A'),
+            CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
+            CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -236,9 +236,9 @@ class CircuitTestCase(TestCase):
         params = {'provider': [provider.slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    def test_cloud(self):
-        clouds = Cloud.objects.all()[:2]
-        params = {'cloud_id': [clouds[0].pk, clouds[1].pk]}
+    def test_provider_network(self):
+        provider_networks = ProviderNetwork.objects.all()[:2]
+        params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -312,12 +312,12 @@ class CircuitTerminationTestCase(TestCase):
         )
         Provider.objects.bulk_create(providers)
 
-        clouds = (
-            Cloud(name='Cloud 1', provider=providers[0]),
-            Cloud(name='Cloud 2', provider=providers[0]),
-            Cloud(name='Cloud 3', provider=providers[0]),
+        provider_networks = (
+            ProviderNetwork(name='Provider Network 1', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 2', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 3', provider=providers[0]),
         )
-        Cloud.objects.bulk_create(clouds)
+        ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
             Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 1'),
@@ -336,9 +336,9 @@ class CircuitTerminationTestCase(TestCase):
             CircuitTermination(circuit=circuits[1], site=sites[2], term_side='Z', port_speed=2000, upstream_speed=2000, xconnect_id='JKL'),
             CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A', port_speed=3000, upstream_speed=3000, xconnect_id='MNO'),
             CircuitTermination(circuit=circuits[2], site=sites[0], term_side='Z', port_speed=3000, upstream_speed=3000, xconnect_id='PQR'),
-            CircuitTermination(circuit=circuits[3], cloud=clouds[0], term_side='A'),
-            CircuitTermination(circuit=circuits[4], cloud=clouds[1], term_side='A'),
-            CircuitTermination(circuit=circuits[5], cloud=clouds[2], term_side='A'),
+            CircuitTermination(circuit=circuits[3], provider_network=provider_networks[0], term_side='A'),
+            CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
+            CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -372,9 +372,9 @@ class CircuitTerminationTestCase(TestCase):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
-    def test_cloud(self):
-        clouds = Cloud.objects.all()[:2]
-        params = {'cloud_id': [clouds[0].pk, clouds[1].pk]}
+    def test_provider_network(self):
+        provider_networks = ProviderNetwork.objects.all()[:2]
+        params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
@@ -388,9 +388,9 @@ class CircuitTerminationTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
 
 
-class CloudTestCase(TestCase):
-    queryset = Cloud.objects.all()
-    filterset = CloudFilterSet
+class ProviderNetworkTestCase(TestCase):
+    queryset = ProviderNetwork.objects.all()
+    filterset = ProviderNetworkFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -402,19 +402,19 @@ class CloudTestCase(TestCase):
         )
         Provider.objects.bulk_create(providers)
 
-        clouds = (
-            Cloud(name='Cloud 1', provider=providers[0]),
-            Cloud(name='Cloud 2', provider=providers[1]),
-            Cloud(name='Cloud 3', provider=providers[2]),
+        provider_networks = (
+            ProviderNetwork(name='Provider Network 1', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 2', provider=providers[1]),
+            ProviderNetwork(name='Provider Network 3', provider=providers[2]),
         )
-        Cloud.objects.bulk_create(clouds)
+        ProviderNetwork.objects.bulk_create(provider_networks)
 
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
-        params = {'name': ['Cloud 1', 'Cloud 2']}
+        params = {'name': ['Provider Network 1', 'Provider Network 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_provider(self):

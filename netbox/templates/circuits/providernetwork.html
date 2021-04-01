@@ -4,8 +4,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'circuits:cloud_list' %}">Clouds</a></li>
-  <li><a href="{% url 'circuits:cloud_list' %}?provider_id={{ object.provider_id }}">{{ object.provider }}</a></li>
+  <li><a href="{% url 'circuits:providernetwork_list' %}">Provider Networks</a></li>
+  <li><a href="{% url 'circuits:providernetwork_list' %}?provider_id={{ object.provider_id }}">{{ object.provider }}</a></li>
   <li>{{ object }}</li>
 {% endblock %}
 
@@ -14,7 +14,7 @@
 	<div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Cloud</strong>
+                <strong>Provider Network</strong>
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
@@ -46,7 +46,7 @@
             </div>
         </div>
         {% include 'inc/custom_fields_panel.html' %}
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:cloud_list' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:providernetwork_list' %}
         {% plugin_left_page object %}
 	</div>
 	<div class="col-md-8">

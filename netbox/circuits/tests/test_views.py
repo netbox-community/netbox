@@ -135,8 +135,8 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class CloudTestCase(ViewTestCases.PrimaryObjectViewTestCase):
-    model = Cloud
+class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ProviderNetwork
 
     @classmethod
     def setUpTestData(cls):
@@ -147,27 +147,27 @@ class CloudTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
-        Cloud.objects.bulk_create([
-            Cloud(name='Cloud 1', provider=providers[0]),
-            Cloud(name='Cloud 2', provider=providers[0]),
-            Cloud(name='Cloud 3', provider=providers[0]),
+        ProviderNetwork.objects.bulk_create([
+            ProviderNetwork(name='Provider Network 1', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 2', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 3', provider=providers[0]),
         ])
 
         tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'name': 'Cloud X',
+            'name': 'Provider Network X',
             'provider': providers[1].pk,
-            'description': 'A new cloud',
+            'description': 'A new provider network',
             'comments': 'Longer description goes here',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
             "name,provider,description",
-            "Cloud 4,Provider 1,Foo",
-            "Cloud 5,Provider 1,Bar",
-            "Cloud 6,Provider 1,Baz",
+            "Provider Network 4,Provider 1,Foo",
+            "Provider Network 5,Provider 1,Bar",
+            "Provider Network 6,Provider 1,Baz",
         )
 
         cls.bulk_edit_data = {

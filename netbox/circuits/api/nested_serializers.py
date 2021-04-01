@@ -7,17 +7,17 @@ __all__ = [
     'NestedCircuitSerializer',
     'NestedCircuitTerminationSerializer',
     'NestedCircuitTypeSerializer',
-    'NestedCloudSerializer',
+    'NestedProviderNetworkSerializer',
     'NestedProviderSerializer',
 ]
 
 
 #
-# Clouds
+# Provider networks
 #
 
-class NestedCloudSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:cloud-detail')
+class NestedProviderNetworkSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
 
     class Meta:
         model = Provider

@@ -12,9 +12,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Create the new Cloud model
+        # Create the new ProviderNetwork model
         migrations.CreateModel(
-            name='Cloud',
+            name='ProviderNetwork',
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
-                ('provider', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='clouds', to='circuits.provider')),
+                ('provider', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='networks', to='circuits.provider')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
@@ -31,19 +31,19 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.AddConstraint(
-            model_name='cloud',
-            constraint=models.UniqueConstraint(fields=('provider', 'name'), name='circuits_cloud_provider_name'),
+            model_name='providernetwork',
+            constraint=models.UniqueConstraint(fields=('provider', 'name'), name='circuits_providernetwork_provider_name'),
         ),
         migrations.AlterUniqueTogether(
-            name='cloud',
+            name='providernetwork',
             unique_together={('provider', 'name')},
         ),
 
-        # Add cloud FK to CircuitTermination
+        # Add ProviderNetwork FK to CircuitTermination
         migrations.AddField(
             model_name='circuittermination',
-            name='cloud',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='circuit_terminations', to='circuits.cloud'),
+            name='provider_network',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='circuit_terminations', to='circuits.providernetwork'),
         ),
         migrations.AlterField(
             model_name='circuittermination',

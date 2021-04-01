@@ -479,13 +479,13 @@ class CableTestCase(TestCase):
             device=self.patch_pannel, name='FP4', type='8p8c', rear_port=self.rear_port4, rear_port_position=1
         )
         self.provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        cloud = Cloud.objects.create(name='Cloud 1', provider=self.provider)
+        provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.provider)
         self.circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         self.circuit1 = Circuit.objects.create(provider=self.provider, type=self.circuittype, cid='1')
         self.circuit2 = Circuit.objects.create(provider=self.provider, type=self.circuittype, cid='2')
         self.circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit1, site=site, term_side='A')
         self.circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit1, site=site, term_side='Z')
-        self.circuittermination3 = CircuitTermination.objects.create(circuit=self.circuit2, cloud=cloud, term_side='A')
+        self.circuittermination3 = CircuitTermination.objects.create(circuit=self.circuit2, provider_network=provider_network, term_side='A')
 
     def test_cable_creation(self):
         """
@@ -555,9 +555,9 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_cable_cannot_terminate_to_a_cloud_circuittermination(self):
+    def test_cable_cannot_terminate_to_a_provider_network_circuittermination(self):
         """
-        Neither side of a cable can be terminated to a CircuitTermination which is attached to a Cloud
+        Neither side of a cable can be terminated to a CircuitTermination which is attached to a ProviderNetwork
         """
         cable = Cable(termination_a=self.interface3, termination_b=self.circuittermination3)
         with self.assertRaises(ValidationError):

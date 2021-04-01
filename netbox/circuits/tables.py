@@ -30,10 +30,10 @@ class ProviderTable(BaseTable):
 
 
 #
-# Clouds
+# Provider networks
 #
 
-class CloudTable(BaseTable):
+class ProviderNetworkTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(
         linkify=True
@@ -42,11 +42,11 @@ class CloudTable(BaseTable):
         linkify=True
     )
     tags = TagColumn(
-        url_name='circuits:cloud_list'
+        url_name='circuits:providernetwork_list'
     )
 
     class Meta(BaseTable.Meta):
-        model = Cloud
+        model = ProviderNetwork
         fields = ('pk', 'name', 'provider', 'description', 'tags')
         default_columns = ('pk', 'name', 'provider', 'description')
 
