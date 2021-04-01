@@ -148,10 +148,13 @@
                         <a href="{% url 'dcim:device_list' %}?rack_id={{ object.id }}">{{ device_count }}</a>
                     </td>
                 </tr>
-                    <tr>
-                        <td>Utilization</td>
-                        <td>{% utilization_graph object.get_utilization.0 object.get_utilization.1 %}</td>
-                    </tr>
+                    <td>Space Utilization</td>
+                    <td>{% utilization_graph object.get_utilization %}</td>
+                </tr>
+                <tr>
+                    <td>Power Utilization</td>
+                    <td>{% utilization_graph object.get_power_utilization %}</td>
+                </tr>
             </table>
         </div>
         <div class="panel panel-default">
