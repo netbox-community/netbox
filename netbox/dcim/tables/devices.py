@@ -137,6 +137,10 @@ class DeviceTable(BaseTable):
     device_role = ColoredLabelColumn(
         verbose_name='Role'
     )
+    manufacturer = tables.Column(
+        accessor=Accessor('device_type__manufacturer'),
+        linkify=True
+    )
     device_type = tables.Column(
         linkify=True,
         verbose_name='Type'
@@ -180,12 +184,13 @@ class DeviceTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Device
         fields = (
-            'pk', 'name', 'status', 'tenant', 'device_role', 'device_type', 'platform', 'serial', 'asset_tag', 'site',
-            'location', 'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'tags',
+            'pk', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6',
+            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'device_type', 'primary_ip',
+            'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
+            'primary_ip',
         )
 
 
