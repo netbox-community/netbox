@@ -352,7 +352,7 @@ class CircuitTermination(ChangeLoggedModel, CableTermination):
         unique_together = ['circuit', 'term_side']
 
     def __str__(self):
-        return str(self.site or self.provider_network)
+        return f'Termination {self.term_side}: {self.site or self.provider_network}'
 
     def get_absolute_url(self):
         if self.site:
