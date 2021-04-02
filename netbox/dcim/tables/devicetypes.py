@@ -26,7 +26,9 @@ __all__ = (
 
 class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     devicetype_count = tables.Column(
         verbose_name='Device Types'
     )

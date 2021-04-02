@@ -26,9 +26,10 @@ class CableTable(BaseTable):
         orderable=False,
         verbose_name='Side A'
     )
-    termination_a = tables.LinkColumn(
+    termination_a = tables.Column(
         accessor=Accessor('termination_a'),
         orderable=False,
+        linkify=True,
         verbose_name='Termination A'
     )
     termination_b_parent = tables.TemplateColumn(
@@ -37,9 +38,10 @@ class CableTable(BaseTable):
         orderable=False,
         verbose_name='Side B'
     )
-    termination_b = tables.LinkColumn(
+    termination_b = tables.Column(
         accessor=Accessor('termination_b'),
         orderable=False,
+        linkify=True,
         verbose_name='Termination B'
     )
     status = ChoiceFieldColumn()

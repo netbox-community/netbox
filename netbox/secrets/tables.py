@@ -10,7 +10,9 @@ from .models import SecretRole, Secret
 
 class SecretRoleTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     secret_count = LinkedCountColumn(
         viewname='secrets:secret_list',
         url_params={'role': 'slug'},

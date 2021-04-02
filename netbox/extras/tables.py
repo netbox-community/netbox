@@ -58,7 +58,9 @@ class TaggedItemTable(BaseTable):
 
 class ConfigContextTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     is_active = BooleanColumn(
         verbose_name='Active'
     )

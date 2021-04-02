@@ -57,8 +57,8 @@ class SiteGroupTable(BaseTable):
 
 class SiteTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(
-        order_by=('_name',)
+    name = tables.Column(
+        linkify=True
     )
     status = ChoiceFieldColumn()
     region = tables.Column(

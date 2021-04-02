@@ -10,7 +10,7 @@ from .models import Tenant, TenantGroup
 
 class TenantColumn(tables.TemplateColumn):
     """
-    Render a colored label (e.g. for DeviceRoles).
+    Include the tenant description.
     """
     template_code = """
     {% if record.tenant %}
@@ -57,7 +57,9 @@ class TenantGroupTable(BaseTable):
 
 class TenantTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     tags = TagColumn(
         url_name='tenancy:tenant_list'
     )

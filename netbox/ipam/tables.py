@@ -112,7 +112,9 @@ VLAN_MEMBER_TAGGED = """
 
 class VRFTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     rd = tables.Column(
         verbose_name='RD'
     )
@@ -146,7 +148,9 @@ class VRFTable(BaseTable):
 
 class RouteTargetTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     tenant = TenantColumn()
     tags = TagColumn(
         url_name='ipam:vrf_list'
@@ -164,7 +168,9 @@ class RouteTargetTable(BaseTable):
 
 class RIRTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     is_private = BooleanColumn(
         verbose_name='Private'
     )
@@ -187,7 +193,8 @@ class RIRTable(BaseTable):
 
 class AggregateTable(BaseTable):
     pk = ToggleColumn()
-    prefix = tables.LinkColumn(
+    prefix = tables.Column(
+        linkify=True,
         verbose_name='Aggregate'
     )
     tenant = TenantColumn()
@@ -395,7 +402,8 @@ class InterfaceIPAddressTable(BaseTable):
     """
     List IP addresses assigned to a specific Interface.
     """
-    address = tables.LinkColumn(
+    address = tables.Column(
+        linkify=True,
         verbose_name='IP Address'
     )
     vrf = tables.TemplateColumn(
@@ -492,7 +500,8 @@ class VLANMembersTable(BaseTable):
     """
     Base table for Interface and VMInterface assignments
     """
-    name = tables.LinkColumn(
+    name = tables.Column(
+        linkify=True,
         verbose_name='Interface'
     )
     tagged = tables.TemplateColumn(
@@ -502,7 +511,9 @@ class VLANMembersTable(BaseTable):
 
 
 class VLANDevicesTable(VLANMembersTable):
-    device = tables.LinkColumn()
+    device = tables.Column(
+        linkify=True
+    )
     actions = ButtonsColumn(Interface, buttons=['edit'])
 
     class Meta(BaseTable.Meta):
@@ -511,7 +522,9 @@ class VLANDevicesTable(VLANMembersTable):
 
 
 class VLANVirtualMachinesTable(VLANMembersTable):
-    virtual_machine = tables.LinkColumn()
+    virtual_machine = tables.Column(
+        linkify=True
+    )
     actions = ButtonsColumn(VMInterface, buttons=['edit'])
 
     class Meta(BaseTable.Meta):
@@ -523,9 +536,8 @@ class InterfaceVLANTable(BaseTable):
     """
     List VLANs assigned to a specific Interface.
     """
-    vid = tables.LinkColumn(
-        viewname='ipam:vlan',
-        args=[Accessor('pk')],
+    vid = tables.Column(
+        linkify=True,
         verbose_name='ID'
     )
     tagged = BooleanColumn()
@@ -560,7 +572,8 @@ class ServiceTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
-    parent = tables.LinkColumn(
+    parent = tables.Column(
+        linkify=True,
         order_by=('device', 'virtual_machine')
     )
     ports = tables.TemplateColumn(

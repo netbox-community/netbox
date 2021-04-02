@@ -12,7 +12,9 @@ from .models import *
 
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     circuit_count = tables.Column(
         accessor=Accessor('count_circuits'),
         verbose_name='Circuits'
@@ -57,7 +59,9 @@ class ProviderNetworkTable(BaseTable):
 
 class CircuitTypeTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     circuit_count = tables.Column(
         verbose_name='Circuits'
     )
@@ -75,7 +79,8 @@ class CircuitTypeTable(BaseTable):
 
 class CircuitTable(BaseTable):
     pk = ToggleColumn()
-    cid = tables.LinkColumn(
+    cid = tables.Column(
+        linkify=True,
         verbose_name='ID'
     )
     provider = tables.Column(

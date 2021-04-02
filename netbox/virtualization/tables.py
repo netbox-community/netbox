@@ -32,7 +32,9 @@ VMINTERFACE_BUTTONS = """
 
 class ClusterTypeTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
@@ -50,7 +52,9 @@ class ClusterTypeTable(BaseTable):
 
 class ClusterGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
@@ -68,7 +72,9 @@ class ClusterGroupTable(BaseTable):
 
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     tenant = tables.Column(
         linkify=True
     )
@@ -101,7 +107,9 @@ class ClusterTable(BaseTable):
 
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     status = ChoiceFieldColumn()
     cluster = tables.Column(
         linkify=True
@@ -156,7 +164,9 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 
 class VMInterfaceTable(BaseInterfaceTable):
     pk = ToggleColumn()
-    virtual_machine = tables.LinkColumn()
+    virtual_machine = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
         linkify=True
     )

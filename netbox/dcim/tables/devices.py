@@ -137,11 +137,9 @@ class DeviceTable(BaseTable):
     device_role = ColoredLabelColumn(
         verbose_name='Role'
     )
-    device_type = tables.LinkColumn(
-        viewname='dcim:devicetype',
-        args=[Accessor('device_type__pk')],
-        verbose_name='Type',
-        text=lambda record: record.device_type.display_name
+    device_type = tables.Column(
+        linkify=True,
+        verbose_name='Type'
     )
     if settings.PREFER_IPV4:
         primary_ip = tables.Column(
@@ -163,13 +161,11 @@ class DeviceTable(BaseTable):
         linkify=True,
         verbose_name='IPv6 Address'
     )
-    cluster = tables.LinkColumn(
-        viewname='virtualization:cluster',
-        args=[Accessor('cluster__pk')]
+    cluster = tables.Column(
+        linkify=True
     )
-    virtual_chassis = tables.LinkColumn(
-        viewname='dcim:virtualchassis',
-        args=[Accessor('virtual_chassis__pk')]
+    virtual_chassis = tables.Column(
+        linkify=True
     )
     vc_position = tables.Column(
         verbose_name='VC Position'
