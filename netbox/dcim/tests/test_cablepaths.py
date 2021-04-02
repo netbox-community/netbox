@@ -993,6 +993,67 @@ class CablePathTestCase(TestCase):
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
 
+    def test_213_multiple_circuits_to_interface(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --C2-- [CT3] [CT4] --C3-- [IF2]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        circuit2 = Circuit.objects.create(provider=self.circuit.provider, type=self.circuit.type, cid='Circuit 2')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
+        circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, site=self.site, term_side='A')
+        circuittermination4 = CircuitTermination.objects.create(circuit=circuit2, site=self.site, term_side='Z')
+
+        # Create cables
+        cable1 = Cable(termination_a=interface1, termination_b=circuittermination1)
+        cable1.save()
+        cable2 = Cable(termination_a=circuittermination2, termination_b=circuittermination3)
+        cable2.save()
+        cable3 = Cable(termination_a=circuittermination4, termination_b=interface2)
+        cable3.save()
+
+        # Check for paths
+        self.assertPathExists(
+            origin=interface1,
+            destination=interface2,
+            path=(
+                cable1, circuittermination1, circuittermination2, cable2, circuittermination3, circuittermination4,
+                cable3
+            ),
+            is_active=True
+        )
+        self.assertPathExists(
+            origin=interface2,
+            destination=interface1,
+            path=(
+                cable3, circuittermination4, circuittermination3, cable2, circuittermination2, circuittermination1,
+                cable1
+            ),
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Delete cable 2
+        cable2.delete()
+        path1 = self.assertPathExists(
+            origin=interface1,
+            destination=self.site,
+            path=(cable1, circuittermination1, circuittermination2),
+            is_active=True
+        )
+        path2 = self.assertPathExists(
+            origin=interface2,
+            destination=self.site,
+            path=(cable3, circuittermination4, circuittermination3),
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+        interface1.refresh_from_db()
+        interface2.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+        self.assertPathIsSet(interface2, path2)
+
     def test_301_create_path_via_existing_cable(self):
         """
         [IF1] --C1-- [FP1] [RP2] --C2-- [RP2] [FP2] --C3-- [IF2]
