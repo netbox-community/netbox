@@ -1141,7 +1141,8 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
 class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        required=False
+        required=False,
+        widget=StaticSelect2
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
