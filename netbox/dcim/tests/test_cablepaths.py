@@ -819,15 +819,35 @@ class CablePathTestCase(TestCase):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
 
-        # Create cables
+        # Create cable 1
         cable1 = Cable(termination_a=interface1, termination_b=circuittermination1)
         cable1.save()
+
+        # Check for partial path from interface1
+        self.assertPathExists(
+            origin=interface1,
+            destination=None,
+            path=(cable1, circuittermination1),
+            is_active=False
+        )
+
+        # Create CT2
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
+
+        # Check for partial path to site
+        self.assertPathExists(
+            origin=interface1,
+            destination=self.site,
+            path=(cable1, circuittermination1, circuittermination2),
+            is_active=True
+        )
+
+        # Create cable 2
         cable2 = Cable(termination_a=circuittermination2, termination_b=interface2)
         cable2.save()
 
-        # Check for paths
+        # Check for complete path in each direction
         self.assertPathExists(
             origin=interface1,
             destination=interface2,
