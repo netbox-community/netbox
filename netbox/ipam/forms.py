@@ -1144,12 +1144,13 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             'sites': '$site'
         }
     )
-    site_group = DynamicModelChoiceField(
+    sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
         initial_params={
             'sites': '$site'
-        }
+        },
+        label='Site group'
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -1159,7 +1160,7 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         },
         query_params={
             'region_id': '$region',
-            'group_id': '$site_group',
+            'group_id': '$sitegroup',
         }
     )
     location = DynamicModelChoiceField(
@@ -1180,18 +1181,19 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             'location_id': '$location',
         }
     )
-    cluster_group = DynamicModelChoiceField(
+    clustergroup = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         initial_params={
             'clusters': '$cluster'
-        }
+        },
+        label='Cluster group'
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
         query_params={
-            'group_id': '$cluster_group',
+            'group_id': '$clustergroup',
         }
     )
     slug = SlugField()
@@ -1199,29 +1201,19 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'region', 'site_group', 'site', 'location', 'rack', 'cluster_group',
-            'cluster',
+            'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
+            'clustergroup', 'cluster',
         ]
+        widgets = {
+            'scope_type': StaticSelect2,
+        }
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
         initial = kwargs.get('initial', {})
 
         if instance is not None and instance.scope:
-            if type(instance.scope) is Rack:
-                initial['rack'] = instance.scope
-            elif type(instance.scope) is Location:
-                initial['location'] = instance.scope
-            elif type(instance.scope) is Site:
-                initial['site'] = instance.scope
-            elif type(instance.scope) is SiteGroup:
-                initial['site_group'] = instance.scope
-            elif type(instance.scope) is Region:
-                initial['region'] = instance.scope
-            elif type(instance.scope) is Cluster:
-                initial['cluster'] = instance.scope
-            elif type(instance.scope) is ClusterGroup:
-                initial['cluster_group'] = instance.scope
+            initial[instance.scope_type.model] = instance.scope
 
             kwargs['initial'] = initial
 
@@ -1230,11 +1222,10 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     def clean(self):
         super().clean()
 
-        # Assign scope object
-        self.instance.scope = self.cleaned_data['rack'] or self.cleaned_data['location'] or \
-            self.cleaned_data['site'] or self.cleaned_data['site_group'] or \
-            self.cleaned_data['region'] or self.cleaned_data['cluster'] or \
-            self.cleaned_data['cluster_group'] or None
+        # Assign scope based on scope_type
+        if self.cleaned_data['scope_type']:
+            scope_field = self.cleaned_data['scope_type'].model
+            self.instance.scope = self.cleaned_data.get(scope_field)
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):
