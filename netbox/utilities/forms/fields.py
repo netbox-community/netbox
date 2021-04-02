@@ -20,6 +20,7 @@ from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 __all__ = (
     'CommentField',
+    'ContentTypeChoiceField',
     'CSVChoiceField',
     'CSVContentTypeField',
     'CSVDataField',
@@ -35,6 +36,99 @@ __all__ = (
     'TagFilterField',
 )
 
+
+class CommentField(forms.CharField):
+    """
+    A textarea with support for Markdown rendering. Exists mostly just to add a standard help_text.
+    """
+    widget = forms.Textarea
+    default_label = ''
+    # TODO: Port Markdown cheat sheet to internal documentation
+    default_helptext = '<i class="mdi mdi-information-outline"></i> '\
+                       '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank" tabindex="-1">'\
+                       'Markdown</a> syntax is supported'
+
+    def __init__(self, *args, **kwargs):
+        required = kwargs.pop('required', False)
+        label = kwargs.pop('label', self.default_label)
+        help_text = kwargs.pop('help_text', self.default_helptext)
+        super().__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
+
+
+class SlugField(forms.SlugField):
+    """
+    Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
+    """
+    def __init__(self, slug_source='name', *args, **kwargs):
+        label = kwargs.pop('label', "Slug")
+        help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
+        widget = kwargs.pop('widget', widgets.SlugWidget)
+        super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
+        self.widget.attrs['slug-source'] = slug_source
+
+
+class TagFilterField(forms.MultipleChoiceField):
+    """
+    A filter field for the tags of a model. Only the tags used by a model are displayed.
+
+    :param model: The model of the filter
+    """
+    widget = widgets.StaticSelect2Multiple
+
+    def __init__(self, model, *args, **kwargs):
+        def get_choices():
+            tags = model.tags.annotate(
+                count=Count('extras_taggeditem_items')
+            ).order_by('name')
+            return [
+                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
+            ]
+
+        # Choices are fetched each time the form is initialized
+        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
+
+
+class LaxURLField(forms.URLField):
+    """
+    Modifies Django's built-in URLField to remove the requirement for fully-qualified domain names
+    (e.g. http://myserver/ is valid)
+    """
+    default_validators = [EnhancedURLValidator()]
+
+
+class JSONField(_JSONField):
+    """
+    Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
+            self.widget.attrs['placeholder'] = ''
+
+    def prepare_value(self, value):
+        if isinstance(value, InvalidJSONInput):
+            return value
+        if value is None:
+            return ''
+        return json.dumps(value, sort_keys=True, indent=4)
+
+
+class ContentTypeChoiceField(forms.ModelChoiceField):
+
+    def __init__(self, queryset, *args, **kwargs):
+        # Order ContentTypes by app_label
+        queryset = queryset.order_by('app_label', 'model')
+        super().__init__(queryset, *args, **kwargs)
+
+    def label_from_instance(self, obj):
+        meta = obj.model_class()._meta
+        return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+
+
+#
+# CSV fields
+#
 
 class CSVDataField(forms.CharField):
     """
@@ -167,6 +261,10 @@ class CSVContentTypeField(CSVModelChoiceField):
             raise forms.ValidationError(f'Invalid object type')
 
 
+#
+# Expansion fields
+#
+
 class ExpandableNameField(forms.CharField):
     """
     A field which allows for numeric range expansion
@@ -212,56 +310,9 @@ class ExpandableIPAddressField(forms.CharField):
         return [value]
 
 
-class CommentField(forms.CharField):
-    """
-    A textarea with support for Markdown rendering. Exists mostly just to add a standard help_text.
-    """
-    widget = forms.Textarea
-    default_label = ''
-    # TODO: Port Markdown cheat sheet to internal documentation
-    default_helptext = '<i class="mdi mdi-information-outline"></i> '\
-                       '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank" tabindex="-1">'\
-                       'Markdown</a> syntax is supported'
-
-    def __init__(self, *args, **kwargs):
-        required = kwargs.pop('required', False)
-        label = kwargs.pop('label', self.default_label)
-        help_text = kwargs.pop('help_text', self.default_helptext)
-        super().__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
-
-
-class SlugField(forms.SlugField):
-    """
-    Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
-    """
-    def __init__(self, slug_source='name', *args, **kwargs):
-        label = kwargs.pop('label', "Slug")
-        help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
-        widget = kwargs.pop('widget', widgets.SlugWidget)
-        super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
-        self.widget.attrs['slug-source'] = slug_source
-
-
-class TagFilterField(forms.MultipleChoiceField):
-    """
-    A filter field for the tags of a model. Only the tags used by a model are displayed.
-
-    :param model: The model of the filter
-    """
-    widget = widgets.StaticSelect2Multiple
-
-    def __init__(self, model, *args, **kwargs):
-        def get_choices():
-            tags = model.tags.annotate(
-                count=Count('extras_taggeditem_items')
-            ).order_by('name')
-            return [
-                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
-            ]
-
-        # Choices are fetched each time the form is initialized
-        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
-
+#
+# Dynamic fields
+#
 
 class DynamicModelChoiceMixin:
     """
@@ -373,29 +424,3 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     """
     filter = django_filters.ModelMultipleChoiceFilter
     widget = widgets.APISelectMultiple
-
-
-class LaxURLField(forms.URLField):
-    """
-    Modifies Django's built-in URLField to remove the requirement for fully-qualified domain names
-    (e.g. http://myserver/ is valid)
-    """
-    default_validators = [EnhancedURLValidator()]
-
-
-class JSONField(_JSONField):
-    """
-    Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.help_text:
-            self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
-            self.widget.attrs['placeholder'] = ''
-
-    def prepare_value(self, value):
-        if isinstance(value, InvalidJSONInput):
-            return value
-        if value is None:
-            return ''
-        return json.dumps(value, sort_keys=True, indent=4)

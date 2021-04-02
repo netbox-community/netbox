@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
@@ -9,9 +10,10 @@ from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField, CSVModelChoiceField, DatePicker,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, NumericArrayField,
-    ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, ContentTypeChoiceField, CSVChoiceField,
+    CSVModelChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField,
+    NumericArrayField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from .choices import *
@@ -1137,6 +1139,10 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
 #
 
 class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
+        required=False
+    )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1223,9 +1229,11 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         super().clean()
 
         # Assign scope based on scope_type
-        if self.cleaned_data['scope_type']:
+        if self.cleaned_data.get('scope_type'):
             scope_field = self.cleaned_data['scope_type'].model
             self.instance.scope = self.cleaned_data.get(scope_field)
+        else:
+            self.instance.scope_id = None
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):
