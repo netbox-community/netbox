@@ -9,13 +9,13 @@ Begin by installing all system packages required by NetBox and its dependencies.
 !!! note
     NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8.
 
-=== Ubuntu
+=== "Ubuntu"
 
     ```no-highlight
     sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
     ```
 
-=== CentOS
+=== "CentOS"
 
     ```no-highlight
     sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
@@ -57,13 +57,13 @@ sudo mkdir -p /opt/netbox/ && cd /opt/netbox/
 
 If `git` is not already installed, install it:
 
-=== Ubuntu
+=== "Ubuntu"
 
     ```no-highlight
     sudo apt install -y git
     ```
 
-=== CentOS
+=== "CentOS"
 
     ```no-highlight
     sudo yum install -y git
@@ -89,14 +89,14 @@ Checking connectivity... done.
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
 
-=== Ubuntu
+=== "Ubuntu"
 
     ```
     sudo adduser --system --group netbox
     sudo chown --recursive netbox /opt/netbox/netbox/media/
     ```
 
-=== CentOS
+=== "CentOS"
 
     ```
     sudo groupadd --system netbox
