@@ -97,6 +97,11 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 
 class InterfaceCommonForm(forms.Form):
+    mac_address = forms.CharField(
+        empty_value=None,
+        required=False,
+        label='MAC address'
+    )
 
     def clean(self):
         super().clean()
