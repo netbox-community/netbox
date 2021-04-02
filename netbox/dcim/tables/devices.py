@@ -260,7 +260,7 @@ class CableTerminationTable(BaseTable):
 
 class PathEndpointTable(CableTerminationTable):
     connection = tables.TemplateColumn(
-        accessor='_path.destination',
+        accessor='_path.last_node',
         template_code=CABLETERMINATION,
         verbose_name='Connection',
         orderable=False

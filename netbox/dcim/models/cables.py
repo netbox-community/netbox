@@ -505,6 +505,13 @@ class CablePath(BigIDModel):
 
         return path
 
+    @property
+    def last_node(self):
+        """
+        Return either the destination or the last node within the path.
+        """
+        return self.destination or path_node_to_object(self.path[-1])
+
     def get_cable_ids(self):
         """
         Return all Cable IDs within the path.
