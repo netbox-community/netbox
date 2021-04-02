@@ -21,6 +21,7 @@ from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 __all__ = (
     'CommentField',
     'ContentTypeChoiceField',
+    'ContentTypeMultipleChoiceField',
     'CSVChoiceField',
     'CSVContentTypeField',
     'CSVDataField',
@@ -114,7 +115,7 @@ class JSONField(_JSONField):
         return json.dumps(value, sort_keys=True, indent=4)
 
 
-class ContentTypeChoiceField(forms.ModelChoiceField):
+class ContentTypeChoiceMixin:
 
     def __init__(self, queryset, *args, **kwargs):
         # Order ContentTypes by app_label
@@ -124,6 +125,14 @@ class ContentTypeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         meta = obj.model_class()._meta
         return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+
+
+class ContentTypeChoiceField(ContentTypeChoiceMixin, forms.ModelChoiceField):
+    pass
+
+
+class ContentTypeMultipleChoiceField(ContentTypeChoiceMixin, forms.ModelMultipleChoiceField):
+    pass
 
 
 #

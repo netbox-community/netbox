@@ -329,7 +329,6 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
-            'site': sites[1].pk,
             'description': 'A new VLAN group',
         }
 
