@@ -158,6 +158,7 @@ $(document).ready(function() {
                     q: params.term,
                     limit: 50,
                     offset: offset,
+                    brief: true,
                 };
 
                 // Attach any extra query parameters
