@@ -13,8 +13,7 @@
       </ol>
     </div>
     <div class="col-sm-4 col-md-3">
-      {# TODO: Provide absolute search URL #}
-      <form action="../" method="get">
+      <form action="{% url object|viewname:'list' %}" method="get">
         <div class="input-group">
           <input type="text" name="q" class="form-control" placeholder="Search" />
           <span class="input-group-btn">
