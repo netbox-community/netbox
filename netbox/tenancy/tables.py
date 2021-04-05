@@ -26,7 +26,7 @@ class TenantColumn(tables.TemplateColumn):
         super().__init__(template_code=self.template_code, *args, **kwargs)
 
     def value(self, value):
-        return str(value)
+        return str(value) if value else None
 
 
 #
