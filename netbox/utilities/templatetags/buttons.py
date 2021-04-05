@@ -82,13 +82,18 @@ def import_button(url):
 
 @register.inclusion_tag('buttons/export.html', takes_context=True)
 def export_button(context, content_type=None):
+    add_exporttemplate_link = None
+
     if content_type is not None:
         user = context['request'].user
         export_templates = ExportTemplate.objects.restrict(user, 'view').filter(content_type=content_type)
+        if user.is_staff and user.has_perm('extras.add_exporttemplate'):
+            add_exporttemplate_link = f"{reverse('admin:extras_exporttemplate_add')}?content_type={content_type.pk}"
     else:
         export_templates = []
 
     return {
         'url_params': context['request'].GET,
         'export_templates': export_templates,
+        'add_exporttemplate_link': add_exporttemplate_link,
     }

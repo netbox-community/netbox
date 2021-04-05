@@ -12,5 +12,9 @@
         <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export={{ et.name }}"{% if et.description %} title="{{ et.description }}"{% endif %}>{{ et.name }}</a></li>
       {% endfor %}
     {% endif %}
+    {% if add_exporttemplate_link %}
+      <li class="divider"></li>
+      <li><a href="{{ add_exporttemplate_link }}">Add export template... </a></li>
+    {% endif %}
   </ul>
 </div>
