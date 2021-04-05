@@ -210,12 +210,22 @@
                 <strong>Locations</strong>
             </div>
             <table class="table table-hover panel-body">
+                <tr>
+                    <th>Location</th>
+                    <th>Racks</th>
+                    <th>Devices</th>
+                    <th></th>
+                </tr>
                 {% for location in locations %}
                     <tr>
                         <td style="padding-left: {{ location.level }}8px">
-                          <i class="mdi mdi-folder-open"></i> <a href="{{ location.get_absolute_url }}">{{ location }}</a>
+                          <i class="mdi mdi-folder-open-outline"></i> <a href="{{ location.get_absolute_url }}">{{ location }}</a>
                         </td>
-                        <td>{{ location.rack_count }}</td>
+                        <td>
+                          <a href="{% url 'dcim:rack_list' %}?location_id={{ location.pk }}">{{ location.rack_count }}</a></td>
+                        <td>
+                          <a href="{% url 'dcim:device_list' %}?location_id={{ location.pk }}">{{ location.device_count }}</a>
+                        </td>
                         <td class="text-right noprint">
                             <a href="{% url 'dcim:rack_elevation_list' %}?location_id={{ location.pk }}" class="btn btn-xs btn-primary" title="View elevations">
                                 <i class="mdi mdi-server"></i>
@@ -223,15 +233,6 @@
                         </td>
                     </tr>
                 {% endfor %}
-                <tr>
-                    <td><i class="mdi mdi-folder-open"></i> All racks</td>
-                    <td>{{ stats.rack_count }}</td>
-                    <td class="text-right noprint">
-                        <a href="{% url 'dcim:rack_elevation_list' %}?site_id={{ object.pk }}" class="btn btn-xs btn-primary" title="View elevations">
-                            <i class="mdi mdi-server"></i>
-                        </a>
-                    </td>
-                </tr>
             </table>
         </div>
         <div class="panel panel-default">

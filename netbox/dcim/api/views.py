@@ -146,7 +146,13 @@ class SiteViewSet(CustomFieldModelViewSet):
 
 class LocationViewSet(CustomFieldModelViewSet):
     queryset = Location.objects.add_related_count(
-        Location.objects.all(),
+        Location.objects.add_related_count(
+            Location.objects.all(),
+            Device,
+            'location',
+            'device_count',
+            cumulative=True
+        ),
         Rack,
         'location',
         'rack_count',
@@ -174,7 +180,7 @@ class RackRoleViewSet(CustomFieldModelViewSet):
 
 class RackViewSet(CustomFieldModelViewSet):
     queryset = Rack.objects.prefetch_related(
-        'site', 'location__site', 'role', 'tenant', 'tags'
+        'site', 'location', 'role', 'tenant', 'tags'
     ).annotate(
         device_count=count_related(Device, 'rack'),
         powerfeed_count=count_related(PowerFeed, 'rack')

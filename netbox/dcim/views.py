@@ -272,6 +272,13 @@ class SiteView(generic.ObjectView):
             'location',
             'rack_count',
             cumulative=True
+        )
+        locations = Location.objects.add_related_count(
+            locations,
+            Device,
+            'location',
+            'device_count',
+            cumulative=True
         ).restrict(request.user, 'view').filter(site=instance)
 
         return {

@@ -134,12 +134,13 @@ class LocationSerializer(NestedGroupModelSerializer):
     site = NestedSiteSerializer()
     parent = NestedLocationSerializer(required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)
+    device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Location
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'site', 'parent', 'description', 'custom_fields', 'created',
-            'last_updated', 'rack_count', '_depth',
+            'last_updated', 'rack_count', 'device_count', '_depth',
         ]
 
 

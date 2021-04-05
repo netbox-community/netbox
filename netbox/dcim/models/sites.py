@@ -315,6 +315,7 @@ class Location(NestedGroupModel):
     )
 
     csv_headers = ['site', 'parent', 'name', 'slug', 'description']
+    clone_fields = ['site', 'parent', 'description']
 
     class Meta:
         ordering = ['site', 'name']

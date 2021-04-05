@@ -27,6 +27,10 @@
           <td>{{ object.description|placeholder }}</td>
         </tr>
         <tr>
+          <td>Site</td>
+          <td><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></td>
+        </tr>
+        <tr>
           <td>Parent</td>
           <td>
             {% if object.parent %}
