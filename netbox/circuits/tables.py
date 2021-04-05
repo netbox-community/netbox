@@ -6,6 +6,15 @@ from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagCol
 from .models import *
 
 
+CIRCUITTERMINATION_LINK = """
+{% if value.site %}
+  <a href="{{ value.site.get_absolute_url }}">{{ value.site }}</a>
+{% elif value.provider_network %}
+  <a href="{{ value.provider_network.get_absolute_url }}">{{ value.provider_network }}</a>
+{% endif %}
+"""
+
+
 #
 # Providers
 #
@@ -88,12 +97,12 @@ class CircuitTable(BaseTable):
     )
     status = ChoiceFieldColumn()
     tenant = TenantColumn()
-    termination_a = tables.Column(
-        linkify=True,
+    termination_a = tables.TemplateColumn(
+        template_code=CIRCUITTERMINATION_LINK,
         verbose_name='Side A'
     )
-    termination_z = tables.Column(
-        linkify=True,
+    termination_z = tables.TemplateColumn(
+        template_code=CIRCUITTERMINATION_LINK,
         verbose_name='Side Z'
     )
     tags = TagColumn(
