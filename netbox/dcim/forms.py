@@ -309,6 +309,11 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    time_zone = TimeZoneFormField(
+        choices=add_blank_choice(TimeZoneFormField().choices),
+        required=False,
+        widget=StaticSelect2()
+    )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
