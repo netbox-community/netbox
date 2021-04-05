@@ -3148,7 +3148,6 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         required=False,
         query_params={
             'device_id': '$device',
-            'kind': 'physical',
         }
     )
     lag = DynamicModelChoiceField(
@@ -3235,10 +3234,7 @@ class InterfaceBulkEditForm(
     )
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
-        required=False,
-        query_params={
-            'kind': 'physical',
-        }
+        required=False
     )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),

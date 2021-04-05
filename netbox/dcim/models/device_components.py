@@ -623,13 +623,13 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
                               f"is not part of virtual chassis {self.device.virtual_chassis}."
                 })
 
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
+
         # A physical interface cannot have a parent interface
         if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
             raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
-
-        # A virtual interface cannot be a parent interface
-        if self.parent is not None and self.parent.type == InterfaceTypeChoices.TYPE_VIRTUAL:
-            raise ValidationError({'parent': "Virtual interfaces may not be parents of other interfaces."})
 
         # An interface's LAG must belong to the same device or virtual chassis
         if self.lag and self.lag.device != self.device:

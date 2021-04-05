@@ -281,13 +281,11 @@
             {% include 'panel_table.html' with table=vlan_table heading="VLANs" %}
         </div>
     </div>
-    {% if not object.is_virtual %}
-        <div class="row">
-            <div class="col-md-12">
-                {% include 'panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}
-            </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}
         </div>
-    {% endif %}
+    </div>
     <div class="row">
         <div class="col-md-12">
             {% plugin_full_width_page object %}
