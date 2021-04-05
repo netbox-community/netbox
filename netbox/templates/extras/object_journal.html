@@ -15,14 +15,12 @@
                     {{ field }}
                 {% endfor %}
                 <div class="row panel-body">
-                    <div class="col-md-10">
+                    <div class="col-md-10 col-md-offset-1">
                         {% render_field form.kind %}
                         {% render_field form.comments %}
-                        <div class="row">
-                            <div class="col-md-9 col-md-offset-3">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                                <a href="{{ object.get_absolute_url }}" class="btn btn-default">Cancel</a>
-                            </div>
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <a href="{{ object.get_absolute_url }}" class="btn btn-default">Cancel</a>
                         </div>
                     </div>
                 </div>
