@@ -3,7 +3,7 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:location_list' %}">Location</a></li>
+  <li><a href="{% url 'dcim:location_list' %}">Locations</a></li>
   {% for location in object.get_ancestors %}
     <li><a href="{{ location.get_absolute_url }}">{{ location }}</a></li>
   {% endfor %}

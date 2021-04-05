@@ -3,6 +3,12 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'dcim:device_interfaces' pk=object.device.pk %}">Interfaces</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
 {% block buttons %}
   {% if perms.dcim.add_interface and not object.is_virtual %}
     <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-success">
