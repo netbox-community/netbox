@@ -40,7 +40,7 @@ class TenantGroupTable(BaseTable):
     )
     tenant_count = LinkedCountColumn(
         viewname='tenancy:tenant_list',
-        url_params={'group': 'slug'},
+        url_params={'group_id': 'pk'},
         verbose_name='Tenants'
     )
     actions = ButtonsColumn(TenantGroup)

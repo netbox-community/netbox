@@ -15,7 +15,7 @@ class SecretRoleTable(BaseTable):
     )
     secret_count = LinkedCountColumn(
         viewname='secrets:secret_list',
-        url_params={'role': 'slug'},
+        url_params={'role_id': 'pk'},
         verbose_name='Secrets'
     )
     actions = ButtonsColumn(SecretRole)

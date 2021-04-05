@@ -63,12 +63,12 @@ class DeviceRoleTable(BaseTable):
     )
     device_count = LinkedCountColumn(
         viewname='dcim:device_list',
-        url_params={'role': 'slug'},
+        url_params={'role_id': 'pk'},
         verbose_name='Devices'
     )
     vm_count = LinkedCountColumn(
         viewname='virtualization:virtualmachine_list',
-        url_params={'role': 'slug'},
+        url_params={'role_id': 'pk'},
         verbose_name='VMs'
     )
     color = ColorColumn()
@@ -92,12 +92,12 @@ class PlatformTable(BaseTable):
     )
     device_count = LinkedCountColumn(
         viewname='dcim:device_list',
-        url_params={'platform': 'slug'},
+        url_params={'platform_id': 'pk'},
         verbose_name='Devices'
     )
     vm_count = LinkedCountColumn(
         viewname='virtualization:virtualmachine_list',
-        url_params={'platform': 'slug'},
+        url_params={'platform_id': 'pk'},
         verbose_name='VMs'
     )
     actions = ButtonsColumn(Platform)

@@ -176,7 +176,7 @@ class RIRTable(BaseTable):
     )
     aggregate_count = LinkedCountColumn(
         viewname='ipam:aggregate_list',
-        url_params={'rir': 'slug'},
+        url_params={'rir_id': 'pk'},
         verbose_name='Aggregates'
     )
     actions = ButtonsColumn(RIR)
@@ -236,12 +236,12 @@ class RoleTable(BaseTable):
     )
     prefix_count = LinkedCountColumn(
         viewname='ipam:prefix_list',
-        url_params={'role': 'slug'},
+        url_params={'role_id': 'pk'},
         verbose_name='Prefixes'
     )
     vlan_count = LinkedCountColumn(
         viewname='ipam:vlan_list',
-        url_params={'role': 'slug'},
+        url_params={'role_id': 'pk'},
         verbose_name='VLANs'
     )
     actions = ButtonsColumn(Role)
@@ -434,7 +434,7 @@ class VLANGroupTable(BaseTable):
     )
     vlan_count = LinkedCountColumn(
         viewname='ipam:vlan_list',
-        url_params={'group': 'slug'},
+        url_params={'group_id': 'pk'},
         verbose_name='VLANs'
     )
     actions = ButtonsColumn(
