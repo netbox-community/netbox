@@ -6,11 +6,11 @@ def set_scope_types(apps, schema_editor):
     Set 'site' as the scope type for all VLANGroups with a scope ID defined.
     """
     ContentType = apps.get_model('contenttypes', 'ContentType')
+    Site = apps.get_model('dcim', 'Site')
     VLANGroup = apps.get_model('ipam', 'VLANGroup')
 
-    site_ct = ContentType.objects.get(app_label='dcim', model='site').pk
     VLANGroup.objects.filter(scope_id__isnull=False).update(
-        scope_type=site_ct
+        scope_type=ContentType.objects.get_for_model(Site)
     )
 
 
