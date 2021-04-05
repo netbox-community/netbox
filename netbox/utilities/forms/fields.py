@@ -123,8 +123,11 @@ class ContentTypeChoiceMixin:
         super().__init__(queryset, *args, **kwargs)
 
     def label_from_instance(self, obj):
-        meta = obj.model_class()._meta
-        return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+        try:
+            meta = obj.model_class()._meta
+            return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+        except AttributeError:
+            return super().label_from_instance(obj)
 
 
 class ContentTypeChoiceField(ContentTypeChoiceMixin, forms.ModelChoiceField):
