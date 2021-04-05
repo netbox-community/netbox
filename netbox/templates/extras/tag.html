@@ -40,6 +40,27 @@
     {% plugin_left_page object %}
   </div>
 	<div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Tagged Item Types</strong>
+      </div>
+      <table class="table table-hover panel-body">
+        {% for object_type in object_types %}
+          <tr>
+            <td>{{ object_type.content_type.name|bettertitle }}</td>
+            <td>
+              {% with viewname=object_type.content_type.model_class|validated_viewname:"list" %}
+                {% if viewname %}
+                  <a href="{% url viewname %}?tag={{ object.slug }}">{{ object_type.item_count }}</a>
+                {% else %}
+                  {{ object_type.item_count }}
+                {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
     {% plugin_right_page object %}
 	</div>
 </div>
@@ -47,7 +68,7 @@
 	<div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <strong>Device Types</strong>
+        <strong>Tagged Items</strong>
       </div>
       {% include 'inc/table.html' with table=taggeditem_table %}
     </div>

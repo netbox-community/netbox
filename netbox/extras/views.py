@@ -1,7 +1,6 @@
-from django import template
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -45,9 +44,17 @@ class TagView(generic.ObjectView):
         )
         paginate_table(taggeditem_table, request)
 
+        object_types = [
+            {
+                'content_type': ContentType.objects.get(pk=ti['content_type']),
+                'item_count': ti['item_count']
+            } for ti in tagged_items.values('content_type').annotate(item_count=Count('pk'))
+        ]
+
         return {
             'taggeditem_table': taggeditem_table,
             'tagged_item_count': tagged_items.count(),
+            'object_types': object_types,
         }
 
 
