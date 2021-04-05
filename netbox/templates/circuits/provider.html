@@ -10,7 +10,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-4">
+	  <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Provider</strong>
@@ -50,6 +50,9 @@
                 </tr>
             </table>
         </div>
+        {% plugin_left_page object %}
+    </div>
+    <div class="col-md-6">
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:provider_list' %}
         <div class="panel panel-default">
@@ -64,9 +67,11 @@
                 {% endif %}
             </div>
         </div>
-        {% plugin_left_page object %}
-	</div>
-	<div class="col-md-8">
+        {% plugin_right_page object %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Circuits</strong>
@@ -80,8 +85,7 @@
                 </div>
             {% endif %}
         </div>
-    {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
-    {% plugin_right_page object %}
+        {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
     </div>
 </div>
 <div class="row">

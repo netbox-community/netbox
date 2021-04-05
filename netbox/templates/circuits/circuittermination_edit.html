@@ -26,6 +26,7 @@
                   <p class="form-control-static">{{ form.term_side.value }}</p>
               </div>
           </div>
+          {% render_field form.mark_connected %}
           {% with providernetwork_tab_active=form.initial.provider_network %}
               <ul class="nav nav-tabs" role="tablist">
                   <li role="presentation"{% if not providernetwork_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
@@ -42,7 +43,6 @@
                   </div>
               </div>
           {% endwith %}
-          {% render_field form.mark_connected %}
       </div>
   </div>
   <div class="panel panel-default">
