@@ -566,7 +566,7 @@ class LocationFilterForm(BootstrapMixin, forms.Form):
         },
         label=_('Site')
     )
-    parent = DynamicModelMultipleChoiceField(
+    parent_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
         required=False,
         query_params={
@@ -1082,13 +1082,13 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFi
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.prefetch_related('site'),
         required=False,
-        label='Location',
+        label=_('Location'),
         null_option='None'
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
-        label='User',
+        label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
         )
@@ -2406,14 +2406,16 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        required=False
+        required=False,
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
             'region_id': '$region_id'
-        }
+        },
+        label=_('Site')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -4351,7 +4353,7 @@ class CableFilterForm(BootstrapMixin, CustomFieldFilterForm):
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
-        label='Rack',
+        label=_('Rack'),
         null_option='None',
         query_params={
             'site_id': '$site_id'
