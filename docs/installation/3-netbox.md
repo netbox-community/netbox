@@ -264,7 +264,7 @@ Quit the server with CONTROL-C.
 
 Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
 
-!!! warning
+!!! danger
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning
