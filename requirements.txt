@@ -1,4 +1,4 @@
-Django==3.2b1
+Django==3.2
 django-cacheops==5.1
 django-cors-headers==3.7.0
 django-debug-toolbar==3.2
