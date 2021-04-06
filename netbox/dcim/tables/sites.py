@@ -2,7 +2,9 @@ import django_tables2 as tables
 
 from dcim.models import Region, Site, SiteGroup
 from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, MPTTColumn, TagColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn,
+)
 
 __all__ = (
     'RegionTable',
@@ -20,7 +22,9 @@ class RegionTable(BaseTable):
     name = MPTTColumn(
         linkify=True
     )
-    site_count = tables.Column(
+    site_count = LinkedCountColumn(
+        viewname='dcim:site_list',
+        url_params={'region_id': 'pk'},
         verbose_name='Sites'
     )
     actions = ButtonsColumn(Region)
@@ -40,7 +44,9 @@ class SiteGroupTable(BaseTable):
     name = MPTTColumn(
         linkify=True
     )
-    site_count = tables.Column(
+    site_count = LinkedCountColumn(
+        viewname='dcim:site_list',
+        url_params={'group_id': 'pk'},
         verbose_name='Sites'
     )
     actions = ButtonsColumn(SiteGroup)

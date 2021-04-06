@@ -44,10 +44,23 @@
         </tr>
       </table>
     </div>
+    {% include 'inc/custom_fields_panel.html' %}
     {% plugin_left_page object %}
   </div>
 	<div class="col-md-6">
-    {% include 'inc/custom_fields_panel.html' %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Child Groups</strong>
+      </div>
+      {% include 'inc/table.html' with table=child_groups_table %}
+      {% if perms.dcim.add_sitegroup %}
+        <div class="panel-footer text-right noprint">
+          <a href="{% url 'dcim:sitegroup_add' %}?parent={{ object.pk }}" class="btn btn-xs btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add site group
+          </a>
+        </div>
+      {% endif %}
+    </div>
     {% plugin_right_page object %}
 	</div>
 </div>
@@ -65,9 +78,9 @@
           </a>
         </div>
       {% endif %}
-      </div>
-      {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
-      {% plugin_full_width_page object %}
+    </div>
+    {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
+    {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}

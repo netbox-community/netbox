@@ -116,15 +116,26 @@ class RegionView(generic.ObjectView):
     queryset = Region.objects.all()
 
     def get_extra_context(self, request, instance):
+        child_regions = Region.objects.add_related_count(
+            Region.objects.all(),
+            Site,
+            'region',
+            'site_count',
+            cumulative=True
+        ).restrict(request.user, 'view').filter(
+            parent__in=instance.get_descendants(include_self=True)
+        )
+        child_regions_table = tables.RegionTable(child_regions)
+
         sites = Site.objects.restrict(request.user, 'view').filter(
             region=instance
         )
-
         sites_table = tables.SiteTable(sites)
         sites_table.columns.hide('region')
         paginate_table(sites_table, request)
 
         return {
+            'child_regions_table': child_regions_table,
             'sites_table': sites_table,
         }
 
@@ -190,15 +201,26 @@ class SiteGroupView(generic.ObjectView):
     queryset = SiteGroup.objects.all()
 
     def get_extra_context(self, request, instance):
+        child_groups = SiteGroup.objects.add_related_count(
+            SiteGroup.objects.all(),
+            Site,
+            'group',
+            'site_count',
+            cumulative=True
+        ).restrict(request.user, 'view').filter(
+            parent__in=instance.get_descendants(include_self=True)
+        )
+        child_groups_table = tables.SiteGroupTable(child_groups)
+
         sites = Site.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-
         sites_table = tables.SiteTable(sites)
         sites_table.columns.hide('group')
         paginate_table(sites_table, request)
 
         return {
+            'child_groups_table': child_groups_table,
             'sites_table': sites_table,
         }
 
