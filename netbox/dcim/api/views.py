@@ -2,6 +2,7 @@ import socket
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 from django.http import HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -580,6 +581,7 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = Interface.objects.prefetch_related('device', '_path').filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
+        _path__destination_type=ContentType.objects.get_by_natural_key('dcim', 'interface'),
         _path__destination_id__isnull=False,
         pk__lt=F('_path__destination_id')
     )
