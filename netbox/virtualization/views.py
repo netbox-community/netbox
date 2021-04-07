@@ -163,8 +163,6 @@ class ClusterVirtualMachinesView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         virtualmachines = VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=instance)
         virtualmachines_table = tables.VirtualMachineTable(virtualmachines, orderable=False)
-        if request.user.has_perm('virtualization.change_cluster'):
-            virtualmachines_table.columns.show('pk')
 
         return {
             'virtualmachines_table': virtualmachines_table,
