@@ -2056,7 +2056,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False,
         query_params={
             'site_id': '$site',
-            'location_id': 'location',
+            'location_id': '$location',
         }
     )
     position = forms.IntegerField(

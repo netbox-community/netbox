@@ -8,6 +8,7 @@
 * [#6104](https://github.com/netbox-community/netbox/issues/6104) - Fix location column on racks table
 * [#6105](https://github.com/netbox-community/netbox/issues/6105) - Hide checkboxes for VMs under cluster VMs view
 * [#6106](https://github.com/netbox-community/netbox/issues/6106) - Allow assigning a virtual interface as the parent of an existing interface
+* [#6107](https://github.com/netbox-community/netbox/issues/6107) - Fix rack selection field on device form
 
 ---
 
