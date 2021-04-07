@@ -5,6 +5,7 @@
 ### Bug Fixes (from Beta)
 
 * [#6100](https://github.com/netbox-community/netbox/issues/6100) - Fix VM interfaces table "add interfaces" link
+* [#6104](https://github.com/netbox-community/netbox/issues/6104) - Fix location column on racks table
 
 ---
 
