@@ -3072,10 +3072,7 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label='Parent interface',
-        query_params={
-            'kind': 'physical',
-        }
+        label='Parent interface'
     )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
