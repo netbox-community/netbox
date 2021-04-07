@@ -35,7 +35,7 @@
                 {% endif %}
                 {% if perms.virtualization.add_vminterface %}
                     <div class="pull-right">
-                        <a href="{% url 'virtualization:vminterface_add' %}?virtualmachine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-primary btn-xs">
+                        <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-primary btn-xs">
                             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add interfaces
                         </a>
                     </div>
