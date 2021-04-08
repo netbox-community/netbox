@@ -1676,10 +1676,10 @@ class CableTestCase(
         }
 
         cls.csv_data = (
-            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
-            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1",
-            "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
-            "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
+            "side_a_parent_type,side_a_parent_id,side_a_type,side_a_name,side_b_parent_type,side_b_parent_id,side_b_type,side_b_name",
+            f"dcim.device,{devices[2].pk},dcim.interface,Interface 1,dcim.device,{devices[3].pk},dcim.interface,Interface 1",
+            f"dcim.device,{devices[2].pk},dcim.interface,Interface 2,dcim.device,{devices[3].pk},dcim.interface,Interface 2",
+            f"dcim.device,{devices[2].pk},dcim.interface,Interface 3,dcim.device,{devices[3].pk},dcim.interface,Interface 3",
         )
 
         cls.bulk_edit_data = {
