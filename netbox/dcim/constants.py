@@ -59,6 +59,17 @@ POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 # Cabling and connections
 #
 
+# Cable endpoint parent types
+CABLE_TERMINATION_PARENT_MODELS = Q(
+    Q(app_label='circuits', model__in=(
+        'circuit',
+    )) |
+    Q(app_label='dcim', model__in=(
+        'device',
+        'powerpanel',
+    ))
+)
+
 # Cable endpoint types
 CABLE_TERMINATION_MODELS = Q(
     Q(app_label='circuits', model__in=(

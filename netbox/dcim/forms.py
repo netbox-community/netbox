@@ -3819,10 +3819,13 @@ class CableForm(BootstrapMixin, CustomFieldModelForm):
 
 class CableCSVForm(CustomFieldModelCSVForm):
     # Termination A
-    side_a_device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Side A device'
+    side_a_parent_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=CABLE_TERMINATION_PARENT_MODELS,
+        help_text='Side A parent type'
+    )
+    side_a_parent_id = forms.IntegerField(
+        help_text='Side A parent ID'
     )
     side_a_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
@@ -3834,10 +3837,13 @@ class CableCSVForm(CustomFieldModelCSVForm):
     )
 
     # Termination B
-    side_b_device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Side B device'
+    side_b_parent_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=CABLE_TERMINATION_PARENT_MODELS,
+        help_text='Side B parent type'
+    )
+    side_b_parent_id = forms.IntegerField(
+        help_text='Side B parent ID'
     )
     side_b_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
@@ -3868,12 +3874,29 @@ class CableCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Cable
         fields = [
-            'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
-            'status', 'label', 'color', 'length', 'length_unit',
+            'side_a_parent_type', 'side_a_parent_id', 'side_a_type', 'side_a_name',
+            'side_b_parent_type', 'side_b_parent_id', 'side_b_type', 'side_b_name',
+            'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
+
+    def _get_parent(self, side):
+        parent_type = self.cleaned_data.get(f'side_{side}_parent_type')
+        parent_id = self.cleaned_data.get(f'side_{side}_parent_id')
+        if not parent_type or not parent_id:
+            return None
+
+        model = parent_type.model_class()
+
+        return model.objects.get(pk=parent_id)
+
+    def _translate_model(self, parent_type):
+        # TODO: maybe we went overboard with making this generic/extensible?
+        return {
+            "powerpanel": "power_panel",
+        }.get(parent_type.model, parent_type.model)
 
     def _clean_side(self, side):
         """
@@ -3883,19 +3906,24 @@ class CableCSVForm(CustomFieldModelCSVForm):
         """
         assert side in 'ab', f"Invalid side designation: {side}"
 
-        device = self.cleaned_data.get(f'side_{side}_device')
+        parent_type = self.cleaned_data.get(f'side_{side}_parent_type')
+        parent = self._get_parent(side)
         content_type = self.cleaned_data.get(f'side_{side}_type')
         name = self.cleaned_data.get(f'side_{side}_name')
-        if not device or not content_type or not name:
+        if not parent or not content_type or not name:
             return None
 
         model = content_type.model_class()
         try:
-            termination_object = model.objects.get(device=device, name=name)
+            # the parent is named like the model, we utilize that fact for the query
+            termination_object = model.objects.get(**{
+                "name" if hasattr(model, "name") else "pk": name,
+                self._translate_model(parent_type): parent
+            })
             if termination_object.cable is not None:
-                raise forms.ValidationError(f"Side {side.upper()}: {device} {termination_object} is already connected")
+                raise forms.ValidationError(f"Side {side.upper()}: {parent} {termination_object} is already connected")
         except ObjectDoesNotExist:
-            raise forms.ValidationError(f"{side.upper()} side termination not found: {device} {name}")
+            raise forms.ValidationError(f"{side.upper()} side termination not found: {parent} {name}")
 
         setattr(self.instance, f'termination_{side}', termination_object)
         return termination_object
