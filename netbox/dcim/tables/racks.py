@@ -1,47 +1,19 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, Location, RackReservation, RackRole
+from dcim.models import Rack, RackReservation, RackRole
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MPTTColumn,
-    TagColumn, ToggleColumn, UtilizationColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn,
+    ToggleColumn, UtilizationColumn,
 )
-from .template_code import LOCATION_ELEVATIONS
 
 __all__ = (
     'RackTable',
     'RackDetailTable',
-    'LocationTable',
     'RackReservationTable',
     'RackRoleTable',
 )
-
-
-#
-# Locations
-#
-
-class LocationTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn(
-        linkify=True
-    )
-    site = tables.Column(
-        linkify=True
-    )
-    rack_count = tables.Column(
-        verbose_name='Racks'
-    )
-    actions = ButtonsColumn(
-        model=Location,
-        prepend_template=LOCATION_ELEVATIONS
-    )
-
-    class Meta(BaseTable.Meta):
-        model = Location
-        fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
-        default_columns = ('pk', 'name', 'site', 'rack_count', 'description', 'actions')
 
 
 #

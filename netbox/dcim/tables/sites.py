@@ -1,12 +1,14 @@
 import django_tables2 as tables
 
-from dcim.models import Region, Site, SiteGroup
+from dcim.models import Location, Region, Site, SiteGroup
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
+from .template_code import LOCATION_ELEVATIONS
 
 __all__ = (
+    'LocationTable',
     'RegionTable',
     'SiteTable',
     'SiteGroupTable',
@@ -86,3 +88,32 @@ class SiteTable(BaseTable):
             'contact_email', 'tags',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'asn', 'description')
+
+
+#
+# Locations
+#
+
+class LocationTable(BaseTable):
+    pk = ToggleColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
+    site = tables.Column(
+        linkify=True
+    )
+    rack_count = tables.Column(
+        verbose_name='Racks'
+    )
+    device_count = tables.Column(
+        verbose_name='Devices'
+    )
+    actions = ButtonsColumn(
+        model=Location,
+        prepend_template=LOCATION_ELEVATIONS
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Location
+        fields = ('pk', 'name', 'site', 'rack_count', 'device_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'site', 'rack_count', 'device_count', 'description', 'actions')

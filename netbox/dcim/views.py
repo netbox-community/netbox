@@ -338,12 +338,18 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
 
 
 #
-# Rack groups
+# Locations
 #
 
 class LocationListView(generic.ObjectListView):
     queryset = Location.objects.add_related_count(
-        Location.objects.all(),
+        Location.objects.add_related_count(
+            Location.objects.all(),
+            Device,
+            'location',
+            'device_count',
+            cumulative=True
+        ),
         Rack,
         'location',
         'rack_count',

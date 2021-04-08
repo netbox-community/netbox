@@ -2,6 +2,10 @@
 
 ## v2.11.0 (FUTURE)
 
+### Enhancements (from Beta)
+
+* [#6109](https://github.com/netbox-community/netbox/issues/6109) - Add device counts to locations table
+
 ### Bug Fixes (from Beta)
 
 * [#6100](https://github.com/netbox-community/netbox/issues/6100) - Fix VM interfaces table "add interfaces" link
