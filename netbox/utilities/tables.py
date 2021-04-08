@@ -15,15 +15,16 @@ from extras.models import CustomField
 from .paginator import EnhancedPaginator, get_paginate_count
 
 
-def stripped_value(self, value):
+def stripped_value(self, **kwargs):
     """
     Replaces TemplateColumn's value() method to both strip HTML tags and remove any leading/trailing whitespace.
     """
-    return strip_tags(value).strip()
+    html = super(tables.TemplateColumn, self).value(**kwargs)
+    return strip_tags(html).strip() if isinstance(html, str) else html
 
 
 # TODO: We're monkey-patching TemplateColumn here to strip leading/trailing whitespace. This will no longer
-# be necessary if django-tables2 PR #794 is accepted. (See #5926)
+# be necessary under django-tables2 v2.3.5+. (See #5926)
 tables.TemplateColumn.value = stripped_value
 
 
