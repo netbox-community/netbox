@@ -41,6 +41,12 @@
           </td>
         </tr>
         <tr>
+          <td>Racks</td>
+          <td>
+            <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ object.racks.count }}</a>
+          </td>
+        </tr>
+        <tr>
           <td>Devices</td>
           <td>
             <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
