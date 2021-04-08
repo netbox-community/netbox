@@ -2,6 +2,7 @@ from django.urls import path
 
 from extras.views import ImageAttachmentEditView, ObjectChangeLogView, ObjectJournalView
 from ipam.views import ServiceEditView
+from utilities.views import SlugRedirectView
 from . import views
 from .models import *
 
@@ -37,6 +38,7 @@ urlpatterns = [
     path('sites/edit/', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
     path('sites/delete/', views.SiteBulkDeleteView.as_view(), name='site_bulk_delete'),
     path('sites/<int:pk>/', views.SiteView.as_view(), name='site'),
+    path('sites/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Site}),
     path('sites/<int:pk>/edit/', views.SiteEditView.as_view(), name='site_edit'),
     path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
     path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),

@@ -2,6 +2,7 @@ from django.urls import path
 
 from dcim.views import CableCreateView, PathTraceView
 from extras.views import ObjectChangeLogView, ObjectJournalView
+from utilities.views import SlugRedirectView
 from . import views
 from .models import *
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path('providers/edit/', views.ProviderBulkEditView.as_view(), name='provider_bulk_edit'),
     path('providers/delete/', views.ProviderBulkDeleteView.as_view(), name='provider_bulk_delete'),
     path('providers/<int:pk>/', views.ProviderView.as_view(), name='provider'),
+    path('providers/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Provider}),
     path('providers/<int:pk>/edit/', views.ProviderEditView.as_view(), name='provider_edit'),
     path('providers/<int:pk>/delete/', views.ProviderDeleteView.as_view(), name='provider_delete'),
     path('providers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
