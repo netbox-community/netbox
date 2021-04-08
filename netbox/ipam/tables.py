@@ -109,18 +109,6 @@ VLAN_MEMBER_TAGGED = """
 {% endif %}
 """
 
-TENANT_LINK = """
-{% if record.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-{% elif record.vrf.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
-{% elif object.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=object.tenant.slug %}" title="{{ object.tenant.description }}">{{ object.tenant }}</a>
-{% else %}
-    &mdash;
-{% endif %}
-"""
-
 
 #
 # VRFs
@@ -210,8 +198,8 @@ class AggregateTable(BaseTable):
     prefix = tables.LinkColumn(
         verbose_name='Aggregate'
     )
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
+    tenant = tables.Column(
+        linkify=True
     )
     date_added = tables.DateColumn(
         format="Y-m-d",
@@ -281,8 +269,8 @@ class PrefixTable(BaseTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
+    tenant = tables.Column(
+        linkify=True
     )
     site = tables.Column(
         linkify=True
@@ -349,8 +337,8 @@ class IPAddressTable(BaseTable):
         default=AVAILABLE_LABEL
     )
     role = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
+    tenant = tables.Column(
+        linkify=True
     )
     assigned_object = tables.Column(
         linkify=True,
@@ -430,8 +418,8 @@ class InterfaceIPAddressTable(BaseTable):
         verbose_name='VRF'
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=TENANT_LINK
+    tenant = tables.Column(
+        linkify=True
     )
     actions = ButtonsColumn(
         model=IPAddress
