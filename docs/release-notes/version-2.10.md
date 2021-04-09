@@ -16,6 +16,7 @@
 * [#6073](https://github.com/netbox-community/netbox/issues/6073) - Permit users to manage their own REST API tokens without needing explicit permission
 * [#6081](https://github.com/netbox-community/netbox/issues/6081) - Fix interface connections REST API endpoint
 * [#6108](https://github.com/netbox-community/netbox/issues/6108) - Do not infer tenant assignment from parent objects for prefixes, IP addresses
+* [#6131](https://github.com/netbox-community/netbox/issues/6131) - Correct handling of boolean fields when cloning objects
 
 ---
 
