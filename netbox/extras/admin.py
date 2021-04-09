@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
+from django.utils.safestring import mark_safe
 
 from utilities.forms import ContentTypeChoiceField, ContentTypeMultipleChoiceField, LaxURLField
+from utilities.utils import content_type_name
 from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
 from .utils import FeatureQuery
 
@@ -110,7 +112,8 @@ class CustomFieldAdmin(admin.ModelAdmin):
     )
 
     def models(self, obj):
-        return ', '.join([ct.name for ct in obj.content_types.all()])
+        ct_names = [content_type_name(ct) for ct in obj.content_types.all()]
+        return mark_safe('<br/>'.join(ct_names))
 
 
 #

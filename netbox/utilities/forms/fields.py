@@ -13,6 +13,7 @@ from django.forms import BoundField
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices
+from utilities.utils import content_type_name
 from utilities.validators import EnhancedURLValidator
 from . import widgets
 from .constants import *
@@ -124,8 +125,7 @@ class ContentTypeChoiceMixin:
 
     def label_from_instance(self, obj):
         try:
-            meta = obj.model_class()._meta
-            return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+            return content_type_name(obj)
         except AttributeError:
             return super().label_from_instance(obj)
 

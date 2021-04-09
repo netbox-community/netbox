@@ -296,6 +296,14 @@ def array_to_string(array):
     return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
 
 
+def content_type_name(contenttype):
+    """
+    Return a proper ContentType name.
+    """
+    meta = contenttype.model_class()._meta
+    return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+
+
 #
 # Fake request object
 #

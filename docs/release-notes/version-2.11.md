@@ -15,6 +15,7 @@
 * [#6106](https://github.com/netbox-community/netbox/issues/6106) - Allow assigning a virtual interface as the parent of an existing interface
 * [#6107](https://github.com/netbox-community/netbox/issues/6107) - Fix rack selection field on device form
 * [#6110](https://github.com/netbox-community/netbox/issues/6110) - Fix handling of TemplateColumn values for table export
+* [#6130](https://github.com/netbox-community/netbox/issues/6130) - Improve display of assigned models in custom fields list
 
 ---
 
