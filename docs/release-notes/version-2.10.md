@@ -8,6 +8,7 @@
 * [#5756](https://github.com/netbox-community/netbox/issues/5756) - Omit child devices from non-racked devices list under rack view
 * [#5840](https://github.com/netbox-community/netbox/issues/5840) - Add column to cable termination objects to display cable color
 * [#6054](https://github.com/netbox-community/netbox/issues/6054) - Display NAPALM-enabled device tabs only when relevant
+* [#6083](https://github.com/netbox-community/netbox/issues/6083) - Support disabling TLS certificate validation for Redis
 
 ### Bug Fixes
 
