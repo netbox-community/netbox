@@ -453,11 +453,24 @@ class VMInterfaceTestCase(TestCase):
         params = {'name': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_assigned_to_interface(self):
+    def test_enabled(self):
         params = {'enabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'enabled': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_parent(self):
+        # Create child interfaces
+        parent_interface = VMInterface.objects.first()
+        child_interfaces = (
+            VMInterface(virtual_machine=parent_interface.virtual_machine, name='Child 1', parent=parent_interface),
+            VMInterface(virtual_machine=parent_interface.virtual_machine, name='Child 2', parent=parent_interface),
+            VMInterface(virtual_machine=parent_interface.virtual_machine, name='Child 3', parent=parent_interface),
+        )
+        VMInterface.objects.bulk_create(child_interfaces)
+
+        params = {'parent_id': [parent_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_mtu(self):
         params = {'mtu': [100, 200]}

@@ -6,6 +6,7 @@
 
 * [#6097](https://github.com/netbox-community/netbox/issues/6097) - Redirect old slug-based object views
 * [#6109](https://github.com/netbox-community/netbox/issues/6109) - Add device counts to locations table
+* [#6121](https://github.com/netbox-community/netbox/issues/6121) - Extend parent interface assignment to VM interfaces
 * [#6125](https://github.com/netbox-community/netbox/issues/6125) - Add locations count to home page
 
 ### Bug Fixes (from Beta)
@@ -44,7 +45,7 @@ NetBox now supports journaling for all primary objects. The journal is a collect
 
 #### Parent Interface Assignments ([#1519](https://github.com/netbox-community/netbox/issues/1519))
 
-Virtual interfaces can now be assigned to a "parent" physical interface by setting the `parent` field on the interface object. This is helpful for associating subinterfaces with their physical counterpart. For example, you might assign virtual interfaces Gi0/0.100 and Gi0/0.200 as children of the physical interface Gi0/0.
+Virtual device and VM interfaces can now be assigned to a "parent" interface by setting the `parent` field on the interface object. This is helpful for associating subinterfaces with their physical counterpart. For example, you might assign virtual interfaces Gi0/0.100 and Gi0/0.200 as children of the physical interface Gi0/0.
 
 #### Pre- and Post-Change Snapshots in Webhooks ([#3451](https://github.com/netbox-community/netbox/issues/3451))
 
@@ -186,3 +187,5 @@ A new provider network model has been introduced to represent the boundary of a 
   * Dropped the `site` foreign key field
 * virtualization.VirtualMachine
   * `vcpus` has been changed from an integer to a decimal value
+* virtualization.VMInterface
+  * Added the `parent` field

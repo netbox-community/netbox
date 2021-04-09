@@ -12,7 +12,7 @@
 
 {% block buttons %}
   {% if perms.virtualization.add_vminterface %}
-    <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
+    <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Interfaces
     </a>
   {% endif %}
