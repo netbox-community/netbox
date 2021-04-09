@@ -652,6 +652,10 @@ class Device(PrimaryModel, ConfigContextModel):
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to site {self.site}.",
             })
+        if self.location and self.site != self.location.site:
+            raise ValidationError({
+                'location': f"Location {self.location} does not belong to site {self.site}.",
+            })
         if self.rack and self.location and self.rack.location != self.location:
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to location {self.location}.",
