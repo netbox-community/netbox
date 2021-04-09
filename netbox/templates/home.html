@@ -31,7 +31,17 @@
                         <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
                         <h4 class="list-group-item-heading">Sites</h4>
                     {% endif %}
-                    <p class="list-group-item-text text-muted">Geographic locations</p>
+                    <p class="list-group-item-text text-muted">Discrete points of presence</p>
+                </div>
+                <div class="list-group-item">
+                    {% if perms.dcim.view_location %}
+                        <span class="badge pull-right">{{ stats.location_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:location_list' %}">Locations</a></h4>
+                    {% else %}
+                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
+                        <h4 class="list-group-item-heading">Locations</h4>
+                    {% endif %}
+                    <p class="list-group-item-text text-muted">Locations within sites</p>
                 </div>
                 <div class="list-group-item">
                     {% if perms.tenancy.view_tenant %}
