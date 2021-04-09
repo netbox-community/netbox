@@ -18,11 +18,11 @@ Height: {{ rack.u_height }}U
 
 To access custom fields of an object within a template, use the `cf` attribute. For example, `{{ obj.cf.color }}` will return the value (if any) for a custom field named `color` on `obj`.
 
-Since local_context_data is part of an object, it is immediately available to use in the export template, however if you need the fully rendered context config you'll need to use the function `get_config_context`. For example:
+If you need to use the config context data in an export template, you'll should use the function `get_config_context` to get all the config context data. For example:
 ```
 {% for server in queryset %}
 {% set data = server.get_config_context() %}
-{{data.syslog}}
+{{ data.syslog }}
 {% endfor %}
 ```
 
