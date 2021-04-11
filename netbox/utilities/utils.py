@@ -226,12 +226,12 @@ def prepare_cloned_fields(instance):
         field = instance._meta.get_field(field_name)
         field_value = field.value_from_object(instance)
 
-        # Swap out False with URL-friendly value
+        # Pass False as null for boolean fields
         if field_value is False:
-            field_value = ''
+            params.append((field_name, ''))
 
         # Omit empty values
-        if field_value not in (None, ''):
+        elif field_value not in (None, ''):
             params.append((field_name, field_value))
 
     # Copy tags

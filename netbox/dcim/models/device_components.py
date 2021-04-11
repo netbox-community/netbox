@@ -507,6 +507,10 @@ class BaseInterface(models.Model):
 
         return super().save(*args, **kwargs)
 
+    @property
+    def count_ipaddresses(self):
+        return self.ip_addresses.count()
+
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
@@ -673,10 +677,6 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     @property
     def is_lag(self):
         return self.type == InterfaceTypeChoices.TYPE_LAG
-
-    @property
-    def count_ipaddresses(self):
-        return self.ip_addresses.count()
 
 
 #

@@ -7,6 +7,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
+from django.core.exceptions import ValidationError
 from dcim.fields import ASNField
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel

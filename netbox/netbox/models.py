@@ -195,6 +195,15 @@ class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel, MPTTMo
     def __str__(self):
         return self.name
 
+    def clean(self):
+        super().clean()
+
+        # An MPTT model cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({
+                "parent": "Cannot assign self as parent."
+            })
+
 
 class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, BigIDModel):
     """

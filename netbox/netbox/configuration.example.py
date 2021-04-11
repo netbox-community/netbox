@@ -34,6 +34,9 @@ REDIS = {
         'PASSWORD': '',
         'DATABASE': 0,
         'SSL': False,
+        # Set this to True to skip TLS certificate verification
+        # This can expose the connection to attacks, be careful
+        # 'INSECURE_SKIP_TLS_VERIFY': False,
     },
     'caching': {
         'HOST': 'localhost',
@@ -44,6 +47,9 @@ REDIS = {
         'PASSWORD': '',
         'DATABASE': 1,
         'SSL': False,
+        # Set this to True to skip TLS certificate verification
+        # This can expose the connection to attacks, be careful
+        # 'INSECURE_SKIP_TLS_VERIFY': False,
     }
 }
 

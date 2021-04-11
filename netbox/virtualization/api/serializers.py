@@ -115,12 +115,14 @@ class VMInterfaceSerializer(PrimaryModelSerializer):
         required=False,
         many=True
     )
+    count_ipaddresses = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VMInterface
         fields = [
             'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'mtu', 'mac_address', 'description',
             'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'custom_fields', 'created', 'last_updated',
+            'count_ipaddresses',
         ]
 
     def validate(self, data):

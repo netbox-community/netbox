@@ -477,7 +477,3 @@ class VMInterface(PrimaryModel, BaseInterface):
     @property
     def parent_object(self):
         return self.virtual_machine
-
-    @property
-    def count_ipaddresses(self):
-        return self.ip_addresses.count()
