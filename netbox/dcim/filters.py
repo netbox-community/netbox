@@ -191,15 +191,18 @@ class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    parent_id = django_filters.ModelMultipleChoiceFilter(
+    parent_id = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
-        label='Rack group (ID)',
+        field_name='parent',
+        lookup_expr='in',
+        label='Location (ID)',
     )
-    parent = django_filters.ModelMultipleChoiceFilter(
-        field_name='parent__slug',
+    parent = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
         to_field_name='slug',
-        label='Rack group (slug)',
+        label='Location (slug)',
     )
 
     class Meta:

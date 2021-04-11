@@ -18,6 +18,7 @@
 * [#6107](https://github.com/netbox-community/netbox/issues/6107) - Fix rack selection field on device form
 * [#6110](https://github.com/netbox-community/netbox/issues/6110) - Fix handling of TemplateColumn values for table export
 * [#6123](https://github.com/netbox-community/netbox/issues/6123) - Prevent device from being assigned to mismatched site and location
+* [#6124](https://github.com/netbox-community/netbox/issues/6124) - Location `parent` filter should return all child locations (not just those directly assigned)
 * [#6130](https://github.com/netbox-community/netbox/issues/6130) - Improve display of assigned models in custom fields list
 
 ---
