@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
@@ -73,6 +74,15 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
             action=action,
             object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
         )
+
+    def clean(self):
+        super().clean()
+
+        # An MPTT model cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({
+                "parent": "Cannot assign self as parent."
+            })
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')

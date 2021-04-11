@@ -7,6 +7,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
+from django.core.exceptions import ValidationError
 from dcim.fields import ASNField
 from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
@@ -86,6 +87,15 @@ class Region(MPTTModel, ChangeLoggedModel):
             action=action,
             object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
         )
+
+    def clean(self):
+        super().clean()
+
+        # An MPTT model cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({
+                "parent": "Cannot assign self as parent."
+            })
 
 
 #
