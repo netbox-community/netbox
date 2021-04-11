@@ -66,9 +66,9 @@ class PowerPanel(PrimaryModel):
 
         # Location must belong to assigned Site
         if self.location and self.location.site != self.site:
-            raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
-                self.location, self.location.site, self.site
-            ))
+            raise ValidationError(
+                f"Location {self.location} ({self.location.site}) is in a different site than {self.site}"
+            )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')

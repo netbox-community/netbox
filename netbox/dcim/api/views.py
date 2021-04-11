@@ -142,7 +142,7 @@ class SiteViewSet(CustomFieldModelViewSet):
 
 
 #
-# Rack groups
+# Locations
 #
 
 class LocationViewSet(CustomFieldModelViewSet):

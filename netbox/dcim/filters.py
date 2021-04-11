@@ -1349,7 +1349,7 @@ class PowerPanelFilterSet(BaseFilterSet):
         queryset=Location.objects.all(),
         field_name='location',
         lookup_expr='in',
-        label='Rack group (ID)',
+        label='Location (ID)',
     )
     tag = TagFilter()
 

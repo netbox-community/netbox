@@ -521,9 +521,9 @@ class LocationCSVForm(CustomFieldModelCSVForm):
         queryset=Location.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent rack group',
+        help_text='Parent location',
         error_messages={
-            'invalid_choice': 'Rack group not found.',
+            'invalid_choice': 'Location not found.',
         }
     )
 
