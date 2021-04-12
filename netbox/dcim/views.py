@@ -2836,6 +2836,8 @@ class PowerPanelView(generic.ObjectView):
             data=power_feeds,
             orderable=False
         )
+        if request.user.has_perm('dcim.delete_cable'):
+            powerfeed_table.columns.show('pk')
         powerfeed_table.exclude = ['power_panel']
 
         return {
@@ -2910,6 +2912,10 @@ class PowerFeedBulkEditView(generic.BulkEditView):
     filterset = filters.PowerFeedFilterSet
     table = tables.PowerFeedTable
     form = forms.PowerFeedBulkEditForm
+
+
+class PowerFeedBulkDisconnectView(BulkDisconnectView):
+    queryset = PowerFeed.objects.all()
 
 
 class PowerFeedBulkDeleteView(generic.BulkDeleteView):

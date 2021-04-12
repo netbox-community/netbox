@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   <li><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></li>
@@ -47,7 +48,37 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% include 'panel_table.html' with table=powerfeed_table heading='Connected Feeds' %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="panel panel-default">
+                {% render_table powerfeed_table 'inc/table.html' %}
+                <div class="panel-footer noprint">
+                    {% if perms.dcim.change_powerfeed %}
+                        <button type="submit" name="_edit" formaction="{% url 'dcim:powerfeed_bulk_edit' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-warning btn-xs">
+                            <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
+                        </button>
+                    {% endif %}
+                    {% if perms.dcim.delete_cable %}
+                        <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerfeed_bulk_disconnect' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger btn-xs">
+                            <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+                        </button>
+                    {% endif %}
+                    {% if perms.dcim.delete_powerfeed %}
+                        <button type="submit" name="_delete" formaction="{% url 'dcim:powerfeed_bulk_delete' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger btn-xs">
+                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
+                        </button>
+                    {% endif %}
+                    {% if perms.dcim.add_powerfeed %}
+                        <div class="pull-right">
+                            <a href="{% url 'dcim:powerfeed_add' %}?power_panel={{ object.pk }}&return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-primary btn-xs">
+                                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add power feeds
+                            </a>
+                        </div>
+                    {% endif %}
+                    <div class="clearfix"></div>
+                 </div>
+            </div>
+        </form>
         {% plugin_full_width_page object %}
     </div>
 </div>

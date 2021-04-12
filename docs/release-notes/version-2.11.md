@@ -9,6 +9,7 @@
 * [#6109](https://github.com/netbox-community/netbox/issues/6109) - Add device counts to locations table
 * [#6121](https://github.com/netbox-community/netbox/issues/6121) - Extend parent interface assignment to VM interfaces
 * [#6125](https://github.com/netbox-community/netbox/issues/6125) - Add locations count to home page
+* [#6146](https://github.com/netbox-community/netbox/issues/6146) - Add bulk disconnect support for power feeds
 
 ### Bug Fixes (from Beta)
 
