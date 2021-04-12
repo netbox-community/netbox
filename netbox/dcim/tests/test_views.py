@@ -1233,6 +1233,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Console Port 6",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         consoleport = ConsolePort.objects.first()
         consoleserverport = ConsoleServerPort.objects.create(
@@ -1288,6 +1289,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Console Server Port 6",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         consoleserverport = ConsoleServerPort.objects.first()
         consoleport = ConsolePort.objects.create(
@@ -1349,6 +1351,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Power Port 6",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         powerport = PowerPort.objects.first()
         poweroutlet = PowerOutlet.objects.create(
@@ -1416,6 +1419,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Power Outlet 6",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         poweroutlet = PowerOutlet.objects.first()
         powerport = PowerPort.objects.first()
@@ -1503,6 +1507,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Interface 6,1000base-t",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         interface1, interface2 = Interface.objects.all()[:2]
         Cable(termination_a=interface1, termination_b=interface2).save()
@@ -1569,6 +1574,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Front Port 6,8p8c,Rear Port 6,1",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         frontport = FrontPort.objects.first()
         interface = Interface.objects.create(
@@ -1626,6 +1632,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Rear Port 6,8p8c,1",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         rearport = RearPort.objects.first()
         interface = Interface.objects.create(
@@ -1996,6 +2003,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer-1')
         device_type = DeviceType.objects.create(

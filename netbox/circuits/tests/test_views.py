@@ -1,5 +1,6 @@
 import datetime
 
+from django.test import override_settings
 from django.urls import reverse
 
 from circuits.choices import *
@@ -219,6 +220,7 @@ class CircuitTerminationTestCase(
             'description': 'New description',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         device = create_test_device('Device 1')
 
