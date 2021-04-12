@@ -4,6 +4,7 @@
 
 ### Enhancements (from Beta)
 
+* [#6088](https://github.com/netbox-community/netbox/issues/6088) - Improved table configuration form
 * [#6097](https://github.com/netbox-community/netbox/issues/6097) - Redirect old slug-based object views
 * [#6109](https://github.com/netbox-community/netbox/issues/6109) - Add device counts to locations table
 * [#6121](https://github.com/netbox-community/netbox/issues/6121) - Extend parent interface assignment to VM interfaces

@@ -107,19 +107,20 @@ class BaseTable(tables.Table):
                         prefetch_fields.append('__'.join(prefetch_path))
             self.data.data = self.data.data.prefetch_related(None).prefetch_related(*prefetch_fields)
 
-    @property
-    def configurable_columns(self):
-        selected_columns = [
-            (name, self.columns[name].verbose_name) for name in self.sequence if name not in ['pk', 'actions']
-        ]
-        available_columns = [
-            (name, column.verbose_name) for name, column in self.columns.items() if name not in self.sequence and name not in ['pk', 'actions']
-        ]
-        return selected_columns + available_columns
+    def _get_columns(self, visible=True):
+        columns = []
+        for name, column in self.columns.items():
+            if column.visible == visible and name not in ['pk', 'actions']:
+                columns.append((name, column.verbose_name))
+        return columns
 
     @property
-    def visible_columns(self):
-        return [name for name in self.sequence if self.columns[name].visible]
+    def available_columns(self):
+        return self._get_columns(visible=False)
+
+    @property
+    def selected_columns(self):
+        return self._get_columns(visible=True)
 
 
 #
