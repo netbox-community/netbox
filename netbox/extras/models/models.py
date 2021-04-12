@@ -151,7 +151,7 @@ class Webhook(BigIDModel):
         ret = {}
         data = render_jinja2(self.additional_headers, context)
         for line in data.splitlines():
-            header, value = line.split(':')
+            header, value = line.split(':', 1)
             ret[header.strip()] = value.strip()
         return ret
 
