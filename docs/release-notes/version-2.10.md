@@ -16,6 +16,7 @@
 * [#6070](https://github.com/netbox-community/netbox/issues/6070) - Add missing `count_ipaddresses` attribute to VMInterface serializer
 * [#6073](https://github.com/netbox-community/netbox/issues/6073) - Permit users to manage their own REST API tokens without needing explicit permission
 * [#6081](https://github.com/netbox-community/netbox/issues/6081) - Fix interface connections REST API endpoint
+* [#6082](https://github.com/netbox-community/netbox/issues/6082) - Support colons in webhook header values
 * [#6108](https://github.com/netbox-community/netbox/issues/6108) - Do not infer tenant assignment from parent objects for prefixes, IP addresses
 * [#6117](https://github.com/netbox-community/netbox/issues/6117) - Handle exception when attempting to assign an MPTT-enabled model as its own parent
 * [#6131](https://github.com/netbox-community/netbox/issues/6131) - Correct handling of boolean fields when cloning objects
