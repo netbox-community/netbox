@@ -12,20 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import VLAN
-from utilities.testing import ViewTestCases
-
-
-def create_test_device(name):
-    """
-    Convenience method for creating a Device (e.g. for component testing).
-    """
-    site, _ = Site.objects.get_or_create(name='Site 1', slug='site-1')
-    manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
-    devicetype, _ = DeviceType.objects.get_or_create(model='Device Type 1', manufacturer=manufacturer)
-    devicerole, _ = DeviceRole.objects.get_or_create(name='Device Role 1', slug='device-role-1')
-    device = Device.objects.create(name=name, site=site, device_type=devicetype, device_role=devicerole)
-
-    return device
+from utilities.testing import ViewTestCases, create_test_device
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
