@@ -23,6 +23,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelForm,
+    DeferredCSVModelChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
     NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
@@ -3824,15 +3825,19 @@ class CableCSVForm(CustomFieldModelCSVForm):
         limit_choices_to=CABLE_TERMINATION_PARENT_MODELS,
         help_text='Side A parent type'
     )
-    side_a_parent_id = forms.IntegerField(
-        help_text='Side A parent ID'
+    side_a_parent = DeferredCSVModelChoiceField(
+        queryset=Device.objects.none(), # this is a standin
+        to_field_name='name',
+        help_text='Side A parent name'
     )
     side_a_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
         help_text='Side A type'
     )
-    side_a_name = forms.CharField(
+    side_a = DeferredCSVModelChoiceField(
+        queryset=Interface.objects.none(), # this is a standin
+        to_field_name='name',
         help_text='Side A component name'
     )
 
@@ -3842,15 +3847,19 @@ class CableCSVForm(CustomFieldModelCSVForm):
         limit_choices_to=CABLE_TERMINATION_PARENT_MODELS,
         help_text='Side B parent type'
     )
-    side_b_parent_id = forms.IntegerField(
-        help_text='Side B parent ID'
+    side_b_parent = DeferredCSVModelChoiceField(
+        queryset=Device.objects.none(), # this is a standin
+        to_field_name='name',
+        help_text='Side B parent name'
     )
     side_b_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
         help_text='Side B type'
     )
-    side_b_name = forms.CharField(
+    side_b = DeferredCSVModelChoiceField(
+        queryset=Interface.objects.none(), # this is a standin
+        to_field_name='name',
         help_text='Side B component name'
     )
 
@@ -3874,23 +3883,13 @@ class CableCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Cable
         fields = [
-            'side_a_parent_type', 'side_a_parent_id', 'side_a_type', 'side_a_name',
-            'side_b_parent_type', 'side_b_parent_id', 'side_b_type', 'side_b_name',
+            'side_a_parent_type', 'side_a_parent', 'side_a_type', 'side_a',
+            'side_b_parent_type', 'side_b_parent', 'side_b_type', 'side_b',
             'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
-
-    def _get_parent(self, side):
-        parent_type = self.cleaned_data.get(f'side_{side}_parent_type')
-        parent_id = self.cleaned_data.get(f'side_{side}_parent_id')
-        if not parent_type or not parent_id:
-            return None
-
-        model = parent_type.model_class()
-
-        return model.objects.get(pk=parent_id)
 
     def _translate_model(self, parent_type):
         # TODO: maybe we went overboard with making this generic/extensible?
@@ -3907,19 +3906,19 @@ class CableCSVForm(CustomFieldModelCSVForm):
         assert side in 'ab', f"Invalid side designation: {side}"
 
         parent_type = self.cleaned_data.get(f'side_{side}_parent_type')
-        parent = self._get_parent(side)
+        parent = self.cleaned_data.get(f'side_{side}_parent')
         content_type = self.cleaned_data.get(f'side_{side}_type')
-        name = self.cleaned_data.get(f'side_{side}_name')
-        if not parent or not content_type or not name:
+        if not parent or not content_type:
             return None
 
         model = content_type.model_class()
+        field = self.fields[f'side_{side}']
         try:
             # the parent is named like the model, we utilize that fact for the query
-            termination_object = model.objects.get(**{
-                "name" if hasattr(model, "name") else "pk": name,
+            termination_filter = model.objects.filter(**{
                 self._translate_model(parent_type): parent
             })
+            termination_object = field.get_value(termination_filter)
             if termination_object.cable is not None:
                 raise forms.ValidationError(f"Side {side.upper()}: {parent} {termination_object} is already connected")
         except ObjectDoesNotExist:
@@ -3928,11 +3927,30 @@ class CableCSVForm(CustomFieldModelCSVForm):
         setattr(self.instance, f'termination_{side}', termination_object)
         return termination_object
 
-    def clean_side_a_name(self):
+    def clean_side_a(self):
         return self._clean_side('a')
 
-    def clean_side_b_name(self):
+    def clean_side_b(self):
         return self._clean_side('b')
+
+    def _clean_side_parent(self, side):
+        """
+        Derive a Cable's A/B termination parent.
+
+        :param side: 'a' or 'b'
+        """
+        assert side in 'ab', f"Invalid side designation: {side}"
+
+        parent_type = self.cleaned_data.get(f'side_{side}_parent_type')
+        field = self.fields[f'side_{side}_parent']
+
+        return field.get_value(parent_type.model_class().objects.all())
+
+    def clean_side_a_parent(self):
+        return self._clean_side_parent('a')
+
+    def clean_side_b_parent(self):
+        return self._clean_side_parent('b')
 
     def clean_length_unit(self):
         # Avoid trying to save as NULL

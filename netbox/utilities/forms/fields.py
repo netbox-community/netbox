@@ -24,6 +24,7 @@ __all__ = (
     'CSVContentTypeField',
     'CSVDataField',
     'CSVModelChoiceField',
+    'DeferredCSVModelChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
     'ExpandableIPAddressField',
@@ -139,6 +140,29 @@ class CSVModelChoiceField(forms.ModelChoiceField):
         except MultipleObjectsReturned:
             raise forms.ValidationError(
                 f'"{value}" is not a unique value for this field; multiple objects were found'
+            )
+
+
+class DeferredCSVModelChoiceField(CSVModelChoiceField):
+    """
+    Allows to defer querying from to_python
+    """
+    default_error_messages = {
+        'invalid_choice': 'Object not found.',
+    }
+
+    def to_python(self, value):
+        self.value = value
+
+        return value
+
+    def get_value(self, qs):
+        self.queryset = qs
+        try:
+            return super().to_python(self.value)
+        except MultipleObjectsReturned:
+            raise forms.ValidationError(
+                f'"{self.value}" is not a unique value for this field; multiple objects were found'
             )
 
 

@@ -112,8 +112,8 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
     objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
-        'side_a_parent_type', 'side_a_parent_id', 'side_a_type', 'side_a_name',
-        'side_b_parent_type', 'side_b_parent_id', 'side_b_type', 'side_b_name',
+        'side_a_parent_type', 'side_a_parent.id', 'side_a_type', 'side_a.id',
+        'side_b_parent_type', 'side_b_parent.id', 'side_b_type', 'side_b.id',
         'type', 'status', 'label', 'color', 'length', 'length_unit',
     ]
 
@@ -285,11 +285,11 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
             '{}.{}'.format(self.termination_a.parent._meta.app_label, self.termination_a.parent._meta.model_name),
             self.termination_a.parent.id,
             '{}.{}'.format(self.termination_a_type.app_label, self.termination_a_type.model),
-            self.termination_a.name if hasattr(self.termination_a, "name") else self.termination_a_id,
+            self.termination_a_id,
             '{}.{}'.format(self.termination_b.parent._meta.app_label, self.termination_b.parent._meta.model_name),
             self.termination_b.parent.id,
             '{}.{}'.format(self.termination_b_type.app_label, self.termination_b_type.model),
-            self.termination_b.name if hasattr(self.termination_b, "name") else self.termination_b_id,
+            self.termination_b_id,
             self.type,
             self.status,
             self.label,
