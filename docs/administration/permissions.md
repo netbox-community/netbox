@@ -10,7 +10,7 @@ NetBox v2.9 introduced a new object-based permissions framework, which replace's
 | ----------- | ----------- |
 | `{"status": "active"}` | Status is active |
 | `{"status__in": ["planned", "reserved"]}` | Status is active **OR** reserved |
-| `{"status": "active", "role": "testing"}` | Status is active **OR** role is testing |
+| `{"status": "active", "role": "testing"}` | Status is active **AND** role is testing |
 | `{"name__startswith": "Foo"}` | Name starts with "Foo" (case-sensitive) |
 | `{"name__iendswith": "bar"}` | Name ends with "bar" (case-insensitive) |
 | `{"vid__gte": 100, "vid__lt": 200}` | VLAN ID is greater than or equal to 100 **AND** less than 200 |

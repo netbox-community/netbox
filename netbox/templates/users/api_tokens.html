@@ -11,12 +11,8 @@
                     <div class="panel-heading">
                         <div class="pull-right noprint">
                             <a class="btn btn-xs btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
-                            {% if perms.users.change_token %}
-                                <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
-                            {% endif %}
-                            {% if perms.users.delete_token %}
-                                <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
-                            {% endif %}
+                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
+                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
                         </div>
                         <i class="mdi mdi-key"></i>
                         <samp><span id="token_{{ token.pk }}">{{ token.key }}</span></samp>
@@ -55,16 +51,10 @@
             {% empty %}
                 <p>You do not have any API tokens.</p>
             {% endfor %}
-            {% if perms.users.add_token %}
-                <a href="{% url 'user:token_add' %}" class="btn btn-primary">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                    Add a token
-                </a>
-            {% else %}
-                <div class="alert alert-info text-center" role="alert">
-                    You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
-                </div>
-            {% endif %}
+            <a href="{% url 'user:token_add' %}" class="btn btn-primary">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+                Add a token
+            </a>
         </div>
     </div>
 {% endblock %}

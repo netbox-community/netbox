@@ -6,7 +6,7 @@ from django.contrib.auth import login as auth_login, logout as auth_logout, upda
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -282,13 +282,9 @@ class TokenEditView(LoginRequiredMixin, View):
 
     def get(self, request, pk=None):
 
-        if pk is not None:
-            if not request.user.has_perm('users.change_token'):
-                return HttpResponseForbidden()
+        if pk:
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
         else:
-            if not request.user.has_perm('users.add_token'):
-                return HttpResponseForbidden()
             token = Token(user=request.user)
 
         form = TokenForm(instance=token)
@@ -302,11 +298,11 @@ class TokenEditView(LoginRequiredMixin, View):
 
     def post(self, request, pk=None):
 
-        if pk is not None:
+        if pk:
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
             form = TokenForm(request.POST, instance=token)
         else:
-            token = Token()
+            token = Token(user=request.user)
             form = TokenForm(request.POST)
 
         if form.is_valid():
@@ -314,7 +310,7 @@ class TokenEditView(LoginRequiredMixin, View):
             token.user = request.user
             token.save()
 
-            msg = "Modified token {}".format(token) if pk else "Created token {}".format(token)
+            msg = f"Modified token {token}" if pk else f"Created token {token}"
             messages.success(request, msg)
 
             if '_addanother' in request.POST:

@@ -111,6 +111,12 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
     def clean(self):
         super().clean()
 
+        # An MPTT model cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({
+                "parent": "Cannot assign self as parent."
+            })
+
         # Parent RackGroup (if any) must belong to the same Site
         if self.parent and self.parent.site != self.site:
             raise ValidationError(f"Parent rack group ({self.parent}) must belong to the same site ({self.site})")

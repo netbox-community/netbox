@@ -779,7 +779,7 @@ class CablePathSerializer(serializers.ModelSerializer):
 
 class InterfaceConnectionSerializer(ValidatedModelSerializer):
     interface_a = serializers.SerializerMethodField()
-    interface_b = NestedInterfaceSerializer(source='connected_endpoint')
+    interface_b = NestedInterfaceSerializer(source='_path.destination')
     connected_endpoint_reachable = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
