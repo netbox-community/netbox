@@ -1,8 +1,11 @@
 import datetime
 
+from django.urls import reverse
+
 from circuits.choices import *
 from circuits.models import *
-from utilities.testing import ViewTestCases
+from dcim.models import Cable, Interface, Site
+from utilities.testing import ViewTestCases, create_test_device
 
 
 class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -175,3 +178,56 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
             'comments': 'New comments',
         }
+
+
+class CircuitTerminationTestCase(
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+):
+    model = CircuitTermination
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+
+        circuits = (
+            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
+        )
+        Circuit.objects.bulk_create(circuits)
+
+        circuit_terminations = (
+            CircuitTermination(circuit=circuits[0], term_side='A', site=sites[0]),
+            CircuitTermination(circuit=circuits[0], term_side='Z', site=sites[1]),
+            CircuitTermination(circuit=circuits[1], term_side='A', site=sites[0]),
+            CircuitTermination(circuit=circuits[1], term_side='Z', site=sites[1]),
+        )
+        CircuitTermination.objects.bulk_create(circuit_terminations)
+
+        cls.form_data = {
+            'term_side': 'A',
+            'site': sites[2].pk,
+            'description': 'New description',
+        }
+
+    def test_trace(self):
+        device = create_test_device('Device 1')
+
+        circuittermination = CircuitTermination.objects.first()
+        interface = Interface.objects.create(
+            device=device,
+            name='Interface 1'
+        )
+        Cable(termination_a=circuittermination, termination_b=interface).save()
+
+        response = self.client.get(reverse('circuits:circuittermination_trace', kwargs={'pk': circuittermination.pk}))
+        self.assertHttpStatus(response, 200)
