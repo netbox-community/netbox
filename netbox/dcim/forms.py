@@ -3826,7 +3826,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
         help_text='Side A parent type'
     )
     side_a_parent = DeferredCSVModelChoiceField(
-        queryset=Device.objects.none(), # this is a standin
+        queryset=Device.objects.none(),  # this is a standin
         to_field_name='name',
         help_text='Side A parent name'
     )
@@ -3836,7 +3836,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
         help_text='Side A type'
     )
     side_a = DeferredCSVModelChoiceField(
-        queryset=Interface.objects.none(), # this is a standin
+        queryset=Interface.objects.none(),  # this is a standin
         to_field_name='name',
         help_text='Side A component name'
     )
@@ -3848,7 +3848,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
         help_text='Side B parent type'
     )
     side_b_parent = DeferredCSVModelChoiceField(
-        queryset=Device.objects.none(), # this is a standin
+        queryset=Device.objects.none(),  # this is a standin
         to_field_name='name',
         help_text='Side B parent name'
     )
@@ -3858,7 +3858,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
         help_text='Side B type'
     )
     side_b = DeferredCSVModelChoiceField(
-        queryset=Interface.objects.none(), # this is a standin
+        queryset=Interface.objects.none(),  # this is a standin
         to_field_name='name',
         help_text='Side B component name'
     )
