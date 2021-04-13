@@ -306,6 +306,10 @@ class JournalEntryListView(generic.ObjectListView):
     action_buttons = ('export',)
 
 
+class JournalEntryView(generic.ObjectView):
+    queryset = JournalEntry.objects.all()
+
+
 class JournalEntryEditView(generic.ObjectEditView):
     queryset = JournalEntry.objects.all()
     model_form = forms.JournalEntryForm

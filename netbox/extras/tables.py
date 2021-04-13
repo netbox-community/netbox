@@ -102,15 +102,15 @@ class ObjectJournalTable(BaseTable):
     Used for displaying a set of JournalEntries within the context of a single object.
     """
     created = tables.DateTimeColumn(
+        linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
     kind = ChoiceFieldColumn()
     comments = tables.TemplateColumn(
-        template_code='{% load helpers %}{{ value|render_markdown }}'
+        template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
     )
     actions = ButtonsColumn(
-        model=JournalEntry,
-        buttons=('edit', 'delete')
+        model=JournalEntry
     )
 
     class Meta(BaseTable.Meta):
@@ -127,9 +127,6 @@ class JournalEntryTable(ObjectJournalTable):
         linkify=True,
         orderable=False,
         verbose_name='Object'
-    )
-    comments = tables.TemplateColumn(
-        template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
     )
 
     class Meta(BaseTable.Meta):

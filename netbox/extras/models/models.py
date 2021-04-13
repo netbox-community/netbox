@@ -7,13 +7,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.formats import date_format, time_format
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
 from extras.constants import *
 from extras.utils import extras_features, FeatureQuery, image_upload
-from netbox.models import BigIDModel
+from netbox.models import BigIDModel, ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
 
@@ -389,7 +391,7 @@ class ImageAttachment(BigIDModel):
 # Journal entries
 #
 
-class JournalEntry(BigIDModel):
+class JournalEntry(ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to
     preserve historical context around an object, and complements NetBox's built-in change logging. For example, you
@@ -427,8 +429,10 @@ class JournalEntry(BigIDModel):
         verbose_name_plural = 'journal entries'
 
     def __str__(self):
-        time_created = self.created.replace(microsecond=0)
-        return f"{time_created} - {self.get_kind_display()}"
+        return f"{date_format(self.created)} - {time_format(self.created)} ({self.get_kind_display()})"
+
+    def get_absolute_url(self):
+        return reverse('extras:journalentry', args=[self.pk])
 
     def get_kind_class(self):
         return JournalEntryKindChoices.CSS_CLASSES.get(self.kind)

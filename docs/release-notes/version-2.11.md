@@ -10,6 +10,7 @@
 * [#6121](https://github.com/netbox-community/netbox/issues/6121) - Extend parent interface assignment to VM interfaces
 * [#6125](https://github.com/netbox-community/netbox/issues/6125) - Add locations count to home page
 * [#6146](https://github.com/netbox-community/netbox/issues/6146) - Add bulk disconnect support for power feeds
+* [#6150](https://github.com/netbox-community/netbox/issues/6150) - Enable change logging for journal entries
 
 ### Bug Fixes (from Beta)
 

@@ -1,7 +1,7 @@
 from django.urls import path
 
 from extras import views
-from extras.models import ConfigContext, Tag
+from extras.models import ConfigContext, JournalEntry, Tag
 
 
 app_name = 'extras'
@@ -37,8 +37,10 @@ urlpatterns = [
     path('journal-entries/add/', views.JournalEntryEditView.as_view(), name='journalentry_add'),
     path('journal-entries/edit/', views.JournalEntryBulkEditView.as_view(), name='journalentry_bulk_edit'),
     path('journal-entries/delete/', views.JournalEntryBulkDeleteView.as_view(), name='journalentry_bulk_delete'),
+    path('journal-entries/<int:pk>/', views.JournalEntryView.as_view(), name='journalentry'),
     path('journal-entries/<int:pk>/edit/', views.JournalEntryEditView.as_view(), name='journalentry_edit'),
     path('journal-entries/<int:pk>/delete/', views.JournalEntryDeleteView.as_view(), name='journalentry_delete'),
+    path('journal-entries/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='journalentry_changelog', kwargs={'model': JournalEntry}),
 
     # Change logging
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
