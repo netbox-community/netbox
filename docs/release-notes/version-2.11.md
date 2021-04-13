@@ -4,6 +4,7 @@
 
 ### Enhancements (from Beta)
 
+* [#5757](https://github.com/netbox-community/netbox/issues/5757) - Add unique identifier to every object view
 * [#5848](https://github.com/netbox-community/netbox/issues/5848) - Filter custom fields by content type in format `<app_label>.<model>`
 * [#6088](https://github.com/netbox-community/netbox/issues/6088) - Improved table configuration form
 * [#6097](https://github.com/netbox-community/netbox/issues/6097) - Redirect old slug-based object views

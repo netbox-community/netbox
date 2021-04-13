@@ -45,6 +45,7 @@
       Created {{ object.created }} &middot;
       Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
     </small>
+    <span class="label label-default">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
   </p>
   <div class="pull-right noprint">
     {% block tab_buttons %}
