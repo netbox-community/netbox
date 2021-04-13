@@ -806,7 +806,7 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
     )
 
 
-class VMInterfaceFilterForm(forms.Form):
+class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),

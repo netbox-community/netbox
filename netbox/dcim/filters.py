@@ -1093,7 +1093,7 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(BaseFilterSet):
+class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1173,7 +1173,7 @@ class VirtualChassisFilterSet(BaseFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(BaseFilterSet):
+class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
