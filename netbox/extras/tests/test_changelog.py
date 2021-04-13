@@ -56,19 +56,18 @@ class ChangeLogViewTest(ModelViewTestCase):
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
 
+        # Verify the creation of a new ObjectChange record
         site = Site.objects.get(name='Site 1')
-        # First OC is the creation; second is the tags update
-        oc_list = ObjectChange.objects.filter(
+        oc = ObjectChange.objects.get(
             changed_object_type=ContentType.objects.get_for_model(Site),
             changed_object_id=site.pk
-        ).order_by('pk')
-        self.assertEqual(oc_list[0].changed_object, site)
-        self.assertEqual(oc_list[0].action, ObjectChangeActionChoices.ACTION_CREATE)
-        self.assertEqual(oc_list[0].prechange_data, None)
-        self.assertEqual(oc_list[0].postchange_data['custom_fields']['my_field'], form_data['cf_my_field'])
-        self.assertEqual(oc_list[0].postchange_data['custom_fields']['my_field_select'], form_data['cf_my_field_select'])
-        self.assertEqual(oc_list[1].action, ObjectChangeActionChoices.ACTION_UPDATE)
-        self.assertEqual(oc_list[1].postchange_data['tags'], ['Tag 1', 'Tag 2'])
+        )
+        self.assertEqual(oc.changed_object, site)
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(oc.prechange_data, None)
+        self.assertEqual(oc.postchange_data['custom_fields']['my_field'], form_data['cf_my_field'])
+        self.assertEqual(oc.postchange_data['custom_fields']['my_field_select'], form_data['cf_my_field_select'])
+        self.assertEqual(oc.postchange_data['tags'], ['Tag 1', 'Tag 2'])
 
     def test_update_object(self):
         site = Site(name='Site 1', slug='site-1')
@@ -93,8 +92,8 @@ class ChangeLogViewTest(ModelViewTestCase):
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
 
+        # Verify the creation of a new ObjectChange record
         site.refresh_from_db()
-        # Get only the most recent OC
         oc = ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(Site),
             changed_object_id=site.pk
@@ -259,17 +258,15 @@ class ChangeLogAPITest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
         site = Site.objects.get(pk=response.data['id'])
-        # First OC is the creation; second is the tags update
-        oc_list = ObjectChange.objects.filter(
+        oc = ObjectChange.objects.get(
             changed_object_type=ContentType.objects.get_for_model(Site),
             changed_object_id=site.pk
-        ).order_by('pk')
-        self.assertEqual(oc_list[0].changed_object, site)
-        self.assertEqual(oc_list[0].action, ObjectChangeActionChoices.ACTION_CREATE)
-        self.assertEqual(oc_list[0].prechange_data, None)
-        self.assertEqual(oc_list[0].postchange_data['custom_fields'], data['custom_fields'])
-        self.assertEqual(oc_list[1].action, ObjectChangeActionChoices.ACTION_UPDATE)
-        self.assertEqual(oc_list[1].postchange_data['tags'], ['Tag 1', 'Tag 2'])
+        )
+        self.assertEqual(oc.changed_object, site)
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(oc.prechange_data, None)
+        self.assertEqual(oc.postchange_data['custom_fields'], data['custom_fields'])
+        self.assertEqual(oc.postchange_data['tags'], ['Tag 1', 'Tag 2'])
 
     def test_update_object(self):
         site = Site(name='Site 1', slug='site-1')
@@ -294,11 +291,10 @@ class ChangeLogAPITest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
         site = Site.objects.get(pk=response.data['id'])
-        # Get only the most recent OC
-        oc = ObjectChange.objects.filter(
+        oc = ObjectChange.objects.get(
             changed_object_type=ContentType.objects.get_for_model(Site),
             changed_object_id=site.pk
-        ).first()
+        )
         self.assertEqual(oc.changed_object, site)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
         self.assertEqual(oc.postchange_data['custom_fields'], data['custom_fields'])

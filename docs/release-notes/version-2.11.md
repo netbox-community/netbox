@@ -13,6 +13,7 @@
 
 ### Bug Fixes (from Beta)
 
+* [#5583](https://github.com/netbox-community/netbox/issues/5583) - Eliminate redundant change records when adding/removing tags
 * [#6100](https://github.com/netbox-community/netbox/issues/6100) - Fix VM interfaces table "add interfaces" link
 * [#6104](https://github.com/netbox-community/netbox/issues/6104) - Fix location column on racks table
 * [#6105](https://github.com/netbox-community/netbox/issues/6105) - Hide checkboxes for VMs under cluster VMs view
