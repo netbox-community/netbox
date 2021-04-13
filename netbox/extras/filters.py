@@ -90,6 +90,7 @@ class CustomFieldModelFilterSet(django_filters.FilterSet):
 
 
 class CustomFieldFilterSet(django_filters.FilterSet):
+    content_types = ContentTypeFilter()
 
     class Meta:
         model = CustomField
