@@ -1,5 +1,13 @@
 # NetBox v2.10
 
+## v2.10.10 (FUTURE)
+
+### Bug Fixes
+
+* [#6144](https://github.com/netbox-community/netbox/issues/6144) - Fix MAC address field display in VM interfaces search form
+
+---
+
 ## v2.10.9 (2021-04-12)
 
 ### Enhancements
