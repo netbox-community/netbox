@@ -4,6 +4,7 @@ from datetime import timedelta
 from cacheops.signals import cache_invalidated, cache_read
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db import DEFAULT_DB_ALIAS
 from django.db.models.signals import m2m_changed, pre_delete
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
@@ -52,7 +53,7 @@ def _handle_changed_object(request, sender, instance, **kwargs):
     # Housekeeping: 0.1% chance of clearing out expired ObjectChanges
     if settings.CHANGELOG_RETENTION and random.randint(1, 1000) == 1:
         cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
-        ObjectChange.objects.filter(time__lt=cutoff).delete()
+        ObjectChange.objects.filter(time__lt=cutoff)._raw_delete(using=DEFAULT_DB_ALIAS)
 
 
 def _handle_deleted_object(request, sender, instance, **kwargs):
