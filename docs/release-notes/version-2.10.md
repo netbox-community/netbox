@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6144](https://github.com/netbox-community/netbox/issues/6144) - Fix MAC address field display in VM interfaces search form
+* [#6152](https://github.com/netbox-community/netbox/issues/6152) - Fix custom field filtering for cables, virtual chassis
 
 ---
 

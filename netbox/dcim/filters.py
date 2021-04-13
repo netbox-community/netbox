@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.db.models import Count
 
 from extras.filters import CustomFieldModelFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -1011,7 +1010,7 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(BaseFilterSet):
+class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1078,7 +1077,7 @@ class VirtualChassisFilterSet(BaseFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(BaseFilterSet):
+class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
