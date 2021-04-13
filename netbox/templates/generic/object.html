@@ -39,8 +39,13 @@
       {% endif %}
     {% endblock %}
   </div>
-  <h1>{% block title %}{{ object }}{% endblock %}</h1>
-  {% include 'inc/created_updated.html' %}
+  <h1 class="title">{% block title %}{{ object }}{% endblock %}</h1>
+  <p>
+    <small class="text-muted">
+      Created {{ object.created }} &middot;
+      Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
+    </small>
+  </p>
   <div class="pull-right noprint">
     {% block tab_buttons %}
       {% custom_links object %}

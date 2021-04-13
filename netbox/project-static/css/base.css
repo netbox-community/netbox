@@ -362,6 +362,9 @@ table.report th a {
     border-radius: .25em;
     vertical-align: middle;
 }
+h1.title {
+    margin-top: 0;
+}
 .text-nowrap {
     white-space: nowrap;
 }
