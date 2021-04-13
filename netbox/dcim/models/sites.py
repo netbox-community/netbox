@@ -314,6 +314,9 @@ class Location(NestedGroupModel):
         max_length=200,
         blank=True
     )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
 
     csv_headers = ['site', 'parent', 'name', 'slug', 'description']
     clone_fields = ['site', 'parent', 'description']

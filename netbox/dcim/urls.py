@@ -55,6 +55,7 @@ urlpatterns = [
     path('locations/<int:pk>/edit/', views.LocationEditView.as_view(), name='location_edit'),
     path('locations/<int:pk>/delete/', views.LocationDeleteView.as_view(), name='location_delete'),
     path('locations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='location_changelog', kwargs={'model': Location}),
+    path('locations/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='location_add_image', kwargs={'model': Location}),
 
     # Rack roles
     path('rack-roles/', views.RackRoleListView.as_view(), name='rackrole_list'),
