@@ -603,23 +603,20 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
 #
 
 class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
+    parent = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        label='Parent interface'
+    )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Untagged VLAN',
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        label='Untagged VLAN'
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Tagged VLANs',
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        label='Tagged VLANs'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -629,8 +626,8 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
     class Meta:
         model = VMInterface
         fields = [
-            'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags', 'untagged_vlan',
-            'tagged_vlans',
+            'virtual_machine', 'name', 'enabled', 'parent', 'mac_address', 'mtu', 'description', 'mode', 'tags',
+            'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
@@ -645,16 +642,14 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
 
-        virtual_machine = VirtualMachine.objects.get(
-            pk=self.initial.get('virtual_machine') or self.data.get('virtual_machine')
-        )
+        # Restrict parent interface assignment by VM
+        self.fields['parent'].widget.add_query_param('virtualmachine_id', vm_id)
 
-        # Add current site to VLANs query params
-        site = virtual_machine.site
-        if site:
-            self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
-            self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+        # Limit VLAN choices by virtual machine
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
 class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
@@ -667,6 +662,14 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     enabled = forms.BooleanField(
         required=False,
         initial=True
+    )
+    parent = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        display_field='display_name',
+        query_params={
+            'virtualmachine_id': 'virtual_machine',
+        }
     )
     mtu = forms.IntegerField(
         required=False,
@@ -689,19 +692,11 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -710,16 +705,14 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
 
-        virtual_machine = VirtualMachine.objects.get(
-            pk=self.initial.get('virtual_machine') or self.data.get('virtual_machine')
-        )
+        # Restrict parent interface assignment by VM
+        self.fields['parent'].widget.add_query_param('virtualmachine_id', vm_id)
 
-        # Add current site to VLANs query params
-        site = virtual_machine.site
-        if site:
-            self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
-            self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+        # Limit VLAN choices by virtual machine
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
 class VMInterfaceCSVForm(CSVModelForm):
@@ -756,6 +749,11 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         disabled=True,
         widget=forms.HiddenInput()
     )
+    parent = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        display_field='display_name'
+    )
     enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect()
@@ -777,38 +775,28 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
 
     class Meta:
         nullable_fields = [
-            'mtu', 'description',
+            'parent', 'mtu', 'description',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
 
-        # Limit available VLANs based on the parent VirtualMachine
-        if 'virtual_machine' in self.initial:
-            parent_obj = VirtualMachine.objects.filter(pk=self.initial['virtual_machine']).first()
+        # Restrict parent interface assignment by VM
+        self.fields['parent'].widget.add_query_param('virtualmachine_id', vm_id)
 
-            site = getattr(parent_obj.cluster, 'site', None)
-            if site is not None:
-                # Add current site to VLANs query params
-                self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
-                self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+        # Limit VLAN choices by virtual machine
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
 class VMInterfaceBulkRenameForm(BulkRenameForm):
@@ -818,7 +806,7 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
     )
 
 
-class VMInterfaceFilterForm(forms.Form):
+class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -838,6 +826,10 @@ class VMInterfaceFilterForm(forms.Form):
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    mac_address = forms.CharField(
+        required=False,
+        label='MAC address'
     )
     tag = TagFilterField(model)
 

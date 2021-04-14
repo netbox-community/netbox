@@ -4,7 +4,7 @@
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'circuits:circuit_list' %}?provider={{ object.provider.slug }}">{{ object.provider }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'circuits:circuit_list' %}?provider={{ object.provider.pk }}">{{ object.provider }}</a></li>
   <li class="breadcrumb-item">{{ object.cid }}</li>
 {% endblock %}
 

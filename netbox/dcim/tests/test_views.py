@@ -12,20 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import VLAN
-from utilities.testing import ViewTestCases
-
-
-def create_test_device(name):
-    """
-    Convenience method for creating a Device (e.g. for component testing).
-    """
-    site, _ = Site.objects.get_or_create(name='Site 1', slug='site-1')
-    manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
-    devicetype, _ = DeviceType.objects.get_or_create(model='Device Type 1', manufacturer=manufacturer)
-    devicerole, _ = DeviceRole.objects.get_or_create(name='Device Role 1', slug='device-role-1')
-    device = Device.objects.create(name=name, site=site, device_type=devicetype, device_role=devicerole)
-
-    return device
+from utilities.testing import ViewTestCases, create_test_device
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -1246,6 +1233,18 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Console Port 6",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        consoleport = ConsolePort.objects.first()
+        consoleserverport = ConsoleServerPort.objects.create(
+            device=consoleport.device,
+            name='Console Server Port 1'
+        )
+        Cable(termination_a=consoleport, termination_b=consoleserverport).save()
+
+        response = self.client.get(reverse('dcim:consoleport_trace', kwargs={'pk': consoleport.pk}))
+        self.assertHttpStatus(response, 200)
+
 
 class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsoleServerPort
@@ -1289,6 +1288,18 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Console Server Port 5",
             "Device 1,Console Server Port 6",
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        consoleserverport = ConsoleServerPort.objects.first()
+        consoleport = ConsolePort.objects.create(
+            device=consoleserverport.device,
+            name='Console Port 1'
+        )
+        Cable(termination_a=consoleserverport, termination_b=consoleport).save()
+
+        response = self.client.get(reverse('dcim:consoleserverport_trace', kwargs={'pk': consoleserverport.pk}))
+        self.assertHttpStatus(response, 200)
 
 
 class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -1339,6 +1350,18 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Power Port 5",
             "Device 1,Power Port 6",
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        powerport = PowerPort.objects.first()
+        poweroutlet = PowerOutlet.objects.create(
+            device=powerport.device,
+            name='Power Outlet 1'
+        )
+        Cable(termination_a=powerport, termination_b=poweroutlet).save()
+
+        response = self.client.get(reverse('dcim:powerport_trace', kwargs={'pk': powerport.pk}))
+        self.assertHttpStatus(response, 200)
 
 
 class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -1395,6 +1418,15 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Power Outlet 5",
             "Device 1,Power Outlet 6",
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        poweroutlet = PowerOutlet.objects.first()
+        powerport = PowerPort.objects.first()
+        Cable(termination_a=poweroutlet, termination_b=powerport).save()
+
+        response = self.client.get(reverse('dcim:poweroutlet_trace', kwargs={'pk': poweroutlet.pk}))
+        self.assertHttpStatus(response, 200)
 
 
 class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -1475,6 +1507,14 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Interface 6,1000base-t",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        interface1, interface2 = Interface.objects.all()[:2]
+        Cable(termination_a=interface1, termination_b=interface2).save()
+
+        response = self.client.get(reverse('dcim:interface_trace', kwargs={'pk': interface1.pk}))
+        self.assertHttpStatus(response, 200)
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
@@ -1534,6 +1574,18 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Front Port 6,8p8c,Rear Port 6,1",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        frontport = FrontPort.objects.first()
+        interface = Interface.objects.create(
+            device=frontport.device,
+            name='Interface 1'
+        )
+        Cable(termination_a=frontport, termination_b=interface).save()
+
+        response = self.client.get(reverse('dcim:frontport_trace', kwargs={'pk': frontport.pk}))
+        self.assertHttpStatus(response, 200)
+
 
 class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = RearPort
@@ -1579,6 +1631,18 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Rear Port 5,8p8c,1",
             "Device 1,Rear Port 6,8p8c,1",
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        rearport = RearPort.objects.first()
+        interface = Interface.objects.create(
+            device=rearport.device,
+            name='Interface 1'
+        )
+        Cable(termination_a=rearport, termination_b=interface).save()
+
+        response = self.client.get(reverse('dcim:rearport_trace', kwargs={'pk': rearport.pk}))
+        self.assertHttpStatus(response, 200)
 
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -1938,3 +2002,26 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'max_utilization': 50,
             'comments': 'New comments',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_trace(self):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Device Role', slug='device-role-1'
+        )
+        device = Device.objects.create(
+            site=Site.objects.first(), device_type=device_type, device_role=device_role
+        )
+
+        powerfeed = PowerFeed.objects.first()
+        powerport = PowerPort.objects.create(
+            device=device,
+            name='Power Port 1'
+        )
+        Cable(termination_a=powerfeed, termination_b=powerport).save()
+
+        response = self.client.get(reverse('dcim:powerfeed_trace', kwargs={'pk': powerfeed.pk}))
+        self.assertHttpStatus(response, 200)

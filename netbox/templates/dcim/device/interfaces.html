@@ -49,6 +49,7 @@
              </div>
         </div>
     </form>
+    {% include 'inc/paginator.html' with paginator=interface_table.paginator page=interface_table.page %}
     {% table_config_form interface_table %}
 {% endblock %}
 

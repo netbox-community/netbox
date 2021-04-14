@@ -1,8 +1,7 @@
-from django.db.models import Prefetch
 from rest_framework.routers import APIRootView
 
 from circuits import filters
-from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
+from circuits.models import *
 from dcim.api.views import PathEndpointMixin
 from extras.api.views import CustomFieldModelViewSet
 from netbox.api.views import ModelViewSet
@@ -48,8 +47,7 @@ class CircuitTypeViewSet(CustomFieldModelViewSet):
 
 class CircuitViewSet(CustomFieldModelViewSet):
     queryset = Circuit.objects.prefetch_related(
-        Prefetch('terminations', queryset=CircuitTermination.objects.prefetch_related('site')),
-        'type', 'tenant', 'provider',
+        'type', 'tenant', 'provider', 'termination_a', 'termination_z'
     ).prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filterset_class = filters.CircuitFilterSet
@@ -61,8 +59,18 @@ class CircuitViewSet(CustomFieldModelViewSet):
 
 class CircuitTerminationViewSet(PathEndpointMixin, ModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
-        'circuit', 'site', '_path__destination', 'cable'
+        'circuit', 'site', 'provider_network', 'cable'
     )
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filters.CircuitTerminationFilterSet
     brief_prefetch_fields = ['circuit']
+
+
+#
+# Provider networks
+#
+
+class ProviderNetworkViewSet(CustomFieldModelViewSet):
+    queryset = ProviderNetwork.objects.prefetch_related('tags')
+    serializer_class = serializers.ProviderNetworkSerializer
+    filterset_class = filters.ProviderNetworkFilterSet

@@ -173,13 +173,21 @@ class TableConfigForm(BootstrapMixin, forms.Form):
     """
     Form for configuring user's table preferences.
     """
+    available_columns = forms.MultipleChoiceField(
+        choices=[],
+        required=False,
+        widget=forms.SelectMultiple(
+            attrs={'size': 10}
+        ),
+        label='Available columns'
+    )
     columns = forms.MultipleChoiceField(
         choices=[],
         required=False,
         widget=forms.SelectMultiple(
             attrs={'size': 10}
         ),
-        help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display."
+        label='Selected columns'
     )
 
     def __init__(self, table, *args, **kwargs):
@@ -188,8 +196,8 @@ class TableConfigForm(BootstrapMixin, forms.Form):
         super().__init__(*args, **kwargs)
 
         # Initialize columns field based on table attributes
-        self.fields['columns'].choices = table.configurable_columns
-        self.fields['columns'].initial = table.visible_columns
+        self.fields['available_columns'].choices = table.available_columns
+        self.fields['columns'].choices = table.selected_columns
 
     @property
     def table_name(self):

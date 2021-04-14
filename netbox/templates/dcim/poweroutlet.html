@@ -2,6 +2,12 @@
 {% load helpers %}
 {% load plugins %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'dcim:device_poweroutlets' pk=object.device.pk %}">Power Outlets</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="col-md-6">

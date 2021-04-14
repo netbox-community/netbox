@@ -141,7 +141,9 @@ class CableTermination(models.Model):
         super().clean()
 
         if self.mark_connected and self.cable_id:
-            raise ValidationError("Cannot set mark_connected with a cable connected.")
+            raise ValidationError({
+                "mark_connected": "Cannot mark as connected with a cable attached."
+            })
 
     def get_cable_peer(self):
         return self._cable_peer
@@ -158,7 +160,7 @@ class CableTermination(models.Model):
 class PathEndpoint(models.Model):
     """
     An abstract model inherited by any CableTermination subclass which represents the end of a CablePath; specifically,
-    these include ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, PowerFeed, and CircuitTermination.
+    these include ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, and PowerFeed.
 
     `_path` references the CablePath originating from this instance, if any. It is set or cleared by the receivers in
     dcim.signals in response to changes in the cable path, and complements the `origin` GenericForeignKey field on the
@@ -182,10 +184,11 @@ class PathEndpoint(models.Model):
 
         # Construct the complete path
         path = [self, *self._path.get_path()]
-        while (len(path) + 1) % 3:
+        if self._path.destination:
+            path.append(self._path.destination)
+        while len(path) % 3:
             # Pad to ensure we have complete three-tuples (e.g. for paths that end at a RearPort)
-            path.append(None)
-        path.append(self._path.destination)
+            path.insert(-1, None)
 
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))
@@ -504,6 +507,10 @@ class BaseInterface(models.Model):
 
         return super().save(*args, **kwargs)
 
+    @property
+    def count_ipaddresses(self):
+        return self.ip_addresses.count()
+
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
@@ -596,12 +603,15 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         super().clean()
 
         # Virtual interfaces cannot be connected
-        if self.type in NONCONNECTABLE_IFACE_TYPES and (
-                self.cable or getattr(self, 'circuit_termination', False)
-        ):
+        if not self.is_connectable and self.cable:
             raise ValidationError({
-                'type': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
-                        "Disconnect the interface or choose a suitable type."
+                'type': f"{self.get_type_display()} interfaces cannot have a cable attached."
+            })
+
+        # Non-connectable interfaces cannot be marked as connected
+        if not self.is_connectable and self.mark_connected:
+            raise ValidationError({
+                'mark_connected': f"{self.get_type_display()} interfaces cannot be marked as connected."
             })
 
         # An interface's parent must belong to the same device or virtual chassis
@@ -617,13 +627,13 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
                               f"is not part of virtual chassis {self.device.virtual_chassis}."
                 })
 
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
+
         # A physical interface cannot have a parent interface
         if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
             raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
-
-        # A virtual interface cannot be a parent interface
-        if self.parent is not None and self.parent.type == InterfaceTypeChoices.TYPE_VIRTUAL:
-            raise ValidationError({'parent': "Virtual interfaces may not be parents of other interfaces."})
 
         # An interface's LAG must belong to the same device or virtual chassis
         if self.lag and self.lag.device != self.device:
@@ -667,10 +677,6 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     @property
     def is_lag(self):
         return self.type == InterfaceTypeChoices.TYPE_LAG
-
-    @property
-    def count_ipaddresses(self):
-        return self.ip_addresses.count()
 
 
 #

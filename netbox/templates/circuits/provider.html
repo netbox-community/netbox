@@ -52,6 +52,9 @@
                 </table>
             </div>
         </div>
+        {% plugin_left_page object %}
+    </div>
+    <div class="col-md-6">
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:provider_list' %}
         <div class="card">
@@ -66,7 +69,7 @@
                 {% endif %}
             </div>
         </div>
-        {% plugin_left_page object %}
+        {% plugin_right_page object %}
 	</div>
 	<div class="col-md-8">
         <div class="card">
@@ -84,8 +87,7 @@
             </div>
             {% endif %}
         </div>
-    {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
-    {% plugin_right_page object %}
+        {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
     </div>
 </div>
 <div class="row">

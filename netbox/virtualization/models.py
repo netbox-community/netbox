@@ -59,7 +59,7 @@ class ClusterType(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?type={}".format(reverse('virtualization:cluster_list'), self.slug)
+        return reverse('virtualization:clustertype', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -102,7 +102,7 @@ class ClusterGroup(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?group={}".format(reverse('virtualization:cluster_list'), self.slug)
+        return reverse('virtualization:clustergroup', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -395,6 +395,14 @@ class VMInterface(PrimaryModel, BaseInterface):
         max_length=200,
         blank=True
     )
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='child_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Parent interface'
+    )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.SET_NULL,
@@ -438,6 +446,7 @@ class VMInterface(PrimaryModel, BaseInterface):
             self.virtual_machine.name,
             self.name,
             self.enabled,
+            self.parent.name if self.parent else None,
             self.mac_address,
             self.mtu,
             self.description,
@@ -446,6 +455,13 @@ class VMInterface(PrimaryModel, BaseInterface):
 
     def clean(self):
         super().clean()
+
+        # An interface's parent must belong to the same virtual machine
+        if self.parent and self.parent.virtual_machine != self.virtual_machine:
+            raise ValidationError({
+                'parent': f"The selected parent interface ({self.parent}) belongs to a different virtual machine "
+                          f"({self.parent.virtual_machine})."
+            })
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
@@ -459,9 +475,5 @@ class VMInterface(PrimaryModel, BaseInterface):
         return super().to_objectchange(action, related_object=self.virtual_machine)
 
     @property
-    def parent(self):
+    def parent_object(self):
         return self.virtual_machine
-
-    @property
-    def count_ipaddresses(self):
-        return self.ip_addresses.count()

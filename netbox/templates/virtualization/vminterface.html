@@ -40,6 +40,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Parent</td>
+                    <td>
+                        {% if object.parent %}
+                            <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Description</td>
                     <td>{{ object.description|placeholder }} </td>
                 </tr>
@@ -91,9 +101,14 @@
         {% include 'panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
 </div>
-    <div class="row">
-        <div class="col-md-12">
-            {% plugin_full_width_page object %}
-        </div>
+<div class="row">
+    <div class="col-md-12">
+        {% include 'panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}
     </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
 {% endblock %}

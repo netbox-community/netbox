@@ -32,7 +32,9 @@ VMINTERFACE_BUTTONS = """
 
 class ClusterTypeTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
@@ -50,7 +52,9 @@ class ClusterTypeTable(BaseTable):
 
 class ClusterGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
@@ -68,7 +72,9 @@ class ClusterGroupTable(BaseTable):
 
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     tenant = tables.Column(
         linkify=True
     )
@@ -101,7 +107,9 @@ class ClusterTable(BaseTable):
 
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     status = ChoiceFieldColumn()
     cluster = tables.Column(
         linkify=True
@@ -156,8 +164,13 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 
 class VMInterfaceTable(BaseInterfaceTable):
     pk = ToggleColumn()
-    virtual_machine = tables.LinkColumn()
+    virtual_machine = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
+        linkify=True
+    )
+    parent = tables.Column(
         linkify=True
     )
     tags = TagColumn(
@@ -167,10 +180,10 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'pk', 'virtual_machine', 'name', 'enabled', 'parent', 'mac_address', 'mtu', 'mode', 'description', 'tags',
             'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
-        default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'description')
+        default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'parent', 'description')
 
 
 class VirtualMachineVMInterfaceTable(VMInterfaceTable):

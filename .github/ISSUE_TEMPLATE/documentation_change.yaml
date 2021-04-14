@@ -14,25 +14,22 @@ body:
         - Cleanup (formatting, typos, etc.)
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     attributes:
       label: Area
-      description: To what section(s) of the documentation does this change pertain?
+      description: To what section of the documentation does this change primarily pertain?
       options:
-        - label: Installation instructions
-        - label: Configuration parameters
-        - label: Functionality/features
-        - label: REST API
-        - label: Administration/development
-        - label: Other
+        - Installation instructions
+        - Configuration parameters
+        - Functionality/features
+        - REST API
+        - Administration/development
+        - Other
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Proposed Changes
       description: "Describe the proposed changes and why they are necessary"
     validations:
       required: true
-  - type: markdown
-    attributes:
-      value: |
-        ### Additional information
-        You can use the space below to provide any additional information or to attach files.

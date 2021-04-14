@@ -12,6 +12,9 @@ markdown_extensions:
     - admonition
     - markdown_include.include:
         headingOffset: 1
+    - pymdownx.emoji:
+        emoji_index: !!python/name:materialx.emoji.twemoji
+        emoji_generator: !!python/name:materialx.emoji.to_svg
     - pymdownx.superfences
     - pymdownx.tabbed
 nav:
@@ -50,6 +53,7 @@ nav:
         - Custom Links: 'additional-features/custom-links.md'
         - Custom Scripts: 'additional-features/custom-scripts.md'
         - Export Templates: 'additional-features/export-templates.md'
+        - Journaling: 'additional-features/journaling.md'
         - NAPALM: 'additional-features/napalm.md'
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
         - Reports: 'additional-features/reports.md'
@@ -71,11 +75,13 @@ nav:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'
         - Style Guide: 'development/style-guide.md'
+        - Models: 'development/models.md'
         - Extending Models: 'development/extending-models.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
         - Release Checklist: 'development/release-checklist.md'
     - Release Notes:
+        - Version 2.11: 'release-notes/version-2.11.md'
         - Version 2.10: 'release-notes/version-2.10.md'
         - Version 2.9: 'release-notes/version-2.9.md'
         - Version 2.8: 'release-notes/version-2.8.md'

@@ -7,7 +7,7 @@
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a></li>
   {% if object.master %}
-    <li class="breadcrumb-item"><a href="{% url 'dcim:virtualchassis_list' %}?site={{ object.master.site.slug }}">{{ object.master.site }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dcim:virtualchassis_list' %}?site_id={{ object.master.site.pk }}">{{ object.master.site }}</a></li>
   {% endif %}
   <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}

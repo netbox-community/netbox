@@ -18,7 +18,9 @@
                 <span class="badge bg-danger">Inactive</span>
             {% endif %}
         </h4>
-        {% include 'inc/created_updated.html' %}
+        <p>
+            <small class="text-muted">Created {{ object.created }} &middot; Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago</small>
+        </p>
         {% if not object.is_active %}
             <div class="alert alert-warning" role="alert">
                 <i class="mdi mdi-alert"></i>

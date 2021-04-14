@@ -7,6 +7,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
+from django.core.exceptions import ValidationError
 from dcim.fields import ASNField
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
@@ -56,7 +57,7 @@ class Region(NestedGroupModel):
     csv_headers = ['name', 'slug', 'parent', 'description']
 
     def get_absolute_url(self):
-        return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+        return reverse('dcim:region', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -108,7 +109,7 @@ class SiteGroup(NestedGroupModel):
     csv_headers = ['name', 'slug', 'parent', 'description']
 
     def get_absolute_url(self):
-        return "{}?group={}".format(reverse('dcim:site_list'), self.slug)
+        return reverse('dcim:sitegroup', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -313,8 +314,12 @@ class Location(NestedGroupModel):
         max_length=200,
         blank=True
     )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
 
     csv_headers = ['site', 'parent', 'name', 'slug', 'description']
+    clone_fields = ['site', 'parent', 'description']
 
     class Meta:
         ordering = ['site', 'name']
@@ -324,7 +329,7 @@ class Location(NestedGroupModel):
         ]
 
     def get_absolute_url(self):
-        return "{}?location_id={}".format(reverse('dcim:rack_list'), self.pk)
+        return reverse('dcim:location', args=[self.pk])
 
     def to_csv(self):
         return (

@@ -15,8 +15,8 @@
             </ol>
         </div>
     </div>
-    <h1>{{ script }}</h1>
-    <p>{{ script.Meta.description }}</p>
+    <h1 class="title">{{ script }}</h1>
+    <p>{{ script.Meta.description|render_markdown }}</p>
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active">
             <a href="#run" role="tab" data-toggle="tab" class="active">Run</a>

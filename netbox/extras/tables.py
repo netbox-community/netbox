@@ -1,16 +1,10 @@
 import django_tables2 as tables
 from django.conf import settings
 
-from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ToggleColumn,
+)
 from .models import ConfigContext, JournalEntry, ObjectChange, Tag, TaggedItem
-
-TAGGED_ITEM = """
-{% if value.get_absolute_url %}
-    <a href="{{ value.get_absolute_url }}">{{ value }}</a>
-{% else %}
-    {{ value }}
-{% endif %}
-"""
 
 CONFIGCONTEXT_ACTIONS = """
 {% if perms.extras.change_configcontext %}
@@ -36,6 +30,9 @@ OBJECTCHANGE_REQUEST_ID = """
 
 class TagTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
     color = ColorColumn()
     actions = ButtonsColumn(Tag)
 
@@ -45,23 +42,25 @@ class TagTable(BaseTable):
 
 
 class TaggedItemTable(BaseTable):
-    content_object = tables.TemplateColumn(
-        template_code=TAGGED_ITEM,
+    content_type = ContentTypeColumn(
+        verbose_name='Type'
+    )
+    content_object = tables.Column(
+        linkify=True,
         orderable=False,
         verbose_name='Object'
-    )
-    content_type = tables.Column(
-        verbose_name='Type'
     )
 
     class Meta(BaseTable.Meta):
         model = TaggedItem
-        fields = ('content_object', 'content_type')
+        fields = ('content_type', 'content_object')
 
 
 class ConfigContextTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     is_active = BooleanColumn(
         verbose_name='Active'
     )
@@ -81,7 +80,7 @@ class ObjectChangeTable(BaseTable):
         format=settings.SHORT_DATETIME_FORMAT
     )
     action = ChoiceFieldColumn()
-    changed_object_type = tables.Column(
+    changed_object_type = ContentTypeColumn(
         verbose_name='Type'
     )
     object_repr = tables.TemplateColumn(
@@ -98,12 +97,30 @@ class ObjectChangeTable(BaseTable):
         fields = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
 
 
-class JournalEntryTable(BaseTable):
-    pk = ToggleColumn()
+class ObjectJournalTable(BaseTable):
+    """
+    Used for displaying a set of JournalEntries within the context of a single object.
+    """
     created = tables.DateTimeColumn(
+        linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
-    assigned_object_type = tables.Column(
+    kind = ChoiceFieldColumn()
+    comments = tables.TemplateColumn(
+        template_code='{% load helpers %}{{ value|render_markdown|truncatewords_html:50 }}'
+    )
+    actions = ButtonsColumn(
+        model=JournalEntry
+    )
+
+    class Meta(BaseTable.Meta):
+        model = JournalEntry
+        fields = ('created', 'created_by', 'kind', 'comments', 'actions')
+
+
+class JournalEntryTable(ObjectJournalTable):
+    pk = ToggleColumn()
+    assigned_object_type = ContentTypeColumn(
         verbose_name='Object type'
     )
     assigned_object = tables.Column(
@@ -111,32 +128,9 @@ class JournalEntryTable(BaseTable):
         orderable=False,
         verbose_name='Object'
     )
-    kind = ChoiceFieldColumn()
-    actions = ButtonsColumn(
-        model=JournalEntry,
-        buttons=('edit', 'delete')
-    )
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
         fields = (
             'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments', 'actions'
         )
-
-
-class ObjectJournalTable(BaseTable):
-    """
-    Used for displaying a set of JournalEntries within the context of a single object.
-    """
-    created = tables.DateTimeColumn(
-        format=settings.SHORT_DATETIME_FORMAT
-    )
-    kind = ChoiceFieldColumn()
-    actions = ButtonsColumn(
-        model=JournalEntry,
-        buttons=('edit', 'delete')
-    )
-
-    class Meta(BaseTable.Meta):
-        model = JournalEntry
-        fields = ('created', 'created_by', 'kind', 'comments', 'actions')

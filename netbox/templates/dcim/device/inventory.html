@@ -43,6 +43,7 @@
             </div>
         </div>
     </form>
+    {% include 'inc/paginator.html' with paginator=inventoryitem_table.paginator page=inventoryitem_table.page %}
     {% table_config_form inventoryitem_table %}
 {% endblock %}
 

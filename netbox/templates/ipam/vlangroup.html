@@ -1,0 +1,72 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a></li>
+  {% if object.scope %}
+    <li><a href="{{ object.scope.get_absolute_url }}">{{ object.scope }}</a></li>
+  {% endif %}
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>VLAN Group</strong>
+      </div>
+      <table class="table table-hover panel-body attr-table">
+        <tr>
+          <td>Name</td>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <td>Scope</td>
+          <td>
+          {% if object.scope %}
+            <a href="{{ object.scope.get_absolute_url }}">{{ object.scope }}</a>
+          {% else %}
+            <span class="text-muted">&mdash;</span>
+          {% endif %}
+        </tr>
+        <tr>
+          <td>VLANs</td>
+          <td>
+            <a href="{% url 'ipam:vlan_list' %}?group_id={{ object.pk }}">{{ vlans_count }}</a>
+          </td>
+        </tr>
+      </table>
+    </div>
+    {% plugin_left_page object %}
+	</div>
+	<div class="col-md-6">
+    {% include 'inc/custom_fields_panel.html' %}
+    {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>VLANs</strong>
+      </div>
+      {% include 'inc/table.html' with table=vlans_table %}
+      {% if perms.ipam.add_vlan %}
+        <div class="panel-footer text-right noprint">
+          <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-xs btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
+          </a>
+        </div>
+      {% endif %}
+    </div>
+    {% include 'inc/paginator.html' with paginator=vlans_table.paginator page=vlans_table.page %}
+    </div>
+</div>
+{% endblock %}
+

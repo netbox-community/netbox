@@ -65,7 +65,7 @@ class Manufacturer(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
+        return reverse('dcim:manufacturer', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -375,6 +375,9 @@ class DeviceRole(OrganizationalModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('dcim:devicerole', args=[self.pk])
+
     def to_csv(self):
         return (
             self.name,
@@ -436,7 +439,7 @@ class Platform(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?platform={}".format(reverse('dcim:device_list'), self.slug)
+        return reverse('dcim:platform', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -648,6 +651,10 @@ class Device(PrimaryModel, ConfigContextModel):
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to site {self.site}.",
+            })
+        if self.location and self.site != self.location.site:
+            raise ValidationError({
+                'location': f"Location {self.location} does not belong to site {self.site}.",
             })
         if self.rack and self.location and self.rack.location != self.location:
             raise ValidationError({

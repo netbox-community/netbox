@@ -2,6 +2,7 @@ from django.urls import path
 
 from extras.views import ImageAttachmentEditView, ObjectChangeLogView, ObjectJournalView
 from ipam.views import ServiceEditView
+from utilities.views import SlugRedirectView
 from . import views
 from .models import *
 
@@ -14,6 +15,7 @@ urlpatterns = [
     path('regions/import/', views.RegionBulkImportView.as_view(), name='region_import'),
     path('regions/edit/', views.RegionBulkEditView.as_view(), name='region_bulk_edit'),
     path('regions/delete/', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
+    path('regions/<int:pk>/', views.RegionView.as_view(), name='region'),
     path('regions/<int:pk>/edit/', views.RegionEditView.as_view(), name='region_edit'),
     path('regions/<int:pk>/delete/', views.RegionDeleteView.as_view(), name='region_delete'),
     path('regions/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='region_changelog', kwargs={'model': Region}),
@@ -24,6 +26,7 @@ urlpatterns = [
     path('site-groups/import/', views.SiteGroupBulkImportView.as_view(), name='sitegroup_import'),
     path('site-groups/edit/', views.SiteGroupBulkEditView.as_view(), name='sitegroup_bulk_edit'),
     path('site-groups/delete/', views.SiteGroupBulkDeleteView.as_view(), name='sitegroup_bulk_delete'),
+    path('site-groups/<int:pk>/', views.SiteGroupView.as_view(), name='sitegroup'),
     path('site-groups/<int:pk>/edit/', views.SiteGroupEditView.as_view(), name='sitegroup_edit'),
     path('site-groups/<int:pk>/delete/', views.SiteGroupDeleteView.as_view(), name='sitegroup_delete'),
     path('site-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='sitegroup_changelog', kwargs={'model': SiteGroup}),
@@ -35,6 +38,7 @@ urlpatterns = [
     path('sites/edit/', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
     path('sites/delete/', views.SiteBulkDeleteView.as_view(), name='site_bulk_delete'),
     path('sites/<int:pk>/', views.SiteView.as_view(), name='site'),
+    path('sites/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Site}),
     path('sites/<int:pk>/edit/', views.SiteEditView.as_view(), name='site_edit'),
     path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
     path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
@@ -47,9 +51,11 @@ urlpatterns = [
     path('locations/import/', views.LocationBulkImportView.as_view(), name='location_import'),
     path('locations/edit/', views.LocationBulkEditView.as_view(), name='location_bulk_edit'),
     path('locations/delete/', views.LocationBulkDeleteView.as_view(), name='location_bulk_delete'),
+    path('locations/<int:pk>/', views.LocationView.as_view(), name='location'),
     path('locations/<int:pk>/edit/', views.LocationEditView.as_view(), name='location_edit'),
     path('locations/<int:pk>/delete/', views.LocationDeleteView.as_view(), name='location_delete'),
     path('locations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='location_changelog', kwargs={'model': Location}),
+    path('locations/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='location_add_image', kwargs={'model': Location}),
 
     # Rack roles
     path('rack-roles/', views.RackRoleListView.as_view(), name='rackrole_list'),
@@ -57,6 +63,7 @@ urlpatterns = [
     path('rack-roles/import/', views.RackRoleBulkImportView.as_view(), name='rackrole_import'),
     path('rack-roles/edit/', views.RackRoleBulkEditView.as_view(), name='rackrole_bulk_edit'),
     path('rack-roles/delete/', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
+    path('rack-roles/<int:pk>/', views.RackRoleView.as_view(), name='rackrole'),
     path('rack-roles/<int:pk>/edit/', views.RackRoleEditView.as_view(), name='rackrole_edit'),
     path('rack-roles/<int:pk>/delete/', views.RackRoleDeleteView.as_view(), name='rackrole_delete'),
     path('rack-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackrole_changelog', kwargs={'model': RackRole}),
@@ -93,6 +100,7 @@ urlpatterns = [
     path('manufacturers/import/', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
     path('manufacturers/edit/', views.ManufacturerBulkEditView.as_view(), name='manufacturer_bulk_edit'),
     path('manufacturers/delete/', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
+    path('manufacturers/<int:pk>/', views.ManufacturerView.as_view(), name='manufacturer'),
     path('manufacturers/<int:pk>/edit/', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
     path('manufacturers/<int:pk>/delete/', views.ManufacturerDeleteView.as_view(), name='manufacturer_delete'),
     path('manufacturers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
@@ -179,6 +187,7 @@ urlpatterns = [
     path('device-roles/import/', views.DeviceRoleBulkImportView.as_view(), name='devicerole_import'),
     path('device-roles/edit/', views.DeviceRoleBulkEditView.as_view(), name='devicerole_bulk_edit'),
     path('device-roles/delete/', views.DeviceRoleBulkDeleteView.as_view(), name='devicerole_bulk_delete'),
+    path('device-roles/<int:pk>/', views.DeviceRoleView.as_view(), name='devicerole'),
     path('device-roles/<int:pk>/edit/', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
     path('device-roles/<int:pk>/delete/', views.DeviceRoleDeleteView.as_view(), name='devicerole_delete'),
     path('device-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
@@ -189,6 +198,7 @@ urlpatterns = [
     path('platforms/import/', views.PlatformBulkImportView.as_view(), name='platform_import'),
     path('platforms/edit/', views.PlatformBulkEditView.as_view(), name='platform_bulk_edit'),
     path('platforms/delete/', views.PlatformBulkDeleteView.as_view(), name='platform_bulk_delete'),
+    path('platforms/<int:pk>/', views.PlatformView.as_view(), name='platform'),
     path('platforms/<int:pk>/edit/', views.PlatformEditView.as_view(), name='platform_edit'),
     path('platforms/<int:pk>/delete/', views.PlatformDeleteView.as_view(), name='platform_delete'),
     path('platforms/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
@@ -408,6 +418,7 @@ urlpatterns = [
     path('power-feeds/add/', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
     path('power-feeds/import/', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
     path('power-feeds/edit/', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
+    path('power-feeds/disconnect/', views.PowerFeedBulkDisconnectView.as_view(), name='powerfeed_bulk_disconnect'),
     path('power-feeds/delete/', views.PowerFeedBulkDeleteView.as_view(), name='powerfeed_bulk_delete'),
     path('power-feeds/<int:pk>/', views.PowerFeedView.as_view(), name='powerfeed'),
     path('power-feeds/<int:pk>/edit/', views.PowerFeedEditView.as_view(), name='powerfeed_edit'),

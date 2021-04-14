@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vlangroup',
             name='scope_type',
-            field=models.ForeignKey(blank=True, limit_choices_to=models.Q(model__in=['region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster']), null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype'),
+            field=models.ForeignKey(blank=True, limit_choices_to=models.Q(model__in=('region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')), null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype'),
         ),
         migrations.AlterModelOptions(
             name='vlangroup',

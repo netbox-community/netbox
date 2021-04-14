@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
@@ -45,7 +46,7 @@ class TenantGroup(NestedGroupModel):
         ordering = ['name']
 
     def get_absolute_url(self):
-        return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
+        return reverse('tenancy:tenantgroup', args=[self.pk])
 
     def to_csv(self):
         return (

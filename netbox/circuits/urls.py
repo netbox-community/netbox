@@ -2,8 +2,9 @@ from django.urls import path
 
 from dcim.views import CableCreateView, PathTraceView
 from extras.views import ObjectChangeLogView, ObjectJournalView
+from utilities.views import SlugRedirectView
 from . import views
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 app_name = 'circuits'
 urlpatterns = [
@@ -15,10 +16,23 @@ urlpatterns = [
     path('providers/edit/', views.ProviderBulkEditView.as_view(), name='provider_bulk_edit'),
     path('providers/delete/', views.ProviderBulkDeleteView.as_view(), name='provider_bulk_delete'),
     path('providers/<int:pk>/', views.ProviderView.as_view(), name='provider'),
+    path('providers/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Provider}),
     path('providers/<int:pk>/edit/', views.ProviderEditView.as_view(), name='provider_edit'),
     path('providers/<int:pk>/delete/', views.ProviderDeleteView.as_view(), name='provider_delete'),
     path('providers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
     path('providers/<int:pk>/journal/', ObjectJournalView.as_view(), name='provider_journal', kwargs={'model': Provider}),
+
+    # Provider networks
+    path('provider-networks/', views.ProviderNetworkListView.as_view(), name='providernetwork_list'),
+    path('provider-networks/add/', views.ProviderNetworkEditView.as_view(), name='providernetwork_add'),
+    path('provider-networks/import/', views.ProviderNetworkBulkImportView.as_view(), name='providernetwork_import'),
+    path('provider-networks/edit/', views.ProviderNetworkBulkEditView.as_view(), name='providernetwork_bulk_edit'),
+    path('provider-networks/delete/', views.ProviderNetworkBulkDeleteView.as_view(), name='providernetwork_bulk_delete'),
+    path('provider-networks/<int:pk>/', views.ProviderNetworkView.as_view(), name='providernetwork'),
+    path('provider-networks/<int:pk>/edit/', views.ProviderNetworkEditView.as_view(), name='providernetwork_edit'),
+    path('provider-networks/<int:pk>/delete/', views.ProviderNetworkDeleteView.as_view(), name='providernetwork_delete'),
+    path('provider-networks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='providernetwork_changelog', kwargs={'model': ProviderNetwork}),
+    path('provider-networks/<int:pk>/journal/', ObjectJournalView.as_view(), name='providernetwork_journal', kwargs={'model': ProviderNetwork}),
 
     # Circuit types
     path('circuit-types/', views.CircuitTypeListView.as_view(), name='circuittype_list'),
@@ -26,6 +40,7 @@ urlpatterns = [
     path('circuit-types/import/', views.CircuitTypeBulkImportView.as_view(), name='circuittype_import'),
     path('circuit-types/edit/', views.CircuitTypeBulkEditView.as_view(), name='circuittype_bulk_edit'),
     path('circuit-types/delete/', views.CircuitTypeBulkDeleteView.as_view(), name='circuittype_bulk_delete'),
+    path('circuit-types/<int:pk>/', views.CircuitTypeView.as_view(), name='circuittype'),
     path('circuit-types/<int:pk>/edit/', views.CircuitTypeEditView.as_view(), name='circuittype_edit'),
     path('circuit-types/<int:pk>/delete/', views.CircuitTypeDeleteView.as_view(), name='circuittype_delete'),
     path('circuit-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='circuittype_changelog', kwargs={'model': CircuitType}),

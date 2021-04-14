@@ -63,53 +63,14 @@
 </ul>
 {% endblock %}
 
-{% block content %}{% block tab_buttons %}{% endblock %}{% endblock %}
+{% block content %}
+<p>
+  <small class="text-muted">
+    Created {{ object.created }} &middot;
+    Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
+  </small>
+  <span class="badge bg-primary">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
+</p>
+{% block tab_buttons %}{% custom_links object %}{% endblock %}
+{% endblock %}
 {% block components %}{% endblock %}
-
-{% comment %} {% block header %}
-  <div class="row noprint">
-    <div class="col-sm-8 col-md-9">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#">Home</a></li>
-        </ol>
-      </nav>
-    </div>
-    <div class="col-sm-4 col-md-3">
-      {# TODO: Provide absolute search URL #}
-      <form action="../" method="get">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Search" />
-          <span class="input-group-btn">
-            <button type="submit" class="btn btn-primary">
-              <span class="mdi mdi-magnify" aria-hidden="true"></span>
-            </button>
-          </span>
-        </div>
-      </form>
-    </div>
-  </div>
-  <div class="pull-right noprint">
-    {% plugin_buttons object %}
-    {% block buttons %}
-      {% if request.user|can_add:object %}
-        {% clone_button object %}
-      {% endif %}
-      {% if request.user|can_change:object %}
-        {% edit_button object %}
-      {% endif %}
-      {% if request.user|can_delete:object %}
-        {% delete_button object %}
-      {% endif %}
-    {% endblock %}
-  </div>
-  <h1>{% block title %}{{ object }}{% endblock %}</h1>
-  
-  {% include 'inc/created_updated.html' %}
-  <div class="float-end noprint">
-    {% block tab_buttons %}
-      {% custom_links object %}
-    {% endblock %}
-  </div>
-  
-{% endblock %} {% endcomment %}

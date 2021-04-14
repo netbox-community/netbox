@@ -11,52 +11,14 @@
     </div>
     <div class="field-group">
         <h4>Scope</h4>
-        {% with virtual_tab_active=form.initial.cluster %}
-            <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button
-                        role="tab"
-                        type="button"
-                        id="physical_tab"
-                        data-bs-toggle="tab"
-                        aria-controls="physical"
-                        data-bs-target="#physical"
-                        class="nav-link {% if not virtual_tab_active %}active{% endif %}"
-                    >
-                        Physical
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button
-                        role="tab"
-                        type="button"
-                        id="virtual_tab"
-                        data-bs-toggle="tab"
-                        aria-controls="virtual"
-                        data-bs-target="#virtual"
-                        class="nav-link {% if virtual_tab_active %}active{% endif %}"
-                    >
-                        Virtual
-                    </button>
-                </li>
-            </ul>
-            <div class="card my-3">
-                <div class="card-body tab-content">
-                    <div class="tab-pane{% if not virtual_tab_active %} active{% endif %}" id="physical">
-                        {% render_field form.region %}
-                        {% render_field form.site_group %}
-                        {% render_field form.site %}
-                        {% render_field form.location %}
-                        {% render_field form.rack %}
-                    </div>
-                    <div class="tab-pane{% if virtual_tab_active %} active{% endif %}" id="virtual">
-                        {% render_field form.cluster_group %}
-                        {% render_field form.cluster %}
-                    </div>
-                    <span class="form-text">The VLAN group will be limited in scope to the most-specific object selected above.</span>
-                </div>
-            </div>
-        {% endwith %}
+        {% render_field form.scope_type %}
+        {% render_field form.region %}
+        {% render_field form.sitegroup %}
+        {% render_field form.site %}
+        {% render_field form.location %}
+        {% render_field form.rack %}
+        {% render_field form.clustergroup %}
+        {% render_field form.cluster %}
     </div>
     {% if form.custom_fields %}
         <div class="field-group">
@@ -64,4 +26,80 @@
             {% render_custom_fields form %}
         </div>
     {% endif %}
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+  // TODO: Employ form field attrs to clean up this mess
+  let scope_type = $('#id_scope_type');
+  scope_type.change(function() {
+    let label = this.options[this.selectedIndex].text;
+    if (label.endsWith('region')) {
+      $('#id_region').parents('.form-group').show();
+      $('#id_sitegroup').parents('.form-group').hide();
+      $('#id_site').parents('.form-group').hide();
+      $('#id_location').parents('.form-group').hide();
+      $('#id_rack').parents('.form-group').hide();
+      $('#id_clustergroup').parents('.form-group').hide();
+      $('#id_cluster').parents('.form-group').hide();
+    } else if (label.endsWith('site group')) {
+      $('#id_region').parents('.form-group').hide();
+      $('#id_sitegroup').parents('.form-group').show();
+      $('#id_site').parents('.form-group').hide();
+      $('#id_location').parents('.form-group').hide();
+      $('#id_rack').parents('.form-group').hide();
+      $('#id_clustergroup').parents('.form-group').hide();
+      $('#id_cluster').parents('.form-group').hide();
+    } else if (label.endsWith('site')) {
+      $('#id_region').parents('.form-group').show();
+      $('#id_sitegroup').parents('.form-group').show();
+      $('#id_site').parents('.form-group').show();
+      $('#id_location').parents('.form-group').hide();
+      $('#id_rack').parents('.form-group').hide();
+      $('#id_clustergroup').parents('.form-group').hide();
+      $('#id_cluster').parents('.form-group').hide();
+    } else if (label.endsWith('location')) {
+      $('#id_region').parents('.form-group').show();
+      $('#id_sitegroup').parents('.form-group').show();
+      $('#id_site').parents('.form-group').show();
+      $('#id_location').parents('.form-group').show();
+      $('#id_rack').parents('.form-group').hide();
+      $('#id_clustergroup').parents('.form-group').hide();
+      $('#id_cluster').parents('.form-group').hide();
+    } else if (label.endsWith('rack')) {
+      $('#id_region').parents('.form-group').show();
+      $('#id_sitegroup').parents('.form-group').show();
+      $('#id_site').parents('.form-group').show();
+      $('#id_location').parents('.form-group').show();
+      $('#id_rack').parents('.form-group').show();
+      $('#id_clustergroup').parents('.form-group').hide();
+      $('#id_cluster').parents('.form-group').hide();
+    } else if (label.endsWith('cluster group')) {
+      $('#id_region').parents('.form-group').hide();
+      $('#id_sitegroup').parents('.form-group').hide();
+      $('#id_site').parents('.form-group').hide();
+      $('#id_location').parents('.form-group').hide();
+      $('#id_rack').parents('.form-group').hide();
+      $('#id_clustergroup').parents('.form-group').show();
+      $('#id_cluster').parents('.form-group').hide();
+    } else if (label.endsWith('cluster')) {
+      $('#id_region').parents('.form-group').hide();
+      $('#id_sitegroup').parents('.form-group').hide();
+      $('#id_site').parents('.form-group').hide();
+      $('#id_location').parents('.form-group').hide();
+      $('#id_rack').parents('.form-group').hide();
+      $('#id_clustergroup').parents('.form-group').show();
+      $('#id_cluster').parents('.form-group').show();
+    } else {
+      $('#id_region').parents('.form-group').hide();
+      $('#id_sitegroup').parents('.form-group').hide();
+      $('#id_site').parents('.form-group').hide();
+      $('#id_location').parents('.form-group').hide();
+      $('#id_rack').parents('.form-group').hide();
+      $('#id_clustergroup').parents('.form-group').hide();
+      $('#id_cluster').parents('.form-group').hide();
+    }
+  });
+  scope_type.change();
+</script>
 {% endblock %}

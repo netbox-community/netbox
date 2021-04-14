@@ -20,6 +20,7 @@ from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
+from utilities.tables import paginate_table
 from utilities.utils import csv_format, count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine
@@ -111,6 +112,34 @@ class RegionListView(generic.ObjectListView):
     table = tables.RegionTable
 
 
+class RegionView(generic.ObjectView):
+    queryset = Region.objects.all()
+
+    def get_extra_context(self, request, instance):
+        child_regions = Region.objects.add_related_count(
+            Region.objects.all(),
+            Site,
+            'region',
+            'site_count',
+            cumulative=True
+        ).restrict(request.user, 'view').filter(
+            parent__in=instance.get_descendants(include_self=True)
+        )
+        child_regions_table = tables.RegionTable(child_regions)
+
+        sites = Site.objects.restrict(request.user, 'view').filter(
+            region=instance
+        )
+        sites_table = tables.SiteTable(sites)
+        sites_table.columns.hide('region')
+        paginate_table(sites_table, request)
+
+        return {
+            'child_regions_table': child_regions_table,
+            'sites_table': sites_table,
+        }
+
+
 class RegionEditView(generic.ObjectEditView):
     queryset = Region.objects.all()
     model_form = forms.RegionForm
@@ -166,6 +195,34 @@ class SiteGroupListView(generic.ObjectListView):
     filterset = filters.SiteGroupFilterSet
     filterset_form = forms.SiteGroupFilterForm
     table = tables.SiteGroupTable
+
+
+class SiteGroupView(generic.ObjectView):
+    queryset = SiteGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        child_groups = SiteGroup.objects.add_related_count(
+            SiteGroup.objects.all(),
+            Site,
+            'group',
+            'site_count',
+            cumulative=True
+        ).restrict(request.user, 'view').filter(
+            parent__in=instance.get_descendants(include_self=True)
+        )
+        child_groups_table = tables.SiteGroupTable(child_groups)
+
+        sites = Site.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+        sites_table = tables.SiteTable(sites)
+        sites_table.columns.hide('group')
+        paginate_table(sites_table, request)
+
+        return {
+            'child_groups_table': child_groups_table,
+            'sites_table': sites_table,
+        }
 
 
 class SiteGroupEditView(generic.ObjectEditView):
@@ -237,6 +294,13 @@ class SiteView(generic.ObjectView):
             'location',
             'rack_count',
             cumulative=True
+        )
+        locations = Location.objects.add_related_count(
+            locations,
+            Device,
+            'location',
+            'device_count',
+            cumulative=True
         ).restrict(request.user, 'view').filter(site=instance)
 
         return {
@@ -274,12 +338,18 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
 
 
 #
-# Rack groups
+# Locations
 #
 
 class LocationListView(generic.ObjectListView):
     queryset = Location.objects.add_related_count(
-        Location.objects.all(),
+        Location.objects.add_related_count(
+            Location.objects.all(),
+            Device,
+            'location',
+            'device_count',
+            cumulative=True
+        ),
         Rack,
         'location',
         'rack_count',
@@ -288,6 +358,23 @@ class LocationListView(generic.ObjectListView):
     filterset = filters.LocationFilterSet
     filterset_form = forms.LocationFilterForm
     table = tables.LocationTable
+
+
+class LocationView(generic.ObjectView):
+    queryset = Location.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devices = Device.objects.restrict(request.user, 'view').filter(
+            location=instance
+        )
+
+        devices_table = tables.DeviceTable(devices)
+        devices_table.columns.hide('location')
+        paginate_table(devices_table, request)
+
+        return {
+            'devices_table': devices_table,
+        }
 
 
 class LocationEditView(generic.ObjectEditView):
@@ -339,6 +426,23 @@ class RackRoleListView(generic.ObjectListView):
         rack_count=count_related(Rack, 'role')
     )
     table = tables.RackRoleTable
+
+
+class RackRoleView(generic.ObjectView):
+    queryset = RackRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        racks = Rack.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+
+        racks_table = tables.RackTable(racks)
+        racks_table.columns.hide('role')
+        paginate_table(racks_table, request)
+
+        return {
+            'racks_table': racks_table,
+        }
 
 
 class RackRoleEditView(generic.ObjectEditView):
@@ -433,10 +537,11 @@ class RackView(generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'location', 'role')
 
     def get_extra_context(self, request, instance):
-        # Get 0U and child devices located within the rack
+        # Get 0U devices located within the rack
         nonracked_devices = Device.objects.filter(
             rack=instance,
-            position__isnull=True
+            position__isnull=True,
+            parent_bay__isnull=True
         ).prefetch_related('device_type__manufacturer')
 
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
@@ -565,6 +670,23 @@ class ManufacturerListView(generic.ObjectListView):
         platform_count=count_related(Platform, 'manufacturer')
     )
     table = tables.ManufacturerTable
+
+
+class ManufacturerView(generic.ObjectView):
+    queryset = Manufacturer.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devicetypes = DeviceType.objects.restrict(request.user, 'view').filter(
+            manufacturer=instance
+        )
+
+        devicetypes_table = tables.DeviceTypeTable(devicetypes)
+        devicetypes_table.columns.hide('manufacturer')
+        paginate_table(devicetypes_table, request)
+
+        return {
+            'devicetypes_table': devicetypes_table,
+        }
 
 
 class ManufacturerEditView(generic.ObjectEditView):
@@ -1017,6 +1139,23 @@ class DeviceRoleListView(generic.ObjectListView):
     table = tables.DeviceRoleTable
 
 
+class DeviceRoleView(generic.ObjectView):
+    queryset = DeviceRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devices = Device.objects.restrict(request.user, 'view').filter(
+            device_role=instance
+        )
+
+        devices_table = tables.DeviceTable(devices)
+        devices_table.columns.hide('device_role')
+        paginate_table(devices_table, request)
+
+        return {
+            'devices_table': devices_table,
+        }
+
+
 class DeviceRoleEditView(generic.ObjectEditView):
     queryset = DeviceRole.objects.all()
     model_form = forms.DeviceRoleForm
@@ -1054,6 +1193,23 @@ class PlatformListView(generic.ObjectListView):
         vm_count=count_related(VirtualMachine, 'platform')
     )
     table = tables.PlatformTable
+
+
+class PlatformView(generic.ObjectView):
+    queryset = Platform.objects.all()
+
+    def get_extra_context(self, request, instance):
+        devices = Device.objects.restrict(request.user, 'view').filter(
+            platform=instance
+        )
+
+        devices_table = tables.DeviceTable(devices)
+        devices_table.columns.hide('platform')
+        paginate_table(devices_table, request)
+
+        return {
+            'devices_table': devices_table,
+        }
 
 
 class PlatformEditView(generic.ObjectEditView):
@@ -1148,6 +1304,7 @@ class DeviceConsolePortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_consoleport') or request.user.has_perm('dcim.delete_consoleport'):
             consoleport_table.columns.show('pk')
+        paginate_table(consoleport_table, request)
 
         return {
             'consoleport_table': consoleport_table,
@@ -1173,6 +1330,7 @@ class DeviceConsoleServerPortsView(generic.ObjectView):
         if request.user.has_perm('dcim.change_consoleserverport') or \
                 request.user.has_perm('dcim.delete_consoleserverport'):
             consoleserverport_table.columns.show('pk')
+        paginate_table(consoleserverport_table, request)
 
         return {
             'consoleserverport_table': consoleserverport_table,
@@ -1195,6 +1353,7 @@ class DevicePowerPortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_powerport') or request.user.has_perm('dcim.delete_powerport'):
             powerport_table.columns.show('pk')
+        paginate_table(powerport_table, request)
 
         return {
             'powerport_table': powerport_table,
@@ -1217,6 +1376,7 @@ class DevicePowerOutletsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_poweroutlet') or request.user.has_perm('dcim.delete_poweroutlet'):
             poweroutlet_table.columns.show('pk')
+        paginate_table(poweroutlet_table, request)
 
         return {
             'poweroutlet_table': poweroutlet_table,
@@ -1241,6 +1401,7 @@ class DeviceInterfacesView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_interface') or request.user.has_perm('dcim.delete_interface'):
             interface_table.columns.show('pk')
+        paginate_table(interface_table, request)
 
         return {
             'interface_table': interface_table,
@@ -1263,6 +1424,7 @@ class DeviceFrontPortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_frontport') or request.user.has_perm('dcim.delete_frontport'):
             frontport_table.columns.show('pk')
+        paginate_table(frontport_table, request)
 
         return {
             'frontport_table': frontport_table,
@@ -1283,6 +1445,7 @@ class DeviceRearPortsView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_rearport') or request.user.has_perm('dcim.delete_rearport'):
             rearport_table.columns.show('pk')
+        paginate_table(rearport_table, request)
 
         return {
             'rearport_table': rearport_table,
@@ -1305,6 +1468,7 @@ class DeviceDeviceBaysView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_devicebay') or request.user.has_perm('dcim.delete_devicebay'):
             devicebay_table.columns.show('pk')
+        paginate_table(devicebay_table, request)
 
         return {
             'devicebay_table': devicebay_table,
@@ -1327,6 +1491,7 @@ class DeviceInventoryView(generic.ObjectView):
         )
         if request.user.has_perm('dcim.change_inventoryitem') or request.user.has_perm('dcim.delete_inventoryitem'):
             inventoryitem_table.columns.show('pk')
+        paginate_table(inventoryitem_table, request)
 
         return {
             'inventoryitem_table': inventoryitem_table,
@@ -1450,11 +1615,6 @@ class ConsolePortListView(generic.ObjectListView):
 class ConsolePortView(generic.ObjectView):
     queryset = ConsolePort.objects.all()
 
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_consoleports'
-        }
-
 
 class ConsolePortCreateView(generic.ComponentCreateView):
     queryset = ConsolePort.objects.all()
@@ -1514,11 +1674,6 @@ class ConsoleServerPortListView(generic.ObjectListView):
 
 class ConsoleServerPortView(generic.ObjectView):
     queryset = ConsoleServerPort.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_consoleserverports'
-        }
 
 
 class ConsoleServerPortCreateView(generic.ComponentCreateView):
@@ -1580,11 +1735,6 @@ class PowerPortListView(generic.ObjectListView):
 class PowerPortView(generic.ObjectView):
     queryset = PowerPort.objects.all()
 
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_powerports'
-        }
-
 
 class PowerPortCreateView(generic.ComponentCreateView):
     queryset = PowerPort.objects.all()
@@ -1644,11 +1794,6 @@ class PowerOutletListView(generic.ObjectListView):
 
 class PowerOutletView(generic.ObjectView):
     queryset = PowerOutlet.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_poweroutlets'
-        }
 
 
 class PowerOutletCreateView(generic.ComponentCreateView):
@@ -1717,6 +1862,14 @@ class InterfaceView(generic.ObjectView):
             orderable=False
         )
 
+        # Get child interfaces
+        child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
+        child_interfaces_tables = tables.InterfaceTable(
+            child_interfaces,
+            orderable=False
+        )
+        child_interfaces_tables.columns.hide('device')
+
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
         if instance.untagged_vlan is not None:
@@ -1733,8 +1886,8 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'ipaddress_table': ipaddress_table,
+            'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
-            'breadcrumb_url': 'dcim:device_interfaces'
         }
 
 
@@ -1797,11 +1950,6 @@ class FrontPortListView(generic.ObjectListView):
 class FrontPortView(generic.ObjectView):
     queryset = FrontPort.objects.all()
 
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_frontports'
-        }
-
 
 class FrontPortCreateView(generic.ComponentCreateView):
     queryset = FrontPort.objects.all()
@@ -1862,11 +2010,6 @@ class RearPortListView(generic.ObjectListView):
 class RearPortView(generic.ObjectView):
     queryset = RearPort.objects.all()
 
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_rearports'
-        }
-
 
 class RearPortCreateView(generic.ComponentCreateView):
     queryset = RearPort.objects.all()
@@ -1926,11 +2069,6 @@ class DeviceBayListView(generic.ObjectListView):
 
 class DeviceBayView(generic.ObjectView):
     queryset = DeviceBay.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_devicebays'
-        }
 
 
 class DeviceBayCreateView(generic.ComponentCreateView):
@@ -2052,11 +2190,6 @@ class InventoryItemListView(generic.ObjectListView):
 
 class InventoryItemView(generic.ObjectView):
     queryset = InventoryItem.objects.all()
-
-    def get_extra_context(self, request, instance):
-        return {
-            'breadcrumb_url': 'dcim:device_inventory'
-        }
 
 
 class InventoryItemEditView(generic.ObjectEditView):
@@ -2250,10 +2383,14 @@ class PathTraceView(generic.ObjectView):
             else:
                 path = related_paths.first()
 
+        # Get the total length of the cable and whether the length is definitive (fully defined)
+        total_length, is_definitive = path.get_total_length() if path else (None, False)
+
         return {
             'path': path,
             'related_paths': related_paths,
-            'total_length': path.get_total_length() if path else None,
+            'total_length': total_length,
+            'is_definitive': is_definitive
         }
 
 
@@ -2699,6 +2836,8 @@ class PowerPanelView(generic.ObjectView):
             data=power_feeds,
             orderable=False
         )
+        if request.user.has_perm('dcim.delete_cable'):
+            powerfeed_table.columns.show('pk')
         powerfeed_table.exclude = ['power_panel']
 
         return {
@@ -2773,6 +2912,10 @@ class PowerFeedBulkEditView(generic.BulkEditView):
     filterset = filters.PowerFeedFilterSet
     table = tables.PowerFeedTable
     form = forms.PowerFeedBulkEditForm
+
+
+class PowerFeedBulkDisconnectView(BulkDisconnectView):
+    queryset = PowerFeed.objects.all()
 
 
 class PowerFeedBulkDeleteView(generic.BulkDeleteView):

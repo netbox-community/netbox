@@ -9,6 +9,7 @@ from dcim.models import Interface
 from extras.utils import extras_features
 from ipam.choices import *
 from ipam.constants import *
+from ipam.querysets import VLANQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from virtualization.models import VMInterface
@@ -34,9 +35,7 @@ class VLANGroup(OrganizationalModel):
     scope_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=Q(
-            model__in=['region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster']
-        ),
+        limit_choices_to=Q(model__in=VLANGROUP_SCOPE_TYPES),
         blank=True,
         null=True
     )
@@ -70,7 +69,7 @@ class VLANGroup(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('ipam:vlangroup_vlans', args=[self.pk])
+        return reverse('ipam:vlangroup', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -156,7 +155,7 @@ class VLAN(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = VLANQuerySet.as_manager()
 
     csv_headers = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
     clone_fields = [

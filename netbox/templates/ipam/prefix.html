@@ -1,66 +1,7 @@
-{% extends 'generic/object.html' %}
+{% extends 'ipam/prefix/base.html' %}
 {% load helpers %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></li>
-  {% if object.vrf %}
-    <li class="breadcrumb-item"><a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a></li>
-  {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
-{% block extra_controls %}
-  {% include 'ipam/inc/toggle_available.html' %}
-  {% if perms.ipam.add_prefix and active_tab == 'prefixes' and first_available_prefix %}
-  <div class="mx-1">
-    <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ object.vrf.pk }}&site={{ object.site.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-sm btn-success">
-      <i class="bi bi-plus" aria-hidden="true"></i> Add Child Prefix
-    </a>
-  </div>
-  {% endif %}
-  {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and first_available_ip %}
-  <div class="mx-1">
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}&vrf={{ object.vrf.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-sm btn-success">
-      <i class="bi bi-plus" aria-hidden="true"></i>
-      Add an IP Address
-    </a>
-  </div>
-  {% endif %}
-  {% comment %} {{ block.super }} {% endcomment %}
-{% endblock %}
-
-
-{% block tab_items %}
-<li role="presentation" class="nav-item">
-    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:prefix' pk=object.pk %}">
-        Prefix
-    </a>
-</li>
-<li role="presentation" class="nav-item">
-    <a class="nav-link{% if active_tab %} active{% endif %}" href="{% url 'ipam:prefix_prefixes' pk=object.pk %}">
-        Child Prefixes <span class="badge bg-primary">{{ object.get_child_prefixes.count }}</span>
-    </a>
-</li>
-{% if perms.ipam.view_ipaddress and object.status != 'container' %}
-<li role="presentation" class="nav-item">
-    <a class="nav-link{% if active_tab %} active{% endif %}" href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">
-        IP Addresses <span class="badge bg-primary">{{ object.get_child_ips.count }}</span>
-    </a>
-</li>
-{% endif %}
-{% if perms.extras.view_objectchange %}
-<li role="presentation" class="nav-item">
-    <a
-        class="nav-link{% if active_tab == 'changelog' %} active{% endif %}"
-        href="{% url 'ipam:prefix_changelog' pk=object.pk %}"
-    >
-        Change Log
-    </a>
-</li>
-{% endif %}
-
-{% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-5">
@@ -148,7 +89,7 @@
                     <th scope="row">Role</th>
                     <td>
                         {% if object.role %}
-                            <a href="{% url 'ipam:prefix_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
+                            <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

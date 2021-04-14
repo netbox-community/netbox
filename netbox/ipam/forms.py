@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
@@ -9,9 +10,10 @@ from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField, CSVModelChoiceField, DatePicker,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, NumericArrayField,
-    ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, ContentTypeChoiceField, CSVChoiceField,
+    CSVModelChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField,
+    NumericArrayField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from .choices import *
@@ -521,12 +523,14 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
 
         if data:
 
-            # Limit vlan queryset by assigned site and group
-            params = {
-                f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"group__{self.fields['vlan_group'].to_field_name}": data.get('vlan_group'),
-            }
-            self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
+            # Limit VLAN queryset by assigned site and/or group (if specified)
+            params = {}
+            if data.get('site'):
+                params[f"site__{self.fields['site'].to_field_name}"] = data.get('site')
+            if data.get('vlan_group'):
+                params[f"group__{self.fields['vlan_group'].to_field_name}"] = data.get('vlan_group')
+            if params:
+                self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
 
 
 class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -833,7 +837,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
 
         # Initialize primary_for_parent if IP address is already assigned
         if self.instance.pk and self.instance.assigned_object:
-            parent = self.instance.assigned_object.parent
+            parent = self.instance.assigned_object.parent_object
             if (
                 self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
                 self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
@@ -860,18 +864,20 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
         interface = self.instance.assigned_object
-        if interface and self.cleaned_data['primary_for_parent']:
-            if ipaddress.address.version == 4:
-                interface.parent.primary_ip4 = ipaddress
-            else:
-                interface.parent.primary_ip6 = ipaddress
-            interface.parent.save()
-        elif interface and ipaddress.address.version == 4 and interface.parent.primary_ip4 == ipaddress:
-            interface.parent.primary_ip4 = None
-            interface.parent.save()
-        elif interface and ipaddress.address.version == 6 and interface.parent.primary_ip6 == ipaddress:
-            interface.parent.primary_ip6 = None
-            interface.parent.save()
+        if interface:
+            parent = interface.parent_object
+            if self.cleaned_data['primary_for_parent']:
+                if ipaddress.address.version == 4:
+                    parent.primary_ip4 = ipaddress
+                else:
+                    parent.primary_ip6 = ipaddress
+                parent.save()
+            elif ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
+                parent.primary_ip4 = None
+                parent.save()
+            elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
+                parent.primary_ip6 = None
+                parent.save()
 
         return ipaddress
 
@@ -1133,6 +1139,11 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
 #
 
 class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
+        required=False,
+        widget=StaticSelect2
+    )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1140,12 +1151,13 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             'sites': '$site'
         }
     )
-    site_group = DynamicModelChoiceField(
+    sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
         initial_params={
             'sites': '$site'
-        }
+        },
+        label='Site group'
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -1155,7 +1167,7 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         },
         query_params={
             'region_id': '$region',
-            'group_id': '$site_group',
+            'group_id': '$sitegroup',
         }
     )
     location = DynamicModelChoiceField(
@@ -1176,18 +1188,19 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             'location_id': '$location',
         }
     )
-    cluster_group = DynamicModelChoiceField(
+    clustergroup = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         initial_params={
             'clusters': '$cluster'
-        }
+        },
+        label='Cluster group'
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
         query_params={
-            'group_id': '$cluster_group',
+            'group_id': '$clustergroup',
         }
     )
     slug = SlugField()
@@ -1195,29 +1208,19 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'region', 'site_group', 'site', 'location', 'rack', 'cluster_group',
-            'cluster',
+            'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
+            'clustergroup', 'cluster',
         ]
+        widgets = {
+            'scope_type': StaticSelect2,
+        }
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
         initial = kwargs.get('initial', {})
 
         if instance is not None and instance.scope:
-            if type(instance.scope) is Rack:
-                initial['rack'] = instance.scope
-            elif type(instance.scope) is Location:
-                initial['location'] = instance.scope
-            elif type(instance.scope) is Site:
-                initial['site'] = instance.scope
-            elif type(instance.scope) is SiteGroup:
-                initial['site_group'] = instance.scope
-            elif type(instance.scope) is Region:
-                initial['region'] = instance.scope
-            elif type(instance.scope) is Cluster:
-                initial['cluster'] = instance.scope
-            elif type(instance.scope) is ClusterGroup:
-                initial['cluster_group'] = instance.scope
+            initial[instance.scope_type.model] = instance.scope
 
             kwargs['initial'] = initial
 
@@ -1226,11 +1229,12 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     def clean(self):
         super().clean()
 
-        # Assign scope object
-        self.instance.scope = self.cleaned_data['rack'] or self.cleaned_data['location'] or \
-            self.cleaned_data['site'] or self.cleaned_data['site_group'] or \
-            self.cleaned_data['region'] or self.cleaned_data['cluster'] or \
-            self.cleaned_data['cluster_group'] or None
+        # Assign scope based on scope_type
+        if self.cleaned_data.get('scope_type'):
+            scope_field = self.cleaned_data['scope_type'].model
+            self.instance.scope = self.cleaned_data.get(scope_field)
+        else:
+            self.instance.scope_id = None
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0056_sitegroup'),
+        ('extras', '0056_extend_configcontext'),
     ]
 
     operations = [

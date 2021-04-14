@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Site, Region
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, Tag
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -28,7 +28,8 @@ class ConfigContextTest(TestCase):
         self.devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
         self.devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         self.region = Region.objects.create(name="Region")
-        self.site = Site.objects.create(name='Site-1', slug='site-1', region=self.region)
+        self.sitegroup = SiteGroup.objects.create(name="Site Group")
+        self.site = Site.objects.create(name='Site-1', slug='site-1', region=self.region, group=self.sitegroup)
         self.platform = Platform.objects.create(name="Platform")
         self.tenantgroup = TenantGroup.objects.create(name="Tenant Group")
         self.tenant = Tenant.objects.create(name="Tenant", group=self.tenantgroup)
@@ -160,6 +161,14 @@ class ConfigContextTest(TestCase):
             }
         )
         region_context.regions.add(self.region)
+        sitegroup_context = ConfigContext.objects.create(
+            name="sitegroup",
+            weight=100,
+            data={
+                "sitegroup": 1
+            }
+        )
+        sitegroup_context.site_groups.add(self.sitegroup)
         platform_context = ConfigContext.objects.create(
             name="platform",
             weight=100,
@@ -224,6 +233,14 @@ class ConfigContextTest(TestCase):
             }
         )
         region_context.regions.add(self.region)
+        sitegroup_context = ConfigContext.objects.create(
+            name="sitegroup",
+            weight=100,
+            data={
+                "sitegroup": 1
+            }
+        )
+        sitegroup_context.site_groups.add(self.sitegroup)
         platform_context = ConfigContext.objects.create(
             name="platform",
             weight=100,

@@ -27,6 +27,8 @@
                         {# Cable #}
                         {% if cable %}
                             {% include 'dcim/trace/cable.html' %}
+                        {% elif far_end %}
+                            {% include 'dcim/trace/attachment.html' %}
                         {% endif %}
 
                         {# Far end #}
@@ -43,6 +45,8 @@
                             {% if forloop.last %}
                                 {% include 'dcim/trace/circuit.html' with circuit=far_end.circuit %}
                             {% endif %}
+                        {% elif far_end %}
+                            {% include 'dcim/trace/object.html' with object=far_end %}
                         {% endif %}
 
                         {% if forloop.last %}
@@ -69,7 +73,7 @@
                                     <h5>Total segments: {{ traced_path|length }}</h5>
                                     <h5>Total length:
                                         {% if total_length %}
-                                            {{ total_length|floatformat:"-2" }} Meters /
+                                            {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} Meters /
                                             {{ total_length|meters_to_feet|floatformat:"-2" }} Feet
                                         {% else %}
                                             <span class="text-muted">N/A</span>

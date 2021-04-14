@@ -13,6 +13,7 @@ from django.forms import BoundField
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices
+from utilities.utils import content_type_name
 from utilities.validators import EnhancedURLValidator
 from . import widgets
 from .constants import *
@@ -20,6 +21,8 @@ from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 __all__ = (
     'CommentField',
+    'ContentTypeChoiceField',
+    'ContentTypeMultipleChoiceField',
     'CSVChoiceField',
     'CSVContentTypeField',
     'CSVDataField',
@@ -35,6 +38,109 @@ __all__ = (
     'TagFilterField',
 )
 
+
+class CommentField(forms.CharField):
+    """
+    A textarea with support for Markdown rendering. Exists mostly just to add a standard help_text.
+    """
+    widget = forms.Textarea
+    default_label = ''
+    # TODO: Port Markdown cheat sheet to internal documentation
+    default_helptext = '<i class="mdi mdi-information-outline"></i> '\
+                       '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank" tabindex="-1">'\
+                       'Markdown</a> syntax is supported'
+
+    def __init__(self, *args, **kwargs):
+        required = kwargs.pop('required', False)
+        label = kwargs.pop('label', self.default_label)
+        help_text = kwargs.pop('help_text', self.default_helptext)
+        super().__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
+
+
+class SlugField(forms.SlugField):
+    """
+    Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
+    """
+    def __init__(self, slug_source='name', *args, **kwargs):
+        label = kwargs.pop('label', "Slug")
+        help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
+        widget = kwargs.pop('widget', widgets.SlugWidget)
+        super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
+        self.widget.attrs['slug-source'] = slug_source
+
+
+class TagFilterField(forms.MultipleChoiceField):
+    """
+    A filter field for the tags of a model. Only the tags used by a model are displayed.
+
+    :param model: The model of the filter
+    """
+    widget = widgets.StaticSelect2Multiple
+
+    def __init__(self, model, *args, **kwargs):
+        def get_choices():
+            tags = model.tags.annotate(
+                count=Count('extras_taggeditem_items')
+            ).order_by('name')
+            return [
+                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
+            ]
+
+        # Choices are fetched each time the form is initialized
+        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
+
+
+class LaxURLField(forms.URLField):
+    """
+    Modifies Django's built-in URLField to remove the requirement for fully-qualified domain names
+    (e.g. http://myserver/ is valid)
+    """
+    default_validators = [EnhancedURLValidator()]
+
+
+class JSONField(_JSONField):
+    """
+    Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
+            self.widget.attrs['placeholder'] = ''
+
+    def prepare_value(self, value):
+        if isinstance(value, InvalidJSONInput):
+            return value
+        if value is None:
+            return ''
+        return json.dumps(value, sort_keys=True, indent=4)
+
+
+class ContentTypeChoiceMixin:
+
+    def __init__(self, queryset, *args, **kwargs):
+        # Order ContentTypes by app_label
+        queryset = queryset.order_by('app_label', 'model')
+        super().__init__(queryset, *args, **kwargs)
+
+    def label_from_instance(self, obj):
+        try:
+            return content_type_name(obj)
+        except AttributeError:
+            return super().label_from_instance(obj)
+
+
+class ContentTypeChoiceField(ContentTypeChoiceMixin, forms.ModelChoiceField):
+    pass
+
+
+class ContentTypeMultipleChoiceField(ContentTypeChoiceMixin, forms.ModelMultipleChoiceField):
+    pass
+
+
+#
+# CSV fields
+#
 
 class CSVDataField(forms.CharField):
     """
@@ -167,6 +273,10 @@ class CSVContentTypeField(CSVModelChoiceField):
             raise forms.ValidationError(f'Invalid object type')
 
 
+#
+# Expansion fields
+#
+
 class ExpandableNameField(forms.CharField):
     """
     A field which allows for numeric range expansion
@@ -212,56 +322,9 @@ class ExpandableIPAddressField(forms.CharField):
         return [value]
 
 
-class CommentField(forms.CharField):
-    """
-    A textarea with support for Markdown rendering. Exists mostly just to add a standard help_text.
-    """
-    widget = forms.Textarea(attrs={"class": "markdown"})
-    default_label = ''
-    # TODO: Port Markdown cheat sheet to internal documentation
-    default_helptext = '<i class="bi bi-markdown"></i> '\
-                       '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
-                       'Markdown</a> syntax is supported'
-
-    def __init__(self, *args, **kwargs):
-        required = kwargs.pop('required', False)
-        label = kwargs.pop('label', self.default_label)
-        help_text = kwargs.pop('help_text', self.default_helptext)
-        super().__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
-
-
-class SlugField(forms.SlugField):
-    """
-    Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
-    """
-    def __init__(self, slug_source='name', *args, **kwargs):
-        label = kwargs.pop('label', "Slug")
-        help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
-        widget = kwargs.pop('widget', widgets.SlugWidget)
-        super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
-        self.widget.attrs['slug-source'] = slug_source
-
-
-class TagFilterField(forms.MultipleChoiceField):
-    """
-    A filter field for the tags of a model. Only the tags used by a model are displayed.
-
-    :param model: The model of the filter
-    """
-    widget = widgets.StaticSelect2Multiple
-
-    def __init__(self, model, *args, **kwargs):
-        def get_choices():
-            tags = model.tags.annotate(
-                count=Count('extras_taggeditem_items')
-            ).order_by('name')
-            return [
-                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
-            ]
-
-        # Choices are fetched each time the form is initialized
-        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
-
+#
+# Dynamic fields
+#
 
 class DynamicModelChoiceMixin:
     """
@@ -271,20 +334,18 @@ class DynamicModelChoiceMixin:
     :param null_option: The string used to represent a null selection (if any)
     :param disabled_indicator: The name of the field which, if populated, will disable selection of the
         choice (optional)
-    :param brief_mode: Use the "brief" format (?brief=true) when making API requests (default)
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
     # TODO: Remove display_field in v2.12
     def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
-                 disabled_indicator=None, brief_mode=True, *args, **kwargs):
+                 disabled_indicator=None, *args, **kwargs):
         self.display_field = display_field
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
-        self.brief_mode = brief_mode
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -308,10 +369,6 @@ class DynamicModelChoiceMixin:
         # Set the disabled indicator, if any
         if self.disabled_indicator is not None:
             attrs['disabled-indicator'] = self.disabled_indicator
-
-        # Toggle brief mode
-        if not self.brief_mode:
-            attrs['data-full'] = 'true'
 
         # Attach any static query parameters
         for key, value in self.query_params.items():
@@ -379,30 +436,3 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     """
     filter = django_filters.ModelMultipleChoiceFilter
     widget = widgets.APISelectMultiple
-
-
-class LaxURLField(forms.URLField):
-    """
-    Modifies Django's built-in URLField to remove the requirement for fully-qualified domain names
-    (e.g. http://myserver/ is valid)
-    """
-    default_validators = [EnhancedURLValidator()]
-
-
-class JSONField(_JSONField):
-    """
-    Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.help_text:
-            
-            self.help_text = 'Enter context data in <a target="_blank" href="https://json.org/">JSON</a> format.'
-            self.widget.attrs['placeholder'] = ''
-
-    def prepare_value(self, value):
-        if isinstance(value, InvalidJSONInput):
-            return value
-        if value is None:
-            return ''
-        return json.dumps(value, sort_keys=True, indent=4)

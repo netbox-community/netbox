@@ -1,9 +1,8 @@
-from django.shortcuts import get_object_or_404, render
-
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device, RackReservation
 from ipam.models import IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
+from utilities.tables import paginate_table
 from virtualization.models import VirtualMachine, Cluster
 from . import filters, forms, tables
 from .models import Tenant, TenantGroup
@@ -22,6 +21,23 @@ class TenantGroupListView(generic.ObjectListView):
         cumulative=True
     )
     table = tables.TenantGroupTable
+
+
+class TenantGroupView(generic.ObjectView):
+    queryset = TenantGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        tenants = Tenant.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+
+        tenants_table = tables.TenantTable(tenants)
+        tenants_table.columns.hide('group')
+        paginate_table(tenants_table, request)
+
+        return {
+            'tenants_table': tenants_table,
+        }
 
 
 class TenantGroupEditView(generic.ObjectEditView):

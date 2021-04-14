@@ -9,13 +9,13 @@ Begin by installing all system packages required by NetBox and its dependencies.
 !!! note
     NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8.
 
-=== Ubuntu
+=== "Ubuntu"
 
     ```no-highlight
     sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
     ```
 
-=== CentOS
+=== "CentOS"
 
     ```no-highlight
     sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
@@ -57,13 +57,13 @@ sudo mkdir -p /opt/netbox/ && cd /opt/netbox/
 
 If `git` is not already installed, install it:
 
-=== Ubuntu
+=== "Ubuntu"
 
     ```no-highlight
     sudo apt install -y git
     ```
 
-=== CentOS
+=== "CentOS"
 
     ```no-highlight
     sudo yum install -y git
@@ -89,14 +89,14 @@ Checking connectivity... done.
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
 
-=== Ubuntu
+=== "Ubuntu"
 
     ```
     sudo adduser --system --group netbox
     sudo chown --recursive netbox /opt/netbox/netbox/media/
     ```
 
-=== CentOS
+=== "CentOS"
 
     ```
     sudo groupadd --system netbox
@@ -113,7 +113,7 @@ cd /opt/netbox/netbox/netbox/
 sudo cp configuration.example.py configuration.py
 ```
 
-Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](/configuration/), but only the following four are required for new installations:
+Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following four are required for new installations:
 
 * `ALLOWED_HOSTS`
 * `DATABASE`
@@ -136,7 +136,7 @@ ALLOWED_HOSTS = ['*']
 
 ### DATABASE
 
-This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](/configuration/required-settings/#database) for more detail on individual parameters.
+This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](../configuration/required-settings.md#database) for more detail on individual parameters.
 
 ```python
 DATABASE = {
@@ -151,7 +151,7 @@ DATABASE = {
 
 ### REDIS
 
-Redis is a in-memory key-value store used by NetBox for caching and background task queuing. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](/configuration/required-settings/#redis) for more detail on individual parameters.
+Redis is a in-memory key-value store used by NetBox for caching and background task queuing. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](../configuration/required-settings.md#redis) for more detail on individual parameters.
 
 Note that NetBox requires the specification of two separate Redis databases: `tasks` and `caching`. These may both be provided by the same Redis service, however each should have a unique numeric database ID.
 
@@ -203,7 +203,7 @@ sudo echo napalm >> /opt/netbox/local_requirements.txt
 
 ### Remote File Storage
 
-By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](/configuration/optional-settings/#storage_backend) in `configuration.py`.
+By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/optional-settings.md#storage_backend) in `configuration.py`.
 
 ```no-highlight
 sudo echo django-storages >> /opt/netbox/local_requirements.txt
@@ -264,7 +264,7 @@ Quit the server with CONTROL-C.
 
 Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
 
-!!! warning
+!!! danger
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning

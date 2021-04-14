@@ -1,7 +1,7 @@
 from django.urls import reverse
 
 from circuits.choices import *
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from circuits.models import *
 from dcim.models import Site
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -177,4 +177,44 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
 
         cls.bulk_update_data = {
             'port_speed': 123456
+        }
+
+
+class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
+    model = ProviderNetwork
+    brief_fields = ['display', 'id', 'name', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        provider_networks = (
+            ProviderNetwork(name='Provider Network 1', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 2', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 3', provider=providers[0]),
+        )
+        ProviderNetwork.objects.bulk_create(provider_networks)
+
+        cls.create_data = [
+            {
+                'name': 'Provider Network 4',
+                'provider': providers[0].pk,
+            },
+            {
+                'name': 'Provider Network 5',
+                'provider': providers[0].pk,
+            },
+            {
+                'name': 'Provider Network 6',
+                'provider': providers[0].pk,
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'provider': providers[1].pk,
+            'description': 'New description',
         }

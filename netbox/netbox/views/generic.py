@@ -14,7 +14,6 @@ from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
-from django_tables2 import RequestConfig
 from django_tables2.export import TableExport
 
 from extras.models import CustomField, ExportTemplate
@@ -23,8 +22,8 @@ from utilities.exceptions import AbortTransaction
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, ImportForm, TableConfigForm, restrict_form_fields,
 )
-from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
+from utilities.tables import paginate_table
 from utilities.utils import csv_format, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 
@@ -183,7 +182,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         if request.GET.get('export') == 'table':
             exclude_columns = {'pk'}
             exclude_columns.update({
-                col for col in table.base_columns if col not in table.visible_columns
+                name for name, _ in table.available_columns
             })
             exporter = TableExport(
                 export_format=TableExport.CSV,
@@ -195,12 +194,8 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
                 filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
             )
 
-        # Apply the request context
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(table)
+        # Paginate the objects table
+        paginate_table(table, request)
 
         context = {
             'content_type': content_type,

@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.11-beta1'
+VERSION = '2.11.0-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -94,10 +94,9 @@ LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
+MAPS_URL = getattr(configuration, 'MAPS_URL', 'https://maps.google.com/?q=')
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
-STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
-STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
@@ -124,18 +123,23 @@ SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
+STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
+STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
-    try:
-        URLValidator(RELEASE_CHECK_URL)
-    except ValidationError:
-        raise ImproperlyConfigured(
+    validator = URLValidator(
+        message=(
             "RELEASE_CHECK_URL must be a valid API URL. Example: "
             "https://api.github.com/repos/netbox-community/netbox"
         )
+    )
+    try:
+        validator(RELEASE_CHECK_URL)
+    except ValidationError as err:
+        raise ImproperlyConfigured(str(err))
 
 # Enforce a minimum cache timeout for update checks
 if RELEASE_CHECK_TIMEOUT < 3600:
@@ -217,6 +221,7 @@ TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get('SENTINEL_TIMEOUT', 10)
 TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
 TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
+TASKS_REDIS_SKIP_TLS_VERIFY = TASKS_REDIS.get('INSECURE_SKIP_TLS_VERIFY', False)
 
 # Caching
 if 'caching' not in REDIS:
@@ -235,6 +240,7 @@ CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get('SENTINEL_SERVICE', 'default'
 CACHING_REDIS_PASSWORD = CACHING_REDIS.get('PASSWORD', '')
 CACHING_REDIS_DATABASE = CACHING_REDIS.get('DATABASE', 0)
 CACHING_REDIS_SSL = CACHING_REDIS.get('SSL', False)
+CACHING_REDIS_SKIP_TLS_VERIFY = CACHING_REDIS.get('INSECURE_SKIP_TLS_VERIFY', False)
 
 
 #
@@ -403,21 +409,14 @@ if CACHING_REDIS_USING_SENTINEL:
         'password': CACHING_REDIS_PASSWORD,
     }
 else:
-    if CACHING_REDIS_SSL:
-        REDIS_CACHE_CON_STRING = 'rediss://'
-    else:
-        REDIS_CACHE_CON_STRING = 'redis://'
-
-    if CACHING_REDIS_PASSWORD:
-        REDIS_CACHE_CON_STRING = '{}:{}@'.format(REDIS_CACHE_CON_STRING, CACHING_REDIS_PASSWORD)
-
-    REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(
-        REDIS_CACHE_CON_STRING,
-        CACHING_REDIS_HOST,
-        CACHING_REDIS_PORT,
-        CACHING_REDIS_DATABASE
-    )
-    CACHEOPS_REDIS = REDIS_CACHE_CON_STRING
+    CACHEOPS_REDIS = {
+        'host': CACHING_REDIS_HOST,
+        'port': CACHING_REDIS_PORT,
+        'db': CACHING_REDIS_DATABASE,
+        'password': CACHING_REDIS_PASSWORD,
+        'ssl': CACHING_REDIS_SSL,
+        'ssl_cert_reqs': None if CACHING_REDIS_SKIP_TLS_VERIFY else 'required',
+    }
 
 if not CACHE_TIMEOUT:
     CACHEOPS_ENABLED = False
@@ -565,6 +564,7 @@ else:
         'DB': TASKS_REDIS_DATABASE,
         'PASSWORD': TASKS_REDIS_PASSWORD,
         'SSL': TASKS_REDIS_SSL,
+        'SSL_CERT_REQS': None if TASKS_REDIS_SKIP_TLS_VERIFY else 'required',
         'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
     }
 

@@ -191,15 +191,18 @@ class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    parent_id = django_filters.ModelMultipleChoiceFilter(
+    parent_id = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
-        label='Rack group (ID)',
+        field_name='parent',
+        lookup_expr='in',
+        label='Location (ID)',
     )
-    parent = django_filters.ModelMultipleChoiceFilter(
-        field_name='parent__slug',
+    parent = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
         to_field_name='slug',
-        label='Rack group (slug)',
+        label='Location (slug)',
     )
 
     class Meta:
@@ -857,7 +860,7 @@ class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTermina
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'label', 'description']
 
 
 class ConsoleServerPortFilterSet(
@@ -873,7 +876,7 @@ class ConsoleServerPortFilterSet(
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'label', 'description']
 
 
 class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
@@ -884,7 +887,7 @@ class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description']
+        fields = ['id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description']
 
 
 class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
@@ -895,7 +898,7 @@ class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTermina
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'name', 'feed_leg', 'description']
+        fields = ['id', 'name', 'label', 'feed_leg', 'description']
 
 
 class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
@@ -946,7 +949,7 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
 
     class Meta:
         model = Interface
-        fields = ['id', 'name', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
+        fields = ['id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
 
     def filter_device(self, queryset, name, value):
         try:
@@ -1000,21 +1003,21 @@ class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
 
     class Meta:
         model = FrontPort
-        fields = ['id', 'name', 'type', 'description']
+        fields = ['id', 'name', 'label', 'type', 'description']
 
 
 class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
 
     class Meta:
         model = RearPort
-        fields = ['id', 'name', 'type', 'positions', 'description']
+        fields = ['id', 'name', 'label', 'type', 'positions', 'description']
 
 
 class DeviceBayFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'label', 'description']
 
 
 class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
@@ -1075,7 +1078,7 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = InventoryItem
-        fields = ['id', 'name', 'part_id', 'asset_tag', 'discovered']
+        fields = ['id', 'name', 'label', 'part_id', 'asset_tag', 'discovered']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1090,7 +1093,7 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(BaseFilterSet):
+class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1167,10 +1170,10 @@ class VirtualChassisFilterSet(BaseFilterSet):
             Q(members__name__icontains=value) |
             Q(domain__icontains=value)
         )
-        return queryset.filter(qs_filter)
+        return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(BaseFilterSet):
+class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1346,7 +1349,7 @@ class PowerPanelFilterSet(BaseFilterSet):
         queryset=Location.objects.all(),
         field_name='location',
         lookup_expr='in',
-        label='Rack group (ID)',
+        label='Location (ID)',
     )
     tag = TagFilter()
 

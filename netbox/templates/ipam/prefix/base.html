@@ -1,0 +1,39 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load custom_links %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item">
+    <a href="{% url 'ipam:prefix_list' %}">Prefixes</a>
+  </li>
+  {% if object.vrf %}
+  <li class="breadcrumb-item">
+    <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
+  </li>
+  {% endif %}
+  <li class="breadcrumb-item">
+    {{ object }}
+  </li>
+{% endblock %}
+
+{% block tab_items %}
+<li role="presentation" class="nav-item">
+    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:prefix' pk=object.pk %}">
+        Prefix
+    </a>
+</li>
+<li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab %} active{% endif %}" href="{% url 'ipam:prefix_prefixes' pk=object.pk %}">
+        Child Prefixes <span class="badge bg-primary">{{ object.get_child_prefixes.count }}</span>
+    </a>
+</li>
+{% if perms.ipam.view_ipaddress and object.status != 'container' %}
+<li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab %} active{% endif %}" href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">
+        IP Addresses <span class="badge bg-primary">{{ object.get_child_ips.count }}</span>
+    </a>
+</li>
+{% endif %}
+
+{% endblock %}

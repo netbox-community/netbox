@@ -2,6 +2,12 @@
 {% load helpers %}
 {% load plugins %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'dcim:device_inventory' pk=object.device.pk %}">Inventory Items</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="col-md-6">

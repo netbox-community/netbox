@@ -509,6 +509,14 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'circuits:provider_list' %}">Providers</a>
+                        <li{% if not perms.circuits.view_providernetwork %} class="disabled"{% endif %}>
+                            {% if perms.circuits.add_providernetwork %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'circuits:providernetwork_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'circuits:providernetwork_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'circuits:providernetwork_list' %}">Provider Networks</a>
                         </li>
                     </ul>
                 </li>

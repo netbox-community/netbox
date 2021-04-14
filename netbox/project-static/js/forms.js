@@ -158,10 +158,8 @@ $(document).ready(function() {
                     q: params.term,
                     limit: 50,
                     offset: offset,
+                    brief: true,
                 };
-
-                // Allow for controlling the brief setting from within APISelect
-                parameters.brief = ( $(element).is('[data-full]') ? undefined : true );
 
                 // Attach any extra query parameters
                 $.each(element.attributes, function(index, attr){
@@ -213,26 +211,7 @@ $(document).ready(function() {
                         // The disabled-indicator equated to true, so we disable this option
                         record.disabled = true;
                     }
-
-                    if( record.group !== undefined && record.group !== null && record.site !== undefined && record.site !== null ) {
-                        results[record.site.name + ":" + record.group.name] = results[record.site.name + ":" + record.group.name] || { text: record.site.name + " / " + record.group.name, children: [] };
-                        results[record.site.name + ":" + record.group.name].children.push(record);
-                    }
-                    else if( record.group !== undefined && record.group !== null ) {
-                        results[record.group.name] = results[record.group.name] || { text: record.group.name, children: [] };
-                        results[record.group.name].children.push(record);
-                    }
-                    else if( record.site !== undefined && record.site !== null ) {
-                        results[record.site.name] = results[record.site.name] || { text: record.site.name, children: [] };
-                        results[record.site.name].children.push(record);
-                    }
-                    else if ( (record.group !== undefined || record.group == null) && (record.site !== undefined || record.site === null) ) {
-                        results['global'] = results['global'] || { text: 'Global', children: [] };
-                        results['global'].children.push(record);
-                    }
-                    else {
-                        results[idx] = record
-                    }
+                    results[idx] = record;
 
                     return results;
                 },Object.create(null));

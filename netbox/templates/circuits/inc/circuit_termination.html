@@ -79,10 +79,16 @@
                                 </span>
                             </div>
                         {% endif %}
-                        <span class="text-muted">Not defined</span>
-                    {% endif %}
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>Provider Network</td>
+                    <td>
+                        <a href="{{ termination.provider_network.get_absolute_url }}">{{ termination.provider_network }}</a>
+                    </td>
+                </tr>
+            {% endif %}
             <tr>
                 <td>Speed</td>
                 <td>
@@ -94,21 +100,6 @@
                 {% else %}
                     <span class="text-muted">&mdash;</span>
                 {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>IP Addressing</td>
-                <td>
-                    {% if termination.connected_endpoint %}
-                        {% for ip in termination.ip_addresses %}
-                            {% if not forloop.first %}<br />{% endif %}
-                            <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a> ({{ ip.vrf|default:"Global" }})
-                        {% empty %}
-                            <span class="text-muted">None</span>
-                        {% endfor %}
-                    {% else %}
-                        <span class="text-muted">&mdash;</span>
-                    {% endif %}
                 </td>
             </tr>
             <tr>

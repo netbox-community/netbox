@@ -13,6 +13,7 @@ urlpatterns = [
     path('secret-roles/import/', views.SecretRoleBulkImportView.as_view(), name='secretrole_import'),
     path('secret-roles/edit/', views.SecretRoleBulkEditView.as_view(), name='secretrole_bulk_edit'),
     path('secret-roles/delete/', views.SecretRoleBulkDeleteView.as_view(), name='secretrole_bulk_delete'),
+    path('secret-roles/<int:pk>/', views.SecretRoleView.as_view(), name='secretrole'),
     path('secret-roles/<int:pk>/edit/', views.SecretRoleEditView.as_view(), name='secretrole_edit'),
     path('secret-roles/<int:pk>/delete/', views.SecretRoleDeleteView.as_view(), name='secretrole_delete'),
     path('secret-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='secretrole_changelog', kwargs={'model': SecretRole}),

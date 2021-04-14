@@ -6,7 +6,7 @@
 
 {% block form %}
   <div class="card">
-      <h5 class="card-header">Location</h5>
+      <h5 class="card-header">Termination</h5>
       <div class="card-body">
           <div class="form-group">
               <label class="col-md-3 control-label">Provider</label>
@@ -26,10 +26,23 @@
                   <p class="form-control-static">{{ form.term_side.value }}</p>
               </div>
           </div>
-          {% render_field form.region %}
-          {% render_field form.site_group %}
-          {% render_field form.site %}
           {% render_field form.mark_connected %}
+          {% with providernetwork_tab_active=form.initial.provider_network %}
+              <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation"{% if not providernetwork_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
+                  <li role="presentation"{% if providernetwork_tab_active %} class="active"{% endif %}><a href="#providernetwork" role="tab" data-toggle="tab">Provider Network</a></li>
+              </ul>
+              <div class="tab-content">
+                  <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
+                      {% render_field form.region %}
+                      {% render_field form.site_group %}
+                      {% render_field form.site %}
+                  </div>
+                  <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
+                      {% render_field form.provider_network %}
+                  </div>
+              </div>
+          {% endwith %}
       </div>
   </div>
   <div class="card">

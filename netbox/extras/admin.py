@@ -1,16 +1,12 @@
 from django import forms
 from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
+from django.utils.safestring import mark_safe
 
-from utilities.forms import LaxURLField
+from utilities.forms import ContentTypeChoiceField, ContentTypeMultipleChoiceField, LaxURLField
+from utilities.utils import content_type_name
 from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
-
-
-def order_content_types(field):
-    """
-    Order the list of available ContentTypes by application
-    """
-    queryset = field.queryset.order_by('app_label', 'model')
-    field.choices = [(ct.pk, '{} > {}'.format(ct.app_label, ct.name)) for ct in queryset]
+from .utils import FeatureQuery
 
 
 #
@@ -18,6 +14,10 @@ def order_content_types(field):
 #
 
 class WebhookForm(forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('webhooks')
+    )
     payload_url = LaxURLField(
         label='URL'
     )
@@ -25,12 +25,6 @@ class WebhookForm(forms.ModelForm):
     class Meta:
         model = Webhook
         exclude = ()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if 'content_types' in self.fields:
-            order_content_types(self.fields['content_types'])
 
 
 @admin.register(Webhook)
@@ -70,6 +64,10 @@ class WebhookAdmin(admin.ModelAdmin):
 #
 
 class CustomFieldForm(forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
 
     class Meta:
         model = CustomField
@@ -83,11 +81,6 @@ class CustomFieldForm(forms.ModelForm):
                 }
             )
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        order_content_types(self.fields['content_types'])
 
 
 @admin.register(CustomField)
@@ -119,7 +112,8 @@ class CustomFieldAdmin(admin.ModelAdmin):
     )
 
     def models(self, obj):
-        return ', '.join([ct.name for ct in obj.content_types.all()])
+        ct_names = [content_type_name(ct) for ct in obj.content_types.all()]
+        return mark_safe('<br/>'.join(ct_names))
 
 
 #
@@ -127,6 +121,10 @@ class CustomFieldAdmin(admin.ModelAdmin):
 #
 
 class CustomLinkForm(forms.ModelForm):
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links')
+    )
 
     class Meta:
         model = CustomLink
@@ -142,13 +140,6 @@ class CustomLinkForm(forms.ModelForm):
                          'Links which render as empty text will not be displayed.',
             'link_url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.',
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Format ContentType choices
-        order_content_types(self.fields['content_type'])
-        self.fields['content_type'].choices.insert(0, ('', '---------'))
 
 
 @admin.register(CustomLink)
@@ -176,24 +167,21 @@ class CustomLinkAdmin(admin.ModelAdmin):
 #
 
 class ExportTemplateForm(forms.ModelForm):
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links')
+    )
 
     class Meta:
         model = ExportTemplate
         exclude = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Format ContentType choices
-        order_content_types(self.fields['content_type'])
-        self.fields['content_type'].choices.insert(0, ('', '---------'))
 
 
 @admin.register(ExportTemplate)
 class ExportTemplateAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Export Template', {
-            'fields': ('content_type', 'name', 'description', 'mime_type', 'file_extension')
+            'fields': ('content_type', 'name', 'description', 'mime_type', 'file_extension', 'as_attachment')
         }),
         ('Content', {
             'fields': ('template_code',),
@@ -201,7 +189,7 @@ class ExportTemplateAdmin(admin.ModelAdmin):
         })
     )
     list_display = [
-        'name', 'content_type', 'description', 'mime_type', 'file_extension',
+        'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
     ]
     list_filter = [
         'content_type',

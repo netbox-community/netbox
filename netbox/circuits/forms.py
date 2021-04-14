@@ -14,7 +14,7 @@ from utilities.forms import (
     StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 
 #
@@ -124,6 +124,83 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     asn = forms.IntegerField(
         required=False,
         label=_('ASN')
+    )
+    tag = TagFilterField(model)
+
+
+#
+# Provider networks
+#
+
+class ProviderNetworkForm(BootstrapMixin, CustomFieldModelForm):
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all()
+    )
+    comments = CommentField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ProviderNetwork
+        fields = [
+            'provider', 'name', 'description', 'comments', 'tags',
+        ]
+        fieldsets = (
+            ('Provider Network', ('provider', 'name', 'description', 'tags')),
+        )
+
+
+class ProviderNetworkCSVForm(CustomFieldModelCSVForm):
+    provider = CSVModelChoiceField(
+        queryset=Provider.objects.all(),
+        to_field_name='name',
+        help_text='Assigned provider'
+    )
+
+    class Meta:
+        model = ProviderNetwork
+        fields = [
+            'provider', 'name', 'description', 'comments',
+        ]
+
+
+class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ProviderNetwork.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
+    )
+
+    class Meta:
+        nullable_fields = [
+            'description', 'comments',
+        ]
+
+
+class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = ProviderNetwork
+    field_order = ['q', 'provider_id']
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
     )
     tag = TagFilterField(model)
 
@@ -280,7 +357,8 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
     field_order = [
-        'q', 'type_id', 'provider_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id', 'commit_rate',
+        'q', 'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',
+        'commit_rate',
     ]
     q = forms.CharField(
         required=False,
@@ -295,6 +373,14 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         queryset=Provider.objects.all(),
         required=False,
         label=_('Provider')
+    )
+    provider_network_id = DynamicModelMultipleChoiceField(
+        queryset=ProviderNetwork.objects.all(),
+        required=False,
+        query_params={
+            'provider_id': '$provider_id'
+        },
+        label=_('Provider network')
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
@@ -346,14 +432,19 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
-        }
+        },
+        required=False
+    )
+    provider_network = DynamicModelChoiceField(
+        queryset=ProviderNetwork.objects.all(),
+        required=False
     )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'region', 'site_group', 'site', 'mark_connected', 'port_speed', 'upstream_speed',
-            'xconnect_id', 'pp_info', 'description',
+            'term_side', 'region', 'site_group', 'site', 'provider_network', 'mark_connected', 'port_speed',
+            'upstream_speed', 'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
@@ -365,3 +456,8 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
             'port_speed': SelectSpeedWidget(),
             'upstream_speed': SelectSpeedWidget(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['provider_network'].widget.add_query_param('provider_id', self.instance.circuit.provider_id)

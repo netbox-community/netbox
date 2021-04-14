@@ -1,45 +1,6 @@
-{% extends 'generic/object.html' %}
+{% extends 'ipam/vlan/base.html' %}
 {% load helpers %}
 {% load plugins %}
-
-{% block title %}VLAN {{ object.display_name }}{% endblock %}
-
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:vlan_list' %}">VLANs</a></li>
-  {% if object.site %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:vlan_list' %}?site={{ object.site.slug }}">{{ object.site }}</a></li>
-  {% endif %}
-  {% if object.group %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:vlan_list' %}?group={{ object.group.slug }}">{{ object.group }}</a></li>
-  {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
-{% block tab_items %}
-<li class="nav-item" role="presentation">
-    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:vlan' pk=object.pk %}">VLAN</a>
-</li>
-<li class="nav-item" role="presentation">
-    <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'ipam:vlan_interfaces' pk=object.pk %}">
-        Device Interfaces
-        {% with count=object.get_interfaces.count %}
-        {% if count > 0 %}
-            <span class="badge bg-primary">{{ count }}</span>
-        {% endif %}
-        {% endwith %}
-    </a>
-</li>
-<li class="nav-item" role="presentation">
-    <a class="nav-link{% if active_tab == 'vminterfaces' %} active{% endif %}" href="{% url 'ipam:vlan_vminterfaces' pk=object.pk %}">
-        VM Interfaces
-        {% comment %} {% with count=object.get_vminterfaces.count %}
-        {% if count > 0 %}
-            <span class="badge bg-primary">{{ count }}</span>
-        {% endif %}
-        {% endwith %} {% endcomment %}
-    </a>
-</li>
-{% endblock %}
 
 {% block content %}
     <div class="row">

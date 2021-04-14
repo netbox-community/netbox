@@ -1,0 +1,54 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load custom_links %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item">
+  <a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a>
+</li>
+{% if object.group %}
+<li class="breadcrumb-item">
+  <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+</li>
+{% endif %}
+<li class="breadcrumb-item">
+  {{ object }}
+</li>
+{% endblock %}
+
+{% block extra_controls %}
+  {% if perms.virtualization.change_cluster and perms.virtualization.add_virtualmachine %}
+    <a href="{% url 'virtualization:virtualmachine_add' %}?cluster_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Virtual Machine
+    </a>
+  {% endif %}
+  {% if perms.virtualization.change_cluster %}
+    <a href="{% url 'virtualization:cluster_add_devices' pk=object.pk %}?site_id={{ object.site.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Device
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block tab_items %}
+<li role="presentation" class="nav-item">
+  <a href="{{ object.get_absolute_url }}" class="nav-link{% if not active_tab %} active{% endif %}">Cluster</a>
+</li>
+
+{% with virtualmachine_count=object.virtual_machines.count %}
+<li role="presentation" class="nav-item">
+  <a href="{% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="nav-link{% if active_tab == 'virtual-machines' %} active{% endif %}">
+    Virtual Machines {% badge virtualmachine_count %}
+  </a>
+</li>
+{% endwith %}
+
+{% with device_count=object.devices.count %}
+<li role="presentation" class="nav-item">
+  <a href="{% url 'virtualization:cluster_devices' pk=object.pk %}" class="nav-link{% if active_tab == 'devices' %} active{% endif %}">
+    Devices {% badge device_count %}
+  </a>
+</li>
+{% endwith %}
+{% endblock %}

@@ -1,18 +1,16 @@
-from django import template
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 from django_rq.queues import get_connection
-from django_tables2 import RequestConfig
 from rq import Worker
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.tables import paginate_table
 from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filters, forms, tables
@@ -33,6 +31,31 @@ class TagListView(generic.ObjectListView):
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
     table = tables.TagTable
+
+
+class TagView(generic.ObjectView):
+    queryset = Tag.objects.all()
+
+    def get_extra_context(self, request, instance):
+        tagged_items = TaggedItem.objects.filter(tag=instance)
+        taggeditem_table = tables.TaggedItemTable(
+            data=tagged_items,
+            orderable=False
+        )
+        paginate_table(taggeditem_table, request)
+
+        object_types = [
+            {
+                'content_type': ContentType.objects.get(pk=ti['content_type']),
+                'item_count': ti['item_count']
+            } for ti in tagged_items.values('content_type').annotate(item_count=Count('pk'))
+        ]
+
+        return {
+            'taggeditem_table': taggeditem_table,
+            'tagged_item_count': tagged_items.count(),
+            'object_types': object_types,
+        }
 
 
 class TagEditView(generic.ObjectEditView):
@@ -230,23 +253,12 @@ class ObjectChangeLogView(View):
             data=objectchanges,
             orderable=False
         )
-
-        # Apply the request context
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(objectchanges_table)
+        paginate_table(objectchanges_table, request)
 
         # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
         # fall back to using base.html.
         if self.base_template is None:
             self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-            # TODO: This can be removed once an object view has been established for every model.
-            try:
-                template.loader.get_template(self.base_template)
-            except template.TemplateDoesNotExist:
-                self.base_template = 'base.html'
 
         return render(request, 'extras/object_changelog.html', {
             'object': obj,
@@ -292,6 +304,10 @@ class JournalEntryListView(generic.ObjectListView):
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
     action_buttons = ('export',)
+
+
+class JournalEntryView(generic.ObjectView):
+    queryset = JournalEntry.objects.all()
 
 
 class JournalEntryEditView(generic.ObjectEditView):
@@ -355,17 +371,8 @@ class ObjectJournalView(View):
             assigned_object_type=content_type,
             assigned_object_id=obj.pk
         )
-        journalentry_table = tables.ObjectJournalTable(
-            data=journalentries,
-            orderable=False
-        )
-
-        # Apply the request context
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(journalentry_table)
+        journalentry_table = tables.ObjectJournalTable(journalentries)
+        paginate_table(journalentry_table, request)
 
         if request.user.has_perm('extras.add_journalentry'):
             form = forms.JournalEntryForm(
@@ -381,11 +388,6 @@ class ObjectJournalView(View):
         # fall back to using base.html.
         if self.base_template is None:
             self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-            # TODO: This can be removed once an object view has been established for every model.
-            try:
-                template.loader.get_template(self.base_template)
-            except template.TemplateDoesNotExist:
-                self.base_template = 'base.html'
 
         return render(request, 'extras/object_journal.html', {
             'object': obj,

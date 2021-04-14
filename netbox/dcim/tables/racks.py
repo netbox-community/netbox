@@ -1,45 +1,19 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, Location, RackReservation, RackRole
+from dcim.models import Rack, RackReservation, RackRole
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, MPTTColumn,
-    TagColumn, ToggleColumn, UtilizationColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn,
+    ToggleColumn, UtilizationColumn,
 )
-from .template_code import LOCATION_ELEVATIONS
 
 __all__ = (
     'RackTable',
     'RackDetailTable',
-    'LocationTable',
     'RackReservationTable',
     'RackRoleTable',
 )
-
-
-#
-# Rack groups
-#
-
-class LocationTable(BaseTable):
-    pk = ToggleColumn()
-    name = MPTTColumn()
-    site = tables.Column(
-        linkify=True
-    )
-    rack_count = tables.Column(
-        verbose_name='Racks'
-    )
-    actions = ButtonsColumn(
-        model=Location,
-        prepend_template=LOCATION_ELEVATIONS
-    )
-
-    class Meta(BaseTable.Meta):
-        model = Location
-        fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
-        default_columns = ('pk', 'name', 'site', 'rack_count', 'description', 'actions')
 
 
 #
@@ -69,7 +43,7 @@ class RackTable(BaseTable):
         order_by=('_name',),
         linkify=True
     )
-    group = tables.Column(
+    location = tables.Column(
         linkify=True
     )
     site = tables.Column(
@@ -86,10 +60,10 @@ class RackTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Rack
         fields = (
-            'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
+            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
             'width', 'u_height',
         )
-        default_columns = ('pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height')
+        default_columns = ('pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height')
 
 
 class RackDetailTable(RackTable):
@@ -111,11 +85,11 @@ class RackDetailTable(RackTable):
 
     class Meta(RackTable.Meta):
         fields = (
-            'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
+            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
             'width', 'u_height', 'device_count', 'get_utilization', 'get_power_utilization', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
+            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
             'get_utilization', 'get_power_utilization',
         )
 

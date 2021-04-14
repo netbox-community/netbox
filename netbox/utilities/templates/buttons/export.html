@@ -6,7 +6,9 @@
         <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export=table">Current View</a></li>
         <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Default Format</a></li>
         {% if export_templates %}
-        <li class="divider"></li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
         {% for et in export_templates %}
         <li>
           <a class="dropdown-item"
@@ -16,6 +18,14 @@
           </a>
         </li>
         {% endfor %}
+        {% endif %}
+        {% if add_exporttemplate_link %}
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ add_exporttemplate_link }}">Add export template...</a>
+        </li>
         {% endif %}
     </ul>
 </div>

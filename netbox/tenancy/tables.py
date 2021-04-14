@@ -10,7 +10,7 @@ from .models import Tenant, TenantGroup
 
 class TenantColumn(tables.TemplateColumn):
     """
-    Render a colored label (e.g. for DeviceRoles).
+    Include the tenant description.
     """
     template_code = """
     {% if record.tenant %}
@@ -26,7 +26,7 @@ class TenantColumn(tables.TemplateColumn):
         super().__init__(template_code=self.template_code, *args, **kwargs)
 
     def value(self, value):
-        return str(value)
+        return str(value) if value else None
 
 
 #
@@ -35,10 +35,12 @@ class TenantColumn(tables.TemplateColumn):
 
 class TenantGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = MPTTColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
     tenant_count = LinkedCountColumn(
         viewname='tenancy:tenant_list',
-        url_params={'group': 'slug'},
+        url_params={'group_id': 'pk'},
         verbose_name='Tenants'
     )
     actions = ButtonsColumn(TenantGroup)
@@ -55,7 +57,9 @@ class TenantGroupTable(BaseTable):
 
 class TenantTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     tags = TagColumn(
         url_name='tenancy:tenant_list'
     )

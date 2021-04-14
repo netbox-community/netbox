@@ -226,12 +226,12 @@ def prepare_cloned_fields(instance):
         field = instance._meta.get_field(field_name)
         field_value = field.value_from_object(instance)
 
-        # Swap out False with URL-friendly value
+        # Pass False as null for boolean fields
         if field_value is False:
-            field_value = ''
+            params.append((field_name, ''))
 
         # Omit empty values
-        if field_value not in (None, ''):
+        elif field_value not in (None, ''):
             params.append((field_name, field_value))
 
     # Copy tags
@@ -294,6 +294,14 @@ def array_to_string(array):
     """
     group = (list(x) for _, x in groupby(sorted(array), lambda x, c=count(): next(c) - x))
     return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+
+
+def content_type_name(contenttype):
+    """
+    Return a proper ContentType name.
+    """
+    meta = contenttype.model_class()._meta
+    return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
 
 
 #

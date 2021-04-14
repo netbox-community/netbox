@@ -56,11 +56,17 @@ def get_device_by_name_or_pk(name):
 
 class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
     field_order = [
-        'q', 'region_id', 'site_group_id', 'site_id'
+        'q', 'name', 'label', 'region_id', 'site_group_id', 'site_id',
     ]
     q = forms.CharField(
         required=False,
         label=_('Search')
+    )
+    name = forms.CharField(
+        required=False
+    )
+    label = forms.CharField(
+        required=False
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -91,6 +97,11 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 
 class InterfaceCommonForm(forms.Form):
+    mac_address = forms.CharField(
+        empty_value=None,
+        required=False,
+        label='MAC address'
+    )
 
     def clean(self):
         super().clean()
@@ -298,6 +309,11 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    time_zone = TimeZoneFormField(
+        choices=add_blank_choice(TimeZoneFormField().choices),
+        required=False,
+        widget=StaticSelect2()
+    )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -505,9 +521,9 @@ class LocationCSVForm(CustomFieldModelCSVForm):
         queryset=Location.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent rack group',
+        help_text='Parent location',
         error_messages={
-            'invalid_choice': 'Rack group not found.',
+            'invalid_choice': 'Location not found.',
         }
     )
 
@@ -555,7 +571,7 @@ class LocationFilterForm(BootstrapMixin, forms.Form):
         },
         label=_('Site')
     )
-    parent = DynamicModelMultipleChoiceField(
+    parent_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
         required=False,
         query_params={
@@ -880,6 +896,9 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         null_option='None',
         label=_('Role')
     )
+    asset_tag = forms.CharField(
+        required=False
+    )
     tag = TagFilterField(model)
 
 
@@ -940,7 +959,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Rack.objects.all(),
         query_params={
             'site_id': '$site',
-            'location_id': 'location',
+            'location_id': '$location',
         }
     )
     units = NumericArrayField(
@@ -1045,7 +1064,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         nullable_fields = []
 
 
-class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
+class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = RackReservation
     field_order = ['q', 'region_id', 'site_id', 'location_id', 'user_id', 'tenant_group_id', 'tenant_id']
     q = forms.CharField(
@@ -1068,13 +1087,13 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.prefetch_related('site'),
         required=False,
-        label='Location',
+        label=_('Location'),
         null_option='None'
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
-        label='User',
+        label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
         )
@@ -1149,10 +1168,10 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         widgets = {
             'subdevice_role': StaticSelect2(),
             # Exclude SVG images (unsupported by PIL)
-            'front_image': forms.FileInput(attrs={
+            'front_image': forms.ClearableFileInput(attrs={
                 'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
             }),
-            'rear_image': forms.FileInput(attrs={
+            'rear_image': forms.ClearableFileInput(attrs={
                 'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
             })
         }
@@ -2017,7 +2036,6 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
@@ -2038,7 +2056,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False,
         query_params={
             'site_id': '$site',
-            'location_id': 'location',
+            'location_id': '$location',
         }
     )
     position = forms.IntegerField(
@@ -2104,8 +2122,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
-            'position', 'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'cluster_group', 'cluster',
-            'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
+            'location', 'position', 'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'cluster_group',
+            'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
@@ -2344,6 +2362,17 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=DeviceRole.objects.all(),
         required=False
     )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -2373,7 +2402,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     model = Device
     field_order = [
         'q', 'region_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
-        'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
+        'manufacturer_id', 'device_type_id', 'asset_tag', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
         required=False,
@@ -2381,14 +2410,16 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        required=False
+        required=False,
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
             'region_id': '$region_id'
-        }
+        },
+        label=_('Site')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -2436,6 +2467,9 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         choices=DeviceStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    asset_tag = forms.CharField(
+        required=False
     )
     mac_address = forms.CharField(
         required=False,
@@ -3038,10 +3072,7 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label='Parent interface',
-        query_params={
-            'kind': 'physical',
-        }
+        label='Parent interface'
     )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
@@ -3054,20 +3085,12 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Untagged VLAN',
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        label='Untagged VLAN'
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Tagged VLANs',
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        label='Tagged VLANs'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -3101,9 +3124,9 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         self.fields['parent'].widget.add_query_param('device_id', device.pk)
         self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
-        # Add current site to VLANs query params
-        self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
-        self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
+        # Limit VLAN choices by device
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device.pk)
 
 
 class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
@@ -3121,7 +3144,6 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         required=False,
         query_params={
             'device_id': '$device',
-            'kind': 'physical',
         }
     )
     lag = DynamicModelChoiceField(
@@ -3154,19 +3176,11 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     field_order = (
         'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
@@ -3176,12 +3190,10 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Add current site to VLANs query params
-        device = Device.objects.get(
-            pk=self.initial.get('device') or self.data.get('device')
-        )
-        self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
-        self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
+        # Limit VLAN choices by device
+        device_id = self.initial.get('device') or self.data.get('device')
+        self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device_id)
+        self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device_id)
 
 
 class InterfaceBulkCreateForm(
@@ -3218,10 +3230,7 @@ class InterfaceBulkEditForm(
     )
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
-        required=False,
-        query_params={
-            'kind': 'physical',
-        }
+        required=False
     )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
@@ -3241,19 +3250,11 @@ class InterfaceBulkEditForm(
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False,
-        brief_mode=False,
-        query_params={
-            'site_id': 'null',
-        }
+        required=False
     )
 
     class Meta:
@@ -3270,9 +3271,9 @@ class InterfaceBulkEditForm(
             self.fields['parent'].widget.add_query_param('device_id', device.pk)
             self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
-            # Add current site to VLANs query params
-            self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
-            self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
+            # Limit VLAN choices by device
+            self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)
+            self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device.pk)
 
         else:
             # See #4523
@@ -4322,7 +4323,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFo
             })
 
 
-class CableFilterForm(BootstrapMixin, forms.Form):
+class CableFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Cable
     q = forms.CharField(
         required=False,
@@ -4349,7 +4350,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
-        label='Rack',
+        label=_('Rack'),
         null_option='None',
         query_params={
             'site_id': '$site_id'
@@ -4743,7 +4744,6 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
@@ -4767,7 +4767,7 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
             'region', 'site_group', 'site', 'location', 'name', 'tags',
         ]
         fieldsets = (
-            ('Power Panel', ('region', 'site', 'location', 'name', 'tags')),
+            ('Power Panel', ('region', 'site_group', 'site', 'location', 'name', 'tags')),
         )
 
 

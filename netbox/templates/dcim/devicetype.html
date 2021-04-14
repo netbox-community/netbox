@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
   <li class="breadcrumb-item">{{ object.model }}</li>
 {% endblock %}
 
@@ -67,7 +67,7 @@
                     <table class="table table-hover attr-table">
                         <tr>
                             <td>Manufacturer</td>
-                            <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></td>
+                            <td><a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a></td>
                         </tr>
                         <tr>
                             <td>Model Name</td>

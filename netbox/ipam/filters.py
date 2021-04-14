@@ -635,6 +635,14 @@ class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         choices=VLANStatusChoices,
         null_value=None
     )
+    available_on_device = django_filters.ModelChoiceFilter(
+        queryset=Device.objects.all(),
+        method='get_for_device'
+    )
+    available_on_virtualmachine = django_filters.ModelChoiceFilter(
+        queryset=VirtualMachine.objects.all(),
+        method='get_for_virtualmachine'
+    )
     tag = TagFilter()
 
     class Meta:
@@ -650,6 +658,12 @@ class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+    def get_for_device(self, queryset, name, value):
+        return queryset.get_for_device(value)
+
+    def get_for_virtualmachine(self, queryset, name, value):
+        return queryset.get_for_virtualmachine(value)
 
 
 class ServiceFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):

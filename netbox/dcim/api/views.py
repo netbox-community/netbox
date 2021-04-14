@@ -2,6 +2,7 @@ import socket
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 from django.http import HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -141,12 +142,18 @@ class SiteViewSet(CustomFieldModelViewSet):
 
 
 #
-# Rack groups
+# Locations
 #
 
 class LocationViewSet(CustomFieldModelViewSet):
     queryset = Location.objects.add_related_count(
-        Location.objects.all(),
+        Location.objects.add_related_count(
+            Location.objects.all(),
+            Device,
+            'location',
+            'device_count',
+            cumulative=True
+        ),
         Rack,
         'location',
         'rack_count',
@@ -174,7 +181,7 @@ class RackRoleViewSet(CustomFieldModelViewSet):
 
 class RackViewSet(CustomFieldModelViewSet):
     queryset = Rack.objects.prefetch_related(
-        'site', 'location__site', 'role', 'tenant', 'tags'
+        'site', 'location', 'role', 'tenant', 'tags'
     ).annotate(
         device_count=count_related(Device, 'rack'),
         powerfeed_count=count_related(PowerFeed, 'rack')
@@ -590,6 +597,8 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = Interface.objects.prefetch_related('device', '_path').filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
+        _path__destination_type__app_label='dcim',
+        _path__destination_type__model='interface',
         _path__destination_id__isnull=False,
         pk__lt=F('_path__destination_id')
     )

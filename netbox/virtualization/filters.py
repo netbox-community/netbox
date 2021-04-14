@@ -264,6 +264,11 @@ class VMInterfaceFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpda
         to_field_name='name',
         label='Virtual machine',
     )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent',
+        queryset=VMInterface.objects.all(),
+        label='Parent interface (ID)',
+    )
     mac_address = MultiValueMACAddressFilter(
         label='MAC address',
     )

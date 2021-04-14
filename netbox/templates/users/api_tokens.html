@@ -11,12 +11,8 @@
                     <div class="card-header">
                         <div class="float-end noprint">
                             <a class="m-1 btn btn-sm btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
-                            {% if perms.users.change_token %}
-                                <a href="{% url 'user:token_edit' pk=token.pk %}" class="m-1 btn btn-sm btn-warning">Edit</a>
-                            {% endif %}
-                            {% if perms.users.delete_token %}
-                                <a href="{% url 'user:token_delete' pk=token.pk %}" class="m-1 btn btn-sm btn-danger">Delete</a>
-                            {% endif %}
+                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="m-1 btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="m-1 btn btn-sm btn-danger">Delete</a>
                         </div>
                         <i class="mdi mdi-key"></i>
                         <samp><span id="token_{{ token.pk }}">{{ token.key }}</span></samp>
@@ -55,20 +51,10 @@
             {% empty %}
                 <p>You do not have any API tokens.</p>
             {% endfor %}
-            <div class="row my-3">
-                <div class="col-md-12">
-                {% if perms.users.add_token %}
-                    <a href="{% url 'user:token_add' %}" class="btn btn-primary">
-                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                        Add a Token
-                    </a>
-                {% else %}
-                    <div class="alert alert-info text-center" role="alert">
-                        You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
-                    </div>
-                {% endif %}
-                </div>
-            </div>
+            <a href="{% url 'user:token_add' %}" class="btn btn-primary">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+                Add a token
+            </a>
         </div>
     </div>
 {% endblock %}
