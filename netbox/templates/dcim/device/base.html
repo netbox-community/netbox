@@ -215,16 +215,4 @@
         </a>
     </li>
 {% endif %}
-{% if perms.extras.view_objectchange %}
-    <li 
-        role="presentation"
-        class="nav-item">
-        <a
-            href="{% url 'dcim:device_changelog' pk=object.pk %}"
-            class="nav-link{% if active_tab == 'changelog' %} active{% endif %}"
-        >
-            Change Log
-        </a>
-    </li>
-{% endif %}
 {% endblock %}

@@ -1,24 +1,41 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 
 {% block title %}{{ object }} - VLANs{% endblock %}
 
+{% block controls %}
+{% if perms.ipam.add_vlan and first_available_vlan %}
+<a
+    href="{% url 'ipam:vlan_add' %}?vid={{ first_available_vlan }}&group={{ object.pk }}{% if object.site %}&site={{ object.site.pk }}{% endif %}"
+    class="btn btn-sm btn-success m-1">
+        <i class="bi bi-plus" aria-hidden="true"></i> Add a VLAN
+</a>
+{% endif %}
+{% if perms.ipam.change_vlangroup %}
+<a
+    href="{% url 'ipam:vlangroup_edit' pk=object.pk %}"
+    class="btn btn-sm btn-warning m-1">
+        <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit this VLAN Group
+</a>
+{% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item">
+    <a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a>
+</li>
+{% if object.site %}
+<li class="breadcrumb-item">
+    <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+</li>
+{% endif %}
+<li class="breadcrumb-item">{{ object }}</li>
+{% endblock %}
+
 {% block content %}
-<div class="row noprint">
-    <div class="col-sm-12 col-md-12">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a></li>
-            {% if object.site %}
-                <li><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></li>
-            {% endif %}
-            <li>{{ object }}</li>
-        </ol>
+<div class="row">
+    <div class="col-md-12">
+        {% include 'utilities/obj_table.html' with table=vlan_table table_template='panel_table.html' heading='VLANs' bulk_edit_url='ipam:vlan_bulk_edit' bulk_delete_url='ipam:vlan_bulk_delete' %}
     </div>
 </div>
-    {% include 'ipam/inc/vlangroup_header.html' %}
-    <div class="row">
-        <div class="col-md-12">
-            {% include 'utilities/obj_table.html' with table=vlan_table table_template='panel_table.html' heading='VLANs' bulk_edit_url='ipam:vlan_bulk_edit' bulk_delete_url='ipam:vlan_bulk_delete' %}
-        </div>
-    </div>
 {% endblock %}
 

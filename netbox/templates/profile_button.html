@@ -15,11 +15,12 @@
       <a class="text-decoration-none" href="{% url 'admin:index' %}">
         <i class="bi bi-gear-wide-connected"></i> Admin
       </a>
-      {% else %}
+      {% endif %}
+    </li>
+    <li class="dropdown-item">
       <a class="text-decoration-none" href="{% url 'user:profile' %}">
         <i class="bi bi-person-fill"></i> Profile
       </a>
-      {% endif %}
     </li>
     <li><hr class="dropdown-divider" /></li>
     <li class="dropdown-item">

@@ -4,18 +4,18 @@
 
 {% block usercontent %}
     {% if object %}
-        <div class="pull-right noprint">
+        <div class="float-end noprint">
             <a href="{% url 'user:userkey_edit' %}" class="btn btn-warning">
                 <span class="mdi mdi-pencil" aria-hidden="true"></span>
-                Edit user key
+                Edit User Key
             </a>
         </div>
         <h4>
-            Your user key is:
+            Your user key is 
             {% if object.is_active %}
-                <span class="label label-success">Active</span>
+                <span class="badge bg-success">Active</span>
             {% else %}
-                <span class="label label-danger">Inactive</span>
+                <span class="badge bg-danger">Inactive</span>
             {% endif %}
         </h4>
         {% include 'inc/created_updated.html' %}
@@ -25,7 +25,7 @@
                 Your user key is inactive. Ask an administrator to enable it for you.
             </div>
         {% endif %}
-        <pre>{{ object.public_key }}</pre>
+        <pre class="border rounded  p-3 copyable">{{ object.public_key }}</pre>
         <hr />
         {% if object.session_key %}
             <div class="pull-right noprint">

@@ -32,6 +32,18 @@ export function getCsrfToken(): string {
   return csrfToken;
 }
 
+export async function apiGetBase<T extends Record<string, unknown>>(
+  url: string,
+): Promise<T | APIError> {
+  const token = getCsrfToken();
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { 'X-CSRFToken': token },
+  });
+  const json = (await res.json()) as T | APIError;
+  return json;
+}
+
 /**
  * Fetch data from the NetBox API (authenticated).
  * @param url API endpoint
@@ -39,13 +51,7 @@ export function getCsrfToken(): string {
 export async function getApiData<T extends APIObjectBase>(
   url: string,
 ): Promise<APIAnswer<T> | APIError> {
-  const token = getCsrfToken();
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { 'X-CSRFToken': token },
-  });
-  const json = (await res.json()) as APIAnswer<T> | APIError;
-  return json;
+  return await apiGetBase<APIAnswer<T>>(url);
 }
 
 export function getElements<K extends keyof SVGElementTagNameMap>(

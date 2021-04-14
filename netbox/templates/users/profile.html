@@ -4,16 +4,34 @@
 {% block title %}User Profile{% endblock %}
 
 {% block usercontent %}
-    <small class="text-muted">User login</small>
+    <small class="text-muted">User Login</small>
     <h5>{{ request.user.username }}</h5>
-    <small class="text-muted">Full name</small>
-    <h5>{{ request.user.first_name }} {{ request.user.last_name }}</h5>
+    <small class="text-muted">Full Name</small>
+    <h5>
+    {% if request.user.first_name and request.user.last_name %}
+    {{ request.user.first_name }} {{ request.user.last_name }}
+    {% elif request.user.first_name and not request.user.last_name %}
+    {{ request.user.first_name }}
+    {% elif request.user.last_name and not request.user.first_name %}
+    {{ request.user.last_name }}
+    {% else %}
+    <span class="text-muted">None</span>
+    {% endif %}
+    </h5>
     <small class="text-muted">Email</small>
     <h5>{{ request.user.email }}</h5>
     <small class="text-muted">Registered</small>
     <h5>{{ request.user.date_joined }}</h5>
     <small class="text-muted">Groups</small>
-    <h5>{{ request.user.groups.all|join:', ' }}</h5>
-    <small class="text-muted">Admin access</small>
+    <h5>
+        {% if request.user.groups.all %}
+            {% for group in request.user.groups.all %}
+                <span class="badge bg-secondary">{{ group }}</span>
+            {% endfor %}
+        {% else %}
+            <span class="text-muted">None</span>
+        {% endif %}
+    </h5>
+    <small class="text-muted">Admin Access</small>
     <h5>{{ request.user.is_staff|yesno|capfirst }}</h5>
 {% endblock %}

@@ -7,8 +7,8 @@
 {% block title %}VRF {{ object }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

@@ -3,8 +3,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:routetarget_list' %}">Route Targets</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'ipam:routetarget_list' %}">Route Targets</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

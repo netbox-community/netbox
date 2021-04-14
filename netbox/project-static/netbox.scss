@@ -245,7 +245,8 @@ span.color-label {
 }
 
 textarea#id_local_context_data,
-textarea.markdown {
+textarea.markdown,
+textarea#id_public_key {
   font-family: $font-family-monospace;
 }
 
@@ -354,4 +355,8 @@ span.bi-plus:before {
 
 table tbody tr.success {
   background-color: rgba($success, 0.15);
+}
+table td,
+table th {
+  font-size: $font-size-sm;
 }

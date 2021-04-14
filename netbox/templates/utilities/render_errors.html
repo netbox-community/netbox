@@ -4,11 +4,11 @@
 {% if form.errors or form.non_field_errors %}
 <div class="alert alert-danger mt-3" role="alert">
   <h4 class="alert-heading">Errors</h4>
-  {% if form.errors %}
-  <hr />
+  {% if form.errors and '__all__' not in form.errors %}
+    <hr />
   {% endif %}
   <div class="ps-2">
-    {% if form.errors %}
+    {% if form.errors and '__all__' not in form.errors %}
     {% for field_name, errors in form.errors.items %}
     {% if not field_name|startswith:'__' %}
       {% with field=form|getfield:field_name %}

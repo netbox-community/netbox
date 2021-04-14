@@ -15,23 +15,30 @@
   <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
-{% block tabs %}
-  <ul class="nav nav-tabs" style="margin-bottom: 20px">
-    <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-      <a href="{% url 'ipam:vlan' pk=object.pk %}">VLAN</a>
-    </li>
-    <li role="presentation"{% if active_tab == 'interfaces' %} class="active"{% endif %}>
-      <a href="{% url 'ipam:vlan_interfaces' pk=object.pk %}">Device Interfaces <span class="badge">{{ object.get_interfaces.count }}</span></a>
-    </li>
-    <li role="presentation"{% if active_tab == 'vminterfaces' %} class="active"{% endif %}>
-      <a href="{% url 'ipam:vlan_vminterfaces' pk=object.pk %}">VM Interfaces <span class="badge">{{ object.get_vminterfaces.count }}</span></a>
-    </li>
-    {% if perms.extras.view_objectchange %}
-      <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-        <a href="{% url 'ipam:vlan_changelog' pk=object.pk %}">Change Log</a>
-      </li>
-    {% endif %}
-  </ul>
+{% block tab_items %}
+<li class="nav-item" role="presentation">
+    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:vlan' pk=object.pk %}">VLAN</a>
+</li>
+<li class="nav-item" role="presentation">
+    <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'ipam:vlan_interfaces' pk=object.pk %}">
+        Device Interfaces
+        {% with count=object.get_interfaces.count %}
+        {% if count > 0 %}
+            <span class="badge bg-primary">{{ count }}</span>
+        {% endif %}
+        {% endwith %}
+    </a>
+</li>
+<li class="nav-item" role="presentation">
+    <a class="nav-link{% if active_tab == 'vminterfaces' %} active{% endif %}" href="{% url 'ipam:vlan_vminterfaces' pk=object.pk %}">
+        VM Interfaces
+        {% comment %} {% with count=object.get_vminterfaces.count %}
+        {% if count > 0 %}
+            <span class="badge bg-primary">{{ count }}</span>
+        {% endif %}
+        {% endwith %} {% endcomment %}
+    </a>
+</li>
 {% endblock %}
 
 {% block content %}
@@ -44,7 +51,12 @@
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <td>Site</td>
+                            <td colspan="2">
+                                <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Site</th>
                             <td>
                                 {% if object.site %}
                                     {% if object.site.region %}
@@ -57,7 +69,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Group</td>
+                            <th scope="row">Group</th>
                             <td>
                                 {% if object.group %}
                                     <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
@@ -67,15 +79,15 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>VLAN ID</td>
+                            <th scope="row">VLAN ID</th>
                             <td>{{ object.vid }}</td>
                         </tr>
                         <tr>
-                            <td>Name</td>
+                            <th scope="row">Name</th>
                             <td>{{ object.name }}</td>
                         </tr>
                         <tr>
-                            <td>Tenant</td>
+                            <th scope="row">Tenant</th>
                             <td>
                                 {% if object.tenant %}
                                     {% if object.tenant.group %}
@@ -88,13 +100,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Status</td>
-                            <td>
-                                <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Role</td>
+                            <th scope="row">Role</th>
                             <td>
                                 {% if object.role %}
                                     <a href="{% url 'ipam:vlan_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
@@ -104,7 +110,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Description</td>
+                            <th scope="row">Description</th>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
                     </table>

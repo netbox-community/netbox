@@ -7,15 +7,15 @@
     <div class="row">
         <div class="col-md-12">
             {% for token in tokens %}
-                <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
-                    <div class="panel-heading">
-                        <div class="pull-right noprint">
-                            <a class="btn btn-xs btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
+                <div class="card{% if token.is_expired %} bg-danger{% endif %}">
+                    <div class="card-header">
+                        <div class="float-end noprint">
+                            <a class="m-1 btn btn-sm btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
                             {% if perms.users.change_token %}
-                                <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
+                                <a href="{% url 'user:token_edit' pk=token.pk %}" class="m-1 btn btn-sm btn-warning">Edit</a>
                             {% endif %}
                             {% if perms.users.delete_token %}
-                                <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
+                                <a href="{% url 'user:token_delete' pk=token.pk %}" class="m-1 btn btn-sm btn-danger">Delete</a>
                             {% endif %}
                         </div>
                         <i class="mdi mdi-key"></i>
@@ -24,7 +24,7 @@
                             <span class="label label-danger">Expired</span>
                         {% endif %}
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
                                 <small class="text-muted">Created</small><br />
@@ -55,22 +55,20 @@
             {% empty %}
                 <p>You do not have any API tokens.</p>
             {% endfor %}
-            {% if perms.users.add_token %}
-                <a href="{% url 'user:token_add' %}" class="btn btn-primary">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                    Add a token
-                </a>
-            {% else %}
-                <div class="alert alert-info text-center" role="alert">
-                    You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
+            <div class="row my-3">
+                <div class="col-md-12">
+                {% if perms.users.add_token %}
+                    <a href="{% url 'user:token_add' %}" class="btn btn-primary">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+                        Add a Token
+                    </a>
+                {% else %}
+                    <div class="alert alert-info text-center" role="alert">
+                        You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
+                    </div>
+                {% endif %}
                 </div>
-            {% endif %}
+            </div>
         </div>
     </div>
-{% endblock %}
-
-{% block javascript %}
-<script type="text/javascript">
-new ClipboardJS('.copy-token');
-</script>
 {% endblock %}

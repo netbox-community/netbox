@@ -3,25 +3,45 @@
 {% load helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>VLAN Group</strong></div>
-        <div class="panel-body">
-            {% render_field form.name %}
-            {% render_field form.slug %}
-            {% render_field form.description %}
-        </div>
+    <div class="field-group">
+        <h4>VLAN Group</h4>
+        {% render_field form.name %}
+        {% render_field form.slug %}
+        {% render_field form.description %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>Scope</strong>
-        </div>
-        <div class="panel-body">
-            {% with virtual_tab_active=form.initial.cluster %}
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation"{% if not virtual_tab_active %} class="active"{% endif %}><a href="#physical" role="tab" data-toggle="tab">Physical</a></li>
-                    <li role="presentation"{% if virtual_tab_active %} class="active"{% endif %}><a href="#virtual" role="tab" data-toggle="tab">Virtual</a></li>
-                </ul>
-                <div class="tab-content">
+    <div class="field-group">
+        <h4>Scope</h4>
+        {% with virtual_tab_active=form.initial.cluster %}
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button
+                        role="tab"
+                        type="button"
+                        id="physical_tab"
+                        data-bs-toggle="tab"
+                        aria-controls="physical"
+                        data-bs-target="#physical"
+                        class="nav-link {% if not virtual_tab_active %}active{% endif %}"
+                    >
+                        Physical
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button
+                        role="tab"
+                        type="button"
+                        id="virtual_tab"
+                        data-bs-toggle="tab"
+                        aria-controls="virtual"
+                        data-bs-target="#virtual"
+                        class="nav-link {% if virtual_tab_active %}active{% endif %}"
+                    >
+                        Virtual
+                    </button>
+                </li>
+            </ul>
+            <div class="card my-3">
+                <div class="card-body tab-content">
                     <div class="tab-pane{% if not virtual_tab_active %} active{% endif %}" id="physical">
                         {% render_field form.region %}
                         {% render_field form.site_group %}
@@ -33,17 +53,15 @@
                         {% render_field form.cluster_group %}
                         {% render_field form.cluster %}
                     </div>
+                    <span class="form-text">The VLAN group will be limited in scope to the most-specific object selected above.</span>
                 </div>
-                <span class="help-block">The VLAN group will be limited in scope to the most-specific object selected above.</span>
-            {% endwith %}
-        </div>
+            </div>
+        {% endwith %}
     </div>
     {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
-                {% render_custom_fields form %}
-            </div>
+        <div class="field-group">
+            <h4>Custom Fields</h4>
+            {% render_custom_fields form %}
         </div>
     {% endif %}
 {% endblock %}

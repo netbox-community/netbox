@@ -1,36 +1,29 @@
-{% extends 'base.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load static %}
 {% load form_helpers %}
 
+{% render_errors form %}
+
+{% block title %}Add Device to Cluster {{ cluster }}{% endblock %}
+
 {% block content %}
-    <form action="." method="post" class="form form-horizontal">
+    <form action="." method="post">
         {% csrf_token %}
         {% for field in form.hidden_fields %}
             {{ field }}
         {% endfor %}
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
-                <h3>{% block title %}Add Devices to Cluster {{ cluster }}{% endblock %}</h3>
-                {% if form.non_field_errors %}
-                    <div class="panel panel-danger">
-                        <div class="panel-heading"><strong>Errors</strong></div>
-                        <div class="panel-body">
-                            {{ form.non_field_errors }}
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>Device Selection</strong></div>
-                    <div class="panel-body">
-                        {% render_form form %}
-                    </div>
+                <div class="field-group">
+                    <h4>Device Selection</h4>
+                    {% render_form form %}
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6 col-md-offset-3 text-right noprint">
+            <div class="col-md-6 col-md-offset-3 text-end noprint">
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 <button type="submit" name="_add" class="btn btn-primary">Add Devices</button>
-                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
             </div>
         </div>
     </form>

@@ -26,6 +26,11 @@ type APIObjectBase = {
   [k: string]: JSONAble;
 };
 
+type APIKeyPair = {
+  public_key: string;
+  private_key: string;
+};
+
 type APIReference = {
   id: number;
   name: string;

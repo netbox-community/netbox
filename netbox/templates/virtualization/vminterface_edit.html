@@ -2,41 +2,37 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Interface</strong></div>
-        <div class="panel-body">
-            {% if form.instance.virtual_machine %}
-                <div class="form-group">
-                    <label class="col-md-3 control-label required" for="id_device">Virtual Machine</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">
-                            <a href="{{ form.instance.virtual_machine.get_absolute_url }}">{{ form.instance.virtual_machine }}</a>
-                        </p>
-                    </div>
-                </div>
-            {% endif %}
-            {% render_field form.name %}
-            {% render_field form.enabled %}
-            {% render_field form.mac_address %}
-            {% render_field form.mtu %}
-            {% render_field form.description %}
-            {% render_field form.tags %}
-        </div>
+    <div class="field-group">
+        <h4>Interface</h4>
+        {% if form.instance.virtual_machine %}
+            <div class="form-floating">
+                <input class="form-control" value="{{ form.instance.virtual_machine }}"/>
+                {% comment %} <div class="col-md-9">
+                    <p class="form-control-static">
+                        <a href="{{ form.instance.virtual_machine.get_absolute_url }}">{{ form.instance.virtual_machine }}</a>
+                    </p>
+                </div> {% endcomment %}
+                <label class="col-md-3 control-label required" for="id_device">Virtual Machine</label>
+            </div>
+        {% endif %}
+        {% render_field form.name %}
+        {% render_field form.enabled %}
+        {% render_field form.mac_address %}
+        {% render_field form.mtu %}
+        {% render_field form.description %}
+        {% render_field form.tags %}
+        
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>802.1Q Switching</strong></div>
-        <div class="panel-body">
-            {% render_field form.mode %}
-            {% render_field form.untagged_vlan %}
-            {% render_field form.tagged_vlans %}
-        </div>
+    <div class="field-group">
+        <h4>802.1Q Switching</h4>
+        {% render_field form.mode %}
+        {% render_field form.untagged_vlan %}
+        {% render_field form.tagged_vlans %}
     </div>
     {% if form.custom_fields %}
-      <div class="panel panel-default">
-        <div class="panel-heading"><strong>Custom Fields</strong></div>
-        <div class="panel-body">
-          {% render_custom_fields form %}
-        </div>
+      <div class="field-group">
+        <h4>Custom Fields</h4>
+        {% render_custom_fields form %}
       </div>
     {% endif %}
 {% endblock %}

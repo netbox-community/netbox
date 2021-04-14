@@ -3,39 +3,41 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></li>
-  <li><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></li>
+  <li class="breadcrumb-item"><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></li>
   {% if object.location %}
-    <li><a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a></li>
   {% endif %}
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
 	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Power Panel</strong>
+        <div class="card">
+            <h5 class="card-header">
+                Power Panel
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Site</th>
+                        <td>
+                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Location</th>
+                        <td>
+                            {% if object.location %}
+                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Site</td>
-                    <td>
-                        <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Location</td>
-                    <td>
-                        {% if object.location %}
-                            <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
         </div>
         {% plugin_left_page object %}
     </div>
@@ -45,7 +47,7 @@
         {% plugin_right_page object %}
     </div>
 </div>
-<div class="row">
+<div class="row my-3">
     <div class="col-md-12">
         {% include 'panel_table.html' with table=powerfeed_table heading='Connected Feeds' %}
         {% plugin_full_width_page object %}

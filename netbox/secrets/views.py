@@ -73,7 +73,7 @@ class SecretListView(generic.ObjectListView):
     filterset = filters.SecretFilterSet
     filterset_form = forms.SecretFilterForm
     table = tables.SecretTable
-    action_buttons = ('import', 'export')
+    action_buttons = ('add', 'import', 'export')
 
 
 class SecretView(generic.ObjectView):

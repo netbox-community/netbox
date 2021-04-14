@@ -1,11 +1,13 @@
-import { Tooltip } from 'bootstrap';
+import { Modal, Tooltip } from 'bootstrap';
 import Masonry from 'masonry-layout';
 import { initApiSelect, initStaticSelect, initColorSelect } from './select';
 import { initDateSelector } from './dateSelector';
 import { initMessageToasts } from './toast';
 import { initSpeedSelector, initForms } from './forms';
 import { initRackElevation } from './buttons';
+import { initClipboard } from './clipboard';
 import { initSearchBar } from './search';
+// import { initGenerateKeyPair } from './secrets';
 import { getElements } from './util';
 
 const INITIALIZERS = [
@@ -18,6 +20,8 @@ const INITIALIZERS = [
   initSpeedSelector,
   initColorSelect,
   initRackElevation,
+  initClipboard,
+  // initGenerateKeyPair,
 ] as (() => void)[];
 
 /**
@@ -29,6 +33,10 @@ function initBootstrap(): void {
   if (document !== null) {
     for (const tooltip of getElements('[data-bs-toggle="tooltip"]')) {
       new Tooltip(tooltip, { container: 'body', boundary: 'window' });
+    }
+    for (const modal of getElements('[data-bs-toggle="modal"]')) {
+      // for (const modal of getElements('div.modal')) {
+      new Modal(modal);
     }
     initMessageToasts();
     initForms();
