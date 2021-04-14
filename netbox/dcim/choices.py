@@ -314,6 +314,8 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_B = 'usb-micro-b'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_SAF_D_GRID = 'saf-d-grid'
 
@@ -416,6 +418,9 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
+        )),
         ('Proprietary', (
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
         )),
@@ -512,6 +517,8 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
@@ -607,6 +614,9 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_A, 'USB Type A'),
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
+        )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
         )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
