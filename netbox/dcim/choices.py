@@ -881,6 +881,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_TERA1P = 'tera-1p'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
+    TYPE_F = 'f'
     TYPE_MRJ21 = 'mrj21'
     TYPE_ST = 'st'
     TYPE_SC = 'sc'
@@ -910,6 +911,7 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_TERA1P, 'TERA 1P'),
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
+                (TYPE_F, 'F Connector'),
                 (TYPE_MRJ21, 'MRJ21'),
             ),
         ),
