@@ -12,7 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import VLAN
-from utilities.testing import ViewTestCases, create_test_device
+from utilities.testing import ViewTestCases, create_tags, create_test_device
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -109,7 +109,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Site(name='Site 3', slug='site-3', region=regions[0], group=groups[1]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Site X',
@@ -242,7 +242,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             RackReservation(rack=rack, user=user2, units=[7, 8, 9], description='Reservation 3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'rack': rack.pk,
@@ -298,7 +298,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Rack(name='Rack 3', site=sites[0]),
         ))
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Rack X',
@@ -413,7 +413,7 @@ class DeviceTypeTestCase(
             DeviceType(model='Device Type 3', slug='device-type-3', manufacturer=manufacturers[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
@@ -1021,7 +1021,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Device(name='Device 3', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device_type': devicetypes[1].pk,
@@ -1201,7 +1201,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             ConsolePort(device=device, name='Console Port 3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1259,7 +1259,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             ConsoleServerPort(device=device, name='Console Server Port 3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1315,7 +1315,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             PowerPort(device=device, name='Power Port 3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1383,7 +1383,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             PowerOutlet(device=device, name='Power Outlet 3', power_port=powerports[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1452,7 +1452,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         VLAN.objects.bulk_create(vlans)
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1539,7 +1539,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             FrontPort(device=device, name='Front Port 3', rear_port=rearports[2]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1600,7 +1600,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             RearPort(device=device, name='Rear Port 3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1661,7 +1661,7 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             DeviceBay(device=device, name='Device Bay 3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1701,7 +1701,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         InventoryItem.objects.create(device=device, name='Inventory Item 2')
         InventoryItem.objects.create(device=device, name='Inventory Item 3')
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
@@ -1791,7 +1791,7 @@ class CableTestCase(
         Cable(termination_a=interfaces[1], termination_b=interfaces[4], type=CableTypeChoices.TYPE_CAT6).save()
         Cable(termination_a=interfaces[2], termination_b=interfaces[5], type=CableTypeChoices.TYPE_CAT6).save()
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         interface_ct = ContentType.objects.get_for_model(Interface)
         cls.form_data = {
@@ -1918,7 +1918,7 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             PowerPanel(site=sites[0], location=locations[0], name='Power Panel 3'),
         ))
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'site': sites[1].pk,
@@ -1966,7 +1966,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             PowerFeed(name='Power Feed 3', power_panel=powerpanels[0], rack=racks[0]),
         ))
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Power Feed X',

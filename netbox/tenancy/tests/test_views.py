@@ -1,5 +1,5 @@
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import ViewTestCases
+from utilities.testing import ViewTestCases, create_tags
 
 
 class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -53,7 +53,7 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Tenant X',

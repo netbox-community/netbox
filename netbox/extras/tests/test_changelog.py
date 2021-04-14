@@ -7,7 +7,7 @@ from dcim.models import Site
 from extras.choices import *
 from extras.models import CustomField, ObjectChange, Tag
 from utilities.testing import APITestCase
-from utilities.testing.utils import post_data
+from utilities.testing.utils import create_tags, post_data
 from utilities.testing.views import ModelViewTestCase
 
 
@@ -38,7 +38,7 @@ class ChangeLogViewTest(ModelViewTestCase):
         cf_select.content_types.set([ct])
 
     def test_create_object(self):
-        tags = self.create_tags('Tag 1', 'Tag 2')
+        tags = create_tags('Tag 1', 'Tag 2')
         form_data = {
             'name': 'Site 1',
             'slug': 'site-1',
@@ -72,7 +72,7 @@ class ChangeLogViewTest(ModelViewTestCase):
     def test_update_object(self):
         site = Site(name='Site 1', slug='site-1')
         site.save()
-        tags = self.create_tags('Tag 1', 'Tag 2', 'Tag 3')
+        tags = create_tags('Tag 1', 'Tag 2', 'Tag 3')
         site.tags.set('Tag 1', 'Tag 2')
 
         form_data = {
@@ -116,7 +116,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             }
         )
         site.save()
-        self.create_tags('Tag 1', 'Tag 2')
+        create_tags('Tag 1', 'Tag 2')
         site.tags.set('Tag 1', 'Tag 2')
 
         request = {

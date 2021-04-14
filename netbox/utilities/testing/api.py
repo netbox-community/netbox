@@ -9,8 +9,8 @@ from rest_framework.test import APIClient
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from users.models import ObjectPermission, Token
+from .base import ModelTestCase
 from .utils import disable_warnings
-from .views import ModelTestCase
 
 
 __all__ = (
