@@ -314,6 +314,8 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_B = 'usb-micro-b'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Proprietary
+    TYPE_SAF_D_GRID = 'saf-d-grid'
 
     CHOICES = (
         ('IEC 60320', (
@@ -414,6 +416,9 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
+        ('Proprietary', (
+            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+        )),
     )
 
 
@@ -509,6 +514,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_C = 'usb-c'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
+    TYPE_SAF_D_GRID = 'saf-d-grid'
 
     CHOICES = (
         ('IEC 60320', (
@@ -604,6 +610,7 @@ class PowerOutletTypeChoices(ChoiceSet):
         )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
+            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
         )),
     )
 
