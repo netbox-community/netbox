@@ -2,6 +2,10 @@
 
 ## v2.10.10 (FUTURE)
 
+### Enhancements
+
+* [#6157](https://github.com/netbox-community/netbox/issues/6157) - Support Markdown rendering for report logs
+
 ### Bug Fixes
 
 * [#5419](https://github.com/netbox-community/netbox/issues/5419) - Update parent device/VM when deleting a primary IP
