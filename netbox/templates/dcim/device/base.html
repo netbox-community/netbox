@@ -19,7 +19,7 @@
 {% if perms.dcim.change_device %}
 <div class="dropdown m-1">
     <button id="add-device-components" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-plus" aria-hidden="true"></i> Add Components
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Components
     </button>
     <ul class="dropdown-menu" aria-labeled-by="add-device-components">
     {% if perms.dcim.add_consoleport %}
@@ -191,17 +191,23 @@
 </li>
 {% endif %}
 {% endwith %}
-
-{% if perms.dcim.napalm_read_device %}
-    {% if object.status != 'active' %}
-        {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='Device must be in active status' %}
-    {% elif not object.platform %}
-        {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No platform assigned to this device' %}
-    {% elif not object.platform.napalm_driver %}
-        {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No NAPALM driver assigned for this platform' %}
-    {% else %}
-        {% include 'dcim/inc/device_napalm_tabs.html' %}
-    {% endif %}
+{% if perms.dcim.napalm_read_device and object.status == 'active' and object.primary_ip and object.platform.napalm_driver %}
+{# NAPALM-enabled tabs #}
+<li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab == 'status' %} active{% endif %}" href="{% url 'dcim:device_status' pk=object.pk %}">
+        Status
+    </a>
+</li>
+<li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab == 'lldp-neighbors' %} active{% endif %}" href="{% url 'dcim:device_lldp_neighbors' pk=object.pk %}">
+        LLDP Neighbors
+    </a>
+</li>
+<li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab == 'config' %} active{% endif %}" href="{% url 'dcim:device_config' pk=object.pk %}">
+        Configuration
+    </a>
+</li>
 {% endif %}
 {% if perms.extras.view_configcontext %}
     <li 
