@@ -43,17 +43,19 @@
                     <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
                     <span class="text-muted">Marked as connected</span>
                     {% elif termination.cable %}
-                        {% if perms.dcim.delete_cable %}
-                        <div class="pull-right">
-                            <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-sm">
-                                <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> Disconnect
-                            </a>
-                        </div>
-                        {% endif %}
-                        <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
-                        <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm" title="Trace">
+                        
+                        <div class="float-end">
+                        <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                             <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                         </a>
+                        {% if perms.dcim.delete_cable %}
+                            <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-sm lh-1">
+                                <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> Disconnect
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
                         {% with peer=termination.get_cable_peer %}
                             to
                             {% if peer.device %}
@@ -61,11 +63,11 @@
                             {% elif peer.circuit %}
                                 <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a>
                             {% endif %}
-                            ({{ peer }})
+                            <span class="text-muted">{{ peer }}</span>
                         {% endwith %}
                     {% else %}
                         {% if perms.dcim.add_cable %}
-                            <div class="pull-right">
+                            <div class="float-end">
                                 <span class="dropdown">
                                     <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
@@ -81,7 +83,7 @@
                         {% endif %}
                     </td>
                 </tr>
-            {% else %}
+            {% comment %} {% else %} {% endcomment %}
                 <tr>
                     <td>Provider Network</td>
                     <td>
