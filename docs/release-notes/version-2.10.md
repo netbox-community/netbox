@@ -1,13 +1,24 @@
 # NetBox v2.10
 
-## v2.10.10 (FUTURE)
+## v2.10.10 (2021-04-15)
+
+### Enhancements
+
+* [#5796](https://github.com/netbox-community/netbox/issues/5796) - Add DC terminal power port, outlet types
+* [#5980](https://github.com/netbox-community/netbox/issues/5980) - Add Saf-D-Grid power port, outlet types
+* [#6157](https://github.com/netbox-community/netbox/issues/6157) - Support Markdown rendering for report logs
+* [#6160](https://github.com/netbox-community/netbox/issues/6160) - Add F connector port type
+* [#6168](https://github.com/netbox-community/netbox/issues/6168) - Add SFP56 50GE interface type
 
 ### Bug Fixes
 
 * [#5419](https://github.com/netbox-community/netbox/issues/5419) - Update parent device/VM when deleting a primary IP
+* [#5643](https://github.com/netbox-community/netbox/issues/5643) - Fix VLAN assignment when editing VM interfaces in bulk
+* [#5652](https://github.com/netbox-community/netbox/issues/5652) - Update object data when renaming a custom field
 * [#6056](https://github.com/netbox-community/netbox/issues/6056) - Optimize change log cleanup
 * [#6144](https://github.com/netbox-community/netbox/issues/6144) - Fix MAC address field display in VM interfaces search form
 * [#6152](https://github.com/netbox-community/netbox/issues/6152) - Fix custom field filtering for cables, virtual chassis
+* [#6162](https://github.com/netbox-community/netbox/issues/6162) - Fix choice field filters (multiple models)
 
 ---
 

@@ -66,9 +66,11 @@
                                                 <a href="{{ url }}">{{ obj }}</a>
                                             {% elif obj %}
                                                 {{ obj }}
+                                            {% else %}
+                                                <span class="muted">&mdash;</span>
                                             {% endif %}
                                         </td>
-                                        <td>{{ message }}</td>
+                                        <td class="rendered-markdown">{{ message|render_markdown }}</td>
                                     </tr>
                                 {% endfor %}
                             {% endfor %}

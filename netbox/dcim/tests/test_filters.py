@@ -940,9 +940,8 @@ class PowerOutletTemplateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_feed_leg(self):
-        # TODO: Support filtering for multiple values
-        params = {'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_A}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'feed_leg': [PowerOutletFeedLegChoices.FEED_LEG_A, PowerOutletFeedLegChoices.FEED_LEG_B]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class InterfaceTemplateTestCase(TestCase):
@@ -981,9 +980,8 @@ class InterfaceTemplateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        # TODO: Support filtering for multiple values
-        params = {'type': InterfaceTypeChoices.TYPE_1GE_FIXED}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mgmt_only(self):
         params = {'mgmt_only': 'true'}
@@ -1035,9 +1033,8 @@ class FrontPortTemplateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        # TODO: Support filtering for multiple values
-        params = {'type': PortTypeChoices.TYPE_8P8C}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class RearPortTemplateTestCase(TestCase):
@@ -1076,9 +1073,8 @@ class RearPortTemplateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        # TODO: Support filtering for multiple values
-        params = {'type': PortTypeChoices.TYPE_8P8C}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_positions(self):
         params = {'positions': [1, 2]}
@@ -1985,9 +1981,8 @@ class PowerOutletTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_feed_leg(self):
-        # TODO: Support filtering for multiple values
-        params = {'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_A}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'feed_leg': [PowerOutletFeedLegChoices.FEED_LEG_A, PowerOutletFeedLegChoices.FEED_LEG_B]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_connected(self):
         params = {'connected': True}
@@ -2284,9 +2279,8 @@ class FrontPortTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        # TODO: Test for multiple values
-        params = {'type': PortTypeChoices.TYPE_8P8C}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
@@ -2396,9 +2390,8 @@ class RearPortTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        # TODO: Test for multiple values
-        params = {'type': PortTypeChoices.TYPE_8P8C}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_positions(self):
         params = {'positions': [1, 2]}
@@ -3045,9 +3038,8 @@ class PowerFeedTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
-        # TODO: Test for multiple values
-        params = {'status': PowerFeedStatusChoices.STATUS_ACTIVE}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'status': [PowerFeedStatusChoices.STATUS_ACTIVE, PowerFeedStatusChoices.STATUS_FAILED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         params = {'type': PowerFeedTypeChoices.TYPE_PRIMARY}

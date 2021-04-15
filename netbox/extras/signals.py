@@ -5,7 +5,7 @@ from cacheops.signals import cache_invalidated, cache_read
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS
-from django.db.models.signals import m2m_changed, pre_delete
+from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
@@ -98,6 +98,14 @@ def handle_cf_removed_obj_types(instance, action, pk_set, **kwargs):
         instance.remove_stale_data(ContentType.objects.filter(pk__in=pk_set))
 
 
+def handle_cf_renamed(instance, created, **kwargs):
+    """
+    Handle the renaming of custom field data on objects when a CustomField is renamed.
+    """
+    if not created and instance.name != instance._name:
+        instance.rename_object_data(old_name=instance._name, new_name=instance.name)
+
+
 def handle_cf_deleted(instance, **kwargs):
     """
     Handle the cleanup of old custom field data when a CustomField is deleted.
@@ -106,6 +114,7 @@ def handle_cf_deleted(instance, **kwargs):
 
 
 m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
+post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
 
 
