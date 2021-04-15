@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 
 {% block header %}
@@ -54,7 +54,7 @@
                                 <div class="trace-end">
                                     <h3 class="text-danger">Path split!</h3>
                                     <p>Select a node below to continue:</p>
-                                    <ul class="text-left">
+                                    <ul class="text-start">
                                         {% for next_node in path.get_split_nodes %}
                                             {% if next_node.cable %}
                                                 <li>
@@ -69,9 +69,9 @@
                                 </div>
                             {% else %}
                                 <div class="trace-end">
-                                    <h3{% if far_end %} class="text-success"{% endif %}>Trace completed</h3>
-                                    <h5>Total segments: {{ traced_path|length }}</h5>
-                                    <h5>Total length:
+                                    <h3{% if far_end %} class="text-success"{% endif %}>Trace Completed</h3>
+                                    <h5>Total Segments: {{ traced_path|length }}</h5>
+                                    <h5>Total Length:
                                         {% if total_length %}
                                             {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} Meters /
                                             {{ total_length|meters_to_feet|floatformat:"-2" }} Feet
@@ -89,44 +89,46 @@
         </div>
         <div class="col-md-7 col-sm-12">
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                  <strong>Related Paths</strong>
-                </div>
-                <table class="table table-hover panel-body">
-                    <thead>
-                        <tr>
-                            <th>Origin</th>
-                            <th>Destination</th>
-                            <th>Segments</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cablepath in related_paths %}
-                            <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
-                                <td>
-                                    <a href="?cablepath_id={{ cablepath.pk }}">
-                                        {{ cablepath.origin.parent_object }} / {{ cablepath.origin }}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if cablepath.destination %}
-                                        {{ cablepath.destination }} ({{ cablepath.destination.parent_object }})
-                                    {% else %}
-                                        <span class="text-muted">Incomplete</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-right">
-                                    {{ cablepath.segment_count }}
-                                </td>
+            <div class="card">
+                <h5 class="card-header">
+                  Related Paths
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Origin</th>
+                                <th>Destination</th>
+                                <th>Segments</th>
                             </tr>
-                        {% empty %}
-                            <td colspan="3" class="text-muted">
-                                None found
-                            </td>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for cablepath in related_paths %}
+                                <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
+                                    <td>
+                                        <a href="?cablepath_id={{ cablepath.pk }}">
+                                            {{ cablepath.origin.parent_object }} / {{ cablepath.origin }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if cablepath.destination %}
+                                            {{ cablepath.destination }} ({{ cablepath.destination.parent_object }})
+                                        {% else %}
+                                            <span class="text-muted">Incomplete</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        {{ cablepath.segment_count }}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <td colspan="3" class="text-muted">
+                                    None found
+                                </td>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>

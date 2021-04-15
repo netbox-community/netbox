@@ -1,13 +1,13 @@
 {% load helpers %}
 
-<div class="cable" style="border-left-color: #{% if cable.color == 'ffffff' %}909090; border-left-style: double; border-left-width: 6px;{% else %}{{ cable.color|default:'606060' }};{% endif %} {% if cable.status != 'connected' %} border-left-style: dashed{% endif %}">
+<div class="cable" style="border-left-color: #{% if cable.color == 'ffffff' %}909090; border-left-style: double; border-left-width: 0.4rem;{% else %}{{ cable.color|default:'606060' }};{% endif %} {% if cable.status != 'connected' %} border-left-style: dashed{% endif %}">
     <strong>
         <a href="{% url 'dcim:cable' pk=cable.pk %}">
             {% if cable.label %}<code>{{ cable.label }}</code>{% else %}Cable #{{ cable.pk }}{% endif %}
         </a>
     </strong><br />
     {% if cable.type %}
-        {{ cable.get_type_display|default:"" }}<br />
+        <span class="badge bg-secondary">{{ cable.get_type_display|default:"" }}</span>
     {% endif %}
     {% if cable.length %}
         ({{ cable.length }} {{ cable.get_length_unit_display }})<br />

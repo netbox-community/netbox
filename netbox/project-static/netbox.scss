@@ -349,3 +349,44 @@ table td,
 table th {
   font-size: $font-size-sm;
 }
+
+// Cable Tracing
+.cable-trace {
+  max-width: 38rem;
+  margin: 1rem auto;
+  text-align: center;
+}
+.cable-trace .node {
+  background-color: $gray-100;
+  border: $border-width solid $gray-200;
+  border-radius: $border-radius;
+  padding: 1.5rem 1rem;
+  position: relative;
+  z-index: 1;
+}
+.cable-trace .termination {
+  background-color: $gray-200;
+  border: $border-width solid $gray-300;
+  box-shadow: $box-shadow;
+  border-radius: $border-radius;
+  margin: -1rem auto;
+  padding: 0.5rem;
+  position: relative;
+  width: 60%;
+  z-index: 2;
+}
+.cable-trace .active {
+  border: 0.25rem solid $green;
+}
+.cable-trace .cable {
+  border-left-style: solid;
+  border-left-width: 0.25rem;
+  margin: 1rem 0 1rem 50%;
+  padding: 1.5rem;
+  text-align: left;
+  width: 50%;
+}
+.cable-trace .trace-end {
+  margin-top: 2rem;
+  text-align: center;
+}
