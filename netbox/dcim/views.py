@@ -1172,14 +1172,20 @@ class DeviceRoleBulkImportView(generic.BulkImportView):
 
 
 class DeviceRoleBulkEditView(generic.BulkEditView):
-    queryset = DeviceRole.objects.all()
+    queryset = DeviceRole.objects.annotate(
+        device_count=count_related(Device, 'device_role'),
+        vm_count=count_related(VirtualMachine, 'role')
+    )
     filterset = filters.DeviceRoleFilterSet
     table = tables.DeviceRoleTable
     form = forms.DeviceRoleBulkEditForm
 
 
 class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
-    queryset = DeviceRole.objects.all()
+    queryset = DeviceRole.objects.annotate(
+        device_count=count_related(Device, 'device_role'),
+        vm_count=count_related(VirtualMachine, 'role')
+    )
     table = tables.DeviceRoleTable
 
 
