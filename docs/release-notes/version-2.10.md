@@ -8,6 +8,7 @@
 * [#5980](https://github.com/netbox-community/netbox/issues/5980) - Add Saf-D-Grid power port, outlet types
 * [#6157](https://github.com/netbox-community/netbox/issues/6157) - Support Markdown rendering for report logs
 * [#6160](https://github.com/netbox-community/netbox/issues/6160) - Add F connector port type
+* [#6168](https://github.com/netbox-community/netbox/issues/6168) - Add SFP56 50GE interface type
 
 ### Bug Fixes
 
