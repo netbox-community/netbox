@@ -177,17 +177,17 @@ class TableConfigForm(BootstrapMixin, forms.Form):
         choices=[],
         required=False,
         widget=forms.SelectMultiple(
-            attrs={'size': 10}
+            attrs={'size': 10, 'class': 'form-select'}
         ),
-        label='Available columns'
+        label='Available Columns'
     )
     columns = forms.MultipleChoiceField(
         choices=[],
         required=False,
         widget=forms.SelectMultiple(
-            attrs={'size': 10}
+            attrs={'size': 10, 'class': 'form-select'}
         ),
-        label='Selected columns'
+        label='Selected Columns'
     )
 
     def __init__(self, table, *args, **kwargs):

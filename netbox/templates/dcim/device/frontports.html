@@ -11,7 +11,7 @@
                 <h5>Front Ports</h5>
                 <div class="float-end noprint">
                 {% if request.user.is_authenticated %}
-                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#DeviceFrontPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceFrontPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                 {% endif %}
                 </div>
             </div>
@@ -24,7 +24,7 @@
                         <i class="bi bi-input-cursor-text" aria-hidden="true"></i> Rename
                     </button>
                     <button type="submit" name="_edit" formaction="{% url 'dcim:frontport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit
+                        <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
                     </button>
                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:frontport_bulk_disconnect' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
                         <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
@@ -32,13 +32,13 @@
                 {% endif %}
                 {% if perms.dcim.delete_frontport %}
                     <button type="submit" formaction="{% url 'dcim:frontport_bulk_delete' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete
+                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
                     </button>
                 {% endif %}
                 {% if perms.dcim.add_frontport %}
                     <div class="float-end">
                         <a href="{% url 'dcim:frontport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus" aria-hidden="true"></i> Add front ports
+                            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add front ports
                         </a>
                     </div>
                 {% endif %}
