@@ -12,6 +12,7 @@
 ### Bug Fixes
 
 * [#5419](https://github.com/netbox-community/netbox/issues/5419) - Update parent device/VM when deleting a primary IP
+* [#5643](https://github.com/netbox-community/netbox/issues/5643) - Fix VLAN assignment when editing VM interfaces in bulk
 * [#5652](https://github.com/netbox-community/netbox/issues/5652) - Update object data when renaming a custom field
 * [#6056](https://github.com/netbox-community/netbox/issues/6056) - Optimize change log cleanup
 * [#6144](https://github.com/netbox-community/netbox/issues/6144) - Fix MAC address field display in VM interfaces search form

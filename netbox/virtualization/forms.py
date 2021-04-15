@@ -756,6 +756,26 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
                 # Add current site to VLANs query params
                 self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
                 self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+        else:
+            # See 5643
+            if 'pk' in self.initial:
+                site = None
+                interfaces = VMInterface.objects.filter(pk__in=self.initial['pk']).prefetch_related(
+                    'virtual_machine__cluster__site'
+                )
+
+                # Check interface sites.  First interface should set site, further interfaces will either continue the
+                # loop or reset back to no site and break the loop.
+                for interface in interfaces:
+                    if site is None:
+                        site = interface.virtual_machine.cluster.site
+                    elif interface.virtual_machine.cluster.site is not site:
+                        site = None
+                        break
+
+                if site is not None:
+                    self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
+                    self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
 
 
 class VMInterfaceBulkRenameForm(BulkRenameForm):
