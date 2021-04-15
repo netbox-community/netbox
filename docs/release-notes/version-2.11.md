@@ -28,6 +28,7 @@
 * [#6124](https://github.com/netbox-community/netbox/issues/6124) - Location `parent` filter should return all child locations (not just those directly assigned)
 * [#6130](https://github.com/netbox-community/netbox/issues/6130) - Improve display of assigned models in custom fields list
 * [#6155](https://github.com/netbox-community/netbox/issues/6155) - Fix admin links for plugins, background tasks
+* [#6171](https://github.com/netbox-community/netbox/issues/6171) - Fix display of horizontally-scrolling object lists
 
 ---
 
