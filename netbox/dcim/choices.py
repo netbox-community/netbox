@@ -662,6 +662,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_10GE_XENPAK = '10gbase-x-xenpak'
     TYPE_10GE_X2 = '10gbase-x-x2'
     TYPE_25GE_SFP28 = '25gbase-x-sfp28'
+    TYPE_50GE_SFP56 = '50gbase-x-sfp56'
     TYPE_40GE_QSFP_PLUS = '40gbase-x-qsfpp'
     TYPE_50GE_QSFP28 = '50gbase-x-sfp28'
     TYPE_100GE_CFP = '100gbase-x-cfp'
@@ -766,6 +767,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
                 (TYPE_10GE_X2, 'X2 (10GE)'),
                 (TYPE_25GE_SFP28, 'SFP28 (25GE)'),
+                (TYPE_50GE_SFP56, 'SFP56 (50GE)'),
                 (TYPE_40GE_QSFP_PLUS, 'QSFP+ (40GE)'),
                 (TYPE_50GE_QSFP28, 'QSFP28 (50GE)'),
                 (TYPE_100GE_CFP, 'CFP (100GE)'),
