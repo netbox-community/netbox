@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.db.models import Count
 
 from extras.filters import CustomFieldModelFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -447,6 +446,10 @@ class PowerPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
 
 class PowerOutletTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+    feed_leg = django_filters.MultipleChoiceFilter(
+        choices=PowerOutletFeedLegChoices,
+        null_value=None
+    )
 
     class Meta:
         model = PowerOutletTemplate
@@ -454,6 +457,10 @@ class PowerOutletTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
 
 class InterfaceTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=InterfaceTypeChoices,
+        null_value=None
+    )
 
     class Meta:
         model = InterfaceTemplate
@@ -461,6 +468,10 @@ class InterfaceTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
 
 class FrontPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=PortTypeChoices,
+        null_value=None
+    )
 
     class Meta:
         model = FrontPortTemplate
@@ -468,6 +479,10 @@ class FrontPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
 
 class RearPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=PortTypeChoices,
+        null_value=None
+    )
 
     class Meta:
         model = RearPortTemplate
@@ -818,6 +833,10 @@ class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTermina
         choices=PowerOutletTypeChoices,
         null_value=None
     )
+    feed_leg = django_filters.MultipleChoiceFilter(
+        choices=PowerOutletFeedLegChoices,
+        null_value=None
+    )
 
     class Meta:
         model = PowerOutlet
@@ -918,6 +937,10 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
 
 
 class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=PortTypeChoices,
+        null_value=None
+    )
 
     class Meta:
         model = FrontPort
@@ -925,6 +948,10 @@ class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
 
 
 class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=PortTypeChoices,
+        null_value=None
+    )
 
     class Meta:
         model = RearPort
@@ -1011,7 +1038,7 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(BaseFilterSet):
+class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1078,7 +1105,7 @@ class VirtualChassisFilterSet(BaseFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(BaseFilterSet):
+class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1301,6 +1328,10 @@ class PowerFeedFilterSet(
         field_name='rack',
         queryset=Rack.objects.all(),
         label='Rack (ID)',
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=PowerFeedStatusChoices,
+        null_value=None
     )
     tag = TagFilter()
 

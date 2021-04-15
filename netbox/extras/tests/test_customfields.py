@@ -91,6 +91,33 @@ class CustomFieldTest(TestCase):
         # Delete the custom field
         cf.delete()
 
+    def test_rename_customfield(self):
+        obj_type = ContentType.objects.get_for_model(Site)
+        FIELD_DATA = 'abc'
+
+        # Create a custom field
+        cf = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='field1')
+        cf.save()
+        cf.content_types.set([obj_type])
+
+        # Assign custom field data to an object
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+            custom_field_data={'field1': FIELD_DATA}
+        )
+        site.refresh_from_db()
+        self.assertEqual(site.custom_field_data['field1'], FIELD_DATA)
+
+        # Rename the custom field
+        cf.name = 'field2'
+        cf.save()
+
+        # Check that custom field data on the object has been updated
+        site.refresh_from_db()
+        self.assertNotIn('field1', site.custom_field_data)
+        self.assertEqual(site.custom_field_data['field2'], FIELD_DATA)
+
 
 class CustomFieldManagerTest(TestCase):
 

@@ -314,6 +314,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_B = 'usb-micro-b'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
+    # Proprietary
+    TYPE_SAF_D_GRID = 'saf-d-grid'
 
     CHOICES = (
         ('IEC 60320', (
@@ -414,6 +418,12 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
+        )),
+        ('Proprietary', (
+            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+        )),
     )
 
 
@@ -507,8 +517,11 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
+    TYPE_SAF_D_GRID = 'saf-d-grid'
 
     CHOICES = (
         ('IEC 60320', (
@@ -602,8 +615,12 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
         )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
+        )),
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
+            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
         )),
     )
 
@@ -645,6 +662,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_10GE_XENPAK = '10gbase-x-xenpak'
     TYPE_10GE_X2 = '10gbase-x-x2'
     TYPE_25GE_SFP28 = '25gbase-x-sfp28'
+    TYPE_50GE_SFP56 = '50gbase-x-sfp56'
     TYPE_40GE_QSFP_PLUS = '40gbase-x-qsfpp'
     TYPE_50GE_QSFP28 = '50gbase-x-sfp28'
     TYPE_100GE_CFP = '100gbase-x-cfp'
@@ -749,6 +767,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
                 (TYPE_10GE_X2, 'X2 (10GE)'),
                 (TYPE_25GE_SFP28, 'SFP28 (25GE)'),
+                (TYPE_50GE_SFP56, 'SFP56 (50GE)'),
                 (TYPE_40GE_QSFP_PLUS, 'QSFP+ (40GE)'),
                 (TYPE_50GE_QSFP28, 'QSFP28 (50GE)'),
                 (TYPE_100GE_CFP, 'CFP (100GE)'),
@@ -881,6 +900,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_TERA1P = 'tera-1p'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
+    TYPE_F = 'f'
     TYPE_MRJ21 = 'mrj21'
     TYPE_ST = 'st'
     TYPE_SC = 'sc'
@@ -910,6 +930,7 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_TERA1P, 'TERA 1P'),
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
+                (TYPE_F, 'F Connector'),
                 (TYPE_MRJ21, 'MRJ21'),
             ),
         ),

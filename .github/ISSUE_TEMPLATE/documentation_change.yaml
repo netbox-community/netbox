@@ -33,8 +33,3 @@ body:
       description: "Describe the proposed changes and why they are necessary"
     validations:
       required: true
-  - type: markdown
-    attributes:
-      value: |
-        ### Additional information
-        You can use the space below to provide any additional information or to attach files.

@@ -387,7 +387,7 @@ curl -s -X GET http://netbox/api/ipam/ip-addresses/5618/ | jq '.'
 
 ### Creating a New Object
 
-To create a new object, make a `POST` request to the model's _list_ endpoint with JSON data pertaining to the object being created. Note that a REST API token is required for all write operations; see the [authentication documentation](../authentication/index.md) for more information. Also be sure to set the `Content-Type` HTTP header to `application/json`.
+To create a new object, make a `POST` request to the model's _list_ endpoint with JSON data pertaining to the object being created. Note that a REST API token is required for all write operations; see the [authentication documentation](authentication.md) for more information. Also be sure to set the `Content-Type` HTTP header to `application/json`.
 
 ```no-highlight
 curl -s -X POST \
