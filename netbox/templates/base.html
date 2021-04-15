@@ -20,8 +20,8 @@
     {% block layout %}{% endblock %}
     <script
       src="{% static 'netbox.js' %}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'"
-    ></script>
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'">
+    </script>
 
     <script type="text/javascript">
       var netbox_api_path = "/{{ settings.BASE_PATH }}api/";

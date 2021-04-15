@@ -281,17 +281,6 @@ div#content-title {
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
-
-  h1 {
-    &:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-    }
-    > a {
-      text-decoration: none;
-      color: $body-color;
-    }
-  }
 }
 
 div.paginator > form > div.input-group {
