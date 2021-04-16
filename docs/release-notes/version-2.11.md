@@ -1,6 +1,6 @@
 # NetBox v2.11
 
-## v2.11.0-dev (FUTURE)
+## v2.11.0 (2021-04-16)
 
 **Note:** NetBox v2.11 is the last major release that will support Python 3.6. Beginning with NetBox v2.12, Python 3.7 or later will be required.
 
