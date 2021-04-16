@@ -1,63 +1,18 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
 {% load static %}
 {% load custom_links %}
 {% load helpers %}
 {% load plugins %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
-                <li><a href="{{ object.power_panel.site.get_absolute_url }}">{{ object.power_panel.site }}</a></li>
-                <li><a href="{{ object.power_panel.get_absolute_url }}">{{ object.power_panel }}</a></li>
-                {% if object.rack %}
-                    <li><a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a></li>
-                {% endif %}
-                <li>{{ object }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'dcim:powerfeed_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" placeholder="Search power feeds" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% plugin_buttons object %}
-        {% if perms.dcim.add_powerfeed %}
-            {% clone_button object %}
-        {% endif %}
-        {% if perms.dcim.change_powerfeed %}
-            {% edit_button object %}
-        {% endif %}
-        {% if perms.dcim.delete_powerfeed %}
-            {% delete_button object %}
-        {% endif %}
-    </div>
-    <h1>{% block title %}{{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' %}
-    <div class="pull-right noprint">
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Cable</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:powerfeed_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block breadcrumbs %}
+  <li><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
+  <li><a href="{{ object.power_panel.site.get_absolute_url }}">{{ object.power_panel.site }}</a></li>
+  <li><a href="{{ object.power_panel.get_absolute_url }}">{{ object.power_panel }}</a></li>
+  {% if object.rack %}
+    <li><a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a></li>
+  {% endif %}
+  <li>{{ object }}</li>
 {% endblock %}
 
 {% block content %}
@@ -159,7 +114,11 @@
             <div class="panel-heading">
                 <strong>Connection</strong>
             </div>
-            {% if object.cable %}
+            {% if object.mark_connected %}
+                <div class="panel-body text-muted">
+                  <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
+                </div>
+            {% elif object.cable %}
                 <table class="table table-hover panel-body attr-table">
                     <tr>
                         <td>Cable</td>

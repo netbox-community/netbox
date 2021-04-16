@@ -30,14 +30,45 @@
                     </div>
                 {% endif %}
                 {% block form %}
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><strong>{{ obj_type|capfirst }}</strong></div>
+                  {% if form.Meta.fieldsets %}
+                    {# Render grouped fields accoring to Form #}
+                    {% for group, fields in form.Meta.fieldsets %}
+                      <div class="panel panel-default">
+                          <div class="panel-heading"><strong>{{ group }}</strong></div>
+                          <div class="panel-body">
+                            {% for name in fields %}
+                              {% render_field form|getfield:name %}
+                            {% endfor %}
+                          </div>
+                      </div>
+                    {% endfor %}
+                    {% if form.custom_fields %}
+                      <div class="panel panel-default">
+                        <div class="panel-heading"><strong>Custom Fields</strong></div>
                         <div class="panel-body">
-                            {% block form_fields %}
-                                {% render_form form %}
-                            {% endblock %}
+                          {% render_custom_fields form %}
                         </div>
+                      </div>
+                    {% endif %}
+                    {% if form.comments %}
+                      <div class="panel panel-default">
+                        <div class="panel-heading"><strong>Comments</strong></div>
+                        <div class="panel-body">
+                          {% render_field form.comments %}
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% else %}
+                    {# Render all fields in a single group #}
+                    <div class="panel panel-default">
+                      <div class="panel-heading"><strong>{{ obj_type|capfirst }}</strong></div>
+                      <div class="panel-body">
+                        {% block form_fields %}
+                          {% render_form form %}
+                        {% endblock %}
+                      </div>
                     </div>
+                  {% endif %}
                 {% endblock %}
             </div>
         </div>

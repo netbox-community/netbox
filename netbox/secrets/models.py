@@ -12,10 +12,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes
-from taggit.managers import TaggableManager
 
-from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
+from netbox.models import BigIDModel, OrganizationalModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
@@ -31,7 +30,7 @@ __all__ = (
 )
 
 
-class UserKey(models.Model):
+class UserKey(BigIDModel):
     """
     A UserKey stores a user's personal RSA (public) encryption key, which is used to generate their unique encrypted
     copy of the master encryption key. The encrypted instance of the master key can be decrypted only with the user's
@@ -164,7 +163,7 @@ class UserKey(models.Model):
         self.save()
 
 
-class SessionKey(models.Model):
+class SessionKey(BigIDModel):
     """
     A SessionKey stores a User's temporary key to be used for the encryption and decryption of secrets.
     """
@@ -234,7 +233,8 @@ class SessionKey(models.Model):
         return session_key
 
 
-class SecretRole(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class SecretRole(OrganizationalModel):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles
     such as "Login Credentials" or "SNMP Communities."
@@ -263,7 +263,7 @@ class SecretRole(ChangeLoggedModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?role={}".format(reverse('secrets:secret_list'), self.slug)
+        return reverse('secrets:secretrole', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -274,7 +274,7 @@ class SecretRole(ChangeLoggedModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Secret(ChangeLoggedModel, CustomFieldModel):
+class Secret(PrimaryModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible
     SHA-256 hash is stored along with the ciphertext for validation upon decryption. Each Secret is assigned to exactly
@@ -310,7 +310,6 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         max_length=128,
         editable=False
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

@@ -1,0 +1,15 @@
+{% extends 'virtualization/cluster/base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Virtual Machines</strong>
+      </div>
+      {% include 'responsive_table.html' with table=virtualmachines_table %}
+    </div>
+  </div>
+</div>
+{% endblock %}

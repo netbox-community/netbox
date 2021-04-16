@@ -20,7 +20,7 @@ class VirtualizationRootView(APIRootView):
 # Clusters
 #
 
-class ClusterTypeViewSet(ModelViewSet):
+class ClusterTypeViewSet(CustomFieldModelViewSet):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
     )
@@ -28,7 +28,7 @@ class ClusterTypeViewSet(ModelViewSet):
     filterset_class = filters.ClusterTypeFilterSet
 
 
-class ClusterGroupViewSet(ModelViewSet):
+class ClusterGroupViewSet(CustomFieldModelViewSet):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
     )
@@ -80,7 +80,7 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet)
 
 class VMInterfaceViewSet(ModelViewSet):
     queryset = VMInterface.objects.prefetch_related(
-        'virtual_machine', 'tags', 'tagged_vlans', 'ip_addresses',
+        'virtual_machine', 'parent', 'tags', 'tagged_vlans', 'ip_addresses'
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filters.VMInterfaceFilterSet

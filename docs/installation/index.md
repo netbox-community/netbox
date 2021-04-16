@@ -23,6 +23,9 @@ The video below demonstrates the installation of NetBox v2.10.3 on Ubuntu 20.04 
 | PostgreSQL | 9.6             |
 | Redis      | 4.0             |
 
+!!! note
+    Python 3.7 or later will be required in NetBox v2.12. Users are strongly encouraged to install NetBox using Python 3.7 or later for new deployments.
+
 Below is a simplified overview of the NetBox application stack for reference:
 
 ![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_application_stack.png)
@@ -30,6 +33,3 @@ Below is a simplified overview of the NetBox application stack for reference:
 ## Upgrading
 
 If you are upgrading from an existing installation, please consult the [upgrading guide](upgrading.md).
-
-!!! note
-    Beginning with v2.5.9, the official documentation calls for systemd to be used for managing the WSGI workers in place of supervisord.  Please see the instructions for [migrating to systemd](migrating-to-systemd.md) if you are still using supervisord.

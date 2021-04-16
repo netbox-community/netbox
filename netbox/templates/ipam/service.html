@@ -1,45 +1,25 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load helpers %}
+{% load perms %}
 {% load plugins %}
 
+{% block breadcrumbs %}
+  <li><a href="{% url 'ipam:service_list' %}">Services</a></li>
+  <li><a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block buttons %}
+  {% if request.user|can_change:object %}
+    {% edit_button object %}
+  {% endif %}
+  {% if request.user|can_delete:object %}
+    {% delete_button object %}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
-<div class="row noprint">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'ipam:service_list' %}">Services</a></li>
-            <li><a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a></li>
-            <li>{{ object }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'ipam:service_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Search Services" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% plugin_buttons object %}
-    {% if perms.dcim.change_service %}
-        {% edit_button object %}
-    {% endif %}
-    {% if perms.dcim.delete_service %}
-        {% delete_button object %}
-    {% endif %}
-</div>
-<h1>{% block title %}{{ object }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' %}
-<div class="pull-right noprint">
-    {% custom_links object %}
-</div>
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">

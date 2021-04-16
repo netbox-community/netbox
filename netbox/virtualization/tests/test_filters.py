@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from dcim.models import DeviceRole, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.choices import *
@@ -96,14 +96,21 @@ class ClusterTestCase(TestCase):
             Region(name='Test Region 2', slug='test-region-2'),
             Region(name='Test Region 3', slug='test-region-3'),
         )
-        # Can't use bulk_create for models with MPTT fields
         for r in regions:
             r.save()
 
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
+
         sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2]),
+            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -142,6 +149,13 @@ class ClusterTestCase(TestCase):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
@@ -206,14 +220,21 @@ class VirtualMachineTestCase(TestCase):
             Region(name='Test Region 2', slug='test-region-2'),
             Region(name='Test Region 3', slug='test-region-3'),
         )
-        # Can't use bulk_create for models with MPTT fields
         for r in regions:
             r.save()
 
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
+
         sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2]),
+            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -329,6 +350,13 @@ class VirtualMachineTestCase(TestCase):
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -425,11 +453,24 @@ class VMInterfaceTestCase(TestCase):
         params = {'name': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_assigned_to_interface(self):
+    def test_enabled(self):
         params = {'enabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'enabled': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_parent(self):
+        # Create child interfaces
+        parent_interface = VMInterface.objects.first()
+        child_interfaces = (
+            VMInterface(virtual_machine=parent_interface.virtual_machine, name='Child 1', parent=parent_interface),
+            VMInterface(virtual_machine=parent_interface.virtual_machine, name='Child 2', parent=parent_interface),
+            VMInterface(virtual_machine=parent_interface.virtual_machine, name='Child 3', parent=parent_interface),
+        )
+        VMInterface.objects.bulk_create(child_interfaces)
+
+        params = {'parent_id': [parent_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_mtu(self):
         params = {'mtu': [100, 200]}

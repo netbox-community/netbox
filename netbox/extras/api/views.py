@@ -11,9 +11,7 @@ from rq import Worker
 
 from extras import filters
 from extras.choices import JobResultStatusChoices
-from extras.models import (
-    ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem,
-)
+from extras.models import *
 from extras.models import CustomField
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
@@ -56,6 +54,17 @@ class ConfigContextQuerySetMixin:
 
 
 #
+# Webhooks
+#
+
+class WebhookViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Webhook.objects.all()
+    serializer_class = serializers.WebhookSerializer
+    filterset_class = filters.WebhookFilterSet
+
+
+#
 # Custom fields
 #
 
@@ -82,6 +91,17 @@ class CustomFieldModelViewSet(ModelViewSet):
             'custom_fields': custom_fields,
         })
         return context
+
+
+#
+# Custom links
+#
+
+class CustomLinkViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = CustomLink.objects.all()
+    serializer_class = serializers.CustomLinkSerializer
+    filterset_class = filters.CustomLinkFilterSet
 
 
 #
@@ -119,12 +139,23 @@ class ImageAttachmentViewSet(ModelViewSet):
 
 
 #
+# Journal entries
+#
+
+class JournalEntryViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = JournalEntry.objects.all()
+    serializer_class = serializers.JournalEntrySerializer
+    filterset_class = filters.JournalEntryFilterSet
+
+
+#
 # Config contexts
 #
 
 class ConfigContextViewSet(ModelViewSet):
     queryset = ConfigContext.objects.prefetch_related(
-        'regions', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
+        'regions', 'site_groups', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
     filterset_class = filters.ConfigContextFilterSet

@@ -1,56 +1,23 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 {% load static %}
 {% load plugins %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'dcim:rackreservation_list' %}">Rack Reservations</a></li>
-                <li><a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a></li>
-                <li>Units {{ object.unit_list }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'dcim:rackreservation_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" placeholder="Search racks" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% plugin_buttons object %}
-        {% if perms.dcim.change_rackreservation %}
-            {% edit_button object %}
-        {% endif %}
-        {% if perms.dcim.delete_rackreservation %}
-            {% delete_button object %}
-        {% endif %}
-    </div>
-    <h1>{% block title %}{{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' %}
-    <div class="pull-right noprint">
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Rack</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:rackreservation_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block breadcrumbs %}
+  <li><a href="{% url 'dcim:rackreservation_list' %}">Rack Reservations</a></li>
+  <li><a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a></li>
+  <li>Units {{ object.unit_list }}</li>
+{% endblock %}
+
+{% block buttons %}
+  {% if perms.dcim.change_rackreservation %}
+    {% edit_button object %}
+  {% endif %}
+  {% if perms.dcim.delete_rackreservation %}
+    {% delete_button object %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -68,14 +35,14 @@
                             {% if rack.site.region %}
                                 <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
                             {% endif %}
-                            <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
+                            <a href="{{ rack.site.get_absolute_url }}">{{ rack.site }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td>Group</td>
                         <td>
                             {% if rack.group %}
-                                <a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}&group={{ rack.group.slug }}">{{ rack.group }}</a>
+                                <a href="{{ rack.group.get_absolute_url }}">{{ rack.group }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}

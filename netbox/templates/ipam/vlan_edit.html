@@ -1,5 +1,7 @@
 {% extends 'generic/object_edit.html' %}
+{% load static %}
 {% load form_helpers %}
+{% load helpers %}
 
 {% block form %}
     <div class="panel panel-default">
@@ -10,14 +12,7 @@
             {% render_field form.status %}
             {% render_field form.role %}
             {% render_field form.description %}
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Assignment</strong></div>
-        <div class="panel-body">
-            {% render_field form.region %}
-            {% render_field form.site %}
-            {% render_field form.group %}
+            {% render_field form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -25,6 +20,30 @@
         <div class="panel-body">
             {% render_field form.tenant_group %}
             {% render_field form.tenant %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Assignment</strong>
+        </div>
+        <div class="panel-body">
+            {% with site_tab_active=form.initial.site %}
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation"{% if not site_tab_active %} class="active"{% endif %}><a href="#group" role="tab" data-toggle="tab">VLAN Group</a></li>
+                    <li role="presentation"{% if site_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
+                        {% render_field form.scope_type %}
+                        {% render_field form.group %}
+                    </div>
+                    <div class="tab-pane{% if site_tab_active %} active{% endif %}" id="site">
+                        {% render_field form.region %}
+                        {% render_field form.sitegroup %}
+                        {% render_field form.site %}
+                    </div>
+                </div>
+            {% endwith %}
         </div>
     </div>
     {% if form.custom_fields %}
@@ -35,10 +54,4 @@
             </div>
         </div>
     {% endif %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
-        <div class="panel-body">
-            {% render_field form.tags %}
-        </div>
-    </div>
 {% endblock %}

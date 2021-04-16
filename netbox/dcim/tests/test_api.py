@@ -4,12 +4,7 @@ from rest_framework import status
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
-)
+from dcim.models import *
 from ipam.models import VLAN
 from utilities.testing import APITestCase, APIViewTestCases
 from virtualization.models import Cluster, ClusterType
@@ -64,7 +59,7 @@ class Mixins:
 
 class RegionTest(APIViewTestCases.APIViewTestCase):
     model = Region
-    brief_fields = ['_depth', 'id', 'name', 'site_count', 'slug', 'url']
+    brief_fields = ['_depth', 'display', 'id', 'name', 'site_count', 'slug', 'url']
     create_data = [
         {
             'name': 'Region 4',
@@ -91,9 +86,38 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
         Region.objects.create(name='Region 3', slug='region-3')
 
 
+class SiteGroupTest(APIViewTestCases.APIViewTestCase):
+    model = SiteGroup
+    brief_fields = ['_depth', 'display', 'id', 'name', 'site_count', 'slug', 'url']
+    create_data = [
+        {
+            'name': 'Site Group 4',
+            'slug': 'site-group-4',
+        },
+        {
+            'name': 'Site Group 5',
+            'slug': 'site-group-5',
+        },
+        {
+            'name': 'Site Group 6',
+            'slug': 'site-group-6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
+        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3')
+
+
 class SiteTest(APIViewTestCases.APIViewTestCase):
     model = Site
-    brief_fields = ['id', 'name', 'slug', 'url']
+    brief_fields = ['display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -102,14 +126,19 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
 
         regions = (
-            Region.objects.create(name='Test Region 1', slug='test-region-1'),
-            Region.objects.create(name='Test Region 2', slug='test-region-2'),
+            Region.objects.create(name='Region 1', slug='region-1'),
+            Region.objects.create(name='Region 2', slug='region-2'),
+        )
+
+        groups = (
+            SiteGroup.objects.create(name='Site Group 1', slug='site-group-1'),
+            SiteGroup.objects.create(name='Site Group 2', slug='site-group-2'),
         )
 
         sites = (
-            Site(region=regions[0], name='Site 1', slug='site-1'),
-            Site(region=regions[0], name='Site 2', slug='site-2'),
-            Site(region=regions[0], name='Site 3', slug='site-3'),
+            Site(region=regions[0], group=groups[0], name='Site 1', slug='site-1'),
+            Site(region=regions[0], group=groups[0], name='Site 2', slug='site-2'),
+            Site(region=regions[0], group=groups[0], name='Site 3', slug='site-3'),
         )
         Site.objects.bulk_create(sites)
 
@@ -118,26 +147,29 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Site 4',
                 'slug': 'site-4',
                 'region': regions[1].pk,
+                'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
             },
             {
                 'name': 'Site 5',
                 'slug': 'site-5',
                 'region': regions[1].pk,
+                'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
             },
             {
                 'name': 'Site 6',
                 'slug': 'site-6',
                 'region': regions[1].pk,
+                'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
             },
         ]
 
 
-class RackGroupTest(APIViewTestCases.APIViewTestCase):
-    model = RackGroup
-    brief_fields = ['_depth', 'id', 'name', 'rack_count', 'slug', 'url']
+class LocationTest(APIViewTestCases.APIViewTestCase):
+    model = Location
+    brief_fields = ['_depth', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -151,40 +183,40 @@ class RackGroupTest(APIViewTestCases.APIViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
-        parent_rack_groups = (
-            RackGroup.objects.create(site=sites[0], name='Parent Rack Group 1', slug='parent-rack-group-1'),
-            RackGroup.objects.create(site=sites[1], name='Parent Rack Group 2', slug='parent-rack-group-2'),
+        parent_locations = (
+            Location.objects.create(site=sites[0], name='Parent Location 1', slug='parent-location-1'),
+            Location.objects.create(site=sites[1], name='Parent Location 2', slug='parent-location-2'),
         )
 
-        RackGroup.objects.create(site=sites[0], name='Rack Group 1', slug='rack-group-1', parent=parent_rack_groups[0])
-        RackGroup.objects.create(site=sites[0], name='Rack Group 2', slug='rack-group-2', parent=parent_rack_groups[0])
-        RackGroup.objects.create(site=sites[0], name='Rack Group 3', slug='rack-group-3', parent=parent_rack_groups[0])
+        Location.objects.create(site=sites[0], name='Location 1', slug='location-1', parent=parent_locations[0])
+        Location.objects.create(site=sites[0], name='Location 2', slug='location-2', parent=parent_locations[0])
+        Location.objects.create(site=sites[0], name='Location 3', slug='location-3', parent=parent_locations[0])
 
         cls.create_data = [
             {
-                'name': 'Test Rack Group 4',
-                'slug': 'test-rack-group-4',
+                'name': 'Test Location 4',
+                'slug': 'test-location-4',
                 'site': sites[1].pk,
-                'parent': parent_rack_groups[1].pk,
+                'parent': parent_locations[1].pk,
             },
             {
-                'name': 'Test Rack Group 5',
-                'slug': 'test-rack-group-5',
+                'name': 'Test Location 5',
+                'slug': 'test-location-5',
                 'site': sites[1].pk,
-                'parent': parent_rack_groups[1].pk,
+                'parent': parent_locations[1].pk,
             },
             {
-                'name': 'Test Rack Group 6',
-                'slug': 'test-rack-group-6',
+                'name': 'Test Location 6',
+                'slug': 'test-location-6',
                 'site': sites[1].pk,
-                'parent': parent_rack_groups[1].pk,
+                'parent': parent_locations[1].pk,
             },
         ]
 
 
 class RackRoleTest(APIViewTestCases.APIViewTestCase):
     model = RackRole
-    brief_fields = ['id', 'name', 'rack_count', 'slug', 'url']
+    brief_fields = ['display', 'id', 'name', 'rack_count', 'slug', 'url']
     create_data = [
         {
             'name': 'Rack Role 4',
@@ -219,7 +251,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTest(APIViewTestCases.APIViewTestCase):
     model = Rack
-    brief_fields = ['device_count', 'display_name', 'id', 'name', 'url']
+    brief_fields = ['device_count', 'display', 'display_name', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -233,9 +265,9 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup.objects.create(site=sites[0], name='Rack Group 1', slug='rack-group-1'),
-            RackGroup.objects.create(site=sites[1], name='Rack Group 2', slug='rack-group-2'),
+        locations = (
+            Location.objects.create(site=sites[0], name='Location 1', slug='location-1'),
+            Location.objects.create(site=sites[1], name='Location 2', slug='location-2'),
         )
 
         rack_roles = (
@@ -245,9 +277,9 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         RackRole.objects.bulk_create(rack_roles)
 
         racks = (
-            Rack(site=sites[0], group=rack_groups[0], role=rack_roles[0], name='Rack 1'),
-            Rack(site=sites[0], group=rack_groups[0], role=rack_roles[0], name='Rack 2'),
-            Rack(site=sites[0], group=rack_groups[0], role=rack_roles[0], name='Rack 3'),
+            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 1'),
+            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 2'),
+            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 3'),
         )
         Rack.objects.bulk_create(racks)
 
@@ -255,19 +287,19 @@ class RackTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Test Rack 4',
                 'site': sites[1].pk,
-                'group': rack_groups[1].pk,
+                'location': locations[1].pk,
                 'role': rack_roles[1].pk,
             },
             {
                 'name': 'Test Rack 5',
                 'site': sites[1].pk,
-                'group': rack_groups[1].pk,
+                'location': locations[1].pk,
                 'role': rack_roles[1].pk,
             },
             {
                 'name': 'Test Rack 6',
                 'site': sites[1].pk,
-                'group': rack_groups[1].pk,
+                'location': locations[1].pk,
                 'role': rack_roles[1].pk,
             },
         ]
@@ -307,7 +339,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
 
 class RackReservationTest(APIViewTestCases.APIViewTestCase):
     model = RackReservation
-    brief_fields = ['id', 'units', 'url', 'user']
+    brief_fields = ['display', 'id', 'units', 'url', 'user']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -358,7 +390,7 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
 
 class ManufacturerTest(APIViewTestCases.APIViewTestCase):
     model = Manufacturer
-    brief_fields = ['devicetype_count', 'id', 'name', 'slug', 'url']
+    brief_fields = ['devicetype_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Manufacturer 4',
@@ -390,7 +422,7 @@ class ManufacturerTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
     model = DeviceType
-    brief_fields = ['device_count', 'display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
+    brief_fields = ['device_count', 'display', 'display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
     }
@@ -432,7 +464,7 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
 
 class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConsolePortTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -469,7 +501,7 @@ class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPortTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -506,7 +538,7 @@ class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = PowerPortTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -543,7 +575,7 @@ class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
     model = PowerOutletTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -580,7 +612,7 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
     model = InterfaceTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -620,7 +652,7 @@ class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = FrontPortTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -691,7 +723,7 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = RearPortTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -731,7 +763,7 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBayTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -771,7 +803,7 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
-    brief_fields = ['device_count', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
+    brief_fields = ['device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
     create_data = [
         {
             'name': 'Device Role 4',
@@ -806,7 +838,7 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
 
 class PlatformTest(APIViewTestCases.APIViewTestCase):
     model = Platform
-    brief_fields = ['device_count', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
+    brief_fields = ['device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
     create_data = [
         {
             'name': 'Platform 4',
@@ -838,7 +870,7 @@ class PlatformTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceTest(APIViewTestCases.APIViewTestCase):
     model = Device
-    brief_fields = ['display_name', 'id', 'name', 'url']
+    brief_fields = ['display', 'display_name', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'failed',
     }
@@ -979,7 +1011,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1018,7 +1050,7 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
 
 class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1057,7 +1089,7 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
 
 class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1096,7 +1128,7 @@ class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
 
 class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1135,7 +1167,7 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
 
 class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1193,7 +1225,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):
     model = FrontPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1251,7 +1283,7 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
 
 class RearPortTest(APIViewTestCases.APIViewTestCase):
     model = RearPort
-    brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1293,7 +1325,7 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceBayTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBay
-    brief_fields = ['device', 'id', 'name', 'url']
+    brief_fields = ['device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1356,7 +1388,7 @@ class DeviceBayTest(APIViewTestCases.APIViewTestCase):
 
 class InventoryItemTest(APIViewTestCases.APIViewTestCase):
     model = InventoryItem
-    brief_fields = ['_depth', 'device', 'id', 'name', 'url']
+    brief_fields = ['_depth', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1394,7 +1426,7 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
 
 class CableTest(APIViewTestCases.APIViewTestCase):
     model = Cable
-    brief_fields = ['id', 'label', 'url']
+    brief_fields = ['display', 'id', 'label', 'url']
     bulk_update_data = {
         'length': 100,
         'length_unit': 'm',
@@ -1579,7 +1611,7 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
 
 class PowerPanelTest(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
-    brief_fields = ['id', 'name', 'powerfeed_count', 'url']
+    brief_fields = ['display', 'id', 'name', 'powerfeed_count', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -1588,17 +1620,17 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
             Site.objects.create(name='Site 2', slug='site-2'),
         )
 
-        rack_groups = (
-            RackGroup.objects.create(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup.objects.create(name='Rack Group 2', slug='rack-group-2', site=sites[0]),
-            RackGroup.objects.create(name='Rack Group 3', slug='rack-group-3', site=sites[0]),
-            RackGroup.objects.create(name='Rack Group 4', slug='rack-group-3', site=sites[1]),
+        locations = (
+            Location.objects.create(name='Location 1', slug='location-1', site=sites[0]),
+            Location.objects.create(name='Location 2', slug='location-2', site=sites[0]),
+            Location.objects.create(name='Location 3', slug='location-3', site=sites[0]),
+            Location.objects.create(name='Location 4', slug='location-3', site=sites[1]),
         )
 
         power_panels = (
-            PowerPanel(site=sites[0], rack_group=rack_groups[0], name='Power Panel 1'),
-            PowerPanel(site=sites[0], rack_group=rack_groups[1], name='Power Panel 2'),
-            PowerPanel(site=sites[0], rack_group=rack_groups[2], name='Power Panel 3'),
+            PowerPanel(site=sites[0], location=locations[0], name='Power Panel 1'),
+            PowerPanel(site=sites[0], location=locations[1], name='Power Panel 2'),
+            PowerPanel(site=sites[0], location=locations[2], name='Power Panel 3'),
         )
         PowerPanel.objects.bulk_create(power_panels)
 
@@ -1606,29 +1638,29 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Power Panel 4',
                 'site': sites[0].pk,
-                'rack_group': rack_groups[0].pk,
+                'location': locations[0].pk,
             },
             {
                 'name': 'Power Panel 5',
                 'site': sites[0].pk,
-                'rack_group': rack_groups[1].pk,
+                'location': locations[1].pk,
             },
             {
                 'name': 'Power Panel 6',
                 'site': sites[0].pk,
-                'rack_group': rack_groups[2].pk,
+                'location': locations[2].pk,
             },
         ]
 
         cls.bulk_update_data = {
             'site': sites[1].pk,
-            'rack_group': rack_groups[3].pk
+            'location': locations[3].pk
         }
 
 
 class PowerFeedTest(APIViewTestCases.APIViewTestCase):
     model = PowerFeed
-    brief_fields = ['cable', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'cable', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -1636,20 +1668,20 @@ class PowerFeedTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
         site = Site.objects.create(name='Site 1', slug='site-1')
-        rackgroup = RackGroup.objects.create(site=site, name='Rack Group 1', slug='rack-group-1')
+        location = Location.objects.create(site=site, name='Location 1', slug='location-1')
         rackrole = RackRole.objects.create(name='Rack Role 1', slug='rack-role-1', color='ff0000')
 
         racks = (
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 1'),
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 2'),
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 3'),
-            Rack(site=site, group=rackgroup, role=rackrole, name='Rack 4'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 1'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 2'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 3'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 4'),
         )
         Rack.objects.bulk_create(racks)
 
         power_panels = (
-            PowerPanel(site=site, rack_group=rackgroup, name='Power Panel 1'),
-            PowerPanel(site=site, rack_group=rackgroup, name='Power Panel 2'),
+            PowerPanel(site=site, location=location, name='Power Panel 1'),
+            PowerPanel(site=site, location=location, name='Power Panel 2'),
         )
         PowerPanel.objects.bulk_create(power_panels)
 

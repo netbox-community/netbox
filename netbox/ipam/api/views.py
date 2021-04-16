@@ -55,7 +55,7 @@ class RouteTargetViewSet(CustomFieldModelViewSet):
 # RIRs
 #
 
-class RIRViewSet(ModelViewSet):
+class RIRViewSet(CustomFieldModelViewSet):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
     )
@@ -77,7 +77,7 @@ class AggregateViewSet(CustomFieldModelViewSet):
 # Roles
 #
 
-class RoleViewSet(ModelViewSet):
+class RoleViewSet(CustomFieldModelViewSet):
     queryset = Role.objects.annotate(
         prefix_count=count_related(Prefix, 'role'),
         vlan_count=count_related(VLAN, 'role')
@@ -282,8 +282,8 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 # VLAN groups
 #
 
-class VLANGroupViewSet(ModelViewSet):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+class VLANGroupViewSet(CustomFieldModelViewSet):
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     serializer_class = serializers.VLANGroupSerializer

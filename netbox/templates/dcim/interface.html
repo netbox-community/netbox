@@ -3,6 +3,21 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'dcim:device_interfaces' pk=object.device.pk %}">Interfaces</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block buttons %}
+  {% if perms.dcim.add_interface and not object.is_virtual %}
+    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-success">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Child Interface
+    </a>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="col-md-6">
@@ -40,9 +55,19 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Parent</td>
+                        <td>
+                            {% if object.parent %}
+                                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>LAG</td>
                         <td>
-                            {% if object.lag%}
+                            {% if object.lag %}
                                 <a href="{{ object.lag.get_absolute_url }}">{{ object.lag }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
@@ -67,6 +92,7 @@
                     </tr>
                 </table>
             </div>
+            {% include 'inc/custom_fields_panel.html' %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
             {% plugin_left_page object %}
         </div>
@@ -76,7 +102,11 @@
                     <div class="panel-heading">
                         <strong>Connection</strong>
                     </div>
-                    {% if object.cable %}
+                    {% if object.mark_connected %}
+                        <div class="panel-body text-muted">
+                          <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
+                        </div>
+                    {% elif object.cable %}
                         <table class="table table-hover panel-body attr-table">
                             <tr>
                                 <td>Cable</td>
@@ -249,6 +279,11 @@
     <div class="row">
         <div class="col-md-12">
             {% include 'panel_table.html' with table=vlan_table heading="VLANs" %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}
         </div>
     </div>
     <div class="row">

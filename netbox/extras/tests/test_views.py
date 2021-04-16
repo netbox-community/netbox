@@ -3,12 +3,11 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
-from extras.models import ConfigContext, CustomLink, ObjectChange, Tag
+from extras.models import ConfigContext, CustomLink, JournalEntry, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
@@ -128,6 +127,43 @@ class ObjectChangeTestCase(TestCase):
         self.assertHttpStatus(response, 200)
 
 
+class JournalEntryTestCase(
+    # ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = JournalEntry
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        user = User.objects.create(username='User 1')
+
+        JournalEntry.objects.bulk_create((
+            JournalEntry(assigned_object=site, created_by=user, comments='First entry'),
+            JournalEntry(assigned_object=site, created_by=user, comments='Second entry'),
+            JournalEntry(assigned_object=site, created_by=user, comments='Third entry'),
+        ))
+
+        cls.form_data = {
+            'assigned_object_type': site_ct.pk,
+            'assigned_object_id': site.pk,
+            'kind': 'info',
+            'comments': 'A new entry',
+        }
+
+        cls.bulk_edit_data = {
+            'kind': 'success',
+            'comments': 'Overwritten',
+        }
+
+
 class CustomLinkTest(TestCase):
     user_permissions = ['dcim.view_site']
 
@@ -135,8 +171,8 @@ class CustomLinkTest(TestCase):
         customlink = CustomLink(
             content_type=ContentType.objects.get_for_model(Site),
             name='Test',
-            text='FOO {{ obj.name }} BAR',
-            url='http://example.com/?site={{ obj.slug }}',
+            link_text='FOO {{ obj.name }} BAR',
+            link_url='http://example.com/?site={{ obj.slug }}',
             new_window=False
         )
         customlink.save()

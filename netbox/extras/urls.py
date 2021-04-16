@@ -1,7 +1,7 @@
 from django.urls import path
 
 from extras import views
-from extras.models import ConfigContext, Tag
+from extras.models import ConfigContext, JournalEntry, Tag
 
 
 app_name = 'extras'
@@ -13,9 +13,10 @@ urlpatterns = [
     path('tags/import/', views.TagBulkImportView.as_view(), name='tag_import'),
     path('tags/edit/', views.TagBulkEditView.as_view(), name='tag_bulk_edit'),
     path('tags/delete/', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),
-    path('tags/<str:slug>/edit/', views.TagEditView.as_view(), name='tag_edit'),
-    path('tags/<str:slug>/delete/', views.TagDeleteView.as_view(), name='tag_delete'),
-    path('tags/<str:slug>/changelog/', views.ObjectChangeLogView.as_view(), name='tag_changelog', kwargs={'model': Tag}),
+    path('tags/<int:pk>/', views.TagView.as_view(), name='tag'),
+    path('tags/<int:pk>/edit/', views.TagEditView.as_view(), name='tag_edit'),
+    path('tags/<int:pk>/delete/', views.TagDeleteView.as_view(), name='tag_delete'),
+    path('tags/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='tag_changelog', kwargs={'model': Tag}),
 
     # Config contexts
     path('config-contexts/', views.ConfigContextListView.as_view(), name='configcontext_list'),
@@ -30,6 +31,16 @@ urlpatterns = [
     # Image attachments
     path('image-attachments/<int:pk>/edit/', views.ImageAttachmentEditView.as_view(), name='imageattachment_edit'),
     path('image-attachments/<int:pk>/delete/', views.ImageAttachmentDeleteView.as_view(), name='imageattachment_delete'),
+
+    # Journal entries
+    path('journal-entries/', views.JournalEntryListView.as_view(), name='journalentry_list'),
+    path('journal-entries/add/', views.JournalEntryEditView.as_view(), name='journalentry_add'),
+    path('journal-entries/edit/', views.JournalEntryBulkEditView.as_view(), name='journalentry_bulk_edit'),
+    path('journal-entries/delete/', views.JournalEntryBulkDeleteView.as_view(), name='journalentry_bulk_delete'),
+    path('journal-entries/<int:pk>/', views.JournalEntryView.as_view(), name='journalentry'),
+    path('journal-entries/<int:pk>/edit/', views.JournalEntryEditView.as_view(), name='journalentry_edit'),
+    path('journal-entries/<int:pk>/delete/', views.JournalEntryDeleteView.as_view(), name='journalentry_delete'),
+    path('journal-entries/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='journalentry_changelog', kwargs={'model': JournalEntry}),
 
     # Change logging
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),

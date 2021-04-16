@@ -1,6 +1,7 @@
 # Circuits
 
 {!docs/models/circuits/provider.md!}
+{!docs/models/circuits/providernetwork.md!}
 
 ---
 

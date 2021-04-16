@@ -8,17 +8,23 @@
             </div>
             <div class="modal-body">
                 <form class="form-horizontal userconfigform" data-config-root="tables.{{ table_config_form.table_name }}">
-                    {% render_form table_config_form %}
-                    <div class="row">
+                    {% render_field table_config_form.available_columns %}
+                    <div class="form-group">
+                        <div class="col-md-9 col-md-offset-3">
+                            <a class="btn btn-success btn-xs" id="add_columns"><i class="mdi mdi-arrow-down-bold"></i> Add columns</a>
+                            <a class="btn btn-danger btn-xs" id="remove_columns"><i class="mdi mdi-arrow-up-bold"></i> Remove columns</a>
+                        </div>
+                    </div>
+                    {% render_field table_config_form.columns %}
+                    <div class="form-group">
                         <div class="col-md-9 col-md-offset-3">
                             <a class="btn btn-primary btn-xs" id="move-option-up" data-target="id_columns"><i class="mdi mdi-arrow-up-bold"></i> Move up</a>
                             <a class="btn btn-primary btn-xs" id="move-option-down" data-target="id_columns"><i class="mdi mdi-arrow-down-bold"></i> Move down</a>
-                            <a class="btn btn-success btn-xs" id="select-all-options" data-target="id_columns"><i class="mdi mdi-expand-all-outline"></i> Select all</a>
                         </div>
                     </div>
                     <div class="text-right">
-                        <input type="submit" class="btn btn-primary" value="Save" />
-                        <input type="submit" class="btn btn-danger reset" value="Reset" />
+                        <input type="submit" class="btn btn-primary" id="save_tableconfig" value="Save" />
+                        <input type="submit" class="btn btn-danger" id="reset_tableconfig" value="Reset" />
                     </div>
                 </form>
             </div>

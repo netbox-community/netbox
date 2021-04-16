@@ -180,28 +180,26 @@ class ObjectVar(ScriptVariable):
     A single object within NetBox.
 
     :param model: The NetBox model being referenced
-    :param display_field: The attribute of the returned object to display in the selection list (default: 'name')
+    :param display_field: The attribute of the returned object to display in the selection list (DEPRECATED)
     :param query_params: A dictionary of additional query parameters to attach when making REST API requests (optional)
     :param null_option: The label to use as a "null" selection option (optional)
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, model=None, queryset=None, display_field='name', query_params=None, null_option=None, *args,
-                 **kwargs):
+    def __init__(self, model, query_params=None, null_option=None, *args, **kwargs):
+
+        # TODO: Remove display_field in v2.12
+        if 'display_field' in kwargs:
+            warnings.warn(
+                "The 'display_field' parameter has been deprecated, and will be removed in NetBox v2.12. Object "
+                "variables will now reference the 'display' attribute available on all model serializers by default."
+            )
+        display_field = kwargs.pop('display_field', 'display')
+
         super().__init__(*args, **kwargs)
 
-        # Set the form field's queryset. Support backward compatibility for the "queryset" argument for now.
-        if model is not None:
-            self.field_attrs['queryset'] = model.objects.all()
-        elif queryset is not None:
-            warnings.warn(
-                f'{self}: Specifying a queryset for ObjectVar is no longer supported. Please use "model" instead.'
-            )
-            self.field_attrs['queryset'] = queryset
-        else:
-            raise TypeError('ObjectVar must specify a model')
-
         self.field_attrs.update({
+            'queryset': model.objects.all(),
             'display_field': display_field,
             'query_params': query_params,
             'null_option': null_option,

@@ -29,7 +29,6 @@
                 {% block sidebar %}{% endblock %}
             </div>
         {% endif %}
-        <div class="table-responsive">
         {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
             {% if permissions.change or permissions.delete %}
                 <form method="post" class="form form-horizontal">
@@ -59,7 +58,9 @@
                             </div>
                         </div>
                     {% endif %}
-                    {% render_table table 'inc/table.html' %}
+                    <div class="table-responsive">
+                        {% render_table table 'inc/table.html' %}
+                    </div>
                     <div class="pull-left noprint">
                         {% block bulk_buttons %}{% endblock %}
                         {% if bulk_edit_url and permissions.change %}
@@ -78,7 +79,6 @@
                 {% render_table table 'inc/table.html' %}
             {% endif %}
         {% endwith %}
-        </div>
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         <div class="clearfix"></div>
     </div>

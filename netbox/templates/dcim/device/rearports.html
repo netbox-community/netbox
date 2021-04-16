@@ -44,6 +44,7 @@
             </div>
         </div>
     </form>
+    {% include 'inc/paginator.html' with paginator=rearport_table.paginator page=rearport_table.page %}
     {% table_config_form rearport_table %}
 {% endblock %}
 

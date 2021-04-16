@@ -1,12 +1,13 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelCSVForm,
 )
 from extras.models import Tag
 from utilities.forms import (
-    BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SlugField, TagFilterField,
+    BootstrapMixin, CommentField, CSVModelChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
 
@@ -15,7 +16,7 @@ from .models import Tenant, TenantGroup
 # Tenant groups
 #
 
-class TenantGroupForm(BootstrapMixin, forms.ModelForm):
+class TenantGroupForm(BootstrapMixin, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
@@ -29,7 +30,7 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class TenantGroupCSVForm(CSVModelForm):
+class TenantGroupCSVForm(CustomFieldModelCSVForm):
     parent = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -41,6 +42,24 @@ class TenantGroupCSVForm(CSVModelForm):
     class Meta:
         model = TenantGroup
         fields = TenantGroup.csv_headers
+
+
+class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=TenantGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    parent = DynamicModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
 
 
 #
@@ -63,6 +82,9 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
         model = Tenant
         fields = (
             'name', 'slug', 'group', 'description', 'comments', 'tags',
+        )
+        fieldsets = (
+            ('Tenant', ('name', 'slug', 'group', 'description', 'tags')),
         )
 
 
@@ -100,13 +122,13 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Tenant
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    group = DynamicModelMultipleChoiceField(
+    group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Group')
     )
     tag = TagFilterField(model)
 
@@ -134,18 +156,18 @@ class TenancyForm(forms.Form):
 
 
 class TenancyFilterForm(forms.Form):
-    tenant_group = DynamicModelMultipleChoiceField(
+    tenant_group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        label=_('Tenant group')
     )
-    tenant = DynamicModelMultipleChoiceField(
+    tenant_id = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
-        to_field_name='slug',
         required=False,
         null_option='None',
         query_params={
-            'group': '$tenant_group'
-        }
+            'group_id': '$tenant_group_id'
+        },
+        label=_('Tenant')
     )

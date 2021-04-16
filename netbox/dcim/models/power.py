@@ -2,12 +2,11 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
+from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import ExclusionValidator
 from .device_components import CableTermination, PathEndpoint
@@ -23,7 +22,7 @@ __all__ = (
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class PowerPanel(ChangeLoggedModel, CustomFieldModel):
+class PowerPanel(PrimaryModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -31,8 +30,8 @@ class PowerPanel(ChangeLoggedModel, CustomFieldModel):
         to='Site',
         on_delete=models.PROTECT
     )
-    rack_group = models.ForeignKey(
-        to='RackGroup',
+    location = models.ForeignKey(
+        to='dcim.Location',
         on_delete=models.PROTECT,
         blank=True,
         null=True
@@ -40,11 +39,10 @@ class PowerPanel(ChangeLoggedModel, CustomFieldModel):
     name = models.CharField(
         max_length=100
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['site', 'rack_group', 'name']
+    csv_headers = ['site', 'location', 'name']
 
     class Meta:
         ordering = ['site', 'name']
@@ -59,22 +57,22 @@ class PowerPanel(ChangeLoggedModel, CustomFieldModel):
     def to_csv(self):
         return (
             self.site.name,
-            self.rack_group.name if self.rack_group else None,
+            self.location.name if self.location else None,
             self.name,
         )
 
     def clean(self):
         super().clean()
 
-        # RackGroup must belong to assigned Site
-        if self.rack_group and self.rack_group.site != self.site:
-            raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
-                self.rack_group, self.rack_group.site, self.site
-            ))
+        # Location must belong to assigned Site
+        if self.location and self.location.site != self.site:
+            raise ValidationError(
+                f"Location {self.location} ({self.location.site}) is in a different site than {self.site}"
+            )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldModel):
+class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
     """
     An electrical circuit delivered from a PowerPanel.
     """
@@ -132,17 +130,16 @@ class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldMo
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
-        'site', 'power_panel', 'rack_group', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
-        'amperage', 'max_utilization', 'comments',
+        'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
+        'voltage', 'amperage', 'max_utilization', 'comments',
     ]
     clone_fields = [
-        'power_panel', 'rack', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization',
-        'available_power',
+        'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
+        'max_utilization', 'available_power',
     ]
 
     class Meta:
@@ -159,11 +156,12 @@ class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldMo
         return (
             self.power_panel.site.name,
             self.power_panel.name,
-            self.rack.group.name if self.rack and self.rack.group else None,
+            self.rack.location.name if self.rack and self.rack.location else None,
             self.rack.name if self.rack else None,
             self.name,
             self.get_status_display(),
             self.get_type_display(),
+            self.mark_connected,
             self.get_supply_display(),
             self.get_phase_display(),
             self.voltage,
@@ -199,7 +197,7 @@ class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldMo
         super().save(*args, **kwargs)
 
     @property
-    def parent(self):
+    def parent_object(self):
         return self.power_panel
 
     def get_type_class(self):

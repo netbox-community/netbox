@@ -27,6 +27,8 @@
                         {# Cable #}
                         {% if cable %}
                             {% include 'dcim/trace/cable.html' %}
+                        {% elif far_end %}
+                            {% include 'dcim/trace/attachment.html' %}
                         {% endif %}
 
                         {# Far end #}
@@ -43,6 +45,8 @@
                             {% if forloop.last %}
                                 {% include 'dcim/trace/circuit.html' with circuit=far_end.circuit %}
                             {% endif %}
+                        {% elif far_end %}
+                            {% include 'dcim/trace/object.html' with object=far_end %}
                         {% endif %}
 
                         {% if forloop.last %}
@@ -102,12 +106,12 @@
                             <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
                                 <td>
                                     <a href="?cablepath_id={{ cablepath.pk }}">
-                                        {{ cablepath.origin.parent }} / {{ cablepath.origin }}
+                                        {{ cablepath.origin.parent_object }} / {{ cablepath.origin }}
                                     </a>
                                 </td>
                                 <td>
                                     {% if cablepath.destination %}
-                                        {{ cablepath.destination }} ({{ cablepath.destination.parent }})
+                                        {{ cablepath.destination }} ({{ cablepath.destination.parent_object }})
                                     {% else %}
                                         <span class="text-muted">Incomplete</span>
                                     {% endif %}

@@ -44,6 +44,7 @@
             </div>
         </div>
     </form>
+    {% include 'inc/paginator.html' with paginator=consoleserverport_table.paginator page=consoleserverport_table.page %}
     {% table_config_form consoleserverport_table %}
 {% endblock %}
 

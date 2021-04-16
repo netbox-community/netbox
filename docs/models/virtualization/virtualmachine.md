@@ -11,4 +11,6 @@ Like devices, each VM can be assigned a platform and/or functional role, and mus
 * Failed
 * Decommissioning
 
-Additional fields are available for annotating the vCPU count, memory (GB), and disk (GB) allocated to each VM. Each VM may optionally be assigned to a tenant. Virtual machines may have virtual interfaces assigned to them, but do not support any physical component.
+Additional fields are available for annotating the vCPU count, memory (GB), and disk (GB) allocated to each VM. A VM may be allocated a partial vCPU count (e.g. 1.5 vCPU).
+
+Each VM may optionally be assigned to a tenant. Virtual machines may have virtual interfaces assigned to them, but do not support any physical component.

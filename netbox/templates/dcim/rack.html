@@ -1,74 +1,46 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load helpers %}
 {% load static %}
 {% load plugins %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
-                <li><a href="{% url 'dcim:rack_list' %}?site={{ object.site.slug }}">{{ object.site }}</a></li>
-                {% if object.group %}
-                    {% for group in object.group.get_ancestors %}
-                        <li><a href="{{ group.get_absolute_url }}">{{ group }}</a></li>
-                    {% endfor %}
-                    <li><a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a></li>
-                {% endif %}
-                <li>{{ object }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'dcim:rack_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" placeholder="Search racks" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% plugin_buttons object %}
-        <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-            <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous Rack
-        </a>
-        <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-            <span class="mdi mdi-chevron-right" aria-hidden="true"></span> Next Rack
-        </a>
-        {% if perms.dcim.add_rack %}
-            {% clone_button object %}
-        {% endif %}
-        {% if perms.dcim.change_rack %}
-            {% edit_button object %}
-        {% endif %}
-        {% if perms.dcim.delete_rack %}
-            {% delete_button object %}
-        {% endif %}
-    </div>
-    <h1>{% block title %}Rack {{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' %}
-    <div class="pull-right noprint">
-        <button class="btn btn-sm btn-default toggle-images" selected="selected">
-            <span class="mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
-        </button>
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Rack</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:rack_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block title %}Rack {{ object }}{% endblock %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
+  <li><a href="{% url 'dcim:rack_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
+  {% if object.group %}
+    {% for group in object.group.get_ancestors %}
+      <li><a href="{{ group.get_absolute_url }}">{{ group }}</a></li>
+    {% endfor %}
+    <li><a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a></li>
+  {% endif %}
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block buttons %}
+  <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
+    <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous Rack
+  </a>
+  <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
+    <span class="mdi mdi-chevron-right" aria-hidden="true"></span> Next Rack
+  </a>
+  {% if perms.dcim.add_rack %}
+    {% clone_button object %}
+  {% endif %}
+  {% if perms.dcim.change_rack %}
+    {% edit_button object %}
+  {% endif %}
+  {% if perms.dcim.delete_rack %}
+    {% delete_button object %}
+  {% endif %}
+{% endblock %}
+
+{% block tab_buttons %}
+  <button class="btn btn-sm btn-default toggle-images" selected="selected">
+    <span class="mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
+  </button>
+  {{ block.super }}
 {% endblock %}
 
 {% block content %}
@@ -85,17 +57,17 @@
                         {% if object.site.region %}
                             <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                         {% endif %}
-                        <a href="{% url 'dcim:site' slug=object.site.slug %}">{{ object.site }}</a>
+                        <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
                     </td>
                 </tr>
                 <tr>
-                    <td>Group</td>
+                    <td>Location</td>
                     <td>
-                        {% if object.group %}
-                            {% for group in object.group.get_ancestors %}
-                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> /
+                        {% if object.location %}
+                            {% for location in object.location.get_ancestors %}
+                                <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
                             {% endfor %}
-                            <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+                            <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.10.10'
+VERSION = '2.11.0-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -28,6 +28,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if platform.python_version_tuple() < ('3', '6'):
     raise RuntimeError(
         "NetBox requires Python 3.6 or higher (current: Python {})".format(platform.python_version())
+    )
+# TODO: Remove in NetBox v2.12
+if platform.python_version_tuple() < ('3', '7'):
+    warnings.warn(
+        "Support for Python 3.6 will be dropped in NetBox v2.12. Please upgrade to Python 3.7 or later at your "
+        "earliest convenience."
     )
 
 
@@ -381,6 +387,8 @@ LOGIN_URL = '/{}login/'.format(BASE_PATH)
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
 EXEMPT_EXCLUDE_MODELS = (
@@ -425,7 +433,7 @@ CACHEOPS = {
     'circuits.*': {'ops': 'all'},
     'dcim.inventoryitem': None,  # MPTT models are exempt due to raw SQL
     'dcim.region': None,  # MPTT models are exempt due to raw SQL
-    'dcim.rackgroup': None,  # MPTT models are exempt due to raw SQL
+    'dcim.location': None,  # MPTT models are exempt due to raw SQL
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},

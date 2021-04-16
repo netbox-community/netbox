@@ -1,6 +1,7 @@
 import datetime
 from unittest import skipIf
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -9,9 +10,9 @@ from django_rq.queues import get_connection
 from rest_framework import status
 from rq import Worker
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
-from extras.models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, Tag
+from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
@@ -30,9 +31,63 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class WebhookTest(APIViewTestCases.APIViewTestCase):
+    model = Webhook
+    brief_fields = ['display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'content_types': ['dcim.device', 'dcim.devicetype'],
+            'name': 'Webhook 4',
+            'type_create': True,
+            'payload_url': 'http://example.com/?4',
+        },
+        {
+            'content_types': ['dcim.device', 'dcim.devicetype'],
+            'name': 'Webhook 5',
+            'type_update': True,
+            'payload_url': 'http://example.com/?5',
+        },
+        {
+            'content_types': ['dcim.device', 'dcim.devicetype'],
+            'name': 'Webhook 6',
+            'type_delete': True,
+            'payload_url': 'http://example.com/?6',
+        },
+    ]
+    bulk_update_data = {
+        'ssl_verification': False,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+        rack_ct = ContentType.objects.get_for_model(Rack)
+
+        webhooks = (
+            Webhook(
+                name='Webhook 1',
+                type_create=True,
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 2',
+                type_update=True,
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 3',
+                type_delete=True,
+                payload_url='http://example.com/?1',
+            ),
+        )
+        Webhook.objects.bulk_create(webhooks)
+        for webhook in webhooks:
+            webhook.content_types.add(site_ct, rack_ct)
+
+
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     model = CustomField
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'content_types': ['dcim.site'],
@@ -77,9 +132,63 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
             cf.content_types.add(site_ct)
 
 
+class CustomLinkTest(APIViewTestCases.APIViewTestCase):
+    model = CustomLink
+    brief_fields = ['display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'content_type': 'dcim.site',
+            'name': 'Custom Link 4',
+            'link_text': 'Link 4',
+            'link_url': 'http://example.com/?4',
+        },
+        {
+            'content_type': 'dcim.site',
+            'name': 'Custom Link 5',
+            'link_text': 'Link 5',
+            'link_url': 'http://example.com/?5',
+        },
+        {
+            'content_type': 'dcim.site',
+            'name': 'Custom Link 6',
+            'link_text': 'Link 6',
+            'link_url': 'http://example.com/?6',
+        },
+    ]
+    bulk_update_data = {
+        'new_window': True,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        custom_links = (
+            CustomLink(
+                content_type=site_ct,
+                name='Custom Link 1',
+                link_text='Link 1',
+                link_url='http://example.com/?1',
+            ),
+            CustomLink(
+                content_type=site_ct,
+                name='Custom Link 2',
+                link_text='Link 2',
+                link_url='http://example.com/?2',
+            ),
+            CustomLink(
+                content_type=site_ct,
+                name='Custom Link 3',
+                link_text='Link 3',
+                link_url='http://example.com/?3',
+            ),
+        )
+        CustomLink.objects.bulk_create(custom_links)
+
+
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'content_type': 'dcim.device',
@@ -127,7 +236,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
-    brief_fields = ['color', 'id', 'name', 'slug', 'url']
+    brief_fields = ['color', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Tag 4',
@@ -164,7 +273,7 @@ class ImageAttachmentTest(
     APIViewTestCases.DeleteObjectViewTestCase
 ):
     model = ImageAttachment
-    brief_fields = ['id', 'image', 'name', 'url']
+    brief_fields = ['display', 'id', 'image', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -201,9 +310,59 @@ class ImageAttachmentTest(
         ImageAttachment.objects.bulk_create(image_attachments)
 
 
+class JournalEntryTest(APIViewTestCases.APIViewTestCase):
+    model = JournalEntry
+    brief_fields = ['created', 'display', 'id', 'url']
+    bulk_update_data = {
+        'comments': 'Overwritten',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.first()
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        journal_entries = (
+            JournalEntry(
+                created_by=user,
+                assigned_object=site,
+                comments='Fourth entry',
+            ),
+            JournalEntry(
+                created_by=user,
+                assigned_object=site,
+                comments='Fifth entry',
+            ),
+            JournalEntry(
+                created_by=user,
+                assigned_object=site,
+                comments='Sixth entry',
+            ),
+        )
+        JournalEntry.objects.bulk_create(journal_entries)
+
+        cls.create_data = [
+            {
+                'assigned_object_type': 'dcim.site',
+                'assigned_object_id': site.pk,
+                'comments': 'First entry',
+            },
+            {
+                'assigned_object_type': 'dcim.site',
+                'assigned_object_id': site.pk,
+                'comments': 'Second entry',
+            },
+            {
+                'assigned_object_type': 'dcim.site',
+                'assigned_object_id': site.pk,
+                'comments': 'Third entry',
+            },
+        ]
+
+
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Context 4',
@@ -382,13 +541,13 @@ class CreatedUpdatedFilterTest(APITestCase):
         super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.location1 = Location.objects.create(site=self.site1, name='Test Location 1', slug='test-location-1')
         self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
         self.rack1 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 1', u_height=42,
         )
         self.rack2 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2', u_height=42,
+            site=self.site1, location=self.location1, role=self.rackrole1, name='Test Rack 2', u_height=42,
         )
 
         # change the created and last_updated of one

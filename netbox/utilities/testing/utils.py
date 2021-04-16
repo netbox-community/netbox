@@ -3,6 +3,10 @@ import re
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
+from django.utils.text import slugify
+
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+from extras.models import Tag
 
 
 def post_data(data):
@@ -29,6 +33,19 @@ def post_data(data):
     return ret
 
 
+def create_test_device(name):
+    """
+    Convenience method for creating a Device (e.g. for component testing).
+    """
+    site, _ = Site.objects.get_or_create(name='Site 1', slug='site-1')
+    manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
+    devicetype, _ = DeviceType.objects.get_or_create(model='Device Type 1', manufacturer=manufacturer)
+    devicerole, _ = DeviceRole.objects.get_or_create(name='Device Role 1', slug='device-role-1')
+    device = Device.objects.create(name=name, site=site, device_type=devicetype, device_role=devicerole)
+
+    return device
+
+
 def create_test_user(username='testuser', permissions=None):
     """
     Create a User with the given permissions.
@@ -42,6 +59,15 @@ def create_test_user(username='testuser', permissions=None):
         user.user_permissions.add(perm)
 
     return user
+
+
+def create_tags(*names):
+    """
+    Create and return a Tag instance for each name given.
+    """
+    tags = [Tag(name=name, slug=slugify(name)) for name in names]
+    Tag.objects.bulk_create(tags)
+    return tags
 
 
 def extract_form_failures(content):

@@ -1,17 +1,15 @@
 from collections import OrderedDict
 
-from django.db.models import Count
-
-from circuits.filters import CircuitFilterSet, ProviderFilterSet
-from circuits.models import Circuit, Provider
-from circuits.tables import CircuitTable, ProviderTable
+from circuits.filters import CircuitFilterSet, ProviderFilterSet, ProviderNetworkFilterSet
+from circuits.models import Circuit, ProviderNetwork, Provider
+from circuits.tables import CircuitTable, ProviderNetworkTable, ProviderTable
 from dcim.filters import (
-    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackGroupFilterSet,
+    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, LocationFilterSet,
     SiteFilterSet, VirtualChassisFilterSet,
 )
-from dcim.models import Cable, Device, DeviceType, PowerFeed, Rack, RackGroup, Site, VirtualChassis
+from dcim.models import Cable, Device, DeviceType, PowerFeed, Rack, Location, Site, VirtualChassis
 from dcim.tables import (
-    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
+    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, LocationTable, SiteTable,
     VirtualChassisTable,
 )
 from ipam.filters import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
@@ -42,10 +40,16 @@ SEARCH_TYPES = OrderedDict((
     ('circuit', {
         'queryset': Circuit.objects.prefetch_related(
             'type', 'provider', 'tenant', 'terminations__site'
-        ).annotate_sites(),
+        ),
         'filterset': CircuitFilterSet,
         'table': CircuitTable,
         'url': 'circuits:circuit_list',
+    }),
+    ('providernetwork', {
+        'queryset': ProviderNetwork.objects.prefetch_related('provider'),
+        'filterset': ProviderNetworkFilterSet,
+        'table': ProviderNetworkTable,
+        'url': 'circuits:providernetwork_list',
     }),
     # DCIM
     ('site', {
@@ -55,22 +59,22 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:site_list',
     }),
     ('rack', {
-        'queryset': Rack.objects.prefetch_related('site', 'group', 'tenant', 'role'),
+        'queryset': Rack.objects.prefetch_related('site', 'location', 'tenant', 'role'),
         'filterset': RackFilterSet,
         'table': RackTable,
         'url': 'dcim:rack_list',
     }),
-    ('rackgroup', {
-        'queryset': RackGroup.objects.add_related_count(
-            RackGroup.objects.all(),
+    ('location', {
+        'queryset': Location.objects.add_related_count(
+            Location.objects.all(),
             Rack,
-            'group',
+            'location',
             'rack_count',
             cumulative=True
         ).prefetch_related('site'),
-        'filterset': RackGroupFilterSet,
-        'table': RackGroupTable,
-        'url': 'dcim:rackgroup_list',
+        'filterset': LocationFilterSet,
+        'table': LocationTable,
+        'url': 'dcim:location_list',
     }),
     ('devicetype', {
         'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(

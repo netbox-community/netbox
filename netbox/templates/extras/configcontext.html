@@ -1,47 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
 {% load static %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'extras:configcontext_list' %}">Config Contexts</a></li>
-                <li>{{ object }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'extras:configcontext_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% if perms.extras.change_configcontext %}
-            <a href="{% url 'extras:configcontext_edit' pk=object.pk %}" class="btn btn-warning">
-                <span class="mdi mdi-pencil" aria-hidden="true"></span>
-                Edit this config context
-            </a>
-        {% endif %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Config Context</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'extras:configcontext_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
-    <h1>{% block title %}{{ object }}{% endblock %}</h1>
+{% block breadcrumbs %}
+  <li><a href="{% url 'extras:configcontext_list' %}">Config Contexts</a></li>
+  <li>{{ object }}</li>
 {% endblock %}
 
 {% block content %}
@@ -104,6 +67,20 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Site Groups</td>
+                        <td>
+                            {% if object.site_groups.all %}
+                                <ul>
+                                    {% for sitegroup in object.site_groups.all %}
+                                        <li><a href="{{ sitegroup.get_absolute_url }}">{{ sitegroup }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Sites</td>
                         <td>
                             {% if object.sites.all %}
@@ -118,12 +95,26 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Device Types</td>
+                        <td>
+                            {% if object.device_types.all %}
+                                <ul>
+                                    {% for devicetype in object.device_types.all %}
+                                        <li><a href="{{ devicetype.get_absolute_url }}">{{ devicetype }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Roles</td>
                         <td>
                             {% if object.roles.all %}
                                 <ul>
-                                    {% for role in object.roles.all %}
-                                        <li><a href="{% url 'dcim:device_list' %}?role={{ role.slug }}">{{ role }}</a></li>
+                                    {% for devicerole in object.roles.all %}
+                                        <li><a href="{{ devicerole.get_absolute_url }}">{{ devicerole }}</a></li>
                                     {% endfor %}
                                 </ul>
                             {% else %}

@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django.conf import settings
 from dcim.tables.devices import BaseInterfaceTable
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn, ToggleColumn,
 )
@@ -32,11 +32,13 @@ VMINTERFACE_BUTTONS = """
 
 class ClusterTypeTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    actions = ButtonsColumn(ClusterType, pk_field='slug')
+    actions = ButtonsColumn(ClusterType)
 
     class Meta(BaseTable.Meta):
         model = ClusterType
@@ -50,11 +52,13 @@ class ClusterTypeTable(BaseTable):
 
 class ClusterGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
-    actions = ButtonsColumn(ClusterGroup, pk_field='slug')
+    actions = ButtonsColumn(ClusterGroup)
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
@@ -68,7 +72,9 @@ class ClusterGroupTable(BaseTable):
 
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     tenant = tables.Column(
         linkify=True
     )
@@ -101,15 +107,15 @@ class ClusterTable(BaseTable):
 
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     status = ChoiceFieldColumn()
     cluster = tables.Column(
         linkify=True
     )
     role = ColoredLabelColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
-    )
+    tenant = TenantColumn()
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
@@ -158,8 +164,13 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 
 class VMInterfaceTable(BaseInterfaceTable):
     pk = ToggleColumn()
-    virtual_machine = tables.LinkColumn()
+    virtual_machine = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
+        linkify=True
+    )
+    parent = tables.Column(
         linkify=True
     )
     tags = TagColumn(
@@ -169,10 +180,10 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'pk', 'virtual_machine', 'name', 'enabled', 'parent', 'mac_address', 'mtu', 'mode', 'description', 'tags',
             'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
-        default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'description')
+        default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'parent', 'description')
 
 
 class VirtualMachineVMInterfaceTable(VMInterfaceTable):

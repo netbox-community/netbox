@@ -6,7 +6,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from tenancy.models import Tenant
-from utilities.testing import ViewTestCases
+from utilities.testing import ViewTestCases, create_tags
 
 
 class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -27,7 +27,7 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VRF(name='VRF 3', rd='65000:3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'VRF X',
@@ -64,7 +64,7 @@ class RouteTargetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Tenant.objects.bulk_create(tenants)
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         route_targets = (
             RouteTarget(name='65000:1001', tenant=tenants[0]),
@@ -118,6 +118,10 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "RIR 6,rir-6,Sixth RIR",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Aggregate
@@ -137,7 +141,7 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Aggregate(prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'prefix': IPNetwork('10.99.0.0/16'),
@@ -187,6 +191,10 @@ class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Role 6,role-6,1000",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Prefix
@@ -210,6 +218,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Role(name='Role 1', slug='role-1'),
             Role(name='Role 2', slug='role-2'),
         )
+        Role.objects.bulk_create(roles)
 
         Prefix.objects.bulk_create([
             Prefix(prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
@@ -217,7 +226,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
@@ -268,7 +277,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             IPAddress(address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'vrf': vrfs[1].pk,
@@ -305,18 +314,21 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
 
         VLANGroup.objects.bulk_create([
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=site),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=site),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=site),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sites[0]),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=sites[0]),
         ])
 
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
-            'site': site.pk,
             'description': 'A new VLAN group',
         }
 
@@ -326,6 +338,10 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "VLAN Group 5,vlan-group-5,Fifth VLAN group",
             "VLAN Group 6,vlan-group-6,Sixth VLAN group",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -341,8 +357,8 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Site.objects.bulk_create(sites)
 
         vlangroups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sites[1]),
         )
         VLANGroup.objects.bulk_create(vlangroups)
 
@@ -358,7 +374,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VLAN(group=vlangroups[0], vid=103, name='VLAN103', site=sites[0], role=roles[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'site': sites[1].pk,
@@ -418,7 +434,7 @@ class ServiceTestCase(
             Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,

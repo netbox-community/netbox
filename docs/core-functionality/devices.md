@@ -8,6 +8,8 @@
 
 ## Device Components
 
+Device components represent discrete objects within a device which are used to terminate cables, house child devices, or track resources.
+
 {!docs/models/dcim/consoleport.md!}
 {!docs/models/dcim/consoleserverport.md!}
 {!docs/models/dcim/powerport.md!}
