@@ -463,6 +463,10 @@ class VMInterface(PrimaryModel, BaseInterface):
                           f"({self.parent.virtual_machine})."
             })
 
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
+
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({

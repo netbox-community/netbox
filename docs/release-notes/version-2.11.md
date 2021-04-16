@@ -125,6 +125,7 @@ A new provider network model has been introduced to represent the boundary of a 
 * [#6171](https://github.com/netbox-community/netbox/issues/6171) - Fix display of horizontally-scrolling object lists
 * [#6173](https://github.com/netbox-community/netbox/issues/6173) - Fix assigned device/VM count when bulk editing/deleting device roles
 * [#6176](https://github.com/netbox-community/netbox/issues/6176) - Correct position of MAC address field when creating VM interfaces
+* [#6177](https://github.com/netbox-community/netbox/issues/6177) - Prevent VM interface from being assigned as its own parent
 
 ### Other Changes
 
