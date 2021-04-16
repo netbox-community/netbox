@@ -142,51 +142,51 @@ A new provider network model has been introduced to represent the boundary of a 
 * All primary keys are now 64-bit integers
 * All model serializers now include a `display` field to be used for the presentation of an object to a human user
 * All device components
-  * Added support for custom fields
-  * Added `created` and `last_updated` fields to track object creation and modification
+    * Added support for custom fields
+    * Added `created` and `last_updated` fields to track object creation and modification
 * All device component templates
-  * Added `created` and `last_updated` fields to track object creation and modification
+    * Added `created` and `last_updated` fields to track object creation and modification
 * All organizational models
-  * Added support for custom fields
+    * Added support for custom fields
 * All cable termination models (cabled device components, power feeds, and circuit terminations)
-  * Added `mark_connected` boolean field to force connection status
-  * Added `_occupied` read-only boolean field as common attribute for determining whether an object is occupied
+    * Added `mark_connected` boolean field to force connection status
+    * Added `_occupied` read-only boolean field as common attribute for determining whether an object is occupied
 * Renamed RackGroup to Location
-  * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
+    * The `/dcim/rack-groups/` endpoint is now `/dcim/locations/`
 * circuits.CircuitTermination
-  * Added the `provider_network` field
-  * Removed the `connected_endpoint`, `connected_endpoint_type`, and `connected_endpoint_reachable` fields
+    * Added the `provider_network` field
+    * Removed the `connected_endpoint`, `connected_endpoint_type`, and `connected_endpoint_reachable` fields
 * circuits.ProviderNetwork
-  * Added the `/api/circuits/provider-networks/` endpoint
+    * Added the `/api/circuits/provider-networks/` endpoint
 * dcim.Device
-  * Added the `location` field
+    * Added the `location` field
 * dcim.Interface
-  * Added the `parent` field
+    * Added the `parent` field
 * dcim.PowerPanel
-  * Renamed `rack_group` field to `location`
+    * Renamed `rack_group` field to `location`
 * dcim.Rack
-  * Renamed `group` field to `location`
+    * Renamed `group` field to `location`
 * dcim.Site
-  * Added the `group` foreign key field to SiteGroup
+    * Added the `group` foreign key field to SiteGroup
 * dcim.SiteGroup
-  * Added the `/api/dcim/site-groups/` endpoint
+    * Added the `/api/dcim/site-groups/` endpoint
 * extras.ConfigContext
-  * Added the `site_groups` many-to-many field to track the assignment of ConfigContexts to SiteGroups
+    * Added the `site_groups` many-to-many field to track the assignment of ConfigContexts to SiteGroups
 * extras.CustomField
-  * Added new custom field type: `multi-select`
+    * Added new custom field type: `multi-select`
 * extras.CustomLink
-  * Added the `/api/extras/custom-links/` endpoint
+    * Added the `/api/extras/custom-links/` endpoint
 * extras.ExportTemplate
-  * Added the `as_attachment` boolean field
+    * Added the `as_attachment` boolean field
 * extras.ObjectChange
-  * Added the `prechange_data` field
-  * Renamed `object_data` to `postchange_data`
+    * Added the `prechange_data` field
+    * Renamed `object_data` to `postchange_data`
 * extras.Webhook
-  * Added the `/api/extras/webhooks/` endpoint
+    * Added the `/api/extras/webhooks/` endpoint
 * ipam.VLANGroup
-  * Added the `scope_type`, `scope_id`, and `scope` fields (`scope` is a generic foreign key)
-  * Dropped the `site` foreign key field
+    * Added the `scope_type`, `scope_id`, and `scope` fields (`scope` is a generic foreign key)
+    * Dropped the `site` foreign key field
 * virtualization.VirtualMachine
-  * `vcpus` has been changed from an integer to a decimal value
+    * `vcpus` has been changed from an integer to a decimal value
 * virtualization.VMInterface
-  * Added the `parent` field
+    * Added the `parent` field
