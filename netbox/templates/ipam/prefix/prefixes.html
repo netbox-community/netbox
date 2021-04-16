@@ -1,0 +1,25 @@
+{% extends 'ipam/prefix/base.html' %}
+
+{% block buttons %}
+  {% include 'ipam/inc/toggle_available.html' %}
+  {% if perms.ipam.add_prefix and active_tab == 'prefixes' and first_available_prefix %}
+    <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ object.vrf.pk }}&site={{ object.site.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-success">
+      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Child Prefix
+    </a>
+  {% endif %}
+  {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and first_available_ip %}
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}&vrf={{ object.vrf.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-success">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+      Add an IP Address
+    </a>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      {% include 'utilities/obj_table.html' with table=prefix_table table_template='panel_table.html' heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' parent=prefix %}
+    </div>
+  </div>
+{% endblock %}

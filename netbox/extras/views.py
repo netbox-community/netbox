@@ -1,22 +1,21 @@
-from django import template
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.generic import View
 from django_rq.queues import get_connection
-from django_tables2 import RequestConfig
 from rq import Worker
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.tables import paginate_table
 from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag, TaggedItem
+from .models import ConfigContext, ImageAttachment, JournalEntry, ObjectChange, JobResult, Tag, TaggedItem
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
 
@@ -34,10 +33,34 @@ class TagListView(generic.ObjectListView):
     table = tables.TagTable
 
 
+class TagView(generic.ObjectView):
+    queryset = Tag.objects.all()
+
+    def get_extra_context(self, request, instance):
+        tagged_items = TaggedItem.objects.filter(tag=instance)
+        taggeditem_table = tables.TaggedItemTable(
+            data=tagged_items,
+            orderable=False
+        )
+        paginate_table(taggeditem_table, request)
+
+        object_types = [
+            {
+                'content_type': ContentType.objects.get(pk=ti['content_type']),
+                'item_count': ti['item_count']
+            } for ti in tagged_items.values('content_type').annotate(item_count=Count('pk'))
+        ]
+
+        return {
+            'taggeditem_table': taggeditem_table,
+            'tagged_item_count': tagged_items.count(),
+            'object_types': object_types,
+        }
+
+
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
-    template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(generic.ObjectDeleteView):
@@ -179,16 +202,18 @@ class ObjectChangeView(generic.ObjectView):
         next_change = objectchanges.filter(time__gt=instance.time).order_by('time').first()
         prev_change = objectchanges.filter(time__lt=instance.time).order_by('-time').first()
 
-        if prev_change:
+        if instance.prechange_data and instance.postchange_data:
             diff_added = shallow_compare_dict(
-                prev_change.object_data,
-                instance.object_data,
+                instance.prechange_data or dict(),
+                instance.postchange_data or dict(),
                 exclude=['last_updated'],
             )
-            diff_removed = {x: prev_change.object_data.get(x) for x in diff_added}
+            diff_removed = {
+                x: instance.prechange_data.get(x) for x in diff_added
+            } if instance.prechange_data else {}
         else:
-            # No previous change; this is the initial change that added the object
-            diff_added = diff_removed = instance.object_data
+            diff_added = None
+            diff_removed = None
 
         return {
             'diff_added': diff_added,
@@ -228,23 +253,12 @@ class ObjectChangeLogView(View):
             data=objectchanges,
             orderable=False
         )
-
-        # Apply the request context
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(objectchanges_table)
+        paginate_table(objectchanges_table, request)
 
         # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
         # fall back to using base.html.
         if self.base_template is None:
             self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-            # TODO: This can be removed once an object view has been established for every model.
-            try:
-                template.loader.get_template(self.base_template)
-            except template.TemplateDoesNotExist:
-                self.base_template = 'base.html'
 
         return render(request, 'extras/object_changelog.html', {
             'object': obj,
@@ -278,6 +292,110 @@ class ImageAttachmentDeleteView(generic.ObjectDeleteView):
 
     def get_return_url(self, request, imageattachment):
         return imageattachment.parent.get_absolute_url()
+
+
+#
+# Journal entries
+#
+
+class JournalEntryListView(generic.ObjectListView):
+    queryset = JournalEntry.objects.all()
+    filterset = filters.JournalEntryFilterSet
+    filterset_form = forms.JournalEntryFilterForm
+    table = tables.JournalEntryTable
+    action_buttons = ('export',)
+
+
+class JournalEntryView(generic.ObjectView):
+    queryset = JournalEntry.objects.all()
+
+
+class JournalEntryEditView(generic.ObjectEditView):
+    queryset = JournalEntry.objects.all()
+    model_form = forms.JournalEntryForm
+
+    def alter_obj(self, obj, request, args, kwargs):
+        if not obj.pk:
+            obj.created_by = request.user
+        return obj
+
+    def get_return_url(self, request, instance):
+        if not instance.assigned_object:
+            return reverse('extras:journalentry_list')
+        obj = instance.assigned_object
+        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_journal'
+        return reverse(viewname, kwargs={'pk': obj.pk})
+
+
+class JournalEntryDeleteView(generic.ObjectDeleteView):
+    queryset = JournalEntry.objects.all()
+
+    def get_return_url(self, request, instance):
+        obj = instance.assigned_object
+        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_journal'
+        return reverse(viewname, kwargs={'pk': obj.pk})
+
+
+class JournalEntryBulkEditView(generic.BulkEditView):
+    queryset = JournalEntry.objects.prefetch_related('created_by')
+    filterset = filters.JournalEntryFilterSet
+    table = tables.JournalEntryTable
+    form = forms.JournalEntryBulkEditForm
+
+
+class JournalEntryBulkDeleteView(generic.BulkDeleteView):
+    queryset = JournalEntry.objects.prefetch_related('created_by')
+    filterset = filters.JournalEntryFilterSet
+    table = tables.JournalEntryTable
+
+
+class ObjectJournalView(View):
+    """
+    Show all journal entries for an object.
+
+    base_template: The name of the template to extend. If not provided, "<app>/<model>.html" will be used.
+    """
+    base_template = None
+
+    def get(self, request, model, **kwargs):
+
+        # Handle QuerySet restriction of parent object if needed
+        if hasattr(model.objects, 'restrict'):
+            obj = get_object_or_404(model.objects.restrict(request.user, 'view'), **kwargs)
+        else:
+            obj = get_object_or_404(model, **kwargs)
+
+        # Gather all changes for this object (and its related objects)
+        content_type = ContentType.objects.get_for_model(model)
+        journalentries = JournalEntry.objects.restrict(request.user, 'view').prefetch_related('created_by').filter(
+            assigned_object_type=content_type,
+            assigned_object_id=obj.pk
+        )
+        journalentry_table = tables.ObjectJournalTable(journalentries)
+        paginate_table(journalentry_table, request)
+
+        if request.user.has_perm('extras.add_journalentry'):
+            form = forms.JournalEntryForm(
+                initial={
+                    'assigned_object_type': ContentType.objects.get_for_model(obj),
+                    'assigned_object_id': obj.pk
+                }
+            )
+        else:
+            form = None
+
+        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
+        # fall back to using base.html.
+        if self.base_template is None:
+            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
+
+        return render(request, 'extras/object_journal.html', {
+            'object': obj,
+            'form': form,
+            'table': journalentry_table,
+            'base_template': self.base_template,
+            'active_tab': 'journal',
+        })
 
 
 #

@@ -9,13 +9,13 @@ from django.db import models
 from django.db.models import F, ProtectedError
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, TaggedItem
+from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
@@ -36,8 +36,8 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('export_templates', 'webhooks')
-class Manufacturer(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
     """
@@ -65,7 +65,7 @@ class Manufacturer(ChangeLoggedModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
+        return reverse('dcim:manufacturer', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -76,7 +76,7 @@ class Manufacturer(ChangeLoggedModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class DeviceType(ChangeLoggedModel, CustomFieldModel):
+class DeviceType(PrimaryModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -135,7 +135,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -338,7 +337,8 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 # Devices
 #
 
-class DeviceRole(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
@@ -375,6 +375,9 @@ class DeviceRole(ChangeLoggedModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('dcim:devicerole', args=[self.pk])
+
     def to_csv(self):
         return (
             self.name,
@@ -385,7 +388,8 @@ class DeviceRole(ChangeLoggedModel):
         )
 
 
-class Platform(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
     NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
@@ -435,7 +439,7 @@ class Platform(ChangeLoggedModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?platform={}".format(reverse('dcim:device_list'), self.slug)
+        return reverse('dcim:platform', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -449,7 +453,7 @@ class Platform(ChangeLoggedModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
+class Device(PrimaryModel, ConfigContextModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -513,6 +517,13 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         to='dcim.Site',
         on_delete=models.PROTECT,
         related_name='devices'
+    )
+    location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
     )
     rack = models.ForeignKey(
         to='dcim.Rack',
@@ -591,16 +602,15 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         object_id_field='assigned_object_id',
         related_query_name='device'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = ConfigContextModelQuerySet.as_manager()
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-        'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
+        'site', 'location', 'rack_name', 'position', 'face', 'comments',
     ]
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
     ]
 
     class Meta:
@@ -637,11 +647,21 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     def clean(self):
         super().clean()
 
-        # Validate site/rack combination
+        # Validate site/location/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
                 'rack': f"Rack {self.rack} does not belong to site {self.site}.",
             })
+        if self.location and self.site != self.location.site:
+            raise ValidationError({
+                'location': f"Location {self.location} does not belong to site {self.site}.",
+            })
+        if self.rack and self.location and self.rack.location != self.location:
+            raise ValidationError({
+                'rack': f"Rack {self.rack} does not belong to location {self.location}.",
+            })
+        elif self.rack:
+            self.location = self.rack.location
 
         if self.rack is None:
             if self.face:
@@ -796,7 +816,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             self.asset_tag,
             self.get_status_display(),
             self.site.name,
-            self.rack.group.name if self.rack and self.rack.group else None,
+            self.rack.location.name if self.rack and self.rack.location else None,
             self.rack.name if self.rack else None,
             self.position,
             self.get_face_display(),
@@ -882,7 +902,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class VirtualChassis(ChangeLoggedModel, CustomFieldModel):
+class VirtualChassis(PrimaryModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """
@@ -900,7 +920,6 @@ class VirtualChassis(ChangeLoggedModel, CustomFieldModel):
         max_length=30,
         blank=True
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 

@@ -26,7 +26,9 @@ __all__ = (
 
 class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     devicetype_count = tables.Column(
         verbose_name='Device Types'
     )
@@ -37,7 +39,7 @@ class ManufacturerTable(BaseTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
-    actions = ButtonsColumn(Manufacturer, pk_field='slug')
+    actions = ButtonsColumn(Manufacturer)
 
     class Meta(BaseTable.Meta):
         model = Manufacturer

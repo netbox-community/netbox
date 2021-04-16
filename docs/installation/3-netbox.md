@@ -9,17 +9,17 @@ Begin by installing all system packages required by NetBox and its dependencies.
 !!! note
     NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8.
 
-### Ubuntu
+=== "Ubuntu"
 
-```no-highlight
-sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
-```
+    ```no-highlight
+    sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
+    ```
 
-### CentOS
+=== "CentOS"
 
-```no-highlight
-sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
-```
+    ```no-highlight
+    sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
+    ```
 
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:
 
@@ -57,17 +57,17 @@ sudo mkdir -p /opt/netbox/ && cd /opt/netbox/
 
 If `git` is not already installed, install it:
 
-#### Ubuntu
+=== "Ubuntu"
 
-```no-highlight
-sudo apt install -y git
-```
+    ```no-highlight
+    sudo apt install -y git
+    ```
 
-#### CentOS
+=== "CentOS"
 
-```no-highlight
-sudo yum install -y git
-```
+    ```no-highlight
+    sudo yum install -y git
+    ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
 
@@ -89,20 +89,20 @@ Checking connectivity... done.
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
 
-#### Ubuntu
+=== "Ubuntu"
 
-```
-sudo adduser --system --group netbox
-sudo chown --recursive netbox /opt/netbox/netbox/media/
-```
+    ```
+    sudo adduser --system --group netbox
+    sudo chown --recursive netbox /opt/netbox/netbox/media/
+    ```
 
-#### CentOS
+=== "CentOS"
 
-```
-sudo groupadd --system netbox
-sudo adduser --system -g netbox netbox
-sudo chown --recursive netbox /opt/netbox/netbox/media/
-```
+    ```
+    sudo groupadd --system netbox
+    sudo adduser --system -g netbox netbox
+    sudo chown --recursive netbox /opt/netbox/netbox/media/
+    ```
 
 ## Configuration
 
@@ -264,7 +264,7 @@ Quit the server with CONTROL-C.
 
 Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
 
-!!! warning
+!!! danger
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning

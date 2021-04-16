@@ -14,7 +14,7 @@ from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
-from django_tables2 import RequestConfig
+from django_tables2.export import TableExport
 
 from extras.models import CustomField, ExportTemplate
 from utilities.error_handlers import handle_protectederror
@@ -22,8 +22,8 @@ from utilities.exceptions import AbortTransaction
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, ImportForm, TableConfigForm, restrict_form_fields,
 )
-from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
+from utilities.tables import paginate_table
 from utilities.utils import csv_format, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 
@@ -137,32 +137,35 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
 
-        # Check for export template rendering
-        if request.GET.get('export'):
-            et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET.get('export'))
-            try:
-                return et.render_to_response(self.queryset)
-            except Exception as e:
-                messages.error(
-                    request,
-                    "There was an error rendering the selected export template ({}): {}".format(
-                        et.name, e
+        # Check for export rendering (except for table-based)
+        if 'export' in request.GET and request.GET['export'] != 'table':
+
+            # An export template has been specified
+            if request.GET['export']:
+                et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                try:
+                    return et.render_to_response(self.queryset)
+                except Exception as e:
+                    messages.error(
+                        request,
+                        "There was an error rendering the selected export template ({}): {}".format(
+                            et.name, e
+                        )
                     )
-                )
 
-        # Check for YAML export support
-        elif 'export' in request.GET and hasattr(model, 'to_yaml'):
-            response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
-            filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-            return response
+            # Check for YAML export support
+            elif hasattr(model, 'to_yaml'):
+                response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
+                filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
+                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                return response
 
-        # Fall back to built-in CSV formatting if export requested but no template specified
-        elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
-            filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-            return response
+            # Fall back to built-in CSV formatting if export requested but no template specified
+            elif 'export' in request.GET and hasattr(model, 'to_csv'):
+                response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
+                filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
+                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                return response
 
         # Compile a dictionary indicating which permissions are available to the current user for this model
         permissions = {}
@@ -175,12 +178,24 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
-        # Apply the request context
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(table)
+        # Handle table-based export
+        if request.GET.get('export') == 'table':
+            exclude_columns = {'pk'}
+            exclude_columns.update({
+                name for name, _ in table.available_columns
+            })
+            exporter = TableExport(
+                export_format=TableExport.CSV,
+                table=table,
+                exclude_columns=exclude_columns,
+                dataset_kwargs={},
+            )
+            return exporter.response(
+                filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+            )
+
+        # Paginate the objects table
+        paginate_table(table, request)
 
         context = {
             'content_type': content_type,
@@ -218,11 +233,18 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get_object(self, kwargs):
         # Look up an existing object by slug or PK, if provided.
         if 'slug' in kwargs:
-            return get_object_or_404(self.queryset, slug=kwargs['slug'])
+            obj = get_object_or_404(self.queryset, slug=kwargs['slug'])
         elif 'pk' in kwargs:
-            return get_object_or_404(self.queryset, pk=kwargs['pk'])
+            obj = get_object_or_404(self.queryset, pk=kwargs['pk'])
         # Otherwise, return a new instance.
-        return self.queryset.model()
+        else:
+            return self.queryset.model()
+
+        # Take a snapshot of change-logged models
+        if hasattr(obj, 'snapshot'):
+            obj.snapshot()
+
+        return obj
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
@@ -328,9 +350,15 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
         if 'slug' in kwargs:
-            return get_object_or_404(self.queryset, slug=kwargs['slug'])
+            obj = get_object_or_404(self.queryset, slug=kwargs['slug'])
         else:
-            return get_object_or_404(self.queryset, pk=kwargs['pk'])
+            obj = get_object_or_404(self.queryset, pk=kwargs['pk'])
+
+        # Take a snapshot of change-logged models
+        if hasattr(obj, 'snapshot'):
+            obj.snapshot()
+
+        return obj
 
     def get(self, request, **kwargs):
         obj = self.get_object(kwargs)
@@ -771,6 +799,10 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                         updated_objects = []
                         for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
 
+                            # Take a snapshot of change-logged models
+                            if hasattr(obj, 'snapshot'):
+                                obj.snapshot()
+
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
 
@@ -898,6 +930,11 @@ class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     with transaction.atomic():
                         renamed_pks = []
                         for obj in selected_objects:
+
+                            # Take a snapshot of change-logged models
+                            if hasattr(obj, 'snapshot'):
+                                obj.snapshot()
+
                             find = form.cleaned_data['find']
                             replace = form.cleaned_data['replace']
                             if form.cleaned_data['use_regex']:
@@ -986,14 +1023,19 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
                 # Delete objects
                 queryset = self.queryset.filter(pk__in=pk_list)
+                deleted_count = queryset.count()
                 try:
-                    deleted_count = queryset.delete()[1][model._meta.label]
+                    for obj in queryset:
+                        # Take a snapshot of change-logged models
+                        if hasattr(obj, 'snapshot'):
+                            obj.snapshot()
+                        obj.delete()
                 except ProtectedError as e:
                     logger.info("Caught ProtectedError while attempting to delete objects")
                     handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
 
-                msg = 'Deleted {} {}'.format(deleted_count, model._meta.verbose_name_plural)
+                msg = f"Deleted {deleted_count} {model._meta.verbose_name_plural}"
                 logger.info(msg)
                 messages.success(request, msg)
                 return redirect(self.get_return_url(request))

@@ -12,7 +12,7 @@ logger = logging.getLogger('netbox.webhooks_worker')
 
 
 @job('default')
-def process_webhook(webhook, data, model_name, event, timestamp, username, request_id):
+def process_webhook(webhook, model_name, event, data, snapshots, timestamp, username, request_id):
     """
     Make a POST request to the defined Webhook
     """
@@ -22,7 +22,8 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         'model': model_name,
         'username': username,
         'request_id': request_id,
-        'data': data
+        'data': data,
+        'snapshots': snapshots,
     }
 
     # Build the headers for the HTTP request

@@ -2,6 +2,12 @@
 {% load helpers %}
 {% load plugins %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'dcim:device_frontports' pk=object.device.pk %}">Front Ports</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="col-md-6">
@@ -44,6 +50,7 @@
                     </tr>
                 </table>
             </div>
+            {% include 'inc/custom_fields_panel.html' %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
             {% plugin_left_page object %}
         </div>
@@ -52,7 +59,11 @@
                 <div class="panel-heading">
                     <strong>Connection</strong>
                 </div>
-                {% if object.cable %}
+                {% if object.mark_connected %}
+                    <div class="panel-body text-muted">
+                      <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
+                    </div>
+                {% elif object.cable %}
                     <table class="table table-hover panel-body attr-table">
                         <tr>
                             <td>Cable</td>

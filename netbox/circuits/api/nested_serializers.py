@@ -1,14 +1,27 @@
 from rest_framework import serializers
 
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from circuits.models import *
 from netbox.api import WritableNestedSerializer
 
 __all__ = [
     'NestedCircuitSerializer',
     'NestedCircuitTerminationSerializer',
     'NestedCircuitTypeSerializer',
+    'NestedProviderNetworkSerializer',
     'NestedProviderSerializer',
 ]
+
+
+#
+# Provider networks
+#
+
+class NestedProviderNetworkSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
+
+    class Meta:
+        model = Provider
+        fields = ['id', 'url', 'display', 'name']
 
 
 #
@@ -21,7 +34,7 @@ class NestedProviderSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Provider
-        fields = ['id', 'url', 'name', 'slug', 'circuit_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'circuit_count']
 
 
 #
@@ -34,7 +47,7 @@ class NestedCircuitTypeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'url', 'name', 'slug', 'circuit_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'circuit_count']
 
 
 class NestedCircuitSerializer(WritableNestedSerializer):
@@ -42,7 +55,7 @@ class NestedCircuitSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Circuit
-        fields = ['id', 'url', 'cid']
+        fields = ['id', 'url', 'display', 'cid']
 
 
 class NestedCircuitTerminationSerializer(WritableNestedSerializer):
@@ -51,4 +64,4 @@ class NestedCircuitTerminationSerializer(WritableNestedSerializer):
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'url', 'circuit', 'term_side', 'cable']
+        fields = ['id', 'url', 'display', 'circuit', 'term_side', 'cable', '_occupied']

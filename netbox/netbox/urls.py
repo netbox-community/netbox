@@ -63,18 +63,16 @@ _patterns = [
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
-
-    # Admin
-    path('admin/', admin_site.urls),
-    path('admin/background-tasks/', include('django_rq.urls')),
-
-    # Errors
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
 
     # Plugins
     path('plugins/', include((plugin_patterns, 'plugins'))),
     path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
-    path('admin/plugins/', include(plugin_admin_patterns))
+
+    # Admin
+    path('admin/background-tasks/', include('django_rq.urls')),
+    path('admin/plugins/', include(plugin_admin_patterns)),
+    path('admin/', admin_site.urls),
 ]
 
 

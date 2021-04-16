@@ -23,7 +23,7 @@ class NestedClusterTypeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'url', 'name', 'slug', 'cluster_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'cluster_count']
 
 
 class NestedClusterGroupSerializer(WritableNestedSerializer):
@@ -32,7 +32,7 @@ class NestedClusterGroupSerializer(WritableNestedSerializer):
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'url', 'name', 'slug', 'cluster_count']
+        fields = ['id', 'url', 'display', 'name', 'slug', 'cluster_count']
 
 
 class NestedClusterSerializer(WritableNestedSerializer):
@@ -41,7 +41,7 @@ class NestedClusterSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'url', 'name', 'virtualmachine_count']
+        fields = ['id', 'url', 'display', 'name', 'virtualmachine_count']
 
 
 #
@@ -53,7 +53,7 @@ class NestedVirtualMachineSerializer(WritableNestedSerializer):
 
     class Meta:
         model = VirtualMachine
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedVMInterfaceSerializer(WritableNestedSerializer):
@@ -62,4 +62,4 @@ class NestedVMInterfaceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Interface
-        fields = ['id', 'url', 'virtual_machine', 'name']
+        fields = ['id', 'url', 'display', 'virtual_machine', 'name']

@@ -6,9 +6,11 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from extras.choices import ObjectChangeActionChoices
+from extras.models import ObjectChange
 from users.models import ObjectPermission, Token
+from .base import ModelTestCase
 from .utils import disable_warnings
-from .views import ModelTestCase
 
 
 __all__ = (
@@ -223,12 +225,22 @@ class APIViewTestCases:
             response = self.client.post(self._get_list_url(), self.create_data[0], format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(self._get_queryset().count(), initial_count + 1)
+            instance = self._get_queryset().get(pk=response.data['id'])
             self.assertInstanceEqual(
-                self._get_queryset().get(pk=response.data['id']),
+                instance,
                 self.create_data[0],
                 exclude=self.validation_excluded_fields,
                 api=True
             )
+
+            # Verify ObjectChange creation
+            if hasattr(self.model, 'to_objectchange'):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_CREATE)
 
         def test_bulk_create_objects(self):
             """
@@ -304,6 +316,15 @@ class APIViewTestCases:
                 api=True
             )
 
+            # Verify ObjectChange creation
+            if hasattr(self.model, 'to_objectchange'):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_UPDATE)
+
         def test_bulk_update_objects(self):
             """
             PATCH a set of objects in a single request.
@@ -366,6 +387,15 @@ class APIViewTestCases:
             response = self.client.delete(url, **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertFalse(self._get_queryset().filter(pk=instance.pk).exists())
+
+            # Verify ObjectChange creation
+            if hasattr(self.model, 'to_objectchange'):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_DELETE)
 
         def test_bulk_delete_objects(self):
             """

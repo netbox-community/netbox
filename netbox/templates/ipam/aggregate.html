@@ -1,59 +1,18 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 {% load plugins %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-sm-8 col-md-9">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
-                <li><a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a></li>
-                <li>{{ object }}</li>
-            </ol>
-        </div>
-        <div class="col-sm-4 col-md-3">
-            <form action="{% url 'ipam:aggregate_list' %}" method="get">
-                <div class="input-group">
-                    <input type="text" name="q" class="form-control" placeholder="Search aggregates" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
-                        </button>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="pull-right noprint">
-        {% plugin_buttons object %}
-        {% if perms.ipam.add_aggregate %}
-            {% clone_button object %}
-        {% endif %}
-        {% if perms.ipam.change_aggregate %}
-            {% edit_button object %}
-        {% endif %}
-        {% if perms.ipam.delete_aggregate %}
-            {% delete_button object %}
-        {% endif %}
-    </div>
-    <h1>{% block title %}{{ object }}{% endblock %}</h1>
-    {% include 'inc/created_updated.html' %}
-    {% include 'ipam/inc/toggle_available.html' %}
-    <div class="pull-right noprint">
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Aggregate</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:aggregate_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+{% block breadcrumbs %}
+  <li><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
+  <li><a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
+  <li>{{ object }}</li>
+{% endblock %}
+
+{% block buttons %}
+  {% include 'ipam/inc/toggle_available.html' %}
+  {{ block.super }}
 {% endblock %}
 
 {% block content %}
@@ -71,7 +30,7 @@
                 <tr>
                     <td>RIR</td>
                     <td>
-                        <a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
+                        <a href="{{ object.rir.get_absolute_url }}">{{ object.rir }}</a>
                     </td>
                 </tr>
                 <tr>

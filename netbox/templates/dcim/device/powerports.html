@@ -44,6 +44,7 @@
             </div>
         </div>
     </form>
+    {% include 'inc/paginator.html' with paginator=powerport_table.paginator page=powerport_table.page %}
     {% table_config_form powerport_table %}
 {% endblock %}
 

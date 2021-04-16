@@ -16,7 +16,7 @@ from packaging import version
 
 from circuits.models import Circuit, Provider
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, Site,
+    Cable, ConsolePort, Device, DeviceType, Interface, Location, PowerPanel, PowerFeed, PowerPort, Rack, Site,
 )
 from extras.choices import JobResultStatusChoices
 from extras.models import ObjectChange, JobResult
@@ -56,6 +56,7 @@ class HomeView(View):
 
             # Organization
             'site_count': Site.objects.restrict(request.user, 'view').count(),
+            'location_count': Location.objects.restrict(request.user, 'view').count(),
             'tenant_count': Tenant.objects.restrict(request.user, 'view').count(),
 
             # DCIM

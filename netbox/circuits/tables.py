@@ -1,9 +1,18 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from tenancy.tables import COL_TENANT
+from tenancy.tables import TenantColumn
 from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
-from .models import Circuit, CircuitType, Provider
+from .models import *
+
+
+CIRCUITTERMINATION_LINK = """
+{% if value.site %}
+  <a href="{{ value.site.get_absolute_url }}">{{ value.site }}</a>
+{% elif value.provider_network %}
+  <a href="{{ value.provider_network.get_absolute_url }}">{{ value.provider_network }}</a>
+{% endif %}
+"""
 
 
 #
@@ -12,7 +21,9 @@ from .models import Circuit, CircuitType, Provider
 
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     circuit_count = tables.Column(
         accessor=Accessor('count_circuits'),
         verbose_name='Circuits'
@@ -30,16 +41,40 @@ class ProviderTable(BaseTable):
 
 
 #
+# Provider networks
+#
+
+class ProviderNetworkTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    provider = tables.Column(
+        linkify=True
+    )
+    tags = TagColumn(
+        url_name='circuits:providernetwork_list'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = ProviderNetwork
+        fields = ('pk', 'name', 'provider', 'description', 'tags')
+        default_columns = ('pk', 'name', 'provider', 'description')
+
+
+#
 # Circuit types
 #
 
 class CircuitTypeTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
     circuit_count = tables.Column(
         verbose_name='Circuits'
     )
-    actions = ButtonsColumn(CircuitType, pk_field='slug')
+    actions = ButtonsColumn(CircuitType)
 
     class Meta(BaseTable.Meta):
         model = CircuitType
@@ -53,22 +88,22 @@ class CircuitTypeTable(BaseTable):
 
 class CircuitTable(BaseTable):
     pk = ToggleColumn()
-    cid = tables.LinkColumn(
+    cid = tables.Column(
+        linkify=True,
         verbose_name='ID'
     )
-    provider = tables.LinkColumn(
-        viewname='circuits:provider',
-        args=[Accessor('provider__slug')]
+    provider = tables.Column(
+        linkify=True
     )
     status = ChoiceFieldColumn()
-    tenant = tables.TemplateColumn(
-        template_code=COL_TENANT
+    tenant = TenantColumn()
+    termination_a = tables.TemplateColumn(
+        template_code=CIRCUITTERMINATION_LINK,
+        verbose_name='Side A'
     )
-    a_side = tables.Column(
-        verbose_name='A Side'
-    )
-    z_side = tables.Column(
-        verbose_name='Z Side'
+    termination_z = tables.TemplateColumn(
+        template_code=CIRCUITTERMINATION_LINK,
+        verbose_name='Side Z'
     )
     tags = TagColumn(
         url_name='circuits:circuit_list'
@@ -77,7 +112,9 @@ class CircuitTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Circuit
         fields = (
-            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'install_date', 'commit_rate',
-            'description', 'tags',
+            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
+            'commit_rate', 'description', 'tags',
         )
-        default_columns = ('pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'description')
+        default_columns = (
+            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',
+        )

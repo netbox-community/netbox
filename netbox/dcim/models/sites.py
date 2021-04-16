@@ -1,24 +1,24 @@
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from mptt.models import MPTTModel, TreeForeignKey
-from taggit.managers import TaggableManager
+from mptt.models import TreeForeignKey
 from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
 from django.core.exceptions import ValidationError
 from dcim.fields import ASNField
-from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
+from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
-from utilities.mptt import TreeManager
-from utilities.utils import serialize_object
 
 __all__ = (
+    'Location',
     'Region',
     'Site',
+    'SiteGroup',
 )
 
 
@@ -26,10 +26,12 @@ __all__ = (
 # Regions
 #
 
-@extras_features('export_templates', 'webhooks')
-class Region(MPTTModel, ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class Region(NestedGroupModel):
     """
-    Sites can be grouped within geographic Regions.
+    A region represents a geographic collection of sites. For example, you might create regions representing countries,
+    states, and/or cities. Regions are recursively nested into a hierarchy: all sites belonging to a child region are
+    also considered to be members of its parent and ancestor region(s).
     """
     parent = TreeForeignKey(
         to='self',
@@ -52,18 +54,10 @@ class Region(MPTTModel, ChangeLoggedModel):
         blank=True
     )
 
-    objects = TreeManager()
-
     csv_headers = ['name', 'slug', 'parent', 'description']
 
-    class MPTTMeta:
-        order_insertion_by = ['name']
-
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
-        return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+        return reverse('dcim:region', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -79,23 +73,57 @@ class Region(MPTTModel, ChangeLoggedModel):
             Q(region__in=self.get_descendants())
         ).count()
 
-    def to_objectchange(self, action):
-        # Remove MPTT-internal fields
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
+
+#
+# Site groups
+#
+
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class SiteGroup(NestedGroupModel):
+    """
+    A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
+    within corporate sites you might distinguish between offices and data centers. Like regions, site groups can be
+    nested recursively to form a hierarchy.
+    """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    csv_headers = ['name', 'slug', 'parent', 'description']
+
+    def get_absolute_url(self):
+        return reverse('dcim:sitegroup', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.parent.name if self.parent else None,
+            self.description,
         )
 
-    def clean(self):
-        super().clean()
-
-        # An MPTT model cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({
-                "parent": "Cannot assign self as parent."
-            })
+    def get_site_count(self):
+        return Site.objects.filter(
+            Q(group=self) |
+            Q(group__in=self.get_descendants())
+        ).count()
 
 
 #
@@ -103,7 +131,7 @@ class Region(MPTTModel, ChangeLoggedModel):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Site(ChangeLoggedModel, CustomFieldModel):
+class Site(PrimaryModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -128,6 +156,13 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
     region = models.ForeignKey(
         to='dcim.Region',
+        on_delete=models.SET_NULL,
+        related_name='sites',
+        blank=True,
+        null=True
+    )
+    group = models.ForeignKey(
+        to='dcim.SiteGroup',
         on_delete=models.SET_NULL,
         related_name='sites',
         blank=True,
@@ -198,16 +233,16 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
-        'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
-        'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+        'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+        'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+        'contact_email', 'comments',
     ]
     clone_fields = [
-        'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
+        'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
     ]
 
@@ -218,7 +253,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('dcim:site', args=[self.slug])
+        return reverse('dcim:site', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -226,6 +261,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
             self.slug,
             self.get_status_display(),
             self.region.name if self.region else None,
+            self.group.name if self.group else None,
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,
@@ -243,3 +279,70 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 
     def get_status_class(self):
         return SiteStatusChoices.CSS_CLASSES.get(self.status)
+
+
+#
+# Locations
+#
+
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class Location(NestedGroupModel):
+    """
+    A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
+    site, or a room within a building, for example.
+    """
+    name = models.CharField(
+        max_length=100
+    )
+    slug = models.SlugField(
+        max_length=100
+    )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        related_name='locations'
+    )
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
+
+    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
+    clone_fields = ['site', 'parent', 'description']
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = [
+            ['site', 'name'],
+            ['site', 'slug'],
+        ]
+
+    def get_absolute_url(self):
+        return reverse('dcim:location', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.site,
+            self.parent.name if self.parent else '',
+            self.name,
+            self.slug,
+            self.description,
+        )
+
+    def clean(self):
+        super().clean()
+
+        # Parent Location (if any) must belong to the same Site
+        if self.parent and self.parent.site != self.site:
+            raise ValidationError(f"Parent location ({self.parent}) must belong to the same site ({self.site})")

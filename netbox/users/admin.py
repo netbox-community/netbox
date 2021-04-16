@@ -4,9 +4,9 @@ from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, ValidationError
-from django.db.models import Q
 
-from extras.admin import order_content_types
+from utilities.forms.fields import ContentTypeMultipleChoiceField
+from .constants import *
 from .models import AdminGroup, AdminUser, ObjectPermission, Token, UserConfig
 
 
@@ -126,6 +126,10 @@ class TokenAdmin(admin.ModelAdmin):
 #
 
 class ObjectPermissionForm(forms.ModelForm):
+    object_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES
+    )
     can_view = forms.BooleanField(required=False)
     can_add = forms.BooleanField(required=False)
     can_change = forms.BooleanField(required=False)
@@ -152,10 +156,6 @@ class ObjectPermissionForm(forms.ModelForm):
 
         # Make the actions field optional since the admin form uses it only for non-CRUD actions
         self.fields['actions'].required = False
-
-        # Format ContentType choices
-        order_content_types(self.fields['object_types'])
-        self.fields['object_types'].choices.insert(0, ('', '---------'))
 
         # Order group and user fields
         self.fields['groups'].queryset = self.fields['groups'].queryset.order_by('name')

@@ -1,11 +1,10 @@
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
-from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
 from netbox.views import generic
-from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
 from . import filters, forms, tables
@@ -52,7 +51,6 @@ class VRFView(generic.ObjectView):
 class VRFEditView(generic.ObjectEditView):
     queryset = VRF.objects.all()
     model_form = forms.VRFForm
-    template_name = 'ipam/vrf_edit.html'
 
 
 class VRFDeleteView(generic.ObjectDeleteView):
@@ -150,6 +148,23 @@ class RIRListView(generic.ObjectListView):
     template_name = 'ipam/rir_list.html'
 
 
+class RIRView(generic.ObjectView):
+    queryset = RIR.objects.all()
+
+    def get_extra_context(self, request, instance):
+        aggregates = Aggregate.objects.restrict(request.user, 'view').filter(
+            rir=instance
+        )
+
+        aggregates_table = tables.AggregateTable(aggregates)
+        aggregates_table.columns.hide('rir')
+        paginate_table(aggregates_table, request)
+
+        return {
+            'aggregates_table': aggregates_table,
+        }
+
+
 class RIREditView(generic.ObjectEditView):
     queryset = RIR.objects.all()
     model_form = forms.RIRForm
@@ -163,6 +178,15 @@ class RIRBulkImportView(generic.BulkImportView):
     queryset = RIR.objects.all()
     model_form = forms.RIRCSVForm
     table = tables.RIRTable
+
+
+class RIRBulkEditView(generic.BulkEditView):
+    queryset = RIR.objects.annotate(
+        aggregate_count=count_related(Aggregate, 'rir')
+    )
+    filterset = filters.RIRFilterSet
+    table = tables.RIRTable
+    form = forms.RIRBulkEditForm
 
 
 class RIRBulkDeleteView(generic.BulkDeleteView):
@@ -223,12 +247,7 @@ class AggregateView(generic.ObjectView):
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.columns.show('pk')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(prefix_table)
+        paginate_table(prefix_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -247,7 +266,6 @@ class AggregateView(generic.ObjectView):
 class AggregateEditView(generic.ObjectEditView):
     queryset = Aggregate.objects.all()
     model_form = forms.AggregateForm
-    template_name = 'ipam/aggregate_edit.html'
 
 
 class AggregateDeleteView(generic.ObjectDeleteView):
@@ -285,6 +303,23 @@ class RoleListView(generic.ObjectListView):
     table = tables.RoleTable
 
 
+class RoleView(generic.ObjectView):
+    queryset = Role.objects.all()
+
+    def get_extra_context(self, request, instance):
+        prefixes = Prefix.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+
+        prefixes_table = tables.PrefixTable(prefixes)
+        prefixes_table.columns.hide('role')
+        paginate_table(prefixes_table, request)
+
+        return {
+            'prefixes_table': prefixes_table,
+        }
+
+
 class RoleEditView(generic.ObjectEditView):
     queryset = Role.objects.all()
     model_form = forms.RoleForm
@@ -298,6 +333,13 @@ class RoleBulkImportView(generic.BulkImportView):
     queryset = Role.objects.all()
     model_form = forms.RoleCSVForm
     table = tables.RoleTable
+
+
+class RoleBulkEditView(generic.BulkEditView):
+    queryset = Role.objects.all()
+    filterset = filters.RoleFilterSet
+    table = tables.RoleTable
+    form = forms.RoleBulkEditForm
 
 
 class RoleBulkDeleteView(generic.BulkDeleteView):
@@ -359,7 +401,7 @@ class PrefixView(generic.ObjectView):
 
 class PrefixPrefixesView(generic.ObjectView):
     queryset = Prefix.objects.all()
-    template_name = 'ipam/prefix_prefixes.html'
+    template_name = 'ipam/prefix/prefixes.html'
 
     def get_extra_context(self, request, instance):
         # Child prefixes table
@@ -374,12 +416,7 @@ class PrefixPrefixesView(generic.ObjectView):
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.columns.show('pk')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(prefix_table)
+        paginate_table(prefix_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -402,7 +439,7 @@ class PrefixPrefixesView(generic.ObjectView):
 
 class PrefixIPAddressesView(generic.ObjectView):
     queryset = Prefix.objects.all()
-    template_name = 'ipam/prefix_ipaddresses.html'
+    template_name = 'ipam/prefix/ip_addresses.html'
 
     def get_extra_context(self, request, instance):
         # Find all IPAddresses belonging to this Prefix
@@ -417,12 +454,7 @@ class PrefixIPAddressesView(generic.ObjectView):
         ip_table = tables.IPAddressTable(ipaddresses)
         if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
             ip_table.columns.show('pk')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(ip_table)
+        paginate_table(ip_table, request)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -446,7 +478,6 @@ class PrefixIPAddressesView(generic.ObjectView):
 class PrefixEditView(generic.ObjectEditView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixForm
-    template_name = 'ipam/prefix_edit.html'
 
 
 class PrefixDeleteView(generic.ObjectDeleteView):
@@ -520,12 +551,6 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
         )
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(related_ips_table)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -634,7 +659,7 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
 #
 
 class VLANGroupListView(generic.ObjectListView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     filterset = filters.VLANGroupFilterSet
@@ -642,9 +667,33 @@ class VLANGroupListView(generic.ObjectListView):
     table = tables.VLANGroupTable
 
 
+class VLANGroupView(generic.ObjectView):
+    queryset = VLANGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
+            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user))
+        )
+        vlans_count = vlans.count()
+        vlans = add_available_vlans(instance, vlans)
+
+        vlans_table = tables.VLANDetailTable(vlans)
+        if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
+            vlans_table.columns.show('pk')
+        vlans_table.columns.hide('site')
+        vlans_table.columns.hide('group')
+        paginate_table(vlans_table, request)
+
+        return {
+            'vlans_count': vlans_count,
+            'vlans_table': vlans_table,
+        }
+
+
 class VLANGroupEditView(generic.ObjectEditView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
+    template_name = 'ipam/vlangroup_edit.html'
 
 
 class VLANGroupDeleteView(generic.ObjectDeleteView):
@@ -657,49 +706,21 @@ class VLANGroupBulkImportView(generic.BulkImportView):
     table = tables.VLANGroupTable
 
 
-class VLANGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+class VLANGroupBulkEditView(generic.BulkEditView):
+    queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
     filterset = filters.VLANGroupFilterSet
     table = tables.VLANGroupTable
+    form = forms.VLANGroupBulkEditForm
 
 
-class VLANGroupVLANsView(generic.ObjectView):
-    queryset = VLANGroup.objects.all()
-    template_name = 'ipam/vlangroup_vlans.html'
-
-    def get_extra_context(self, request, instance):
-        vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
-            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user))
-        )
-        vlans = add_available_vlans(instance, vlans)
-
-        vlan_table = tables.VLANDetailTable(vlans)
-        if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
-            vlan_table.columns.show('pk')
-        vlan_table.columns.hide('site')
-        vlan_table.columns.hide('group')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request),
-        }
-        RequestConfig(request, paginate).configure(vlan_table)
-
-        # Compile permissions list for rendering the object table
-        permissions = {
-            'add': request.user.has_perm('ipam.add_vlan'),
-            'change': request.user.has_perm('ipam.change_vlan'),
-            'delete': request.user.has_perm('ipam.delete_vlan'),
-        }
-
-        return {
-            'first_available_vlan': instance.get_next_available_vid(),
-            'bulk_querystring': f'group_id={instance.pk}',
-            'vlan_table': vlan_table,
-            'permissions': permissions,
-        }
+class VLANGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = VLANGroup.objects.annotate(
+        vlan_count=count_related(VLAN, 'group')
+    )
+    filterset = filters.VLANGroupFilterSet
+    table = tables.VLANGroupTable
 
 
 #
@@ -730,17 +751,12 @@ class VLANView(generic.ObjectView):
 
 class VLANInterfacesView(generic.ObjectView):
     queryset = VLAN.objects.all()
-    template_name = 'ipam/vlan_interfaces.html'
+    template_name = 'ipam/vlan/interfaces.html'
 
     def get_extra_context(self, request, instance):
         interfaces = instance.get_interfaces().prefetch_related('device')
         members_table = tables.VLANDevicesTable(interfaces)
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(members_table)
+        paginate_table(members_table, request)
 
         return {
             'members_table': members_table,
@@ -750,17 +766,12 @@ class VLANInterfacesView(generic.ObjectView):
 
 class VLANVMInterfacesView(generic.ObjectView):
     queryset = VLAN.objects.all()
-    template_name = 'ipam/vlan_vminterfaces.html'
+    template_name = 'ipam/vlan/vminterfaces.html'
 
     def get_extra_context(self, request, instance):
         interfaces = instance.get_vminterfaces().prefetch_related('virtual_machine')
         members_table = tables.VLANVirtualMachinesTable(interfaces)
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(members_table)
+        paginate_table(members_table, request)
 
         return {
             'members_table': members_table,

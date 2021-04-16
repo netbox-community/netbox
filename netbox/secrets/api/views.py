@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
+from extras.api.views import CustomFieldModelViewSet
 from netbox.api.views import ModelViewSet
 from secrets import filters
 from secrets.exceptions import InvalidKey
@@ -33,7 +34,7 @@ class SecretsRootView(APIRootView):
 # Secret Roles
 #
 
-class SecretRoleViewSet(ModelViewSet):
+class SecretRoleViewSet(CustomFieldModelViewSet):
     queryset = SecretRole.objects.annotate(
         secret_count=count_related(Secret, 'role')
     )

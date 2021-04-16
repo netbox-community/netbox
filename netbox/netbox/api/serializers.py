@@ -1,12 +1,23 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import CreateOnlyDefault
 
+from extras.api.customfields import CustomFieldsDataField, CustomFieldDefaultValues
+from extras.models import CustomField, Tag
 from utilities.utils import dict_to_filter_params
 
 
-class ValidatedModelSerializer(serializers.ModelSerializer):
+class BaseModelSerializer(serializers.ModelSerializer):
+    display = serializers.SerializerMethodField(read_only=True)
+
+    def get_display(self, obj):
+        return str(obj)
+
+
+class ValidatedModelSerializer(BaseModelSerializer):
     """
     Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
@@ -35,11 +46,45 @@ class ValidatedModelSerializer(serializers.ModelSerializer):
         return data
 
 
-class WritableNestedSerializer(serializers.ModelSerializer):
+class CustomFieldModelSerializer(ValidatedModelSerializer):
+    """
+    Extends ModelSerializer to render any CustomFields and their values associated with an object.
+    """
+    custom_fields = CustomFieldsDataField(
+        source='custom_field_data',
+        default=CreateOnlyDefault(CustomFieldDefaultValues())
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance is not None:
+
+            # Retrieve the set of CustomFields which apply to this type of object
+            content_type = ContentType.objects.get_for_model(self.Meta.model)
+            fields = CustomField.objects.filter(content_types=content_type)
+
+            # Populate CustomFieldValues for each instance from database
+            if type(self.instance) in (list, tuple):
+                for obj in self.instance:
+                    self._populate_custom_fields(obj, fields)
+            else:
+                self._populate_custom_fields(self.instance, fields)
+
+    def _populate_custom_fields(self, instance, custom_fields):
+        instance.custom_fields = {}
+        for field in custom_fields:
+            instance.custom_fields[field.name] = instance.cf.get(field.name)
+
+
+#
+# Nested serializers
+#
+
+class WritableNestedSerializer(BaseModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
-
     def to_internal_value(self, data):
 
         if data is None:
@@ -83,6 +128,72 @@ class WritableNestedSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 "Related object not found using the provided numeric ID: {}".format(pk)
             )
+
+
+#
+# Nested tags serialization
+#
+
+# Declared here for use by PrimaryModelSerializer, but should be imported from extras.api.nested_serializers
+class NestedTagSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
+
+    class Meta:
+        model = Tag
+        fields = ['id', 'url', 'display', 'name', 'slug', 'color']
+
+
+#
+# Base model serializers
+#
+
+class OrganizationalModelSerializer(CustomFieldModelSerializer):
+    """
+    Adds support for custom fields.
+    """
+    pass
+
+
+class PrimaryModelSerializer(CustomFieldModelSerializer):
+    """
+    Adds support for custom fields and tags.
+    """
+    tags = NestedTagSerializer(many=True, required=False)
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags', None)
+        instance = super().create(validated_data)
+
+        if tags is not None:
+            return self._save_tags(instance, tags)
+        return instance
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags', None)
+
+        # Cache tags on instance for change logging
+        instance._tags = tags or []
+
+        instance = super().update(instance, validated_data)
+
+        if tags is not None:
+            return self._save_tags(instance, tags)
+        return instance
+
+    def _save_tags(self, instance, tags):
+        if tags:
+            instance.tags.set(*[t.name for t in tags])
+        else:
+            instance.tags.clear()
+
+        return instance
+
+
+class NestedGroupModelSerializer(CustomFieldModelSerializer):
+    """
+    Extends OrganizationalModelSerializer to include MPTT support.
+    """
+    _depth = serializers.IntegerField(source='level', read_only=True)
 
 
 class BulkOperationSerializer(serializers.Serializer):

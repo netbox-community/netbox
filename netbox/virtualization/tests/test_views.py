@@ -1,9 +1,11 @@
+from django.test import override_settings
+from django.urls import reverse
 from netaddr import EUI
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Platform, Site
 from ipam.models import VLAN
-from utilities.testing import ViewTestCases
+from utilities.testing import ViewTestCases, create_tags
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -33,6 +35,10 @@ class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Group 6,cluster-group-6,Sixth cluster group",
         )
 
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
 
 class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = ClusterType
@@ -58,6 +64,10 @@ class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             "Cluster Type 5,cluster-type-5,Fifth cluster type",
             "Cluster Type 6,cluster-type-6,Sixth cluster type",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -90,7 +100,7 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Cluster X',
@@ -116,6 +126,20 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'site': sites[1].pk,
             'comments': 'New comments',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_cluster_virtualmachines(self):
+        cluster = Cluster.objects.first()
+
+        url = reverse('virtualization:cluster_virtualmachines', kwargs={'pk': cluster.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_cluster_devices(self):
+        cluster = Cluster.objects.first()
+
+        url = reverse('virtualization:cluster_devices', kwargs={'pk': cluster.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
 
 
 class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -150,7 +174,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], role=deviceroles[0], platform=platforms[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'cluster': clusters[1].pk,
@@ -188,6 +212,19 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_virtualmachine_interfaces(self):
+        virtualmachine = VirtualMachine.objects.first()
+        vminterfaces = (
+            VMInterface(virtual_machine=virtualmachine, name='Interface 1'),
+            VMInterface(virtual_machine=virtualmachine, name='Interface 2'),
+            VMInterface(virtual_machine=virtualmachine, name='Interface 3'),
+        )
+        VMInterface.objects.bulk_create(vminterfaces)
+
+        url = reverse('virtualization:virtualmachine_interfaces', kwargs={'pk': virtualmachine.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
 
 class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = VMInterface
@@ -219,7 +256,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         VLAN.objects.bulk_create(vlans)
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'virtual_machine': virtualmachines[1].pk,

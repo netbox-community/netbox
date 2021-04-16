@@ -1,7 +1,7 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
-from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
 from dcim.models import Device
 from extras.forms import (
@@ -9,7 +9,7 @@ from extras.forms import (
 )
 from extras.models import Tag
 from utilities.forms import (
-    BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    BootstrapMixin, CSVModelChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     SlugField, TagFilterField,
 )
 from virtualization.models import VirtualMachine
@@ -43,7 +43,7 @@ def validate_rsa_key(key, is_secret=True):
 # Secret roles
 #
 
-class SecretRoleForm(BootstrapMixin, forms.ModelForm):
+class SecretRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -51,12 +51,26 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
         fields = ('name', 'slug', 'description')
 
 
-class SecretRoleCSVForm(CSVModelForm):
+class SecretRoleCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
         model = SecretRole
         fields = SecretRole.csv_headers
+
+
+class SecretRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=SecretRole.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['description']
 
 
 #
@@ -66,8 +80,7 @@ class SecretRoleCSVForm(CSVModelForm):
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        required=False,
-        display_field='display_name'
+        required=False
     )
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all(),
@@ -221,12 +234,12 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Secret
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
-    role = DynamicModelMultipleChoiceField(
+    role_id = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
-        to_field_name='slug',
-        required=False
+        required=False,
+        label=_('Role')
     )
     tag = TagFilterField(model)
 

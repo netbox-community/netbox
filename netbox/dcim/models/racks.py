@@ -10,26 +10,22 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Sum
 from django.urls import reverse
-from mptt.models import MPTTModel, TreeForeignKey
-from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.elevations import RackElevationSVG
-from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
+from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
-from utilities.mptt import TreeManager
-from utilities.utils import array_to_string, serialize_object
+from utilities.utils import array_to_string
 from .device_components import PowerOutlet, PowerPort
 from .devices import Device
 from .power import PowerFeed
 
 __all__ = (
     'Rack',
-    'RackGroup',
     'RackReservation',
     'RackRole',
 )
@@ -39,90 +35,8 @@ __all__ = (
 # Racks
 #
 
-@extras_features('export_templates')
-class RackGroup(MPTTModel, ChangeLoggedModel):
-    """
-    Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
-    example, if a Site spans a corporate campus, a RackGroup might be defined to represent each building within that
-    campus. If a Site instead represents a single building, a RackGroup might represent a single room or floor.
-    """
-    name = models.CharField(
-        max_length=100
-    )
-    slug = models.SlugField(
-        max_length=100
-    )
-    site = models.ForeignKey(
-        to='dcim.Site',
-        on_delete=models.CASCADE,
-        related_name='rack_groups'
-    )
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
-    description = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    objects = TreeManager()
-
-    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
-
-    class Meta:
-        ordering = ['site', 'name']
-        unique_together = [
-            ['site', 'name'],
-            ['site', 'slug'],
-        ]
-
-    class MPTTMeta:
-        order_insertion_by = ['name']
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
-
-    def to_csv(self):
-        return (
-            self.site,
-            self.parent.name if self.parent else '',
-            self.name,
-            self.slug,
-            self.description,
-        )
-
-    def to_objectchange(self, action):
-        # Remove MPTT-internal fields
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
-        )
-
-    def clean(self):
-        super().clean()
-
-        # An MPTT model cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({
-                "parent": "Cannot assign self as parent."
-            })
-
-        # Parent RackGroup (if any) must belong to the same Site
-        if self.parent and self.parent.site != self.site:
-            raise ValidationError(f"Parent rack group ({self.parent}) must belong to the same site ({self.site})")
-
-
-class RackRole(ChangeLoggedModel):
+@extras_features('custom_fields', 'export_templates', 'webhooks')
+class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
     """
@@ -153,7 +67,7 @@ class RackRole(ChangeLoggedModel):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?role={}".format(reverse('dcim:rack_list'), self.slug)
+        return reverse('dcim:rackrole', args=[self.pk])
 
     def to_csv(self):
         return (
@@ -165,10 +79,10 @@ class RackRole(ChangeLoggedModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class Rack(ChangeLoggedModel, CustomFieldModel):
+class Rack(PrimaryModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
-    Each Rack is assigned to a Site and (optionally) a RackGroup.
+    Each Rack is assigned to a Site and (optionally) a Location.
     """
     name = models.CharField(
         max_length=100
@@ -190,13 +104,12 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         on_delete=models.PROTECT,
         related_name='racks'
     )
-    group = models.ForeignKey(
-        to='dcim.RackGroup',
+    location = models.ForeignKey(
+        to='dcim.Location',
         on_delete=models.SET_NULL,
         related_name='racks',
         blank=True,
-        null=True,
-        help_text='Assigned group'
+        null=True
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -275,25 +188,24 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
-        'site', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
+        'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
         'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     ]
     clone_fields = [
-        'site', 'group', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+        'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit',
     ]
 
     class Meta:
-        ordering = ('site', 'group', '_name', 'pk')  # (site, group, name) may be non-unique
+        ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
         unique_together = (
-            # Name and facility_id must be unique *only* within a RackGroup
-            ('group', 'name'),
-            ('group', 'facility_id'),
+            # Name and facility_id must be unique *only* within a Location
+            ('location', 'name'),
+            ('location', 'facility_id'),
         )
 
     def __str__(self):
@@ -305,9 +217,9 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
         super().clean()
 
-        # Validate group/site assignment
-        if self.site and self.group and self.group.site != self.site:
-            raise ValidationError(f"Assigned rack group must belong to parent site ({self.site}).")
+        # Validate location/site assignment
+        if self.site and self.location and self.location.site != self.site:
+            raise ValidationError(f"Assigned location must belong to parent site ({self.site}).")
 
         # Validate outer dimensions and unit
         if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
@@ -330,17 +242,17 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
                             min_height
                         )
                     })
-            # Validate that Rack was assigned a group of its same site, if applicable
-            if self.group:
-                if self.group.site != self.site:
+            # Validate that Rack was assigned a Location of its same site, if applicable
+            if self.location:
+                if self.location.site != self.site:
                     raise ValidationError({
-                        'group': "Rack group must be from the same site, {}.".format(self.site)
+                        'location': f"Location must be from the same site, {self.site}."
                     })
 
     def to_csv(self):
         return (
             self.site.name,
-            self.group.name if self.group else None,
+            self.location.name if self.location else None,
             self.name,
             self.facility_id,
             self.tenant.name if self.tenant else None,
@@ -556,7 +468,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class RackReservation(ChangeLoggedModel, CustomFieldModel):
+class RackReservation(PrimaryModel):
     """
     One or more reserved units within a Rack.
     """
@@ -582,11 +494,10 @@ class RackReservation(ChangeLoggedModel, CustomFieldModel):
     description = models.CharField(
         max_length=200
     )
-    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
+    csv_headers = ['site', 'location', 'rack', 'units', 'tenant', 'user', 'description']
 
     class Meta:
         ordering = ['created', 'pk']
@@ -627,7 +538,7 @@ class RackReservation(ChangeLoggedModel, CustomFieldModel):
     def to_csv(self):
         return (
             self.rack.site.name,
-            self.rack.group if self.rack.group else None,
+            self.rack.location if self.rack.location else None,
             self.rack.name,
             ','.join([str(u) for u in self.units]),
             self.tenant.name if self.tenant else None,

@@ -38,6 +38,24 @@
                             {% endif %}
                             <a href="{% url 'dcim:region_list' %}">Regions</a>
                         </li>
+                        <li{% if not perms.dcim.view_sitegroup %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_sitegroup %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:sitegroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:sitegroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:sitegroup_list' %}">Site Groups</a>
+                        </li>
+                        <li{% if not perms.dcim.view_location %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_location %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:location_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'dcim:location_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:location_list' %}">Locations</a>
+                        </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Racks</li>
                         <li{% if not perms.dcim.view_rack %} class="disabled"{% endif %}>
@@ -48,15 +66,6 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rack_list' %}">Racks</a>
-                        </li>
-                        <li{% if not perms.dcim.view_rackgroup %} class="disabled"{% endif %}>
-                            {% if perms.dcim.add_rackgroup %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:rackgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
-                                    <a href="{% url 'dcim:rackgroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
-                                </div>
-                            {% endif %}
-                            <a href="{% url 'dcim:rackgroup_list' %}">Rack Groups</a>
                         </li>
                         <li{% if not perms.dcim.view_rackrole %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackrole %}
@@ -456,6 +465,14 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'circuits:provider_list' %}">Providers</a>
+                        <li{% if not perms.circuits.view_providernetwork %} class="disabled"{% endif %}>
+                            {% if perms.circuits.add_providernetwork %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'circuits:providernetwork_add' %}" class="btn btn-xs btn-success" title="Add"><i class="mdi mdi-plus-thick"></i></a>
+                                    <a href="{% url 'circuits:providernetwork_import' %}" class="btn btn-xs btn-info" title="Import"><i class="mdi mdi-database-import-outline"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'circuits:providernetwork_list' %}">Provider Networks</a>
                         </li>
                     </ul>
                 </li>
@@ -511,6 +528,9 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Other <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Logging</li>
+                        <li{% if not perms.extras.view_journalentry %} class="disabled"{% endif %}>
+                            <a href="{% url 'extras:journalentry_list' %}">Journal Entries</a>
+                        </li>
                         <li{% if not perms.extras.view_objectchange %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:objectchange_list' %}">Change Log</a>
                         </li>

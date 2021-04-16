@@ -1,13 +1,10 @@
 from django.urls import path
 
-from extras.views import ObjectChangeLogView, ImageAttachmentEditView
+from extras.views import ImageAttachmentEditView, ObjectChangeLogView, ObjectJournalView
 from ipam.views import ServiceEditView
+from utilities.views import SlugRedirectView
 from . import views
-from .models import (
-    Cable, ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, FrontPort, Interface,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, RackGroup,
-    RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
-)
+from .models import *
 
 app_name = 'dcim'
 urlpatterns = [
@@ -16,10 +13,23 @@ urlpatterns = [
     path('regions/', views.RegionListView.as_view(), name='region_list'),
     path('regions/add/', views.RegionEditView.as_view(), name='region_add'),
     path('regions/import/', views.RegionBulkImportView.as_view(), name='region_import'),
+    path('regions/edit/', views.RegionBulkEditView.as_view(), name='region_bulk_edit'),
     path('regions/delete/', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
+    path('regions/<int:pk>/', views.RegionView.as_view(), name='region'),
     path('regions/<int:pk>/edit/', views.RegionEditView.as_view(), name='region_edit'),
     path('regions/<int:pk>/delete/', views.RegionDeleteView.as_view(), name='region_delete'),
     path('regions/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='region_changelog', kwargs={'model': Region}),
+
+    # Site groups
+    path('site-groups/', views.SiteGroupListView.as_view(), name='sitegroup_list'),
+    path('site-groups/add/', views.SiteGroupEditView.as_view(), name='sitegroup_add'),
+    path('site-groups/import/', views.SiteGroupBulkImportView.as_view(), name='sitegroup_import'),
+    path('site-groups/edit/', views.SiteGroupBulkEditView.as_view(), name='sitegroup_bulk_edit'),
+    path('site-groups/delete/', views.SiteGroupBulkDeleteView.as_view(), name='sitegroup_bulk_delete'),
+    path('site-groups/<int:pk>/', views.SiteGroupView.as_view(), name='sitegroup'),
+    path('site-groups/<int:pk>/edit/', views.SiteGroupEditView.as_view(), name='sitegroup_edit'),
+    path('site-groups/<int:pk>/delete/', views.SiteGroupDeleteView.as_view(), name='sitegroup_delete'),
+    path('site-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='sitegroup_changelog', kwargs={'model': SiteGroup}),
 
     # Sites
     path('sites/', views.SiteListView.as_view(), name='site_list'),
@@ -27,26 +37,33 @@ urlpatterns = [
     path('sites/import/', views.SiteBulkImportView.as_view(), name='site_import'),
     path('sites/edit/', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
     path('sites/delete/', views.SiteBulkDeleteView.as_view(), name='site_bulk_delete'),
-    path('sites/<slug:slug>/', views.SiteView.as_view(), name='site'),
-    path('sites/<slug:slug>/edit/', views.SiteEditView.as_view(), name='site_edit'),
-    path('sites/<slug:slug>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
-    path('sites/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
+    path('sites/<int:pk>/', views.SiteView.as_view(), name='site'),
+    path('sites/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Site}),
+    path('sites/<int:pk>/edit/', views.SiteEditView.as_view(), name='site_edit'),
+    path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name='site_delete'),
+    path('sites/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
+    path('sites/<int:pk>/journal/', ObjectJournalView.as_view(), name='site_journal', kwargs={'model': Site}),
     path('sites/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
-    # Rack groups
-    path('rack-groups/', views.RackGroupListView.as_view(), name='rackgroup_list'),
-    path('rack-groups/add/', views.RackGroupEditView.as_view(), name='rackgroup_add'),
-    path('rack-groups/import/', views.RackGroupBulkImportView.as_view(), name='rackgroup_import'),
-    path('rack-groups/delete/', views.RackGroupBulkDeleteView.as_view(), name='rackgroup_bulk_delete'),
-    path('rack-groups/<int:pk>/edit/', views.RackGroupEditView.as_view(), name='rackgroup_edit'),
-    path('rack-groups/<int:pk>/delete/', views.RackGroupDeleteView.as_view(), name='rackgroup_delete'),
-    path('rack-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackgroup_changelog', kwargs={'model': RackGroup}),
+    # Locations
+    path('locations/', views.LocationListView.as_view(), name='location_list'),
+    path('locations/add/', views.LocationEditView.as_view(), name='location_add'),
+    path('locations/import/', views.LocationBulkImportView.as_view(), name='location_import'),
+    path('locations/edit/', views.LocationBulkEditView.as_view(), name='location_bulk_edit'),
+    path('locations/delete/', views.LocationBulkDeleteView.as_view(), name='location_bulk_delete'),
+    path('locations/<int:pk>/', views.LocationView.as_view(), name='location'),
+    path('locations/<int:pk>/edit/', views.LocationEditView.as_view(), name='location_edit'),
+    path('locations/<int:pk>/delete/', views.LocationDeleteView.as_view(), name='location_delete'),
+    path('locations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='location_changelog', kwargs={'model': Location}),
+    path('locations/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='location_add_image', kwargs={'model': Location}),
 
     # Rack roles
     path('rack-roles/', views.RackRoleListView.as_view(), name='rackrole_list'),
     path('rack-roles/add/', views.RackRoleEditView.as_view(), name='rackrole_add'),
     path('rack-roles/import/', views.RackRoleBulkImportView.as_view(), name='rackrole_import'),
+    path('rack-roles/edit/', views.RackRoleBulkEditView.as_view(), name='rackrole_bulk_edit'),
     path('rack-roles/delete/', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
+    path('rack-roles/<int:pk>/', views.RackRoleView.as_view(), name='rackrole'),
     path('rack-roles/<int:pk>/edit/', views.RackRoleEditView.as_view(), name='rackrole_edit'),
     path('rack-roles/<int:pk>/delete/', views.RackRoleDeleteView.as_view(), name='rackrole_delete'),
     path('rack-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackrole_changelog', kwargs={'model': RackRole}),
@@ -61,6 +78,7 @@ urlpatterns = [
     path('rack-reservations/<int:pk>/edit/', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
     path('rack-reservations/<int:pk>/delete/', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
     path('rack-reservations/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rackreservation_changelog', kwargs={'model': RackReservation}),
+    path('rack-reservations/<int:pk>/journal/', ObjectJournalView.as_view(), name='rackreservation_journal', kwargs={'model': RackReservation}),
 
     # Racks
     path('racks/', views.RackListView.as_view(), name='rack_list'),
@@ -73,16 +91,19 @@ urlpatterns = [
     path('racks/<int:pk>/edit/', views.RackEditView.as_view(), name='rack_edit'),
     path('racks/<int:pk>/delete/', views.RackDeleteView.as_view(), name='rack_delete'),
     path('racks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rack_changelog', kwargs={'model': Rack}),
+    path('racks/<int:pk>/journal/', ObjectJournalView.as_view(), name='rack_journal', kwargs={'model': Rack}),
     path('racks/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
     # Manufacturers
     path('manufacturers/', views.ManufacturerListView.as_view(), name='manufacturer_list'),
     path('manufacturers/add/', views.ManufacturerEditView.as_view(), name='manufacturer_add'),
     path('manufacturers/import/', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
+    path('manufacturers/edit/', views.ManufacturerBulkEditView.as_view(), name='manufacturer_bulk_edit'),
     path('manufacturers/delete/', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
-    path('manufacturers/<slug:slug>/edit/', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
-    path('manufacturers/<slug:slug>/delete/', views.ManufacturerDeleteView.as_view(), name='manufacturer_delete'),
-    path('manufacturers/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
+    path('manufacturers/<int:pk>/', views.ManufacturerView.as_view(), name='manufacturer'),
+    path('manufacturers/<int:pk>/edit/', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
+    path('manufacturers/<int:pk>/delete/', views.ManufacturerDeleteView.as_view(), name='manufacturer_delete'),
+    path('manufacturers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
 
     # Device types
     path('device-types/', views.DeviceTypeListView.as_view(), name='devicetype_list'),
@@ -94,6 +115,7 @@ urlpatterns = [
     path('device-types/<int:pk>/edit/', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     path('device-types/<int:pk>/delete/', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
     path('device-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
+    path('device-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='devicetype_journal', kwargs={'model': DeviceType}),
 
     # Console port templates
     path('console-port-templates/add/', views.ConsolePortTemplateCreateView.as_view(), name='consoleporttemplate_add'),
@@ -163,19 +185,23 @@ urlpatterns = [
     path('device-roles/', views.DeviceRoleListView.as_view(), name='devicerole_list'),
     path('device-roles/add/', views.DeviceRoleEditView.as_view(), name='devicerole_add'),
     path('device-roles/import/', views.DeviceRoleBulkImportView.as_view(), name='devicerole_import'),
+    path('device-roles/edit/', views.DeviceRoleBulkEditView.as_view(), name='devicerole_bulk_edit'),
     path('device-roles/delete/', views.DeviceRoleBulkDeleteView.as_view(), name='devicerole_bulk_delete'),
-    path('device-roles/<slug:slug>/edit/', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
-    path('device-roles/<slug:slug>/delete/', views.DeviceRoleDeleteView.as_view(), name='devicerole_delete'),
-    path('device-roles/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
+    path('device-roles/<int:pk>/', views.DeviceRoleView.as_view(), name='devicerole'),
+    path('device-roles/<int:pk>/edit/', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
+    path('device-roles/<int:pk>/delete/', views.DeviceRoleDeleteView.as_view(), name='devicerole_delete'),
+    path('device-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
 
     # Platforms
     path('platforms/', views.PlatformListView.as_view(), name='platform_list'),
     path('platforms/add/', views.PlatformEditView.as_view(), name='platform_add'),
     path('platforms/import/', views.PlatformBulkImportView.as_view(), name='platform_import'),
+    path('platforms/edit/', views.PlatformBulkEditView.as_view(), name='platform_bulk_edit'),
     path('platforms/delete/', views.PlatformBulkDeleteView.as_view(), name='platform_bulk_delete'),
-    path('platforms/<slug:slug>/edit/', views.PlatformEditView.as_view(), name='platform_edit'),
-    path('platforms/<slug:slug>/delete/', views.PlatformDeleteView.as_view(), name='platform_delete'),
-    path('platforms/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
+    path('platforms/<int:pk>/', views.PlatformView.as_view(), name='platform'),
+    path('platforms/<int:pk>/edit/', views.PlatformEditView.as_view(), name='platform_edit'),
+    path('platforms/<int:pk>/delete/', views.PlatformDeleteView.as_view(), name='platform_delete'),
+    path('platforms/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
 
     # Devices
     path('devices/', views.DeviceListView.as_view(), name='device_list'),
@@ -198,6 +224,7 @@ urlpatterns = [
     path('devices/<int:pk>/inventory/', views.DeviceInventoryView.as_view(), name='device_inventory'),
     path('devices/<int:pk>/config-context/', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
     path('devices/<int:pk>/changelog/', views.DeviceChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
+    path('devices/<int:pk>/journal/', views.DeviceJournalView.as_view(), name='device_journal', kwargs={'model': Device}),
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
@@ -353,6 +380,7 @@ urlpatterns = [
     path('cables/<int:pk>/edit/', views.CableEditView.as_view(), name='cable_edit'),
     path('cables/<int:pk>/delete/', views.CableDeleteView.as_view(), name='cable_delete'),
     path('cables/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cable_changelog', kwargs={'model': Cable}),
+    path('cables/<int:pk>/journal/', ObjectJournalView.as_view(), name='cable_journal', kwargs={'model': Cable}),
 
     # Console/power/interface connections (read-only)
     path('console-connections/', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
@@ -369,6 +397,7 @@ urlpatterns = [
     path('virtual-chassis/<int:pk>/edit/', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
     path('virtual-chassis/<int:pk>/delete/', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
     path('virtual-chassis/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='virtualchassis_changelog', kwargs={'model': VirtualChassis}),
+    path('virtual-chassis/<int:pk>/journal/', ObjectJournalView.as_view(), name='virtualchassis_journal', kwargs={'model': VirtualChassis}),
     path('virtual-chassis/<int:pk>/add-member/', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
     path('virtual-chassis-members/<int:pk>/delete/', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
 
@@ -382,18 +411,21 @@ urlpatterns = [
     path('power-panels/<int:pk>/edit/', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),
     path('power-panels/<int:pk>/delete/', views.PowerPanelDeleteView.as_view(), name='powerpanel_delete'),
     path('power-panels/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerpanel_changelog', kwargs={'model': PowerPanel}),
+    path('power-panels/<int:pk>/journal/', ObjectJournalView.as_view(), name='powerpanel_journal', kwargs={'model': PowerPanel}),
 
     # Power feeds
     path('power-feeds/', views.PowerFeedListView.as_view(), name='powerfeed_list'),
     path('power-feeds/add/', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
     path('power-feeds/import/', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
     path('power-feeds/edit/', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
+    path('power-feeds/disconnect/', views.PowerFeedBulkDisconnectView.as_view(), name='powerfeed_bulk_disconnect'),
     path('power-feeds/delete/', views.PowerFeedBulkDeleteView.as_view(), name='powerfeed_bulk_delete'),
     path('power-feeds/<int:pk>/', views.PowerFeedView.as_view(), name='powerfeed'),
     path('power-feeds/<int:pk>/edit/', views.PowerFeedEditView.as_view(), name='powerfeed_edit'),
     path('power-feeds/<int:pk>/delete/', views.PowerFeedDeleteView.as_view(), name='powerfeed_delete'),
     path('power-feeds/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerfeed_trace', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
+    path('power-feeds/<int:pk>/journal/', ObjectJournalView.as_view(), name='powerfeed_journal', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='powerfeed_connect', kwargs={'termination_a_type': PowerFeed}),
 
 ]

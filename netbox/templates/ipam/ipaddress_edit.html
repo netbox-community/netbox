@@ -19,6 +19,7 @@
             {% render_field form.vrf %}
             {% render_field form.dns_name %}
             {% render_field form.description %}
+            {% render_field form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -63,6 +64,7 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="by_device">
                     {% render_field form.nat_region %}
+                    {% render_field form.nat_site_group %}
                     {% render_field form.nat_site %}
                     {% render_field form.nat_rack %}
                     {% render_field form.nat_device %}
@@ -76,12 +78,6 @@
                 </div>
             </div>
             {% render_field form.nat_inside %}
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tags</strong></div>
-        <div class="panel-body">
-            {% render_field form.tags %}
         </div>
     </div>
     {% if form.custom_fields %}

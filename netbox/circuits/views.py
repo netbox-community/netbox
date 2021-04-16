@@ -1,15 +1,15 @@
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django_tables2 import RequestConfig
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.tables import paginate_table
 from utilities.utils import count_related
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
-from .models import Circuit, CircuitTermination, CircuitType, Provider
+from .models import *
 
 
 #
@@ -33,16 +33,11 @@ class ProviderView(generic.ObjectView):
             provider=instance
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
-        ).annotate_sites()
+        )
 
         circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('provider')
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': get_paginate_count(request)
-        }
-        RequestConfig(request, paginate).configure(circuits_table)
+        paginate_table(circuits_table, request)
 
         return {
             'circuits_table': circuits_table,
@@ -52,7 +47,6 @@ class ProviderView(generic.ObjectView):
 class ProviderEditView(generic.ObjectEditView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderForm
-    template_name = 'circuits/provider_edit.html'
 
 
 class ProviderDeleteView(generic.ObjectDeleteView):
@@ -83,6 +77,66 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Provider networks
+#
+
+class ProviderNetworkListView(generic.ObjectListView):
+    queryset = ProviderNetwork.objects.all()
+    filterset = filters.ProviderNetworkFilterSet
+    filterset_form = forms.ProviderNetworkFilterForm
+    table = tables.ProviderNetworkTable
+
+
+class ProviderNetworkView(generic.ObjectView):
+    queryset = ProviderNetwork.objects.all()
+
+    def get_extra_context(self, request, instance):
+        circuits = Circuit.objects.restrict(request.user, 'view').filter(
+            Q(termination_a__provider_network=instance.pk) |
+            Q(termination_z__provider_network=instance.pk)
+        ).prefetch_related(
+            'type', 'tenant', 'terminations__site'
+        )
+
+        circuits_table = tables.CircuitTable(circuits)
+        circuits_table.columns.hide('termination_a')
+        circuits_table.columns.hide('termination_z')
+        paginate_table(circuits_table, request)
+
+        return {
+            'circuits_table': circuits_table,
+        }
+
+
+class ProviderNetworkEditView(generic.ObjectEditView):
+    queryset = ProviderNetwork.objects.all()
+    model_form = forms.ProviderNetworkForm
+
+
+class ProviderNetworkDeleteView(generic.ObjectDeleteView):
+    queryset = ProviderNetwork.objects.all()
+
+
+class ProviderNetworkBulkImportView(generic.BulkImportView):
+    queryset = ProviderNetwork.objects.all()
+    model_form = forms.ProviderNetworkCSVForm
+    table = tables.ProviderNetworkTable
+
+
+class ProviderNetworkBulkEditView(generic.BulkEditView):
+    queryset = ProviderNetwork.objects.all()
+    filterset = filters.ProviderNetworkFilterSet
+    table = tables.ProviderNetworkTable
+    form = forms.ProviderNetworkBulkEditForm
+
+
+class ProviderNetworkBulkDeleteView(generic.BulkDeleteView):
+    queryset = ProviderNetwork.objects.all()
+    filterset = filters.ProviderNetworkFilterSet
+    table = tables.ProviderNetworkTable
+
+
+#
 # Circuit Types
 #
 
@@ -91,6 +145,23 @@ class CircuitTypeListView(generic.ObjectListView):
         circuit_count=count_related(Circuit, 'type')
     )
     table = tables.CircuitTypeTable
+
+
+class CircuitTypeView(generic.ObjectView):
+    queryset = CircuitType.objects.all()
+
+    def get_extra_context(self, request, instance):
+        circuits = Circuit.objects.restrict(request.user, 'view').filter(
+            type=instance
+        )
+
+        circuits_table = tables.CircuitTable(circuits)
+        circuits_table.columns.hide('type')
+        paginate_table(circuits_table, request)
+
+        return {
+            'circuits_table': circuits_table,
+        }
 
 
 class CircuitTypeEditView(generic.ObjectEditView):
@@ -108,6 +179,15 @@ class CircuitTypeBulkImportView(generic.BulkImportView):
     table = tables.CircuitTypeTable
 
 
+class CircuitTypeBulkEditView(generic.BulkEditView):
+    queryset = CircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
+    filterset = filters.CircuitTypeFilterSet
+    table = tables.CircuitTypeTable
+    form = forms.CircuitTypeBulkEditForm
+
+
 class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = CircuitType.objects.annotate(
         circuit_count=count_related(Circuit, 'type')
@@ -121,8 +201,8 @@ class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
 
 class CircuitListView(generic.ObjectListView):
     queryset = Circuit.objects.prefetch_related(
-        'provider', 'type', 'tenant', 'terminations'
-    ).annotate_sites()
+        'provider', 'type', 'tenant', 'termination_a', 'termination_z'
+    )
     filterset = filters.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
     table = tables.CircuitTable
@@ -139,8 +219,6 @@ class CircuitView(generic.ObjectView):
         ).filter(
             circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
-        if termination_a and termination_a.connected_endpoint and hasattr(termination_a.connected_endpoint, 'ip_addresses'):
-            termination_a.ip_addresses = termination_a.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         # Z-side termination
         termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
@@ -148,8 +226,6 @@ class CircuitView(generic.ObjectView):
         ).filter(
             circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()
-        if termination_z and termination_z.connected_endpoint and hasattr(termination_z.connected_endpoint, 'ip_addresses'):
-            termination_z.ip_addresses = termination_z.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         return {
             'termination_a': termination_a,
@@ -160,7 +236,6 @@ class CircuitView(generic.ObjectView):
 class CircuitEditView(generic.ObjectEditView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitForm
-    template_name = 'circuits/circuit_edit.html'
 
 
 class CircuitDeleteView(generic.ObjectDeleteView):

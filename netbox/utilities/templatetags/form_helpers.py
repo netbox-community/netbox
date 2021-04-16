@@ -4,6 +4,14 @@ from django import template
 register = template.Library()
 
 
+@register.filter()
+def getfield(form, fieldname):
+    """
+    Return the specified field of a Form.
+    """
+    return form[fieldname]
+
+
 @register.inclusion_tag('utilities/render_field.html')
 def render_field(field, bulk_nullable=False):
     """

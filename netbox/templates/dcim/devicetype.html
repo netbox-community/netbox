@@ -1,81 +1,59 @@
-{% extends 'base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load helpers %}
 {% load plugins %}
 
 {% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-md-12">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
-                <li><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></li>
-                <li>{{ object.model }}</li>
-            </ol>
-        </div>
+{% block breadcrumbs %}
+  <li><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
+  <li><a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
+  <li>{{ object.model }}</li>
+{% endblock %}
+
+{% block buttons %}
+  {% if perms.dcim.change_devicetype %}
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        {% if perms.dcim.add_consoleporttemplate %}
+          <li><a href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_consoleserverporttemplate %}
+          <li><a href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_powerporttemplate %}
+          <li><a href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_poweroutlettemplate %}
+          <li><a href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
+        {% endif %}
+        {% if perms.dcim.add_interfacetemplate %}
+          <li><a href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
+        {% endif %}
+        {% if perms.dcim.add_frontporttemplate %}
+          <li><a href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_rearporttemplate %}
+          <li><a href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
+        {% endif %}
+        {% if perms.dcim.add_devicebaytemplate %}
+          <li><a href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
+        {% endif %}
+      </ul>
     </div>
-    <div class="pull-right noprint">
-        {% plugin_buttons object %}
-        {% if perms.dcim.change_devicetype %}
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    {% if perms.dcim.add_consoleporttemplate %}
-                        <li><a href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
-                    {% endif %}
-                    {% if perms.dcim.add_consoleserverporttemplate %}
-                        <li><a href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
-                    {% endif %}
-                    {% if perms.dcim.add_powerporttemplate %}
-                        <li><a href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
-                    {% endif %}
-                    {% if perms.dcim.add_poweroutlettemplate %}
-                        <li><a href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
-                    {% endif %}
-                    {% if perms.dcim.add_interfacetemplate %}
-                        <li><a href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
-                    {% endif %}
-                    {% if perms.dcim.add_frontporttemplate %}
-                        <li><a href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
-                    {% endif %}
-                    {% if perms.dcim.add_rearporttemplate %}
-                        <li><a href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
-                    {% endif %}
-                    {% if perms.dcim.add_devicebaytemplate %}
-                        <li><a href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-        {% endif %}
-        {% if perms.dcim.add_devicetype %}
-            {% clone_button object %}
-        {% endif %}
-        {% if perms.dcim.change_devicetype %}
-            {% edit_button object use_pk=True %}
-        {% endif %}
-        {% if perms.dcim.delete_devicetype %}
-            {% delete_button object use_pk=True %}
-        {% endif %}
-    </div>
-    <h1>{{ object.manufacturer }} {{ object.model }}</h1>
-    {% include 'inc/created_updated.html' %}
-    <div class="pull-right noprint">
-        {% custom_links object %}
-    </div>
-    <ul class="nav nav-tabs">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ object.get_absolute_url }}">Device Type</a>
-        </li>
-        {% if perms.extras.view_objectchange %}
-            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:devicetype_changelog' pk=object.pk %}">Change Log</a>
-            </li>
-        {% endif %}
-    </ul>
+  {% endif %}
+  {% if perms.dcim.add_devicetype %}
+    {% clone_button object %}
+  {% endif %}
+  {% if perms.dcim.change_devicetype %}
+    {% edit_button object %}
+  {% endif %}
+  {% if perms.dcim.delete_devicetype %}
+    {% delete_button object %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -88,7 +66,7 @@
                 <table class="table table-hover panel-body attr-table">
                     <tr>
                         <td>Manufacturer</td>
-                        <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></td>
+                        <td><a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a></td>
                     </tr>
                     <tr>
                         <td>Model Name</td>

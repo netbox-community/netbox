@@ -44,6 +44,7 @@
             </div>
         </div>
     </form>
+    {% include 'inc/paginator.html' with paginator=poweroutlet_table.paginator page=poweroutlet_table.page %}
     {% table_config_form poweroutlet_table %}
 {% endblock %}
 

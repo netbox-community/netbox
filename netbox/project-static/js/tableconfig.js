@@ -1,7 +1,25 @@
 $(document).ready(function() {
-    $('form.userconfigform input.reset').click(function(event) {
-        // Deselect all columns when the reset button is clicked
+
+    // Select or reset table columns
+    $('#save_tableconfig').click(function(event) {
+        $('select[name="columns"] option').attr("selected", "selected");
+    });
+    $('#reset_tableconfig').click(function(event) {
         $('select[name="columns"]').val([]);
+    });
+
+    // Swap columns between available and selected lists
+    $('#add_columns').click(function(e) {
+        let selected_columns = $('#id_available_columns option:selected');
+        $('#id_columns').append($(selected_columns).clone());
+        $(selected_columns).remove();
+        e.preventDefault();
+    });
+    $('#remove_columns').click(function(e) {
+        let selected_columns = $('#id_columns option:selected');
+        $('#id_available_columns').append($(selected_columns).clone());
+        $(selected_columns).remove();
+        e.preventDefault();
     });
 
     $('form.userconfigform').submit(function(event) {
