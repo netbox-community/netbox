@@ -702,6 +702,10 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
         queryset=Tag.objects.all(),
         required=False
     )
+    field_order = (
+        'virtual_machine', 'name_pattern', 'enabled', 'parent', 'mtu', 'mac_address', 'description', 'mode',
+        'untagged_vlan', 'tagged_vlans', 'tags'
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
