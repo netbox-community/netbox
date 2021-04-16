@@ -3,11 +3,11 @@
 {% elif result.status == 'errored' %}
     <span class="badge bg-danger">Errored</span>
 {% elif result.status == 'pending' %}
-    <span class="badge bg-light">Pending</span>
+    <span class="badge bg-info">Pending</span>
 {% elif result.status == 'running' %}
     <span class="badge bg-warning">Running</span>
 {% elif result.status == 'completed' %}
     <span class="badge bg-success">Completed</span>
 {% else %}
-    <span class="badge bg-light">N/A</span>
+    <span class="badge bg-secondary">N/A</span>
 {% endif %}

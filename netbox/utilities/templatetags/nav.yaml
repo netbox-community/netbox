@@ -206,3 +206,24 @@ menus:
           - label: Secret Roles
             url: 'secrets:secretrole_list'
             disabled: true
+  - label: Other
+    groups:
+      - label: Logging
+        items:
+          - label: Change Log
+            url: 'extras:objectchange_list'
+            disabled: true
+          - label: Journal Entries
+            url: 'extras:journalentry_list'
+            disabled: true
+      - label: Miscellaneous
+        items:
+          - label: Config Contexts
+            url: 'extras:configcontext_list'
+            disabled: true
+          - label: Reports
+            url: 'extras:report_list'
+            disabled: true
+          - label: Scripts
+            url: 'extras:script_list'
+            disabled: true

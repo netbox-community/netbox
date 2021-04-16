@@ -165,6 +165,18 @@ span.color-label {
   padding: $badge-padding-y $badge-padding-x;
 }
 
+pre {
+  border-radius: $border-radius;
+  border: 1px solid $gray-200;
+  background-color: $gray-100;
+  padding: $spacer;
+  white-space: pre;
+}
+
+.btn {
+  white-space: nowrap;
+}
+
 .card {
   box-shadow: $box-shadow-sm;
   .card-header {
