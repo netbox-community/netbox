@@ -340,10 +340,10 @@ class IPAddressTable(BaseTable):
         verbose_name='Interface'
     )
     assigned_object_parent = tables.Column(
-        accessor='assigned_object__parent',
+        accessor='assigned_object.parent_object',
         linkify=True,
         orderable=False,
-        verbose_name='Interface Parent'
+        verbose_name='Device/VM'
     )
 
     class Meta(BaseTable.Meta):
