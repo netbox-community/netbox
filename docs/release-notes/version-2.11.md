@@ -1,41 +1,6 @@
 # NetBox v2.11
 
-## v2.11.0 (FUTURE)
-
-### Enhancements (from Beta)
-
-* [#5757](https://github.com/netbox-community/netbox/issues/5757) - Add unique identifier to every object view
-* [#5848](https://github.com/netbox-community/netbox/issues/5848) - Filter custom fields by content type in format `<app_label>.<model>`
-* [#6088](https://github.com/netbox-community/netbox/issues/6088) - Improved table configuration form
-* [#6097](https://github.com/netbox-community/netbox/issues/6097) - Redirect old slug-based object views
-* [#6109](https://github.com/netbox-community/netbox/issues/6109) - Add device counts to locations table
-* [#6121](https://github.com/netbox-community/netbox/issues/6121) - Extend parent interface assignment to VM interfaces
-* [#6125](https://github.com/netbox-community/netbox/issues/6125) - Add locations count to home page
-* [#6146](https://github.com/netbox-community/netbox/issues/6146) - Add bulk disconnect support for power feeds
-* [#6149](https://github.com/netbox-community/netbox/issues/6149) - Support image attachments for locations
-* [#6150](https://github.com/netbox-community/netbox/issues/6150) - Enable change logging for journal entries
-
-### Bug Fixes (from Beta)
-
-* [#5583](https://github.com/netbox-community/netbox/issues/5583) - Eliminate redundant change records when adding/removing tags
-* [#6100](https://github.com/netbox-community/netbox/issues/6100) - Fix VM interfaces table "add interfaces" link
-* [#6104](https://github.com/netbox-community/netbox/issues/6104) - Fix location column on racks table
-* [#6105](https://github.com/netbox-community/netbox/issues/6105) - Hide checkboxes for VMs under cluster VMs view
-* [#6106](https://github.com/netbox-community/netbox/issues/6106) - Allow assigning a virtual interface as the parent of an existing interface
-* [#6107](https://github.com/netbox-community/netbox/issues/6107) - Fix rack selection field on device form
-* [#6110](https://github.com/netbox-community/netbox/issues/6110) - Fix handling of TemplateColumn values for table export
-* [#6123](https://github.com/netbox-community/netbox/issues/6123) - Prevent device from being assigned to mismatched site and location
-* [#6124](https://github.com/netbox-community/netbox/issues/6124) - Location `parent` filter should return all child locations (not just those directly assigned)
-* [#6130](https://github.com/netbox-community/netbox/issues/6130) - Improve display of assigned models in custom fields list
-* [#6155](https://github.com/netbox-community/netbox/issues/6155) - Fix admin links for plugins, background tasks
-* [#6171](https://github.com/netbox-community/netbox/issues/6171) - Fix display of horizontally-scrolling object lists
-* [#6173](https://github.com/netbox-community/netbox/issues/6173) - Fix assigned device/VM count when bulk editing/deleting device roles
-
----
-
-## v2.11-beta1 (2021-04-06)
-
-**WARNING:** This is a beta release and is not suitable for production use. It is intended for development and evaluation purposes only. No upgrade path to the final v2.11 release will be provided from this beta, and users should assume that all data entered into the application will be lost.
+## v2.11.0-dev (FUTURE)
 
 **Note:** NetBox v2.11 is the last major release that will support Python 3.6. Beginning with NetBox v2.12, Python 3.7 or later will be required.
 
@@ -126,7 +91,9 @@ A new provider network model has been introduced to represent the boundary of a 
 * [#5451](https://github.com/netbox-community/netbox/issues/5451) - Add support for multiple-selection custom fields
 * [#5608](https://github.com/netbox-community/netbox/issues/5608) - Add REST API endpoint for custom links
 * [#5610](https://github.com/netbox-community/netbox/issues/5610) - Add REST API endpoint for webhooks
+* [#5757](https://github.com/netbox-community/netbox/issues/5757) - Add unique identifier to every object view
 * [#5830](https://github.com/netbox-community/netbox/issues/5830) - Add `as_attachment` to ExportTemplate to control download behavior
+* [#5848](https://github.com/netbox-community/netbox/issues/5848) - Filter custom fields by content type in format `<app_label>.<model>`
 * [#5891](https://github.com/netbox-community/netbox/issues/5891) - Add `display` field to all REST API serializers
 * [#5894](https://github.com/netbox-community/netbox/issues/5894) - Use primary keys when filtering object lists by related objects in the UI
 * [#5895](https://github.com/netbox-community/netbox/issues/5895) - Rename RackGroup to Location
@@ -136,6 +103,27 @@ A new provider network model has been introduced to represent the boundary of a 
 * [#5975](https://github.com/netbox-community/netbox/issues/5975) - Allow partial (decimal) vCPU allocations for virtual machines
 * [#6001](https://github.com/netbox-community/netbox/issues/6001) - Paginate component tables under device views
 * [#6038](https://github.com/netbox-community/netbox/issues/6038) - Include tagged objects list on tag view
+* [#6088](https://github.com/netbox-community/netbox/issues/6088) - Improved table configuration form
+* [#6097](https://github.com/netbox-community/netbox/issues/6097) - Redirect old slug-based object views
+* [#6125](https://github.com/netbox-community/netbox/issues/6125) - Add locations count to home page
+* [#6146](https://github.com/netbox-community/netbox/issues/6146) - Add bulk disconnect support for power feeds
+* [#6149](https://github.com/netbox-community/netbox/issues/6149) - Support image attachments for locations
+
+### Bug Fixes (from v2.11-beta1)
+
+* [#5583](https://github.com/netbox-community/netbox/issues/5583) - Eliminate redundant change records when adding/removing tags
+* [#6100](https://github.com/netbox-community/netbox/issues/6100) - Fix VM interfaces table "add interfaces" link
+* [#6104](https://github.com/netbox-community/netbox/issues/6104) - Fix location column on racks table
+* [#6105](https://github.com/netbox-community/netbox/issues/6105) - Hide checkboxes for VMs under cluster VMs view
+* [#6106](https://github.com/netbox-community/netbox/issues/6106) - Allow assigning a virtual interface as the parent of an existing interface
+* [#6107](https://github.com/netbox-community/netbox/issues/6107) - Fix rack selection field on device form
+* [#6110](https://github.com/netbox-community/netbox/issues/6110) - Fix handling of TemplateColumn values for table export
+* [#6123](https://github.com/netbox-community/netbox/issues/6123) - Prevent device from being assigned to mismatched site and location
+* [#6124](https://github.com/netbox-community/netbox/issues/6124) - Location `parent` filter should return all child locations (not just those directly assigned)
+* [#6130](https://github.com/netbox-community/netbox/issues/6130) - Improve display of assigned models in custom fields list
+* [#6155](https://github.com/netbox-community/netbox/issues/6155) - Fix admin links for plugins, background tasks
+* [#6171](https://github.com/netbox-community/netbox/issues/6171) - Fix display of horizontally-scrolling object lists
+* [#6173](https://github.com/netbox-community/netbox/issues/6173) - Fix assigned device/VM count when bulk editing/deleting device roles
 
 ### Other Changes
 
