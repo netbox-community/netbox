@@ -11,7 +11,7 @@
             </a>
         </div>
         <h4>
-            Your user key is 
+            Your User Key is 
             {% if object.is_active %}
                 <span class="badge bg-success">Active</span>
             {% else %}
@@ -27,19 +27,19 @@
                 Your user key is inactive. Ask an administrator to enable it for you.
             </div>
         {% endif %}
-        <pre class="border rounded  p-3 copyable">{{ object.public_key }}</pre>
+        <pre class="copyable">{{ object.public_key }}</pre>
         <hr />
         {% if object.session_key %}
             <div class="pull-right noprint">
                 <a href="{% url 'user:sessionkey_delete' %}" class="btn btn-danger">
                     <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
-                    Delete session key
+                    Delete Session Key
                 </a>
             </div>
-            <h4>Session key: <span class="label label-success">Active</span></h4>
+            <h4>Session Key: <span class="badge bg-success">Active</span></h4>
             <small class="text-muted">Created {{ object.session_key.created }}</small>
         {% else %}
-            <h4>No active session key</h4>
+            <h4>No Active Session Key</h4>
         {% endif %}
     {% else %}
         <p>You don't have a user key on file.</p>
