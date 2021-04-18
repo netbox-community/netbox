@@ -11,12 +11,15 @@ type APIAnswer<T> = {
   results: T[];
 };
 
-type APIError = {
+type ErrorBase = {
   error: string;
+};
+
+type APIError = {
   exception: string;
   netbox_version: string;
   python_version: string;
-};
+} & ErrorBase;
 
 type APIObjectBase = {
   id: number;
@@ -37,6 +40,23 @@ type APIReference = {
   slug: string;
   url: string;
   _depth: number;
+};
+
+type APISecret = {
+  assigned_object: APIObjectBase;
+  assigned_object_id: number;
+  assigned_object_type: string;
+  created: string;
+  custom_fields: Record<string, unknown>;
+  display: string;
+  hash: string;
+  id: number;
+  last_updated: string;
+  name: string;
+  plaintext: Nullable<string>;
+  role: APIObjectBase;
+  tags: number[];
+  url: string;
 };
 
 interface ObjectWithGroup extends APIObjectBase {

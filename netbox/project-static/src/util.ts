@@ -1,6 +1,9 @@
 import Cookie from 'cookie';
-
 export function isApiError(data: Record<string, unknown>): data is APIError {
+  return 'error' in data && 'exception' in data;
+}
+
+export function hasError(data: Record<string, unknown>): data is ErrorBase {
   return 'error' in data;
 }
 
@@ -34,13 +37,55 @@ export function getCsrfToken(): string {
 
 export async function apiGetBase<T extends Record<string, unknown>>(
   url: string,
-): Promise<T | APIError> {
+): Promise<T | ErrorBase | APIError> {
   const token = getCsrfToken();
   const res = await fetch(url, {
     method: 'GET',
     headers: { 'X-CSRFToken': token },
+    credentials: 'same-origin',
   });
+  const contentType = res.headers.get('Content-Type');
+  if (typeof contentType === 'string' && contentType.includes('text')) {
+    const error = await res.text();
+    return { error } as ErrorBase;
+  }
+
   const json = (await res.json()) as T | APIError;
+  if (!res.ok && Array.isArray(json)) {
+    const error = json.join('\n');
+    return { error } as ErrorBase;
+  }
+  return json;
+}
+
+export async function apiPostForm<
+  T extends Record<string, unknown>,
+  R extends Record<string, unknown>
+>(url: string, data: T): Promise<R | ErrorBase | APIError> {
+  const token = getCsrfToken();
+  const body = new URLSearchParams();
+  for (const [k, v] of Object.entries(data)) {
+    body.append(k, String(v));
+  }
+  const res = await fetch(url, {
+    method: 'POST',
+    body,
+    headers: { 'X-CSRFToken': token },
+  });
+
+  const contentType = res.headers.get('Content-Type');
+  if (typeof contentType === 'string' && contentType.includes('text')) {
+    let error = await res.text();
+    if (contentType.includes('text/html')) {
+      error = res.statusText;
+    }
+    return { error } as ErrorBase;
+  }
+
+  const json = (await res.json()) as R | APIError;
+  if (!res.ok && 'detail' in json) {
+    return { error: json.detail as string } as ErrorBase;
+  }
   return json;
 }
 
@@ -50,7 +95,7 @@ export async function apiGetBase<T extends Record<string, unknown>>(
  */
 export async function getApiData<T extends APIObjectBase>(
   url: string,
-): Promise<APIAnswer<T> | APIError> {
+): Promise<APIAnswer<T> | ErrorBase | APIError> {
   return await apiGetBase<APIAnswer<T>>(url);
 }
 

@@ -7,7 +7,7 @@ import { initSpeedSelector, initForms } from './forms';
 import { initRackElevation } from './buttons';
 import { initClipboard } from './clipboard';
 import { initSearchBar } from './search';
-// import { initGenerateKeyPair } from './secrets';
+import { initGenerateKeyPair, initLockUnlock, initGetSessionKey } from './secrets';
 import { getElements } from './util';
 
 const INITIALIZERS = [
@@ -21,7 +21,9 @@ const INITIALIZERS = [
   initColorSelect,
   initRackElevation,
   initClipboard,
-  // initGenerateKeyPair,
+  initGenerateKeyPair,
+  initLockUnlock,
+  initGetSessionKey,
 ] as (() => void)[];
 
 /**
@@ -35,7 +37,6 @@ function initBootstrap(): void {
       new Tooltip(tooltip, { container: 'body', boundary: 'window' });
     }
     for (const modal of getElements('[data-bs-toggle="modal"]')) {
-      // for (const modal of getElements('div.modal')) {
       new Modal(modal);
     }
     initMessageToasts();
