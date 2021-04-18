@@ -285,7 +285,7 @@
                                 {% if perms.secrets.add_secret %}
                                 <div class="card-footer text-end noprint">
                                     <a href="{% url 'secrets:secret_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-plus"></i> Add secret
+                                        <i class="mdi mdi-plus-thick"></i> Add Secret
                                     </a>
                                 </div>
                                 {% endif %}
@@ -311,7 +311,7 @@
                                 {% if perms.ipam.add_service %}
                                 <div class="card-footer text-end noprint">
                                     <a href="{% url 'dcim:device_service_assign' device=object.pk %}" class="btn btn-sm btn-primary">
-                                        <span class="bi bi-plus" aria-hidden="true"></span> Assign service
+                                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Service
                                     </a>
                                 </div>
                                 {% endif %}
@@ -326,8 +326,8 @@
                                 {% if perms.extras.add_imageattachment %}
                                 <div class="card-footer text-end noprint">
                                     <a href="{% url 'dcim:device_add_image' object_id=object.pk %}" class="btn btn-primary btn-sm">
-                                        <span class="bi bi-plus" aria-hidden="true"></span>
-                                        Attach an image
+                                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+                                        Attach an Image
                                     </a>
                                 </div>
                                 {% endif %}
@@ -378,8 +378,4 @@
         </div>
     </div>
     {% include 'secrets/inc/private_key_modal.html' %}
-{% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

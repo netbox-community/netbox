@@ -1,17 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
+
+{% block title %}{% endblock %}
 
 {% block content %}
-<div class="row" style="margin-top: 150px;">
-    <div class="col-sm-4 col-sm-offset-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>{% block icon %}{% endblock %} {% block title %}{% endblock %}</strong>
-            </div>
-            <div class="panel-body">
+<div class="row my-5">
+    <div class="col-6 offset-3">
+        <div class="card">
+            <h5 class="card-header text-danger">
+                {{ request_path }}
+            </h5>
+            <div class="card-body">
                 {% block message %}{% endblock %}
             </div>
-            <div class="panel-footer text-right">
-                <a href="{% url 'home' %}" class="btn btn-xs btn-primary">Home Page</a>
+            <div class="card-footer text-end">
+                <a href="{% url 'home' %}" class="btn btn-sm btn-primary">Home Page</a>
             </div>
         </div>
     </div>

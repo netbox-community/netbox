@@ -127,15 +127,3 @@
     {% endif %}
     
 {% endif %}
-
-{% comment %} <div class="invalid-feedback">
-{% if field.errors %}
-    <ul>
-        {% for error in field.errors %}
-            {# Embed an HTML comment indicating the error for extraction by tests #}
-            <!-- FORM-ERROR {{ field.name }}: {{ error }} -->
-            <li class="text-danger">{{ error }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
-</div> {% endcomment %}

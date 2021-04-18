@@ -3,52 +3,54 @@
 {% load static %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'extras:journalentry_list' %}">Journal Entries</a></li>
-  <li><a href="{% url object.assigned_object|viewname:'journal' pk=object.assigned_object.pk %}">{{ object.assigned_object }}</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:journalentry_list' %}">Journal Entries</a></li>
+  <li class="breadcrumb-item"><a href="{% url object.assigned_object|viewname:'journal' pk=object.assigned_object.pk %}">{{ object.assigned_object }}</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Journal Entry</strong>
+            <div class="card">
+                <h5 class="card-header">
+                    Journal Entry
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th scope="row">Object</th>
+                            <td>
+                                <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Created</th>
+                            <td>
+                                {{ object.created }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Created By</th>
+                            <td>
+                                {{ object.created_by }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Kind</th>
+                            <td>
+                                <span class="badge bg-{{ object.get_kind_class }}">{{ object.get_kind_display }}</span>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Object</td>
-                        <td>
-                            <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Created</td>
-                        <td>
-                            {{ object.created }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Created By</td>
-                        <td>
-                            {{ object.created_by }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Kind</td>
-                        <td>
-                          <span class="label label-{{ object.get_kind_class }}">{{ object.get_kind_display }}</span>
-                        </td>
-                    </tr>
-                </table>
             </div>
         </div>
         <div class="col-md-8">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Comments</strong>
-                </div>
-                <div class="panel-body">
+            <div class="card">
+                <h5 class="card-header">
+                    Comments
+                </h5>
+                <div class="card-body">
                     {{ object.comments|render_markdown }}
                 </div>
             </div>

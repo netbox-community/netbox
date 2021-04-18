@@ -1,19 +1,22 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load buttons %}
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_controls %}{% export_button content_type %}{% endblock %}
+
 {% block content %}
-<div class="float-end noprint">
-    {% export_button content_type %}
-</div>
-<div class="row">
-	  <div class="col-md-12">
-        <div class="col-md-3 pull-right right-side-panel noprint">
-            {% include 'inc/search_panel.html' %}
+<div class="row mb-3">
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-body">
+                {% include 'responsive_table.html' %}
+            </div>
         </div>
-        {% include 'responsive_table.html' %}
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+    </div>
+    <div class="col-md-3 float-end right-side-panel noprint">
+        {% include 'inc/search_panel.html' %}
     </div>
 </div>
 {% endblock %}
