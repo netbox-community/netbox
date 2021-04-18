@@ -3,95 +3,101 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:location_list' %}">Locations</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:location_list' %}">Locations</a></li>
   {% for location in object.get_ancestors %}
-    <li><a href="{{ location.get_absolute_url }}">{{ location }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ location.get_absolute_url }}">{{ location }}</a></li>
   {% endfor %}
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row mb-3">
 	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Location</strong>
+    <div class="card">
+      <h5 class="card-header">
+        Location
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Site</th>
+            <td><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Parent</th>
+            <td>
+              {% if object.parent %}
+                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+              {% else %}
+                <span class="text-muted">&mdash;</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Racks</th>
+            <td>
+              <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ object.racks.count }}</a>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Devices</th>
+            <td>
+              <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
+            </td>
+          </tr>
+        </table>
       </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td>{{ object.description|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>Site</td>
-          <td><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></td>
-        </tr>
-        <tr>
-          <td>Parent</td>
-          <td>
-            {% if object.parent %}
-              <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-            {% else %}
-              <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td>Racks</td>
-          <td>
-            <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ object.racks.count }}</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Devices</td>
-          <td>
-            <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
-          </td>
-        </tr>
-      </table>
     </div>
     {% plugin_left_page object %}
   </div>
 	<div class="col-md-6">
     {% include 'inc/custom_fields_panel.html' %}
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>Images</strong>
+    <div class="card">
+        <h5 class="card-header">
+            Images
+        </h5>
+        <div class="card-body">
+          {% include 'inc/image_attachments.html' with images=object.images.all %}
         </div>
-        {% include 'inc/image_attachments.html' with images=object.images.all %}
         {% if perms.extras.add_imageattachment %}
-            <div class="panel-footer text-right noprint">
-                <a href="{% url 'dcim:location_add_image' object_id=object.pk %}" class="btn btn-primary btn-xs">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                    Attach an image
-                </a>
-            </div>
+          <div class="card-footer text-end noprint">
+              <a href="{% url 'dcim:location_add_image' object_id=object.pk %}" class="btn btn-primary btn-sm">
+                  <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+                  Attach an Image
+              </a>
+          </div>
         {% endif %}
     </div>
     {% plugin_right_page object %}
 	</div>
 </div>
-<div class="row">
+<div class="row mb-3">
 	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Devices</strong>
+    <div class="card">
+      <h5 class="card-header">
+        Devices
+      </h5>
+      <div class="card-body">
+        {% include 'inc/table.html' with table=devices_table %}
       </div>
-      {% include 'inc/table.html' with table=devices_table %}
       {% if perms.dcim.add_device %}
-        <div class="panel-footer text-right noprint">
-          <a href="{% url 'dcim:device_add' %}?location={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add device
-          </a>
-        </div>
-      {% endif %}
+      <div class="card-footer text-end noprint">
+        <a href="{% url 'dcim:device_add' %}?location={{ object.pk }}" class="btn btn-sm btn-primary">
+          <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Device
+        </a>
       </div>
-      {% include 'inc/paginator.html' with paginator=devices_table.paginator page=devices_table.page %}
-      {% plugin_full_width_page object %}
+      {% endif %}
+    </div>
+    {% include 'inc/paginator.html' with paginator=devices_table.paginator page=devices_table.page %}
+    {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}

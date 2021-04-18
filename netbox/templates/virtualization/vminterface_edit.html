@@ -5,14 +5,9 @@
     <div class="field-group">
         <h4>Interface</h4>
         {% if form.instance.virtual_machine %}
-            <div class="form-floating">
-                <input class="form-control" value="{{ form.instance.virtual_machine }}"/>
-                {% comment %} <div class="col-md-9">
-                    <p class="form-control-static">
-                        <a href="{{ form.instance.virtual_machine.get_absolute_url }}">{{ form.instance.virtual_machine }}</a>
-                    </p>
-                </div> {% endcomment %}
-                <label class="col-md-3 control-label required" for="id_device">Virtual Machine</label>
+            <div class="form-floating mb-3">
+                <input class="form-control" value="{{ form.instance.virtual_machine }}" disabled />
+                <label class="form-label required" for="id_device">Virtual Machine</label>
             </div>
         {% endif %}
         {% render_field form.name %}
@@ -39,12 +34,12 @@
 {% endblock %}
 
 {% block buttons %}
-    {% if obj.pk %}
-        <button type="submit" name="_update" class="btn btn-primary">Update</button>
-        <button type="submit" formaction="?return_url={% url 'virtualization:vminterface_edit' pk=obj.pk %}" class="btn btn-primary">Update and Continue Editing</button>
-    {% else %}
-        <button type="submit" name="_create" class="btn btn-primary">Create</button>
-        <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
-    {% endif %}
-    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+{% if obj.pk %}
+    <button type="submit" formaction="?return_url={% url 'virtualization:vminterface_edit' pk=obj.pk %}" class="btn btn-outline-primary">Update & Continue Editing</button>
+    <button type="submit" name="_update" class="btn btn-primary">Update</button>
+{% else %}
+    <button type="submit" name="_addanother" class="btn btn-outline-primary">Create & Add Another</button>
+    <button type="submit" name="_create" class="btn btn-primary">Create</button>
+{% endif %}
 {% endblock %}

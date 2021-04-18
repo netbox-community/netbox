@@ -262,6 +262,10 @@ textarea#id_public_key {
   font-family: $font-family-monospace;
 }
 
+table tr.vertical-align {
+  vertical-align: middle;
+}
+
 // Pad all adjacent cards
 .card:not(:only-of-type) {
   margin-bottom: $spacer;

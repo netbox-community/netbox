@@ -4,14 +4,13 @@
 {% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
-  {{ block.super }}
-  <li><a href="{% url 'dcim:device_interfaces' pk=object.device.pk %}">Interfaces</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:device_interfaces' pk=object.device.pk %}">Interfaces</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
-{% block buttons %}
+{% block extra_controls %}
   {% if perms.dcim.add_interface and not object.is_virtual %}
-    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-success">
+    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success m-1">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Child Interface
     </a>
   {% endif %}
@@ -19,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-6">
             <div class="card">
                 <h5 class="card-header">
@@ -115,7 +114,7 @@
                                 <th scope="row">Cable</th>
                                 <td>
                                     <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
-                                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm" title="Trace">
+                                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                                         <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                     </a>
                                 </td>
@@ -267,20 +266,22 @@
             {% plugin_right_page object %}
         </div>
     </div>
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>IP Addresses</strong>
+            <div class="card">
+                <h5 class="card-header">
+                    IP Addresses
+                </h5>
+                <div class="card-body">
+                    {% if ipaddress_table.rows %}
+                        {% render_table ipaddress_table 'inc/table.html' %}
+                    {% else %}
+                        <div class="text-muted">None</div>
+                    {% endif %}
                 </div>
-                {% if ipaddress_table.rows %}
-                    {% render_table ipaddress_table 'inc/table.html' %}
-                {% else %}
-                    <div class="panel-body text-muted">None</div>
-                {% endif %}
                 {% if perms.ipam.add_ipaddress %}
-                    <div class="panel-footer text-right noprint">
-                        <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}" class="btn btn-xs btn-primary">
+                    <div class="card-footer text-end noprint">
+                        <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}" class="btn btn-sm btn-primary">
                             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add IP Address
                         </a>
                     </div>
@@ -288,17 +289,17 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-12">
             {% include 'panel_table.html' with table=vlan_table heading="VLANs" %}
         </div>
     </div>
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-12">
             {% include 'panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}
         </div>
     </div>
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-12">
             {% plugin_full_width_page object %}
         </div>
