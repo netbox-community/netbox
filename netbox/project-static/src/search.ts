@@ -1,3 +1,5 @@
+import { getElements } from './util';
+
 interface SearchFilterButton extends EventTarget {
   dataset: { searchValue: string };
 }
@@ -33,5 +35,47 @@ export function initSearchBar() {
         button.addEventListener('click', handleClick);
       }
     }
+  }
+}
+
+/**
+ * Initialize Interface Table Filter Elements.
+ */
+export function initInterfaceFilter() {
+  for (const element of getElements<HTMLInputElement>('input.interface-filter')) {
+    /**
+     * Filter on-page table by input text.
+     */
+    function handleInput(event: Event) {
+      const target = event.target as HTMLInputElement;
+      // Create a regex pattern from the input search text to match against.
+      const filter = new RegExp(target.value);
+
+      // Each row represents an interface and its attributes.
+      for (const row of getElements<HTMLTableRowElement>('table > tbody > tr')) {
+        // The data-name attribute's value contains the interface name.
+        const name = row.getAttribute('data-name');
+
+        // Find the row's checkbox and deselect it, so that it is not accidentally included in form
+        // submissions.
+        const checkBox = row.querySelector<HTMLInputElement>('input[type="checkbox"][name="pk"]');
+        if (checkBox !== null) {
+          checkBox.checked = false;
+        }
+
+        if (typeof name === 'string') {
+          if (filter.test(name)) {
+            // If this row matches the search pattern, but is already hidden, unhide it.
+            if (row.classList.contains('d-none')) {
+              row.classList.remove('d-none');
+            }
+          } else {
+            // If this row doesn't match the search pattern, hide it.
+            row.classList.add('d-none');
+          }
+        }
+      }
+    }
+    element.addEventListener('keyup', handleInput);
   }
 }

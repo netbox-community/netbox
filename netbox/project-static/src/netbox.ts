@@ -6,7 +6,7 @@ import { initMessageToasts } from './toast';
 import { initSpeedSelector, initForms } from './forms';
 import { initRackElevation } from './buttons';
 import { initClipboard } from './clipboard';
-import { initSearchBar } from './search';
+import { initSearchBar, initInterfaceFilter } from './search';
 import { initGenerateKeyPair, initLockUnlock, initGetSessionKey } from './secrets';
 import { getElements } from './util';
 
@@ -24,6 +24,7 @@ const INITIALIZERS = [
   initGenerateKeyPair,
   initLockUnlock,
   initGetSessionKey,
+  initInterfaceFilter,
 ] as (() => void)[];
 
 /**
