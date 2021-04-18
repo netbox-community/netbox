@@ -81,7 +81,7 @@ class BulkEditForm(forms.Form):
             self.nullable_fields = self.Meta.nullable_fields
 
 
-class BulkRenameForm(forms.Form):
+class BulkRenameForm(BootstrapMixin, forms.Form):
     """
     An extendable form to be used for renaming objects in bulk.
     """
