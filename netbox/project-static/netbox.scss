@@ -262,6 +262,10 @@ textarea#id_public_key {
   font-family: $font-family-monospace;
 }
 
+textarea.form-control[name='csv'] {
+  font-family: $font-family-monospace;
+}
+
 table tr.vertical-align {
   vertical-align: middle;
 }
