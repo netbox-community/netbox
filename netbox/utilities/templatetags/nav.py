@@ -197,7 +197,12 @@ CIRCUITS_MENU = Menu(
         ),
         MenuGroup(
             label="Providers",
-            items=(MenuItem(label="Providersr", url="circuits:provider_list"),),
+            items=(
+                MenuItem(label="Providers", url="circuits:provider_list"),
+                MenuItem(
+                    label="Provider Networks", url="circuits:providernetwork_list"
+                ),
+            ),
         ),
     ),
 )
