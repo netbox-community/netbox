@@ -59,6 +59,38 @@ type APISecret = {
   url: string;
 };
 
+type JobResultLog = {
+  message: string;
+  status: 'success' | 'warning' | 'danger' | 'info';
+};
+
+type JobStatus = {
+  label: string;
+  value: 'completed' | 'failed' | 'errored' | 'running';
+};
+
+type APIJobResult = {
+  completed: string;
+  created: string;
+  data: {
+    log: JobResultLog[];
+    output: string;
+  };
+  display: string;
+  id: number;
+  job_id: string;
+  name: string;
+  obj_type: string;
+  status: JobStatus;
+  url: string;
+  user: {
+    display: string;
+    username: string;
+    id: number;
+    url: string;
+  };
+};
+
 interface ObjectWithGroup extends APIObjectBase {
   group: Nullable<APIReference>;
 }

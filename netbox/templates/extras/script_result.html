@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load log_levels %}
@@ -7,36 +7,41 @@
 {% block title %}{{ script }} - {{ result.get_status_display }}{% endblock %}
 
 {% block content %}
+    <span id="jobId" data-value="{{ result.pk }}" style="display: none;"></span>
+    <span id="jobComplete" data-value="{{ result.completed }}" style="display: none;"></span>
     <div class="row noprint">
         <div class="col-md-12">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'extras:script_list' %}">Scripts</a></li>
-                <li><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
-                <li><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
-                <li>{{ result.created }}</li>
-            </ol>
+            <nav class="breadcrumb-container" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
+                    <li class="breadcrumb-item">{{ result.created }}</li>
+                </ol>
+            </nav>
         </div>
     </div>
-    <h1 class="title">{{ script }}</h1>
-    <p>{{ script.Meta.description|render_markdown }}</p>
+    <p class="text-muted">{{ script.Meta.description|render_markdown }}</p>
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active">
-            <a href="#log" role="tab" data-toggle="tab" class="active">Log</a>
+        <li class="nav-item" role="presentation">
+            <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">Log</a>
         </li>
-        <li role="presentation">
-            <a href="#output" role="tab" data-toggle="tab">Output</a>
+        <li class="nav-item" role="presentation">
+            <a href="#output" role="tab" data-bs-toggle="tab" class="nav-link">Output</a>
         </li>
-        <li role="presentation">
-            <a href="#source" role="tab" data-toggle="tab">Source</a>
+        <li class="nav-item" role="presentation">
+            <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">Source</a>
         </li>
     </ul>
-    <div class="tab-content">
+    <div class="tab-content my-3">
         <p>
             Run: <strong>{{ result.created }}</strong>
             {% if result.completed %}
                 Duration: <strong>{{ result.duration }}</strong>
             {% else %}
-                <img id="pending-result-loader" src="{% static 'img/ajax-loader.gif' %}" />
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             {% endif %}
             <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
         </p>
@@ -44,33 +49,35 @@
             {% if result.completed %}
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <strong>Script Log</strong>
+                        <div class="card">
+                            <h5 class="card-header">
+                                Script Log
+                            </h5>
+                            <div class="card-body">
+                                <table class="table table-hover panel-body">
+                                    <tr>
+                                        <th>Line</th>
+                                        <th>Level</th>
+                                        <th>Message</th>
+                                    </tr>
+                                    {% for log in result.data.log %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{% log_level log.status %}</td>
+                                            <td class="rendered-markdown">{{ log.message|render_markdown }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">
+                                                No log output
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
                             </div>
-                            <table class="table table-hover panel-body">
-                                <tr>
-                                    <th>Line</th>
-                                    <th>Level</th>
-                                    <th>Message</th>
-                                </tr>
-                                {% for log in result.data.log %}
-                                    <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>{% log_level log.status %}</td>
-                                        <td class="rendered-markdown">{{ log.message|render_markdown }}</td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted">
-                                            No log output
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
                             {% if execution_time %}
-                                <div class="panel-footer text-right text-muted">
-                                    <small>Exec time: {{ execution_time|floatformat:3 }}s</small>
+                                <div class="card-footer text-end text-muted">
+                                    <small>Exec Time: {{ execution_time|floatformat:3 }}s</small>
                                 </div>
                             {% endif %}
                         </div>
@@ -79,7 +86,7 @@
             {% else %}
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="well">Pending results</div>
+                        <div class="well">Pending Results</div>
                     </div>
                 </div>
             {% endif %}
@@ -94,20 +101,7 @@
     </div>
 {% endblock %}
 
-
 {% block javascript %}
-<script type="text/javascript">
-{% if not result.completed %}
-var pending_result_id = {{ result.pk }};
-{% else %}
-var pending_result_id = null;
-{% endif %}
-
-function jobTerminatedAction(){
-    refreshWindow()
-}
-
-</script>
-<script src="{% static 'js/job_result.js' %}?v{{ settings.VERSION }}"
-        onerror="window.location='{% url 'media_failure' %}?filename=js/job_result.js'"></script>
+<script src="{% static 'jobs.js' %}?v{{ settings.VERSION }}"
+        onerror="window.location='{% url 'media_failure' %}?filename=jobs.js'"></script>
 {% endblock %}
