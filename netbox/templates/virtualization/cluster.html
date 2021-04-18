@@ -72,34 +72,6 @@
         </div>
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-7">
-        <div class="card">
-            <h5 class="card-header">
-                Host Devices
-            </h5>
-            <div class="card-body">
-                {% if perms.virtualization.change_cluster %}
-                <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
-                    {% csrf_token %}
-                    {% include 'responsive_table.html' with table=device_table %}
-                    {% if perms.virtualization.change_cluster %}
-                    <div class="card-footer noprint justify-content-between d-flex">
-                        <button type="submit" name="_remove" class="btn btn-danger primary btn-sm">
-                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
-                            Remove devices
-                        </button>
-                        <a href="{% url 'virtualization:cluster_add_devices' pk=object.pk %}?site={{ object.site.pk }}" class="btn btn-primary btn-sm">
-                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                            Add devices
-                        </a>
-                    </div>
-                </form>
-                {% endif %}
-                {% endif %}
-            </div>
-        </div>
-        {% plugin_right_page object %}
-	</div>
 </div>
 <div class="row">
   <div class="col-md-12">

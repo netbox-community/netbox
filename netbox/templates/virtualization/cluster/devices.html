@@ -4,20 +4,22 @@
 {% block content %}
 <div class="row">
   <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Host Devices</strong>
-      </div>
+    <div class="card">
+      <h5 class="card-header">
+        Host Devices
+      </h5>
       <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
       {% csrf_token %}
-      {% include 'responsive_table.html' with table=devices_table %}
-        {% if perms.virtualization.change_cluster %}
-          <div class="panel-footer noprint">
-            <button type="submit" name="_remove" class="btn btn-danger primary btn-xs">
-              <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Remove devices
-            </button>
-          </div>
-        {% endif %}
+      <div class="card-body">
+        {% include 'responsive_table.html' with table=devices_table %}
+      </div>
+      {% if perms.virtualization.change_cluster %}
+        <div class="card-footer noprint">
+          <button type="submit" name="_remove" class="btn btn-danger btn-sm">
+            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Remove Devices
+          </button>
+        </div>
+      {% endif %}
       </form>
     </div>
   </div>

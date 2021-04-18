@@ -4,11 +4,13 @@
 {% block content %}
 <div class="row">
   <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Virtual Machines</strong>
+    <div class="card">
+      <h5 class="card-header">
+        Virtual Machines
+      </h5>
+      <div class="card-body">
+        {% include 'responsive_table.html' with table=virtualmachines_table %}
       </div>
-      {% include 'responsive_table.html' with table=virtualmachines_table %}
     </div>
   </div>
 </div>
