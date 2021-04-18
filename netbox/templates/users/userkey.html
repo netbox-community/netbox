@@ -30,7 +30,7 @@
         <pre class="copyable">{{ object.public_key }}</pre>
         <hr />
         {% if object.session_key %}
-            <div class="pull-right noprint">
+            <div class="float-end noprint">
                 <a href="{% url 'user:sessionkey_delete' %}" class="btn btn-danger">
                     <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                     Delete Session Key

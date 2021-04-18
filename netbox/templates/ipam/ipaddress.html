@@ -122,7 +122,7 @@
                     Duplicate IP Addresses
                     {% if more_duplicate_ips %}
                     <div class="float-end">
-                        <a type="button" class="btn btn-primary btn-xs"
+                        <a type="button" class="btn btn-primary btn-sm"
                         {% if object.vrf %}
                         href="{% url 'ipam:ipaddress_list' %}?address={{ object.address.ip }}&vrf_id={{ object.vrf.pk }}"
                         {% else %}

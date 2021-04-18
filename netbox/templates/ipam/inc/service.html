@@ -10,18 +10,18 @@
         {% endfor %}
     </td>
     <td>{{ service.description }}</td>
-    <td class="text-right noprint">
-        <a href="{% url 'ipam:service_changelog' pk=service.pk %}" class="btn btn-default btn-sm" title="Change log">
+    <td class="text-end noprint">
+        <a href="{% url 'ipam:service_changelog' pk=service.pk %}" class="btn btn-sm btn-outline-secondary" title="Change Log">
             <i class="bi bi-clock-history"></i>
         </a>
         {% if perms.ipam.change_service %}
-            <a href="{% url 'ipam:service_edit' pk=service.pk %}?return_url={{ service.parent.get_absolute_url }}" class="btn btn-info btn-sm" title="Edit service">
+            <a href="{% url 'ipam:service_edit' pk=service.pk %}?return_url={{ service.parent.get_absolute_url }}" class="btn btn-warning btn-sm" title="Edit Service">
                 <i class="bi bi-pencil-fill"></i>
             </a>
         {% endif %}
         {% if perms.ipam.delete_service %}
             <a href="{% url 'ipam:service_delete' pk=service.pk %}?return_url={{ service.parent.get_absolute_url }}" class="btn btn-danger btn-sm">
-                <i class="bi bi-trash-fill" title="Delete service"></i>
+                <i class="bi bi-trash-fill" title="Delete Service"></i>
             </a>
         {% endif %}
     </td>

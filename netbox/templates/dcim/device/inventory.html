@@ -8,10 +8,10 @@
         {% csrf_token %}
         <div class="card">
             <div class="card-header">
-                <h5>Inventory Items</h5>
+                <h5 class="d-inline">Inventory Items</h5>
                 <div class="float-end noprint">
                     {% if request.user.is_authenticated %}
-                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#DeviceInventoryItemTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
+                        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceInventoryItemTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                     {% endif %}
                 </div>
             </div>

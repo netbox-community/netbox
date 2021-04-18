@@ -2,16 +2,9 @@
 {% load helpers %}
 {% load form_helpers %}
 
+{% block title %}Editing {{ table.rows|length }} {{ obj_type_plural|bettertitle }}{% endblock %}
+
 {% block content %}
-<h1>{% block title %}Editing {{ table.rows|length }} {{ obj_type_plural|bettertitle }}{% endblock %}</h1>
-{% if form.errors %}
-    <div class="card bg-danger">
-        <h5 class="card-header">Errors</h5>
-        <div class="card-body">
-            {{ form.errors }}
-        </div>
-    </div>
-{% endif %}
 <form action="" method="post" class="form form-horizontal">
     {% csrf_token %}
     {% if request.POST.return_url %}
@@ -27,14 +20,6 @@
             </div>
         </div>
         <div class="col-md-4">
-            {% if form.non_field_errors %}
-                <div class="card bg-danger">
-                    <h5 class="card-header">Errors</h5>
-                    <div class="card-body">
-                        {{ form.non_field_errors }}
-                    </div>
-                </div>
-            {% endif %}
             <div class="card">
                 <h5 class="card-header">{% block form_title %}Attributes{% endblock %}</h5>
                 <div class="card-body">
@@ -47,10 +32,10 @@
                     {% endfor %}
                 </div>
             </div>
-		    <div class="form-group text-right">
+		    <div class="form-group text-end">
                 <div class="col-md-12">
+                    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                     <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
-                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
                 </div>
 		    </div>
         </div>

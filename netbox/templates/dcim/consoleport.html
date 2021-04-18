@@ -3,9 +3,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  {{ block.super }}
-  <li><a href="{% url 'dcim:device_consoleports' pk=object.device.pk %}">Console Ports</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:device_consoleports' pk=object.device.pk %}">Console Ports</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
@@ -64,7 +63,7 @@
                             <th scope="row">Cable</th>
                             <td>
                                 <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
-                                <a href="{% url 'dcim:consoleport_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                <a href="{% url 'dcim:consoleport_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                                     <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                 </a>
                             </td>
@@ -94,9 +93,9 @@
                                 <th scope="row">Path Status</th>
                                 <td>
                                     {% if object.path.is_active %}
-                                        <span class="label label-success">Reachable</span>
+                                        <span class="badge bg-success">Reachable</span>
                                     {% else %}
-                                        <span class="label label-danger">Not Reachable</span>
+                                        <span class="badge bg-danger">Not Reachable</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -106,11 +105,11 @@
                     <div class="text-muted">
                         Not Connected
                         {% if perms.dcim.add_cable %}
-                            <div class="dropdown">
+                            <div class="dropdown float-end">
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <a
                                             class="dropdown-item"

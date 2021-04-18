@@ -8,10 +8,10 @@
         {% csrf_token %}
         <div class="card">
             <div class="card-header">
-                <h5>Power Outlets</h5>
-                <div class="float-right noprint">
+                <h5 class="d-inline">Power Outlets</h5>
+                <div class="float-end noprint">
                 {% if request.user.is_authenticated %}
-                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#DevicePowerOutletTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DevicePowerOutletTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                 {% endif %}
                 </div>
             </div>
@@ -38,7 +38,7 @@
                 {% if perms.dcim.add_poweroutlet %}
                     <div class="float-end">
                         <a href="{% url 'dcim:poweroutlet_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus" aria-hidden="true"></i> Add power outlets
+                            <i class="bi bi-plus" aria-hidden="true"></i> Add Power Outlets
                         </a>
                     </div>
                 {% endif %}

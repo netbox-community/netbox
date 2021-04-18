@@ -42,7 +42,7 @@
                 </h5>
                 {% for context in source_contexts %}
                     <div class="card-body">
-                        <div class="pull-right">
+                        <div class="float-end">
                             <span class="text-muted">{{ context.weight }}</span>
                         </div>
                         <a href="{{ context.get_absolute_url }}"><strong>{{ context.name }}</strong></a>

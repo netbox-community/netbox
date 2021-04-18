@@ -410,3 +410,29 @@ table th {
   margin-top: 2rem;
   text-align: center;
 }
+
+pre.change-data {
+  padding-left: 0;
+  padding-right: 0;
+  & > span {
+    display: block;
+    padding-left: $spacer;
+    padding-right: $spacer;
+    &.added {
+      background-color: rgba($green, 0.4);
+    }
+    &.removed {
+      background-color: rgba($red, 0.4);
+    }
+  }
+}
+
+pre.change-diff {
+  border-color: transparent;
+  &.change-removed {
+    background-color: rgba($red, 0.4);
+  }
+  &.change-added {
+    background-color: rgba($green, 0.4);
+  }
+}

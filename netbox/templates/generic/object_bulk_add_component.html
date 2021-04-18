@@ -20,14 +20,6 @@
             </div>
         </div>
         <div class="col-md-5">
-            {% if form.non_field_errors %}
-                <div class="panel bg-danger">
-                    <h5 class="card-header">Errors</h5>
-                    <div class="card-body">
-                        {{ form.non_field_errors }}
-                    </div>
-                </div>
-            {% endif %}
             <div class="card">
                 <h5 class="card-header">{{ model_name|title }} to Add</h5>
                 <div class="card-body">
@@ -36,10 +28,10 @@
                     {% endfor %}
                 </div>
             </div>
-		    <div class="form-group text-right">
+		    <div class="form-group text-end">
                 <div class="col-md-12">
+                    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                     <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
                 </div>
 		    </div>
         </div>

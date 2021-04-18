@@ -3,9 +3,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  {{ block.super }}
-  <li><a href="{% url 'dcim:device_consoleserverports' pk=object.device.pk %}">Console Server Ports</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:device_consoleserverports' pk=object.device.pk %}">Console Server Ports</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
@@ -64,7 +63,7 @@
                             <th scope="row">Cable</th>
                             <td>
                                 <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
-                                <a href="{% url 'dcim:consoleserverport_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                <a href="{% url 'dcim:consoleserverport_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                                     <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                 </a>
                             </td>

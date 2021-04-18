@@ -9,6 +9,7 @@
 {% block controls %}
 <div class="container mb-2 mx-0">
   <div class="d-flex flex-wrap justify-content-end">
+    {% block extra_controls %}{% endblock %}
     {% if permissions.add and 'add' in action_buttons %}
         {% add_button content_type.model_class|validated_viewname:"add" %}
     {% endif %}
@@ -21,7 +22,6 @@
     
     <div class="d-flex flex-shrink-1">
     {% if request.user.is_authenticated and table_config_form %}
-
       <button
         type="button"
         class="btn btn-sm btn-outline-secondary m-1"

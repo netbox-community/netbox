@@ -15,14 +15,14 @@
                 </td>
                 <td>{{ attachment.size|filesizeformat }}</td>
                 <td>{{ attachment.created }}</td>
-                <td class="text-right noprint">
+                <td class="text-end noprint">
                     {% if perms.extras.change_imageattachment %}
-                        <a href="{% url 'extras:imageattachment_edit' pk=attachment.pk %}" class="btn btn-warning btn-sm" title="Edit image">
+                        <a href="{% url 'extras:imageattachment_edit' pk=attachment.pk %}" class="btn btn-warning btn-sm" title="Edit Image">
                             <i class="bi bi-pencil-fill" aria-hidden="true"></i>
                         </a>
                     {% endif %}
                     {% if perms.extras.delete_imageattachment %}
-                        <a href="{% url 'extras:imageattachment_delete' pk=attachment.pk %}" class="btn btn-danger btn-sm" title="Delete image">
+                        <a href="{% url 'extras:imageattachment_delete' pk=attachment.pk %}" class="btn btn-danger btn-sm" title="Delete Image">
                             <i class="bi bi-trash-fill" aria-hidden="true"></i>
                         </a>
                     {% endif %}

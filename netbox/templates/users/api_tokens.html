@@ -17,7 +17,7 @@
                         <i class="mdi mdi-key"></i>
                         <samp><span id="token_{{ token.pk }}">{{ token.key }}</span></samp>
                         {% if token.is_expired %}
-                            <span class="label label-danger">Expired</span>
+                            <span class="badge bg-danger">Expired</span>
                         {% endif %}
                     </div>
                     <div class="card-body">
@@ -35,11 +35,11 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <small class="text-muted">Create/edit/delete operations</small><br />
+                                <small class="text-muted">Create/Edit/Delete Operations</small><br />
                                 {% if token.write_enabled %}
-                                    <span class="label label-success">Enabled</span>
+                                    <span class="badge bg-success">Enabled</span>
                                 {% else %}
-                                    <span class="label label-danger">Disabled</span>
+                                    <span class="badge bg-danger">Disabled</span>
                                 {% endif %}
                             </div>
                         </div>
