@@ -8,6 +8,7 @@ import { initRackElevation } from './buttons';
 import { initClipboard } from './clipboard';
 import { initSearchBar, initInterfaceFilter } from './search';
 import { initGenerateKeyPair, initLockUnlock, initGetSessionKey } from './secrets';
+import { initTableConfig } from './tableConfig';
 import { getElements } from './util';
 
 const INITIALIZERS = [
@@ -25,6 +26,7 @@ const INITIALIZERS = [
   initLockUnlock,
   initGetSessionKey,
   initInterfaceFilter,
+  initTableConfig,
 ] as (() => void)[];
 
 /**

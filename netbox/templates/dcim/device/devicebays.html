@@ -46,7 +46,3 @@
     {% include 'inc/paginator.html' with paginator=devicebay_table.paginator page=devicebay_table.page %}
     {% table_config_form devicebay_table %}
 {% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/tableconfig.js' %}?v{{ settings.VERSION }}"></script>
-{% endblock %}
