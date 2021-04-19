@@ -230,7 +230,7 @@ class RegionBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class RegionFilterForm(BootstrapMixin, forms.Form):
+class RegionFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
     q = forms.CharField(
         required=False,
@@ -287,8 +287,8 @@ class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class SiteGroupFilterForm(BootstrapMixin, forms.Form):
-    model = Site
+class SiteGroupFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = SiteGroup
     q = forms.CharField(
         required=False,
         label=_('Search')
@@ -557,7 +557,8 @@ class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class LocationFilterForm(BootstrapMixin, forms.Form):
+class LocationFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Location
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
