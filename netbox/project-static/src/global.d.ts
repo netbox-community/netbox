@@ -2,6 +2,8 @@ type Primitives = string | number | boolean | undefined | null;
 
 type JSONAble = Primitives | Primitives[] | { [k: string]: JSONAble } | JSONAble[];
 
+type Dict<T extends unknown = unknown> = Record<string, T>;
+
 type Nullable<T> = T | null;
 
 type APIAnswer<T> = {
@@ -89,6 +91,11 @@ type APIJobResult = {
     id: number;
     url: string;
   };
+};
+
+type APIUserConfig = {
+  tables: { [k: string]: { columns: string[]; available_columns: string[] } };
+  [k: string]: unknown;
 };
 
 interface ObjectWithGroup extends APIObjectBase {
