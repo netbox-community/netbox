@@ -11,6 +11,7 @@
 * [#6184](https://github.com/netbox-community/netbox/issues/6184) - Fix parent object table column in prefix IP addresses list
 * [#6188](https://github.com/netbox-community/netbox/issues/6188) - Support custom field filtering for regions, site groups, and locations
 * [#6196](https://github.com/netbox-community/netbox/issues/6196) - Fix object list display for users with read-only permissions
+* [#6215](https://github.com/netbox-community/netbox/issues/6215) - Restore tenancy section in virtual machine form
 
 ---
 
