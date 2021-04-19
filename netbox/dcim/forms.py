@@ -559,6 +559,10 @@ class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class LocationFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Location
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,

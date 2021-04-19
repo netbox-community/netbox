@@ -209,6 +209,14 @@ class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         model = Location
         fields = ['id', 'name', 'slug', 'description']
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
 
 class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 

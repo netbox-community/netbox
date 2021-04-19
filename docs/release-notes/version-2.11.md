@@ -2,6 +2,10 @@
 
 ## v2.11.1 (FUTURE)
 
+### Enhancements
+
+* [#6189](https://github.com/netbox-community/netbox/issues/6189) - Add ability to search for locations by name or description
+
 ### Bug Fixes
 
 * [#6184](https://github.com/netbox-community/netbox/issues/6184) - Fix parent object table column in prefix IP addresses list
