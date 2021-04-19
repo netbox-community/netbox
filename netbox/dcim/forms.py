@@ -2429,10 +2429,11 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
         required=False,
-        label=_('Location'),
+        null_option='None',
         query_params={
             'site_id': '$site_id'
-        }
+        },
+        label=_('Location')
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),

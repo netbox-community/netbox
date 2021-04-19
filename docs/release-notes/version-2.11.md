@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6189](https://github.com/netbox-community/netbox/issues/6189) - Add ability to search for locations by name or description
+* [#6190](https://github.com/netbox-community/netbox/issues/6190) - Allow filtering devices with no location assigned
 
 ### Bug Fixes
 
