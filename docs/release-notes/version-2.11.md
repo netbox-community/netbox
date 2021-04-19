@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6184](https://github.com/netbox-community/netbox/issues/6184) - Fix parent object table column in prefix IP addresses list
+* [#6196](https://github.com/netbox-community/netbox/issues/6196) - Fix object list display for users with read-only permissions
 
 ---
 
