@@ -104,10 +104,12 @@ function initFormElements() {
  * @param element Select Element
  */
 function moveOptionUp(element: HTMLSelectElement): void {
-  for (const option of element.options) {
+  const options = Array.from(element.options);
+  for (let i = 1; i < options.length; i++) {
+    let option = options[i];
     if (option.selected) {
-      const copy = element.removeChild(option);
-      element.insertBefore(copy, element.options[option.index - 1]);
+      element.removeChild(option);
+      element.insertBefore(option, element.options[i - 1]);
     }
   }
 }
