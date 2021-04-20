@@ -1,7 +1,7 @@
 import SlimSelect from 'slim-select';
 import queryString from 'query-string';
-import { getApiData, isApiError, getElements, isTruthy } from '../util';
-import { createToast } from '../toast';
+import { getApiData, isApiError, getElements, isTruthy, hasError } from '../util';
+import { createToast } from '../bs';
 import { setOptionStyles, getFilteredBy, toggle } from './util';
 
 import type { Option } from 'slim-select/dist/data';
@@ -38,7 +38,7 @@ const REPLACE_PATTERNS = [
   [new RegExp(/termination_(a|b)_(.+)/g), '$2_id'],
   // A tenant's group relationship field is `group`, but the field name is `tenant_group`.
   [new RegExp(/tenant_(group)/g), '$1_id'],
-  // Append `_id` to any fields 
+  // Append `_id` to any fields
   [new RegExp(/^([A-Za-z0-9]+)(_id)?$/g), '$1_id'],
 ] as ReplaceTuple[];
 
@@ -72,9 +72,12 @@ async function getOptions(
     .map(option => option.value);
 
   return getApiData(url).then(data => {
-    if (isApiError(data)) {
-      const toast = createToast('danger', data.exception, data.error);
-      toast.show();
+    if (hasError(data)) {
+      if (isApiError(data)) {
+        createToast('danger', data.exception, data.error).show();
+        return [PLACEHOLDER];
+      }
+      createToast('danger', `Error Fetching Options for field ${select.name}`, data.error).show();
       return [PLACEHOLDER];
     }
 

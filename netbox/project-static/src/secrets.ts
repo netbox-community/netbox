@@ -1,11 +1,11 @@
 import { Modal } from 'bootstrap';
+import { createToast } from './bs';
 import { apiGetBase, apiPostForm, getElements, isApiError, hasError } from './util';
-import { createToast } from './toast';
 
 /**
  * Initialize Generate Private Key Pair Elements.
  */
-export function initGenerateKeyPair() {
+function initGenerateKeyPair() {
   const element = document.getElementById('new_keypair_modal') as HTMLDivElement;
   const accept = document.getElementById('use_new_pubkey') as HTMLButtonElement;
   // If the elements are not loaded, stop.
@@ -86,7 +86,7 @@ function toggleSecretButtons(id: string, action: 'lock' | 'unlock') {
 /**
  * Initialize Lock & Unlock button event listeners & callbacks.
  */
-export function initLockUnlock() {
+function initLockUnlock() {
   const privateKeyModalElem = document.getElementById('privkey_modal');
   if (privateKeyModalElem === null) {
     return;
@@ -184,7 +184,7 @@ function requestSessionKey(privateKey: string) {
 /**
  * Initialize Request Session Key Elements.
  */
-export function initGetSessionKey() {
+function initGetSessionKey() {
   for (const element of getElements<HTMLButtonElement>('#request_session_key')) {
     /**
      * Send the user's input private key to the API to get a session key, which will be stored as
@@ -198,5 +198,11 @@ export function initGetSessionKey() {
       }
     }
     element.addEventListener('click', handleClick);
+  }
+}
+
+export function initSecrets() {
+  for (const func of [initGenerateKeyPair, initLockUnlock, initGetSessionKey]) {
+    func();
   }
 }

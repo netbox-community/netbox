@@ -1,4 +1,4 @@
-import { createToast } from '../toast';
+import { createToast } from '../bs';
 import { getNetboxData, apiGetBase, hasError, isTruthy, toggleLoader } from '../util';
 
 /**

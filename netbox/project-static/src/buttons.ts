@@ -1,5 +1,5 @@
-import { createToast } from './toast';
-import { isTruthy, getElements, apiPatch, hasError } from './util';
+import { createToast } from './bs';
+import { isTruthy, getElements, apiPatch, hasError, slugify } from './util';
 
 /**
  * Add onClick callback for toggling rack elevation images.
@@ -91,8 +91,39 @@ function initConnectionToggle() {
   }
 }
 
+/**
+ * If a slug field exists, add event listeners to handle automatically generating its value.
+ */
+function initReslug(): void {
+  const slugField = document.getElementById('id_slug') as HTMLInputElement;
+  const slugButton = document.getElementById('reslug') as HTMLButtonElement;
+  if (slugField === null || slugButton === null) {
+    return;
+  }
+  const sourceId = slugField.getAttribute('slug-source');
+  const sourceField = document.getElementById(`id_${sourceId}`) as HTMLInputElement;
+
+  if (sourceField === null) {
+    console.error('Unable to find field for slug field.');
+    return;
+  }
+
+  const slugLengthAttr = slugField.getAttribute('maxlength');
+  let slugLength = 50;
+
+  if (slugLengthAttr) {
+    slugLength = Number(slugLengthAttr);
+  }
+  sourceField.addEventListener('blur', () => {
+    slugField.value = slugify(sourceField.value, slugLength);
+  });
+  slugButton.addEventListener('click', () => {
+    slugField.value = slugify(sourceField.value, slugLength);
+  });
+}
+
 export function initButtons() {
-  for (const func of [initRackElevation, initConnectionToggle]) {
+  for (const func of [initRackElevation, initConnectionToggle, initReslug]) {
     func();
   }
 }

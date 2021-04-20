@@ -8,7 +8,7 @@ function isSearchButton(el: any): el is SearchFilterButton {
   return el?.dataset?.searchValue ?? null !== null;
 }
 
-export function initSearchBar() {
+function initSearchBar() {
   const dropdown = document.getElementById('object-type-selector');
   const selectedValue = document.getElementById('selected-value') as HTMLSpanElement;
   const selectedType = document.getElementById('search-obj-type') as HTMLInputElement;
@@ -41,7 +41,7 @@ export function initSearchBar() {
 /**
  * Initialize Interface Table Filter Elements.
  */
-export function initInterfaceFilter() {
+function initInterfaceFilter() {
   for (const element of getElements<HTMLInputElement>('input.interface-filter')) {
     /**
      * Filter on-page table by input text.
@@ -77,5 +77,11 @@ export function initInterfaceFilter() {
       }
     }
     element.addEventListener('keyup', handleInput);
+  }
+}
+
+export function initSearch() {
+  for (const func of [initSearchBar, initInterfaceFilter]) {
+    func();
   }
 }

@@ -23,7 +23,7 @@ export function getFormData(element: HTMLFormElement): URLSearchParams {
 /**
  * Set the value of the number input field based on the selection of the dropdown.
  */
-export function initSpeedSelector(): void {
+function initSpeedSelector(): void {
   for (const element of getElements<HTMLAnchorElement>('a.set_speed')) {
     if (element !== null) {
       function handleClick(event: Event) {
@@ -266,7 +266,7 @@ function initScopeSelector() {
 }
 
 export function initForms() {
-  for (const func of [initFormElements, initMoveButtons, initScopeSelector]) {
+  for (const func of [initFormElements, initMoveButtons, initSpeedSelector, initScopeSelector]) {
     func();
   }
 }

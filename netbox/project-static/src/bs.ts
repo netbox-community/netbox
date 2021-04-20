@@ -1,6 +1,32 @@
-import { Toast } from 'bootstrap';
+import { Modal, Tab, Toast, Tooltip } from 'bootstrap';
+import Masonry from 'masonry-layout';
+import { getElements } from './util';
 
 type ToastLevel = 'danger' | 'warning' | 'success' | 'info';
+
+/**
+ * Initialize masonry-layout for homepage (or any other masonry layout cards).
+ */
+function initMasonry(): void {
+  for (const grid of getElements<HTMLDivElement>('.masonry')) {
+    new Masonry(grid, {
+      itemSelector: '.masonry-item',
+      percentPosition: true,
+    });
+  }
+}
+
+function initTooltips() {
+  for (const tooltip of getElements('[data-bs-toggle="tooltip"]')) {
+    new Tooltip(tooltip, { container: 'body', boundary: 'window' });
+  }
+}
+
+function initModals() {
+  for (const modal of getElements('[data-bs-toggle="modal"]')) {
+    new Modal(modal);
+  }
+}
 
 export function createToast(
   level: ToastLevel,
@@ -71,16 +97,33 @@ export function createToast(
 }
 
 /**
- * Find any active messages from django.contrib.messages and show them in a toast.
+ * Open the tab specified in the URL. For example, /dcim/device-types/1/#tab_frontports will
+ * change the open tab to the Front Ports tab.
  */
-export function initMessageToasts(): void {
-  const elements = document.querySelectorAll<HTMLDivElement>(
-    'body > div#django-messages > div.django-message.toast',
-  );
-  for (const element of elements) {
-    if (element !== null) {
-      const toast = new Toast(element);
-      toast.show();
+function initTabs() {
+  const { hash } = location;
+  if (hash && hash.match(/^\#tab_.+$/)) {
+    // The tab element will have a data-bs-target attribute with a value of the object type for
+    // the corresponding tab. Once we drop the `tab_` prefix, the hash will match the target
+    // element's data-bs-target value. For example, `#tab_frontports` becomes `#frontports`.
+    const target = hash.replace('tab_', '');
+    for (const element of getElements(`ul.nav.nav-tabs .nav-link[data-bs-target="${target}"]`)) {
+      // Instantiate a Bootstrap tab instance.
+      // See https://getbootstrap.com/docs/5.0/components/navs-tabs/#javascript-behavior
+      const tab = new Tab(element);
+      // Show the tab.
+      tab.show();
     }
+  }
+}
+
+/**
+ * Enable any defined Bootstrap Tooltips.
+ *
+ * @see https://getbootstrap.com/docs/5.0/components/tooltips
+ */
+export function initBootstrap(): void {
+  for (const func of [initTooltips, initModals, initMasonry, initTabs]) {
+    func();
   }
 }

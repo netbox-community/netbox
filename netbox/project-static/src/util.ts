@@ -14,6 +14,22 @@ export function hasError(data: Record<string, unknown>): data is ErrorBase {
 }
 
 /**
+ * Create a slug from any input string.
+ *
+ * @param slug Original string.
+ * @param chars Maximum number of characters.
+ * @returns Slugified string.
+ */
+export function slugify(slug: string, chars: number): string {
+  return slug
+    .replace(/[^\-\.\w\s]/g, '') // Remove unneeded chars
+    .replace(/^[\s\.]+|[\s\.]+$/g, '') // Trim leading/trailing spaces
+    .replace(/[\-\.\s]+/g, '-') // Convert spaces and decimals to hyphens
+    .toLowerCase() // Convert to lowercase
+    .substring(0, chars); // Trim to first chars chars
+}
+
+/**
  * Type guard to determine if a value is not null, undefined, or empty.
  */
 export function isTruthy<V extends string | number | boolean | null | undefined>(

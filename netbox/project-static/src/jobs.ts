@@ -1,4 +1,4 @@
-import { createToast } from './toast';
+import { createToast } from './bs';
 import { apiGetBase, hasError } from './util';
 
 let timeout: number = 1000;
