@@ -49,7 +49,3 @@
     {% include 'inc/paginator.html' with paginator=frontport_table.paginator page=frontport_table.page %}
     {% table_config_form frontport_table %}
 {% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/connection_toggles.js' %}?v{{ settings.VERSION }}"></script>
-{% endblock %}

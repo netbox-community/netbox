@@ -49,7 +49,3 @@
     {% include 'inc/paginator.html' with paginator=powerport_table.paginator page=powerport_table.page %}
     {% table_config_form powerport_table %}
 {% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/connection_toggles.js' %}?v{{ settings.VERSION }}"></script>
-{% endblock %}

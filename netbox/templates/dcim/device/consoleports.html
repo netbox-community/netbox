@@ -49,7 +49,3 @@
     {% include 'inc/paginator.html' with paginator=consoleport_table.paginator page=consoleport_table.page %}
     {% table_config_form consoleport_table %}
 {% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/connection_toggles.js' %}?v{{ settings.VERSION }}"></script>
-{% endblock %}

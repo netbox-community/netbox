@@ -4,10 +4,11 @@ import { initApiSelect, initStaticSelect, initColorSelect } from './select';
 import { initDateSelector } from './dateSelector';
 import { initMessageToasts } from './toast';
 import { initSpeedSelector, initForms } from './forms';
-import { initRackElevation } from './buttons';
+import { initButtons } from './buttons';
 import { initClipboard } from './clipboard';
 import { initSearchBar, initInterfaceFilter } from './search';
 import { initGenerateKeyPair, initLockUnlock, initGetSessionKey } from './secrets';
+import { initTabs } from './tabs';
 import { initTableConfig } from './tableConfig';
 import { getElements } from './util';
 
@@ -20,13 +21,14 @@ const INITIALIZERS = [
   initDateSelector,
   initSpeedSelector,
   initColorSelect,
-  initRackElevation,
+  initButtons,
   initClipboard,
   initGenerateKeyPair,
   initLockUnlock,
   initGetSessionKey,
   initInterfaceFilter,
   initTableConfig,
+  initTabs,
 ] as (() => void)[];
 
 /**

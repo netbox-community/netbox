@@ -1,11 +1,11 @@
 {% if perms.dcim.change_cable %}
     {% if cable.status == 'connected' %}
-        <a href="#" class="btn btn-warning btn-sm cable-toggle connected" title="Mark Planned" data="{{ cable.pk }}">
+        <button type="button" class="btn btn-warning btn-sm cable-toggle connected" title="Mark Planned" data="{{ cable.pk }}">
             <i class="mdi mdi-lan-disconnect" aria-hidden="true"></i>
-        </a>
+        </button>
     {% else %}
-        <a href="#" class="btn btn-success btn-sm cable-toggle" title="Mark Installed" data="{{ cable.pk }}">
+        <button type="button" class="btn btn-success btn-sm cable-toggle" title="Mark Installed" data="{{ cable.pk }}">
             <i class="mdi mdi-lan-connect" aria-hidden="true"></i>
-        </a>
+        </button>
     {% endif %}
 {% endif %}

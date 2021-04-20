@@ -8,7 +8,7 @@
         {% csrf_token %}
         <div class="card">
             <div class="card-header">
-                <h5>Interfaces</h5>
+                <h5 class="d-inline">Interfaces</h5>
                 <div class="float-end col-md-2 noprint">
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
@@ -51,8 +51,4 @@
     </form>
     {% include 'inc/paginator.html' with paginator=interface_table.paginator page=interface_table.page %}
     {% table_config_form interface_table %}
-{% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/connection_toggles.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}
