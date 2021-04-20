@@ -43,7 +43,7 @@ export function initSpeedSelector(): void {
  * callback checks the validity of each form field and adds the appropriate Bootstrap CSS class
  * based on the field's validity.
  */
-export function initForms() {
+function initFormElements() {
   for (const form of getElements('form')) {
     const { elements } = form;
     // Find each of the form's submitters. Most object edit forms have a "Create" and
@@ -93,5 +93,69 @@ export function initForms() {
       // Add the event listener to each submitter.
       submitter.addEventListener('click', callback);
     }
+  }
+}
+
+/**
+ * Move selected options of a select element up in order.
+ *
+ * Adapted from:
+ * @see https://www.tomred.net/css-html-js/reorder-option-elements-of-an-html-select.html
+ * @param element Select Element
+ */
+function moveOptionUp(element: HTMLSelectElement): void {
+  for (const option of element.options) {
+    if (option.selected) {
+      const copy = element.removeChild(option);
+      element.insertBefore(copy, element.options[option.index - 1]);
+    }
+  }
+}
+
+/**
+ * Move selected options of a select element down in order.
+ *
+ * Adapted from:
+ * @see https://www.tomred.net/css-html-js/reorder-option-elements-of-an-html-select.html
+ * @param element Select Element
+ */
+function moveOptionDown(element: HTMLSelectElement): void {
+  const options = Array.from(element.options);
+  for (let i = options.length - 2; i >= 0; i--) {
+    let option = options[i];
+    if (option.selected) {
+      let next = element.options[i + 1];
+      option = element.removeChild(option);
+      next = element.replaceChild(option, next);
+      element.insertBefore(next, option);
+    }
+  }
+}
+
+/**
+ * Initialize move up/down buttons.
+ */
+function initMoveButtons() {
+  for (const button of getElements<HTMLButtonElement>('#move-option-up')) {
+    const target = button.getAttribute('data-target');
+    if (target !== null) {
+      for (const select of getElements<HTMLSelectElement>(`#${target}`)) {
+        button.addEventListener('click', () => moveOptionUp(select));
+      }
+    }
+  }
+  for (const button of getElements<HTMLButtonElement>('#move-option-down')) {
+    const target = button.getAttribute('data-target');
+    if (target !== null) {
+      for (const select of getElements<HTMLSelectElement>(`#${target}`)) {
+        button.addEventListener('click', () => moveOptionDown(select));
+      }
+    }
+  }
+}
+
+export function initForms() {
+  for (const func of [initFormElements, initMoveButtons]) {
+    func();
   }
 }
