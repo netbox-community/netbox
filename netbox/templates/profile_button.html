@@ -4,28 +4,28 @@
     type="button"
     aria-expanded="false"
     data-bs-toggle="dropdown"
-    class="btn btn-outline-secondary dropdown-toggle mx-4"
+    class="btn btn-outline-secondary dropdown-toggle ms-4"
   >
-    <i class="bi bi-person-fill"></i>
+    <i class="mdi mdi-account"></i>
     <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
     <li class="dropdown-item">
       {% if request.user.is_staff %}
       <a class="text-decoration-none" href="{% url 'admin:index' %}">
-        <i class="bi bi-gear-wide-connected"></i> Admin
+        <i class="mdi mdi-cog"></i> Admin
       </a>
       {% endif %}
     </li>
     <li class="dropdown-item">
       <a class="text-decoration-none" href="{% url 'user:profile' %}">
-        <i class="bi bi-person-fill"></i> Profile
+        <i class="mdi mdi-account"></i> Profile
       </a>
     </li>
     <li><hr class="dropdown-divider" /></li>
     <li class="dropdown-item">
       <a class="text-decoration-none" href="{% url 'logout' %}">
-        <i class="bi bi-box-arrow-right"></i> Log out
+        <i class="mdi mdi-logout-variant"></i> Log Out
       </a>
     </li>
   </ul>
@@ -37,7 +37,7 @@
     type="button"
     href="{% url 'login' %}"
   >
-    <i class="bi bi-box-arrow-in-right"></i> Log in
+    <i class="mdi mdi-login-variant"></i> Log In
   </a>
 </div>
 {% endif %}

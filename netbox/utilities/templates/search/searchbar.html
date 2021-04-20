@@ -17,7 +17,7 @@
     data-bs-toggle="dropdown"
     class="btn btn-outline-secondary dropdown-toggle"
   >
-    <i class="bi-filter"></i>
+    <i class="mdi mdi-filter-variant"></i>
   </button>
   <ul id="object-type-selector" class="dropdown-menu dropdown-menu-end">
     {% for option in options %} {% if option.items|length == 0 %}
@@ -47,6 +47,7 @@
     {% endif %} {% endfor %}
   </ul>
   <button class="btn btn-primary" type="submit" id="search-button">
-    <i class="bi bi-search"></i>
+    <i class="mdi mdi-magnify"></i>
   </button>
+  
 </form>

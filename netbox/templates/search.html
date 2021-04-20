@@ -13,7 +13,7 @@
                         <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
                         {% include 'panel_table.html' with table=obj_type.table %}
                         <a href="{{ obj_type.url }}" class="btn btn-primary float-end my-3">
-                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span>
+                            <i class="mdi mdi-arrow-right-bold" aria-hidden="true"></i>
                             {% if obj_type.table.page.has_next %}
                                 See All {{ obj_type.table.page.paginator.count }} Results
                             {% else %}
