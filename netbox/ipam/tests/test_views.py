@@ -6,7 +6,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from tenancy.models import Tenant
-from utilities.testing import ViewTestCases
+from utilities.testing import ViewTestCases, create_tags
 
 
 class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -27,7 +27,7 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VRF(name='VRF 3', rd='65000:3'),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'VRF X',
@@ -64,7 +64,7 @@ class RouteTargetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Tenant.objects.bulk_create(tenants)
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         route_targets = (
             RouteTarget(name='65000:1001', tenant=tenants[0]),
@@ -141,7 +141,7 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Aggregate(prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'prefix': IPNetwork('10.99.0.0/16'),
@@ -226,7 +226,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
@@ -277,7 +277,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             IPAddress(address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'vrf': vrfs[1].pk,
@@ -374,7 +374,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VLAN(group=vlangroups[0], vid=103, name='VLAN103', site=sites[0], role=roles[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'site': sites[1].pk,
@@ -434,7 +434,7 @@ class ServiceTestCase(
             Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,

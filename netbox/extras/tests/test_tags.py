@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Site
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, create_tags
 
 
 class TaggedItemTest(APITestCase):
@@ -10,7 +10,7 @@ class TaggedItemTest(APITestCase):
     Test the application of Tags to and item (a Site, for example) upon creation (POST) and modification (PATCH).
     """
     def test_create_tagged_item(self):
-        tags = self.create_tags("Foo", "Bar", "Baz")
+        tags = create_tags("Foo", "Bar", "Baz")
         data = {
             'name': 'Test Site',
             'slug': 'test-site',
@@ -37,7 +37,7 @@ class TaggedItemTest(APITestCase):
             slug='test-site'
         )
         site.tags.add("Foo", "Bar", "Baz")
-        self.create_tags("New Tag")
+        create_tags("New Tag")
         data = {
             'tags': [
                 {"name": "Foo"},

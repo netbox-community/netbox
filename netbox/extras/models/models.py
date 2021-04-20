@@ -391,6 +391,8 @@ class ImageAttachment(BigIDModel):
 # Journal entries
 #
 
+
+@extras_features('webhooks')
 class JournalEntry(ChangeLoggedModel):
     """
     A historical remark concerning an object; collectively, these form an object's journal. The journal is used to

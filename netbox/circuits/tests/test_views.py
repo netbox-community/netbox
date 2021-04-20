@@ -6,7 +6,7 @@ from django.urls import reverse
 from circuits.choices import *
 from circuits.models import *
 from dcim.models import Cable, Interface, Site
-from utilities.testing import ViewTestCases, create_test_device
+from utilities.testing import ViewTestCases, create_tags, create_test_device
 
 
 class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -21,7 +21,7 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Provider(name='Provider 3', slug='provider-3', asn=65003),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Provider X',
@@ -106,7 +106,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Circuit(cid='Circuit 3', provider=providers[0], type=circuittypes[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'cid': 'Circuit X',
@@ -157,7 +157,7 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             ProviderNetwork(name='Provider Network 3', provider=providers[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Provider Network X',

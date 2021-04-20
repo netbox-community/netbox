@@ -5,7 +5,7 @@ from netaddr import EUI
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Platform, Site
 from ipam.models import VLAN
-from utilities.testing import ViewTestCases
+from utilities.testing import ViewTestCases, create_tags
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -100,7 +100,7 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Cluster X',
@@ -174,7 +174,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], role=deviceroles[0], platform=platforms[0]),
         ])
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'cluster': clusters[1].pk,
@@ -256,7 +256,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         VLAN.objects.bulk_create(vlans)
 
-        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'virtual_machine': virtualmachines[1].pk,

@@ -3,8 +3,10 @@ import re
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
+from django.utils.text import slugify
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+from extras.models import Tag
 
 
 def post_data(data):
@@ -57,6 +59,15 @@ def create_test_user(username='testuser', permissions=None):
         user.user_permissions.add(perm)
 
     return user
+
+
+def create_tags(*names):
+    """
+    Create and return a Tag instance for each name given.
+    """
+    tags = [Tag(name=name, slug=slugify(name)) for name in names]
+    Tag.objects.bulk_create(tags)
+    return tags
 
 
 def extract_form_failures(content):

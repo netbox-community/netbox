@@ -114,6 +114,24 @@ class CustomField(BigIDModel):
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache instance's original name so we can check later whether it has changed
+        self._name = self.name
+
+    def rename_object_data(self, old_name, new_name):
+        """
+        Called when a CustomField has been renamed. Updates all assigned object data.
+        """
+        for ct in self.content_types.all():
+            model = ct.model_class()
+            params = {f'custom_field_data__{old_name}__isnull': False}
+            instances = model.objects.filter(**params)
+            for instance in instances:
+                instance.custom_field_data[new_name] = instance.custom_field_data.pop(old_name)
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+
     def remove_stale_data(self, content_types):
         """
         Delete custom field data which is no longer relevant (either because the CustomField is
