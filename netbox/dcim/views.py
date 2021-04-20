@@ -364,16 +364,30 @@ class LocationView(generic.ObjectView):
     queryset = Location.objects.all()
 
     def get_extra_context(self, request, instance):
-        devices = Device.objects.restrict(request.user, 'view').filter(
-            location=instance
-        )
+        location_ids = instance.get_descendants(include_self=True).values_list('pk', flat=True)
+        rack_count = Rack.objects.filter(location__in=location_ids).count()
+        device_count = Device.objects.filter(location__in=location_ids).count()
 
-        devices_table = tables.DeviceTable(devices)
-        devices_table.columns.hide('location')
-        paginate_table(devices_table, request)
+        child_locations = Location.objects.add_related_count(
+            Location.objects.add_related_count(
+                Location.objects.all(),
+                Device,
+                'location',
+                'device_count',
+                cumulative=True
+            ),
+            Rack,
+            'location',
+            'rack_count',
+            cumulative=True
+        ).filter(pk__in=location_ids).exclude(pk=instance.pk)
+        child_locations_table = tables.LocationTable(child_locations)
+        paginate_table(child_locations_table, request)
 
         return {
-            'devices_table': devices_table,
+            'rack_count': rack_count,
+            'device_count': device_count,
+            'child_locations_table': child_locations_table,
         }
 
 

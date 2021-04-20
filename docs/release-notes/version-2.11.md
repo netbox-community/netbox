@@ -7,6 +7,7 @@
 * [#6179](https://github.com/netbox-community/netbox/issues/6179) - Enable natural ordering for virtual machines
 * [#6189](https://github.com/netbox-community/netbox/issues/6189) - Add ability to search for locations by name or description
 * [#6190](https://github.com/netbox-community/netbox/issues/6190) - Allow filtering devices with no location assigned
+* [#6210](https://github.com/netbox-community/netbox/issues/6210) - Include child locations on location view
 
 ### Bug Fixes
 

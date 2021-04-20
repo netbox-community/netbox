@@ -43,13 +43,13 @@
         <tr>
           <td>Racks</td>
           <td>
-            <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ object.racks.count }}</a>
+            <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ rack_count }}</a>
           </td>
         </tr>
         <tr>
           <td>Devices</td>
           <td>
-            <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
+            <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ device_count }}</a>
           </td>
         </tr>
       </table>
@@ -79,18 +79,18 @@
 	<div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <strong>Devices</strong>
+        <strong>Locations</strong>
       </div>
-      {% include 'inc/table.html' with table=devices_table %}
-      {% if perms.dcim.add_device %}
+      {% include 'inc/table.html' with table=child_locations_table %}
+      {% if perms.dcim.add_location %}
         <div class="panel-footer text-right noprint">
-          <a href="{% url 'dcim:device_add' %}?location={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add device
+          <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-xs btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add location
           </a>
         </div>
       {% endif %}
       </div>
-      {% include 'inc/paginator.html' with paginator=devices_table.paginator page=devices_table.page %}
+      {% include 'inc/paginator.html' with paginator=child_locations_table.paginator page=child_locations_table.page %}
       {% plugin_full_width_page object %}
   </div>
 </div>
