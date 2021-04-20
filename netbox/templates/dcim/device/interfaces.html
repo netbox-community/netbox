@@ -9,13 +9,13 @@
         <div class="card">
             <div class="card-header">
                 <h5>Interfaces</h5>
-                <div class="float-end noprint">
-                    {% if request.user.is_authenticated %}
-                        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-target="#DeviceInterfaceTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
-                    {% endif %}
-                </div>
                 <div class="float-end col-md-2 noprint">
-                    <input class="form-control interface-filter" type="text" placeholder="Filter" title="Filter text (regular expressions supported)" style="height: 23px" />
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
+                        {% if request.user.is_authenticated %}
+                            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceInterfaceTable_config" title="Configure Table"><i class="mdi mdi-cog"></i> Configure</button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -55,5 +55,4 @@
 
 {% block javascript %}
   <script src="{% static 'js/connection_toggles.js' %}?v{{ settings.VERSION }}"></script>
-  <script src="{% static 'js/interface_filtering.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}
