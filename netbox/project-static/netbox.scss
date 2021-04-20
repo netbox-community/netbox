@@ -452,3 +452,8 @@ div.card-overlay {
     color: $secondary;
   }
 }
+
+div.card > div.card-header > div.table-controls {
+  max-width: 25%;
+  width: 100%;
+}

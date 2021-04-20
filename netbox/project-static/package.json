@@ -19,6 +19,7 @@
     "flatpickr": "4.6.3",
     "jquery": "3.5.1",
     "jquery-ui": "1.12.1",
+    "just-debounce-it": "^1.4.0",
     "masonry-layout": "^4.2.2",
     "parcel-bundler": "1.12.3",
     "query-string": "^6.14.1",

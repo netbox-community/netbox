@@ -5,6 +5,16 @@ type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
 type SelectedOption = { name: string; options: string[] };
 
+// interface TableValue {
+//   row: {
+//     element: HTMLTableRowElement;
+//   };
+//   cell: {
+//     element: HTMLTableCellElement;
+//     value: string;
+//   };
+// }
+
 export function isApiError(data: Record<string, unknown>): data is APIError {
   return 'error' in data && 'exception' in data;
 }
@@ -201,4 +211,42 @@ export function toggleLoader(action: 'show' | 'hide') {
       spinnerContainer.classList.add('d-none');
     }
   }
+}
+
+/**
+ * Get the value of every cell in a table.
+ * @param table Table Element
+ */
+export function* getRowValues(table: HTMLTableRowElement): Generator<string> {
+  for (const element of table.querySelectorAll<HTMLTableCellElement>('td')) {
+    if (element !== null) {
+      if (isTruthy(element.innerText) && element.innerText !== '—') {
+        yield element.innerText.replaceAll(/[\n\r]/g, '').trim();
+      }
+    }
+  }
+}
+
+/**
+ * Recurse upward through an element's siblings until an element matching the query is found.
+ *
+ * @param base Base Element
+ * @param query CSS Query
+ */
+export function findFirstAdjacent<R extends HTMLElement, B extends Element = Element>(
+  base: B,
+  query: string,
+): Nullable<R> {
+  function match<P extends Element | null>(parent: P): Nullable<R> {
+    if (parent !== null && parent.parentElement !== null) {
+      for (const child of parent.parentElement.querySelectorAll<R>(query)) {
+        if (child !== null) {
+          return child;
+        }
+      }
+      return match(parent.parentElement.parentElement);
+    }
+    return null;
+  }
+  return match(base);
 }

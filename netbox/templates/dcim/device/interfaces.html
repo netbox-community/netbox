@@ -9,11 +9,11 @@
         <div class="card">
             <div class="card-header">
                 <h5 class="d-inline">Interfaces</h5>
-                <div class="float-end col-md-2 noprint">
+                <div class="float-end col-md-2 noprint table-controls">
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
                         {% if request.user.is_authenticated %}
-                            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceInterfaceTable_config" title="Configure Table"><i class="mdi mdi-cog"></i> Configure</button>
+                            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceInterfaceTable_config" title="Configure Table"><i class="mdi mdi-table-eye"></i></button>
                         {% endif %}
                     </div>
                 </div>
