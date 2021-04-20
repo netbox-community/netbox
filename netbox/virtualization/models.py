@@ -226,6 +226,11 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     status = models.CharField(
         max_length=50,
         choices=VirtualMachineStatusChoices,
@@ -296,7 +301,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     ]
 
     class Meta:
-        ordering = ('name', 'pk')  # Name may be non-unique
+        ordering = ('_name', 'pk')  # Name may be non-unique
         unique_together = [
             ['cluster', 'tenant', 'name']
         ]
