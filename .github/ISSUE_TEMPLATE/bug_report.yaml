@@ -1,6 +1,6 @@
 ---
 name: 🐛 Bug Report
-about: Report a reproducible bug in the current release of NetBox
+description: Report a reproducible bug in the current release of NetBox
 labels: ["type: bug"]
 body:
   - type: markdown
