@@ -68,6 +68,7 @@ function toggleConnection(element: HTMLButtonElement) {
           row.classList.remove('success');
           row.classList.add('info');
           element.classList.remove('connected', 'btn-warning');
+          element.classList.add('btn-info');
           element.title = 'Mark Installed';
           icon.classList.remove('mdi-lan-disconnect');
           icon.classList.add('mdi-lan-connect');
