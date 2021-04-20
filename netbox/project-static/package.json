@@ -5,7 +5,7 @@
   "license": "Apache2",
   "scripts": {
     "bundle:css": "parcel build --public-url /static -o netbox.css main.scss && parcel build --public-url /static -o rack_elevation.css rack_elevation.scss",
-    "bundle:js": "parcel build -o netbox.js src/index.ts && parcel build -o jobs.js src/jobs.ts",
+    "bundle:js": "parcel build --public-url /static -o netbox.js src/index.ts && parcel build --public-url /static -o jobs.js src/jobs.ts && parcel build --public-url /static -o lldp.js src/lldp.ts",
     "bundle": "yarn bundle:css && yarn bundle:js"
   },
   "dependencies": {
@@ -62,5 +62,8 @@
       "@babel/proposal-object-rest-spread",
       "@babel/plugin-proposal-nullish-coalescing-operator"
     ]
-  }
+  },
+  "browserslist": [
+    "defaults"
+  ]
 }

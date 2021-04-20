@@ -15,19 +15,19 @@
       name="viewport"
       content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width"
     />
-  </head>
-  <body>
-    {% block layout %}{% endblock %}
     <script
+      type="text/javascript"
       src="{% static 'netbox.js' %}"
       onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'">
     </script>
-
-    <script type="text/javascript">
-      var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
-      var netbox_csrf_token = "{{ csrf_token }}";
-    </script>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    {% block layout %}{% endblock %}
     {% block javascript %}{% endblock %}
     {% include './messages.html' %}
+    <div id="netbox-data" style="display: none!important; visibility: hidden!important">
+    {% block data %}{% endblock %}
+    </div>
   </body>
 </html>

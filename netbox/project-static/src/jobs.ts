@@ -89,10 +89,16 @@ async function checkJobStatus(id: string) {
   }
 }
 
-if (document !== null) {
+function initJobs() {
   const { id, complete } = getJobInfo();
   if (id !== null && !complete) {
     // If there is a job ID and it is not completed, check for the job's status.
     Promise.resolve(checkJobStatus(id));
   }
+}
+
+if (document.readyState !== 'loading') {
+  initJobs();
+} else {
+  document.addEventListener('DOMContentLoaded', initJobs);
 }

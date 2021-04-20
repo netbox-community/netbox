@@ -98,6 +98,21 @@ type APIUserConfig = {
   [k: string]: unknown;
 };
 
+type LLDPInterface = {
+  parent_interface: string | null;
+  remote_chassis_id: string | null;
+  remote_port: string | null;
+  remote_port_description: string | null;
+  remote_system_capab: string[];
+  remote_system_description: string | null;
+  remote_system_enable_capab: string[];
+  remote_system_name: string | null;
+};
+
+type LLDPNeighborDetail = {
+  get_lldp_neighbors_detail: { [interface: string]: LLDPInterface[] };
+};
+
 interface ObjectWithGroup extends APIObjectBase {
   group: Nullable<APIReference>;
 }

@@ -1,5 +1,8 @@
-{% extends 'base.html' %} {% load search_options %} {% block layout %}
+{% extends 'base.html' %}
+{% load search_options %}
 
+{% block head %}{% endblock %}
+{% block layout %}
 <div class="container-fluid">
   <div class="row">
     <nav
@@ -56,4 +59,6 @@
     </main>
   </div>
 </div>
-{% endblock %} {%block javascript %} {%endblock%}
+{% endblock %}
+{% block javascript %}{% endblock %}
+{% block data %}{% endblock %}

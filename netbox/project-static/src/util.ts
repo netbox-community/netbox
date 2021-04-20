@@ -159,3 +159,16 @@ export function getSelectedOptions<E extends HTMLElement>(base: E): SelectedOpti
   }
   return selected;
 }
+
+export function getNetboxData(key: string): string | null {
+  if (!key.startsWith('data-')) {
+    key = `data-${key}`;
+  }
+  for (const element of getElements('body > div#netbox-data > *')) {
+    const value = element.getAttribute(key);
+    if (isTruthy(value)) {
+      return value;
+    }
+  }
+  return null;
+}

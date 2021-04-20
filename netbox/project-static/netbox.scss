@@ -436,3 +436,19 @@ pre.change-diff {
     background-color: rgba($green, 0.4);
   }
 }
+
+div.card-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($white, 0.75);
+  border-radius: $border-radius;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & > div.spinner-border {
+    width: 6rem;
+    height: 6rem;
+    color: $secondary;
+  }
+}
