@@ -113,6 +113,14 @@ type LLDPNeighborDetail = {
   get_lldp_neighbors_detail: { [interface: string]: LLDPInterface[] };
 };
 
+type DeviceConfig = {
+  get_config: {
+    candidate: string;
+    running: string;
+    startup: string;
+  };
+};
+
 interface ObjectWithGroup extends APIObjectBase {
   group: Nullable<APIReference>;
 }

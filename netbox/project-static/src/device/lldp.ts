@@ -1,19 +1,5 @@
-import { createToast } from './toast';
-import { getNetboxData, apiGetBase, hasError, isTruthy } from './util';
-
-/**
- * Toggle visibility of card loader.
- */
-function toggleLoader(action: 'show' | 'hide') {
-  const spinnerContainer = document.querySelector('div.card-overlay');
-  if (spinnerContainer !== null) {
-    if (action === 'show') {
-      spinnerContainer.classList.remove('d-none');
-    } else {
-      spinnerContainer.classList.add('d-none');
-    }
-  }
-}
+import { createToast } from '../toast';
+import { getNetboxData, apiGetBase, hasError, isTruthy, toggleLoader } from '../util';
 
 /**
  * Get an attribute from a row's cell.

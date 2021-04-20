@@ -3,50 +3,43 @@
 
 {% block title %}{{ object }} - Config{% endblock %}
 
+{% block head %}
+<script type="text/javascript" src="{% static 'config.js' %}" onerror="window.location='{% url 'media_failure' %}?filename=config.js'"></script>
+{% endblock %}
+
 {% block content %}
-    {% include 'inc/ajax_loader.html' %}
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <div class="card">
-                <h5 class="card-header">Device Configuration</h5>
-                <div class="card-body">
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#running" aria-controls="running" role="tab" data-toggle="tab">Running</a></li>
-                        <li role="presentation"><a href="#startup" aria-controls="startup" role="tab" data-toggle="tab">Startup</a></li>
-                        <li role="presentation"><a href="#candidate" aria-controls="candidate" role="tab" data-toggle="tab">Candidate</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="running">
-                            <pre id="running_config"></pre>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="startup">
-                            <pre id="startup_config"></pre>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="candidate">
-                            <pre id="candidate_config"></pre>
-                        </div>
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="card">
+            <div class="card-overlay">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <h5 class="card-header">Device Configuration</h5>
+            <div class="card-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation"><a class="nav-link active" href="#running" aria-controls="running" role="tab" data-bs-toggle="tab">Running</a></li>
+                    <li role="presentation"><a class="nav-link" href="#startup" aria-controls="startup" role="tab" data-bs-toggle="tab">Startup</a></li>
+                    <li role="presentation"><a class="nav-link" href="#candidate" aria-controls="candidate" role="tab" data-bs-toggle="tab">Candidate</a></li>
+                </ul>
+                <div class="tab-content pt-3">
+                    <div role="tabpanel" class="tab-pane active" id="running">
+                        <pre id="running_config"></pre>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="startup">
+                        <pre id="startup_config"></pre>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="candidate">
+                        <pre id="candidate_config"></pre>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
-{% block javascript %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $.ajax({
-        url: "{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_config",
-        dataType: 'json',
-        success: function(json) {
-            $('#running_config').html($.trim(json['get_config']['running']));
-            $('#startup_config').html($.trim(json['get_config']['startup']));
-            $('#candidate_config').html($.trim(json['get_config']['candidate']));
-        },
-        error: function(xhr) {
-            alert(xhr.responseText);
-        }
-    });
-});
-</script>
+{% block data %}
+<span data-object-url="{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_config"></span>
 {% endblock %}

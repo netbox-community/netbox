@@ -5,7 +5,7 @@
   "license": "Apache2",
   "scripts": {
     "bundle:css": "parcel build --public-url /static -o netbox.css main.scss && parcel build --public-url /static -o rack_elevation.css rack_elevation.scss",
-    "bundle:js": "parcel build --public-url /static -o netbox.js src/index.ts && parcel build --public-url /static -o jobs.js src/jobs.ts && parcel build --public-url /static -o lldp.js src/lldp.ts",
+    "bundle:js": "parcel build --public-url /static -o netbox.js src/index.ts && parcel build --public-url /static -o jobs.js src/jobs.ts && parcel build --public-url /static -o lldp.js src/device/lldp.ts && parcel build --public-url /static -o config.js src/device/config.ts",
     "bundle": "yarn bundle:css && yarn bundle:js"
   },
   "dependencies": {

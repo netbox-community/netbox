@@ -172,3 +172,17 @@ export function getNetboxData(key: string): string | null {
   }
   return null;
 }
+
+/**
+ * Toggle visibility of card loader.
+ */
+export function toggleLoader(action: 'show' | 'hide') {
+  const spinnerContainer = document.querySelector('div.card-overlay');
+  if (spinnerContainer !== null) {
+    if (action === 'show') {
+      spinnerContainer.classList.remove('d-none');
+    } else {
+      spinnerContainer.classList.add('d-none');
+    }
+  }
+}
