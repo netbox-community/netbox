@@ -1,5 +1,24 @@
 # NetBox v2.11
 
+## v2.11.1 (2021-04-21)
+
+### Enhancements
+
+* [#6161](https://github.com/netbox-community/netbox/issues/6161) - Enable ordering of device component tables
+* [#6179](https://github.com/netbox-community/netbox/issues/6179) - Enable natural ordering for virtual machines
+* [#6189](https://github.com/netbox-community/netbox/issues/6189) - Add ability to search for locations by name or description
+* [#6190](https://github.com/netbox-community/netbox/issues/6190) - Allow filtering devices with no location assigned
+* [#6210](https://github.com/netbox-community/netbox/issues/6210) - Include child locations on location view
+
+### Bug Fixes
+
+* [#6184](https://github.com/netbox-community/netbox/issues/6184) - Fix parent object table column in prefix IP addresses list
+* [#6188](https://github.com/netbox-community/netbox/issues/6188) - Support custom field filtering for regions, site groups, and locations
+* [#6196](https://github.com/netbox-community/netbox/issues/6196) - Fix object list display for users with read-only permissions
+* [#6215](https://github.com/netbox-community/netbox/issues/6215) - Restore tenancy section in virtual machine form
+
+---
+
 ## v2.11.0 (2021-04-16)
 
 **Note:** NetBox v2.11 is the last major release that will support Python 3.6. Beginning with NetBox v2.12, Python 3.7 or later will be required.

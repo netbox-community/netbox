@@ -1,6 +1,6 @@
 ---
 name: 📖 Documentation Change
-about: Suggest an addition or modification to the NetBox documentation
+description: Suggest an addition or modification to the NetBox documentation
 labels: ["type: documentation"]
 body:
   - type: dropdown

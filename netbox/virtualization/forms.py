@@ -376,6 +376,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         fieldsets = (
             ('Virtual Machine', ('name', 'role', 'status', 'tags')),
             ('Cluster', ('cluster_group', 'cluster')),
+            ('Tenancy', ('tenant_group', 'tenant')),
             ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
             ('Resources', ('vcpus', 'memory', 'disk')),
             ('Config Context', ('local_context_data',)),
