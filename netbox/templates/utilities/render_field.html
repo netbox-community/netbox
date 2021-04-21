@@ -69,7 +69,7 @@
         </ul>
     </div>
 </div>
-{% elif field|widget_type == 'fileinput' %}
+{% elif field|widget_type == 'fileinput' or field|widget_type == 'clearablefileinput' %}
 <div class="input-group mb-3">
     <input
         class="form-control"
