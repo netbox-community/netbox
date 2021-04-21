@@ -121,6 +121,47 @@ type DeviceConfig = {
   };
 };
 
+type DeviceEnvironment = {
+  cpu?: {
+    [core: string]: { '%usage': number };
+  };
+  memory?: {
+    available_ram: number;
+    used_ram: number;
+  };
+  power?: {
+    [psu: string]: { capacity: number; output: number; status: boolean };
+  };
+  temperature?: {
+    [sensor: string]: {
+      is_alert: boolean;
+      is_critical: boolean;
+      temperature: number;
+    };
+  };
+  fans?: {
+    [fan: string]: {
+      status: boolean;
+    };
+  };
+};
+
+type DeviceFacts = {
+  fqdn: string;
+  hostname: string;
+  interface_list: string[];
+  model: string;
+  os_version: string;
+  serial_number: string;
+  uptime: number;
+  vendor: string;
+};
+
+type DeviceStatus = {
+  get_environment: DeviceEnvironment | ErrorBase;
+  get_facts: DeviceFacts | ErrorBase;
+};
+
 interface ObjectWithGroup extends APIObjectBase {
   group: Nullable<APIReference>;
 }

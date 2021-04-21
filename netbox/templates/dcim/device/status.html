@@ -1,13 +1,21 @@
 {% extends 'dcim/device/base.html' %}
 {% load static %}
 
-{% block title %}{{ device }} - Status{% endblock %}
+{% block title %}{{ object }} - Status{% endblock %}
+
+{% block head %}
+<script type="text/javascript" src="{% static 'status.js' %}" onerror="window.location='{% url 'media_failure' %}?filename=status.js'"></script>
+{% endblock %}
 
 {% block content %}
-    {% include 'inc/ajax_loader.html' %}
     <div class="row">
         <div class="col-md-6">
             <div class="card">
+                <div class="card-overlay d-none">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
                 <h5 class="card-header">Device Facts</h5>
                 <div class="card-body">
                     <table class="table">
@@ -29,15 +37,20 @@
                         </tr>
                         <tr>
                             <th scope="row">Serial Number</th>
-                            <td id="serial_number"></td>
+                            <td>
+                                <code id="serial_number"></code>
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row">OS Version</th>
                             <td id="os_version"></td>
                         </tr>
-                        <tr>
+                        <tr class="align-middle">
                             <th scope="row">Uptime</th>
-                            <td id="uptime"></td>
+                            <td>
+                                <div id="uptime-duration"></div>
+                                <div id="uptime" class="small text-muted"></div>
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -45,23 +58,30 @@
         </div>
         <div class="col-md-6">
             <div class="card">
+                <div class="card-overlay d-none">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
                 <h5 class="card-header">Environment</h5>
                 <div class="card-body">
                     <table class="table">
-                        <tr id="cpu">
+                        <tr id="status-cpu" class="bg-light">
                             <th colspan="2"><i class="mdi mdi-gauge"></i> CPU</th>
                         </tr>
-                        <tr id="memory">
+                        <tr id="status-memory" class="bg-light">
                             <th colspan="2"><i class="mdi mdi-chip"></i> Memory</th>
                         </tr>
-                        <tr id="temperature">
+                        <tr id="status-temperature" class="bg-light">
                             <th colspan="2"><i class="mdi mdi-thermometer"></i> Temperature</th>
                         </tr>
-                        <tr id="fans">
+                        <tr id="status-fans" class="bg-light">
                             <th colspan="2"><i class="mdi mdi-fan"></i> Fans</th>
                         </tr>
-                        <tr id="power">
+                        <tr id="status-power" class="bg-light">
                             <th colspan="2"><i class="mdi mdi-power"></i> Power</th>
+                        </tr>
+                        <tr class="napalm-table-placeholder d-none invisible">
                         </tr>
                     </table>
                 </div>
@@ -70,73 +90,6 @@
     </div>
 {% endblock %}
 
-{% block javascript %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $.ajax({
-        url: "{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_facts&method=get_environment",
-        dataType: 'json',
-        success: function(json) {
-            if (!json['get_facts']['error']) {
-                $('#hostname').html(json['get_facts']['hostname']);
-                $('#fqdn').html(json['get_facts']['fqdn']);
-                $('#vendor').html(json['get_facts']['vendor']);
-                $('#model').html(json['get_facts']['model']);
-                $('#serial_number').html(json['get_facts']['serial_number']);
-                $('#os_version').html(json['get_facts']['os_version']);
-                // Calculate uptime
-                var uptime = json['get_facts']['uptime'];
-                console.log(uptime);
-                var uptime_days = Math.floor(uptime / 86400);
-                var uptime_hours = Math.floor(uptime % 86400 / 3600);
-                var uptime_minutes = Math.floor(uptime % 3600 / 60);
-                $('#uptime').html(uptime_days + "d " + uptime_hours + "h " + uptime_minutes + "m");
-            }
-            
-            if (!json['get_environment']['error']) {
-                $.each(json['get_environment']['cpu'], function(name, obj) {
-                    var row="<tr><td>" + name + "</td><td>" + obj['%usage'] + "%</td></tr>";
-                    $("#cpu").after(row)
-                });
-                if (json['get_environment']['memory']) {
-                    var memory = $('#memory');
-                    memory.after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "</td></tr>");
-                    memory.after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "</td></tr>");
-                }
-                $.each(json['get_environment']['temperature'], function(name, obj) {
-                    var style = "success";
-                    if (obj['is_alert']) {
-                        style = "warning";
-                    } else if (obj['is_critical']) {
-                        style = "danger";
-                    }
-                    var row="<tr class=\"" + style +"\"><td>" + name + "</td><td>" + obj['temperature'] + "°C</td></tr>";
-                    $("#temperature").after(row)
-                });
-                $.each(json['get_environment']['fans'], function(name, obj) {
-                    var row;
-                    if (obj['status']) {
-                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"mdi mdi-check-bold text-success\"></i></td></tr>";
-                    } else {
-                        row="<tr class=\"error\"><td>" + name + "</td><td><i class=\"mdi mdi-close text-error\"></i></td></tr>";
-                    }
-                    $("#fans").after(row)
-                });
-                $.each(json['get_environment']['power'], function(name, obj) {
-                    var row;
-                    if (obj['status']) {
-                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"mdi mdi-check-bold text-success\"></i></td></tr>";
-                    } else {
-                        row="<tr class=\"danger\"><td>" + name + "</td><td><i class=\"mdi mdi-close text-danger\"></i></td></tr>";
-                    }
-                    $("#power").after(row)
-                });
-            }
-        },
-        error: function(xhr) {
-            alert(xhr.responseText);
-        }
-    });
-});
-</script>
+{% block data %}
+    <span data-object-url="{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_facts&method=get_environment"></span>
 {% endblock %}

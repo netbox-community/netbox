@@ -5,15 +5,15 @@ type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
 type SelectedOption = { name: string; options: string[] };
 
-// interface TableValue {
-//   row: {
-//     element: HTMLTableRowElement;
-//   };
-//   cell: {
-//     element: HTMLTableCellElement;
-//     value: string;
-//   };
-// }
+type HTMLElementProperties<E extends HTMLElement> =
+  | {
+      [k in keyof E]: E[k];
+    }
+  | {};
+
+type InferredProps<T extends keyof HTMLElementTagNameMap> = HTMLElementProperties<
+  HTMLElementTagNameMap[T]
+>;
 
 export function isApiError(data: Record<string, unknown>): data is APIError {
   return 'error' in data && 'exception' in data;
@@ -170,6 +170,12 @@ export function scrollTo(element: Element, offset: number = 0): void {
   return;
 }
 
+/**
+ * Iterate through a select element's options and return an array of options that are selected.
+ *
+ * @param base Select element.
+ * @returns Array of selected options.
+ */
 export function getSelectedOptions<E extends HTMLElement>(base: E): SelectedOption[] {
   let selected = [] as SelectedOption[];
   for (const element of base.querySelectorAll<HTMLSelectElement>('select')) {
@@ -186,6 +192,16 @@ export function getSelectedOptions<E extends HTMLElement>(base: E): SelectedOpti
   return selected;
 }
 
+/**
+ * Get data that can only be accessed via Django context, and is thus already rendered in the HTML
+ * template.
+ *
+ * @see Templates requiring Django context data have a `{% block data %}` block.
+ *
+ * @param key Property name, which must exist on the HTML element. If not already prefixed with
+ *            `data-`, `data-` will be prepended to the property.
+ * @returns Value if it exists, `null` if not.
+ */
 export function getNetboxData(key: string): string | null {
   if (!key.startsWith('data-')) {
     key = `data-${key}`;
@@ -203,12 +219,11 @@ export function getNetboxData(key: string): string | null {
  * Toggle visibility of card loader.
  */
 export function toggleLoader(action: 'show' | 'hide') {
-  const spinnerContainer = document.querySelector('div.card-overlay');
-  if (spinnerContainer !== null) {
+  for (const element of getElements<HTMLDivElement>('div.card-overlay')) {
     if (action === 'show') {
-      spinnerContainer.classList.remove('d-none');
+      element.classList.remove('d-none');
     } else {
-      spinnerContainer.classList.add('d-none');
+      element.classList.add('d-none');
     }
   }
 }
@@ -249,4 +264,52 @@ export function findFirstAdjacent<R extends HTMLElement, B extends Element = Ele
     return null;
   }
   return match(base);
+}
+
+/**
+ * Helper for creating HTML elements.
+ *
+ * @param tag HTML element type.
+ * @param properties Properties/attributes to apply to the element.
+ * @param classes CSS classes to apply to the element.
+ * @param children Child elements.
+ */
+export function createElement<
+  T extends keyof HTMLElementTagNameMap,
+  C extends HTMLElement = HTMLElement
+>(
+  tag: T,
+  properties: InferredProps<T>,
+  classes: string[],
+  children: C[] = [],
+): HTMLElementTagNameMap[T] {
+  // Create the base element.
+  const element = document.createElement<T>(tag);
+
+  for (const k of Object.keys(properties)) {
+    // Add each property to the element.
+    const key = k as keyof HTMLElementProperties<HTMLElementTagNameMap[T]>;
+    const value = properties[key];
+    if (key in element) {
+      element[key] = value;
+    }
+  }
+  // Add each CSS class to the element's class list.
+  element.classList.add(...classes);
+
+  for (const child of children) {
+    // Add each child element to the base element.
+    element.appendChild(child);
+  }
+  return element as HTMLElementTagNameMap[T];
+}
+
+/**
+ * Convert Celsius to Fahrenheit, for NAPALM temperature sensors.
+ *
+ * @param celsius Degrees in Celsius.
+ * @returns Degrees in Fahrenheit.
+ */
+export function cToF(celsius: number): number {
+  return celsius * (9 / 5) + 32;
 }

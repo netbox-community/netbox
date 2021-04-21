@@ -5,7 +5,7 @@
   "license": "Apache2",
   "scripts": {
     "bundle:css": "parcel build --public-url /static -o netbox.css main.scss && parcel build --public-url /static -o rack_elevation.css rack_elevation.scss",
-    "bundle:js": "parcel build --public-url /static -o netbox.js src/index.ts && parcel build --public-url /static -o jobs.js src/jobs.ts && parcel build --public-url /static -o lldp.js src/device/lldp.ts && parcel build --public-url /static -o config.js src/device/config.ts",
+    "bundle:js": "parcel build --public-url /static -o netbox.js src/index.ts && parcel build --public-url /static -o jobs.js src/jobs.ts && parcel build --public-url /static -o lldp.js src/device/lldp.ts && parcel build --public-url /static -o config.js src/device/config.ts && parcel build --public-url /static -o status.js src/device/status.ts",
     "bundle": "yarn bundle:css && yarn bundle:js"
   },
   "dependencies": {
@@ -16,6 +16,7 @@
     "clipboard": "2.0.6",
     "color2k": "^1.2.4",
     "cookie": "^0.4.1",
+    "dayjs": "^1.10.4",
     "flatpickr": "4.6.3",
     "jquery": "3.5.1",
     "jquery-ui": "1.12.1",

@@ -13,6 +13,7 @@ function initConfig() {
       .then(data => {
         if (hasError(data)) {
           createToast('danger', 'Error Fetching Device Config', data.error).show();
+          return;
         } else {
           const configTypes = [
             'running',
