@@ -201,7 +201,7 @@ $(document).ready(function() {
                 var results = data.results;
 
                 results = results.reduce((results,record,idx) => {
-                    record.text = record[element.getAttribute('display-field')] || record.name;
+                    record.text = record.display;
                     if (record._depth) {
                         // Annotate hierarchical depth for MPTT objects
                         record.text = '--'.repeat(record._depth) + ' ' + record.text;

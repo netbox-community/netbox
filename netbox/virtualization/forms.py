@@ -667,7 +667,6 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        display_field='display_name',
         query_params={
             'virtualmachine_id': 'virtual_machine',
         }
@@ -756,8 +755,7 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
-        required=False,
-        display_field='display_name'
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
