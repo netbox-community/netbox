@@ -2,11 +2,14 @@
 {% load helpers %}
 {% load static %}
 
-{% block title %}{{ report.name }} - {{ result.get_status_display }}{% endblock %}
+{% block title %}{{ report.name }} <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>{% endblock %}
+
+{% block head %}
+<script src="{% static 'jobs.js' %}?v{{ settings.VERSION }}"
+        onerror="window.location='{% url 'media_failure' %}?filename=jobs.js'"></script>
+{% endblock %}
 
 {% block content %}
-<span id="jobId" data-value="{{ result.pk }}" style="display: none;"></span>
-<span id="jobComplete" data-value="{{ result.completed }}" style="display: none;"></span>
 <div class="row">
     <div class="col-md-12">
         <p>
@@ -18,7 +21,7 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             {% endif %}
-            <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
+            
         </p>
         {% if result.completed %}
             <div class="card">
@@ -92,7 +95,7 @@
 </div>
 {% endblock %}
 
-{% block javascript %}
-<script src="{% static 'jobs.js' %}?v{{ settings.VERSION }}"
-        onerror="window.location='{% url 'media_failure' %}?filename=jobs.js'"></script>
+{% block data %}
+<span data-job-id="{{ result.pk }}"></span>
+<span data-job-complete="{{ result.completed }}"></span>
 {% endblock %}

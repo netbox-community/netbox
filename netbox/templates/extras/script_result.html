@@ -4,104 +4,106 @@
 {% load log_levels %}
 {% load static %}
 
-{% block title %}{{ script }} - {{ result.get_status_display }}{% endblock %}
+{% block title %}{{ script }} <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>{% endblock %}
 
-{% block content %}
-    <span id="jobId" data-value="{{ result.pk }}" style="display: none;"></span>
-    <span id="jobComplete" data-value="{{ result.completed }}" style="display: none;"></span>
-    <div class="row noprint">
-        <div class="col-md-12">
-            <nav class="breadcrumb-container" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
-                    <li class="breadcrumb-item">{{ result.created }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
-    <p class="text-muted">{{ script.Meta.description|render_markdown }}</p>
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">Log</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a href="#output" role="tab" data-bs-toggle="tab" class="nav-link">Output</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">Source</a>
-        </li>
-    </ul>
-    <div class="tab-content my-3">
-        <p>
-            Run: <strong>{{ result.created }}</strong>
-            {% if result.completed %}
-                Duration: <strong>{{ result.duration }}</strong>
-            {% else %}
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            {% endif %}
-            <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
-        </p>
-        <div role="tabpanel" class="tab-pane active" id="log">
-            {% if result.completed %}
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <h5 class="card-header">
-                                Script Log
-                            </h5>
-                            <div class="card-body">
-                                <table class="table table-hover panel-body">
-                                    <tr>
-                                        <th>Line</th>
-                                        <th>Level</th>
-                                        <th>Message</th>
-                                    </tr>
-                                    {% for log in result.data.log %}
-                                        <tr>
-                                            <td>{{ forloop.counter }}</td>
-                                            <td>{% log_level log.status %}</td>
-                                            <td class="rendered-markdown">{{ log.message|render_markdown }}</td>
-                                        </tr>
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="3" class="text-center text-muted">
-                                                No log output
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </table>
-                            </div>
-                            {% if execution_time %}
-                                <div class="card-footer text-end text-muted">
-                                    <small>Exec Time: {{ execution_time|floatformat:3 }}s</small>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="well">Pending Results</div>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-        <div role="tabpanel" class="tab-pane" id="output">
-            <pre>{{ result.data.output }}</pre>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="source">
-            <p><code>{{ script.filename }}</code></p>
-            <pre>{{ script.source }}</pre>
-        </div>
-    </div>
-{% endblock %}
-
-{% block javascript %}
+{% block head %}
 <script src="{% static 'jobs.js' %}?v{{ settings.VERSION }}"
         onerror="window.location='{% url 'media_failure' %}?filename=jobs.js'"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row noprint">
+    <div class="col-md-12">
+        <nav class="breadcrumb-container" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
+                <li class="breadcrumb-item">{{ result.created }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<p class="text-muted">{{ script.Meta.description|render_markdown }}</p>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">Log</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a href="#output" role="tab" data-bs-toggle="tab" class="nav-link">Output</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">Source</a>
+    </li>
+</ul>
+<div class="tab-content my-3">
+    <p>
+        Run: <strong>{{ result.created }}</strong>
+        {% if result.completed %}
+            Duration: <strong>{{ result.duration }}</strong>
+        {% else %}
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        {% endif %}
+    </p>
+    <div role="tabpanel" class="tab-pane active" id="log">
+        {% if result.completed %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <h5 class="card-header">
+                            Script Log
+                        </h5>
+                        <div class="card-body">
+                            <table class="table table-hover panel-body">
+                                <tr>
+                                    <th>Line</th>
+                                    <th>Level</th>
+                                    <th>Message</th>
+                                </tr>
+                                {% for log in result.data.log %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{% log_level log.status %}</td>
+                                        <td class="rendered-markdown">{{ log.message|render_markdown }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">
+                                            No log output
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% if execution_time %}
+                            <div class="card-footer text-end text-muted">
+                                <small>Exec Time: {{ execution_time|floatformat:3 }}s</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="well">Pending Results</div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="output">
+        <pre>{{ result.data.output }}</pre>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="source">
+        <p><code>{{ script.filename }}</code></p>
+        <pre>{{ script.source }}</pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block data %}
+<span data-job-id="{{ result.pk }}"></span>
+<span data-job-complete="{{ result.completed }}"></span>
 {% endblock %}
