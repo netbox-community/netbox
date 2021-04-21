@@ -92,8 +92,8 @@
                 {% if perms.ipam.add_prefix %}
                 <div class="card-footer text-end noprint">
                     <a href="{% url 'ipam:prefix_add' %}?{% if object.tenant %}tenant={{ object.tenant.pk }}&{% endif %}site={{ object.site.pk }}&vlan={{ object.pk }}" class="btn btn-primary btn-sm">
-                        <span class="bi bi-plus" aria-hidden="true"></span>
-                        Add a prefix
+                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+                        Add a Prefix
                     </a>
                 </div>
                 {% endif %}

@@ -5,46 +5,46 @@
 {% block title %}Renaming {{ selected_objects|length }} {{ obj_type_plural|bettertitle }}{% endblock %}
 
 {% block content %}
-    <div class="row mb-3">
-        <div class="col-md-7">
-            <div class="card">
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Current Name</th>
-                                <th>New Name</th>
+<div class="row mb-3">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Current Name</th>
+                            <th>New Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in selected_objects %}
+                            <tr{% if obj.new_name and obj.name != obj.new_name %} class="success"{% endif %}>
+                                <td>{{ obj.name }}</td>
+                                <td>{{ obj.new_name }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for obj in selected_objects %}
-                                <tr{% if obj.new_name and obj.name != obj.new_name %} class="success"{% endif %}>
-                                    <td>{{ obj.name }}</td>
-                                    <td>{{ obj.new_name }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="col-md-5">
-            <form action="" method="post" class="form form-horizontal">
-                {% csrf_token %}
-                <div class="card">
-                    <h5 class="card-header">Rename</h5>
-                    <div class="card-body">
-                        {% render_form form %}
-                    </div>
-                </div>
-                <div class="col-md-12 my-3 text-end">
-                    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                    <button type="submit" name="_preview" class="btn btn-primary">Preview</button>
-                    {% if '_preview' in request.POST and not form.errors %}
-                        <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
     </div>
+    <div class="col-md-5">
+        <form action="" method="post" class="form form-horizontal">
+            {% csrf_token %}
+            <div class="card">
+                <h5 class="card-header">Rename</h5>
+                <div class="card-body">
+                    {% render_form form %}
+                </div>
+            </div>
+            <div class="col-md-12 my-3 text-end">
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                <button type="submit" name="_preview" class="btn btn-primary">Preview</button>
+                {% if '_preview' in request.POST and not form.errors %}
+                    <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

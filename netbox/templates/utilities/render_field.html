@@ -35,20 +35,12 @@
 {% elif field|widget_type == 'slugwidget' %}
 <div class="form-floating mb-3">
     <div class="input-group">
-            {{ field }}
-        <label 
-            class="{% if field.field.required %}required{% endif %}"
-            for="{{ field.id_for_label }}"
-        >
+        {{ field }}
+        <label  class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
             {{ field.label }}
         </label>
-        <button
-            id="reslug"
-            type="button"
-            title="Regenerate Slug"
-            class="btn btn-outline-dark"
-        >
-            <i class="bi bi-arrow-counterclockwise"></i>
+        <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark">
+            <i class="mdi mdi-undo-variant"></i>
         </button>
     </div>
 </div>
@@ -58,10 +50,7 @@
 <div class="form-floating mb-3">
     <div class="input-group">
         {{ field }}
-        <label
-            class="{% if field.field.required %}required{% endif %}"
-            for="{{ field.id_for_label }}"
-        >
+        <label class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
             {{ field.label }}
         </label>
         <button type="button" class="btn btn-outline-gray dropdown-toggle" data-bs-toggle="dropdown">
@@ -105,10 +94,7 @@
 {% else %}
     <div class="form-floating mb-3">
         {{ field }}
-        <label
-            for="{{ field.id_for_label }}"
-            {% if field.field.required %}class="required"{% endif %}
-        >
+        <label for="{{ field.id_for_label }}" {% if field.field.required %}class="required"{% endif %}>
             {{ field.label }}
         </label>
         {% if field.help_text %}

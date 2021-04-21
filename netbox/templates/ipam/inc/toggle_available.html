@@ -2,10 +2,10 @@
 {% if show_available is not None %}
   <div class="btn-group m-1" role="group">
     <a href="{{ request.path }}{% querystring request show_available='true' %}" class="btn btn-sm btn-outline-secondary{% if show_available %} active disabled{% endif %}">
-      <i class="bi bi-eye-fill"></i> Show Available
+      <i class="mdi mdi-eye"></i> Show Available
     </a>
     <a href="{{ request.path }}{% querystring request show_available='false' %}" class="btn btn-sm btn-outline-secondary{% if not show_available %} active disabled{% endif %}">
-      <i class="bi bi-eye-slash-fill"></i> Hide Available
+      <i class="mdi mdi-eye-off"></i> Hide Available
     </a>
   </div>
 {% endif %}

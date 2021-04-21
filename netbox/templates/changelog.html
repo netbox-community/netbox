@@ -19,24 +19,15 @@
       <td>{{ change.changed_object_type.name|bettertitle }}</td>
       <td>
         {% if change.changed_object.get_absolute_url %}
-        <a
-          class="text-body"
-          href="{{ change.changed_object.get_absolute_url }}"
-          >{{ change.changed_object }}</a
-        >
+        <a class="text-body" href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
         {% else %} {{ change.changed_object|default:change.object_repr }} {% endif %}
       </td>
       
       <td>{{ change.time|date:'SHORT_DATETIME_FORMAT' }}</td>
       <td>
-        <a role="button" class="text-body" href="{{ change.get_absolute_url }}"
-          ><i
-            class="bi bi-three-dots"
-            data-bs-toggle="tooltip"
-            data-bs-placement="left"
-            title="View Change Details"
-          ></i
-        ></a>
+        <a role="button" class="text-body" href="{{ change.get_absolute_url }}">
+          <i class="mdi mdi-dots-horizontal" data-bs-toggle="tooltip" data-bs-placement="left" title="View Change Details"></i>
+        </a>
       </td>
     </tr>
     {% endfor %}

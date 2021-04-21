@@ -10,7 +10,7 @@
         {% for attachment in images %}
             <tr{% if not attachment.size %} class="danger"{% endif %}>
                 <td>
-                    <i class="bi bi-card-image"></i>
+                    <i class="mdi mdi-file-image-outline"></i>
                     <a class="image-preview" href="{{ attachment.image.url }}" target="_blank">{{ attachment }}</a>
                 </td>
                 <td>{{ attachment.size|filesizeformat }}</td>
@@ -18,12 +18,12 @@
                 <td class="text-end noprint">
                     {% if perms.extras.change_imageattachment %}
                         <a href="{% url 'extras:imageattachment_edit' pk=attachment.pk %}" class="btn btn-warning btn-sm" title="Edit Image">
-                            <i class="bi bi-pencil-fill" aria-hidden="true"></i>
+                            <i class="mdi mdi-pencil" aria-hidden="true"></i>
                         </a>
                     {% endif %}
                     {% if perms.extras.delete_imageattachment %}
                         <a href="{% url 'extras:imageattachment_delete' pk=attachment.pk %}" class="btn btn-danger btn-sm" title="Delete Image">
-                            <i class="bi bi-trash-fill" aria-hidden="true"></i>
+                            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                         </a>
                     {% endif %}
                 </td>

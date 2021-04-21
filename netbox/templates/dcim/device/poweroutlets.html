@@ -4,48 +4,48 @@
 {% load static %}
 
 {% block content %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="card">
-            <div class="card-header">
-                <h5 class="d-inline">Power Outlets</h5>
-                <div class="float-end noprint">
-                {% if request.user.is_authenticated %}
-                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DevicePowerOutletTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
-                {% endif %}
-                </div>
-            </div>
-            <div class="card-body">
-                {% render_table poweroutlet_table 'inc/table.html' %}
-            </div>
-            <div class="card-footer noprint">
-                {% if perms.dcim.change_powerport %}
-                    <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
-                        <i class="bi bi-input-cursor-text" aria-hidden="true"></i> Rename
-                    </button>
-                    <button type="submit" name="_edit" formaction="{% url 'dcim:poweroutlet_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit
-                    </button>
-                    <button type="submit" name="_disconnect" formaction="{% url 'dcim:poweroutlet_bulk_disconnect' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
-                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
-                    </button>
-                {% endif %}
-                {% if perms.dcim.delete_poweroutlet %}
-                    <button type="submit" formaction="{% url 'dcim:poweroutlet_bulk_delete' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete
-                    </button>
-                {% endif %}
-                {% if perms.dcim.add_poweroutlet %}
-                    <div class="float-end">
-                        <a href="{% url 'dcim:poweroutlet_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus" aria-hidden="true"></i> Add Power Outlets
-                        </a>
-                    </div>
-                {% endif %}
-                <div class="clearfix"></div>
+<form method="post">
+    {% csrf_token %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="d-inline">Power Outlets</h5>
+            <div class="float-end noprint">
+            {% if request.user.is_authenticated %}
+                <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DevicePowerOutletTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
+            {% endif %}
             </div>
         </div>
-    </form>
-    {% include 'inc/paginator.html' with paginator=poweroutlet_table.paginator page=poweroutlet_table.page %}
-    {% table_config_form poweroutlet_table %}
+        <div class="card-body">
+            {% render_table poweroutlet_table 'inc/table.html' %}
+        </div>
+        <div class="card-footer noprint">
+            {% if perms.dcim.change_powerport %}
+                <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
+                    <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+                </button>
+                <button type="submit" name="_edit" formaction="{% url 'dcim:poweroutlet_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-warning btn-sm">
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+                </button>
+                <button type="submit" name="_disconnect" formaction="{% url 'dcim:poweroutlet_bulk_disconnect' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
+                    <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+                </button>
+            {% endif %}
+            {% if perms.dcim.delete_poweroutlet %}
+                <button type="submit" formaction="{% url 'dcim:poweroutlet_bulk_delete' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-danger btn-sm">
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                </button>
+            {% endif %}
+            {% if perms.dcim.add_poweroutlet %}
+                <div class="float-end">
+                    <a href="{% url 'dcim:poweroutlet_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-primary btn-sm">
+                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Power Outlets
+                    </a>
+                </div>
+            {% endif %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</form>
+{% include 'inc/paginator.html' with paginator=poweroutlet_table.paginator page=poweroutlet_table.page %}
+{% table_config_form poweroutlet_table %}
 {% endblock %}

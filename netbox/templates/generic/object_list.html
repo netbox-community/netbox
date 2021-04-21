@@ -25,7 +25,7 @@
 
 {% block content %}
 <div class="row mb-3">
-    <div class="col-9">
+    <div class="{% if filter_form %}col-9{% else %}col-12{% endif %}">
         <div class="card">
             <div class="card-header">
                 <div class="float-end col-md-2 noprint table-controls">
@@ -74,12 +74,12 @@
                         {% block bulk_buttons %}{% endblock %}
                         {% if bulk_edit_url and permissions.change %}
                         <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit Selected
+                            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
                         </button>
                         {% endif %}
                         {% if bulk_delete_url and permissions.delete %}
                         <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete Selected
+                            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
                         </button>
                         {% endif %}
                     </div>

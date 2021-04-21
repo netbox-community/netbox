@@ -1,6 +1,4 @@
-<div
-  class="d-flex flex-column container-fluid mt-auto justify-content-end sidebar-bottom"
->
+<div class="d-flex flex-column container-fluid mt-auto justify-content-end sidebar-bottom">
   <div class="d-flex flex-column align-items-center px-2 fw-light">
     <small class="text-muted">{% now 'Y-m-d H:i:s T' %}</small>
   </div>
@@ -10,50 +8,17 @@
     </small>
   </div>
   <nav class="nav justify-content-between mb-2 mt-4 px-2">
-    <a
-      type="button"
-      target="_blank"
-      class="nav-link"
-      href="https://netbox.readthedocs.io/"
-    >
-      <i
-        title="Docs"
-        class="bi-book text-primary"
-        data-bs-placement="top"
-        data-bs-toggle="tooltip"
-      ></i>
+    <a type="button" target="_blank" class="nav-link" href="https://netbox.readthedocs.io/">
+      <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
     </a>
     <a class="nav-link" href="{% url 'api_docs' %}" target="_blank">
-      <i
-        title="API"
-        data-bs-placement="top"
-        data-bs-toggle="tooltip"
-        class="bi-braces text-primary"
-      ></i>
+      <i title="API" data-bs-placement="top" data-bs-toggle="tooltip" class="mdi mdi-code-braces text-primary"></i>
     </a>
-    <a
-      class="nav-link"
-      href="https://github.com/netbox-community/netbox"
-      target="_blank"
-    >
-      <i
-        title="Source Code"
-        data-bs-placement="top"
-        data-bs-toggle="tooltip"
-        class="bi-code-slash text-primary"
-      ></i>
+    <a class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
+      <i title="Source Code" data-bs-placement="top" data-bs-toggle="tooltip" class="mdi mdi-code-tags text-primary"></i>
     </a>
-    <a
-      target="_blank"
-      class="nav-link"
-      href="https://github.com/netbox-community/netbox/wiki"
-    >
-      <i
-        title="Get Help"
-        data-bs-placement="top"
-        data-bs-toggle="tooltip"
-        class="bi-life-preserver text-primary"
-      ></i>
+    <a target="_blank" class="nav-link" href="https://github.com/netbox-community/netbox/wiki">
+      <i title="Get Help" data-bs-placement="top" data-bs-toggle="tooltip" class="mdi mdi-lifebuoy text-primary"></i>
     </a>
   </nav>
 </div>

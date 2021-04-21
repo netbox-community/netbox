@@ -19,7 +19,7 @@
 
 {% block controls %}
 {% plugin_buttons object %}
-<div class="container mb-2 mx-0">
+<div class="controls mb-2 mx-0">
   <div class="d-flex flex-wrap justify-content-end">
   {% block extra_controls %}{% endblock %}
   {% if request.user|can_add:object %}

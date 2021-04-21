@@ -15,12 +15,12 @@
                     <div class="float-end">
                         {% if bulk_edit_url and permissions.change %}
                             <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled="disabled">
-                                <span class="bi bi-pencil-fill" aria-hidden="true"></span> Edit All
+                                <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit All
                             </button>
                         {% endif %}
                         {% if bulk_delete_url and permissions.delete %}
                             <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled="disabled">
-                                <span class="bi bi-trash-fill" aria-hidden="true"></span> Delete All
+                                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
                             </button>
                         {% endif %}
                     </div>
@@ -32,12 +32,12 @@
             {% block extra_actions %}{% endblock %}
             {% if bulk_edit_url and permissions.change %}
                 <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                    <i class="bi bi-pencil-fill" aria-hidden="true"></i> Edit Selected
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
                 </button>
             {% endif %}
             {% if bulk_delete_url and permissions.delete %}
                 <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                    <i class="bi bi-trash-fill" aria-hidden="true"></i> Delete Selected
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
                 </button>
             {% endif %}
         </div>

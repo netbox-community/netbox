@@ -14,7 +14,7 @@
                 <div class="input-group mb-3">
                     <input type="text" name="q" class="form-control" placeholder="Search" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search"></i>
+                        <i class="mdi mdi-magnify"></i>
                     </button>
                 </div>
                 {% elif field|widget_type == 'checkboxinput' %}
@@ -33,10 +33,10 @@
     </div>
     <div class="card-footer text-end noprint border-0">
         <a href="." class="btn btn-sm btn-outline-dark m-1">
-            <i class="bi bi-x"></i> Clear
+            <i class="mdi mdi-close"></i> Clear
         </a>
         <button type="submit" class="btn btn-sm btn-primary m-1">
-            <i class="bi bi-search"></i> Apply
+            <i class="mdi mdi-magnify"></i> Apply
         </button>
     </div>
 </div>

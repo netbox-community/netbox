@@ -20,7 +20,7 @@
 
 {% block extra_controls %}
   <button class="btn btn-sm btn-outline-primary m-1 toggle-images" selected="selected">
-    <i class="bi bi-file-image"></i> 
+    <i class="mdi mdi-file-image-outline"></i> 
     Hide Images
   </button>
   <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-sm btn-primary m-1">
@@ -244,8 +244,8 @@
             {% if perms.extras.add_imageattachment %}
             <div class="card-footer text-end noprint">
                 <a href="{% url 'dcim:rack_add_image' object_id=object.pk %}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus" aria-hidden="true"></i>
-                    Attach an image
+                    <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+                    Attach an Image
                 </a>
             </div>
             {% endif %}
@@ -301,8 +301,8 @@
             {% if perms.dcim.add_rackreservation %}
                 <div class="card-footer text-end noprint">
                     <a href="{% url 'dcim:rackreservation_add' %}?rack={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus" aria-hidden="true"></i>
-                        Add a reservation
+                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+                        Add a Reservation
                     </a>
                 </div>
             {% endif %}
@@ -362,8 +362,8 @@
             {% if perms.dcim.add_device %}
                 <div class="card-footer text-end noprint">
                     <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&rack={{ object.pk }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus" aria-hidden="true"></i>
-                        Add a non-racked device
+                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+                        Add a Non-Racked Device
                     </a>
                 </div>
             {% endif %}

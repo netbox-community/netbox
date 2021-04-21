@@ -82,7 +82,7 @@
             {% if perms.circuits.add_circuit %}
             <div class="card-footer text-end noprint">
                 <a href="{% url 'circuits:circuit_add' %}?provider={{ object.pk }}" class="btn btn-sm btn-primary">
-                    <span class="bi bi-plus" aria-hidden="true"></span> Add circuit
+                    <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add circuit
                 </a>
             </div>
             {% endif %}

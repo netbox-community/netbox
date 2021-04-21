@@ -179,17 +179,17 @@ class ButtonsColumn(tables.TemplateColumn):
     template_code = """
     {{% if "changelog" in buttons %}}
         <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-outline-dark btn-sm" title="Change log">
-            <i class="bi bi-clock-history"></i>
+            <i class="mdi mdi-history"></i>
         </a>
     {{% endif %}}
     {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
         <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-sm btn-warning" title="Edit">
-            <i class="bi bi-pencil-fill"></i>
+            <i class="mdi mdi-pencil"></i>
         </a>
     {{% endif %}}
     {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
         <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-sm btn-danger" title="Delete">
-            <i class="bi bi-trash-fill"></i>
+            <i class="mdi mdi-trash-can-outline"></i>
         </a>
     {{% endif %}}
     """

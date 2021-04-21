@@ -5,12 +5,12 @@
         <div class="float-end">
             {% if not termination and perms.circuits.add_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_add' circuit=object.pk %}?term_side={{ side }}" class="btn btn-sm btn-success">
-                    <span class="bi bi-plus" aria-hidden="true"></span> Add
+                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add
                 </a>
             {% endif %}
             {% if termination and perms.circuits.change_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-warning">
-                    <span class="bi bi-pencil-fill" aria-hidden="true"></span> Edit
+                    <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                 </a>
                 <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-sm btn-primary">
                     <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> Swap
@@ -18,7 +18,7 @@
             {% endif %}
             {% if termination and perms.circuits.delete_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-danger">
-                    <span class="bi bi-trash-fill" aria-hidden="true"></span> Delete
+                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                 </a>
             {% endif %}
         </div>

@@ -2,19 +2,14 @@
 <div class="card mb-3">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5>Statistics</h5>
-    <i class="bi bi-pie-chart-fill"></i>
+    <i class="mdi mdi-chart-line"></i>
   </div>
-
   <ul class="list-group list-group-flush">
-    <li
-      class="list-group-item d-flex align-items-center justify-content-between"
-    >
+    <li class="list-group-item d-flex align-items-center justify-content-between">
       Total IPv4 IPs
       <span class="badge rounded-pill bg-primary">{{ ipv4_total|intcomma }}</span>
     </li>
-    <li
-      class="list-group-item d-flex align-items-center justify-content-between"
-    >
+    <li class="list-group-item d-flex align-items-center justify-content-between">
       Total IPv6 /64s
       <span class="badge rounded-pill bg-primary">{{ ipv6_total|intcomma }}</span>
     </li>
