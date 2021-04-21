@@ -338,8 +338,8 @@ div.field-group:not(:first-of-type) {
 label.required {
   font-weight: $font-weight-bold;
   &::after {
-    font-family: bootstrap-icons;
-    content: '\f151';
+    font-family: 'Material Design Icons';
+    content: '\f06C4';
     font-weight: normal;
     font-size: 8px;
     font-style: normal;
