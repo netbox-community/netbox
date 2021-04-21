@@ -2,43 +2,43 @@ import { createToast } from './bs';
 import { isTruthy, getElements, apiPatch, hasError, slugify } from './util';
 
 /**
+ * Toggle the visibility of device images and update the toggle button style.
+ */
+function handleRackImageToggle(event: Event) {
+  const target = event.target as HTMLButtonElement;
+  const selected = target.getAttribute('selected');
+
+  if (isTruthy(selected)) {
+    for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
+      const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
+      for (const image of images) {
+        if (image !== null && !image.classList.contains('hidden')) {
+          image.classList.add('hidden');
+        }
+      }
+    }
+    target.innerHTML = `<i class="mdi mdi-file-image-outline"></i>&nbsp;Show Images`;
+    target.setAttribute('selected', '');
+  } else {
+    for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
+      const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
+      for (const image of images) {
+        if (image !== null) {
+          image.classList.remove('hidden');
+        }
+      }
+    }
+    target.innerHTML = `<i class="mdi mdi-file-image-outline"></i>&nbsp;Hide Images`;
+    target.setAttribute('selected', 'selected');
+  }
+  return;
+}
+/**
  * Add onClick callback for toggling rack elevation images.
  */
 function initRackElevation() {
-  for (const button of getElements('button.toggle-images')) {
-    /**
-     * Toggle the visibility of device images and update the toggle button style.
-     */
-    function handleClick(event: Event) {
-      const target = event.target as HTMLButtonElement;
-      const selected = target.getAttribute('selected');
-
-      if (isTruthy(selected)) {
-        target.innerHTML = `<i class="bi bi-file-image"></i> Show Images`;
-
-        for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
-          const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
-          for (const image of images) {
-            if (!image.classList.contains('hidden')) {
-              image && image.classList.add('hidden');
-            }
-          }
-        }
-        target.setAttribute('selected', '');
-      } else {
-        target.innerHTML = `<i class="bi bi-file-image"></i> Hide Images`;
-
-        for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
-          const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
-          for (const image of images) {
-            image && image.classList.remove('hidden');
-          }
-        }
-
-        target.setAttribute('selected', 'selected');
-      }
-    }
-    button.addEventListener('click', handleClick);
+  for (const button of getElements<HTMLButtonElement>('button.toggle-images')) {
+    button.addEventListener('click', handleRackImageToggle);
   }
 }
 
