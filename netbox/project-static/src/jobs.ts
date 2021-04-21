@@ -1,5 +1,5 @@
 import { createToast } from './bs';
-import { apiGetBase, hasError } from './util';
+import { apiGetBase, hasError, getNetboxData } from './util';
 
 let timeout: number = 1000;
 
@@ -21,19 +21,14 @@ function asyncTimeout(ms: number) {
  * JavaScript.
  */
 function getJobInfo(): JobInfo {
-  let id: Nullable<string> = null;
   let complete = false;
 
-  // Determine the Job ID, if present.
-  const jobIdElement = document.getElementById('jobId');
-  if (jobIdElement !== null && jobIdElement.getAttribute('data-value')) {
-    id = jobIdElement.getAttribute('data-value');
-  }
+  const id = getNetboxData('data-job-id');
+  const jobComplete = getNetboxData('data-job-complete');
 
   // Determine the job completion status, if present. If the job is not complete, the value will be
   // "None". Otherwise, it will be a stringified date.
-  const jobCompleteElement = document.getElementById('jobComplete');
-  if (jobCompleteElement !== null && jobCompleteElement.getAttribute('data-value') !== 'None') {
+  if (typeof jobComplete === 'string' && jobComplete.toLowerCase() !== 'none') {
     complete = true;
   }
   return { id, complete };
@@ -91,6 +86,7 @@ async function checkJobStatus(id: string) {
 
 function initJobs() {
   const { id, complete } = getJobInfo();
+
   if (id !== null && !complete) {
     // If there is a job ID and it is not completed, check for the job's status.
     Promise.resolve(checkJobStatus(id));
