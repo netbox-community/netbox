@@ -3,85 +3,76 @@
 
 {% block form %}
 {% render_errors form %}
-
-    <div class="field-group">
-        <h4 >Device</h4>
-        {% render_field form.name %}
-        {% render_field form.device_role %}
-        {% render_field form.tags %}
+<div class="field-group">
+    <h4 >Device</h4>
+    {% render_field form.name %}
+    {% render_field form.device_role %}
+    {% render_field form.tags %}
+</div>
+<div class="field-group">
+    <h4>Hardware</h4>
+    {% render_field form.manufacturer %}
+    {% render_field form.device_type %}
+    {% render_field form.serial %}
+    {% render_field form.asset_tag %}
+</div>
+<div class="field-group">
+    <h4>Location</h4>
+    {% render_field form.region %}
+    {% render_field form.site_group %}
+    {% render_field form.site %}
+    {% render_field form.location %}
+    {% render_field form.rack %}
+    {% if obj.device_type.is_child_device and obj.parent_bay %}
+    <div class="form-floating mb-3">
+        <input class="form-control" value="{{ obj.parent_bay.device }}" disabled />
+        <label>Parent Device</label>
     </div>
-    <div class="field-group">
-        <h4>Hardware</h4>
-        {% render_field form.manufacturer %}
-        {% render_field form.device_type %}
-        {% render_field form.serial %}
-        {% render_field form.asset_tag %}
+    <div class="form-floating mb-3">
+        <div class="input-group">
+            <input class="form-control" value="{{ obj.parent_bay.name }}" disabled />
+            <label>Parent Bay</label>
+            <a href="{% url 'dcim:devicebay_depopulate' pk=obj.parent_bay.pk %}" title="Regenerate Slug" class="btn btn-danger d-inline-flex align-items-center">
+                <i class="mdi mdi-close-thick"></i>&nbsp;Remove
+            </a>
+        </div>  
     </div>
-    <div class="field-group">
-        <h4>Location</h4>
-        {% render_field form.region %}
-        {% render_field form.site_group %}
-        {% render_field form.site %}
-        {% render_field form.location %}
-        {% render_field form.rack %}
-        {% if obj.device_type.is_child_device and obj.parent_bay %}
-            <div class="form-group">
-                <label class="col-md-3 control-label">Parent Device</label>
-                <div class="col-md-9">
-                    <p class="form-control-static">
-                        <a href="{% url 'dcim:device' pk=obj.parent_bay.device.pk %}">{{ obj.parent_bay.device }}</a>
-                    </p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label">Parent Bay</label>
-                <div class="col-md-9">
-                    <p class="form-control-static">
-                        {{ obj.parent_bay.name }}
-                        {% if perms.dcim.change_devicebay %}
-                            <a href="{% url 'dcim:devicebay_depopulate' pk=obj.parent_bay.pk %}" class="btn btn-danger btn-sm">
-                                <i class="mdi mdi-close-thick" aria-hidden="true" title="Remove device"></i> Remove
-                            </a>
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-        {% else %}
-            {% render_field form.face %}
-            {% render_field form.position %}
-        {% endif %}
-    </div>
-    <div class="field-group">
-        <h4>Management</h4>
-        {% render_field form.status %}
-        {% render_field form.platform %}
-        {% if obj.pk %}
-            {% render_field form.primary_ip4 %}
-            {% render_field form.primary_ip6 %}
-        {% endif %}
-    </div>
-    <div class="field-group">
-        <h4>Virtualization</h4>
-        {% render_field form.cluster_group %}
-        {% render_field form.cluster %}
-    </div>
-    <div class="field-group">
-        <h4>Tenancy</h4>
-        {% render_field form.tenant_group %}
-        {% render_field form.tenant %}
-    </div>
-    {% if form.custom_fields %}
-        <div class="field-group">
-            <h4>Custom Fields</h4>
-            {% render_custom_fields form %}
-        </div>
+    {% else %}
+        {% render_field form.face %}
+        {% render_field form.position %}
     {% endif %}
+</div>
+<div class="field-group">
+    <h4>Management</h4>
+    {% render_field form.status %}
+    {% render_field form.platform %}
+    {% if obj.pk %}
+        {% render_field form.primary_ip4 %}
+        {% render_field form.primary_ip6 %}
+    {% endif %}
+</div>
+<div class="field-group">
+    <h4>Virtualization</h4>
+    {% render_field form.cluster_group %}
+    {% render_field form.cluster %}
+</div>
+<div class="field-group">
+    <h4>Tenancy</h4>
+    {% render_field form.tenant_group %}
+    {% render_field form.tenant %}
+</div>
+{% if form.custom_fields %}
     <div class="field-group">
-        <h4>Local Config Context Data</h4>
-        {% render_field form.local_context_data %}
+        <h4>Custom Fields</h4>
+        {% render_custom_fields form %}
     </div>
-    <div class="field-group">
-        <h4>Comments</h4>
-        {% render_field form.comments %}
-    </div>
+{% endif %}
+<div class="field-group">
+    <h4>Local Config Context Data</h4>
+    {% render_field form.local_context_data %}
+</div>
+<div class="field-group">
+    <h4>Comments</h4>
+    {% render_field form.comments %}
+</div>
 {% endblock %}
