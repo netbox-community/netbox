@@ -63,7 +63,7 @@ export function setOptionStyles(instance: SlimSelect): void {
       const fg = readableColor(bg);
 
       // Add a unique identifier to the style element.
-      style.dataset.netbox = id;
+      style.setAttribute('data-netbox', id);
 
       // Scope the CSS to apply both the list item and the selected item.
       style.innerHTML = `
@@ -154,4 +154,33 @@ export function getFilteredBy<T extends HTMLElement>(element: T): Map<string, st
     }
   }
   return filterMap;
+}
+
+function* getAllDependencyIds<E extends HTMLElement>(element: Nullable<E>): Generator<string> {
+  const keyPattern = new RegExp(/data-query-param-/g);
+  if (element !== null) {
+    for (const attr of element.attributes) {
+      if (attr.name.startsWith('data-query-param') && attr.name !== 'data-query-param-exclude') {
+        const dep = attr.name.replaceAll(keyPattern, '');
+        yield dep;
+        for (const depNext of getAllDependencyIds(document.getElementById(`id_${dep}`))) {
+          yield depNext;
+        }
+      } else if (attr.name === 'data-url' && attr.value.includes(`{{`)) {
+        const value = attr.value.match(/\{\{(.+)\}\}/);
+        if (value !== null) {
+          const dep = value[1];
+          yield dep;
+          for (const depNext of getAllDependencyIds(document.getElementById(`id_${dep}`))) {
+            yield depNext;
+          }
+        }
+      }
+    }
+  }
+}
+
+export function getDependencyIds<E extends HTMLElement>(element: Nullable<E>): string[] {
+  const ids = new Set<string>(getAllDependencyIds(element));
+  return Array.from(ids).map(i => i.replaceAll('_id', ''));
 }

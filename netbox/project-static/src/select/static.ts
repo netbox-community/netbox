@@ -14,7 +14,7 @@ export function initStaticSelect() {
       const instance = new SlimSelect({
         select,
         allowDeselect: true,
-        deselectLabel: `<i class="bi bi-x-circle"></i>`,
+        deselectLabel: `<i class="mdi mdi-close-circle"></i>`,
         placeholder,
       });
 

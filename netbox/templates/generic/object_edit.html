@@ -3,17 +3,11 @@
 {% block title %}{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}{% endblock %}
 
 {% block controls %}
-{% if settings.DOCS_ROOT %}
-<button
-  type="button"
-  class="btn btn-sm btn-outline-secondary"
-  data-bs-toggle="modal"
-  data-bs-target="#docs_modal"
-  title="Help"
->
-  <i class="mdi mdi-help-circle"></i>
-</button>
-{% endif %}
+  {% if settings.DOCS_ROOT %}
+  <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
+    <i class="mdi mdi-help-circle"></i>
+  </button>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -26,7 +20,7 @@
       {% block form %}
       {% if form.Meta.fieldsets %}
 
-      {# Render grouped fields accoring to Form #} 
+      {# Render grouped fields according to Form #} 
       {% for group, fields in form.Meta.fieldsets %}
         <div class="field-group">
           <h4 class="mb-3">{{ group }}</h4>

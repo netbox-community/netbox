@@ -2,12 +2,12 @@ import SlimSelect from 'slim-select';
 import queryString from 'query-string';
 import { getApiData, isApiError, getElements, isTruthy, hasError } from '../util';
 import { createToast } from '../bs';
-import { setOptionStyles, getFilteredBy, toggle } from './util';
+import { setOptionStyles, toggle, getDependencyIds } from './util';
 
 import type { Option } from 'slim-select/dist/data';
 
 type WithUrl = {
-  url: string;
+  'data-url': string;
 };
 
 type WithExclude = {
@@ -16,18 +16,16 @@ type WithExclude = {
 
 type ReplaceTuple = [RegExp, string];
 
-interface CustomSelect<T extends Record<string, string>> extends HTMLSelectElement {
-  dataset: T;
-}
+type CustomSelect<T extends Record<string, string>> = HTMLSelectElement & T;
 
-function isCustomSelect(el: HTMLSelectElement): el is CustomSelect<WithUrl> {
-  return typeof el?.dataset?.url === 'string';
+function hasUrl(el: HTMLSelectElement): el is CustomSelect<WithUrl> {
+  const value = el.getAttribute('data-url');
+  return typeof value === 'string' && value !== '';
 }
 
 function hasExclusions(el: HTMLSelectElement): el is CustomSelect<WithExclude> {
-  return (
-    typeof el?.dataset?.queryParamExclude === 'string' && el?.dataset?.queryParamExclude !== ''
-  );
+  const exclude = el.getAttribute('data-query-param-exclude');
+  return typeof exclude === 'string' && exclude !== '';
 }
 
 const DISABLED_ATTRIBUTES = ['occupied'] as string[];
@@ -68,65 +66,71 @@ async function getOptions(
   // existing object. When we fetch options from the API later, we can set any of the options
   // contained in this array to `selected`.
   const selectOptions = Array.from(select.options)
-    .filter(option => option.value !== '')
-    .map(option => option.value);
+    .map(option => option.getAttribute('value'))
+    .filter(isTruthy);
 
-  return getApiData(url).then(data => {
-    if (hasError(data)) {
-      if (isApiError(data)) {
-        createToast('danger', data.exception, data.error).show();
-        return [PLACEHOLDER];
-      }
-      createToast('danger', `Error Fetching Options for field ${select.name}`, data.error).show();
+  const data = await getApiData(url);
+  if (hasError(data)) {
+    if (isApiError(data)) {
+      createToast('danger', data.exception, data.error).show();
       return [PLACEHOLDER];
     }
+    createToast('danger', `Error Fetching Options for field ${select.name}`, data.error).show();
+    return [PLACEHOLDER];
+  }
 
-    const { results } = data;
-    const options = [PLACEHOLDER] as Option[];
+  const { results } = data;
+  const options = [PLACEHOLDER] as Option[];
 
-    for (const result of results) {
-      const text = getDisplayName(result, select);
-      const data = {} as Record<string, string>;
-      const value = result.id.toString();
+  for (const result of results) {
+    const text = getDisplayName(result, select);
+    const data = {} as Record<string, string>;
+    const value = result.id.toString();
+    let style, selected, disabled;
 
-      // Set any primitive k/v pairs as data attributes on each option.
-      for (const [k, v] of Object.entries(result)) {
-        if (!['id', 'slug'].includes(k) && ['string', 'number', 'boolean'].includes(typeof v)) {
-          const key = k.replaceAll('_', '-');
-          data[key] = String(v);
+    // Set any primitive k/v pairs as data attributes on each option.
+    for (const [k, v] of Object.entries(result)) {
+      if (!['id', 'slug'].includes(k) && ['string', 'number', 'boolean'].includes(typeof v)) {
+        const key = k.replaceAll('_', '-');
+        data[key] = String(v);
+      }
+      // Set option to disabled if the result contains a matching key and is truthy.
+      if (DISABLED_ATTRIBUTES.some(key => key.toLowerCase() === k.toLowerCase())) {
+        if (typeof v === 'string' && v.toLowerCase() !== 'false') {
+          disabled = true;
+        } else if (typeof v === 'boolean' && v === true) {
+          disabled = true;
+        } else if (typeof v === 'number' && v > 0) {
+          disabled = true;
         }
       }
-
-      let style, selected, disabled;
-
-      // Set pre-selected options.
-      if (selectOptions.includes(value)) {
-        selected = true;
-      }
-
-      // Set option to disabled if it is contained within the disabled array.
-      if (selectOptions.some(option => disabledOptions.includes(option))) {
-        disabled = true;
-      }
-
-      // Set option to disabled if the result contains a matching key and is truthy.
-      if (DISABLED_ATTRIBUTES.some(key => Object.keys(result).includes(key) && result[key])) {
-        disabled = true;
-      }
-
-      const option = {
-        value,
-        text,
-        data,
-        style,
-        selected,
-        disabled,
-      } as Option;
-
-      options.push(option);
     }
-    return options;
-  });
+
+    // Set option to disabled if it is contained within the disabled array.
+    if (selectOptions.some(option => disabledOptions.includes(option))) {
+      disabled = true;
+    }
+
+    // Set pre-selected options.
+    if (selectOptions.includes(value)) {
+      selected = true;
+      // If an option is selected, it can't be disabled. Otherwise, it won't be submitted with
+      // the rest of the form, resulting in that field's value being deleting from the object.
+      disabled = false;
+    }
+
+    const option = {
+      value,
+      text,
+      data,
+      style,
+      selected,
+      disabled,
+    } as Option;
+
+    options.push(option);
+  }
+  return options;
 }
 
 /**
@@ -175,27 +179,27 @@ function getDisplayName(result: APIObjectBase, select: HTMLSelectElement): strin
  */
 export function initApiSelect() {
   for (const select of getElements<HTMLSelectElement>('.netbox-select2-api')) {
-    const filterMap = getFilteredBy(select);
+    const dependencies = getDependencyIds(select);
     // Initialize an event, so other elements relying on this element can subscribe to this
     // element's value.
     const event = new Event(`netbox.select.onload.${select.name}`);
     // Query Parameters - will have attributes added below.
     const query = {} as Record<string, string>;
-    // List of OTHER elements THIS element relies on for query filtering.
-    const groupBy = [] as HTMLSelectElement[];
 
-    if (isCustomSelect(select)) {
+    if (hasUrl(select)) {
       // Store the original URL, so it can be referred back to as filter-by elements change.
-      const originalUrl = JSON.parse(JSON.stringify(select.dataset.url)) as string;
-      // Unpack the original URL with the intent of reassigning it as context updates.
-      let { url } = select.dataset;
+      // const originalUrl = select.getAttribute('data-url') as string;
+      // Get the original URL with the intent of reassigning it as context updates.
+      let url = select.getAttribute('data-url') ?? '';
 
       const placeholder = getPlaceholder(select);
 
       let disabledOptions = [] as string[];
       if (hasExclusions(select)) {
         try {
-          const exclusions = JSON.parse(select.dataset.queryParamExclude) as string[];
+          const exclusions = JSON.parse(
+            select.getAttribute('data-query-param-exclude') ?? '[]',
+          ) as string[];
           disabledOptions = [...disabledOptions, ...exclusions];
         } catch (err) {
           console.warn(
@@ -207,7 +211,7 @@ export function initApiSelect() {
       const instance = new SlimSelect({
         select,
         allowDeselect: true,
-        deselectLabel: `<i class="bi bi-x-circle" style="color:currentColor;"></i>`,
+        deselectLabel: `<i class="mdi mdi-close-circle" style="color:currentColor;"></i>`,
         placeholder,
         onChange() {
           const element = instance.slim.container ?? null;
@@ -233,42 +237,52 @@ export function initApiSelect() {
         instance.slim.container.classList.remove(className);
       }
 
-      for (let [key, value] of filterMap) {
-        if (value === '') {
-          // An empty value is set if the key contains a `$`, indicating reliance on another field.
-          const elem = document.querySelector(`[name=${key}]`) as HTMLSelectElement;
-          if (elem !== null) {
-            groupBy.push(elem);
-            if (elem.value !== '') {
-              // If the element's form value exists, add it to the map.
-              value = elem.value;
-              filterMap.set(key, elem.value);
+      /**
+       * Update an element's API URL based on the value of another element upon which this element
+       * relies.
+       *
+       * @param id DOM ID of the other element.
+       */
+      function updateQuery(id: string) {
+        let key = id;
+        // Find the element dependency.
+        const element = document.getElementById(`id_${id}`) as Nullable<HTMLSelectElement>;
+        if (element !== null) {
+          if (element.value !== '') {
+            // If the dependency has a value, parse the dependency's name (form key) for any
+            // required replacements.
+            for (const [pattern, replacement] of REPLACE_PATTERNS) {
+              if (id.match(pattern)) {
+                key = id.replaceAll(pattern, replacement);
+                break;
+              }
+            }
+            // If this element's URL contains Django template tags ({{), replace the template tag
+            // with the the dependency's value. For example, if the dependency is the `rack` field,
+            // and the `rack` field's value is `1`, this element's URL would change from
+            // `/dcim/racks/{{rack}}/` to `/dcim/racks/1/`.
+            if (url.includes(`{{`)) {
+              for (const test of url.matchAll(new RegExp(`({{(${id}|${key})}})`, 'g'))) {
+                // The template tag may contain the original element name or the post-parsed value.
+                url = url.replaceAll(test[1], element.value);
+              }
+              // Set the DOM attribute to reflect the change.
+              select.setAttribute('data-url', url);
             }
           }
-        }
-
-        // A non-empty value indicates a static query parameter.
-        for (const [pattern, replacement] of REPLACE_PATTERNS) {
-          // Check the query param key to see if we should modify it.
-          if (key.match(pattern)) {
-            key = key.replaceAll(pattern, replacement);
-            break;
+          if (isTruthy(element.value)) {
+            // Add the dependency's value to the URL query.
+            query[key] = element.value;
           }
         }
-
-        if (url.includes(`{{`) && value !== '') {
-          // If the URL contains a Django/Jinja template variable, we need to replace the
-          // tag with the event's value.
-          url = url.replaceAll(new RegExp(`{{${key}}}`, 'g'), value);
-          select.setAttribute('data-url', url);
-        }
-
-        // Add post-replaced key/value pairs to the query object.
-        if (isTruthy(value)) {
-          query[key] = value;
-        }
+      }
+      // Process each of the dependencies, updating this element's URL or other attributes as
+      // needed.
+      for (const dep of dependencies) {
+        updateQuery(dep);
       }
 
+      // Create a valid encoded URL with all query params.
       url = queryString.stringifyUrl({ url, query });
 
       /**
@@ -279,64 +293,35 @@ export function initApiSelect() {
        */
       function handleEvent(event: Event) {
         const target = event.target as HTMLSelectElement;
-
-        if (isTruthy(target.value)) {
-          let name = target.name;
-
-          for (const [pattern, replacement] of REPLACE_PATTERNS) {
-            // Check the query param key to see if we should modify it.
-            if (name.match(pattern)) {
-              name = name.replaceAll(pattern, replacement);
-              break;
-            }
-          }
-
-          if (url.includes(`{{`) && target.name && target.value) {
-            // If the URL (still) contains a Django/Jinja template variable, we need to replace
-            // the tag with the event's value.
-            url = url.replaceAll(new RegExp(`{{${target.name}}}`, 'g'), target.value);
-            select.setAttribute('data-url', url);
-          }
-
-          if (filterMap.get(target.name) === '') {
-            // Update empty filter map values now that there is a value.
-            filterMap.set(target.name, target.value);
-          }
-          // Add post-replaced key/value pairs to the query object.
-          query[name] = target.value;
-          // Create a URL with all relevant query parameters.
-          url = queryString.stringifyUrl({ url, query });
-        } else {
-          url = originalUrl;
-        }
+        // Update the element's URL after any changes to a dependency.
+        updateQuery(target.id);
 
         // Disable the element while data is loading.
         toggle('disable', instance);
         // Load new data.
         getOptions(url, select, disabledOptions)
           .then(data => instance.setData(data))
+          .catch(console.error)
           .finally(() => {
             // Re-enable the element after data has loaded.
             toggle('enable', instance);
             // Inform any event listeners that data has updated.
             select.dispatchEvent(event);
           });
-        // Stop event bubbling.
-        event.preventDefault();
       }
 
-      for (const group of groupBy) {
-        // Re-fetch data when the group changes.
-        group.addEventListener('change', handleEvent);
-
-        // Subscribe this instance (the child that relies on `group`) to any changes of the
-        // group's value, so we can re-render options.
-        select.addEventListener(`netbox.select.onload.${group.name}`, handleEvent);
+      for (const dep of dependencies) {
+        const element = document.getElementById(`id_${dep}`);
+        if (element !== null) {
+          element.addEventListener('change', handleEvent);
+        }
+        select.addEventListener(`netbox.select.onload.${dep}`, handleEvent);
       }
 
       // Load data.
       getOptions(url, select, disabledOptions)
         .then(options => instance.setData(options))
+        .catch(console.error)
         .finally(() => {
           // Set option styles, if the field calls for it (color selectors).
           setOptionStyles(instance);

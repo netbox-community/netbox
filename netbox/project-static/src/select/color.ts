@@ -34,7 +34,7 @@ export function initColorSelect(): void {
       select,
       allowDeselect: true,
       // Inherit the calculated color on the deselect icon.
-      deselectLabel: `<i class="bi bi-x-circle" style="color: currentColor;"></i>`,
+      deselectLabel: `<i class="mdi mdi-close-circle" style="color: currentColor;"></i>`,
     });
 
     // Style the select container to match any pre-selectd options.
