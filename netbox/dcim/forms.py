@@ -2552,7 +2552,7 @@ class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
         queryset=Device.objects.all()
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
     )
     tags = DynamicModelMultipleChoiceField(

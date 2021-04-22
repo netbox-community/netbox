@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.2 (FUTURE)
+
+### Bug Fixes
+
+* [#6246](https://github.com/netbox-community/netbox/issues/6246) - Permit full-length descriptions when creating device components and VM interfaces
+
+---
+
 ## v2.11.1 (2021-04-21)
 
 ### Enhancements
