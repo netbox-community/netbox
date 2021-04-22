@@ -8,6 +8,7 @@
     role="alert"
     aria-live="assertive"
     aria-atomic="true"
+    data-bs-delay="10000"
   >
     <div class="d-flex">
       <div class="toast-body">
@@ -21,5 +22,28 @@
       ></button>
     </div>
   </div>
-  {% endfor %} {% endif %}
+  {% endfor %}
+  {% elif form and form.non_field_errors %}
+  {% for error in form.non_field_errors.get_json_data %}
+  <div
+    class="django-message toast align-items-center border-0 bg-danger"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="10000"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ error.message }}
+      </div>
+      <button
+        type="button"
+        class="btn-close me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
 </div>
