@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6246](https://github.com/netbox-community/netbox/issues/6246) - Permit full-length descriptions when creating device components and VM interfaces
+* [#6248](https://github.com/netbox-community/netbox/issues/6248) - Fix table column reconfiguration under Chrome
 * [#6252](https://github.com/netbox-community/netbox/issues/6252) - Fix assignment of console port speed values above 19.2kbps
 * [#6254](https://github.com/netbox-community/netbox/issues/6254) - Disable ordering of space column in racks table
 * [#6258](https://github.com/netbox-community/netbox/issues/6258) - Fix parent assignment for SiteGroup API serializer
