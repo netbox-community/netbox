@@ -170,13 +170,8 @@ Similar to `ChoiceVar`, but allows for the selection of multiple choices.
 A particular object within NetBox. Each ObjectVar must specify a particular model, and allows the user to select one of the available instances. ObjectVar accepts several arguments, listed below.
 
 * `model` - The model class
-* `display_field` - The name of the REST API object field to display in the selection list (default: `'display'`)
 * `query_params` - A dictionary of query parameters to use when retrieving available options (optional)
 * `null_option` - A label representing a "null" or empty choice (optional)
-
-!!! warning
-    The `display_field` parameter is now deprecated, and will be removed in NetBox v2.12. All ObjectVar instances will
-    instead use the new standard `display` field for all serializers (introduced in NetBox v2.11).
 
 To limit the selections available within the list, additional query parameters can be passed as the `query_params` dictionary. For example, to show only devices with an "active" status:
 
@@ -288,7 +283,6 @@ class NewBranchScript(Script):
     switch_model = ObjectVar(
         description="Access switch model",
         model=DeviceType,
-        display_field='model',
         query_params={
             'manufacturer_id': '$manufacturer'
         }

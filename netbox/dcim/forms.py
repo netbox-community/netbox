@@ -230,7 +230,7 @@ class RegionBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class RegionFilterForm(BootstrapMixin, forms.Form):
+class RegionFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
     q = forms.CharField(
         required=False,
@@ -287,8 +287,8 @@ class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class SiteGroupFilterForm(BootstrapMixin, forms.Form):
-    model = Site
+class SiteGroupFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = SiteGroup
     q = forms.CharField(
         required=False,
         label=_('Search')
@@ -557,7 +557,12 @@ class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class LocationFilterForm(BootstrapMixin, forms.Form):
+class LocationFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Location
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -2424,10 +2429,11 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
         required=False,
-        label=_('Location'),
+        null_option='None',
         query_params={
             'site_id': '$site_id'
-        }
+        },
+        label=_('Location')
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),

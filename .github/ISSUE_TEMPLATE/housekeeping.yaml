@@ -1,6 +1,6 @@
 ---
 name: 🏡 Housekeeping
-about: A change pertaining to the codebase itself (developers only)
+description: A change pertaining to the codebase itself (developers only)
 labels: ["type: housekeeping"]
 body:
   - type: markdown

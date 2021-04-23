@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.11.0-dev'
+VERSION = '2.12-beta1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -25,15 +25,9 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if platform.python_version_tuple() < ('3', '6'):
-    raise RuntimeError(
-        "NetBox requires Python 3.6 or higher (current: Python {})".format(platform.python_version())
-    )
-# TODO: Remove in NetBox v2.12
 if platform.python_version_tuple() < ('3', '7'):
-    warnings.warn(
-        "Support for Python 3.6 will be dropped in NetBox v2.12. Please upgrade to Python 3.7 or later at your "
-        "earliest convenience."
+    raise RuntimeError(
+        f"NetBox requires Python 3.7 or higher (current: Python {platform.python_version()})"
     )
 
 

@@ -92,7 +92,9 @@
                     </div>
                 </form>
                 {% else %}
-                    {% include table_template|default:'responsive_table.html' %}
+                    <div class="table-responsive">
+                        {% render_table table 'inc/table.html' %}
+                    </div>
                 {% endif %}
                 {% endwith %}
                 {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}

@@ -44,13 +44,13 @@
           <tr>
             <th scope="row">Racks</th>
             <td>
-              <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ object.racks.count }}</a>
+              <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ rack_count }}</a>
             </td>
           </tr>
           <tr>
             <th scope="row">Devices</th>
             <td>
-              <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
+              <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ device_count }}</a>
             </td>
           </tr>
         </table>
@@ -83,21 +83,21 @@
 	<div class="col-md-12">
     <div class="card">
       <h5 class="card-header">
-        Devices
+        Locations
       </h5>
       <div class="card-body">
-        {% include 'inc/table.html' with table=devices_table %}
+        {% include 'inc/table.html' with table=child_locations_table %}
       </div>
-      {% if perms.dcim.add_device %}
-      <div class="card-footer text-end noprint">
-        <a href="{% url 'dcim:device_add' %}?location={{ object.pk }}" class="btn btn-sm btn-primary">
-          <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Device
-        </a>
-      </div>
+      {% if perms.dcim.add_location %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Location
+          </a>
+        </div>
       {% endif %}
-    </div>
-    {% include 'inc/paginator.html' with paginator=devices_table.paginator page=devices_table.page %}
-    {% plugin_full_width_page object %}
+      </div>
+      {% include 'inc/paginator.html' with paginator=child_locations_table.paginator page=child_locations_table.page %}
+      {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}

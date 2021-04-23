@@ -328,7 +328,6 @@ class ExpandableIPAddressField(forms.CharField):
 
 class DynamicModelChoiceMixin:
     """
-    :param display_field: The name of the attribute of an API response object to display in the selection list
     :param query_params: A dictionary of additional key/value pairs to attach to the API request
     :param initial_params: A dictionary of child field references to use for selecting a parent field's initial value
     :param null_option: The string used to represent a null selection (if any)
@@ -338,10 +337,8 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    # TODO: Remove display_field in v2.12
-    def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
-                 disabled_indicator=None, *args, **kwargs):
-        self.display_field = display_field
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, *args,
+                 **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
@@ -354,9 +351,7 @@ class DynamicModelChoiceMixin:
         super().__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
-        attrs = {
-            'display-field': self.display_field,
-        }
+        attrs = {}
 
         # Set value-field attribute if the field specifies to_field_name
         if self.to_field_name:

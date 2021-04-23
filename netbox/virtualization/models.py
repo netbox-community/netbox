@@ -226,6 +226,11 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     status = models.CharField(
         max_length=50,
         choices=VirtualMachineStatusChoices,
@@ -296,7 +301,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     ]
 
     class Meta:
-        ordering = ('name', 'pk')  # Name may be non-unique
+        ordering = ('_name', 'pk')  # Name may be non-unique
         unique_together = [
             ['cluster', 'tenant', 'name']
         ]
@@ -462,6 +467,10 @@ class VMInterface(PrimaryModel, BaseInterface):
                 'parent': f"The selected parent interface ({self.parent}) belongs to a different virtual machine "
                           f"({self.parent.virtual_machine})."
             })
+
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:

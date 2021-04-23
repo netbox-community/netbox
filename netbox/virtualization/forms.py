@@ -376,6 +376,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         fieldsets = (
             ('Virtual Machine', ('name', 'role', 'status', 'tags')),
             ('Cluster', ('cluster_group', 'cluster')),
+            ('Tenancy', ('tenant_group', 'tenant')),
             ('Management', ('platform', 'primary_ip4', 'primary_ip6')),
             ('Resources', ('vcpus', 'memory', 'disk')),
             ('Config Context', ('local_context_data',)),
@@ -666,7 +667,6 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        display_field='display_name',
         query_params={
             'virtualmachine_id': 'virtual_machine',
         }
@@ -701,6 +701,10 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
+    )
+    field_order = (
+        'virtual_machine', 'name_pattern', 'enabled', 'parent', 'mtu', 'mac_address', 'description', 'mode',
+        'untagged_vlan', 'tagged_vlans', 'tags'
     )
 
     def __init__(self, *args, **kwargs):
@@ -751,8 +755,7 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
-        required=False,
-        display_field='display_name'
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
