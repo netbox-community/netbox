@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6246](https://github.com/netbox-community/netbox/issues/6246) - Permit full-length descriptions when creating device components and VM interfaces
+* [#6258](https://github.com/netbox-community/netbox/issues/6258) - Fix parent assignment for SiteGroup API serializer
 
 ---
 
