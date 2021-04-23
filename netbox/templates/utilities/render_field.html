@@ -104,7 +104,7 @@
     </div>
     {% if bulk_nullable %}
     <div class="form-check">
-        <input type="form-check-input" name="_nullify" value="{{ field.name }}" />
+        <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
         <label class="form-check-label">Set Null</label>
     </div>
     {% if field.help_text %}

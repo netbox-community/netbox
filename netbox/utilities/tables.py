@@ -137,14 +137,17 @@ class ToggleColumn(tables.CheckBoxColumn):
         if 'attrs' not in kwargs:
             kwargs['attrs'] = {
                 'td': {
-                    'class': 'min-width'
+                    'class': 'min-width',
+                },
+                'input': {
+                    'class': 'form-check-input'
                 }
             }
         super().__init__(*args, default=default, visible=visible, **kwargs)
 
     @property
     def header(self):
-        return mark_safe('<input type="checkbox" class="toggle" title="Toggle all" />')
+        return mark_safe('<input type="checkbox" class="toggle form-check-input" title="Toggle All" />')
 
 
 class BooleanColumn(tables.Column):
