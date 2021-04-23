@@ -148,6 +148,10 @@ export function* getElements(
   }
 }
 
+export function getElement<E extends HTMLElement>(id: string): Nullable<E> {
+  return document.getElementById(id) as Nullable<E>;
+}
+
 /**
  * scrollTo() wrapper that calculates a Y offset relative to `element`, but also factors in an
  * offset relative to div#content-title. This ensures we scroll to the element, but leave enough
