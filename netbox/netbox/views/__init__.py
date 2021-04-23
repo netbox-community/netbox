@@ -54,7 +54,6 @@ class HomeView(View):
             status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
         ).defer('data')[:10]
 
-
         def build_stats():
             perms = request.user.get_all_permissions()
             stats = []
@@ -73,7 +72,7 @@ class HomeView(View):
                 ("ipam.view_prefix", "Prefixes", "IPv4 & IPv6 network assignments", Prefix.objects.restrict(request.user, 'view').count),
                 ("ipam.view_ipaddress", "IP Addresses", "Individual IPv4 & IPv6 addresses", IPAddress.objects.restrict(request.user, 'view').count),
                 ("ipam.view_vlan", "VLANs", "Layer 2 domains, by VLAN ID", VLAN.objects.restrict(request.user, 'view').count)
-                
+
             )
             circuits = (
                 ("circuits.view_provider", "Providers", "Organizations that provide circuits", Provider.objects.restrict(request.user, 'view').count),
@@ -85,16 +84,16 @@ class HomeView(View):
             virtualization = (
                 ("virtualization.view_cluster", "Clusters", "Clusters of physical virtual machine hosts", Cluster.objects.restrict(request.user, 'view').count),
                 ("virtualization.view_virtualmachine", "Virtual Machines", "Virtual compute instances running inside clusters", VirtualMachine.objects.restrict(request.user, 'view').count),
-                
+
             )
             connections = (
                 ("dcim.view_cable", "Cables", None, Cable.objects.restrict(request.user, 'view').count),
                 ("dcim.view_consoleport", "Console", None, connected_consoleports.count),
                 ("dcim.view_interface", "Interfaces", None, connected_interfaces.count),
-                ("dcim.view_powerport", "Power Connections",None, connected_powerports.count),
+                ("dcim.view_powerport", "Power Connections", None, connected_powerports.count),
             )
             power = (
-                ("dcim.view_powerpanel", "Power Panels", "Electrical panels receiving utility power", PowerPanel.objects.restrict(request.user, 'view').count ),
+                ("dcim.view_powerpanel", "Power Panels", "Electrical panels receiving utility power", PowerPanel.objects.restrict(request.user, 'view').count),
                 ("dcim.view_powerfeed", "Power Feeds", "Electrical circuits delivering power from panels", PowerFeed.objects.restrict(request.user, 'view').count),
             )
             sections = (
@@ -118,8 +117,6 @@ class HomeView(View):
                         )
                 stats.append(stat)
             return stats
-            
-        
 
         changelog = ObjectChange.objects.restrict(request.user, 'view').prefetch_related('user', 'changed_object_type')
 
@@ -195,6 +192,7 @@ class StaticMediaFailureView(View):
     """
     Display a user-friendly error message with troubleshooting tips when a static media file fails to load.
     """
+
     def get(self, request):
         return render(request, 'media_failure.html', {
             'filename': request.GET.get('filename')
