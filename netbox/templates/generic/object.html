@@ -18,9 +18,10 @@
 {% endblock %}
 
 {% block controls %}
-{% plugin_buttons object %}
 <div class="controls mb-2 mx-0">
   <div class="d-flex flex-wrap justify-content-end">
+  {% custom_links object %}
+  {% plugin_buttons object %}
   {% block extra_controls %}{% endblock %}
   {% if request.user|can_add:object %}
     {% clone_button object %}
@@ -71,6 +72,5 @@
   </small>
   <span class="badge bg-primary">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
 </p>
-{% block tab_buttons %}{% custom_links object %}{% endblock %}
 {% endblock %}
 {% block components %}{% endblock %}
