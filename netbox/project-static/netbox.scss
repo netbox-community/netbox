@@ -186,6 +186,9 @@ pre {
   .card-header + .card-body {
     padding-top: 0;
   }
+  .card-body {
+    overflow-x: auto;
+  }
 }
 
 .form-floating {
