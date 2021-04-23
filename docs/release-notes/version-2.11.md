@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6246](https://github.com/netbox-community/netbox/issues/6246) - Permit full-length descriptions when creating device components and VM interfaces
+* [#6254](https://github.com/netbox-community/netbox/issues/6254) - Disable ordering of space column in racks table
 * [#6258](https://github.com/netbox-community/netbox/issues/6258) - Fix parent assignment for SiteGroup API serializer
 
 ---
