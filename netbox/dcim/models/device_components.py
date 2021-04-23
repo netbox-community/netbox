@@ -222,7 +222,7 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
         blank=True,
         help_text='Physical port type'
     )
-    speed = models.PositiveSmallIntegerField(
+    speed = models.PositiveIntegerField(
         choices=ConsolePortSpeedChoices,
         blank=True,
         null=True,
@@ -265,7 +265,7 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
         blank=True,
         help_text='Physical port type'
     )
-    speed = models.PositiveSmallIntegerField(
+    speed = models.PositiveIntegerField(
         choices=ConsolePortSpeedChoices,
         blank=True,
         null=True,
