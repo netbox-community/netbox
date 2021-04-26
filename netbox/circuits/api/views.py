@@ -2,7 +2,7 @@ from rest_framework.routers import APIRootView
 
 from circuits import filters
 from circuits.models import *
-from dcim.api.views import PathEndpointMixin
+from dcim.api.views import PassThroughPortMixin
 from extras.api.views import CustomFieldModelViewSet
 from netbox.api.views import ModelViewSet
 from utilities.utils import count_related
@@ -57,7 +57,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
 # Circuit Terminations
 #
 
-class CircuitTerminationViewSet(PathEndpointMixin, ModelViewSet):
+class CircuitTerminationViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
         'circuit', 'site', 'provider_network', 'cable'
     )

@@ -15,6 +15,7 @@
 * [#6252](https://github.com/netbox-community/netbox/issues/6252) - Fix assignment of console port speed values above 19.2kbps
 * [#6254](https://github.com/netbox-community/netbox/issues/6254) - Disable ordering of space column in racks table
 * [#6258](https://github.com/netbox-community/netbox/issues/6258) - Fix parent assignment for SiteGroup API serializer
+* [#6267](https://github.com/netbox-community/netbox/issues/6267) - Fix cable tracing API endpoint for circuit terminations
 
 ---
 
@@ -193,6 +194,7 @@ A new provider network model has been introduced to represent the boundary of a 
 * circuits.CircuitTermination
     * Added the `provider_network` field
     * Removed the `connected_endpoint`, `connected_endpoint_type`, and `connected_endpoint_reachable` fields
+    * The `trace/` endpoint has been replaced with `paths/`
 * circuits.ProviderNetwork
     * Added the `/api/circuits/provider-networks/` endpoint
 * dcim.Device
