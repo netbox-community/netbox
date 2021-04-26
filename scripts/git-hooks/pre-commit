@@ -23,7 +23,7 @@ if [ -d ./venv/ ]; then
 fi
 
 echo "Validating PEP8 compliance..."
-pycodestyle --ignore=W504,E501 netbox/
+pycodestyle --ignore=W504,E501 --exclude=node_modules netbox/
 if [ $? != 0 ]; then
 	EXIT=1
 fi
