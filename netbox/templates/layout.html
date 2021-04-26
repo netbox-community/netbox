@@ -7,12 +7,12 @@
   <div class="row">
     <nav
       id="sidebar-menu"
-      class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse px-0"
+      class="col-md-3 col-lg-2 d-md-block sidebar collapse px-0"
     >
       <div class="position-sticky pt-3">
         <a class="px-2 sidebar-logo" href="{% url 'home' %}">
           {% load static %}
-          <img src="{% static 'netbox_logo.svg' %}" height="50" />
+          {% include 'logo.html' %}
         </a>
         <ul class="nav flex-column">
           {% load nav %} {% nav %}
@@ -22,7 +22,7 @@
     </nav>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-0">
-      <nav class="navbar navbar-light sticky-top flex-md-nowrap py-4 bg-white container-fluid">
+      <nav class="navbar navbar-light sticky-top flex-md-nowrap py-4 search container-fluid">
           <button
             type="button"
             aria-expanded="false"

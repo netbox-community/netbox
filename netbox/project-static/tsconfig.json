@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "noUnusedLocals": true,
-    "declaration": true,
+    "declaration": false,
     "module": "esnext",
     "target": "esnext",
     "jsx": "react",

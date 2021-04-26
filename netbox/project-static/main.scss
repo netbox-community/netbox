@@ -1,9 +1,21 @@
-@import './theme.scss';
+@import './theme-light.scss';
 @import './bootstrap.scss';
 
-@import './node_modules/@mdi/font/css/materialdesignicons.min.css';
+@import '@mdi/font/css/materialdesignicons.min.css';
 
 @import './select.scss';
-@import './node_modules/flatpickr/dist/flatpickr.min.css';
+@import 'flatpickr/dist/flatpickr.css';
 
 @import './netbox.scss';
+
+body[data-netbox-color-mode='dark'] {
+  @import './theme-dark.scss';
+  @import './bootstrap.scss';
+
+  @import '@mdi/font/css/materialdesignicons.min.css';
+
+  @import './select.scss';
+  @import 'flatpickr/dist/flatpickr.css';
+
+  @import './netbox.scss';
+}

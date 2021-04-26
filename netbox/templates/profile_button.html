@@ -10,21 +10,27 @@
     <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li class="dropdown-item">
+    <li>
+      <button type="button" class="dropdown-item color-mode-toggle">
+        <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        <span class="color-mode-text">Dark Mode</span>
+      </button>
+    </li>
+    <li>
       {% if request.user.is_staff %}
-      <a class="text-decoration-none" href="{% url 'admin:index' %}">
+      <a class="dropdown-item" href="{% url 'admin:index' %}">
         <i class="mdi mdi-cog"></i> Admin
       </a>
       {% endif %}
     </li>
-    <li class="dropdown-item">
-      <a class="text-decoration-none" href="{% url 'user:profile' %}">
+    <li>
+      <a class="dropdown-item" href="{% url 'user:profile' %}">
         <i class="mdi mdi-account"></i> Profile
       </a>
     </li>
     <li><hr class="dropdown-divider" /></li>
-    <li class="dropdown-item">
-      <a class="text-decoration-none" href="{% url 'logout' %}">
+    <li>
+      <a class="dropdown-item" href="{% url 'logout' %}">
         <i class="mdi mdi-logout-variant"></i> Log Out
       </a>
     </li>

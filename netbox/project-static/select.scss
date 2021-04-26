@@ -19,6 +19,8 @@ div.form-floating div.ss-main div.ss-multi-selected {
 @import './node_modules/slim-select/src/slim-select/slimselect.scss';
 
 .ss-main {
+  color: $form-select-color;
+
   &.is-invalid .ss-single-selected,
   &.is-invalid .ss-multi-selected {
     border-color: $form-feedback-icon-invalid-color;
@@ -39,6 +41,7 @@ div.form-floating div.ss-main div.ss-multi-selected {
   }
 
   .ss-single-selected {
+    background-color: $form-select-bg;
     span.ss-arrow {
       // Inherit the arrow color from the parent (see color selector).
       span.arrow-down,
@@ -56,6 +59,7 @@ div.form-floating div.ss-main div.ss-multi-selected {
     align-items: center;
     padding-left: $input-padding-x;
     padding-right: $input-padding-x;
+    background-color: $form-select-bg;
 
     .ss-values {
       padding-top: $spacer * 2 !important;
@@ -69,7 +73,15 @@ div.form-floating div.ss-main div.ss-multi-selected {
   }
 
   .ss-content {
+    background-color: $gray-900;
     .ss-list {
+      .ss-option.ss-option-selected {
+        background-color: $gray-600;
+        color: $white;
+      }
+      .ss-option:hover {
+        background-color: $blue-400;
+      }
       .ss-option:last-child {
         border-bottom-left-radius: $form-select-border-radius;
         border-bottom-right-radius: $form-select-border-radius;
@@ -79,6 +91,7 @@ div.form-floating div.ss-main div.ss-multi-selected {
     border-bottom-right-radius: $form-select-border-radius;
     .ss-search {
       input[type='search'] {
+        background-color: $form-select-bg;
         border: $form-select-border-width solid $form-select-border-color;
         &:focus {
           border-color: $form-select-focus-border-color;

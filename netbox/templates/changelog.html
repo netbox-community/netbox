@@ -13,7 +13,7 @@
   </thead>
   <tbody>
     {% for change in changelog %}
-    <tr class="table-{% get_status change.get_action_display %}">
+    <tr class="{% get_status change.get_action_display %}">
       <th scope="row">{{ change.user|default:change.user_name }}</th>
       <td>{{ change.get_action_display|bettertitle }}</td>
       <td>{{ change.changed_object_type.name|bettertitle }}</td>

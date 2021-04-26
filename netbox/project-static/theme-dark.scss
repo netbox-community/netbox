@@ -1,0 +1,292 @@
+@import './theme-base.scss';
+
+$primary: $blue-300;
+$secondary: $gray-400;
+$success: $green-300;
+$info: $cyan-300;
+$warning: $yellow-300;
+$danger: $red-300;
+$light: $gray-300;
+$dark: $gray-400;
+
+$theme-colors: (
+  'primary': $primary,
+  'secondary': $secondary,
+  'success': $success,
+  'info': $info,
+  'warning': $warning,
+  'danger': $danger,
+  'light': $light,
+  'dark': $dark,
+);
+
+$theme-color-addons-dark: (
+  'alt': #13293d,
+  'darker': #010101,
+);
+
+$theme-colors: map-merge($theme-colors, $theme-color-addons);
+$theme-color-addons: map-merge($theme-color-addons, $theme-color-addons-dark);
+
+// On import, any variables marked `!default` will be overridden by the above.
+@import 'bootstrap/scss/variables';
+
+// Customize the light and dark text colors for use in our color contrast function.
+
+// Gradient
+$gradient: linear-gradient(180deg, rgba($white, 0.15), rgba($white, 0));
+
+// Body
+$body-bg: $gray-900;
+$body-color: $white;
+$body-text-align: null;
+$border-color: $gray-700;
+$box-shadow: 0 0.5rem 1rem rgba($black, 0.15);
+$box-shadow-sm: 0 0.125rem 0.25rem rgba($black, 0.075);
+$box-shadow-lg: 0 1rem 3rem rgba($black, 0.175);
+$box-shadow-inset: inset 0 1px 2px rgba($black, 0.075);
+// $component-active-color:      $white;
+// $component-active-bg:         $primary;
+$text-muted: $gray-500;
+$blockquote-footer-color: $gray-600;
+$mark-bg: #fcf8e3;
+
+// Tables
+$table-color: $gray-100;
+$table-border-color: $border-color;
+// $table-bg:                    transparent;
+$table-striped-color: $table-color;
+$table-striped-bg: rgba($white, $table-striped-bg-factor);
+$table-active-color: $table-color;
+$table-active-bg: rgba($white, $table-active-bg-factor);
+$table-hover-color: $table-color;
+$table-hover-bg: rgba($white, $table-hover-bg-factor);
+// $table-group-separator-color: currentColor;
+
+// Buttons + Forms
+// $input-btn-focus-color:         rgba($component-active-bg, $input-btn-focus-color-opacity);
+// $input-btn-focus-box-shadow:    0 0 0 $input-btn-focus-width $input-btn-focus-color;
+
+// Buttons
+$btn-box-shadow: inset 0 1px 0 rgba($black, 0.15), 0 1px 1px rgba($white, 0.075);
+$btn-active-box-shadow: inset 0 3px 5px rgba($white, 0.125);
+// $btn-link-color:              $link-color;
+// $btn-link-hover-color:        $link-hover-color;
+$btn-link-disabled-color: $gray-300;
+
+// Forms
+$form-text-color: $text-muted;
+$input-bg: $gray-800;
+$input-disabled-bg: $gray-700;
+$input-color: $gray-100;
+$input-border-color: $gray-700;
+$input-focus-bg: $input-bg;
+$input-focus-border-color: tint-color($component-active-bg, 10%);
+$input-focus-color: $input-color;
+$input-placeholder-color: $gray-300;
+$input-plaintext-color: $body-color;
+
+$form-check-input-active-filter: brightness(90%);
+$form-check-input-bg: $input-bg;
+$form-check-input-border: 1px solid rgba(255, 255, 255, 0.25);
+$form-check-input-checked-color: $component-active-color;
+$form-check-input-checked-bg-color: $component-active-bg;
+$form-check-input-checked-border-color: $form-check-input-checked-bg-color;
+$form-check-input-indeterminate-color: $component-active-color;
+$form-check-input-indeterminate-bg-color: $component-active-bg;
+$form-check-input-indeterminate-border-color: $form-check-input-indeterminate-bg-color;
+
+$form-switch-color: rgba(255, 255, 255, 0.25);
+$form-switch-focus-color: $input-focus-border-color;
+$form-switch-checked-color: $component-active-color;
+
+$input-group-addon-color: $input-color;
+$input-group-addon-bg: $gray-700;
+$input-group-addon-border-color: $input-border-color;
+
+$form-select-color: $input-color;
+$form-select-disabled-color: $gray-400;
+$form-select-bg: $input-bg;
+$form-select-disabled-bg: $input-disabled-bg;
+$form-select-indicator-color: $gray-800;
+
+$form-select-border-color: $input-border-color;
+$form-range-track-bg: $gray-300;
+
+$form-range-thumb-bg: $component-active-bg;
+$form-range-thumb-box-shadow: 0 0.1rem 0.25rem rgba($black, 0.1);
+$form-range-thumb-focus-box-shadow: 0 0 0 1px $body-bg, $input-focus-box-shadow;
+$form-range-thumb-active-bg: tint-color($component-active-bg, 70%);
+$form-range-thumb-disabled-bg: $gray-500;
+
+$form-file-button-color: $input-color;
+$form-file-button-bg: $input-group-addon-bg;
+$form-file-button-hover-bg: shade-color($form-file-button-bg, 5%);
+
+// Navs
+$nav-link-color: $body-color;
+$nav-link-hover-color: null;
+$nav-link-disabled-color: $gray-800;
+$nav-tabs-border-color: $border-color;
+$nav-tabs-link-hover-border-color: rgba($gray-800, 0.5) rgba($gray-800, 0.5) $nav-tabs-border-color;
+$nav-tabs-link-active-color: $gray-50;
+$nav-tabs-link-active-bg: $body-bg;
+$nav-tabs-link-active-border-color: $gray-800 $gray-800 $nav-tabs-link-active-bg;
+$nav-pills-link-active-color: $component-active-color;
+$nav-pills-link-active-bg: $component-active-bg;
+
+// Dropdowns
+$dropdown-color: $body-color;
+$dropdown-bg: $gray-900;
+$dropdown-border-color: rgba($white, 0.15);
+$dropdown-link-color: $gray-100;
+$dropdown-link-hover-color: shade-color($gray-50, 10%);
+$dropdown-link-hover-bg: $gray-500;
+$dropdown-link-disabled-color: $gray-800;
+$dropdown-header-color: $gray-300;
+// $dropdown-dark-color:               $gray-300;
+// $dropdown-dark-bg:                  $gray-800;
+// $dropdown-dark-border-color:        $dropdown-border-color;
+// $dropdown-dark-divider-bg:          $dropdown-divider-bg;
+// $dropdown-dark-box-shadow:          null;
+// $dropdown-dark-link-color:          $dropdown-dark-color;
+// $dropdown-dark-link-hover-color:    $white;
+// $dropdown-dark-link-hover-bg:       rgba($white, .15);
+// $dropdown-dark-link-active-color:   $dropdown-link-active-color;
+// $dropdown-dark-link-active-bg:      $dropdown-link-active-bg;
+// $dropdown-dark-link-disabled-color: $gray-500;
+// $dropdown-dark-header-color:        $gray-500;
+
+// Pagination
+$pagination-color: $link-color;
+$pagination-bg: $gray-800;
+$pagination-border-color: $gray-600;
+$pagination-focus-color: $link-hover-color;
+$pagination-focus-bg: $gray-400;
+$pagination-hover-color: $link-hover-color;
+$pagination-hover-bg: $gray-400;
+$pagination-hover-border-color: $gray-500;
+$pagination-active-color: $component-active-color;
+$pagination-active-bg: $component-active-bg;
+$pagination-active-border-color: $pagination-active-bg;
+$pagination-disabled-color: $gray-600;
+$pagination-disabled-bg: $gray-800;
+$pagination-disabled-border-color: $gray-600;
+
+// Cards
+$card-border-color: rgba($white, 0.125);
+$card-inner-border-radius: subtract($card-border-radius, $card-border-width);
+
+$card-cap-color: null;
+$card-height: null;
+$card-color: null;
+$card-bg: $gray-800;
+
+// Accordion
+$accordion-color: $body-color;
+// $accordion-bg:                            transparent;
+$accordion-border-color: rgba($white, 0.125);
+$accordion-button-color: $accordion-color;
+$accordion-button-bg: $accordion-bg;
+$accordion-button-active-bg: tint-color($component-active-bg, 5%);
+$accordion-button-active-color: shade-color($primary, 10%);
+$accordion-button-focus-border-color: $input-focus-border-color;
+$accordion-icon-color: $accordion-color;
+$accordion-icon-active-color: $accordion-button-active-color;
+
+$accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-icon-color}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+$accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-icon-active-color}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+
+// Tooltips
+$tooltip-color: $body-color;
+$tooltip-bg: $gray-700;
+// $tooltip-opacity:                   .9;
+$tooltip-arrow-color: $tooltip-bg;
+$form-feedback-tooltip-opacity: $tooltip-opacity;
+
+// Popovers
+$popover-bg: $gray-700;
+$popover-border-color: rgba($white, 0.2);
+$popover-header-bg: shade-color($popover-bg, 6%);
+$popover-header-color: $headings-color;
+$popover-body-color: $body-color;
+$popover-arrow-color: $popover-bg;
+$popover-arrow-outer-color: fade-in($popover-border-color, 0.05);
+
+// Toasts
+$toast-color: null;
+$toast-background-color: rgba($white, 0.85);
+$toast-border-color: rgba(0, 0, 0, 0.1);
+$toast-header-color: $gray-600;
+$toast-header-background-color: rgba($white, 0.85);
+$toast-header-border-color: rgba(0, 0, 0, 0.05);
+
+// Badges
+$badge-color: $white;
+
+// Modals
+$modal-content-color: null;
+$modal-content-bg: $gray-800;
+$modal-content-border-color: rgba($white, 0.2);
+$modal-backdrop-bg: $black;
+// $modal-backdrop-opacity:            .5;
+$modal-header-border-color: $border-color;
+$modal-footer-border-color: $modal-header-border-color;
+
+// Alerts
+// $alert-bg-scale:                    -80%;
+// $alert-border-scale:                -70%;
+// $alert-color-scale:                 40%;
+
+// Progress bars
+$progress-bg: $gray-600;
+$progress-bar-color: $white;
+$progress-bar-bg: $primary;
+
+// List group
+$list-group-color: null;
+$list-group-bg: $card-bg;
+$list-group-border-color: rgba($white, 0.125);
+$list-group-hover-bg: rgba($gray-50, 0.15);
+$list-group-active-color: $component-active-color;
+$list-group-active-bg: $component-active-bg;
+$list-group-active-border-color: $list-group-active-bg;
+// $list-group-disabled-color:         $gray-600;
+$list-group-disabled-bg: $list-group-bg;
+$list-group-action-color: $gray-300;
+$list-group-action-hover-color: $body-color;
+$list-group-action-active-color: $body-color;
+$list-group-action-active-bg: rgba($gray-300, 0.125);
+
+// Image thumbnails
+$thumbnail-bg: $body-bg;
+$thumbnail-border-color: $gray-300;
+
+// Figures
+$figure-caption-color: $gray-600;
+
+// Breadcrumbs
+// $breadcrumb-bg:                     $gray-700;
+$breadcrumb-divider-color: $gray-100;
+$breadcrumb-active-color: $body-color;
+$breadcrumb-divider-flipped: $breadcrumb-divider;
+$breadcrumb-divider: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='#{$breadcrumb-divider-color}'/%3E%3C/svg%3E");
+
+// Carousel
+$carousel-control-color: $white;
+$carousel-indicator-active-bg: $white;
+$carousel-caption-color: $white;
+$carousel-dark-indicator-active-bg: $black;
+$carousel-dark-caption-color: $black;
+$carousel-dark-control-icon-filter: invert(1) grayscale(100);
+
+// Close
+$btn-close-color: $white;
+$btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$btn-close-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
+$btn-close-white-filter: invert(1) grayscale(100%) brightness(200%);
+
+// Code
+$code-color: $pink-300;
+$kbd-color: $white;
+$kbd-bg: $gray-300;
+$pre-color: null;

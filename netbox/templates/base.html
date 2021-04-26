@@ -22,7 +22,10 @@
     </script>
     {% block head %}{% endblock %}
   </head>
-  <body>
+  {% with color_mode=preferences|get_key:'ui.colormode' %}
+  
+  <body{%if color_mode == 'dark'%} data-netbox-color-mode="dark"{% elif color_mode == 'light' %} data-netbox-color-mode="light"{% endif %}>
+  
     {% block layout %}{% endblock %}
     {% block javascript %}{% endblock %}
     {% include './messages.html' %}
@@ -30,4 +33,5 @@
     {% block data %}{% endblock %}
     </div>
   </body>
+  {% endwith %}
 </html>

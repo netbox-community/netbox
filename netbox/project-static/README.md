@@ -65,14 +65,14 @@ To bundle only CSS files, run:
 
 ```bash
 # netbox/project-static
-yarn bundle:css
+yarn bundle --styles
 ```
 
 To bundle only JS files, run:
 
 ```bash
 # netbox/project-static
-yarn bundle:js
+yarn bundle --scripts
 ```
 
 Or, to bundle both, run:

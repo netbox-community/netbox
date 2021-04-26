@@ -1,3 +1,101 @@
+:root {
+  --nbx-logo-color-1: #9cc8f8;
+  --nbx-logo-color-2: #1685fc;
+  --nbx-sidebar-bg: #{$gray-100};
+  --nbx-sidebar-link-color: #{$gray-800};
+  --nbx-sidebar-link-hover-bg: #{$blue-100};
+  --nbx-sidebar-title-color: #{$text-muted};
+  --nbx-breadcrumb-bg: #{$light};
+  --nbx-body-bg: #{$white};
+  --nbx-body-color: #{$black};
+  --nbx-pre-bg: #{$gray-100};
+  --nbx-pre-border-color: #{$gray-600};
+  --nbx-change-added: #{rgba($green, 0.4)};
+  --nbx-change-removed: #{rgba($red, 0.4)};
+  --nbx-cable-node-bg: #{$gray-100};
+  --nbx-cable-node-border-color: #{$gray-200};
+  --nbx-cable-termination-bg: #{$gray-200};
+  --nbx-cable-termination-border-color: #{$gray-300};
+  --nbx-elevation-slot-bg: #{$gray-100};
+
+  body[data-netbox-color-mode='dark'] {
+    --nbx-logo-color-1: #{$white};
+    --nbx-logo-color-2: #{$gray-200};
+    --nbx-sidebar-bg: #{$gray-800};
+    --nbx-sidebar-link-color: #{$gray-200};
+    --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
+    --nbx-sidebar-title-color: #{$gray-300};
+    --nbx-breadcrumb-bg: #{$gray-800};
+    --nbx-body-bg: #{$gray-900};
+    --nbx-body-color: #{$white};
+    --nbx-pre-bg: #{$gray-700};
+    --nbx-pre-border-color: #{$gray-600};
+    --nbx-change-added: #{rgba($green-300, 0.4)};
+    --nbx-change-removed: #{rgba($red-300, 0.4)};
+    --nbx-cable-node-bg: #{$gray-700};
+    --nbx-cable-node-border-color: #{$gray-600};
+    --nbx-cable-termination-bg: #{$gray-800};
+    --nbx-cable-termination-border-color: #{$gray-700};
+    --nbx-elevation-slot-bg: #{$gray-700};
+  }
+}
+
+* {
+  transition: background-color, color 0.15s ease-in-out;
+}
+
+body {
+  background-color: var(--nbx-body-bg);
+  color: var(--nbx-body-color);
+  g#netbox-logo-1 {
+    fill: #9cc8f8;
+    stroke: #9cc8f8;
+  }
+
+  g#netbox-logo-2 {
+    fill: #1685fc;
+    stroke: #1685fc;
+  }
+  &[data-netbox-color-mode='light'] {
+    .btn.btn-primary {
+      color: $white;
+    }
+  }
+  &[data-netbox-color-mode='dark'] {
+    a:not(.btn) {
+      color: $blue-300;
+    }
+    .breadcrumb .breadcrumb-item > a {
+      color: $blue-300;
+    }
+    .badge {
+      color: $black;
+    }
+    .card,
+    .sidebar {
+      .text-muted {
+        color: $gray-400 !important;
+      }
+    }
+    .text-body[class] {
+      color: var(--nbx-body-color) !important;
+    }
+    g#netbox-logo-1 {
+      fill: $white;
+      stroke: $white;
+    }
+
+    g#netbox-logo-2 {
+      fill: $gray-200;
+      stroke: $gray-200;
+    }
+  }
+}
+
+nav.search {
+  background-color: var(--nbx-body-bg);
+}
+
 main.login-container {
   display: flex;
   height: calc(100vh - 4rem);
@@ -18,6 +116,37 @@ footer.login-footer {
     justify-content: flex-end;
     padding: $container-padding-x $grid-gutter-width;
   }
+}
+
+h1 {
+  font-weight: $font-weight-bolder;
+}
+
+h2 {
+  font-weight: $font-weight-bold;
+}
+
+h3,
+h4 {
+  font-weight: $font-weight-medium;
+}
+
+h5,
+h6 {
+  font-weight: $font-weight-medium;
+}
+
+h1.accordion-item-title,
+h2.accordion-item-title,
+h3.accordion-item-title,
+h4.accordion-item-title,
+h5.accordion-item-title,
+h6.accordion-item-title {
+  padding: 0 0.5rem;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  color: var(--nbx-sidebar-title-color);
+  font-size: $font-size-sm;
 }
 
 .form-login {
@@ -53,16 +182,6 @@ li.dropdown-item.dropdown-item-btns {
   align-items: center;
 }
 
-.sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100; /* Behind the navbar */
-  // padding: 48px 0 0; /* Height of navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-}
-
 @media (max-width: 767.98px) {
   .sidebar {
     top: 5rem;
@@ -84,9 +203,28 @@ li.dropdown-item.dropdown-item-btns {
   font-size: 1rem;
 }
 
+nav.nav.nav-pills {
+  .nav-item.nav-link {
+    padding: 0.25rem 0.5rem;
+    font-size: $font-size-base;
+    border-radius: $border-radius;
+    &:hover {
+      color: $body-color;
+      background-color: var(--nbx-sidebar-link-hover-bg);
+    }
+  }
+}
+
 .sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  background-color: var(--nbx-sidebar-bg);
   .sidebar-nav-link {
-    color: $gray-800;
+    color: var(--nbx-sidebar-link-color);
   }
   .accordion-body {
     max-height: calc(100vh - 24rem);
@@ -95,10 +233,11 @@ li.dropdown-item.dropdown-item-btns {
       .nav-link {
         padding: 0.25rem 0.5rem;
         font-size: $font-size-base;
-      }
-      .nav-link:hover {
-        background-color: $blue-100;
         border-radius: $border-radius;
+        &:hover {
+          color: $body-color;
+          background-color: var(--nbx-sidebar-link-hover-bg);
+        }
       }
     }
   }
@@ -110,7 +249,7 @@ li.dropdown-item.dropdown-item-btns {
     padding-right: 0.5rem;
     position: sticky;
     height: 8rem;
-    background-color: $light;
+    background-color: var(--nbx-sidebar-bg);
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
     .nav-link {
       padding: 0.5rem 0.25rem;
@@ -130,19 +269,6 @@ li.dropdown-item.dropdown-item-btns {
 
 .ws-nowrap {
   white-space: nowrap !important;
-}
-
-h1.accordion-item-title,
-h2.accordion-item-title,
-h3.accordion-item-title,
-h4.accordion-item-title,
-h5.accordion-item-title,
-h6.accordion-item-title {
-  padding: 0 0.5rem;
-  font-weight: $font-weight-bold;
-  text-transform: uppercase;
-  color: $text-muted;
-  font-size: $font-size-sm;
 }
 
 #object-type-selector {
@@ -167,8 +293,8 @@ span.color-label {
 
 pre {
   border-radius: $border-radius;
-  border: 1px solid $gray-200;
-  background-color: $gray-100;
+  border: 1px solid var(--nbx-pre-border-color);
+  background-color: var(--nbx-pre-bg);
   padding: $spacer;
   white-space: pre;
 }
@@ -273,7 +399,6 @@ table tr.vertical-align {
   vertical-align: middle;
 }
 
-// Pad all adjacent cards
 .card:not(:only-of-type) {
   margin-bottom: $spacer;
 }
@@ -285,9 +410,9 @@ table tr.vertical-align {
 nav.breadcrumb-container {
   padding: $badge-padding-y $badge-padding-x;
   border-radius: $border-radius;
-  background-color: $light;
   font-size: $font-size-sm;
   width: fit-content;
+  background-color: var(--nbx-breadcrumb-bg);
 
   ol.breadcrumb {
     margin-bottom: 0;
@@ -308,21 +433,6 @@ div#content-title {
 
 div.paginator > form > div.input-group {
   width: fit-content;
-}
-
-button.btn.btn-outline-gray.dropdown-toggle:after {
-  color: $black;
-}
-
-// Apply bootstrap focus styling to Choices.JS elements.
-div.choices.is-focused > div.choices__inner {
-  border-color: $form-select-focus-border-color;
-  outline: 0;
-  @if $enable-shadows {
-    @include box-shadow($form-select-box-shadow, $form-select-focus-box-shadow);
-  } @else {
-    box-shadow: $form-select-focus-box-shadow;
-  }
 }
 
 div.field-group:not(:first-of-type) {
@@ -365,8 +475,13 @@ span.bi-plus:before {
   font-weight: $font-weight-bold !important;
 }
 
-table tbody tr.success {
-  background-color: rgba($success, 0.15);
+table tbody {
+  @each $color, $value in $theme-colors {
+    tr.#{$color} {
+      background-color: rgba($value, 0.15);
+      border-color: $gray-500;
+    }
+  }
 }
 table td,
 table th {
@@ -380,16 +495,16 @@ table th {
   text-align: center;
 }
 .cable-trace .node {
-  background-color: $gray-100;
-  border: $border-width solid $gray-200;
+  background-color: var(--nbx-cable-node-bg);
+  border: $border-width solid var(--nbx-cable-node-border-color);
   border-radius: $border-radius;
   padding: 1.5rem 1rem;
   position: relative;
   z-index: 1;
 }
 .cable-trace .termination {
-  background-color: $gray-200;
-  border: $border-width solid $gray-300;
+  background-color: var(--nbx-cable-termination-bg);
+  border: $border-width solid var(--nbx-cable-termination-border-color);
   box-shadow: $box-shadow;
   border-radius: $border-radius;
   margin: -1rem auto;
@@ -399,7 +514,7 @@ table th {
   z-index: 2;
 }
 .cable-trace .active {
-  border: 0.25rem solid $green;
+  border: 0.25rem solid $success;
 }
 .cable-trace .cable {
   border-left-style: solid;
@@ -422,10 +537,10 @@ pre.change-data {
     padding-left: $spacer;
     padding-right: $spacer;
     &.added {
-      background-color: rgba($green, 0.4);
+      background-color: var(--nbx-change-added);
     }
     &.removed {
-      background-color: rgba($red, 0.4);
+      background-color: var(--nbx-change-removed);
     }
   }
 }
@@ -433,10 +548,10 @@ pre.change-data {
 pre.change-diff {
   border-color: transparent;
   &.change-removed {
-    background-color: rgba($red, 0.4);
+    background-color: var(--nbx-change-removed);
   }
   &.change-added {
-    background-color: rgba($green, 0.4);
+    background-color: var(--nbx-change-added);
   }
 }
 
