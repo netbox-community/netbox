@@ -144,7 +144,7 @@ class UserConfigView(LoginRequiredMixin, View):
         # Update specific values
         elif "_update" in request.POST:
             for key in request.POST:
-                if not key.startswith('_') and not key.contains('csrf'):
+                if not key.startswith('_') and not key.startswith('csrf'):
                     for value in request.POST.getlist(key):
                         userconfig.set(key, value)
 
