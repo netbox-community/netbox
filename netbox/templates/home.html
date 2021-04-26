@@ -1,6 +1,7 @@
-{% extends 'layout.html' %} {% load helpers %} {%block title %} Home
-{%endblock%} {% block content %}
-
+{% extends 'layout.html' %}
+{% load helpers %}
+{% block title_container %}{% endblock %}
+{% block content %}
 <div class="stats-container">
   <div class="row row-cols-auto masonry">
     {% for section in stats %}
@@ -51,5 +52,4 @@
     </div>
   </div>
 </div>
-
 {% endblock %}

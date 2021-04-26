@@ -1,0 +1,72 @@
+// Dark Mode Styles for Flatpickr.
+
+.flatpickr-calendar {
+  background: $gray-700;
+  color: $body-color;
+  box-shadow: 1px 0 0 $gray-600, -1px 0 0 $gray-600, 0 1px 0 $gray-600, 0 -1px 0 $gray-600,
+    0 3px 13px rgb(0 0 0 / 8%);
+  border-radius: $border-radius;
+  & span.flatpickr-weekday {
+    color: $gray-400;
+  }
+  &.arrowTop:before,
+  &.arrowTop:after {
+    border-bottom-color: $gray-700;
+  }
+  .flatpickr-months {
+    & .flatpickr-month {
+      color: $body-color;
+      fill: $body-color;
+    }
+    & .flatpickr-next-month,
+    & .flatpickr-prev-month {
+      color: $body-color;
+      fill: $body-color;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+      background: $gray-700;
+    }
+  }
+  .flatpickr-day {
+    color: $body-color;
+    &.today {
+      border-color: $gray-200;
+    }
+    &.selected,
+    &.startRange,
+    &.endRange,
+    &.selected.inRange,
+    &.startRange.inRange,
+    &.endRange.inRange,
+    &.selected:focus,
+    &.startRange:focus,
+    &.endRange:focus,
+    &.selected:hover,
+    &.startRange:hover,
+    &.endRange:hover,
+    &.selected.prevMonthDay,
+    &.startRange.prevMonthDay,
+    &.endRange.prevMonthDay,
+    &.selected.nextMonthDay,
+    &.startRange.nextMonthDay,
+    &.endRange.nextMonthDay {
+      background: $blue-300;
+      border-color: $blue-300;
+      color: color-contrast($blue-300);
+    }
+    &:hover {
+      border-color: $gray-200;
+      background: $gray-200;
+      color: color-contrast($gray-200);
+    }
+    &.flatpickr-disabled,
+    &.flatpickr-disabled:hover,
+    &.prevMonthDay,
+    &.nextMonthDay,
+    &.notAllowed,
+    &.notAllowed.prevMonthDay,
+    &.notAllowed.nextMonthDay {
+      color: $gray-500;
+    }
+  }
+}

@@ -1,3 +1,7 @@
+// Netbox-specific Styles and Overrides.
+
+@use 'sass:map';
+
 :root {
   --nbx-logo-color-1: #9cc8f8;
   --nbx-logo-color-2: #1685fc;
@@ -16,7 +20,6 @@
   --nbx-cable-node-border-color: #{$gray-200};
   --nbx-cable-termination-bg: #{$gray-200};
   --nbx-cable-termination-border-color: #{$gray-300};
-  --nbx-elevation-slot-bg: #{$gray-100};
 
   body[data-netbox-color-mode='dark'] {
     --nbx-logo-color-1: #{$white};
@@ -36,7 +39,6 @@
     --nbx-cable-node-border-color: #{$gray-600};
     --nbx-cable-termination-bg: #{$gray-800};
     --nbx-cable-termination-border-color: #{$gray-700};
-    --nbx-elevation-slot-bg: #{$gray-700};
   }
 }
 
@@ -89,6 +91,23 @@ body {
       fill: $gray-200;
       stroke: $gray-200;
     }
+  }
+}
+
+div.title-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: $spacer * 2;
+  margin-bottom: $spacer * 2;
+  border-bottom: 1px solid $border-color;
+
+  div#content-title {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    padding-bottom: map.get($spacers, 2);
   }
 }
 
@@ -306,6 +325,7 @@ pre {
 .card {
   box-shadow: $box-shadow-sm;
   .card-header {
+    color: $body-color;
     border-bottom: none;
     padding: $card-cap-padding-x;
   }
@@ -413,6 +433,8 @@ nav.breadcrumb-container {
   font-size: $font-size-sm;
   width: fit-content;
   background-color: var(--nbx-breadcrumb-bg);
+  margin-top: $spacer;
+  margin-bottom: $spacer;
 
   ol.breadcrumb {
     margin-bottom: 0;
@@ -423,12 +445,6 @@ nav.breadcrumb-container {
       text-decoration: underline;
     }
   }
-}
-
-div#content-title {
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 auto;
 }
 
 div.paginator > form > div.input-group {

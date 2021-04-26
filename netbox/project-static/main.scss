@@ -1,3 +1,7 @@
+// Main Entry Point for all Netbox Styles.
+// Note: The order of these imports is critical for proper inheritance.
+
+// Light Mode Styles.
 @import './theme-light.scss';
 @import './bootstrap.scss';
 
@@ -8,6 +12,7 @@
 
 @import './netbox.scss';
 
+// Dark Mode Styles.
 body[data-netbox-color-mode='dark'] {
   @import './theme-dark.scss';
   @import './bootstrap.scss';
@@ -16,6 +21,7 @@ body[data-netbox-color-mode='dark'] {
 
   @import './select.scss';
   @import 'flatpickr/dist/flatpickr.css';
+  @import './flatpickr-dark.scss';
 
   @import './netbox.scss';
 }

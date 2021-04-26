@@ -56,7 +56,7 @@ function updateElements(targetMode: ColorMode): void {
  *
  * @param mode Target color mode.
  */
-function setColorMode(mode: ColorMode): void {
+export function setColorMode(mode: ColorMode): void {
   for (const func of [storeColorMode, updateElements]) {
     func(mode);
   }

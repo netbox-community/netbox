@@ -1,3 +1,5 @@
+// SlimSelect Style Overrides.
+
 $height: $input-height;
 $white: $white;
 $font-color: $input-color;
@@ -10,6 +12,19 @@ $border-radius: $form-select-border-radius;
 $spacing-l: $input-padding-x;
 $spacing-m: $input-padding-x;
 $spacing-s: $input-padding-x;
+
+:root {
+  --nbx-select-content-bg: null;
+  --nbx-select-option-selected-bg: #{$gray-300};
+  --nbx-select-option-hover-bg: #{$blue};
+  --nbx-select-option-hover-color: #{$white};
+  & body[data-netbox-color-mode='dark'] {
+    --nbx-select-content-bg: #{$gray-900};
+    --nbx-select-option-selected-bg: #{$gray-500};
+    --nbx-select-option-hover-bg: #{$blue-200};
+    --nbx-select-option-hover-color: #{color-contrast($blue-200)};
+  }
+}
 
 div.form-floating div.ss-main div.ss-single-selected,
 div.form-floating div.ss-main div.ss-multi-selected {
@@ -73,14 +88,15 @@ div.form-floating div.ss-main div.ss-multi-selected {
   }
 
   .ss-content {
-    background-color: $gray-900;
+    background-color: var(--nbx-select-content-bg);
     .ss-list {
       .ss-option.ss-option-selected {
-        background-color: $gray-600;
-        color: $white;
+        background-color: var(--nbx-select-option-selected-bg);
+        color: $body-color;
       }
       .ss-option:hover {
-        background-color: $blue-400;
+        background-color: var(--nbx-select-option-hover-bg);
+        color: var(--nbx-select-option-hover-color);
       }
       .ss-option:last-child {
         border-bottom-left-radius: $form-select-border-radius;

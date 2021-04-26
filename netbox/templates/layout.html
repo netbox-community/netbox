@@ -37,11 +37,10 @@
           {% search_options %} {% include './profile_button.html' %}
         
       </nav>
-
+      
       <div class="px-4">
-        <div
-          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-        >
+        {% block title_container %}
+        <div class="title-container">
           <div id="content-title">
             <h1 class="h2 w-100">{% block title %}{% endblock %}</h1>
             {% block breadcrumb_main %}{% endblock %}
@@ -49,6 +48,7 @@
 
           {% block controls %}{% endblock %}
         </div>
+        {% endblock %}
         <div id="content" class="container-fluid p-0 m-0">
           {% block tabs %}{% endblock %}
           {% block content %}{% endblock %}

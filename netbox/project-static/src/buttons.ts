@@ -1,12 +1,13 @@
 import { createToast } from './bs';
+import { setColorMode } from './colorMode';
 import {
+  slugify,
   isTruthy,
-  getElements,
   apiPatch,
   hasError,
-  slugify,
-  findFirstAdjacent,
   getElement,
+  getElements,
+  findFirstAdjacent,
 } from './util';
 
 /**
@@ -132,6 +133,34 @@ function initReslug(): void {
 }
 
 /**
+ * Perform actions in the UI based on the value of user profile updates.
+ *
+ * @param event Form Submit
+ */
+function handlePreferenceSave(event: Event): void {
+  // Create a FormData instance to access the form values.
+  const form = event.currentTarget as HTMLFormElement;
+  const formData = new FormData(form);
+
+  // Update the UI color mode immediately when the user preference changes.
+  if (formData.get('ui.colormode') === 'dark') {
+    setColorMode('dark');
+  } else if (formData.get('ui.colormode') === 'light') {
+    setColorMode('light');
+  }
+}
+
+/**
+ * Initialize handlers for user profile updates.
+ */
+function initPreferenceUpdate() {
+  const form = getElement<HTMLFormElement>('preferences-update');
+  if (form !== null) {
+    form.addEventListener('submit', handlePreferenceSave);
+  }
+}
+
+/**
  * Show the select all card when the select all checkbox is checked, and sync the checkbox state
  * with all the PK checkboxes in the table.
  *
@@ -237,7 +266,13 @@ function initSelectAll() {
 }
 
 export function initButtons() {
-  for (const func of [initRackElevation, initConnectionToggle, initReslug, initSelectAll]) {
+  for (const func of [
+    initRackElevation,
+    initConnectionToggle,
+    initReslug,
+    initSelectAll,
+    initPreferenceUpdate,
+  ]) {
     func();
   }
 }
