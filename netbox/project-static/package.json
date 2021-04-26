@@ -9,7 +9,7 @@
   "dependencies": {
     "@mdi/font": "^5.9.55",
     "@popperjs/core": "^2.9.0",
-    "bootstrap": "^5.0.0-beta2",
+    "bootstrap": "^5.0.0-beta3",
     "clipboard": "2.0.6",
     "color2k": "^1.2.4",
     "cookie": "^0.4.1",
@@ -30,7 +30,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.13.8",
     "@babel/preset-env": "^7.13.9",
     "@babel/preset-typescript": "^7.13.0",
-    "@types/bootstrap": "^5.0.8",
+    "@types/bootstrap": "^5.0.12",
     "@types/clipboard": "^2.0.1",
     "@types/cookie": "^0.4.0",
     "@types/masonry-layout": "^4.2.2",
