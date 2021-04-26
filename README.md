@@ -27,19 +27,19 @@ The complete documentation for NetBox can be found at [Read the Docs](https://ne
 
 ### Screenshots
 
-![Screenshot of Main Page](docs/media/screenshot-home.png "Main Page")
+![Screenshot of Main Page](docs/media/home-light.png "Main Page")
 
 ---
 
-![Screenshot of Rack Elevation](docs/media/screenshot-rack.png "Rack Elevation")
+![Screenshot of Rack Elevation](docs/media/rack-dark.png "Rack Elevation")
 
 ---
 
-![Screenshot of Prefix Hierarchy](docs/media/screenshot-prefixes.png "Prefix Hierarchy")
+![Screenshot of Prefix Hierarchy](docs/media/prefixes-light.png "Prefix Hierarchy")
 
 ---
 
-![Screenshot of Cable Tracing](docs/media/screenshot-cable.png "Cable Tracing")
+![Screenshot of Cable Tracing](docs/media/cable-dark.png "Cable Tracing")
 
 ## Installation
 
