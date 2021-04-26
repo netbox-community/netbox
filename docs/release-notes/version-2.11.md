@@ -2,6 +2,10 @@
 
 ## v2.11.2 (FUTURE)
 
+### Enhancements
+
+* [#6275](https://github.com/netbox-community/netbox/issues/6275) - Linkify rack, device counts on locations list
+
 ### Bug Fixes
 
 * [#6236](https://github.com/netbox-community/netbox/issues/6236) - Journal entry title should account for configured timezone
