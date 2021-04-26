@@ -30,7 +30,7 @@ from virtualization.models import Cluster, VirtualMachine
 
 
 class HomeView(View):
-    template_name = 'pages/home.html'
+    template_name = 'home.html'
 
     def get(self, request):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
