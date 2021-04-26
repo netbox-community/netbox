@@ -14,15 +14,17 @@ $spacing-m: $input-padding-x;
 $spacing-s: $input-padding-x;
 
 :root {
-  --nbx-select-content-bg: null;
+  --nbx-select-content-bg: #{$form-select-bg};
   --nbx-select-option-selected-bg: #{$gray-300};
   --nbx-select-option-hover-bg: #{$blue};
   --nbx-select-option-hover-color: #{$white};
+  --nbx-select-placeholder-color: #{$gray-500};
   & body[data-netbox-color-mode='dark'] {
     --nbx-select-content-bg: #{$gray-900};
     --nbx-select-option-selected-bg: #{$gray-500};
     --nbx-select-option-hover-bg: #{$blue-200};
     --nbx-select-option-hover-color: #{color-contrast($blue-200)};
+    --nbx-select-placeholder-color: #{$gray-500};
   }
 }
 
@@ -53,6 +55,11 @@ div.form-floating div.ss-main div.ss-multi-selected {
       background-color: $form-select-disabled-bg;
       border-color: $form-select-disabled-border-color;
     }
+  }
+
+  div.ss-multi-selected .ss-values .ss-disabled,
+  div.ss-single-selected span.placeholder .ss-disabled {
+    color: var(--nbx-select-placeholder-color);
   }
 
   .ss-single-selected {
