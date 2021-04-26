@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+from typing import Dict, Any
 
 import yaml
 from django import template
@@ -236,6 +237,16 @@ def startswith(text: str, starts: str) -> bool:
     if isinstance(text, str):
         return text.startswith(starts)
     return False
+
+
+@register.filter
+def get_key(value: Dict, arg: str) -> Any:
+    """
+    Template implementation of `dict.get()`, for accessing dict values
+    by key when the key is not able to be used in a template. For
+    example, `{"ui.colormode": "dark"}`.
+    """
+    return value.get(arg, None)
 
 
 #
