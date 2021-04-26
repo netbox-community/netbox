@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6275](https://github.com/netbox-community/netbox/issues/6275) - Linkify rack, device counts on locations list
+* [#6278](https://github.com/netbox-community/netbox/issues/6278) - Note device locations on cable traces
 
 ### Bug Fixes
 

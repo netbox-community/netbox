@@ -2,6 +2,9 @@
     <strong><a href="{{ device.get_absolute_url }}">{{ device }}</a></strong><br />
     {{ device.device_type.manufacturer }} {{ device.device_type }}<br />
     <a href="{{ device.site.get_absolute_url }}">{{ device.site }}</a>
+    {% if device.location %}
+        / <a href="{{ device.location.get_absolute_url }}">{{ device.location }}</a>
+    {% endif %}
     {% if device.rack %}
         / <a href="{{ device.rack.get_absolute_url }}">{{ device.rack }}</a>
     {% endif %}
