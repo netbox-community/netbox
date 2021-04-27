@@ -40,6 +40,9 @@ jobs:
         pip install pycodestyle coverage
         ln -s configuration.testing.py netbox/netbox/configuration.py
 
+    - name: Collect static files
+      run: python netbox/netbox/manage.py collectstatic --no-input
+
     - name: Check PEP8 compliance
       run: pycodestyle --ignore=W504,E501 netbox/
 
