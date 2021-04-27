@@ -683,7 +683,7 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
         label='MAC Address'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=200,
         required=False
     )
     mode = forms.ChoiceField(

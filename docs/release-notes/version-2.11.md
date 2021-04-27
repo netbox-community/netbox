@@ -1,5 +1,27 @@
 # NetBox v2.11
 
+## v2.11.2 (2021-04-27)
+
+### Enhancements
+
+* [#6275](https://github.com/netbox-community/netbox/issues/6275) - Linkify rack, device counts on locations list
+* [#6278](https://github.com/netbox-community/netbox/issues/6278) - Note device locations on cable traces
+* [#6287](https://github.com/netbox-community/netbox/issues/6287) - Add option to clear assigned max length filter on prefixes list
+
+### Bug Fixes
+
+* [#6236](https://github.com/netbox-community/netbox/issues/6236) - Journal entry title should account for configured timezone
+* [#6246](https://github.com/netbox-community/netbox/issues/6246) - Permit full-length descriptions when creating device components and VM interfaces
+* [#6248](https://github.com/netbox-community/netbox/issues/6248) - Fix table column reconfiguration under Chrome
+* [#6252](https://github.com/netbox-community/netbox/issues/6252) - Fix assignment of console port speed values above 19.2kbps
+* [#6254](https://github.com/netbox-community/netbox/issues/6254) - Disable ordering of space column in racks table
+* [#6258](https://github.com/netbox-community/netbox/issues/6258) - Fix parent assignment for SiteGroup API serializer
+* [#6262](https://github.com/netbox-community/netbox/issues/6262) - Support filtering by created/updated time for all relevant objects
+* [#6267](https://github.com/netbox-community/netbox/issues/6267) - Fix cable tracing API endpoint for circuit terminations
+* [#6289](https://github.com/netbox-community/netbox/issues/6289) - Fix assignment of VC member interfaces to LAG interfaces
+
+---
+
 ## v2.11.1 (2021-04-21)
 
 ### Enhancements
@@ -175,6 +197,7 @@ A new provider network model has been introduced to represent the boundary of a 
 * circuits.CircuitTermination
     * Added the `provider_network` field
     * Removed the `connected_endpoint`, `connected_endpoint_type`, and `connected_endpoint_reachable` fields
+    * The `trace/` endpoint has been replaced with `paths/`
 * circuits.ProviderNetwork
     * Added the `/api/circuits/provider-networks/` endpoint
 * dcim.Device

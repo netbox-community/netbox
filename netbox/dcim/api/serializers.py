@@ -90,7 +90,7 @@ class RegionSerializer(NestedGroupModelSerializer):
 
 class SiteGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
-    parent = NestedRegionSerializer(required=False, allow_null=True)
+    parent = NestedSiteGroupSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
 
     class Meta:

@@ -36,6 +36,27 @@ EXACT_FILTER_TYPES = (
 )
 
 
+class CreatedUpdatedFilterSet(django_filters.FilterSet):
+    created = django_filters.DateFilter()
+    created__gte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='gte'
+    )
+    created__lte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='lte'
+    )
+    last_updated = django_filters.DateTimeFilter()
+    last_updated__gte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='gte'
+    )
+    last_updated__lte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='lte'
+    )
+
+
 class WebhookFilterSet(BaseFilterSet):
     content_types = ContentTypeFilter()
     http_method = django_filters.MultipleChoiceFilter(
@@ -119,7 +140,7 @@ class ImageAttachmentFilterSet(BaseFilterSet):
         fields = ['id', 'content_type_id', 'object_id', 'name']
 
 
-class JournalEntryFilterSet(BaseFilterSet):
+class JournalEntryFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -150,7 +171,7 @@ class JournalEntryFilterSet(BaseFilterSet):
         return queryset.filter(comments__icontains=value)
 
 
-class TagFilterSet(BaseFilterSet):
+class TagFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -169,7 +190,7 @@ class TagFilterSet(BaseFilterSet):
         )
 
 
-class ConfigContextFilterSet(BaseFilterSet):
+class ConfigContextFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -339,27 +360,6 @@ class ObjectChangeFilterSet(BaseFilterSet):
             Q(user_name__icontains=value) |
             Q(object_repr__icontains=value)
         )
-
-
-class CreatedUpdatedFilterSet(django_filters.FilterSet):
-    created = django_filters.DateFilter()
-    created__gte = django_filters.DateFilter(
-        field_name='created',
-        lookup_expr='gte'
-    )
-    created__lte = django_filters.DateFilter(
-        field_name='created',
-        lookup_expr='lte'
-    )
-    last_updated = django_filters.DateTimeFilter()
-    last_updated__gte = django_filters.DateTimeFilter(
-        field_name='last_updated',
-        lookup_expr='gte'
-    )
-    last_updated__lte = django_filters.DateTimeFilter(
-        field_name='last_updated',
-        lookup_expr='lte'
-    )
 
 
 #

@@ -2,7 +2,7 @@ $(document).ready(function() {
 
     // Select or reset table columns
     $('#save_tableconfig').click(function(event) {
-        $('select[name="columns"] option').attr("selected", "selected");
+        $('select[name="columns"] option').prop("selected", "selected");
     });
     $('#reset_tableconfig').click(function(event) {
         $('select[name="columns"]').val([]);
