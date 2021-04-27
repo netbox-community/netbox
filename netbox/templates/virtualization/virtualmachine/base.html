@@ -1,49 +1,47 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
-{% load custom_links %}
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></li>
-  <li><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ object.cluster.pk }}">{{ object.cluster }}</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ object.cluster.pk }}">{{ object.cluster }}</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
-{% block buttons %}
+{% block extra_controls %}
   {% if perms.virtualization.add_vminterface %}
-    <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-primary">
+    <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-sm btn-primary m-1">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Interfaces
     </a>
   {% endif %}
-  {{ block.super }}
 {% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs">
-    <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-      <a href="{{ object.get_absolute_url }}">Virtual Machine</a>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">Virtual Machine</a>
     </li>
     {% with interface_count=object.interfaces.count %}
         {% if interface_count %}
-            <li role="presentation" {% if active_tab == 'interfaces' %} class="active"{% endif %}>
-                <a href="{% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
     {% if perms.extras.view_configcontext %}
-      <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
-        <a href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link{% if active_tab == 'config-context' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
       </li>
     {% endif %}
     {% if perms.extras.view_journalentry %}
-      <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
-        <a href="{% url 'virtualization:virtualmachine_journal' pk=object.pk %}">Journal</a>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link{% if active_tab == 'journal' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_journal' pk=object.pk %}">Journal</a>
       </li>
     {% endif %}
     {% if perms.extras.view_objectchange %}
-      <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-        <a href="{% url 'virtualization:virtualmachine_changelog' pk=object.pk %}">Change Log</a>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_changelog' pk=object.pk %}">Change Log</a>
       </li>
     {% endif %}
   </ul>

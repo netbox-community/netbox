@@ -2,67 +2,58 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Rack</strong></div>
-        <div class="panel-body">
-            {% render_field form.region %}
-            {% render_field form.site_group %}
-            {% render_field form.site %}
-            {% render_field form.location %}
-            {% render_field form.name %}
-            {% render_field form.status %}
-            {% render_field form.role %}
-            {% render_field form.tags %}
-        </div>
+    <div class="field-group">
+        <h4>Rack</h4>
+        {% render_field form.region %}
+        {% render_field form.site_group %}
+        {% render_field form.site %}
+        {% render_field form.location %}
+        {% render_field form.name %}
+        {% render_field form.status %}
+        {% render_field form.role %}
+        {% render_field form.tags %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Inventory Control</strong></div>
-        <div class="panel-body">
-            {% render_field form.facility_id %}
-            {% render_field form.serial %}
-            {% render_field form.asset_tag %}
-        </div>
+    <div class="field-group">
+        <h4>Inventory Control</h4>
+        {% render_field form.facility_id %}
+        {% render_field form.serial %}
+        {% render_field form.asset_tag %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tenancy</strong></div>
-        <div class="panel-body">
-            {% render_field form.tenant_group %}
-            {% render_field form.tenant %}
-        </div>
+    <div class="field-group">
+        <h4>Tenancy</h4>
+        {% render_field form.tenant_group %}
+        {% render_field form.tenant %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Dimensions</strong></div>
-        <div class="panel-body">
-            {% render_field form.type %}
-            {% render_field form.width %}
-            {% render_field form.u_height %}
-            <div class="form-group">
-                <label class="col-md-3 control-label">Outer dimensions</label>
-                <div class="col-md-3">
-                    {{ form.outer_width }}
-                </div>
-                <div class="col-md-3">
-                    {{ form.outer_depth }}
-                </div>
-                <div class="col-md-2">
-                    {{ form.outer_unit }}
-                </div>
+    <div class="field-group">
+        <h4>Dimensions</h4>
+        {% render_field form.type %}
+        {% render_field form.width %}
+        {% render_field form.u_height %}
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label">Outer Dimensions</label>
+            <div class="col-md-3">
+                {{ form.outer_width }}
+                <div class="form-text">Width</div>
             </div>
-            {% render_field form.desc_units %}
+            <div class="col-md-3">
+                {{ form.outer_depth }}
+                <div class="form-text">Depth</div>
+            </div>
+            <div class="col-md-3">
+                {{ form.outer_unit }}
+                <div class="form-text">Unit</div>
+            </div>
         </div>
+        {% render_field form.desc_units %}
     </div>
     {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
-                {% render_custom_fields form %}
-            </div>
+        <div class="field-group">
+            <h4>Custom Fields</h4>
+            {% render_custom_fields form %}
         </div>
     {% endif %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Comments</strong></div>
-        <div class="panel-body">
-            {% render_field form.comments %}
-        </div>
+    <div class="field-group">
+        <h4>Comments</h4>
+        {% render_field form.comments %}
     </div>
 {% endblock %}

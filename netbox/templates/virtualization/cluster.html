@@ -4,74 +4,74 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Cluster</strong>
-      </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Type</td>
-          <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
-        </tr>
-        <tr>
-          <td>Group</td>
-          <td>
-            {% if object.group %}
-              <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
-            {% else %}
-              <span class="text-muted">None</span>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td>Tenant</td>
-          <td>
-            {% if object.tenant %}
-              <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-            {% else %}
-              <span class="text-muted">None</span>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td>Site</td>
-          <td>
-            {% if object.site %}
-              <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-            {% else %}
-              <span class="text-muted">None</span>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td>Virtual Machines</td>
-          <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ object.pk }}">{{ object.virtual_machines.count }}</a></td>
-        </tr>
-      </table>
+	<div class="col-md-5">
+        <div class="card">
+            <h5 class="card-header">
+                Cluster
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Type</th>
+                        <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Group</th>
+                        <td>
+                            {% if object.group %}
+                                <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Tenant</th>
+                        <td>
+                            {% if object.tenant %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Site</th>
+                        <td>
+                            {% if object.site %}
+                                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Virtual Machines</th>
+                        <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ object.pk }}">{{ object.virtual_machines.count }}</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='virtualization:cluster_list' %}
+        <div class="card">
+            <h5 class="card-header">
+                Comments
+            </h5>
+            <div class="card-body rendered-markdown">
+                {% if object.comments %}
+                    {{ object.comments|render_markdown }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
+        {% plugin_left_page object %}
     </div>
-    {% include 'inc/custom_fields_panel.html' %}
-  </div>
-  <div class="col-md-6">
-    {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='virtualization:cluster_list' %}
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Comments</strong>
-      </div>
-      <div class="panel-body rendered-markdown">
-        {% if object.comments %}
-          {{ object.comments|render_markdown }}
-        {% else %}
-          <span class="text-muted">None</span>
-        {% endif %}
-      </div>
-    </div>
-    {% plugin_left_page object %}
-  </div>
 </div>
 <div class="row">
   <div class="col-md-12">

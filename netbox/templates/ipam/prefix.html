@@ -3,127 +3,128 @@
 {% load plugins %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-5">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Prefix</strong>
-                </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Family</td>
-                        <td>IPv{{ object.family }}</td>
-                    </tr>
-                    <tr>
-                        <td>VRF</td>
-                        <td>
-                            {% if object.vrf %}
-                                <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a> ({{ object.vrf.rd }})
-                            {% else %}
-                                <span>Global</span>
+<div class="row">
+    <div class="col-md-5">
+        <div class="card">
+            <h5 class="card-header">
+                Prefix
+            </h5>
+            <div class="card-body">
+            <table class="table table-hover attr-table">
+                <tr>
+                    <td colspan="2">
+                    <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                    {% if object.is_pool %}
+                        <span class="badge bg-success">Is a Pool</span>
+                    {% else %}
+                        <span class="badge bg-info">Not a Pool</span>
+                    {% endif %}
+                    </td>
+
+                </tr>
+                <tr>
+                    <th scope="row">Family</th>
+                    <td>IPv{{ object.family }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">VRF</th>
+                    <td>
+                        {% if object.vrf %}
+                            <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a> ({{ object.vrf.rd }})
+                        {% else %}
+                            <span>Global</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Tenant</th>
+                    <td>
+                        {% if object.tenant %}
+                            {% if object.tenant.group %}
+                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Tenant</td>
-                        <td>
-                            {% if object.tenant %}
-                                {% if object.tenant.group %}
-                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                                {% endif %}
-                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
+                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Aggregate</th>
+                    <td>
+                        {% if aggregate %}
+                            <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
+                        {% else %}
+                            <span class="text-warning">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Site</th>
+                    <td>
+                        {% if object.site %}
+                            {% if object.site.region %}
+                                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Aggregate</td>
-                        <td>
-                            {% if aggregate %}
-                                <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
-                            {% else %}
-                                <span class="text-warning">None</span>
+                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">VLAN</th>
+                    <td>
+                        {% if object.vlan %}
+                            {% if object.vlan.group %}
+                                <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Site</td>
-                        <td>
-                            {% if object.site %}
-                                {% if object.site.region %}
-                                    <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
-                                {% endif %}
-                                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>VLAN</td>
-                        <td>
-                            {% if object.vlan %}
-                                {% if object.vlan.group %}
-                                    <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
-                                {% endif %}
-                                <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan.display_name }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Status</td>
-                        <td>
-                            <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Role</td>
-                        <td>
-                            {% if object.role %}
-                                <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
-                            {% else %}
-                                <span class="text-muted">None</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <td>Is a pool</td>
-                        <td>
-                            {% if object.is_pool %}
-                                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-                            {% else %}
-                                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Utilization</td>
-                        <td>{% utilization_graph object.get_utilization %}</td>
-                    </tr>
-                </table>
+                            <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan.display_name }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Role</th>
+                    <td>
+                        {% if object.role %}
+                            <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Description</th>
+                    <td>{{ object.description|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Utilization</th>
+                    <td>{% utilization_graph object.get_utilization %}</td>
+                </tr>
+            </table>
             </div>
-            {% include 'inc/custom_fields_panel.html' %}
-            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:prefix_list' %}
-            {% plugin_left_page object %}
         </div>
-        <div class="col-md-7">
-            {% if duplicate_prefix_table.rows %}
-                {% include 'panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' panel_class='danger' %}
-            {% endif %}
-            {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' panel_class='default' %}
-            {% plugin_right_page object %}
-        </div>
+        {% include 'inc/custom_fields_panel.html' %}
+        {% plugin_left_page object %}
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            {% plugin_full_width_page object %}
-        </div>
+    <div class="col-md-7">
+        {% if duplicate_prefix_table.rows %}
+            {% include 'panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' %}
+        {% endif %}
+        {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' %}
+        {% plugin_right_page object %}
     </div>
+</div>
+<div class="row my-3">
+    <div class="col-md-5">
+    {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:prefix_list' %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
 {% endblock %}

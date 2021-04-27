@@ -1,22 +1,22 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load form_helpers %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6 col-md-offset-3">
+<div class="row mt-5">
+	<div class="col-md-6 offset-md-3">
         <form action="" method="post" class="form">
             {% csrf_token %}
             {% for field in form.hidden_fields %}
                 {{ field }}
             {% endfor %}
-            <div class="panel panel-{{ panel_class|default:"danger" }}">
-                <div class="panel-heading">{% block title %}{% endblock %}</div>
-                <div class="panel-body">
+            <div class="card bg-{{ panel_class|default:"danger" }}">
+                <h5 class="card-header">{% block confirmation_title %}{% endblock %}</h5>
+                <div class="card-body">
                     {% block message %}<p>Are you sure?</p>{% endblock %}
-                    <div class="text-right">
-                        <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"danger" }}">Confirm</button>
-                        <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
+                    <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"dark" }}">Confirm</button>
                 </div>
             </div>
         </form>

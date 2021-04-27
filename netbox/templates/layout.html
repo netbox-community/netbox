@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load search_options %}
+
+{% block head %}{% endblock %}
+{% block layout %}
+<div class="container-fluid">
+  <div class="row">
+    <nav
+      id="sidebar-menu"
+      class="col-md-3 col-lg-2 d-md-block sidebar collapse px-0"
+    >
+      <div class="position-sticky pt-3">
+        <a class="px-2 sidebar-logo" href="{% url 'home' %}">
+          {% load static %}
+          {% include 'logo.html' %}
+        </a>
+        <ul class="nav flex-column">
+          {% load nav %} {% nav %}
+        </ul>
+      </div>
+      {% include './bottom.html' %}
+    </nav>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-0">
+      <nav class="navbar navbar-light sticky-top flex-md-nowrap py-4 search container-fluid">
+          <button
+            type="button"
+            aria-expanded="false"
+            data-bs-toggle="collapse"
+            aria-controls="sidebarMenu"
+            data-bs-target="#sidebarMenu"
+            aria-label="Toggle navigation"
+            class="navbar-toggler position-absolute d-md-none collapsed"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          {% search_options %} {% include './profile_button.html' %}
+        
+      </nav>
+      
+      <div class="px-4">
+        {% block title_container %}
+        <div class="title-container">
+          <div id="content-title">
+            <h1 class="h2 w-100">{% block title %}{% endblock %}</h1>
+            {% block breadcrumb_main %}{% endblock %}
+          </div>
+
+          {% block controls %}{% endblock %}
+        </div>
+        {% endblock %}
+        <div id="content" class="container-fluid p-0 m-0">
+          {% block tabs %}{% endblock %}
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}{% endblock %}
+{% block data %}{% endblock %}

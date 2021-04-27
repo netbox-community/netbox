@@ -1,13 +1,13 @@
 {% extends 'generic/object_list.html' %}
 
-{% block buttons %}
+{% block extra_controls %}
     {% if request.GET.family == '6' %}
-        <a href="{% url 'ipam:rir_list' %}" class="btn btn-default">
+        <a href="{% url 'ipam:rir_list' %}" class="btn btn-sm btn-outline-secondary m-1">
             <span class="mdi mdi-table" aria-hidden="true"></span>
             IPv4 Stats
         </a>
     {% else %}
-        <a href="{% url 'ipam:rir_list' %}?family=6{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="btn btn-default">
+        <a href="{% url 'ipam:rir_list' %}?family=6{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="btn btn-sm btn-outline-secondary m-1">
             <span class="mdi mdi-table" aria-hidden="true"></span>
             IPv6 Stats
         </a>
@@ -16,7 +16,7 @@
 
 {% block sidebar %}
     {% if request.GET.family == '6' %}
-        <div class="alert alert-info">
+        <div class="alert alert-info small">
             <i class="mdi mdi-information-outline"></i> Numbers shown indicate /64 prefixes.
         </div>
     {% endif %}

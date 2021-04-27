@@ -3,111 +3,28 @@
 {% load helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>VLAN Group</strong></div>
-        <div class="panel-body">
-            {% render_field form.name %}
-            {% render_field form.slug %}
-            {% render_field form.description %}
-        </div>
+    <div class="field-group">
+        <h4>VLAN Group</h4>
+        {% render_field form.name %}
+        {% render_field form.slug %}
+        {% render_field form.description %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>Scope</strong>
-        </div>
-        <div class="panel-body">
-            {% render_field form.scope_type %}
-            {% render_field form.region %}
-            {% render_field form.sitegroup %}
-            {% render_field form.site %}
-            {% render_field form.location %}
-            {% render_field form.rack %}
-            {% render_field form.clustergroup %}
-            {% render_field form.cluster %}
-        </div>
+    <div class="field-group">
+        <h4>Scope</h4>
+        {% render_field form.scope_type %}
+        {% render_field form.region %}
+        {% render_field form.sitegroup %}
+        {% render_field form.site %}
+        {% render_field form.location %}
+        {% render_field form.rack %}
+        {% render_field form.clustergroup %}
+        {% render_field form.cluster %}
     </div>
     {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
-                {% render_custom_fields form %}
-            </div>
+        <div class="field-group">
+            <h4>Custom Fields</h4>
+            {% render_custom_fields form %}
         </div>
     {% endif %}
 {% endblock %}
 
-{% block javascript %}
-<script type="text/javascript">
-  // TODO: Employ form field attrs to clean up this mess
-  let scope_type = $('#id_scope_type');
-  scope_type.change(function() {
-    let label = this.options[this.selectedIndex].text;
-    if (label.endsWith('region')) {
-      $('#id_region').parents('.form-group').show();
-      $('#id_sitegroup').parents('.form-group').hide();
-      $('#id_site').parents('.form-group').hide();
-      $('#id_location').parents('.form-group').hide();
-      $('#id_rack').parents('.form-group').hide();
-      $('#id_clustergroup').parents('.form-group').hide();
-      $('#id_cluster').parents('.form-group').hide();
-    } else if (label.endsWith('site group')) {
-      $('#id_region').parents('.form-group').hide();
-      $('#id_sitegroup').parents('.form-group').show();
-      $('#id_site').parents('.form-group').hide();
-      $('#id_location').parents('.form-group').hide();
-      $('#id_rack').parents('.form-group').hide();
-      $('#id_clustergroup').parents('.form-group').hide();
-      $('#id_cluster').parents('.form-group').hide();
-    } else if (label.endsWith('site')) {
-      $('#id_region').parents('.form-group').show();
-      $('#id_sitegroup').parents('.form-group').show();
-      $('#id_site').parents('.form-group').show();
-      $('#id_location').parents('.form-group').hide();
-      $('#id_rack').parents('.form-group').hide();
-      $('#id_clustergroup').parents('.form-group').hide();
-      $('#id_cluster').parents('.form-group').hide();
-    } else if (label.endsWith('location')) {
-      $('#id_region').parents('.form-group').show();
-      $('#id_sitegroup').parents('.form-group').show();
-      $('#id_site').parents('.form-group').show();
-      $('#id_location').parents('.form-group').show();
-      $('#id_rack').parents('.form-group').hide();
-      $('#id_clustergroup').parents('.form-group').hide();
-      $('#id_cluster').parents('.form-group').hide();
-    } else if (label.endsWith('rack')) {
-      $('#id_region').parents('.form-group').show();
-      $('#id_sitegroup').parents('.form-group').show();
-      $('#id_site').parents('.form-group').show();
-      $('#id_location').parents('.form-group').show();
-      $('#id_rack').parents('.form-group').show();
-      $('#id_clustergroup').parents('.form-group').hide();
-      $('#id_cluster').parents('.form-group').hide();
-    } else if (label.endsWith('cluster group')) {
-      $('#id_region').parents('.form-group').hide();
-      $('#id_sitegroup').parents('.form-group').hide();
-      $('#id_site').parents('.form-group').hide();
-      $('#id_location').parents('.form-group').hide();
-      $('#id_rack').parents('.form-group').hide();
-      $('#id_clustergroup').parents('.form-group').show();
-      $('#id_cluster').parents('.form-group').hide();
-    } else if (label.endsWith('cluster')) {
-      $('#id_region').parents('.form-group').hide();
-      $('#id_sitegroup').parents('.form-group').hide();
-      $('#id_site').parents('.form-group').hide();
-      $('#id_location').parents('.form-group').hide();
-      $('#id_rack').parents('.form-group').hide();
-      $('#id_clustergroup').parents('.form-group').show();
-      $('#id_cluster').parents('.form-group').show();
-    } else {
-      $('#id_region').parents('.form-group').hide();
-      $('#id_sitegroup').parents('.form-group').hide();
-      $('#id_site').parents('.form-group').hide();
-      $('#id_location').parents('.form-group').hide();
-      $('#id_rack').parents('.form-group').hide();
-      $('#id_clustergroup').parents('.form-group').hide();
-      $('#id_cluster').parents('.form-group').hide();
-    }
-  });
-  scope_type.change();
-</script>
-{% endblock %}

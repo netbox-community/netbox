@@ -1,11 +1,11 @@
 {% load helpers %}
 {% if show_available is not None %}
-  <div class="btn-group" role="group">
-    <a href="{{ request.path }}{% querystring request show_available='true' %}" class="btn btn-default{% if show_available %} active disabled{% endif %}">
-      <i class="mdi mdi-eye-outline"></i> Show available
+  <div class="btn-group m-1" role="group">
+    <a href="{{ request.path }}{% querystring request show_available='true' %}" class="btn btn-sm btn-outline-secondary{% if show_available %} active disabled{% endif %}">
+      <i class="mdi mdi-eye"></i> Show Available
     </a>
-    <a href="{{ request.path }}{% querystring request show_available='false' %}" class="btn btn-default{% if not show_available %} active disabled{% endif %}">
-      <i class="mdi mdi-eye-off-outline"></i> Hide available
+    <a href="{{ request.path }}{% querystring request show_available='false' %}" class="btn btn-sm btn-outline-secondary{% if not show_available %} active disabled{% endif %}">
+      <i class="mdi mdi-eye-off"></i> Hide Available
     </a>
   </div>
 {% endif %}

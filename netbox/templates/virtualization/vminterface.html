@@ -6,66 +6,68 @@
 {% block title %}{{ object.virtual_machine }} / {{ object.name }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></li>
-  <li><a href="{{ object.virtual_machine.get_absolute_url }}">{{ object.virtual_machine }}</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></li>
+  <li class="breadcrumb-item"><a href="{{ object.virtual_machine.get_absolute_url }}">{{ object.virtual_machine }}</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row mb-3">
 	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Interface</strong>
+        <div class="card">
+            <h5 class="card-header">
+                Interface
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Virtual Machine</th>
+                        <td>
+                            <a href="{{ object.virtual_machine.get_absolute_url }}">{{ object.virtual_machine }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Enabled</th>
+                        <td>
+                            {% if object.enabled %}
+                                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                            {% else %}
+                                <span class="text-danger"><i class="mdi mdi-close"></i></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Parent</th>
+                        <td>
+                            {% if object.parent %}
+                                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }} </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">MTU</th>
+                        <td>{{ object.mtu|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">MAC Address</th>
+                        <td><span class="text-monospace">{{ object.mac_address|placeholder }}</span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">802.1Q Mode</th>
+                        <td>{{ object.get_mode_display }}</td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Virtual Machine</td>
-                    <td>
-                        <a href="{{ object.virtual_machine.get_absolute_url }}">{{ object.virtual_machine }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Name</td>
-                    <td>{{ object.name }}</td>
-                </tr>
-                <tr>
-                    <td>Enabled</td>
-                    <td>
-                        {% if object.enabled %}
-                            <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                        {% else %}
-                            <span class="text-danger"><i class="mdi mdi-close"></i></span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Parent</td>
-                    <td>
-                        {% if object.parent %}
-                            <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description|placeholder }} </td>
-                </tr>
-                <tr>
-                    <td>MTU</td>
-                    <td>{{ object.mtu|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>MAC Address</td>
-                    <td><span class="text-monospace">{{ object.mac_address|placeholder }}</span></td>
-                </tr>
-                <tr>
-                    <td>802.1Q Mode</td>
-                    <td>{{ object.get_mode_display }}</td>
-                </tr>
-            </table>
         </div>
         {% plugin_left_page object %}
     </div>
@@ -75,20 +77,22 @@
           {% plugin_right_page object %}
     </div>
 </div>
-<div class="row">
+<div class="row mb-3">
     <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>IP Addresses</strong>
+        <div class="card">
+            <h5 class="card-header">
+                IP Addresses
+            </h5>
+            <div class="card-body">
+                {% if ipaddress_table.rows %}
+                    {% render_table ipaddress_table 'inc/table.html' %}
+                {% else %}
+                    <div class="text-muted">None</div>
+                {% endif %}
             </div>
-            {% if ipaddress_table.rows %}
-                {% render_table ipaddress_table 'inc/table.html' %}
-            {% else %}
-                <div class="panel-body text-muted">None</div>
-            {% endif %}
             {% if perms.ipam.add_ipaddress %}
-                <div class="panel-footer text-right noprint">
-                    <a href="{% url 'ipam:ipaddress_add' %}?virtual_machine={{ object.virtual_machine.pk }}&vminterface={{ object.pk }}" class="btn btn-xs btn-primary">
+                <div class="card-footer text-end noprint">
+                    <a href="{% url 'ipam:ipaddress_add' %}?virtual_machine={{ object.virtual_machine.pk }}&vminterface={{ object.pk }}" class="btn btn-sm btn-primary">
                         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add IP Address
                     </a>
                 </div>
@@ -96,12 +100,12 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row mb-3">
     <div class="col-md-12">
         {% include 'panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
 </div>
-<div class="row">
+<div class="row mb-3">
     <div class="col-md-12">
         {% include 'panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}
     </div>

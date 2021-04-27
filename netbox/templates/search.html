@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 
@@ -6,36 +6,37 @@
 
 {% block content %}
     {% if request.GET.q %}
-        {% include 'search_form.html' with search_form=form %}
         {% if results %}
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-9">
                     {% for obj_type in results %}
                         <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
                         {% include 'panel_table.html' with table=obj_type.table %}
-                        <a href="{{ obj_type.url }}" class="btn btn-primary pull-right">
-                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span>
+                        <a href="{{ obj_type.url }}" class="btn btn-primary float-end my-3">
+                            <i class="mdi mdi-arrow-right-bold" aria-hidden="true"></i>
                             {% if obj_type.table.page.has_next %}
-                                See all {{ obj_type.table.page.paginator.count }} results
+                                See All {{ obj_type.table.page.paginator.count }} Results
                             {% else %}
-                                Refine search
+                                Refine Search
                             {% endif %}
                         </a>
-                    <div class="clearfix"></div>
                     {% endfor %}
                 </div>
-                <div class="col-md-2" style="padding-top: 20px;">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <strong>Search Results</strong>
-                        </div>
-                        <div class="list-group">
-                            {% for obj_type in results %}
-                                <a href="#{{ obj_type.name|lower }}" class="list-group-item">
-                                    {{ obj_type.name|bettertitle }}
-                                    <span class="badge">{{ obj_type.table.page.paginator.count }}</span>
-                                </a>
-                            {% endfor %}
+                <div class="col-md-3">
+                    <h3 class="invisible">&nbsp;</h3>
+                    <div class="card">
+                        <h5 class="card-header">
+                            Search Results
+                        </h5>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                {% for obj_type in results %}
+                                    <a href="#{{ obj_type.name|lower }}" class="list-group-item">
+                                        {{ obj_type.name|bettertitle }}
+                                        <span class="badge bg-primary">{{ obj_type.table.page.paginator.count }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -44,17 +45,17 @@
             <h3 class="text-muted text-center">No results found</h3>
         {% endif %}
     {% else %}
-        <div class="row" style="margin-top: 150px;">
+        <div class="row">
             <div class="col-sm-4 col-sm-offset-4">
                 <form action="{% url 'search' %}" method="get" class="form form-horizontal">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <strong>Search</strong>
-                        </div>
-                        <div class="panel-body">
+                    <div class="card">
+                        <h5 class="card-header">
+                            Search
+                        </h5>
+                        <div class="card-body">
                             {% render_form form %}
                         </div>
-                        <div class="panel-footer text-right">
+                        <div class="card-footer text-end">
                             <button type="submit" class="btn btn-primary">
                                 <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
                             </button>

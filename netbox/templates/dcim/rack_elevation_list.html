@@ -1,25 +1,31 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load helpers %}
 {% load static %}
 
-{% block content %}
-<div class="btn-toolbar pull-right noprint" role="toolbar">
-    <button class="btn btn-default toggle-images" selected="selected">
-        <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
-    </button>
-    <div class="btn-group" role="group">
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-default{% if rack_face == 'front' %} active{% endif %}">Front</a>
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-default{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
-    </div>
-    <div class="btn-group" role="group">
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse=None %}" class="btn btn-default{% if not reverse %} active{% endif %}">Normal</a>
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse='true' %}" class="btn btn-default{% if reverse %} active{% endif %}">Reversed</a>
+{% block title %}Rack Elevations{% endblock %}
+
+{% block controls %}
+<div class="container mb-2 mx-0">
+    <div class="d-flex flex-wrap justify-content-end">
+        <button class="btn btn-sm btn-outline-dark toggle-images m-1" selected="selected">
+            <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
+        </button>
+        <div class="btn-group btn-group-sm m-1" role="group">
+            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">Front</a>
+            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
+        </div>
+        <div class="btn-group btn-group-sm m-1" role="group">
+            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse=None %}" class="btn btn-outline-secondary{% if not reverse %} active{% endif %}">Normal</a>
+            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse='true' %}" class="btn btn-outline-secondary{% if reverse %} active{% endif %}">Reversed</a>
+        </div>
     </div>
 </div>
-<h1>{% block title %}Rack Elevations{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
 <div class="row">
     <div class="col-md-12">
-        <div class="col-md-3 pull-right right-side-panel noprint">
+        <div class="col-md-3 float-end right-side-panel noprint">
             {% include 'inc/search_panel.html' %}
         </div>
         {% if page %}
@@ -30,7 +36,7 @@
                         <div class="text-center">
                             <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
                             {% if rack.role %}
-                                <br /><small class="label" style="color: {{ rack.role.color|fgcolor }}; background-color: #{{ rack.role.color }}">{{ rack.role }}</small>
+                                <br /><span class="badge my-3" style="color: {{ rack.role.color|fgcolor }}; background-color: #{{ rack.role.color }}">{{ rack.role }}</span>
                             {% endif %}
                             {% if rack.facility_id %}
                                 <br /><small class="text-muted">{{ rack.facility_id }}</small>
@@ -51,12 +57,8 @@
             <br />
             {% include 'inc/paginator.html' %}
         {% else %}
-            <p>No racks found</p>
+            <p>No Racks Found</p>
         {% endif %}
     </div>
 </div>
-{% endblock %}
-
-{% block javascript %}
-<script src="{% static 'js/rack_elevations.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

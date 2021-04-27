@@ -11,7 +11,7 @@ from utilities.tables import (
 from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
-AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>')
+AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 PREFIX_LINK = """
 {% load helpers %}
@@ -33,7 +33,7 @@ IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
 {% elif perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-xs btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-sm btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
 {% else %}
     {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
 {% endif %}
@@ -65,7 +65,7 @@ VLAN_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
 {% elif perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}&group={{ vlan_group.pk }}{% if vlan_group.site %}&site={{ vlan_group.site.pk }}{% endif %}" class="btn btn-xs btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
+    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}&group={{ vlan_group.pk }}{% if vlan_group.site %}&site={{ vlan_group.site.pk }}{% endif %}" class="btn btn-sm btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
 {% else %}
     {{ record.available }} VLAN{{ record.available|pluralize }} available
 {% endif %}
@@ -90,7 +90,7 @@ VLAN_ROLE_LINK = """
 VLANGROUP_ADD_VLAN = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
-        <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
+        <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-sm btn-success">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
         </a>
     {% endif %}

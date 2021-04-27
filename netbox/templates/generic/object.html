@@ -1,80 +1,76 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 {% load perms %}
 {% load plugins %}
 
-{% block header %}
-  <div class="row noprint">
-    <div class="col-sm-8 col-md-9">
-      <ol class="breadcrumb">
-        {% block breadcrumbs %}{% endblock %}
-      </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-      <form action="{% url object|viewname:'list' %}" method="get">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Search" />
-          <span class="input-group-btn">
-            <button type="submit" class="btn btn-primary">
-              <span class="mdi mdi-magnify" aria-hidden="true"></span>
-            </button>
-          </span>
-        </div>
-      </form>
-    </div>
-  </div>
-  <div class="pull-right noprint">
-    {% plugin_buttons object %}
-    {% block buttons %}
-      {% if request.user|can_add:object %}
-        {% clone_button object %}
-      {% endif %}
-      {% if request.user|can_change:object %}
-        {% edit_button object %}
-      {% endif %}
-      {% if request.user|can_delete:object %}
-        {% delete_button object %}
-      {% endif %}
-    {% endblock %}
-  </div>
-  <h1 class="title">{% block title %}{{ object }}{% endblock %}</h1>
-  <p>
-    <small class="text-muted">
-      Created {{ object.created }} &middot;
-      Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
-    </small>
-    <span class="label label-default">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
-  </p>
-  <div class="pull-right noprint">
-    {% block tab_buttons %}
-      {% custom_links object %}
-    {% endblock %}
-  </div>
-  {% block tabs %}
-    <ul class="nav nav-tabs">
-      <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-        <a href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
-      </li>
-      {% if perms.extras.view_journalentry %}
-        {% with journal_viewname=object|viewname:'journal' %}
-          {% url journal_viewname pk=object.pk as journal_url %}
-          {% if journal_url %}
-            <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
-              <a href="{{ journal_url }}">Journal</a>
-            </li>
-          {% endif %}
-        {% endwith %}
-      {% endif %}
-      {% if perms.extras.view_objectchange %}
-        {% with changelog_viewname=object|viewname:'changelog' %}
-          {% url changelog_viewname pk=object.pk as changelog_url %}
-          <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{{ changelog_url }}">Change Log</a>
-          </li>
-        {% endwith %}
-      {% endif %}
-    </ul>
-  {% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block breadcrumb_main %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    {% block breadcrumbs %}{%endblock%}
+  </ol>
+</nav>
 {% endblock %}
+
+{% block controls %}
+<div class="controls mb-2 mx-0">
+  <div class="d-flex flex-wrap justify-content-end">
+  {% custom_links object %}
+  {% plugin_buttons object %}
+  {% block extra_controls %}{% endblock %}
+  {% if request.user|can_add:object %}
+    {% clone_button object %}
+  {% endif %}
+  {% if request.user|can_change:object %}
+    {% edit_button object %}
+  {% endif %}
+  {% if request.user|can_delete:object %}
+    {% delete_button object %}
+  {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block tabs %}
+<ul class="nav nav-tabs mb-3">
+  {% block tab_items %}
+  <li class="nav-item" role="presentation">
+    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
+  </li>
+  {% endblock %}
+  {% if perms.extras.view_journalentry %}
+    {% with journal_viewname=object|viewname:'journal' %}
+    {% url journal_viewname pk=object.pk as journal_url %}
+    {% if journal_url %}
+      <li role="presentation" class="nav-item">
+        <a href="{{ journal_url }}" class="nav-link{% if active_tab == 'journal'%} active{% endif %}">Journal</a>
+      </li>
+    {% endif %}
+    {% endwith %}
+  {% endif %}
+  {% if perms.extras.view_objectchange %}
+    {% with changelog_viewname=object|viewname:'changelog' %}
+    {% url changelog_viewname pk=object.pk as changelog_url %}
+      <li role="presentation" class="nav-item">
+          <a href="{{ changelog_url }}" class="nav-link{% if active_tab == 'changelog'%} active{% endif %}">Change Log</a>
+      </li>
+    {% endwith %}
+  {% endif %}
+</ul>
+{% endblock %}
+
+{% block content %}
+<p>
+  <small class="text-muted">
+    Created {{ object.created }} &middot;
+    Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
+  </small>
+  <span class="badge bg-primary">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
+</p>
+{% endblock %}
+{% block components %}{% endblock %}

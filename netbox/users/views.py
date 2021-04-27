@@ -91,6 +91,7 @@ class LogoutView(View):
     """
     Deauthenticate a web user.
     """
+
     def get(self, request):
         logger = logging.getLogger('netbox.auth.logout')
 
@@ -136,9 +137,17 @@ class UserConfigView(LoginRequiredMixin, View):
         data = userconfig.all()
 
         # Delete selected preferences
-        for key in request.POST.getlist('pk'):
-            if key in data:
-                userconfig.clear(key)
+        if "_delete" in request.POST:
+            for key in request.POST.getlist('pk'):
+                if key in data:
+                    userconfig.clear(key)
+        # Update specific values
+        elif "_update" in request.POST:
+            for key in request.POST:
+                if not key.startswith('_') and not key.startswith('csrf'):
+                    for value in request.POST.getlist(key):
+                        userconfig.set(key, value)
+
         userconfig.save()
         messages.success(request, "Your preferences have been updated.")
 

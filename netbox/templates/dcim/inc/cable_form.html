@@ -1,42 +1,25 @@
 {% load form_helpers %}
-<div class="panel panel-default">
-    <div class="panel-heading"><strong>Cable</strong></div>
-    <div class="panel-body">
+<div class="card">
+    <h5 class="card-header">Cable</h5>
+    <div class="card-body">
         {% render_field form.status %}
         {% render_field form.type %}
         {% render_field form.label %}
         {% render_field form.color %}
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="id_length">{{ form.length.label }}</label>
-            <div class="col-md-5">
-                {{ form.length }}
-                {% if form.length.errors %}
-                    <ul>
-                        {% for error in form.length.errors %}
-                            <li class="text-danger">{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+        <div class="row">
+            <div class="col">
+                {% render_field form.length %}
             </div>
-            <div class="col-md-4">
-                {{ form.length_unit }}
-                {% if form.length_unit.errors %}
-                    <ul>
-                        {% for error in form.length_unit.errors %}
-                            <li class="text-danger">{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+            <div class="col">
+                {% render_field form.length_unit %}
             </div>
         </div>
         {% render_field form.tags %}
-    </div>
-</div>
-{% if form.custom_fields %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Custom Fields</strong></div>
-        <div class="panel-body">
+        {% if form.custom_fields %}
+        <div class="field-group">
+            <h4>Custom Fields</h4>
             {% render_custom_fields form %}
         </div>
+        {% endif %}
     </div>
-{% endif %}
+</div>

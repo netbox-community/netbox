@@ -6,6 +6,21 @@ python:
         - requirements: docs/requirements.txt
 theme:
   name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to Dark Mode
+    - scheme: slate
+      toggle:
+        icon: material/lightbulb
+        name: Switch to Light Mode
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/netbox-community/netbox
+    - icon: fontawesome/brands/slack
+      link: https://slack.netbox.dev
 extra_css:
     - extra.css
 markdown_extensions:
@@ -93,3 +108,4 @@ nav:
         - Version 2.2: 'release-notes/version-2.2.md'
         - Version 2.1: 'release-notes/version-2.1.md'
         - Version 2.0: 'release-notes/version-2.0.md'
+    - Screenshots: 'screenshots/index.md'

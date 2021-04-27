@@ -1,109 +1,37 @@
-{% load static %}
-{% load helpers %}
+{% load static %} {% load helpers %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>{% block title %}Home{% endblock %} - NetBox</title>
-    <link rel="stylesheet"
-          href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=bootstrap-3.4.1-dist/css/bootstrap.min.css'">
-    <link rel="stylesheet"
-          href="{% static 'materialdesignicons-5.4.55/css/materialdesignicons.min.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=materialdesignicons-5.4.55/css/materialdesignicons.min.css'">
-    <link rel="stylesheet"
-          href="{% static 'jquery-ui-1.12.1/jquery-ui.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=jquery-ui-1.12.1/jquery-ui.css'">
-    <link rel="stylesheet"
-          href="{% static 'select2-4.0.13/dist/css/select2.min.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=select2-4.0.13/dist/css/select2.min.css'">
-    <link rel="stylesheet"
-          href="{% static 'select2-bootstrap-0.1.0-beta.10/select2-bootstrap.min.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=select2-bootstrap-0.1.0-beta.10/select2-bootstrap.min.css'">
-    <link rel="stylesheet"
-          href="{% static 'flatpickr-4.6.3/themes/light.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=flatpickr-4.6.3/themes/light.css'">
-    <link rel="stylesheet"
-          href="{% static 'css/base.css' %}?v{{ settings.VERSION }}"
-          onerror="window.location='{% url 'media_failure' %}?filename=css/base.css'">
-    <link rel="icon" type="image/png" href="{% static 'img/netbox.ico' %}" />
-    <meta charset="UTF-8">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-</head>
-<body>
-    {% include 'inc/nav_menu.html' %}
-    <div class="container-fluid wrapper">
-        {% if settings.BANNER_TOP %}
-            <div class="alert alert-info text-center" role="alert">
-                {{ settings.BANNER_TOP|safe }}
-            </div>
-        {% endif %}
-        {% if settings.MAINTENANCE_MODE %}
-            <div class="alert alert-warning text-center" role="alert">
-                <h4><i class="mdi mdi-alert"></i> Maintenance Mode</h4>
-                <p>NetBox is currently in maintenance mode. Functionality may be limited.</p>
-            </div>
-        {% endif %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span>&times;</span>
-                </button>
-                {{ message }}
-            </div>
-        {% endfor %}
-        {% block header %}{% endblock %}
-        {% block content %}{% endblock %}
-        <div class="push"></div>
-         {% if settings.BANNER_BOTTOM %}
-            <div class="alert alert-info text-center" style="margin-bottom: 50px" role="alert">
-                 {{ settings.BANNER_BOTTOM|safe }}
-            </div>
-        {% endif %}
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox.css'"
+    />
+
+    <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width"
+    />
+    <script
+      type="text/javascript"
+      src="{% static 'netbox.js' %}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'">
+    </script>
+    {% block head %}{% endblock %}
+  </head>
+  {% with color_mode=preferences|get_key:'ui.colormode' %}
+  
+  <body{%if color_mode == 'dark'%} data-netbox-color-mode="dark"{% elif color_mode == 'light' %} data-netbox-color-mode="light"{% endif %}>
+  
+    {% block layout %}{% endblock %}
+    {% block javascript %}{% endblock %}
+    {% include './messages.html' %}
+    <div id="netbox-data" style="display: none!important; visibility: hidden!important">
+    {% block data %}{% endblock %}
     </div>
-    <footer class="footer">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xs-4">
-                    <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
-                </div>
-                <div class="col-xs-4 text-center">
-                    <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
-                </div>
-                <div class="col-xs-4 text-right noprint">
-                    <p class="text-muted">
-                        <i class="mdi mdi-book-open-page-variant text-primary"></i> <a href="https://netbox.readthedocs.io/">Docs</a> &middot;
-                        <i class="mdi mdi-cloud-braces text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
-                        <i class="mdi mdi-xml text-primary"></i> <a href="https://github.com/netbox-community/netbox">Code</a> &middot;
-                        <i class="mdi mdi-lifebuoy text-primary"></i> <a href="https://github.com/netbox-community/netbox/wiki">Help</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-<script src="{% static 'jquery/jquery-3.5.1.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=jquery/jquery-3.5.1.min.js'"></script>
-<script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=jquery-ui-1.12.1/jquery-ui.min.js'"></script>
-<script src="{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=bootstrap-3.4.1-dist/js/bootstrap.min.js'"></script>
-<script src="{% static 'select2-4.0.13/dist/js/select2.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=select2-4.0.13/dist/js/select2.min.js'"></script>
-<script src="{% static 'clipboard.js/clipboard-2.0.6.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=clipboard.js/clipboard-2.0.6.min.js'"></script>
-<script src="{% static 'flatpickr-4.6.3/flatpickr.min.js' %}"
-        onerror="window.location='{% url 'media_failure' %}?filename=flatpickr-4.6.3/flatpickr.min.js'"></script>
-<script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"
-        onerror="window.location='{% url 'media_failure' %}?filename=js/forms.js'"></script>
-<script type="text/javascript">
-    var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
-    var netbox_csrf_token = "{{ csrf_token }}";
-    var loading = $(".loading");
-    $(document).ajaxStart(function() {
-        loading.show();
-    }).ajaxStop(function() {
-        loading.hide();
-    });
-</script>
-{% block javascript %}{% endblock %}
-</body>
+  </body>
+  {% endwith %}
 </html>

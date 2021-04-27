@@ -20,22 +20,26 @@ The complete documentation for NetBox can be found at [Read the Docs](https://ne
 
 ### Build Status
 
-|             | status |
-|-------------|------------|
-| **master** | ![Build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master) |
+|             | status                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| **master**  | ![Build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master)  |
 | **develop** | ![Build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=develop) |
 
 ### Screenshots
 
-![Screenshot of main page](docs/media/screenshot1.png "Main page")
+![Screenshot of Main Page](docs/media/home-light.png "Main Page")
 
 ---
 
-![Screenshot of rack elevation](docs/media/screenshot2.png "Rack elevation")
+![Screenshot of Rack Elevation](docs/media/rack-dark.png "Rack Elevation")
 
 ---
 
-![Screenshot of prefix hierarchy](docs/media/screenshot3.png "Prefix hierarchy")
+![Screenshot of Prefix Hierarchy](docs/media/prefixes-light.png "Prefix Hierarchy")
+
+---
+
+![Screenshot of Cable Tracing](docs/media/cable-dark.png "Cable Tracing")
 
 ## Installation
 

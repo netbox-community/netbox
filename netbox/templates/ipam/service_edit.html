@@ -2,42 +2,41 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Service</strong></div>
-        <div class="panel-body">
-            {% if obj.device %}
-                <div class="form-group">
-                    <label class="col-md-3 control-label required">Device</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">{{ obj.device }}</p>
-                    </div>
-                </div>
-            {% else %}
-                <div class="form-group">
-                    <label class="col-md-3 control-label required">Virtual Machine</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">{{ obj.virtual_machine }}</p>
-                    </div>
-                </div>
-            {% endif %}
-            {% render_field form.name %}
-            <div class="form-group form-inline">
-                <label class="col-md-3 control-label required">Port(s)</label>
-                <div class="col-md-9">
-                    {{ form.protocol }}
-                    {{ form.ports }}
-                    <span class="help-block">{{ form.ports.help_text }}</span>
-                </div>
+    <div class="field-group">
+        <h4>Service</h4>
+        {% if obj.device %}
+            <div class="form-floating mb-3">
+                <input class="form-control" value="{{ obj.device }}" disabled />
+                <label class="form-label">Device</label>
             </div>
-            {% render_field form.ipaddresses %}
-            {% render_field form.description %}
-            {% render_field form.tags %}
+        {% else %}
+            <div class="form-floating mb-3">
+                <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
+                <label class="form-label">Virtual Machine</label>
+            </div>
+        {% endif %}
+        {% render_field form.name %}
+        <div class="mb-3">
+            <label class="form-label">Port(s)</label>
+            <div class="row">
+                <div class="col-3">
+                    {{ form.protocol }}
+                </div>
+                <div class="col-9 font-monospace">
+                    {{ form.ports }}
+                </div>
+                <div class="form-text">{{ form.ports.help_text }}</div>
+            </div>
         </div>
+        
+        {% render_field form.ipaddresses %}
+        {% render_field form.description %}
+        {% render_field form.tags %}
     </div>
     {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
+        <div class="card">
+            <h5 class="card-header">Custom Fields</h5>
+            <div class="card-body">
                 {% render_custom_fields form %}
             </div>
         </div>

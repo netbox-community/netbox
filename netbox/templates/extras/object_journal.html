@@ -3,30 +3,30 @@
 
 {% block title %}{{ block.super }} - Journal{% endblock %}
 
+{% render_errors form %}
+
 {% block content %}
     {% if perms.extras.add_journalentry %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>New Journal Entry</strong>
-            </div>
-            <form action="{% url 'extras:journalentry_add' %}" method="post" enctype="multipart/form-data" class="form form-horizontal">
+    <form action="{% url 'extras:journalentry_add' %}" method="post" enctype="multipart/form-data">
+        <div class="col-md-9 col-md-offset-3">
+            <div class="field-group">
+                <h4>New Journal Entry</h4>
                 {% csrf_token %}
                 {% for field in form.hidden_fields %}
                     {{ field }}
                 {% endfor %}
-                <div class="row panel-body">
-                    <div class="col-md-10 col-md-offset-1">
-                        {% render_field form.kind %}
-                        {% render_field form.comments %}
-                        <div class="text-right">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                            <a href="{{ object.get_absolute_url }}" class="btn btn-default">Cancel</a>
-                        </div>
-                    </div>
-                </div>
-            </form>
+                {% render_field form.kind %}
+                {% render_field form.comments %}
+            </div>
+            <div class="col-md-12 col-md-offset-3 text-end my-3">
+                <a href="{{ object.get_absolute_url }}" class="btn btn-outline-danger">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
         </div>
+    </form>
     {% endif %}
-    {% include 'panel_table.html' %}
+    <div class="col-md-9 col-md-offset-3 mb-3">
+        {% include 'panel_table.html' %}
+    </div>
     {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
 {% endblock %}

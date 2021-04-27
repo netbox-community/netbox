@@ -13,48 +13,43 @@
     {% endif %}
     <form action="." method="post" class="form">
         {% csrf_token %}
-        <div class="form-group">
+        <div class="field-group">
             {% render_field form.public_key %}
         </div>
-        <div class="row">
-            <div class="form-group">
-                <div class="col-sm-6 col-md-6">
-                    <button type="button" class="btn btn-info" id="generate_keypair">Generate a New Key Pair</button>
-                </div>
-                <div class="col-sm-6 col-md-6 text-right">
-                    <button type="submit" name="_update" class="btn btn-primary">Save</button>
-                    <a href="{% url 'user:userkey' %}" class="btn btn-default">Cancel</a>
-                </div>
+        <div class="row my-3">
+            <div class="col-4 text-start">
+                <button type="button" class="btn btn-info" id="generate_keypair" data-bs-toggle="modal" data-bs-target="#new_keypair_modal">Generate a New Key Pair</button>
+            </div>
+            <div class="col-8 text-end">
+                <a href="{% url 'user:userkey' %}" class="btn btn-outline-danger">Cancel</a>
+                <button type="submit" name="_update" class="btn btn-primary">Save</button>    
             </div>
         </div>
     </form>
     <div class="modal fade" id="new_keypair_modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-md" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="new_keypair_modal_title">
                         New RSA Key Pair
                     </h4>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <strong>New Public Key</strong>
-                    <div class="form-group">
-                        <textarea class="form-control" id="new_pubkey" style="height: 250px;"></textarea>
+                    <div class="field-group">
+                        <h5>New Public Key</h5>
+                        <textarea class="form-control" rows="10"  id="new_pubkey" style="height: 250px;font-family:var(--bs-font-monospace);"></textarea>
                     </div>
-                    <strong>New Private Key</strong>
-                    <div class="form-group">
-                        <textarea class="form-control" id="new_privkey" style="height: 250px;"></textarea>
+                    
+                    <div class="field-group">
+                        <h5>New Private Key</h5>
+                        <textarea class="form-control" rows="10" id="new_privkey" style="height: 250px;font-family:var(--bs-font-monospace);"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer text-center">
-                    <button type="button" class="btn btn-danger" id="use_new_pubkey" data-dismiss="modal">I have saved my new private key</button>
+                    <button type="button" class="btn btn-danger" id="use_new_pubkey" data-bs-dismiss="modal">I Saved My New Private Key</button>
                 </div>
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block javascript %}
-<script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

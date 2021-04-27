@@ -1,0 +1,593 @@
+// Netbox-specific Styles and Overrides.
+
+@use 'sass:map';
+
+:root {
+  --nbx-logo-color-1: #9cc8f8;
+  --nbx-logo-color-2: #1685fc;
+  --nbx-sidebar-bg: #{$gray-100};
+  --nbx-sidebar-link-color: #{$gray-800};
+  --nbx-sidebar-link-hover-bg: #{$blue-100};
+  --nbx-sidebar-title-color: #{$text-muted};
+  --nbx-breadcrumb-bg: #{$light};
+  --nbx-body-bg: #{$white};
+  --nbx-body-color: #{$black};
+  --nbx-pre-bg: #{$gray-100};
+  --nbx-pre-border-color: #{$gray-600};
+  --nbx-change-added: #{rgba($green, 0.4)};
+  --nbx-change-removed: #{rgba($red, 0.4)};
+  --nbx-cable-node-bg: #{$gray-100};
+  --nbx-cable-node-border-color: #{$gray-200};
+  --nbx-cable-termination-bg: #{$gray-200};
+  --nbx-cable-termination-border-color: #{$gray-300};
+
+  body[data-netbox-color-mode='dark'] {
+    --nbx-logo-color-1: #{$white};
+    --nbx-logo-color-2: #{$gray-200};
+    --nbx-sidebar-bg: #{$gray-800};
+    --nbx-sidebar-link-color: #{$gray-200};
+    --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
+    --nbx-sidebar-title-color: #{$gray-300};
+    --nbx-breadcrumb-bg: #{$gray-800};
+    --nbx-body-bg: #{$gray-900};
+    --nbx-body-color: #{$white};
+    --nbx-pre-bg: #{$gray-700};
+    --nbx-pre-border-color: #{$gray-600};
+    --nbx-change-added: #{rgba($green-300, 0.4)};
+    --nbx-change-removed: #{rgba($red-300, 0.4)};
+    --nbx-cable-node-bg: #{$gray-700};
+    --nbx-cable-node-border-color: #{$gray-600};
+    --nbx-cable-termination-bg: #{$gray-800};
+    --nbx-cable-termination-border-color: #{$gray-700};
+  }
+}
+
+* {
+  transition: background-color, color 0.15s ease-in-out;
+}
+
+body {
+  background-color: var(--nbx-body-bg);
+  color: var(--nbx-body-color);
+  g#netbox-logo-1 {
+    fill: #9cc8f8;
+    stroke: #9cc8f8;
+  }
+
+  g#netbox-logo-2 {
+    fill: #1685fc;
+    stroke: #1685fc;
+  }
+  &[data-netbox-color-mode='light'] {
+    .btn.btn-primary {
+      color: $white;
+    }
+  }
+  &[data-netbox-color-mode='dark'] {
+    a:not(.btn) {
+      color: $blue-300;
+    }
+    .breadcrumb .breadcrumb-item > a {
+      color: $blue-300;
+    }
+    .badge {
+      color: $black;
+    }
+    .card,
+    .sidebar {
+      .text-muted {
+        color: $gray-400 !important;
+      }
+    }
+    .text-body[class] {
+      color: var(--nbx-body-color) !important;
+    }
+    g#netbox-logo-1 {
+      fill: $white;
+      stroke: $white;
+    }
+
+    g#netbox-logo-2 {
+      fill: $gray-200;
+      stroke: $gray-200;
+    }
+  }
+}
+
+div.title-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: $spacer * 2;
+  margin-bottom: $spacer * 2;
+  border-bottom: 1px solid $border-color;
+
+  div#content-title {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    padding-bottom: map.get($spacers, 2);
+  }
+}
+
+nav.search {
+  background-color: var(--nbx-body-bg);
+}
+
+main.login-container {
+  display: flex;
+  height: calc(100vh - 4rem);
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+footer.login-footer {
+  height: 4rem;
+  margin-top: auto;
+
+  .container-fluid {
+    display: flex;
+    justify-content: flex-end;
+    padding: $container-padding-x $grid-gutter-width;
+  }
+}
+
+h1 {
+  font-weight: $font-weight-bolder;
+}
+
+h2 {
+  font-weight: $font-weight-bold;
+}
+
+h3,
+h4 {
+  font-weight: $font-weight-medium;
+}
+
+h5,
+h6 {
+  font-weight: $font-weight-medium;
+}
+
+h1.accordion-item-title,
+h2.accordion-item-title,
+h3.accordion-item-title,
+h4.accordion-item-title,
+h5.accordion-item-title,
+h6.accordion-item-title {
+  padding: 0 0.5rem;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  color: var(--nbx-sidebar-title-color);
+  font-size: $font-size-sm;
+}
+
+.form-login {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  // margin: auto;
+}
+
+.form-login input[type='text'] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-login input[type='password'] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form-login .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+li.dropdown-item.dropdown-item-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    top: 5rem;
+  }
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.navbar-brand {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+nav.nav.nav-pills {
+  .nav-item.nav-link {
+    padding: 0.25rem 0.5rem;
+    font-size: $font-size-base;
+    border-radius: $border-radius;
+    &:hover {
+      color: $body-color;
+      background-color: var(--nbx-sidebar-link-hover-bg);
+    }
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  background-color: var(--nbx-sidebar-bg);
+  .sidebar-nav-link {
+    color: var(--nbx-sidebar-link-color);
+  }
+  .accordion-body {
+    max-height: calc(100vh - 24rem);
+    overflow-y: auto;
+    .nav-item {
+      .nav-link {
+        padding: 0.25rem 0.5rem;
+        font-size: $font-size-base;
+        border-radius: $border-radius;
+        &:hover {
+          color: $body-color;
+          background-color: var(--nbx-sidebar-link-hover-bg);
+        }
+      }
+    }
+  }
+  div.position-sticky {
+    height: calc(100% - 8rem);
+  }
+  div.sidebar-bottom {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    position: sticky;
+    height: 8rem;
+    background-color: var(--nbx-sidebar-bg);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+    .nav-link {
+      padding: 0.5rem 0.25rem;
+    }
+  }
+  a.sidebar-logo {
+    display: flex;
+    flex-shrink: 1;
+    width: 100%;
+    height: 4rem;
+  }
+}
+
+.tooltip {
+  pointer-events: none;
+}
+
+.ws-nowrap {
+  white-space: nowrap !important;
+}
+
+#object-type-selector {
+  button.dropdown-item,
+  h6.dropdown-header {
+    font-size: $font-size-sm;
+  }
+}
+
+.stats-container {
+  min-height: 50vh;
+}
+
+span.color-label {
+  width: 5rem;
+  height: 1rem;
+  display: block;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius;
+  padding: $badge-padding-y $badge-padding-x;
+}
+
+pre {
+  border-radius: $border-radius;
+  border: 1px solid var(--nbx-pre-border-color);
+  background-color: var(--nbx-pre-bg);
+  padding: $spacer;
+  white-space: pre;
+}
+
+.btn {
+  white-space: nowrap;
+}
+
+.card {
+  box-shadow: $box-shadow-sm;
+  .card-header {
+    color: $body-color;
+    border-bottom: none;
+    padding: $card-cap-padding-x;
+  }
+  .card-header + .card-body {
+    padding-top: 0;
+  }
+  .card-body {
+    overflow-x: auto;
+  }
+}
+
+.form-floating {
+  position: relative;
+
+  > .input-group > .form-control,
+  > .input-group > .form-select {
+    height: $form-floating-height;
+    padding: $form-floating-padding-y $form-floating-padding-x;
+  }
+
+  > .input-group > label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%; // allow textareas
+    padding: $form-floating-padding-y $form-floating-padding-x;
+    pointer-events: none;
+    border: $input-border-width solid transparent; // Required for aligning label's text with the input as it affects inner box model
+    transform-origin: 0 0;
+    @include transition($form-floating-transition);
+  }
+
+  > .input-group > .form-control {
+    &::placeholder {
+      color: transparent;
+    }
+
+    &:focus,
+    &:not(:placeholder-shown) {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+    // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+    &:-webkit-autofill {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+  }
+
+  > .input-group > .form-select,
+  > .choices > .choices__inner,
+  > .ss-main span.placeholder, // SlimSelect Single
+  > .ss-main div.ss-values // SlimSelect Multiple
+  {
+    padding-top: $form-floating-input-padding-t;
+    padding-bottom: $form-floating-input-padding-b;
+  }
+
+  > .input-group > .form-control:focus,
+  > .input-group > .form-control:not(:placeholder-shown),
+  > .input-group > .form-select,
+  > .choices,
+  > .ss-main {
+    ~ label {
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+      z-index: 4;
+    }
+  }
+  // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+  > .input-group > .form-control:-webkit-autofill {
+    ~ label {
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+      z-index: 4;
+    }
+  }
+}
+
+textarea#id_local_context_data,
+textarea.markdown,
+textarea#id_public_key {
+  font-family: $font-family-monospace;
+}
+
+textarea.form-control[name='csv'] {
+  font-family: $font-family-monospace;
+}
+
+table tr.vertical-align {
+  vertical-align: middle;
+}
+
+.card:not(:only-of-type) {
+  margin-bottom: $spacer;
+}
+
+.stat-btn {
+  min-width: $spacer * 3;
+}
+
+nav.breadcrumb-container {
+  padding: $badge-padding-y $badge-padding-x;
+  border-radius: $border-radius;
+  font-size: $font-size-sm;
+  width: fit-content;
+  background-color: var(--nbx-breadcrumb-bg);
+  margin-top: $spacer;
+  margin-bottom: $spacer;
+
+  ol.breadcrumb {
+    margin-bottom: 0;
+    li.breadcrumb-item > a {
+      text-decoration: none;
+    }
+    li.breadcrumb-item > a:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+div.paginator > form > div.input-group {
+  width: fit-content;
+}
+
+div.field-group:not(:first-of-type) {
+  margin-top: $spacer * 3;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: $spacer;
+  }
+}
+
+label.required {
+  font-weight: $font-weight-bold;
+  &::after {
+    font-family: 'Material Design Icons';
+    content: '\f06C4';
+    font-weight: normal;
+    font-size: 8px;
+    font-style: normal;
+    margin: 0 0 0 2px;
+    text-decoration: none;
+    display: inline-block;
+    position: absolute;
+  }
+}
+
+div.bulk-buttons {
+  display: flex;
+  & > * {
+    margin: $spacer / 4;
+  }
+}
+
+i.bi-plus:before,
+span.bi-plus:before {
+  font-weight: $font-weight-bold !important;
+}
+
+table tbody {
+  @each $color, $value in $theme-colors {
+    tr.#{$color} {
+      background-color: rgba($value, 0.15);
+      border-color: $gray-500;
+    }
+  }
+}
+table td,
+table th {
+  font-size: $font-size-sm;
+}
+
+// Cable Tracing
+.cable-trace {
+  max-width: 38rem;
+  margin: 1rem auto;
+  text-align: center;
+}
+.cable-trace .node {
+  background-color: var(--nbx-cable-node-bg);
+  border: $border-width solid var(--nbx-cable-node-border-color);
+  border-radius: $border-radius;
+  padding: 1.5rem 1rem;
+  position: relative;
+  z-index: 1;
+}
+.cable-trace .termination {
+  background-color: var(--nbx-cable-termination-bg);
+  border: $border-width solid var(--nbx-cable-termination-border-color);
+  box-shadow: $box-shadow;
+  border-radius: $border-radius;
+  margin: -1rem auto;
+  padding: 0.5rem;
+  position: relative;
+  width: 60%;
+  z-index: 2;
+}
+.cable-trace .active {
+  border: 0.25rem solid $success;
+}
+.cable-trace .cable {
+  border-left-style: solid;
+  border-left-width: 0.25rem;
+  margin: 1rem 0 1rem 50%;
+  padding: 1.5rem;
+  text-align: left;
+  width: 50%;
+}
+.cable-trace .trace-end {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+pre.change-data {
+  padding-left: 0;
+  padding-right: 0;
+  & > span {
+    display: block;
+    padding-left: $spacer;
+    padding-right: $spacer;
+    &.added {
+      background-color: var(--nbx-change-added);
+    }
+    &.removed {
+      background-color: var(--nbx-change-removed);
+    }
+  }
+}
+
+pre.change-diff {
+  border-color: transparent;
+  &.change-removed {
+    background-color: var(--nbx-change-removed);
+  }
+  &.change-added {
+    background-color: var(--nbx-change-added);
+  }
+}
+
+div.card-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($white, 0.75);
+  border-radius: $border-radius;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & > div.spinner-border {
+    width: 6rem;
+    height: 6rem;
+    color: $secondary;
+  }
+}
+
+div.card > div.card-header > div.table-controls {
+  max-width: 25%;
+  width: 100%;
+}

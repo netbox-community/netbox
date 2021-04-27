@@ -3,43 +3,36 @@
 {% load form_helpers %}
 {% load helpers %}
 
+{% block title %}Assign an IP Address{% endblock %}
+
 {% block content %}
     <form action="{% querystring request %}" method="post" class="form form-horizontal">
         {% csrf_token %}
         {% for field in form.hidden_fields %}
             {{ field }}
         {% endfor %}
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h3>Assign an IP Address</h3>
+        <div class="row mb-3">
+            <div class="col-md-6">
                 {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='assign' %}
-                {% if form.non_field_errors %}
-                    <div class="panel panel-danger">
-                        <div class="panel-heading"><strong>Errors</strong></div>
-                        <div class="panel-body">
-                            {{ form.non_field_errors }}
-                        </div>
+                <div class="card">
+                    <h5 class="card-header">Select IP Address</h5>
+                    <div class="card-body">
+                        {% render_field form.vrf_id %}
+                        {% render_field form.q %}
                     </div>
-                {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>Select IP Address</strong></div>
-                <div class="panel-body">
-                    {% render_field form.vrf_id %}
-                    {% render_field form.q %}
                 </div>
             </div>
-            </div>
         </div>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3 text-right">
+        <div class="row mb-3">
+            <div class="col-md-6 text-end">
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 <button type="submit" class="btn btn-primary">Search</button>
-                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
             </div>
         </div>
     </form>
     {% if table %}
-        <div class="row">
-            <div class="col-md-12" style="margin-top: 20px">
+        <div class="row mb-3">
+            <div class="col-md-12">
                 <h3>Search Results</h3>
                 {% include 'utilities/obj_table.html' with table_template='panel_table.html' %}
             </div>

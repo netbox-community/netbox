@@ -1,65 +1,65 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load helpers %}
 {% load plugins %}
 
 {% block title %}VRF {{ object }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
 	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>VRF</strong>
-            </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Route Distinguisher</td>
-                    <td>{{ object.rd }}</td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if object.tenant %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Unique IP Space</td>
-                    <td>
+        <div class="card">
+            <h5 class="card-header">
+                VRF
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <td colspan="2">
                         {% if object.enforce_unique %}
-                            <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+                            <span class="badge bg-info">Unique IP Space</span>
                         {% else %}
-                            <i class="mdi mdi-close-thick text-danger" title="No"></i>
+                            <span class="badge bg-warning text-body">Non-Unique IP Space</span>
                         {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>Prefixes</td>
-                    <td>
-                        <a href="{% url 'ipam:prefix_list' %}?vrf_id={{ object.pk }}">{{ prefix_count }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>IP Addresses</td>
-                    <td>
-                        <a href="{% url 'ipam:ipaddress_list' %}?vrf_id={{ object.pk }}">{{ ipaddress_count }}</a>
-                    </td>
-                </tr>
-		    </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Route Distinguisher</th>
+                        <td><code>{{ object.rd }}</code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Tenant</th>
+                        <td>
+                            {% if object.tenant %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Prefixes</th>
+                        <td>
+                            <a href="{% url 'ipam:prefix_list' %}?vrf_id={{ object.pk }}">{{ prefix_count }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IP Addresses</th>
+                        <td>
+                            <a href="{% url 'ipam:ipaddress_list' %}?vrf_id={{ object.pk }}">{{ ipaddress_count }}</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:vrf_list' %}
         {% include 'inc/custom_fields_panel.html' %}

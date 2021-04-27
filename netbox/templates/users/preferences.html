@@ -4,32 +4,56 @@
 {% block title %}User Preferences{% endblock %}
 
 {% block usercontent %}
-    {% if preferences %}
-        <form method="post" action="">
-            {% csrf_token %}
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" class="toggle" title="Toggle all"></th>
-                        <th>Preference</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for key, value in preferences.items %}
-                        <tr>
-                            <td class="min-width"><input type="checkbox" name="pk" value="{{ key }}"></td>
-                            <td><samp>{{ key }}</samp></td>
-                            <td><samp>{{ value }}</samp></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button type="submit" class="btn btn-danger">
-                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Clear Selected
+<form method="post" action="" id="preferences-update">
+    {% csrf_token %}
+    <div class="field-group mb-3">
+        <h4>Color Mode</h4>
+        <p class="lead text-muted">Set preferred UI color mode</p>
+        {% with color_mode=preferences|get_key:'ui.colormode'%}
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="ui.colormode" id="color-mode-preference-dark" value="dark"{% if color_mode == 'dark'%} checked{% endif %}>
+            <label class="form-check-label" for="color-mode-preference-dark">Dark</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="ui.colormode" id="color-mode-preference-light" value="light"{% if color_mode == 'light'%} checked{% endif %}>
+            <label class="form-check-label" for="color-mode-preference-light">Light</label>
+        </div>
+        {% endwith %}
+    </div>
+    <div class="row">
+        <div class="col">
+            <button type="submit" class="btn btn-primary" name="_update">
+                Save
             </button>
-        </form>
-    {% else %}
-        <h3 class="text-muted text-center">No preferences found</h3>
-    {% endif %}
+        </div>
+    </div>
+{% if preferences %}
+<div class="field-group mb-3">
+    <h4>Other Preferences</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th><input type="checkbox" class="toggle form-check-input" title="Toggle All"></th>
+                <th>Preference</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in preferences.items %}
+                <tr>
+                    <td class="min-width"><input class="form-check-input" type="checkbox" name="pk" value="{{ key }}"></td>
+                    <td><samp>{{ key }}</samp></td>
+                    <td><samp>{{ value }}</samp></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-danger" name="_delete">
+        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Clear Selected
+    </button>
+</div>
+{% else %}
+    <h3 class="text-muted text-center">No Preferences Found</h3>
+{% endif %}
+</form>
 {% endblock %}

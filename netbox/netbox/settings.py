@@ -362,7 +362,8 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 STATIC_ROOT = BASE_DIR + '/static'
 STATIC_URL = '/{}static/'.format(BASE_PATH)
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "project-static"),
+    os.path.join(BASE_DIR, "project-static", "dist"),
+    os.path.join(BASE_DIR, "project-static", "img"),
 )
 
 # Media

@@ -1,0 +1,53 @@
+<form class="input-group w-100" action="{% url 'search' %}" method="get">
+  <input
+    name="q"
+    id="id_q"
+    type="text"
+    aria-label="Search"
+    placeholder="Search"
+    class="form-control"
+    value="{{ request.GET.q }}"
+    aria-describedby="search-button"
+  />
+  <input id="search-obj-type" name="obj_type" hidden type="text" />
+  <span class="input-group-text" id="selected-value">All Objects</span>
+  <button
+    type="button"
+    aria-expanded="false"
+    data-bs-toggle="dropdown"
+    class="btn btn-outline-secondary dropdown-toggle"
+  >
+    <i class="mdi mdi-filter-variant"></i>
+  </button>
+  <ul id="object-type-selector" class="dropdown-menu dropdown-menu-end">
+    {% for option in options %} {% if option.items|length == 0 %}
+    <li>
+      <button
+        class="dropdown-item"
+        type="button"
+        data-search-value="{{ option.value }}"
+      >
+        {{ option.label }}
+      </button>
+    </li>
+    {% else %}
+    <li><h6 class="dropdown-header">{{ option.label }}</h6></li>
+    {% endif %} {% for item in option.items %}
+    <li>
+      <button
+        class="dropdown-item"
+        type="button"
+        data-search-value="{{ item.value }}"
+      >
+        {{ item.label }}
+      </button>
+    </li>
+    {% endfor %} {% if forloop.counter != options|length %}
+    <li><hr class="dropdown-divider" /></li>
+    {% endif %} {% endfor %}
+  </ul>
+  <button class="btn btn-primary" type="submit" id="search-button">
+    <i class="mdi mdi-magnify"></i>
+  </button>
+  
+</form>

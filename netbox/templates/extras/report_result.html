@@ -2,44 +2,54 @@
 {% load helpers %}
 {% load static %}
 
-{% block title %}{{ report.name }} - {{ result.get_status_display }}{% endblock %}
+{% block title %}{{ report.name }} <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>{% endblock %}
+
+{% block head %}
+<script src="{% static 'jobs.js' %}?v{{ settings.VERSION }}"
+        onerror="window.location='{% url 'media_failure' %}?filename=jobs.js'"></script>
+{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
-            <p>
-                Run: <strong>{{ result.created }}</strong>
-                {% if result.completed %}
-                    Duration: <strong>{{ result.duration }}</strong>
-                {% else %}
-                    <img id="pending-result-loader" src="{% static 'img/ajax-loader.gif' %}" />
-                {% endif %}
-                <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
-            </p>
+<div class="row">
+    <div class="col-md-12">
+        <p>
+            Run: <strong>{{ result.created }}</strong>
             {% if result.completed %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>Report Methods</strong>
-                    </div>
-                    <table class="table table-hover panel-body">
+                Duration: <strong>{{ result.duration }}</strong>
+            {% else %}
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            {% endif %}
+            
+        </p>
+        {% if result.completed %}
+            <div class="card">
+                <h5 class="card-header">
+                    Report Methods
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover">
                         {% for method, data in result.data.items %}
                             <tr>
                                 <td><code><a href="#{{ method }}">{{ method }}</a></code></td>
-                                <td class="text-right report-stats">
-                                    <label class="label label-success">{{ data.success }}</label>
-                                    <label class="label label-info">{{ data.info }}</label>
-                                    <label class="label label-warning">{{ data.warning }}</label>
-                                    <label class="label label-danger">{{ data.failure }}</label>
+                                <td class="text-end report-stats">
+                                    <span class="badge bg-success">{{ data.success }}</span>
+                                    <span class="badge bg-info">{{ data.info }}</span>
+                                    <span class="badge bg-warning">{{ data.warning }}</span>
+                                    <span class="badge bg-danger">{{ data.failure }}</span>
                                 </td>
                             </tr>
                         {% endfor %}
                     </table>
                 </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>Report Results</strong>
-                    </div>
-                    <table class="table table-hover panel-body report">
+            </div>
+            <div class="card">
+                <h5 class="card-header">
+                    Report Results
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover report">
                         <thead>
                             <tr class="table-headings">
                                 <th>Time</th>
@@ -59,7 +69,7 @@
                                     <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
                                         <td>{{ time }}</td>
                                         <td>
-                                            <label class="label label-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
+                                            <label class="badge bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
                                         </td>
                                         <td>
                                             {% if obj and url %}
@@ -77,26 +87,15 @@
                         </tbody>
                     </table>
                 </div>
-            {% else %}
-                <div class="well">Pending results</div>
-            {% endif %}
-        </div>
+            </div>
+        {% else %}
+            <div class="well">Pending results</div>
+        {% endif %}
     </div>
+</div>
 {% endblock %}
 
-{% block javascript %}
-<script type="text/javascript">
-{% if not result.completed %}
-var pending_result_id = {{ result.pk }};
-{% else %}
-var pending_result_id = null;
-{% endif %}
-
-function jobTerminatedAction(){
-    refreshWindow();
-}
-
-</script>
-<script src="{% static 'js/job_result.js' %}?v{{ settings.VERSION }}"
-        onerror="window.location='{% url 'media_failure' %}?filename=js/job_result.js'"></script>
+{% block data %}
+<span data-job-id="{{ result.pk }}"></span>
+<span data-job-complete="{{ result.completed }}"></span>
 {% endblock %}

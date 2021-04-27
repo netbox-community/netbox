@@ -169,7 +169,7 @@ class DeviceStatusChoices(ChoiceSet):
         STATUS_PLANNED: 'info',
         STATUS_STAGED: 'primary',
         STATUS_FAILED: 'danger',
-        STATUS_INVENTORY: 'default',
+        STATUS_INVENTORY: 'secondary',
         STATUS_DECOMMISSIONING: 'warning',
     }
 

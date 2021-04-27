@@ -1,26 +1,32 @@
 {% load helpers %}
 
-<div class="paginator pull-right text-right">
+<div class="paginator float-end text-end my-3">
     {% if paginator.num_pages > 1 %}
-        <nav>
-            <ul class="pagination pull-right">
-                {% if page.has_previous %}
-                    <li><a href="{% querystring request page=page.previous_page_number %}"><i class="mdi mdi-chevron-double-left"></i></a></li>
-                {% endif %}
-                {% for p in page.smart_pages %}
-                    {% if p %}
-                        <li{% if page.number == p %} class="active"{% endif %}><a href="{% querystring request page=p %}">{{ p }}</a></li>
-                    {% else %}
-                        <li class="disabled"><span>&hellip;</span></li>
-                    {% endif %}
-                {% endfor %}
-                {% if page.has_next %}
-                    <li><a href="{% querystring request page=page.next_page_number %}"><i class="mdi mdi-chevron-double-right"></i></a></li>
-                {% endif %}
-            </ul>
-        </nav>
+    <div class="btn-group btn-group-sm mb-3" role="group" aria-label="Pages">    
+    {% if page.has_previous %}
+        <a href="{% querystring request page=page.previous_page_number %}" class="btn btn-outline-secondary">
+            <i class="mdi mdi-chevron-double-left"></i>
+        </a>
     {% endif %}
-    <form method="get">
+    {% for p in page.smart_pages %}
+        {% if p %}
+        <a href="{% querystring request page=p %}" class="btn btn-outline-secondary{% if page.number == p %} active{% endif %}">
+            {{ p }}
+        </a>
+        {% else %}
+        <button type="button" class="btn btn-outline-secondary" disabled>
+            <span>&hellip;</span>
+        </button>
+        {% endif %}
+    {% endfor %}
+    {% if page.has_next %}
+        <a href="{% querystring request page=page.next_page_number %}" class="btn btn-outline-secondary">
+            <i class="mdi mdi-chevron-double-right"></i>
+        </a>
+    {% endif %}
+    </div>
+    {% endif %}
+    <form method="get" class="mb-2">
         {% for k, v_list in request.GET.lists %}
             {% if k != 'per_page' %}
                 {% for v in v_list %}
@@ -28,15 +34,18 @@
                 {% endfor %}
             {% endif %}
         {% endfor %}
-        <select name="per_page" id="per_page">
+        <div class="input-group input-group-sm">
+            <select name="per_page" class="form-select" id="per_page">
             {% for n in settings.PER_PAGE_DEFAULTS %}
                 <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
             {% endfor %}
-        </select> per page
+            </select>
+            <label class="input-group-text" for="per_page">Per Page</label>
+        </div>
     </form>
     {% if page %}
-        <div class="text-right text-muted">
-            Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
-        </div>
+    <small class="text-end text-muted">
+        Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
+    </small>
     {% endif %}
 </div>

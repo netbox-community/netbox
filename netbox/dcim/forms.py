@@ -4605,6 +4605,10 @@ class DeviceVCMembershipForm(forms.ModelForm):
         # Require VC position (only required when the Device is a VirtualChassis member)
         self.fields['vc_position'].required = True
 
+        # Add bootstrap classes to form elements.
+        self.fields['vc_position'].widget.attrs = {'class': 'form-control'}
+        self.fields['vc_priority'].widget.attrs = {'class': 'form-control'}
+
         # Validation of vc_position is optional. This is only required when adding a new member to an existing
         # VirtualChassis. Otherwise, vc_position validation is handled by BaseVCMemberFormSet.
         self.validate_vc_position = validate_vc_position

@@ -4,122 +4,125 @@
 {% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
   {% if object.vrf %}
-    <li><a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a></li>
   {% endif %}
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
 	<div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>IP Address</strong>
+        <div class="card">
+            <h5 class="card-header">
+                IP Address
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Family</th>
+                        <td>IPv{{ object.family }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">VRF</th>
+                        <td>
+                            {% if object.vrf %}
+                                <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
+                            {% else %}
+                                <span>Global</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Tenant</th>
+                        <td>
+                            {% if object.tenant %}
+                                {% if object.tenant.group %}
+                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                                {% endif %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Role</th>
+                        <td>
+                            {% if object.role %}
+                                <a href="{% url 'ipam:ipaddress_list' %}?role={{ object.role }}">{{ object.get_role_display }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">DNS Name</th>
+                        <td>{{ object.dns_name|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Assignment</th>
+                        <td>
+                            {% if object.assigned_object %}
+                                <a href="{{ object.assigned_object.parent_object.get_absolute_url }}">{{ object.assigned_object.parent_object }}</a> /
+                                <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">NAT (inside)</th>
+                        <td>
+                            {% if object.nat_inside %}
+                                <a href="{% url 'ipam:ipaddress' pk=object.nat_inside.pk %}">{{ object.nat_inside }}</a>
+                                {% if object.nat_inside.assigned_object %}
+                                    (<a href="{{ object.nat_inside.assigned_object.parent_object.get_absolute_url }}">{{ object.nat_inside.assigned_object.parent_object }}</a>)
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">NAT (outside)</th>
+                        <td>
+                            {% if object.nat_outside %}
+                                <a href="{% url 'ipam:ipaddress' pk=object.nat_outside.pk %}">{{ object.nat_outside }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Family</td>
-                    <td>IPv{{ object.family }}</td>
-                </tr>
-                <tr>
-                    <td>VRF</td>
-                    <td>
-                        {% if object.vrf %}
-                            <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
-                        {% else %}
-                            <span>Global</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if object.tenant %}
-                            {% if object.tenant.group %}
-                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                            {% endif %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Role</td>
-                    <td>
-                        {% if object.role %}
-                            <a href="{% url 'ipam:ipaddress_list' %}?role={{ object.role }}">{{ object.get_role_display }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>DNS Name</td>
-                    <td>{{ object.dns_name|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>Assignment</td>
-                    <td>
-                        {% if object.assigned_object %}
-                            <a href="{{ object.assigned_object.parent_object.get_absolute_url }}">{{ object.assigned_object.parent_object }}</a> /
-                            <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>NAT (inside)</td>
-                    <td>
-                        {% if object.nat_inside %}
-                            <a href="{% url 'ipam:ipaddress' pk=object.nat_inside.pk %}">{{ object.nat_inside }}</a>
-                            {% if object.nat_inside.assigned_object %}
-                                (<a href="{{ object.nat_inside.assigned_object.parent_object.get_absolute_url }}">{{ object.nat_inside.assigned_object.parent_object }}</a>)
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>NAT (outside)</td>
-                    <td>
-                        {% if object.nat_outside %}
-                            <a href="{% url 'ipam:ipaddress' pk=object.nat_outside.pk %}">{{ object.nat_outside }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
         </div>
         {% include 'inc/custom_fields_panel.html' %}
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:ipaddress_list' %}
+        
         {% plugin_left_page object %}
 	</div>
+    
 	<div class="col-md-8">
         {% include 'panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}
         {% if duplicate_ips_table.rows %}
             {# Custom version of panel_table.html #}
-            <div class="panel panel-danger">
-                <div class="panel-heading">
-                    <strong>Duplicate IP Addresses</strong>
+            <div class="card bg-danger">
+                <h5 class="card-header">
+                    Duplicate IP Addresses
                     {% if more_duplicate_ips %}
-                    <div class="pull-right">
-                        <a type="button" class="btn btn-primary btn-xs"
+                    <div class="float-end">
+                        <a type="button" class="btn btn-primary btn-sm"
                         {% if object.vrf %}
                         href="{% url 'ipam:ipaddress_list' %}?address={{ object.address.ip }}&vrf_id={{ object.vrf.pk }}"
                         {% else %}
@@ -128,14 +131,26 @@
                         >Show all</a>
                     </div>
                     {% endif %}
-                </div>
+                </h5>
+                <div class="card-body">
                 {% render_table duplicate_ips_table 'inc/table.html' %}
+                </div>
             </div>
         {% endif %}
-        {% include 'utilities/obj_table.html' with table=related_ips_table table_template='panel_table.html' heading='Related IP Addresses' panel_class='default noprint' %}
+        <div class="my-3">
+        {% include 'utilities/obj_table.html' with table=related_ips_table table_template='panel_table.html' heading='Related IP Addresses' %}
+        </div>
         {% plugin_right_page object %}
 	</div>
 </div>
+
+<div class="row my-3">
+    <div class="col-md-4">
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:ipaddress_list' %}
+    </div>
+    
+</div>
+
 <div class="row">
     <div class="col-md-12">
         {% plugin_full_width_page object %}

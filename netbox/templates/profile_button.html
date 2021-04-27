@@ -1,0 +1,49 @@
+{% if request.user.is_authenticated %}
+<div class="dropdown">
+  <button
+    type="button"
+    aria-expanded="false"
+    data-bs-toggle="dropdown"
+    class="btn btn-outline-secondary dropdown-toggle ms-4"
+  >
+    <i class="mdi mdi-account"></i>
+    <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li>
+      <button type="button" class="dropdown-item color-mode-toggle">
+        <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        <span class="color-mode-text">Dark Mode</span>
+      </button>
+    </li>
+    <li>
+      {% if request.user.is_staff %}
+      <a class="dropdown-item" href="{% url 'admin:index' %}">
+        <i class="mdi mdi-cog"></i> Admin
+      </a>
+      {% endif %}
+    </li>
+    <li>
+      <a class="dropdown-item" href="{% url 'user:profile' %}">
+        <i class="mdi mdi-account"></i> Profile
+      </a>
+    </li>
+    <li><hr class="dropdown-divider" /></li>
+    <li>
+      <a class="dropdown-item" href="{% url 'logout' %}">
+        <i class="mdi mdi-logout-variant"></i> Log Out
+      </a>
+    </li>
+  </ul>
+</div>
+{% else %}
+<div>
+  <a
+    class="btn btn-primary mx-4 ws-nowrap"
+    type="button"
+    href="{% url 'login' %}"
+  >
+    <i class="mdi mdi-login-variant"></i> Log In
+  </a>
+</div>
+{% endif %}
