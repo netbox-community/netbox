@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.filters import CableTerminationFilterSet, PathEndpointFilterSet
+from dcim.filters import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -110,7 +110,7 @@ class ProviderNetworkFilterSet(BaseFilterSet, CustomFieldModelFilterSet, Created
         ).distinct()
 
 
-class CircuitTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class CircuitTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = CircuitType
@@ -207,7 +207,7 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSe
         ).distinct()
 
 
-class CircuitTerminationFilterSet(BaseFilterSet, CableTerminationFilterSet):
+class CircuitTerminationFilterSet(BaseFilterSet, CreatedUpdatedFilterSet, CableTerminationFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

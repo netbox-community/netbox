@@ -57,7 +57,7 @@ __all__ = (
 )
 
 
-class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -74,7 +74,7 @@ class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class SiteGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         label='Parent site group (ID)',
@@ -154,7 +154,7 @@ class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         return queryset.filter(qs_filter)
 
 
-class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -218,7 +218,7 @@ class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         )
 
 
-class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = RackRole
@@ -323,7 +323,7 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         )
 
 
-class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet):
+class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -383,7 +383,7 @@ class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModel
         )
 
 
-class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = Manufacturer
@@ -476,7 +476,7 @@ class DeviceTypeFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdat
         return queryset.exclude(devicebaytemplates__isnull=value)
 
 
-class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
+class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         field_name='device_type_id',
@@ -556,14 +556,14 @@ class DeviceBayTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
         fields = ['id', 'name']
 
 
-class DeviceRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class DeviceRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = DeviceRole
         fields = ['id', 'name', 'slug', 'color', 'vm_role']
 
 
-class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -792,7 +792,7 @@ class DeviceFilterSet(
         return queryset.exclude(devicebays__isnull=value)
 
 
-class DeviceComponentFilterSet(CustomFieldModelFilterSet):
+class DeviceComponentFilterSet(CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1129,7 +1129,7 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
+class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1209,7 +1209,7 @@ class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet):
+class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1340,7 +1340,7 @@ class InterfaceConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
         fields = []
 
 
-class PowerPanelFilterSet(BaseFilterSet):
+class PowerPanelFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

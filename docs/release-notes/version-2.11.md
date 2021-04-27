@@ -16,6 +16,7 @@
 * [#6252](https://github.com/netbox-community/netbox/issues/6252) - Fix assignment of console port speed values above 19.2kbps
 * [#6254](https://github.com/netbox-community/netbox/issues/6254) - Disable ordering of space column in racks table
 * [#6258](https://github.com/netbox-community/netbox/issues/6258) - Fix parent assignment for SiteGroup API serializer
+* [#6262](https://github.com/netbox-community/netbox/issues/6262) - Support filtering by created/updated time for all relevant objects
 * [#6267](https://github.com/netbox-community/netbox/issues/6267) - Fix cable tracing API endpoint for circuit terminations
 * [#6289](https://github.com/netbox-community/netbox/issues/6289) - Fix assignment of VC member interfaces to LAG interfaces
 

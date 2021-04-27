@@ -116,7 +116,7 @@ class RouteTargetFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilt
         fields = ['id', 'name']
 
 
-class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = RIR
@@ -173,7 +173,7 @@ class AggregateFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilter
             return queryset.none()
 
 
-class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -535,7 +535,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilter
         return queryset.exclude(assigned_object_id__isnull=value)
 
 
-class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'
