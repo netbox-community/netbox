@@ -6,6 +6,7 @@
 
 * [#6275](https://github.com/netbox-community/netbox/issues/6275) - Linkify rack, device counts on locations list
 * [#6278](https://github.com/netbox-community/netbox/issues/6278) - Note device locations on cable traces
+* [#6287](https://github.com/netbox-community/netbox/issues/6287) - Add option to clear assigned max length filter on prefixes list
 
 ### Bug Fixes
 
