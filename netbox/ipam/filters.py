@@ -515,7 +515,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilter
             return queryset.none()
         interface_ids = []
         for device in devices:
-            interface_ids.extend(device.vc_interfaces.values_list('id', flat=True))
+            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
         return queryset.filter(
             interface__in=interface_ids
         )

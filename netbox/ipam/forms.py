@@ -1561,7 +1561,7 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
         # Limit IP address choices to those assigned to interfaces of the parent device/VM
         if self.instance.device:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                interface__in=self.instance.device.vc_interfaces.values_list('id', flat=True)
+                interface__in=self.instance.device.vc_interfaces().values_list('id', flat=True)
             )
         elif self.instance.virtual_machine:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(

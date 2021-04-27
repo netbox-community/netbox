@@ -68,7 +68,7 @@
         <li role="presentation" {% if active_tab == 'device' %} class="active"{% endif %}>
             <a href="{% url 'dcim:device' pk=object.pk %}">Device</a>
         </li>
-        {% with interface_count=object.vc_interfaces.count %}
+        {% with interface_count=object.interfaces_count %}
             {% if interface_count %}
                 <li role="presentation" {% if active_tab == 'interfaces' %} class="active"{% endif %}>
                     <a href="{% url 'dcim:device_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>

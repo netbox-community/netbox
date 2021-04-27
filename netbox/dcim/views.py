@@ -1405,7 +1405,7 @@ class DeviceInterfacesView(generic.ObjectView):
     template_name = 'dcim/device/interfaces.html'
 
     def get_extra_context(self, request, instance):
-        interfaces = instance.vc_interfaces.restrict(request.user, 'view').prefetch_related(
+        interfaces = instance.vc_interfaces(if_master=True).restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', 'cable', '_path__destination', 'tags',
@@ -1527,7 +1527,7 @@ class DeviceLLDPNeighborsView(generic.ObjectView):
     template_name = 'dcim/device/lldp_neighbors.html'
 
     def get_extra_context(self, request, instance):
-        interfaces = instance.vc_interfaces.restrict(request.user, 'view').prefetch_related(
+        interfaces = instance.vc_interfaces(if_master=True).restrict(request.user, 'view').prefetch_related(
             '_path__destination'
         ).exclude(
             type__in=NONCONNECTABLE_IFACE_TYPES

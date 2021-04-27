@@ -984,7 +984,7 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
             devices = Device.objects.filter(**{'{}__in'.format(name): value})
             vc_interface_ids = []
             for device in devices:
-                vc_interface_ids.extend(device.vc_interfaces.values_list('id', flat=True))
+                vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
@@ -995,7 +995,7 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
         try:
             devices = Device.objects.filter(pk__in=id_list)
             for device in devices:
-                vc_interface_ids += device.vc_interfaces.values_list('id', flat=True)
+                vc_interface_ids += device.vc_interfaces().values_list('id', flat=True)
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()

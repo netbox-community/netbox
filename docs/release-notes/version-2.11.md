@@ -17,6 +17,7 @@
 * [#6254](https://github.com/netbox-community/netbox/issues/6254) - Disable ordering of space column in racks table
 * [#6258](https://github.com/netbox-community/netbox/issues/6258) - Fix parent assignment for SiteGroup API serializer
 * [#6267](https://github.com/netbox-community/netbox/issues/6267) - Fix cable tracing API endpoint for circuit terminations
+* [#6289](https://github.com/netbox-community/netbox/issues/6289) - Fix assignment of VC member interfaces to LAG interfaces
 
 ---
 
