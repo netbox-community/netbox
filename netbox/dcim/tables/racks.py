@@ -73,6 +73,7 @@ class RackDetailTable(RackTable):
         verbose_name='Devices'
     )
     get_utilization = UtilizationColumn(
+        orderable=False,
         verbose_name='Space'
     )
     get_power_utilization = UtilizationColumn(

@@ -30,7 +30,7 @@ pip3 install django-auth-ldap
 Once installed, add the package to `local_requirements.txt` to ensure it is re-installed during future rebuilds of the virtual environment:
 
 ```no-highlight
-sudo echo django-auth-ldap >> /opt/netbox/local_requirements.txt
+sudo sh -c "echo 'django-auth-ldap' >> /opt/netbox/local_requirements.txt"
 ```
 
 ## Configuration
