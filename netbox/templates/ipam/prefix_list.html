@@ -7,6 +7,11 @@
             Max Length{% if "mask_length__lte" in request.GET %}: {{ request.GET.mask_length__lte }}{% endif %}
         </button>
         <ul class="dropdown-menu" aria-labelledby="max_length">
+            {% if request.GET.mask_length__lte %}
+                <li>
+                    <a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request mask_length__lte=None page=1 %}">Clear</a>
+                </li>
+            {% endif %}
             {% for i in "4,8,12,16,20,24,28,32,40,48,56,64"|split %}
                 <li><a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request mask_length__lte=i page=1 %}">
                     {{ i }} {% if request.GET.mask_length__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}

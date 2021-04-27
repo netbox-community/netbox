@@ -119,7 +119,7 @@
         Device
     </a>
 </li>
-{% with interface_count=object.vc_interfaces.count %}
+{% with interface_count=object.interfaces_count %}
 {% if interface_count %}
 <li role="presentation" class="nav-item">
     <a class="nav-link {% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'dcim:device_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>

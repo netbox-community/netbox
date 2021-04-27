@@ -716,7 +716,7 @@ class Device(PrimaryModel, ConfigContextModel):
                 pass
 
         # Validate primary IP addresses
-        vc_interfaces = self.vc_interfaces.all()
+        vc_interfaces = self.vc_interfaces()
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
                 raise ValidationError({
@@ -854,20 +854,27 @@ class Device(PrimaryModel, ConfigContextModel):
         else:
             return None
 
+    @property
+    def interfaces_count(self):
+        if self.virtual_chassis and self.virtual_chassis.master == self:
+            return self.vc_interfaces().count()
+        return self.interfaces.count()
+
     def get_vc_master(self):
         """
         If this Device is a VirtualChassis member, return the VC master. Otherwise, return None.
         """
         return self.virtual_chassis.master if self.virtual_chassis else None
 
-    @property
-    def vc_interfaces(self):
+    def vc_interfaces(self, if_master=False):
         """
         Return a QuerySet matching all Interfaces assigned to this Device or, if this Device is a VC master, to another
         Device belonging to the same VirtualChassis.
+
+        :param if_master: If True, return VC member interfaces only if this Device is the VC master.
         """
         filter = Q(device=self)
-        if self.virtual_chassis and self.virtual_chassis.master == self:
+        if self.virtual_chassis and (not if_master or self.virtual_chassis.master == self):
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)
 

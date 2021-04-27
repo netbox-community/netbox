@@ -102,10 +102,14 @@ class LocationTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
-    rack_count = tables.Column(
+    rack_count = LinkedCountColumn(
+        viewname='dcim:rack_list',
+        url_params={'location_id': 'pk'},
         verbose_name='Racks'
     )
-    device_count = tables.Column(
+    device_count = LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'location_id': 'pk'},
         verbose_name='Devices'
     )
     actions = ButtonsColumn(

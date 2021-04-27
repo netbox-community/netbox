@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-class SecretRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+class SecretRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = SecretRole

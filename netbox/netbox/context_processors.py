@@ -10,5 +10,5 @@ def settings_and_registry(request):
     return {
         'settings': django_settings,
         'registry': registry,
-        'preferences': request.user.config,
+        'preferences': request.user.config if request.user.is_authenticated else {},
     }
