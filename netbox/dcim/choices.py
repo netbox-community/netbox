@@ -851,15 +851,15 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'InfiniBand',
             (
-                (TYPE_INFINIBAND_SDR, 'SDR (2 Gbps)'),
-                (TYPE_INFINIBAND_DDR, 'DDR (4 Gbps)'),
-                (TYPE_INFINIBAND_QDR, 'QDR (8 Gbps)'),
-                (TYPE_INFINIBAND_FDR10, 'FDR10 (10 Gbps)'),
-                (TYPE_INFINIBAND_FDR, 'FDR (13.5 Gbps)'),
-                (TYPE_INFINIBAND_EDR, 'EDR (25 Gbps)'),
-                (TYPE_INFINIBAND_HDR, 'HDR (50 Gbps)'),
-                (TYPE_INFINIBAND_NDR, 'NDR (100 Gbps)'),
-                (TYPE_INFINIBAND_XDR, 'XDR (250 Gbps)'),
+                (TYPE_INFINIBAND_SDR, 'SDR'),
+                (TYPE_INFINIBAND_DDR, 'DDR'),
+                (TYPE_INFINIBAND_QDR, 'QDR'),
+                (TYPE_INFINIBAND_FDR10, 'FDR10'),
+                (TYPE_INFINIBAND_FDR, 'FDR'),
+                (TYPE_INFINIBAND_EDR, 'EDR'),
+                (TYPE_INFINIBAND_HDR, 'HDR'),
+                (TYPE_INFINIBAND_NDR, 'NDR'),
+                (TYPE_INFINIBAND_XDR, 'XDR'),
             )
         ),
         (
