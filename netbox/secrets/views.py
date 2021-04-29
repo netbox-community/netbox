@@ -2,14 +2,14 @@ import base64
 import logging
 
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from netbox.views import generic
 from utilities.tables import paginate_table
 from utilities.utils import count_related
-from . import filters, forms, tables
+from . import filtersets, forms, tables
 from .models import SecretRole, Secret, SessionKey, UserKey
 
 
@@ -70,7 +70,7 @@ class SecretRoleBulkEditView(generic.BulkEditView):
     queryset = SecretRole.objects.annotate(
         secret_count=count_related(Secret, 'role')
     )
-    filterset = filters.SecretRoleFilterSet
+    filterset = filtersets.SecretRoleFilterSet
     table = tables.SecretRoleTable
     form = forms.SecretRoleBulkEditForm
 
@@ -88,7 +88,7 @@ class SecretRoleBulkDeleteView(generic.BulkDeleteView):
 
 class SecretListView(generic.ObjectListView):
     queryset = Secret.objects.all()
-    filterset = filters.SecretFilterSet
+    filterset = filtersets.SecretFilterSet
     filterset_form = forms.SecretFilterForm
     table = tables.SecretTable
     action_buttons = ('import', 'export')
@@ -220,12 +220,12 @@ class SecretBulkImportView(generic.BulkImportView):
 
 class SecretBulkEditView(generic.BulkEditView):
     queryset = Secret.objects.prefetch_related('role')
-    filterset = filters.SecretFilterSet
+    filterset = filtersets.SecretFilterSet
     table = tables.SecretTable
     form = forms.SecretBulkEditForm
 
 
 class SecretBulkDeleteView(generic.BulkDeleteView):
     queryset = Secret.objects.prefetch_related('role')
-    filterset = filters.SecretFilterSet
+    filterset = filtersets.SecretFilterSet
     table = tables.SecretTable

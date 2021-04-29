@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from dcim.choices import *
-from dcim.filters import *
+from dcim.filtersets import *
 from dcim.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup

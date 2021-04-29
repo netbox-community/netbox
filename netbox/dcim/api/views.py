@@ -16,7 +16,7 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
-from dcim import filters
+from dcim import filtersets
 from dcim.models import *
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from ipam.models import Prefix, VLAN
@@ -103,7 +103,7 @@ class RegionViewSet(CustomFieldModelViewSet):
         cumulative=True
     )
     serializer_class = serializers.RegionSerializer
-    filterset_class = filters.RegionFilterSet
+    filterset_class = filtersets.RegionFilterSet
 
 
 #
@@ -119,7 +119,7 @@ class SiteGroupViewSet(CustomFieldModelViewSet):
         cumulative=True
     )
     serializer_class = serializers.SiteGroupSerializer
-    filterset_class = filters.SiteGroupFilterSet
+    filterset_class = filtersets.SiteGroupFilterSet
 
 
 #
@@ -138,7 +138,7 @@ class SiteViewSet(CustomFieldModelViewSet):
         virtualmachine_count=count_related(VirtualMachine, 'cluster__site')
     )
     serializer_class = serializers.SiteSerializer
-    filterset_class = filters.SiteFilterSet
+    filterset_class = filtersets.SiteFilterSet
 
 
 #
@@ -160,7 +160,7 @@ class LocationViewSet(CustomFieldModelViewSet):
         cumulative=True
     ).prefetch_related('site')
     serializer_class = serializers.LocationSerializer
-    filterset_class = filters.LocationFilterSet
+    filterset_class = filtersets.LocationFilterSet
 
 
 #
@@ -172,7 +172,7 @@ class RackRoleViewSet(CustomFieldModelViewSet):
         rack_count=count_related(Rack, 'role')
     )
     serializer_class = serializers.RackRoleSerializer
-    filterset_class = filters.RackRoleFilterSet
+    filterset_class = filtersets.RackRoleFilterSet
 
 
 #
@@ -187,7 +187,7 @@ class RackViewSet(CustomFieldModelViewSet):
         powerfeed_count=count_related(PowerFeed, 'rack')
     )
     serializer_class = serializers.RackSerializer
-    filterset_class = filters.RackFilterSet
+    filterset_class = filtersets.RackFilterSet
 
     @swagger_auto_schema(
         responses={200: serializers.RackUnitSerializer(many=True)},
@@ -244,7 +244,7 @@ class RackViewSet(CustomFieldModelViewSet):
 class RackReservationViewSet(ModelViewSet):
     queryset = RackReservation.objects.prefetch_related('rack', 'user', 'tenant')
     serializer_class = serializers.RackReservationSerializer
-    filterset_class = filters.RackReservationFilterSet
+    filterset_class = filtersets.RackReservationFilterSet
 
     # Assign user from request
     def perform_create(self, serializer):
@@ -262,7 +262,7 @@ class ManufacturerViewSet(CustomFieldModelViewSet):
         platform_count=count_related(Platform, 'manufacturer')
     )
     serializer_class = serializers.ManufacturerSerializer
-    filterset_class = filters.ManufacturerFilterSet
+    filterset_class = filtersets.ManufacturerFilterSet
 
 
 #
@@ -274,7 +274,7 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
         device_count=count_related(Device, 'device_type')
     )
     serializer_class = serializers.DeviceTypeSerializer
-    filterset_class = filters.DeviceTypeFilterSet
+    filterset_class = filtersets.DeviceTypeFilterSet
     brief_prefetch_fields = ['manufacturer']
 
 
@@ -285,49 +285,49 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
 class ConsolePortTemplateViewSet(ModelViewSet):
     queryset = ConsolePortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.ConsolePortTemplateSerializer
-    filterset_class = filters.ConsolePortTemplateFilterSet
+    filterset_class = filtersets.ConsolePortTemplateFilterSet
 
 
 class ConsoleServerPortTemplateViewSet(ModelViewSet):
     queryset = ConsoleServerPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.ConsoleServerPortTemplateSerializer
-    filterset_class = filters.ConsoleServerPortTemplateFilterSet
+    filterset_class = filtersets.ConsoleServerPortTemplateFilterSet
 
 
 class PowerPortTemplateViewSet(ModelViewSet):
     queryset = PowerPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.PowerPortTemplateSerializer
-    filterset_class = filters.PowerPortTemplateFilterSet
+    filterset_class = filtersets.PowerPortTemplateFilterSet
 
 
 class PowerOutletTemplateViewSet(ModelViewSet):
     queryset = PowerOutletTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.PowerOutletTemplateSerializer
-    filterset_class = filters.PowerOutletTemplateFilterSet
+    filterset_class = filtersets.PowerOutletTemplateFilterSet
 
 
 class InterfaceTemplateViewSet(ModelViewSet):
     queryset = InterfaceTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.InterfaceTemplateSerializer
-    filterset_class = filters.InterfaceTemplateFilterSet
+    filterset_class = filtersets.InterfaceTemplateFilterSet
 
 
 class FrontPortTemplateViewSet(ModelViewSet):
     queryset = FrontPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.FrontPortTemplateSerializer
-    filterset_class = filters.FrontPortTemplateFilterSet
+    filterset_class = filtersets.FrontPortTemplateFilterSet
 
 
 class RearPortTemplateViewSet(ModelViewSet):
     queryset = RearPortTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.RearPortTemplateSerializer
-    filterset_class = filters.RearPortTemplateFilterSet
+    filterset_class = filtersets.RearPortTemplateFilterSet
 
 
 class DeviceBayTemplateViewSet(ModelViewSet):
     queryset = DeviceBayTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.DeviceBayTemplateSerializer
-    filterset_class = filters.DeviceBayTemplateFilterSet
+    filterset_class = filtersets.DeviceBayTemplateFilterSet
 
 
 #
@@ -340,7 +340,7 @@ class DeviceRoleViewSet(CustomFieldModelViewSet):
         virtualmachine_count=count_related(VirtualMachine, 'role')
     )
     serializer_class = serializers.DeviceRoleSerializer
-    filterset_class = filters.DeviceRoleFilterSet
+    filterset_class = filtersets.DeviceRoleFilterSet
 
 
 #
@@ -353,7 +353,7 @@ class PlatformViewSet(CustomFieldModelViewSet):
         virtualmachine_count=count_related(VirtualMachine, 'platform')
     )
     serializer_class = serializers.PlatformSerializer
-    filterset_class = filters.PlatformFilterSet
+    filterset_class = filtersets.PlatformFilterSet
 
 
 #
@@ -365,7 +365,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
     )
-    filterset_class = filters.DeviceFilterSet
+    filterset_class = filtersets.DeviceFilterSet
 
     def get_serializer_class(self):
         """
@@ -510,7 +510,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
 class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.ConsolePortSerializer
-    filterset_class = filters.ConsolePortFilterSet
+    filterset_class = filtersets.ConsolePortFilterSet
     brief_prefetch_fields = ['device']
 
 
@@ -519,21 +519,21 @@ class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
         'device', '_path__destination', 'cable', '_cable_peer', 'tags'
     )
     serializer_class = serializers.ConsoleServerPortSerializer
-    filterset_class = filters.ConsoleServerPortFilterSet
+    filterset_class = filtersets.ConsoleServerPortFilterSet
     brief_prefetch_fields = ['device']
 
 
 class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerPortSerializer
-    filterset_class = filters.PowerPortFilterSet
+    filterset_class = filtersets.PowerPortFilterSet
     brief_prefetch_fields = ['device']
 
 
 class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
     queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerOutletSerializer
-    filterset_class = filters.PowerOutletFilterSet
+    filterset_class = filtersets.PowerOutletFilterSet
     brief_prefetch_fields = ['device']
 
 
@@ -542,35 +542,35 @@ class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
         'device', 'parent', 'lag', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
-    filterset_class = filters.InterfaceFilterSet
+    filterset_class = filtersets.InterfaceFilterSet
     brief_prefetch_fields = ['device']
 
 
 class FrontPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
     serializer_class = serializers.FrontPortSerializer
-    filterset_class = filters.FrontPortFilterSet
+    filterset_class = filtersets.FrontPortFilterSet
     brief_prefetch_fields = ['device']
 
 
 class RearPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
     serializer_class = serializers.RearPortSerializer
-    filterset_class = filters.RearPortFilterSet
+    filterset_class = filtersets.RearPortFilterSet
     brief_prefetch_fields = ['device']
 
 
 class DeviceBayViewSet(ModelViewSet):
     queryset = DeviceBay.objects.prefetch_related('installed_device').prefetch_related('tags')
     serializer_class = serializers.DeviceBaySerializer
-    filterset_class = filters.DeviceBayFilterSet
+    filterset_class = filtersets.DeviceBayFilterSet
     brief_prefetch_fields = ['device']
 
 
 class InventoryItemViewSet(ModelViewSet):
     queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer').prefetch_related('tags')
     serializer_class = serializers.InventoryItemSerializer
-    filterset_class = filters.InventoryItemFilterSet
+    filterset_class = filtersets.InventoryItemFilterSet
     brief_prefetch_fields = ['device']
 
 
@@ -583,7 +583,7 @@ class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
         _path__destination_id__isnull=False
     )
     serializer_class = serializers.ConsolePortSerializer
-    filterset_class = filters.ConsoleConnectionFilterSet
+    filterset_class = filtersets.ConsoleConnectionFilterSet
 
 
 class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
@@ -591,7 +591,7 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
         _path__destination_id__isnull=False
     )
     serializer_class = serializers.PowerPortSerializer
-    filterset_class = filters.PowerConnectionFilterSet
+    filterset_class = filtersets.PowerConnectionFilterSet
 
 
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
@@ -603,7 +603,7 @@ class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
         pk__lt=F('_path__destination_id')
     )
     serializer_class = serializers.InterfaceConnectionSerializer
-    filterset_class = filters.InterfaceConnectionFilterSet
+    filterset_class = filtersets.InterfaceConnectionFilterSet
 
 
 #
@@ -616,7 +616,7 @@ class CableViewSet(ModelViewSet):
         'termination_a', 'termination_b'
     )
     serializer_class = serializers.CableSerializer
-    filterset_class = filters.CableFilterSet
+    filterset_class = filtersets.CableFilterSet
 
 
 #
@@ -628,7 +628,7 @@ class VirtualChassisViewSet(ModelViewSet):
         member_count=count_related(Device, 'virtual_chassis')
     )
     serializer_class = serializers.VirtualChassisSerializer
-    filterset_class = filters.VirtualChassisFilterSet
+    filterset_class = filtersets.VirtualChassisFilterSet
     brief_prefetch_fields = ['master']
 
 
@@ -643,7 +643,7 @@ class PowerPanelViewSet(ModelViewSet):
         powerfeed_count=count_related(PowerFeed, 'power_panel')
     )
     serializer_class = serializers.PowerPanelSerializer
-    filterset_class = filters.PowerPanelFilterSet
+    filterset_class = filtersets.PowerPanelFilterSet
 
 
 #
@@ -655,7 +655,7 @@ class PowerFeedViewSet(PathEndpointMixin, CustomFieldModelViewSet):
         'power_panel', 'rack', '_path__destination', 'cable', '_cable_peer', 'tags'
     )
     serializer_class = serializers.PowerFeedSerializer
-    filterset_class = filters.PowerFeedFilterSet
+    filterset_class = filtersets.PowerFeedFilterSet
 
 
 #

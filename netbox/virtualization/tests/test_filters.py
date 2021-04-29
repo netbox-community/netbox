@@ -4,7 +4,7 @@ from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.choices import *
-from virtualization.filters import *
+from virtualization.filtersets import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 

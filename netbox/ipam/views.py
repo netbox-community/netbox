@@ -7,7 +7,7 @@ from netbox.views import generic
 from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
-from . import filters, forms, tables
+from . import filtersets, forms, tables
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from .utils import add_available_ipaddresses, add_available_prefixes, add_available_vlans
@@ -19,7 +19,7 @@ from .utils import add_available_ipaddresses, add_available_prefixes, add_availa
 
 class VRFListView(generic.ObjectListView):
     queryset = VRF.objects.all()
-    filterset = filters.VRFFilterSet
+    filterset = filtersets.VRFFilterSet
     filterset_form = forms.VRFFilterForm
     table = tables.VRFTable
 
@@ -65,14 +65,14 @@ class VRFBulkImportView(generic.BulkImportView):
 
 class VRFBulkEditView(generic.BulkEditView):
     queryset = VRF.objects.prefetch_related('tenant')
-    filterset = filters.VRFFilterSet
+    filterset = filtersets.VRFFilterSet
     table = tables.VRFTable
     form = forms.VRFBulkEditForm
 
 
 class VRFBulkDeleteView(generic.BulkDeleteView):
     queryset = VRF.objects.prefetch_related('tenant')
-    filterset = filters.VRFFilterSet
+    filterset = filtersets.VRFFilterSet
     table = tables.VRFTable
 
 
@@ -82,7 +82,7 @@ class VRFBulkDeleteView(generic.BulkDeleteView):
 
 class RouteTargetListView(generic.ObjectListView):
     queryset = RouteTarget.objects.all()
-    filterset = filters.RouteTargetFilterSet
+    filterset = filtersets.RouteTargetFilterSet
     filterset_form = forms.RouteTargetFilterForm
     table = tables.RouteTargetTable
 
@@ -123,14 +123,14 @@ class RouteTargetBulkImportView(generic.BulkImportView):
 
 class RouteTargetBulkEditView(generic.BulkEditView):
     queryset = RouteTarget.objects.prefetch_related('tenant')
-    filterset = filters.RouteTargetFilterSet
+    filterset = filtersets.RouteTargetFilterSet
     table = tables.RouteTargetTable
     form = forms.RouteTargetBulkEditForm
 
 
 class RouteTargetBulkDeleteView(generic.BulkDeleteView):
     queryset = RouteTarget.objects.prefetch_related('tenant')
-    filterset = filters.RouteTargetFilterSet
+    filterset = filtersets.RouteTargetFilterSet
     table = tables.RouteTargetTable
 
 
@@ -142,7 +142,7 @@ class RIRListView(generic.ObjectListView):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
     )
-    filterset = filters.RIRFilterSet
+    filterset = filtersets.RIRFilterSet
     filterset_form = forms.RIRFilterForm
     table = tables.RIRTable
     template_name = 'ipam/rir_list.html'
@@ -184,7 +184,7 @@ class RIRBulkEditView(generic.BulkEditView):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
     )
-    filterset = filters.RIRFilterSet
+    filterset = filtersets.RIRFilterSet
     table = tables.RIRTable
     form = forms.RIRBulkEditForm
 
@@ -193,7 +193,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
     )
-    filterset = filters.RIRFilterSet
+    filterset = filtersets.RIRFilterSet
     table = tables.RIRTable
 
 
@@ -205,7 +205,7 @@ class AggregateListView(generic.ObjectListView):
     queryset = Aggregate.objects.annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
     )
-    filterset = filters.AggregateFilterSet
+    filterset = filtersets.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
     template_name = 'ipam/aggregate_list.html'
@@ -280,14 +280,14 @@ class AggregateBulkImportView(generic.BulkImportView):
 
 class AggregateBulkEditView(generic.BulkEditView):
     queryset = Aggregate.objects.prefetch_related('rir')
-    filterset = filters.AggregateFilterSet
+    filterset = filtersets.AggregateFilterSet
     table = tables.AggregateTable
     form = forms.AggregateBulkEditForm
 
 
 class AggregateBulkDeleteView(generic.BulkDeleteView):
     queryset = Aggregate.objects.prefetch_related('rir')
-    filterset = filters.AggregateFilterSet
+    filterset = filtersets.AggregateFilterSet
     table = tables.AggregateTable
 
 
@@ -337,7 +337,7 @@ class RoleBulkImportView(generic.BulkImportView):
 
 class RoleBulkEditView(generic.BulkEditView):
     queryset = Role.objects.all()
-    filterset = filters.RoleFilterSet
+    filterset = filtersets.RoleFilterSet
     table = tables.RoleTable
     form = forms.RoleBulkEditForm
 
@@ -353,7 +353,7 @@ class RoleBulkDeleteView(generic.BulkDeleteView):
 
 class PrefixListView(generic.ObjectListView):
     queryset = Prefix.objects.annotate_tree()
-    filterset = filters.PrefixFilterSet
+    filterset = filtersets.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable
     template_name = 'ipam/prefix_list.html'
@@ -493,14 +493,14 @@ class PrefixBulkImportView(generic.BulkImportView):
 
 class PrefixBulkEditView(generic.BulkEditView):
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
-    filterset = filters.PrefixFilterSet
+    filterset = filtersets.PrefixFilterSet
     table = tables.PrefixTable
     form = forms.PrefixBulkEditForm
 
 
 class PrefixBulkDeleteView(generic.BulkDeleteView):
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
-    filterset = filters.PrefixFilterSet
+    filterset = filtersets.PrefixFilterSet
     table = tables.PrefixTable
 
 
@@ -510,7 +510,7 @@ class PrefixBulkDeleteView(generic.BulkDeleteView):
 
 class IPAddressListView(generic.ObjectListView):
     queryset = IPAddress.objects.all()
-    filterset = filters.IPAddressFilterSet
+    filterset = filtersets.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     table = tables.IPAddressDetailTable
 
@@ -613,7 +613,7 @@ class IPAddressAssignView(generic.ObjectView):
 
             addresses = self.queryset.prefetch_related('vrf', 'tenant')
             # Limit to 100 results
-            addresses = filters.IPAddressFilterSet(request.POST, addresses).qs[:100]
+            addresses = filtersets.IPAddressFilterSet(request.POST, addresses).qs[:100]
             table = tables.IPAddressAssignTable(addresses)
 
         return render(request, 'ipam/ipaddress_assign.html', {
@@ -643,14 +643,14 @@ class IPAddressBulkImportView(generic.BulkImportView):
 
 class IPAddressBulkEditView(generic.BulkEditView):
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
-    filterset = filters.IPAddressFilterSet
+    filterset = filtersets.IPAddressFilterSet
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
 
 
 class IPAddressBulkDeleteView(generic.BulkDeleteView):
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
-    filterset = filters.IPAddressFilterSet
+    filterset = filtersets.IPAddressFilterSet
     table = tables.IPAddressTable
 
 
@@ -662,7 +662,7 @@ class VLANGroupListView(generic.ObjectListView):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
-    filterset = filters.VLANGroupFilterSet
+    filterset = filtersets.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
 
@@ -718,7 +718,7 @@ class VLANGroupBulkEditView(generic.BulkEditView):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
-    filterset = filters.VLANGroupFilterSet
+    filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
     form = forms.VLANGroupBulkEditForm
 
@@ -727,7 +727,7 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
     )
-    filterset = filters.VLANGroupFilterSet
+    filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
 
 
@@ -737,7 +737,7 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
 
 class VLANListView(generic.ObjectListView):
     queryset = VLAN.objects.all()
-    filterset = filters.VLANFilterSet
+    filterset = filtersets.VLANFilterSet
     filterset_form = forms.VLANFilterForm
     table = tables.VLANDetailTable
 
@@ -805,14 +805,14 @@ class VLANBulkImportView(generic.BulkImportView):
 
 class VLANBulkEditView(generic.BulkEditView):
     queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role')
-    filterset = filters.VLANFilterSet
+    filterset = filtersets.VLANFilterSet
     table = tables.VLANTable
     form = forms.VLANBulkEditForm
 
 
 class VLANBulkDeleteView(generic.BulkDeleteView):
     queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role')
-    filterset = filters.VLANFilterSet
+    filterset = filtersets.VLANFilterSet
     table = tables.VLANTable
 
 
@@ -822,7 +822,7 @@ class VLANBulkDeleteView(generic.BulkDeleteView):
 
 class ServiceListView(generic.ObjectListView):
     queryset = Service.objects.all()
-    filterset = filters.ServiceFilterSet
+    filterset = filtersets.ServiceFilterSet
     filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable
     action_buttons = ('import', 'export')
@@ -863,12 +863,12 @@ class ServiceDeleteView(generic.ObjectDeleteView):
 
 class ServiceBulkEditView(generic.BulkEditView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
-    filterset = filters.ServiceFilterSet
+    filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
     form = forms.ServiceBulkEditForm
 
 
 class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
-    filterset = filters.ServiceFilterSet
+    filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable

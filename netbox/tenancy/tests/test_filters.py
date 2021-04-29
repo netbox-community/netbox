@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from tenancy.filters import *
+from tenancy.filtersets import *
 from tenancy.models import Tenant, TenantGroup
 
 

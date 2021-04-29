@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Rack, Region, Site, SiteGroup
 from ipam.choices import *
-from ipam.filters import *
+from ipam.filtersets import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup

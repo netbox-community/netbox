@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from secrets.filters import *
+from secrets.filtersets import *
 from secrets.models import Secret, SecretRole
 from virtualization.models import Cluster, ClusterType, VirtualMachine
 

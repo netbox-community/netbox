@@ -2,12 +2,11 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
-from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilterSet
-from tenancy.filters import TenancyFilterSet
-from utilities.filters import (
-    BaseFilterSet, MultiValueMACAddressFilter, NameSlugSearchFilterSet, TagFilter,
-    TreeNodeMultipleChoiceFilter,
-)
+from extras.filters import TagFilter
+from extras.filtersets import LocalConfigContextFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from tenancy.filtersets import TenancyFilterSet
+from utilities.filters import MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -20,21 +19,21 @@ __all__ = (
 )
 
 
-class ClusterTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class ClusterTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ClusterType
         fields = ['id', 'name', 'slug', 'description']
 
 
-class ClusterGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class ClusterGroupFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ClusterGroup
         fields = ['id', 'name', 'slug', 'description']
 
 
-class ClusterFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -110,13 +109,7 @@ class ClusterFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSe
         )
 
 
-class VirtualMachineFilterSet(
-    BaseFilterSet,
-    LocalConfigContextFilterSet,
-    TenancyFilterSet,
-    CustomFieldModelFilterSet,
-    CreatedUpdatedFilterSet
-):
+class VirtualMachineFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -237,7 +230,7 @@ class VirtualMachineFilterSet(
         return queryset.exclude(params)
 
 
-class VMInterfaceFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class VMInterfaceFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

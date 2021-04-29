@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import JournalEntryKindChoices, ObjectChangeActionChoices
-from extras.filters import *
+from extras.filtersets import *
 from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
