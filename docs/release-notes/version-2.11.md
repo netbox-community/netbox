@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#6308](https://github.com/netbox-community/netbox/issues/6308) - Fix linking of available VLANs in VLAN group view
+* [#6309](https://github.com/netbox-community/netbox/issues/6309) - Restrict parent VM interface assignment to the parent VM
 
 ---
 
