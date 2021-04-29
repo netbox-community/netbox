@@ -7,7 +7,7 @@ from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.tables import paginate_table
 from utilities.utils import count_related
-from . import filters, forms, tables
+from . import filtersets, forms, tables
 from .choices import CircuitTerminationSideChoices
 from .models import *
 
@@ -20,7 +20,7 @@ class ProviderListView(generic.ObjectListView):
     queryset = Provider.objects.annotate(
         count_circuits=count_related(Circuit, 'provider')
     )
-    filterset = filters.ProviderFilterSet
+    filterset = filtersets.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
     table = tables.ProviderTable
 
@@ -63,7 +63,7 @@ class ProviderBulkEditView(generic.BulkEditView):
     queryset = Provider.objects.annotate(
         count_circuits=count_related(Circuit, 'provider')
     )
-    filterset = filters.ProviderFilterSet
+    filterset = filtersets.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
 
@@ -72,7 +72,7 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
     queryset = Provider.objects.annotate(
         count_circuits=count_related(Circuit, 'provider')
     )
-    filterset = filters.ProviderFilterSet
+    filterset = filtersets.ProviderFilterSet
     table = tables.ProviderTable
 
 
@@ -82,7 +82,7 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 
 class ProviderNetworkListView(generic.ObjectListView):
     queryset = ProviderNetwork.objects.all()
-    filterset = filters.ProviderNetworkFilterSet
+    filterset = filtersets.ProviderNetworkFilterSet
     filterset_form = forms.ProviderNetworkFilterForm
     table = tables.ProviderNetworkTable
 
@@ -125,14 +125,14 @@ class ProviderNetworkBulkImportView(generic.BulkImportView):
 
 class ProviderNetworkBulkEditView(generic.BulkEditView):
     queryset = ProviderNetwork.objects.all()
-    filterset = filters.ProviderNetworkFilterSet
+    filterset = filtersets.ProviderNetworkFilterSet
     table = tables.ProviderNetworkTable
     form = forms.ProviderNetworkBulkEditForm
 
 
 class ProviderNetworkBulkDeleteView(generic.BulkDeleteView):
     queryset = ProviderNetwork.objects.all()
-    filterset = filters.ProviderNetworkFilterSet
+    filterset = filtersets.ProviderNetworkFilterSet
     table = tables.ProviderNetworkTable
 
 
@@ -183,7 +183,7 @@ class CircuitTypeBulkEditView(generic.BulkEditView):
     queryset = CircuitType.objects.annotate(
         circuit_count=count_related(Circuit, 'type')
     )
-    filterset = filters.CircuitTypeFilterSet
+    filterset = filtersets.CircuitTypeFilterSet
     table = tables.CircuitTypeTable
     form = forms.CircuitTypeBulkEditForm
 
@@ -203,7 +203,7 @@ class CircuitListView(generic.ObjectListView):
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'termination_a', 'termination_z'
     )
-    filterset = filters.CircuitFilterSet
+    filterset = filtersets.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
     table = tables.CircuitTable
 
@@ -252,7 +252,7 @@ class CircuitBulkEditView(generic.BulkEditView):
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'terminations'
     )
-    filterset = filters.CircuitFilterSet
+    filterset = filtersets.CircuitFilterSet
     table = tables.CircuitTable
     form = forms.CircuitBulkEditForm
 
@@ -261,7 +261,7 @@ class CircuitBulkDeleteView(generic.BulkDeleteView):
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'terminations'
     )
-    filterset = filters.CircuitFilterSet
+    filterset = filtersets.CircuitFilterSet
     table = tables.CircuitTable
 
 

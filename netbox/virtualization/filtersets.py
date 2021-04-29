@@ -4,7 +4,7 @@ from django.db.models import Q
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
-from tenancy.filters import TenancyFilterSet
+from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from utilities.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from .choices import *

@@ -7,7 +7,7 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.fields import MACAddressField
-from dcim.filters import DeviceFilterSet, SiteFilterSet
+from dcim.filtersets import DeviceFilterSet, SiteFilterSet
 from dcim.models import (
     Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
 )

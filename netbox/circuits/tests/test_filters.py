@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from circuits.choices import *
-from circuits.filters import *
+from circuits.filtersets import *
 from circuits.models import *
 from dcim.models import Cable, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup

@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from users.filters import GroupFilterSet, ObjectPermissionFilterSet, UserFilterSet
+from users.filtersets import GroupFilterSet, ObjectPermissionFilterSet, UserFilterSet
 from users.models import ObjectPermission
 
 

@@ -1,10 +1,10 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.filters import CableTerminationFilterSet
+from dcim.filtersets import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
 from extras.filters import TagFilter
-from tenancy.filters import TenancyFilterSet
+from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from utilities.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from .choices import *

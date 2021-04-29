@@ -6,6 +6,7 @@ from .choices import *
 
 __all__ = (
     'CustomFieldFilter',
+    'TagFilter',
 )
 
 EXACT_FILTER_TYPES = (
