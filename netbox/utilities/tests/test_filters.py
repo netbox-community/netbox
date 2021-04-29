@@ -13,11 +13,11 @@ from dcim.models import (
 )
 from extras.filters import TagFilter
 from extras.models import TaggedItem
+from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
     MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueNumberFilter,
     MultiValueTimeFilter, TreeNodeMultipleChoiceFilter,
 )
-from utilities.filtersets import BaseFilterSet
 
 
 class TreeNodeMultipleChoiceFilterTest(TestCase):

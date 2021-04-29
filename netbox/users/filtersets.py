@@ -2,8 +2,8 @@ import django_filters
 from django.contrib.auth.models import Group, User
 from django.db.models import Q
 
+from netbox.filtersets import BaseFilterSet
 from users.models import ObjectPermission
-from utilities.filtersets import BaseFilterSet
 
 __all__ = (
     'GroupFilterSet',

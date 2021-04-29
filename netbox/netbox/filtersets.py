@@ -29,7 +29,7 @@ __all__ = (
 
 class BaseFilterSet(django_filters.FilterSet):
     """
-    A base filterset which provides common functionaly to all NetBox filtersets
+    A base FilterSet which provides common functionality to all NetBox FilterSets
     """
     FILTER_DEFAULTS = deepcopy(django_filters.filterset.FILTER_FOR_DBFIELD_DEFAULTS)
     FILTER_DEFAULTS.update({

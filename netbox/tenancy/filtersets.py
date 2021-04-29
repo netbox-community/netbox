@@ -2,8 +2,8 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import TagFilter
+from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
-from utilities.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from .models import Tenant, TenantGroup
 
 

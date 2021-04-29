@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from dcim.models import Device
 from extras.filters import TagFilter
-from utilities.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from virtualization.models import VirtualMachine
 from .models import Secret, SecretRole
 

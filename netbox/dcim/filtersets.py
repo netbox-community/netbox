@@ -3,14 +3,14 @@ from django.contrib.auth.models import User
 
 from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
+from netbox.filtersets import (
+    BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
+)
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
     MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
-)
-from utilities.filtersets import (
-    BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
 from virtualization.models import Cluster
 from .choices import *

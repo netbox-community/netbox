@@ -4,9 +4,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
+from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import ContentTypeFilter
-from utilities.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import *
