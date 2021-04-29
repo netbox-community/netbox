@@ -1,12 +1,13 @@
 import django_filters
 from django.contrib.auth.models import User
 
+from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
 from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,

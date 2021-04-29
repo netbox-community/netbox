@@ -11,10 +11,11 @@ from dcim.filters import DeviceFilterSet, SiteFilterSet
 from dcim.models import (
     Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
 )
+from extras.filters import TagFilter
 from extras.models import TaggedItem
 from utilities.filters import (
     MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueNumberFilter,
-    MultiValueTimeFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueTimeFilter, TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import BaseFilterSet
 

@@ -6,7 +6,7 @@ from django_filters.utils import get_model_field, resolve_field
 
 from dcim.forms import MACAddressField
 from extras.choices import CustomFieldFilterLogicChoices
-from extras.filters import CustomFieldFilter
+from extras.filters import CustomFieldFilter, TagFilter
 from extras.models import CustomField
 from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
@@ -100,7 +100,7 @@ class BaseFilterSet(django_filters.FilterSet):
         elif isinstance(existing_filter, (
             django_filters.ModelChoiceFilter,
             django_filters.ModelMultipleChoiceFilter,
-            filters.TagFilter
+            TagFilter
         )) or existing_filter.extra.get('choices'):
             # These filter types support only negation
             lookup_map = FILTER_NEGATION_LOOKUP_MAP

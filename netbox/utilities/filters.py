@@ -4,7 +4,6 @@ from django.conf import settings
 from django_filters.constants import EMPTY_VALUES
 
 from dcim.forms import MACAddressField
-from extras.models import Tag
 
 
 def multivalue_field_factory(field_class):
@@ -82,21 +81,6 @@ class NullableCharFieldFilter(django_filters.CharFilter):
             return super().filter(qs, value)
         qs = self.get_method(qs)(**{'{}__isnull'.format(self.field_name): True})
         return qs.distinct() if self.distinct else qs
-
-
-class TagFilter(django_filters.ModelMultipleChoiceFilter):
-    """
-    Match on one or more assigned tags. If multiple tags are specified (e.g. ?tag=foo&tag=bar), the queryset is filtered
-    to objects matching all tags.
-    """
-    def __init__(self, *args, **kwargs):
-
-        kwargs.setdefault('field_name', 'tags__slug')
-        kwargs.setdefault('to_field_name', 'slug')
-        kwargs.setdefault('conjoined', True)
-        kwargs.setdefault('queryset', Tag.objects.all())
-
-        super().__init__(*args, **kwargs)
 
 
 class NumericArrayFilter(django_filters.NumberFilter):

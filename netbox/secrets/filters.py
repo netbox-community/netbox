@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import Device
-from utilities.filters import TagFilter
+from extras.filters import TagFilter
 from utilities.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from virtualization.models import VirtualMachine
 from .models import Secret, SecretRole

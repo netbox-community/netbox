@@ -1,7 +1,8 @@
 import django_filters
 from django.db.models import Q
 
-from utilities.filters import TagFilter, TreeNodeMultipleChoiceFilter
+from extras.filters import TagFilter
+from utilities.filters import TreeNodeMultipleChoiceFilter
 from utilities.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from .models import Tenant, TenantGroup
 

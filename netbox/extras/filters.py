@@ -1,6 +1,7 @@
 import django_filters
 from django.forms import DateField, IntegerField, NullBooleanField
 
+from .models import Tag
 from .choices import *
 
 __all__ = (
@@ -36,3 +37,18 @@ class CustomFieldFilter(django_filters.Filter):
         if custom_field.type not in EXACT_FILTER_TYPES:
             if custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
                 self.lookup_expr = 'icontains'
+
+
+class TagFilter(django_filters.ModelMultipleChoiceFilter):
+    """
+    Match on one or more assigned tags. If multiple tags are specified (e.g. ?tag=foo&tag=bar), the queryset is filtered
+    to objects matching all tags.
+    """
+    def __init__(self, *args, **kwargs):
+
+        kwargs.setdefault('field_name', 'tags__slug')
+        kwargs.setdefault('to_field_name', 'slug')
+        kwargs.setdefault('conjoined', True)
+        kwargs.setdefault('queryset', Tag.objects.all())
+
+        super().__init__(*args, **kwargs)
