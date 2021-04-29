@@ -6,6 +6,10 @@
 
 * [#6197](https://github.com/netbox-community/netbox/issues/6197) - Introduced `SESSION_COOKIE_NAME` config parameter
 
+### Bug Fixes
+
+* [#6308](https://github.com/netbox-community/netbox/issues/6308) - Fix linking of available VLANs in VLAN group view
+
 ---
 
 ## v2.11.2 (2021-04-27)

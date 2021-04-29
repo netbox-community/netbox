@@ -684,9 +684,17 @@ class VLANGroupView(generic.ObjectView):
         vlans_table.columns.hide('group')
         paginate_table(vlans_table, request)
 
+        # Compile permissions list for rendering the object table
+        permissions = {
+            'add': request.user.has_perm('ipam.add_vlan'),
+            'change': request.user.has_perm('ipam.change_vlan'),
+            'delete': request.user.has_perm('ipam.delete_vlan'),
+        }
+
         return {
             'vlans_count': vlans_count,
             'vlans_table': vlans_table,
+            'permissions': permissions,
         }
 
 
