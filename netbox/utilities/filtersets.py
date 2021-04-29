@@ -1,14 +1,26 @@
 import django_filters
 from copy import deepcopy
-from dcim.forms import MACAddressField
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django_filters.utils import get_model_field, resolve_field
 
+from dcim.forms import MACAddressField
+from extras.choices import CustomFieldFilterLogicChoices
+from extras.filters import CustomFieldFilter
+from extras.models import CustomField
 from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP
 )
 from utilities import filters
+
+
+__all__ = (
+    'BaseFilterSet',
+    'ChangeLoggedModelFilterSet',
+    'OrganizationalModelFilterSet',
+    'PrimaryModelFilterSet',
+)
 
 
 #
@@ -172,7 +184,43 @@ class BaseFilterSet(django_filters.FilterSet):
         return filters
 
 
-class NameSlugSearchFilterSet(django_filters.FilterSet):
+class ChangeLoggedModelFilterSet(BaseFilterSet):
+    created = django_filters.DateFilter()
+    created__gte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='gte'
+    )
+    created__lte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='lte'
+    )
+    last_updated = django_filters.DateTimeFilter()
+    last_updated__gte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='gte'
+    )
+    last_updated__lte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='lte'
+    )
+
+
+class PrimaryModelFilterSet(ChangeLoggedModelFilterSet):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Dynamically add a Filter for each CustomField applicable to the parent model
+        custom_fields = CustomField.objects.filter(
+            content_types=ContentType.objects.get_for_model(self._meta.model)
+        ).exclude(
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+        )
+        for cf in custom_fields:
+            self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
+
+
+class OrganizationalModelFilterSet(PrimaryModelFilterSet):
     """
     A base class for adding the search method to models which only expose the `name` and `slug` fields
     """

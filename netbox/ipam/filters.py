@@ -6,13 +6,12 @@ from django.db.models import Q
 from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site, SiteGroup
-from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TagFilter,
     TreeNodeMultipleChoiceFilter,
 )
-from utilities.filtersets import BaseFilterSet, NameSlugSearchFilterSet
+from utilities.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
@@ -32,7 +31,7 @@ __all__ = (
 )
 
 
-class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -75,7 +74,7 @@ class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, C
         fields = ['id', 'name', 'rd', 'enforce_unique']
 
 
-class RouteTargetFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -117,14 +116,14 @@ class RouteTargetFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilt
         fields = ['id', 'name']
 
 
-class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class RIRFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = RIR
         fields = ['id', 'name', 'slug', 'is_private', 'description']
 
 
-class AggregateFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -174,7 +173,7 @@ class AggregateFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilter
             return queryset.none()
 
 
-class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class RoleFilterSet(OrganizationalModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -185,7 +184,7 @@ class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilter
         fields = ['id', 'name', 'slug']
 
 
-class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -370,7 +369,7 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet
         )
 
 
-class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -536,7 +535,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilter
         return queryset.exclude(assigned_object_id__isnull=value)
 
 
-class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class VLANGroupFilterSet(OrganizationalModelFilterSet):
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'
@@ -571,7 +570,7 @@ class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedF
         )
 
 
-class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -667,7 +666,7 @@ class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         return queryset.get_for_virtualmachine(value)
 
 
-class ServiceFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
+class ServiceFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

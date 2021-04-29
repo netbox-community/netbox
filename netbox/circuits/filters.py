@@ -3,10 +3,9 @@ from django.db.models import Q
 
 from dcim.filters import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
-from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import TagFilter, TreeNodeMultipleChoiceFilter
-from utilities.filtersets import BaseFilterSet, NameSlugSearchFilterSet
+from utilities.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from .choices import *
 from .models import *
 
@@ -19,7 +18,7 @@ __all__ = (
 )
 
 
-class ProviderFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class ProviderFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -79,7 +78,7 @@ class ProviderFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdated
         )
 
 
-class ProviderNetworkFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class ProviderNetworkFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -109,14 +108,14 @@ class ProviderNetworkFilterSet(BaseFilterSet, CustomFieldModelFilterSet, Created
         ).distinct()
 
 
-class CircuitTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = CircuitType
         fields = ['id', 'name', 'slug']
 
 
-class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSet, CreatedUpdatedFilterSet):
+class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -206,7 +205,7 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldModelFilterSet, TenancyFilterSe
         ).distinct()
 
 
-class CircuitTerminationFilterSet(BaseFilterSet, CreatedUpdatedFilterSet, CableTerminationFilterSet):
+class CircuitTerminationFilterSet(ChangeLoggedModelFilterSet, CableTerminationFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
