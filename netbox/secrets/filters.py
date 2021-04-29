@@ -3,7 +3,8 @@ from django.db.models import Q
 
 from dcim.models import Device
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
-from utilities.filters import BaseFilterSet, NameSlugSearchFilterSet, TagFilter
+from utilities.filters import TagFilter
+from utilities.filtersets import BaseFilterSet, NameSlugSearchFilterSet
 from virtualization.models import VirtualMachine
 from .models import Secret, SecretRole
 

@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, User
 from django.db.models import Q
 
 from users.models import ObjectPermission
-from utilities.filters import BaseFilterSet
+from utilities.filtersets import BaseFilterSet
 
 __all__ = (
     'GroupFilterSet',

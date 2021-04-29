@@ -5,9 +5,8 @@ from dcim.filters import CableTerminationFilterSet
 from dcim.models import Region, Site, SiteGroup
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
-from utilities.filters import (
-    BaseFilterSet, NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter
-)
+from utilities.filters import TagFilter, TreeNodeMultipleChoiceFilter
+from utilities.filtersets import BaseFilterSet, NameSlugSearchFilterSet
 from .choices import *
 from .models import *
 

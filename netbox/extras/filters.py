@@ -6,7 +6,8 @@ from django.forms import DateField, IntegerField, NullBooleanField
 
 from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
-from utilities.filters import BaseFilterSet, ContentTypeFilter
+from utilities.filtersets import BaseFilterSet
+from utilities.filters import ContentTypeFilter
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import *

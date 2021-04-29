@@ -6,9 +6,9 @@ from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
-    BaseFilterSet, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
-    NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import BaseFilterSet, NameSlugSearchFilterSet
 from virtualization.models import Cluster
 from .choices import *
 from .constants import *

@@ -9,9 +9,10 @@ from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import CustomFieldModelFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    BaseFilterSet, ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet,
-    NumericArrayFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TagFilter,
+    TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import BaseFilterSet, NameSlugSearchFilterSet
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF

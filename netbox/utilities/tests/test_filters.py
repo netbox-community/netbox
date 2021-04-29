@@ -13,9 +13,10 @@ from dcim.models import (
 )
 from extras.models import TaggedItem
 from utilities.filters import (
-    BaseFilterSet, MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter,
-    MultiValueNumberFilter, MultiValueTimeFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueNumberFilter,
+    MultiValueTimeFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import BaseFilterSet
 
 
 class TreeNodeMultipleChoiceFilterTest(TestCase):
