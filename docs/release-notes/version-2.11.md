@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.3 (FUTURE)
+
+### Enhancements
+
+* [#6197](https://github.com/netbox-community/netbox/issues/6197) - Introduced `SESSION_COOKIE_NAME` config parameter
+
+---
+
 ## v2.11.2 (2021-04-27)
 
 ### Enhancements
