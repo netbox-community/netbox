@@ -692,6 +692,8 @@ class ManufacturerView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         devicetypes = DeviceType.objects.restrict(request.user, 'view').filter(
             manufacturer=instance
+        ).annotate(
+            instance_count=count_related(Device, 'device_type')
         )
 
         devicetypes_table = tables.DeviceTypeTable(devicetypes)
