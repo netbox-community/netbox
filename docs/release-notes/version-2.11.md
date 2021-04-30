@@ -12,6 +12,7 @@
 * [#6308](https://github.com/netbox-community/netbox/issues/6308) - Fix linking of available VLANs in VLAN group view
 * [#6309](https://github.com/netbox-community/netbox/issues/6309) - Restrict parent VM interface assignment to the parent VM
 * [#6313](https://github.com/netbox-community/netbox/issues/6313) - Fix device type instance count under manufacturer view
+* [#6321](https://github.com/netbox-community/netbox/issues/6321) - Restore "add an IP" button under prefix IPs view
 
 ---
 
