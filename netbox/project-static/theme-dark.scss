@@ -47,11 +47,11 @@ $box-shadow: 0 0.5rem 1rem rgba($black, 0.15);
 $box-shadow-sm: 0 0.125rem 0.25rem rgba($black, 0.075);
 $box-shadow-lg: 0 1rem 3rem rgba($black, 0.175);
 $box-shadow-inset: inset 0 1px 2px rgba($black, 0.075);
-// $component-active-color:      $white;
-// $component-active-bg:         $primary;
 $text-muted: $gray-500;
 $blockquote-footer-color: $gray-600;
 $mark-bg: #fcf8e3;
+$link-color: $primary;
+$link-hover-color: $blue-200;
 
 // Tables
 $table-color: $gray-100;
