@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6197](https://github.com/netbox-community/netbox/issues/6197) - Introduced `SESSION_COOKIE_NAME` config parameter
+* [#6318](https://github.com/netbox-community/netbox/issues/6318) - Add OM5 MMF cable type
 
 ### Bug Fixes
 
