@@ -46,6 +46,11 @@
   transition: background-color, color 0.15s ease-in-out;
 }
 
+.text-xs {
+  font-size: $font-size-xs;
+  line-height: $line-height-sm;
+}
+
 body {
   background-color: var(--nbx-body-bg);
   color: var(--nbx-body-color);
@@ -90,6 +95,25 @@ body {
     g#netbox-logo-2 {
       fill: $gray-200;
       stroke: $gray-200;
+    }
+  }
+  table {
+    &.table > :not(caption) > * > * {
+      padding-left: $table-cell-padding-x-sm !important;
+      padding-right: $table-cell-padding-x-sm !important;
+    }
+    td,
+    th {
+      font-size: $font-size-xs;
+      line-height: $line-height-sm;
+      vertical-align: middle;
+    }
+    &.attr-table {
+      td,
+      th {
+        font-size: $font-size-sm;
+        line-height: $line-height-sm;
+      }
     }
   }
 }
@@ -498,10 +522,6 @@ table tbody {
       border-color: $gray-500;
     }
   }
-}
-table td,
-table th {
-  font-size: $font-size-sm;
 }
 
 // Cable Tracing
