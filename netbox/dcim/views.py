@@ -1,7 +1,10 @@
+import logging
+from copy import deepcopy
 from collections import OrderedDict
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import F, Prefetch
@@ -1907,6 +1910,73 @@ class InterfaceCreateView(generic.ComponentCreateView):
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
     template_name = 'dcim/device_component_add.html'
+
+    def post(self, request):
+        logger = logging.getLogger('netbox.dcim.views.InterfaceCreateView')
+        form = self.form(request.POST, initial=request.GET)
+
+        if form.is_valid():
+
+            new_components = []
+            data = deepcopy(request.POST)
+
+            names = form.cleaned_data['name_pattern']
+            labels = form.cleaned_data.get('label_pattern')
+            for i, name in enumerate(names):
+                label = labels[i] if labels else None
+                # Initialize the individual component form
+                data['name'] = name
+                data['label'] = label
+                if hasattr(form, 'get_iterative_data'):
+                    data.update(form.get_iterative_data(i))
+                component_form = self.model_form(data)
+
+                if component_form.is_valid():
+                    new_components.append(component_form)
+                else:
+                    for field, errors in component_form.errors.as_data().items():
+                        # Assign errors on the child form's name/label field to name_pattern/label_pattern on the parent form
+                        if field == 'name':
+                            field = 'name_pattern'
+                        elif field == 'label':
+                            field = 'label_pattern'
+                        for e in errors:
+                            form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
+
+            if not form.errors:
+                try:
+                    # Create the new components
+                    new_objs = []
+                    with transaction.atomic():
+                        for component_form in new_components:
+                            obj = component_form.save()
+                            new_objs.append(obj)
+
+                        # Enforce object-level permissions
+                        if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                            raise ObjectDoesNotExist
+
+                    messages.success(request, "Added {} {}".format(
+                        len(new_components), self.queryset.model._meta.verbose_name_plural
+                    ))
+                    if '_addanother' in request.POST:
+                        return redirect(request.get_full_path())
+                    elif '_assignip' in request.POST and len(new_objs) >= 1 and request.user.has_perm('ipam.add_ipaddress'):
+                        first_obj = new_objs[0].pk
+                        return redirect(f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}')
+                    else:
+                        return redirect(self.get_return_url(request))
+
+                except ObjectDoesNotExist:
+                    msg = "Component creation failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
+
+        return render(request, self.template_name, {
+            'component_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request),
+        })
 
 
 class InterfaceEditView(generic.ObjectEditView):
