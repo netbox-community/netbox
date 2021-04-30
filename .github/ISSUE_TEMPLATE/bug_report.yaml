@@ -5,7 +5,7 @@ labels: ["type: bug"]
 body:
   - type: markdown
     attributes:
-      value: |
+      value: >
         **NOTE:** This form is only for reporting _reproducible bugs_ in a current NetBox
         installation. If you're having trouble with installation or just looking for
         assistance with using NetBox, please visit our
@@ -13,7 +13,7 @@ body:
   - type: input
     attributes:
       label: NetBox version
-      description: |
+      description: >
         What version of NetBox are you currently running? (If you don't have access to the most
         recent NetBox release, consider testing on our [demo instance](https://demo.netbox.dev/)
         before opening a bug report to see if your issue has already been addressed.)
@@ -23,7 +23,7 @@ body:
   - type: dropdown
     attributes:
       label: Python version
-      description: "What version of Python are you currently running?"
+      description: What version of Python are you currently running?
       options:
         - 3.6
         - 3.7
@@ -34,7 +34,7 @@ body:
   - type: textarea
     attributes:
       label: Steps to Reproduce
-      description: |
+      description: >
         Describe in detail the exact steps that someone else can take to
         reproduce this bug using the current stable release of NetBox. Begin with the
         creation of any necessary database objects and call out every operation being
@@ -50,14 +50,14 @@ body:
   - type: textarea
     attributes:
       label: Expected Behavior
-      description: "What did you expect to happen?"
-      placeholder: "A new widget should have been created with the specified attributes"
+      description: What did you expect to happen?
+      placeholder: A new widget should have been created with the specified attributes
     validations:
       required: true
   - type: textarea
     attributes:
       label: Observed Behavior
-      description: "What happened instead?"
-      placeholder: "A TypeError exception was raised"
+      description: What happened instead?
+      placeholder: A TypeError exception was raised
     validations:
       required: true
