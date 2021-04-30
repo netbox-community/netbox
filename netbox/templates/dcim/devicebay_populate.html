@@ -7,7 +7,7 @@
 <form action="." method="post">
     {% csrf_token %}
     <div class="row mb-3">
-        <div class="col-md-6 col-md-offset-3">
+        <div class="col col-md-6 offset-md-3">
             <div class="card">
                 <div class="card-header">{% block title %}Populate {{ device_bay }}{% endblock %}</div>
                 <div class="card-body">
@@ -25,7 +25,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-6 text-end">
+        <div class="col col-md-6 text-end">
             <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
             <button type="submit" name="_update" class="btn btn-primary">Save</button>
         </div>

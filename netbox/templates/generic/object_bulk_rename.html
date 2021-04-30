@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="row mb-3">
-    <div class="col-md-7">
+    <div class="col col-md-7">
         <div class="card">
             <div class="card-body">
                 <table class="table">
@@ -28,7 +28,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-5">
+    <div class="col col-md-5">
         <form action="" method="post" class="form form-horizontal">
             {% csrf_token %}
             <div class="card">
@@ -37,7 +37,7 @@
                     {% render_form form %}
                 </div>
             </div>
-            <div class="col-md-12 my-3 text-end">
+            <div class="col col-md-12 my-3 text-end">
                 <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 <button type="submit" name="_preview" class="btn btn-primary">Preview</button>
                 {% if '_preview' in request.POST and not form.errors %}

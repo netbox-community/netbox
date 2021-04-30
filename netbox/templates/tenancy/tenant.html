@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-7">
+	<div class="col col-md-7">
         <div class="card">
             <h5 class="card-header">
                 Tenant
@@ -52,53 +52,53 @@
         </div>
         {% plugin_left_page object %}
 	</div>
-	<div class="col-md-5">
+	<div class="col col-md-5">
         <div class="card">
             <h5 class="card-header">
                 Stats
             </h5>
             <div class="row card-body">
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'dcim:site_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.site_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.site_count }}</a></h2>
                     <p>Sites</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'dcim:rack_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.rack_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.rack_count }}</a></h2>
                     <p>Racks</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'dcim:rackreservation_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.rackreservation_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.rackreservation_count }}</a></h2>
                     <p>Rack reservations</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'dcim:device_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.device_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.device_count }}</a></h2>
                     <p>Devices</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'ipam:vrf_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.vrf_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.vrf_count }}</a></h2>
                     <p>VRFs</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'ipam:prefix_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.prefix_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.prefix_count }}</a></h2>
                     <p>Prefixes</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'ipam:ipaddress_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.ipaddress_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.ipaddress_count }}</a></h2>
                     <p>IP addresses</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'ipam:vlan_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.vlan_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.vlan_count }}</a></h2>
                     <p>VLANs</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'circuits:circuit_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.circuit_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.circuit_count }}</a></h2>
                     <p>Circuits</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'virtualization:virtualmachine_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.virtualmachine_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.virtualmachine_count }}</a></h2>
                     <p>Virtual machines</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'virtualization:cluster_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.cluster_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.cluster_count }}</a></h2>
                     <p>Clusters</p>
                 </div>
@@ -108,7 +108,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

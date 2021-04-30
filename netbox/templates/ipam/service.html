@@ -27,7 +27,7 @@
 
 {% block content %}
 <div class="row mb-3">
-	<div class="col-md-6">
+	<div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
                 Service
@@ -73,12 +73,12 @@
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:service_list' %}
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-6">
+    <div class="col col-md-6">
         {% plugin_right_page object %}
     </div>
 </div>
 <div class="row mb-3">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

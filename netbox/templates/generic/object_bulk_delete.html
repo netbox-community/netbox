@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-8">
+        <div class="col col-md-8">
             <div class="alert alert-danger mb-3" role="alert">
                 <h4 class="alert-heading">Confirm Bulk Deletion</h4>
                 <hr />
@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-8">
+        <div class="col col-md-8">
             <div class="card">
                 <div class="card-body">
                     {% include 'inc/table.html' %}
@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="row mt-3">
-        <div class="col-md-8">
+        <div class="col col-md-8">
             <form action="" method="post">
                 {% csrf_token %}
                 {% for field in form.hidden_fields %}

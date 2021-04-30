@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-8 col-md-offset-2">
+        <div class="col col-md-8 offset-md-2">
             <ul class="nav nav-tabs mb-3" role="tablist">
                 <li class="nav-item" role="presentation">
                     <a href="#csv" class="nav-link active" role="tab" data-bs-toggle="tab">CSV</a>
@@ -18,7 +18,7 @@
                         {% csrf_token %}
                         {% render_form form %}
                         <div class="form-group">
-                            <div class="col-md-12 text-end">
+                            <div class="col col-md-12 text-end">
                                 {% if return_url %}
                                     <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                                 {% endif %}
@@ -28,7 +28,7 @@
                     </form>
                     {% if fields %}
                     <div class="row my-3">
-                        <div class="col-md-12">
+                        <div class="col col-md-12">
                             <div class="card">
                                 <h5 class="card-header">
                                     CSV Field Options

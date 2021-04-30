@@ -2,43 +2,54 @@
 {% load search_options %}
 
 {% block head %}{% endblock %}
+
 {% block layout %}
 <div class="container-fluid">
   <div class="row">
-    <nav
-      id="sidebar-menu"
-      class="col-md-3 col-lg-2 d-md-block sidebar collapse px-0"
-    >
-      <div class="position-sticky pt-3">
-        <a class="px-2 sidebar-logo" href="{% url 'home' %}">
-          {% load static %}
-          {% include 'logo.html' %}
-        </a>
-        <ul class="nav flex-column">
-          {% load nav %} {% nav %}
-        </ul>
-      </div>
-      {% include './bottom.html' %}
-    </nav>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-0">
+      <nav id="sidebar-menu" class="col-md-3 col-lg-2 d-md-block sidebar collapse px-0">
+        <div class="position-sticky pt-3">
+          <a class="px-2 sidebar-logo d-none d-md-flex" href="{% url 'home' %}">
+            {% load static %}
+            {% include 'logo.html' %}
+          </a>
+          <ul class="nav flex-column">
+            <div class="d-block d-md-none mx-1 my-3">
+              {% search_options %}
+            </div>
+            <div class="d-flex d-md-none mx-1 my-3 justify-content-end">
+              {% include './profile_button.html' %}
+            </div>
+            {% load nav %} {% nav %}
+          </ul>
+        </div>
+        {% include './bottom.html' %}
+      </nav>
       <nav class="navbar navbar-light sticky-top flex-md-nowrap py-4 search container-fluid">
-          <button
-            type="button"
-            aria-expanded="false"
-            data-bs-toggle="collapse"
-            aria-controls="sidebarMenu"
-            data-bs-target="#sidebarMenu"
-            aria-label="Toggle navigation"
-            class="navbar-toggler position-absolute d-md-none collapsed"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          {% search_options %} {% include './profile_button.html' %}
-        
+        <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
+            <a class="px-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
+              {% include 'logo.html' %}
+            </a>
+            <button
+              type="button"
+              aria-expanded="false"
+              data-bs-toggle="collapse"
+              aria-controls="sidebar-menu"
+              data-bs-target="#sidebar-menu"
+              aria-label="Toggle Navigation"
+              class="navbar-toggler position-relative collapsed"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </div>
+          <div class="d-none d-md-flex w-100">
+            {% search_options %}
+            {% include './profile_button.html' %}
+          </div>
       </nav>
       
-      <div class="px-4">
+      <div class="px-4 content-container">
         {% block title_container %}
         <div class="title-container">
           <div id="content-title">

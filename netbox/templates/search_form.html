@@ -1,5 +1,5 @@
 <div class="row" style="padding-bottom: 20px">
-    <div class="col-md-12 text-center">
+    <div class="col col-md-12 text-center">
         <form action="{% url 'search' %}" method="get" class="form-inline">
             <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search" id="id_q" class="form-control" style="width: 350px" />
             {{ search_form.obj_type }}

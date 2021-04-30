@@ -10,7 +10,7 @@
         {{ pk_form.pk }}
         {{ formset.management_form }}
         <div class="row">
-            <div class="col-md-8">
+            <div class="col col-md-8">
                 <div class="card">
                     <h5 class="card-header">Virtual Chassis</h5>
                     <div class="card-body">
@@ -91,7 +91,7 @@
             </div>
         </div>
         <div class="row my-3">
-            <div class="col-md-8 col-md-offset-2 text-end">
+            <div class="col col-md-8 col col-md-offset-2 text-end">
                 <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 {% if vc_form.instance.pk %}
                     <button type="submit" name="_update" class="btn btn-primary">Update</button>

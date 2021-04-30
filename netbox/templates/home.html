@@ -1,33 +1,27 @@
 {% extends 'layout.html' %}
 {% load helpers %}
+
 {% block title_container %}{% endblock %}
+
 {% block content %}
 <div class="stats-container">
-  <div class="row row-cols-auto masonry">
+  <div class="row masonry">
     {% for section in stats %}
-    <div class="col col-4 my-2 masonry-item">
+    <div class="col col-sm-12 col-md-4 my-2 masonry-item">
       <div class="card">
         <h5 class="card-header text-primary">{{ section.label }}</h5>
         <div class="card-body">
           <div class="list-group list-group-flush">
             {% for item in section.items %}
-            <a
-              href="{% url item.url %}"
-              class="list-group-item list-group-item-action"
-            >
-              <div
-                class="d-flex w-100 justify-content-between align-items-center"
-              >
+            <a href="{% url item.url %}" class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between align-items-center">
                 <div class="d-flex flex-column align-items-start">
                   <h6 class="mb-1">{{ item.label }}</h6>
                   {% if item.description %}
                   <small class="mb-1 text-muted">{{ item.description }}</small>
                   {% endif %}
                 </div>
-
-                <span class="badge bg-secondary rounded-pill"
-                  >{{ item.count }}</span
-                >
+                <span class="badge bg-secondary rounded-pill">{{ item.count }}</span>
               </div>
             </a>
             {% endfor %}

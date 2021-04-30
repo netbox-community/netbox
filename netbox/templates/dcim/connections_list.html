@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="row mb-3">
-    <div class="col-md-9">
+    <div class="col col-md-9">
         <div class="card">
             <div class="card-body">
                 {% include 'responsive_table.html' %}
@@ -15,7 +15,7 @@
         </div>
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
-    <div class="col-md-3 float-end right-side-panel noprint">
+    <div class="col col-md-3 float-end right-side-panel noprint">
         {% include 'inc/search_panel.html' %}
     </div>
 </div>

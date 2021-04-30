@@ -12,7 +12,7 @@
             {{ field }}
         {% endfor %}
         <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col col-md-6">
                 {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='assign' %}
                 <div class="card">
                     <h5 class="card-header">Select IP Address</h5>
@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-md-6 text-end">
+            <div class="col col-md-6 text-end">
                 <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 <button type="submit" class="btn btn-primary">Search</button>
             </div>
@@ -32,7 +32,7 @@
     </form>
     {% if table %}
         <div class="row mb-3">
-            <div class="col-md-12">
+            <div class="col col-md-12">
                 <h3>Search Results</h3>
                 {% include 'utilities/obj_table.html' with table_template='panel_table.html' %}
             </div>
