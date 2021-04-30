@@ -11,16 +11,6 @@
   <li>{{ object }}</li>
 {% endblock %}
 
-{% block buttons %}
-  {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and first_available_ip %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}&vrf={{ object.vrf.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-success">
-        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-        Add an IP Address
-    </a>
-  {% endif %}
-  {{ block.super }}
-{% endblock %}
-
 {% block tabs %}
   <ul class="nav nav-tabs" style="margin-bottom: 20px">
     <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
