@@ -20,7 +20,7 @@
         <div class="col-md-8 text-end">
         {% block buttons %}
         <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
-        {% if perms.ipam.add_ipaddress %}
+        {% if component_type == 'interface' and perms.ipam.add_ipaddress %}
         <button type="submit" name="_assignip" class="btn btn-outline-success">
             Create & Assign IP Address
         </button>
