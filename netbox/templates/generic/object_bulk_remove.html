@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row mb-3">
-    <div class="col-md-6 offset-md-3">
+    <div class="col col-md-6 offset-md-3">
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">Confirm Bulk Removal</h4>
             <p><strong>Warning:</strong> The following operation will remove {{ table.rows|length }} {{ obj_type_plural }} from {{ parent_obj }}.</p>
@@ -15,7 +15,7 @@
     </div>
 </div>
 <div class="row mb-3">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         <div class="card">
             <div class="card-body">
                 {% include 'inc/table.html' %}
@@ -24,7 +24,7 @@
     </div>
 </div>
 <div class="row mb-3">
-    <div class="col-md-6 offset-md-3">
+    <div class="col col-md-6 offset-md-3">
         <form action="." method="post" class="form">
             {% csrf_token %}
             {% for field in form.hidden_fields %}

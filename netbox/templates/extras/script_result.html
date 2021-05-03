@@ -13,7 +13,7 @@
 
 {% block content %}
 <div class="row noprint">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         <nav class="breadcrumb-container" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
@@ -50,7 +50,7 @@
     <div role="tabpanel" class="tab-pane active" id="log">
         {% if result.completed %}
             <div class="row">
-                <div class="col-md-12">
+                <div class="col col-md-12">
                     <div class="card">
                         <h5 class="card-header">
                             Script Log
@@ -87,7 +87,7 @@
             </div>
         {% else %}
             <div class="row">
-                <div class="col-md-12">
+                <div class="col col-md-12">
                     <div class="well">Pending Results</div>
                 </div>
             </div>

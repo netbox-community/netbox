@@ -51,6 +51,11 @@
   line-height: $line-height-sm;
 }
 
+// Automatically space out adjacent columns.
+.col:not(:last-child):not(:only-child) {
+  margin-bottom: $spacer;
+}
+
 body {
   background-color: var(--nbx-body-bg);
   color: var(--nbx-body-color);
@@ -225,12 +230,6 @@ li.dropdown-item.dropdown-item-btns {
   align-items: center;
 }
 
-@media (max-width: 767.98px) {
-  .sidebar {
-    top: 5rem;
-  }
-}
-
 .sidebar-sticky {
   position: relative;
   top: 0;
@@ -258,6 +257,14 @@ nav.nav.nav-pills {
   }
 }
 
+// Prevent scrolling of body content when nav menu is open on mobile.
+.sidebar.collapse.show ~ .content-container {
+  @media (max-width: map.get($grid-breakpoints, 'md')) {
+    position: fixed;
+    overflow-y: hidden;
+  }
+}
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -266,9 +273,15 @@ nav.nav.nav-pills {
   z-index: 100; /* Behind the navbar */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
   background-color: var(--nbx-sidebar-bg);
+
+  @media (max-width: map.get($grid-breakpoints, 'md')) {
+    top: 8.125rem;
+  }
+
   .sidebar-nav-link {
     color: var(--nbx-sidebar-link-color);
   }
+
   .accordion-body {
     max-height: calc(100vh - 24rem);
     overflow-y: auto;
@@ -284,8 +297,15 @@ nav.nav.nav-pills {
       }
     }
   }
+  // Ensure navigation accounts for the height of the header on mobile when nav is expanded.
+  &.collapse.show div.position-sticky {
+    @media (max-width: map.get($grid-breakpoints, 'md')) {
+      height: calc(100vh - 16.125rem);
+      overflow-y: auto;
+    }
+  }
   div.position-sticky {
-    height: calc(100% - 8rem);
+    height: calc(100vh - 8rem);
   }
   div.sidebar-bottom {
     padding-left: 0.5rem;

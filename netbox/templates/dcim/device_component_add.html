@@ -9,7 +9,7 @@
 <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row">
-        <div class="col-md-8">
+        <div class="col col-md-8">
             <div class="field-group">
                 <h4>{{ component_type|title }}</h4>
                 {% render_form form %}
@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="row my-3">
-        <div class="col-md-8 text-end">
+        <div class="col col-md-8 text-end">
         {% block buttons %}
         <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
         <button type="submit" name="_addanother" class="btn btn-outline-primary">

@@ -21,7 +21,7 @@
 
 {% block header %}
     <div class="row noprint">
-        <div class="col-sm-4 col-md-3">
+        <div class="col col-sm-4 col-md-3">
             <form action="{% url 'extras:objectchange_list' %}" method="get">
                 <div class="input-group">
                     <input type="text" name="q" class="form-control" />
@@ -38,7 +38,7 @@
 
 {% block content %}
 <div class="row mb-3">
-    <div class="col-md-5">
+    <div class="col col-md-5">
         <div class="card">
             <h5 class="card-header">
                 Change
@@ -89,7 +89,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-7">
+    <div class="col col-md-7">
         <div class="card">
             <div class="card-header">
                 <h5 class="d-inline">Difference</h5>
@@ -122,7 +122,7 @@
     </div>
 </div>
 <div class="row mb-3">
-    <div class="col-md-6">
+    <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
                 Pre-Change Data
@@ -139,7 +139,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
                 Post-Change Data
@@ -158,7 +158,7 @@
     </div>
 </div>
 <div class="row mb-3">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% include 'panel_table.html' with table=related_changes_table heading='Related Changes' panel_class='default' %}
         {% if related_changes_count > related_changes_table.rows|length %}
             <div class="float-end">

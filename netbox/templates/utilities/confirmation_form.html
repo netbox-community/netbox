@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="row mt-5">
-	<div class="col-md-6 offset-md-3">
+	<div class="col col-md-6 offset-md-3">
         <form action="" method="post" class="form">
             {% csrf_token %}
             {% for field in form.hidden_fields %}

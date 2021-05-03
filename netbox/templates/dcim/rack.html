@@ -33,7 +33,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
                 Rack
@@ -310,15 +310,15 @@
         </div>
         {% plugin_left_page object %}
 	</div>
-    <div class="col-md-6">
+    <div class="col col-md-6">
         <div class="row" style="margin-bottom: 20px">
-            <div class="col-md-6 col-sm-6 col-xs-12 text-center">
+            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">
                 <h4>Front</h4>
                 {% include 'dcim/inc/rack_elevation.html' with face='front' %}
               </div>
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-12 text-center">
+            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">
                 <h4>Rear</h4>
                 {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
@@ -373,7 +373,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
                 VRF
@@ -65,14 +65,14 @@
         {% include 'inc/custom_fields_panel.html' %}
         {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
         {% include 'panel_table.html' with table=import_targets_table heading="Import Route Targets" %}
         {% include 'panel_table.html' with table=export_targets_table heading="Export Route Targets" %}
         {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

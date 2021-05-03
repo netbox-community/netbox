@@ -84,10 +84,10 @@
 </div>
 {% elif field|widget_type == 'selectmultiple' %}
 <div class="row">
-    <label for="{{ field.id_for_label }}" class="form-label col-md-3{% if field.field.required %} required{% endif %}">
+    <label for="{{ field.id_for_label }}" class="form-label col col-md-3{% if field.field.required %} required{% endif %}">
         {{ field.label }}
     </label>
-    <div class="col-md-9">
+    <div class="col col-md-9">
         {{ field }}
     </div>
 </div>
