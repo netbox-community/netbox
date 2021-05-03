@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -10,7 +11,7 @@ from extras.filtersets import *
 from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -239,8 +240,14 @@ class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_created(self):
+        pk_list = self.queryset.values_list('pk', flat=True)[:2]
+        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc))
+        params = {'created': '2021-01-01T00:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-class JournalEntryTestCase(TestCase, BaseFilterSetTests):
+
+class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = JournalEntry.objects.all()
     filterset = JournalEntryFilterSet
 
@@ -329,8 +336,17 @@ class JournalEntryTestCase(TestCase, BaseFilterSetTests):
         params = {'kind': [JournalEntryKindChoices.KIND_INFO, JournalEntryKindChoices.KIND_SUCCESS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_created(self):
+        pk_list = self.queryset.values_list('pk', flat=True)[:2]
+        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc))
+        params = {
+            'created_after': '2020-12-31T00:00:00',
+            'created_before': '2021-01-02T00:00:00',
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-class ConfigContextTestCase(TestCase, BaseFilterSetTests):
+
+class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
 
@@ -507,7 +523,7 @@ class ConfigContextTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TagTestCase(TestCase, BaseFilterSetTests):
+class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tag.objects.all()
     filterset = TagFilterSet
 

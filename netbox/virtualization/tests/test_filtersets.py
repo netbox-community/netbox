@@ -3,13 +3,13 @@ from django.test import TestCase
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.choices import *
 from virtualization.filtersets import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
-class ClusterTypeTestCase(TestCase, BaseFilterSetTests):
+class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ClusterType.objects.all()
     filterset = ClusterTypeFilterSet
 
@@ -36,7 +36,7 @@ class ClusterTypeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ClusterGroupTestCase(TestCase, BaseFilterSetTests):
+class ClusterGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ClusterGroup.objects.all()
     filterset = ClusterGroupFilterSet
 
@@ -63,7 +63,7 @@ class ClusterGroupTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ClusterTestCase(TestCase, BaseFilterSetTests):
+class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Cluster.objects.all()
     filterset = ClusterFilterSet
 
@@ -183,7 +183,7 @@ class ClusterTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualMachineTestCase(TestCase, BaseFilterSetTests):
+class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VirtualMachine.objects.all()
     filterset = VirtualMachineFilterSet
 
@@ -394,7 +394,7 @@ class VirtualMachineTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VMInterfaceTestCase(TestCase, BaseFilterSetTests):
+class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VMInterface.objects.all()
     filterset = VMInterfaceFilterSet
 

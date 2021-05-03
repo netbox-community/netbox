@@ -5,10 +5,10 @@ from circuits.filtersets import *
 from circuits.models import *
 from dcim.models import Cable, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests
 
 
-class ProviderTestCase(TestCase, BaseFilterSetTests):
+class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Provider.objects.all()
     filterset = ProviderFilterSet
 
@@ -100,7 +100,7 @@ class ProviderTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CircuitTypeTestCase(TestCase, BaseFilterSetTests):
+class CircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CircuitType.objects.all()
     filterset = CircuitTypeFilterSet
 
@@ -122,7 +122,7 @@ class CircuitTypeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class CircuitTestCase(TestCase, BaseFilterSetTests):
+class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Circuit.objects.all()
     filterset = CircuitFilterSet
 
@@ -277,7 +277,7 @@ class CircuitTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class CircuitTerminationTestCase(TestCase, BaseFilterSetTests):
+class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CircuitTermination.objects.all()
     filterset = CircuitTerminationFilterSet
 
@@ -371,7 +371,7 @@ class CircuitTerminationTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ProviderNetworkTestCase(TestCase, BaseFilterSetTests):
+class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ProviderNetwork.objects.all()
     filterset = ProviderNetworkFilterSet
 

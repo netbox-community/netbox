@@ -2,10 +2,10 @@ from django.test import TestCase
 
 from tenancy.filtersets import *
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests
 
 
-class TenantGroupTestCase(TestCase, BaseFilterSetTests):
+class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = TenantGroup.objects.all()
     filterset = TenantGroupFilterSet
 
@@ -48,7 +48,7 @@ class TenantGroupTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TenantTestCase(TestCase, BaseFilterSetTests):
+class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tenant.objects.all()
     filterset = TenantFilterSet
 

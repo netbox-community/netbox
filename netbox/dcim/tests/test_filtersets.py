@@ -6,11 +6,11 @@ from dcim.filtersets import *
 from dcim.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterType
 
 
-class RegionTestCase(TestCase, BaseFilterSetTests):
+class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Region.objects.all()
     filterset = RegionFilterSet
 
@@ -56,7 +56,7 @@ class RegionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class SiteGroupTestCase(TestCase, BaseFilterSetTests):
+class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = SiteGroup.objects.all()
     filterset = SiteGroupFilterSet
 
@@ -102,7 +102,7 @@ class SiteGroupTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class SiteTestCase(TestCase, BaseFilterSetTests):
+class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Site.objects.all()
     filterset = SiteFilterSet
 
@@ -216,7 +216,7 @@ class SiteTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class LocationTestCase(TestCase, BaseFilterSetTests):
+class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Location.objects.all()
     filterset = LocationFilterSet
 
@@ -303,7 +303,7 @@ class LocationTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackRoleTestCase(TestCase, BaseFilterSetTests):
+class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RackRole.objects.all()
     filterset = RackRoleFilterSet
 
@@ -330,7 +330,7 @@ class RackRoleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackTestCase(TestCase, BaseFilterSetTests):
+class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Rack.objects.all()
     filterset = RackFilterSet
 
@@ -500,7 +500,7 @@ class RackTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackReservationTestCase(TestCase, BaseFilterSetTests):
+class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RackReservation.objects.all()
     filterset = RackReservationFilterSet
 
@@ -594,7 +594,7 @@ class RackReservationTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ManufacturerTestCase(TestCase, BaseFilterSetTests):
+class ManufacturerTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Manufacturer.objects.all()
     filterset = ManufacturerFilterSet
 
@@ -621,7 +621,7 @@ class ManufacturerTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceTypeTestCase(TestCase, BaseFilterSetTests):
+class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DeviceType.objects.all()
     filterset = DeviceTypeFilterSet
 
@@ -753,7 +753,7 @@ class DeviceTypeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ConsolePortTemplateTestCase(TestCase, BaseFilterSetTests):
+class ConsolePortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConsolePortTemplate.objects.all()
     filterset = ConsolePortTemplateFilterSet
 
@@ -785,7 +785,7 @@ class ConsolePortTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConsoleServerPortTemplateTestCase(TestCase, BaseFilterSetTests):
+class ConsoleServerPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConsoleServerPortTemplate.objects.all()
     filterset = ConsoleServerPortTemplateFilterSet
 
@@ -817,7 +817,7 @@ class ConsoleServerPortTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PowerPortTemplateTestCase(TestCase, BaseFilterSetTests):
+class PowerPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = PowerPortTemplate.objects.all()
     filterset = PowerPortTemplateFilterSet
 
@@ -857,7 +857,7 @@ class PowerPortTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PowerOutletTemplateTestCase(TestCase, BaseFilterSetTests):
+class PowerOutletTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = PowerOutletTemplate.objects.all()
     filterset = PowerOutletTemplateFilterSet
 
@@ -893,7 +893,7 @@ class PowerOutletTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class InterfaceTemplateTestCase(TestCase, BaseFilterSetTests):
+class InterfaceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = InterfaceTemplate.objects.all()
     filterset = InterfaceTemplateFilterSet
 
@@ -935,7 +935,7 @@ class InterfaceTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class FrontPortTemplateTestCase(TestCase, BaseFilterSetTests):
+class FrontPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = FrontPortTemplate.objects.all()
     filterset = FrontPortTemplateFilterSet
 
@@ -978,7 +978,7 @@ class FrontPortTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RearPortTemplateTestCase(TestCase, BaseFilterSetTests):
+class RearPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RearPortTemplate.objects.all()
     filterset = RearPortTemplateFilterSet
 
@@ -1018,7 +1018,7 @@ class RearPortTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceBayTemplateTestCase(TestCase, BaseFilterSetTests):
+class DeviceBayTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DeviceBayTemplate.objects.all()
     filterset = DeviceBayTemplateFilterSet
 
@@ -1050,7 +1050,7 @@ class DeviceBayTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceRoleTestCase(TestCase, BaseFilterSetTests):
+class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DeviceRole.objects.all()
     filterset = DeviceRoleFilterSet
 
@@ -1083,7 +1083,7 @@ class DeviceRoleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class PlatformTestCase(TestCase, BaseFilterSetTests):
+class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Platform.objects.all()
     filterset = PlatformFilterSet
 
@@ -1128,7 +1128,7 @@ class PlatformTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceTestCase(TestCase, BaseFilterSetTests):
+class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Device.objects.all()
     filterset = DeviceFilterSet
 
@@ -1470,7 +1470,7 @@ class DeviceTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConsolePortTestCase(TestCase, BaseFilterSetTests):
+class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConsolePort.objects.all()
     filterset = ConsolePortFilterSet
 
@@ -1582,7 +1582,7 @@ class ConsolePortTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ConsoleServerPortTestCase(TestCase, BaseFilterSetTests):
+class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConsoleServerPort.objects.all()
     filterset = ConsoleServerPortFilterSet
 
@@ -1694,7 +1694,7 @@ class ConsoleServerPortTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class PowerPortTestCase(TestCase, BaseFilterSetTests):
+class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = PowerPort.objects.all()
     filterset = PowerPortFilterSet
 
@@ -1814,7 +1814,7 @@ class PowerPortTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class PowerOutletTestCase(TestCase, BaseFilterSetTests):
+class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = PowerOutlet.objects.all()
     filterset = PowerOutletFilterSet
 
@@ -1930,7 +1930,7 @@ class PowerOutletTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class InterfaceTestCase(TestCase, BaseFilterSetTests):
+class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Interface.objects.all()
     filterset = InterfaceFilterSet
 
@@ -2101,7 +2101,7 @@ class InterfaceTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class FrontPortTestCase(TestCase, BaseFilterSetTests):
+class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = FrontPort.objects.all()
     filterset = FrontPortFilterSet
 
@@ -2218,7 +2218,7 @@ class FrontPortTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RearPortTestCase(TestCase, BaseFilterSetTests):
+class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RearPort.objects.all()
     filterset = RearPortFilterSet
 
@@ -2329,7 +2329,7 @@ class RearPortTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceBayTestCase(TestCase, BaseFilterSetTests):
+class DeviceBayTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DeviceBay.objects.all()
     filterset = DeviceBayFilterSet
 
@@ -2417,7 +2417,7 @@ class DeviceBayTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class InventoryItemTestCase(TestCase, BaseFilterSetTests):
+class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = InventoryItem.objects.all()
     filterset = InventoryItemFilterSet
 
@@ -2551,7 +2551,7 @@ class InventoryItemTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class VirtualChassisTestCase(TestCase, BaseFilterSetTests):
+class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VirtualChassis.objects.all()
     filterset = VirtualChassisFilterSet
 
@@ -2643,7 +2643,7 @@ class VirtualChassisTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CableTestCase(TestCase, BaseFilterSetTests):
+class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Cable.objects.all()
     filterset = CableFilterSet
 
@@ -2763,7 +2763,7 @@ class CableTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class PowerPanelTestCase(TestCase, BaseFilterSetTests):
+class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = PowerPanel.objects.all()
     filterset = PowerPanelFilterSet
 
@@ -2839,7 +2839,7 @@ class PowerPanelTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PowerFeedTestCase(TestCase, BaseFilterSetTests):
+class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = PowerFeed.objects.all()
     filterset = PowerFeedFilterSet
 

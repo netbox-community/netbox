@@ -70,6 +70,7 @@ class ExportTemplateFilterSet(BaseFilterSet):
 
 
 class ImageAttachmentFilterSet(BaseFilterSet):
+    created = django_filters.DateTimeFilter()
     content_type = ContentTypeFilter()
 
     class Meta:

@@ -3,11 +3,11 @@ from django.test import TestCase
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.filtersets import *
 from secrets.models import Secret, SecretRole
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterType, VirtualMachine
 
 
-class SecretRoleTestCase(TestCase, BaseFilterSetTests):
+class SecretRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = SecretRole.objects.all()
     filterset = SecretRoleFilterSet
 
@@ -30,7 +30,7 @@ class SecretRoleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class SecretTestCase(TestCase, BaseFilterSetTests):
+class SecretTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Secret.objects.all()
     filterset = SecretFilterSet
 

@@ -4,12 +4,12 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Man
 from ipam.choices import *
 from ipam.filtersets import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
 
-class VRFTestCase(TestCase, BaseFilterSetTests):
+class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VRF.objects.all()
     filterset = VRFFilterSet
 
@@ -97,7 +97,7 @@ class VRFTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class RouteTargetTestCase(TestCase, BaseFilterSetTests):
+class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RouteTarget.objects.all()
     filterset = RouteTargetFilterSet
 
@@ -179,7 +179,7 @@ class RouteTargetTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
-class RIRTestCase(TestCase, BaseFilterSetTests):
+class RIRTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RIR.objects.all()
     filterset = RIRFilterSet
 
@@ -215,7 +215,7 @@ class RIRTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class AggregateTestCase(TestCase, BaseFilterSetTests):
+class AggregateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Aggregate.objects.all()
     filterset = AggregateFilterSet
 
@@ -289,7 +289,7 @@ class AggregateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class RoleTestCase(TestCase, BaseFilterSetTests):
+class RoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Role.objects.all()
     filterset = RoleFilterSet
 
@@ -312,7 +312,7 @@ class RoleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PrefixTestCase(TestCase, BaseFilterSetTests):
+class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Prefix.objects.all()
     filterset = PrefixFilterSet
 
@@ -505,7 +505,7 @@ class PrefixTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class IPAddressTestCase(TestCase, BaseFilterSetTests):
+class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPAddress.objects.all()
     filterset = IPAddressFilterSet
 
@@ -681,7 +681,7 @@ class IPAddressTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class VLANGroupTestCase(TestCase, BaseFilterSetTests):
+class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLANGroup.objects.all()
     filterset = VLANGroupFilterSet
 
@@ -765,7 +765,7 @@ class VLANGroupTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class VLANTestCase(TestCase, BaseFilterSetTests):
+class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLAN.objects.all()
     filterset = VLANFilterSet
 
@@ -1006,7 +1006,7 @@ class VLANTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
 
 
-class ServiceTestCase(TestCase, BaseFilterSetTests):
+class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
 
