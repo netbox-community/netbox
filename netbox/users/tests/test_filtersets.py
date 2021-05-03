@@ -4,9 +4,10 @@ from django.test import TestCase
 
 from users.filtersets import GroupFilterSet, ObjectPermissionFilterSet, UserFilterSet
 from users.models import ObjectPermission
+from utilities.testing import BaseFilterSetTests
 
 
-class UserTestCase(TestCase):
+class UserTestCase(TestCase, BaseFilterSetTests):
     queryset = User.objects.all()
     filterset = UserFilterSet
 
@@ -59,10 +60,6 @@ class UserTestCase(TestCase):
         users[1].groups.set([groups[1]])
         users[2].groups.set([groups[2]])
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_username(self):
         params = {'username': ['User1', 'User2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -95,7 +92,7 @@ class UserTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class GroupTestCase(TestCase):
+class GroupTestCase(TestCase, BaseFilterSetTests):
     queryset = Group.objects.all()
     filterset = GroupFilterSet
 
@@ -109,16 +106,12 @@ class GroupTestCase(TestCase):
         )
         Group.objects.bulk_create(groups)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Group 1', 'Group 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ObjectPermissionTestCase(TestCase):
+class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectPermission.objects.all()
     filterset = ObjectPermissionFilterSet
 
@@ -159,10 +152,6 @@ class ObjectPermissionTestCase(TestCase):
             permissions[i].groups.set([groups[i]])
             permissions[i].users.set([users[i]])
             permissions[i].object_types.set([object_types[i]])
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Permission 1', 'Permission 2']}

@@ -4,11 +4,12 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Man
 from ipam.choices import *
 from ipam.filtersets import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
 
-class VRFTestCase(TestCase):
+class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VRF.objects.all()
     filterset = VRFFilterSet
 
@@ -53,10 +54,6 @@ class VRFTestCase(TestCase):
         vrfs[2].import_targets.add(route_targets[2])
         vrfs[2].export_targets.add(route_targets[2])
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['VRF 1', 'VRF 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -100,7 +97,7 @@ class VRFTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class RouteTargetTestCase(TestCase):
+class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RouteTarget.objects.all()
     filterset = RouteTargetFilterSet
 
@@ -149,10 +146,6 @@ class RouteTargetTestCase(TestCase):
         vrfs[1].import_targets.add(route_targets[4], route_targets[5])
         vrfs[1].export_targets.add(route_targets[6], route_targets[7])
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['65000:1001', '65000:1002', '65000:1003']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
@@ -186,7 +179,7 @@ class RouteTargetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
-class RIRTestCase(TestCase):
+class RIRTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RIR.objects.all()
     filterset = RIRFilterSet
 
@@ -202,10 +195,6 @@ class RIRTestCase(TestCase):
             RIR(name='RIR 6', slug='rir-6', is_private=True, description='F'),
         )
         RIR.objects.bulk_create(rirs)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['RIR 1', 'RIR 2']}
@@ -226,7 +215,7 @@ class RIRTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class AggregateTestCase(TestCase):
+class AggregateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Aggregate.objects.all()
     filterset = AggregateFilterSet
 
@@ -265,10 +254,6 @@ class AggregateTestCase(TestCase):
         )
         Aggregate.objects.bulk_create(aggregates)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_family(self):
         params = {'family': '4'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
@@ -304,7 +289,7 @@ class AggregateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class RoleTestCase(TestCase):
+class RoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Role.objects.all()
     filterset = RoleFilterSet
 
@@ -318,10 +303,6 @@ class RoleTestCase(TestCase):
         )
         Role.objects.bulk_create(roles)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Role 1', 'Role 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -331,7 +312,7 @@ class RoleTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PrefixTestCase(TestCase):
+class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Prefix.objects.all()
     filterset = PrefixFilterSet
 
@@ -420,10 +401,6 @@ class PrefixTestCase(TestCase):
             Prefix(prefix='2001:db8::/32'),
         )
         Prefix.objects.bulk_create(prefixes)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_family(self):
         params = {'family': '6'}
@@ -528,7 +505,7 @@ class PrefixTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class IPAddressTestCase(TestCase):
+class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPAddress.objects.all()
     filterset = IPAddressFilterSet
 
@@ -606,10 +583,6 @@ class IPAddressTestCase(TestCase):
             IPAddress(address='2001:db8::1/65', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
         )
         IPAddress.objects.bulk_create(ipaddresses)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_family(self):
         params = {'family': '6'}
@@ -708,7 +681,7 @@ class IPAddressTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class VLANGroupTestCase(TestCase):
+class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLANGroup.objects.all()
     filterset = VLANGroupFilterSet
 
@@ -751,10 +724,6 @@ class VLANGroupTestCase(TestCase):
         )
         VLANGroup.objects.bulk_create(vlan_groups)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['VLAN Group 1', 'VLAN Group 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -796,7 +765,7 @@ class VLANGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class VLANTestCase(TestCase):
+class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLAN.objects.all()
     filterset = VLANFilterSet
 
@@ -965,10 +934,6 @@ class VLANTestCase(TestCase):
         )
         VLAN.objects.bulk_create(vlans)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['VLAN 101', 'VLAN 102']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -1041,7 +1006,7 @@ class VLANTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
 
 
-class ServiceTestCase(TestCase):
+class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
 
@@ -1079,10 +1044,6 @@ class ServiceTestCase(TestCase):
             Service(virtual_machine=virtual_machines[2], name='Service 6', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2003]),
         )
         Service.objects.bulk_create(services)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:3]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_name(self):
         params = {'name': ['Service 1', 'Service 2']}
