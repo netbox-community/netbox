@@ -10,10 +10,11 @@ from extras.filtersets import *
 from extras.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
+from utilities.testing import BaseFilterSetTests
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
-class WebhookTestCase(TestCase):
+class WebhookTestCase(TestCase, BaseFilterSetTests):
     queryset = Webhook.objects.all()
     filterset = WebhookFilterSet
 
@@ -52,10 +53,6 @@ class WebhookTestCase(TestCase):
         webhooks[1].content_types.add(content_types[1])
         webhooks[2].content_types.add(content_types[2])
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Webhook 1', 'Webhook 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -89,7 +86,7 @@ class WebhookTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CustomLinkTestCase(TestCase):
+class CustomLinkTestCase(TestCase, BaseFilterSetTests):
     queryset = CustomLink.objects.all()
     filterset = CustomLinkFilterSet
 
@@ -125,10 +122,6 @@ class CustomLinkTestCase(TestCase):
         )
         CustomLink.objects.bulk_create(custom_links)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Custom Link 1', 'Custom Link 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -148,7 +141,7 @@ class CustomLinkTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ExportTemplateTestCase(TestCase):
+class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
 
@@ -164,10 +157,6 @@ class ExportTemplateTestCase(TestCase):
         )
         ExportTemplate.objects.bulk_create(export_templates)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Export Template 1', 'Export Template 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -177,7 +166,7 @@ class ExportTemplateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ImageAttachmentTestCase(TestCase):
+class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
     queryset = ImageAttachment.objects.all()
     filterset = ImageAttachmentFilterSet
 
@@ -235,10 +224,6 @@ class ImageAttachmentTestCase(TestCase):
         )
         ImageAttachment.objects.bulk_create(image_attachments)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Image Attachment 1', 'Image Attachment 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -255,7 +240,7 @@ class ImageAttachmentTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class JournalEntryTestCase(TestCase):
+class JournalEntryTestCase(TestCase, BaseFilterSetTests):
     queryset = JournalEntry.objects.all()
     filterset = JournalEntryFilterSet
 
@@ -320,10 +305,6 @@ class JournalEntryTestCase(TestCase):
         )
         JournalEntry.objects.bulk_create(journal_entries)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_created_by(self):
         users = User.objects.filter(username__in=['Alice', 'Bob'])
         params = {'created_by': [users[0].username, users[1].username]}
@@ -349,7 +330,7 @@ class JournalEntryTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class ConfigContextTestCase(TestCase):
+class ConfigContextTestCase(TestCase, BaseFilterSetTests):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
 
@@ -449,10 +430,6 @@ class ConfigContextTestCase(TestCase):
             c.tenant_groups.set([tenant_groups[i]])
             c.tenants.set([tenants[i]])
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Config Context 1', 'Config Context 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -530,7 +507,7 @@ class ConfigContextTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TagTestCase(TestCase):
+class TagTestCase(TestCase, BaseFilterSetTests):
     queryset = Tag.objects.all()
     filterset = TagFilterSet
 
@@ -543,10 +520,6 @@ class TagTestCase(TestCase):
             Tag(name='Tag 3', slug='tag-3', color='0000ff'),
         )
         Tag.objects.bulk_create(tags)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Tag 1', 'Tag 2']}
@@ -561,7 +534,7 @@ class TagTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ObjectChangeTestCase(TestCase):
+class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectChange.objects.all()
     filterset = ObjectChangeFilterSet
 
@@ -634,10 +607,6 @@ class ObjectChangeTestCase(TestCase):
             ),
         )
         ObjectChange.objects.bulk_create(object_changes)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:3]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_user(self):
         params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
