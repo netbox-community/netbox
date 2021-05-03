@@ -13,6 +13,7 @@
 * [#6309](https://github.com/netbox-community/netbox/issues/6309) - Restrict parent VM interface assignment to the parent VM
 * [#6313](https://github.com/netbox-community/netbox/issues/6313) - Fix device type instance count under manufacturer view
 * [#6321](https://github.com/netbox-community/netbox/issues/6321) - Restore "add an IP" button under prefix IPs view
+* [#6333](https://github.com/netbox-community/netbox/issues/6333) - Fix filtering of circuit terminations by primary key
 
 ---
 
