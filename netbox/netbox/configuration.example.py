@@ -150,7 +150,7 @@ INTERNAL_IPS = ('127.0.0.1', '::1')
 LOGGING = {}
 
 # Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users
-# are permitted to access most data in NetBox (excluding secrets) but not make any changes.
+# are permitted to access most data in NetBox but not make any changes.
 LOGIN_REQUIRED = False
 
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to

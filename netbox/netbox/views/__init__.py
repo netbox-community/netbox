@@ -16,7 +16,7 @@ from packaging import version
 
 from circuits.models import Circuit, Provider
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, Location, PowerPanel, PowerFeed, PowerPort, Rack, Site,
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, Site,
 )
 from extras.choices import JobResultStatusChoices
 from extras.models import ObjectChange, JobResult
@@ -24,7 +24,6 @@ from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from netbox.forms import SearchForm
 from netbox.releases import get_latest_release
-from secrets.models import Secret
 from tenancy.models import Tenant
 from virtualization.models import Cluster, VirtualMachine
 
@@ -78,9 +77,6 @@ class HomeView(View):
                 ("circuits.view_provider", "Providers", "Organizations that provide circuits", Provider.objects.restrict(request.user, 'view').count),
                 ("circuits.view_circuit", "Circuits", "Communication links for transit, transport, & other services", Circuit.objects.restrict(request.user, 'view').count),
             )
-            secrets = (
-                ("secrets.view_secret", "Secrets", "Cryptographically secured data", Secret.objects.restrict(request.user, 'view').count),
-            )
             virtualization = (
                 ("virtualization.view_cluster", "Clusters", "Clusters of physical virtual machine hosts", Cluster.objects.restrict(request.user, 'view').count),
                 ("virtualization.view_virtualmachine", "Virtual Machines", "Virtual compute instances running inside clusters", VirtualMachine.objects.restrict(request.user, 'view').count),
@@ -103,7 +99,6 @@ class HomeView(View):
                 ("Inventory", dcim),
                 ("Connections", connections),
                 ("Circuits", circuits),
-                ("Secrets", secrets),
                 ("Power", power),
             )
             for section_label, section_items in sections:

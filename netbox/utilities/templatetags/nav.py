@@ -220,19 +220,6 @@ POWER_MENU = Menu(
     ),
 )
 
-SECRETS_MENU = Menu(
-    label="Secrets",
-    groups=(
-        MenuGroup(
-            label="Secrets",
-            items=(
-                MenuItem(label="Secrets", url="secrets:secret_list"),
-                MenuItem(label="Secret Roles", url="secrets:secretrole_list"),
-            ),
-        ),
-    ),
-)
-
 OTHER_MENU = Menu(
     label="Other",
     groups=(
@@ -261,7 +248,6 @@ MENUS = (
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,
-    SECRETS_MENU,
     OTHER_MENU,
 )
 
