@@ -520,6 +520,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'description', 'mark_connected', 'cable', 'cable_color', 'cable_peer', 'connection', 'tags', 'ip_addresses',
             'untagged_vlan', 'tagged_vlans', 'actions',
         )
+        order_by = ('name',)
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
             'cable', 'connection', 'actions',
