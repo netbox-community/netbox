@@ -673,7 +673,7 @@ class VLANGroupView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
             Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user))
-        )
+        ).order_by('vid')
         vlans_count = vlans.count()
         vlans = add_available_vlans(instance, vlans)
 

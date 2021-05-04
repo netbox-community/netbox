@@ -9,6 +9,7 @@
 
 ### Bug Fixes
 
+* [#6240](https://github.com/netbox-community/netbox/issues/6240) - Fix display of available VLAN ranges under VLAN group view
 * [#6308](https://github.com/netbox-community/netbox/issues/6308) - Fix linking of available VLANs in VLAN group view
 * [#6309](https://github.com/netbox-community/netbox/issues/6309) - Restrict parent VM interface assignment to the parent VM
 * [#6313](https://github.com/netbox-community/netbox/issues/6313) - Fix device type instance count under manufacturer view
