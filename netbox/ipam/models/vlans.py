@@ -172,7 +172,7 @@ class VLAN(PrimaryModel):
         verbose_name_plural = 'VLANs'
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        return f'{self.name} ({self.vid})'
 
     def get_absolute_url(self):
         return reverse('ipam:vlan', args=[self.pk])
@@ -198,10 +198,6 @@ class VLAN(PrimaryModel):
             self.role.name if self.role else None,
             self.description,
         )
-
-    @property
-    def display_name(self):
-        return f'{self.name} ({self.vid})'
 
     def get_status_class(self):
         return VLANStatusChoices.CSS_CLASSES.get(self.status)

@@ -79,7 +79,7 @@
                             {% if object.vlan.group %}
                                 <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
                             {% endif %}
-                            <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan.display_name }}</a>
+                            <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
