@@ -13,7 +13,7 @@ from netbox.views import generic
 from secrets.models import Secret
 from utilities.tables import paginate_table
 from utilities.utils import count_related
-from . import filters, forms, tables
+from . import filtersets, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
@@ -64,7 +64,7 @@ class ClusterTypeBulkEditView(generic.BulkEditView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
     )
-    filterset = filters.ClusterTypeFilterSet
+    filterset = filtersets.ClusterTypeFilterSet
     table = tables.ClusterTypeTable
     form = forms.ClusterTypeBulkEditForm
 
@@ -125,7 +125,7 @@ class ClusterGroupBulkEditView(generic.BulkEditView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
     )
-    filterset = filters.ClusterGroupFilterSet
+    filterset = filtersets.ClusterGroupFilterSet
     table = tables.ClusterGroupTable
     form = forms.ClusterGroupBulkEditForm
 
@@ -148,7 +148,7 @@ class ClusterListView(generic.ObjectListView):
         vm_count=count_related(VirtualMachine, 'cluster')
     )
     table = tables.ClusterTable
-    filterset = filters.ClusterFilterSet
+    filterset = filtersets.ClusterFilterSet
     filterset_form = forms.ClusterFilterForm
 
 
@@ -205,14 +205,14 @@ class ClusterBulkImportView(generic.BulkImportView):
 
 class ClusterBulkEditView(generic.BulkEditView):
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
-    filterset = filters.ClusterFilterSet
+    filterset = filtersets.ClusterFilterSet
     table = tables.ClusterTable
     form = forms.ClusterBulkEditForm
 
 
 class ClusterBulkDeleteView(generic.BulkDeleteView):
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
-    filterset = filters.ClusterFilterSet
+    filterset = filtersets.ClusterFilterSet
     table = tables.ClusterTable
 
 
@@ -304,7 +304,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
 
 class VirtualMachineListView(generic.ObjectListView):
     queryset = VirtualMachine.objects.all()
-    filterset = filters.VirtualMachineFilterSet
+    filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineDetailTable
     template_name = 'virtualization/virtualmachine_list.html'
@@ -388,14 +388,14 @@ class VirtualMachineBulkImportView(generic.BulkImportView):
 
 class VirtualMachineBulkEditView(generic.BulkEditView):
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
-    filterset = filters.VirtualMachineFilterSet
+    filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
 
 
 class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
-    filterset = filters.VirtualMachineFilterSet
+    filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
 
 
@@ -405,7 +405,7 @@ class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
 
 class VMInterfaceListView(generic.ObjectListView):
     queryset = VMInterface.objects.all()
-    filterset = filters.VMInterfaceFilterSet
+    filterset = filtersets.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
     table = tables.VMInterfaceTable
     action_buttons = ('export',)
@@ -500,7 +500,7 @@ class VirtualMachineBulkAddInterfaceView(generic.BulkComponentCreateView):
     form = forms.VMInterfaceBulkCreateForm
     queryset = VMInterface.objects.all()
     model_form = forms.VMInterfaceForm
-    filterset = filters.VirtualMachineFilterSet
+    filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
 
     def get_required_permission(self):

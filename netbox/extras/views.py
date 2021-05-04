@@ -13,7 +13,7 @@ from utilities.forms import ConfirmationForm
 from utilities.tables import paginate_table
 from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
-from . import filters, forms, tables
+from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
 from .models import ConfigContext, ImageAttachment, JournalEntry, ObjectChange, JobResult, Tag, TaggedItem
 from .reports import get_report, get_reports, run_report
@@ -28,7 +28,7 @@ class TagListView(generic.ObjectListView):
     queryset = Tag.objects.annotate(
         items=count_related(TaggedItem, 'tag')
     )
-    filterset = filters.TagFilterSet
+    filterset = filtersets.TagFilterSet
     filterset_form = forms.TagFilterForm
     table = tables.TagTable
 
@@ -94,7 +94,7 @@ class TagBulkDeleteView(generic.BulkDeleteView):
 
 class ConfigContextListView(generic.ObjectListView):
     queryset = ConfigContext.objects.all()
-    filterset = filters.ConfigContextFilterSet
+    filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
     action_buttons = ('add',)
@@ -127,7 +127,7 @@ class ConfigContextEditView(generic.ObjectEditView):
 
 class ConfigContextBulkEditView(generic.BulkEditView):
     queryset = ConfigContext.objects.all()
-    filterset = filters.ConfigContextFilterSet
+    filterset = filtersets.ConfigContextFilterSet
     table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm
 
@@ -173,7 +173,7 @@ class ObjectConfigContextView(generic.ObjectView):
 
 class ObjectChangeListView(generic.ObjectListView):
     queryset = ObjectChange.objects.all()
-    filterset = filters.ObjectChangeFilterSet
+    filterset = filtersets.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
@@ -300,7 +300,7 @@ class ImageAttachmentDeleteView(generic.ObjectDeleteView):
 
 class JournalEntryListView(generic.ObjectListView):
     queryset = JournalEntry.objects.all()
-    filterset = filters.JournalEntryFilterSet
+    filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
     action_buttons = ('export',)
@@ -338,14 +338,14 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
 
 class JournalEntryBulkEditView(generic.BulkEditView):
     queryset = JournalEntry.objects.prefetch_related('created_by')
-    filterset = filters.JournalEntryFilterSet
+    filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
     form = forms.JournalEntryBulkEditForm
 
 
 class JournalEntryBulkDeleteView(generic.BulkDeleteView):
     queryset = JournalEntry.objects.prefetch_related('created_by')
-    filterset = filters.JournalEntryFilterSet
+    filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
 
 

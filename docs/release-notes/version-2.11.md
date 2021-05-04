@@ -1,5 +1,24 @@
 # NetBox v2.11
 
+## v2.11.3 (FUTURE)
+
+### Enhancements
+
+* [#6197](https://github.com/netbox-community/netbox/issues/6197) - Introduced `SESSION_COOKIE_NAME` config parameter
+* [#6318](https://github.com/netbox-community/netbox/issues/6318) - Add OM5 MMF cable type
+
+### Bug Fixes
+
+* [#6240](https://github.com/netbox-community/netbox/issues/6240) - Fix display of available VLAN ranges under VLAN group view
+* [#6308](https://github.com/netbox-community/netbox/issues/6308) - Fix linking of available VLANs in VLAN group view
+* [#6309](https://github.com/netbox-community/netbox/issues/6309) - Restrict parent VM interface assignment to the parent VM
+* [#6313](https://github.com/netbox-community/netbox/issues/6313) - Fix device type instance count under manufacturer view
+* [#6321](https://github.com/netbox-community/netbox/issues/6321) - Restore "add an IP" button under prefix IPs view
+* [#6333](https://github.com/netbox-community/netbox/issues/6333) - Fix filtering of circuit terminations by primary key
+* [#6339](https://github.com/netbox-community/netbox/issues/6339) - Improve ordering of interfaces when viewing virtual chassis master
+
+---
+
 ## v2.11.2 (2021-04-27)
 
 ### Enhancements

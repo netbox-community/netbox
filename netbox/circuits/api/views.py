@@ -1,6 +1,6 @@
 from rest_framework.routers import APIRootView
 
-from circuits import filters
+from circuits import filtersets
 from circuits.models import *
 from dcim.api.views import PassThroughPortMixin
 from extras.api.views import CustomFieldModelViewSet
@@ -26,7 +26,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
         circuit_count=count_related(Circuit, 'provider')
     )
     serializer_class = serializers.ProviderSerializer
-    filterset_class = filters.ProviderFilterSet
+    filterset_class = filtersets.ProviderFilterSet
 
 
 #
@@ -38,7 +38,7 @@ class CircuitTypeViewSet(CustomFieldModelViewSet):
         circuit_count=count_related(Circuit, 'type')
     )
     serializer_class = serializers.CircuitTypeSerializer
-    filterset_class = filters.CircuitTypeFilterSet
+    filterset_class = filtersets.CircuitTypeFilterSet
 
 
 #
@@ -50,7 +50,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
         'type', 'tenant', 'provider', 'termination_a', 'termination_z'
     ).prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
-    filterset_class = filters.CircuitFilterSet
+    filterset_class = filtersets.CircuitFilterSet
 
 
 #
@@ -62,7 +62,7 @@ class CircuitTerminationViewSet(PassThroughPortMixin, ModelViewSet):
         'circuit', 'site', 'provider_network', 'cable'
     )
     serializer_class = serializers.CircuitTerminationSerializer
-    filterset_class = filters.CircuitTerminationFilterSet
+    filterset_class = filtersets.CircuitTerminationFilterSet
     brief_prefetch_fields = ['circuit']
 
 
@@ -73,4 +73,4 @@ class CircuitTerminationViewSet(PassThroughPortMixin, ModelViewSet):
 class ProviderNetworkViewSet(CustomFieldModelViewSet):
     queryset = ProviderNetwork.objects.prefetch_related('tags')
     serializer_class = serializers.ProviderNetworkSerializer
-    filterset_class = filters.ProviderNetworkFilterSet
+    filterset_class = filtersets.ProviderNetworkFilterSet

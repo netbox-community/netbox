@@ -5,14 +5,15 @@ labels: ["type: feature"]
 body:
   - type: markdown
     attributes:
-      value: "**NOTE:** This form is only for submitting well-formed proposals to extend or
-      modify NetBox in some way. If you're trying to solve a problem but can't figure out how,
-      or if you still need time to work on the details of a proposed new feature, please start
-      a [discussion](https://github.com/netbox-community/netbox/discussions) instead."
+      value: >
+        **NOTE:** This form is only for submitting well-formed proposals to extend or modify
+        NetBox in some way. If you're trying to solve a problem but can't figure out how, or if
+        you still need time to work on the details of a proposed new feature, please start a
+        [discussion](https://github.com/netbox-community/netbox/discussions) instead.
   - type: input
     attributes:
       label: NetBox version
-      description: "What version of NetBox are you currently running?"
+      description: What version of NetBox are you currently running?
       placeholder: v2.10.4
     validations:
       required: true
@@ -28,26 +29,29 @@ body:
   - type: textarea
     attributes:
       label: Proposed functionality
-      description: "Describe in detail the new feature or behavior you'd like to propose.
-        Include any specific changes to work flows, data models, or the user interface."
+      description: >
+        Describe in detail the new feature or behavior you'd like to propose. Include any specific
+        changes to work flows, data models, or the user interface.
     validations:
       required: true
   - type: textarea
     attributes:
       label: Use case
-      description: "Explain how adding this functionality would benefit NetBox users. What
-        need does it address?"
+      description: >
+        Explain how adding this functionality would benefit NetBox users. What need does it address?
     validations:
       required: true
   - type: textarea
     attributes:
       label: Database changes
-      description: "Note any changes to the database schema necessary to support the new
-        feature. For example, does the proposal require adding a new model or field? (Not
-        all new features require database changes.)"
+      description: >
+        Note any changes to the database schema necessary to support the new feature. For example,
+        does the proposal require adding a new model or field? (Not all new features require database
+        changes.)
   - type: textarea
     attributes:
       label: External dependencies
-      description: "List any new dependencies on external libraries or services that this
-        new feature would introduce. For example, does the proposal require the installation
-        of a new Python package? (Not all new features introduce new dependencies.)"
+      description: >
+        List any new dependencies on external libraries or services that this new feature would
+        introduce. For example, does the proposal require the installation of a new Python package?
+        (Not all new features introduce new dependencies.)

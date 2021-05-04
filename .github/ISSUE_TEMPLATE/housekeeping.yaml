@@ -5,18 +5,20 @@ labels: ["type: housekeeping"]
 body:
   - type: markdown
     attributes:
-      value: "**NOTE:** This template is for use by maintainers only. Please do not submit
-      an issue using this template unless you have been specifically asked to do so."
+      value: >
+        **NOTE:** This template is for use by maintainers only. Please do not submit
+        an issue using this template unless you have been specifically asked to do so.
   - type: textarea
     attributes:
       label: Proposed Changes
-      description: "Describe in detail the new feature or behavior you'd like to propose.
-        Include any specific changes to work flows, data models, or the user interface."
+      description: >
+        Describe in detail the new feature or behavior you'd like to propose.
+        Include any specific changes to work flows, data models, or the user interface.
     validations:
       required: true
   - type: textarea
     attributes:
       label: Justification
-      description: "Please provide justification for the proposed change(s)."
+      description: Please provide justification for the proposed change(s).
     validations:
       required: true
