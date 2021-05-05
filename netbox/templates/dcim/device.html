@@ -94,7 +94,7 @@
                                     <tr>
                                         <th scope="row">Device Type</th>
                                         <td>
-                                            <span><a href="{{ object.device_type.get_absolute_url }}">{{ object.device_type.display_name }}</a> ({{ object.device_type.u_height }}U)</span>
+                                            <span><a href="{{ object.device_type.get_absolute_url }}">{{ object.device_type }}</a> ({{ object.device_type.u_height }}U)</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -356,7 +356,7 @@
                                                 <span class="text-muted">&mdash;</span>
                                             {% endif %}
                                         </td>
-                                        <td>{{ rd.device_type.display_name }}</td>
+                                        <td>{{ rd.device_type }}</td>
                                     </tr>
                                     {% endfor %}
                                 </table>

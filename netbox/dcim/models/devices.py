@@ -321,10 +321,6 @@ class DeviceType(PrimaryModel):
             self.rear_image.delete(save=False)
 
     @property
-    def display_name(self):
-        return f'{self.manufacturer.name} {self.model}'
-
-    @property
     def is_parent_device(self):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_PARENT
 
@@ -622,7 +618,13 @@ class Device(PrimaryModel, ConfigContextModel):
         )
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        if self.name:
+            return self.name
+        elif self.virtual_chassis:
+            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
+        elif self.device_type:
+            return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
+        return super().__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
@@ -822,17 +824,6 @@ class Device(PrimaryModel, ConfigContextModel):
             self.get_face_display(),
             self.comments,
         )
-
-    @property
-    def display_name(self):
-        if self.name:
-            return self.name
-        elif self.virtual_chassis:
-            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
-        elif self.device_type:
-            return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
-        else:
-            return ''  # Device has not yet been created
 
     @property
     def identifier(self):

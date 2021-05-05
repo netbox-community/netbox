@@ -27,7 +27,7 @@ class NestedVRFSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VRF
-        fields = ['id', 'url', 'display', 'name', 'rd', 'display_name', 'prefix_count']
+        fields = ['id', 'url', 'display', 'name', 'rd', 'prefix_count']
 
 
 #
@@ -92,7 +92,7 @@ class NestedVLANSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VLAN
-        fields = ['id', 'url', 'display', 'vid', 'name', 'display_name']
+        fields = ['id', 'url', 'display', 'vid', 'name']
 
 
 #

@@ -34,10 +34,11 @@ class RackElevationSVG:
 
     @staticmethod
     def _get_device_description(device):
-        return '{} ({}) — {} ({}U) {} {}'.format(
+        return '{} ({}) — {} {} ({}U) {} {}'.format(
             device.name,
             device.device_role,
-            device.device_type.display_name,
+            device.device_type.manufacturer.name,
+            device.device_type.model,
             device.device_type.u_height,
             device.asset_tag or '',
             device.serial or ''

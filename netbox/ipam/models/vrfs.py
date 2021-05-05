@@ -71,7 +71,9 @@ class VRF(PrimaryModel):
         verbose_name_plural = 'VRFs'
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        if self.rd:
+            return f'{self.name} ({self.rd})'
+        return self.name
 
     def get_absolute_url(self):
         return reverse('ipam:vrf', args=[self.pk])
@@ -84,12 +86,6 @@ class VRF(PrimaryModel):
             self.enforce_unique,
             self.description,
         )
-
-    @property
-    def display_name(self):
-        if self.rd:
-            return f'{self.name} ({self.rd})'
-        return self.name
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
