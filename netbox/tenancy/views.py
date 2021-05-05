@@ -1,6 +1,6 @@
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device, RackReservation
-from ipam.models import IPAddress, Prefix, VLAN, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.tables import paginate_table
 from virtualization.models import VirtualMachine, Cluster
@@ -101,6 +101,7 @@ class TenantView(generic.ObjectView):
             'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
+            'aggregate_count': Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=instance).count(),
