@@ -18,6 +18,7 @@
 * [#6321](https://github.com/netbox-community/netbox/issues/6321) - Restore "add an IP" button under prefix IPs view
 * [#6333](https://github.com/netbox-community/netbox/issues/6333) - Fix filtering of circuit terminations by primary key
 * [#6339](https://github.com/netbox-community/netbox/issues/6339) - Improve ordering of interfaces when viewing virtual chassis master
+* [#6357](https://github.com/netbox-community/netbox/issues/6357) - Fix ProviderNetwork nested API serializer
 * [#6363](https://github.com/netbox-community/netbox/issues/6363) - Correct pre-population of cluster group when creating a cluster
 
 ---

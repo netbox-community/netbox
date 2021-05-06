@@ -20,7 +20,7 @@ class NestedProviderNetworkSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
 
     class Meta:
-        model = Provider
+        model = ProviderNetwork
         fields = ['id', 'url', 'display', 'name']
 
 
