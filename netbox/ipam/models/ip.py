@@ -29,7 +29,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class RIR(OrganizationalModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
@@ -184,7 +184,7 @@ class Aggregate(PrimaryModel):
         return int(float(child_prefixes.size) / self.prefix.size * 100)
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Role(OrganizationalModel):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or

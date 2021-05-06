@@ -36,7 +36,7 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -337,7 +337,7 @@ class DeviceType(PrimaryModel):
 # Devices
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -388,7 +388,7 @@ class DeviceRole(OrganizationalModel):
         )
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".

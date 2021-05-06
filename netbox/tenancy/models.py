@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class TenantGroup(NestedGroupModel):
     """
     An arbitrary collection of Tenants.

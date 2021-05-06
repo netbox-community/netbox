@@ -26,7 +26,7 @@ __all__ = (
 # Regions
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Region(NestedGroupModel):
     """
     A region represents a geographic collection of sites. For example, you might create regions representing countries,
@@ -78,7 +78,7 @@ class Region(NestedGroupModel):
 # Site groups
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class SiteGroup(NestedGroupModel):
     """
     A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
@@ -285,7 +285,7 @@ class Site(PrimaryModel):
 # Locations
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Location(NestedGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a

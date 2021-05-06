@@ -7,6 +7,7 @@
 * [#6197](https://github.com/netbox-community/netbox/issues/6197) - Introduced `SESSION_COOKIE_NAME` config parameter
 * [#6318](https://github.com/netbox-community/netbox/issues/6318) - Add OM5 MMF cable type
 * [#6351](https://github.com/netbox-community/netbox/issues/6351) - Add aggregates count to tenant view
+* [#6359](https://github.com/netbox-community/netbox/issues/6359) - Enable custom links for organizational and nested group models
 
 ### Bug Fixes
 

@@ -35,7 +35,7 @@ __all__ = (
 # Racks
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
