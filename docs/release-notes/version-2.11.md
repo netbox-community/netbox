@@ -22,6 +22,7 @@
 * [#6355](https://github.com/netbox-community/netbox/issues/6355) - Fix caching error when swapping A/Z circuit terminations
 * [#6357](https://github.com/netbox-community/netbox/issues/6357) - Fix ProviderNetwork nested API serializer
 * [#6363](https://github.com/netbox-community/netbox/issues/6363) - Correct pre-population of cluster group when creating a cluster
+* [#6369](https://github.com/netbox-community/netbox/issues/6369) - Fix interface assignment for VLANs in non-scoped groups
 
 ---
 
