@@ -80,8 +80,8 @@
         {% plugin_left_page object %}
 	</div>
 	<div class="col-md-6">
-        {% include 'circuits/inc/circuit_termination.html' with termination=termination_a side='A' %}
-        {% include 'circuits/inc/circuit_termination.html' with termination=termination_z side='Z' %}
+        {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_a side='A' %}
+        {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_z side='Z' %}
         {% plugin_right_page object %}
     </div>
 </div>

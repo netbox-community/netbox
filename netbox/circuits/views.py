@@ -211,27 +211,6 @@ class CircuitListView(generic.ObjectListView):
 class CircuitView(generic.ObjectView):
     queryset = Circuit.objects.all()
 
-    def get_extra_context(self, request, instance):
-
-        # A-side termination
-        termination_a = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
-            'site__region'
-        ).filter(
-            circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_A
-        ).first()
-
-        # Z-side termination
-        termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
-            'site__region'
-        ).filter(
-            circuit=instance, term_side=CircuitTerminationSideChoices.SIDE_Z
-        ).first()
-
-        return {
-            'termination_a': termination_a,
-            'termination_z': termination_z,
-        }
-
 
 class CircuitEditView(generic.ObjectEditView):
     queryset = Circuit.objects.all()
@@ -296,16 +275,11 @@ class CircuitSwapTerminations(generic.ObjectEditView):
 
         if form.is_valid():
 
-            termination_a = CircuitTermination.objects.filter(
-                circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
-            ).first()
-            termination_z = CircuitTermination.objects.filter(
-                circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
-            ).first()
+            termination_a = CircuitTermination.objects.filter(pk=circuit.termination_a_id).first()
+            termination_z = CircuitTermination.objects.filter(pk=circuit.termination_z_id).first()
 
             if termination_a and termination_z:
                 # Use a placeholder to avoid an IntegrityError on the (circuit, term_side) unique constraint
-                print('swapping')
                 with transaction.atomic():
                     termination_a.term_side = '_'
                     termination_a.save()
@@ -316,11 +290,20 @@ class CircuitSwapTerminations(generic.ObjectEditView):
             elif termination_a:
                 termination_a.term_side = 'Z'
                 termination_a.save()
+                circuit.refresh_from_db()
+                circuit.termination_a = None
+                circuit.save()
             else:
                 termination_z.term_side = 'A'
                 termination_z.save()
+                circuit.refresh_from_db()
+                circuit.termination_z = None
+                circuit.save()
 
-            messages.success(request, "Swapped terminations for circuit {}.".format(circuit))
+            print(f'term A: {circuit.termination_a}')
+            print(f'term Z: {circuit.termination_z}')
+
+            messages.success(request, f"Swapped terminations for circuit {circuit}.")
             return redirect('circuits:circuit', pk=circuit.pk)
 
         return render(request, 'circuits/circuit_terminations_swap.html', {
