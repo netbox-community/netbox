@@ -21,6 +21,7 @@
   --nbx-cable-termination-bg: #{$gray-200};
   --nbx-cable-termination-border-color: #{$gray-300};
   --nbx-search-filter-border-left-color: #{$gray-300};
+  --nbx-color-mode-toggle-color: #{$primary};
 
   body[data-netbox-color-mode='dark'] {
     --nbx-logo-color-1: #{$white};
@@ -41,6 +42,7 @@
     --nbx-cable-termination-bg: #{$gray-800};
     --nbx-cable-termination-border-color: #{$gray-700};
     --nbx-search-filter-border-left-color: #{$gray-600};
+    --nbx-color-mode-toggle-color: #{$yellow-300};
   }
 }
 
@@ -169,12 +171,17 @@ nav.search {
 main.login-container {
   display: flex;
   height: calc(100vh - 4rem);
-  width: 100vw;
+  width: 100%;
+  max-width: 100vw;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   padding-top: 40px;
   padding-bottom: 40px;
+
+  & + footer.footer button.color-mode-toggle {
+    color: var(--nbx-color-mode-toggle-color);
+  }
 }
 
 footer.login-footer {
