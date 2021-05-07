@@ -11,7 +11,7 @@
   --nbx-sidebar-title-color: #{$text-muted};
   --nbx-breadcrumb-bg: #{$light};
   --nbx-body-bg: #{$white};
-  --nbx-body-color: #{$black};
+  --nbx-body-color: #{$gray-800};
   --nbx-pre-bg: #{$gray-100};
   --nbx-pre-border-color: #{$gray-600};
   --nbx-change-added: #{rgba($green, 0.4)};
@@ -32,7 +32,7 @@
     --nbx-sidebar-title-color: #{$gray-300};
     --nbx-breadcrumb-bg: #{$gray-800};
     --nbx-body-bg: #{$gray-900};
-    --nbx-body-color: #{$white};
+    --nbx-body-color: #{$gray-50};
     --nbx-pre-bg: #{$gray-700};
     --nbx-pre-border-color: #{$gray-600};
     --nbx-change-added: #{rgba($green-300, 0.4)};
