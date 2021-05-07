@@ -22,7 +22,7 @@ function handleSearchDropdownClick(event: Event, button: HTMLButtonElement) {
       selectedType.value = searchValue;
     } else {
       selected = '';
-      selectedType.innerHTML = 'All Objects';
+      selectedValue.innerHTML = 'All Objects';
       selectedType.value = '';
     }
   }
