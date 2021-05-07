@@ -13,7 +13,7 @@
         <div class="card-body">
           <div class="list-group list-group-flush">
             {% for item in section.items %}
-            <a href="{% url item.url %}" class="list-group-item list-group-item-action">
+            <a href="{% url item.url %}" class="list-group-item list-group-item-action{% if item.disabled %} disabled{% endif %}">
               <div class="d-flex w-100 justify-content-between align-items-center">
                 <div class="d-flex flex-column align-items-start">
                   <h6 class="mb-1">{{ item.label }}</h6>
@@ -21,7 +21,13 @@
                   <small class="mb-1 text-muted">{{ item.description }}</small>
                   {% endif %}
                 </div>
-                <span class="badge bg-secondary rounded-pill">{{ item.count }}</span>
+                <span class="badge bg-secondary rounded-pill">
+                  {% if item.count == None %}
+                    <i class="mdi mdi-lock"></i>
+                  {% else %}
+                    {{ item.count }}
+                  {% endif %}
+                </span>
               </div>
             </a>
             {% endfor %}

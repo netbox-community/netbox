@@ -109,12 +109,13 @@ class HomeView(View):
             for section_label, section_items in sections:
                 stat = {"label": section_label, "items": []}
                 for perm, item_label, description, get_count in section_items:
+                    app, scope = perm.split(".")
+                    url = ":".join((app, scope.replace("view_", "") + "_list"))
+                    item = {"label": item_label, "description": description, "count": None, "url": url, "disabled": True}
                     if perm in perms:
-                        app, scope = perm.split(".")
-                        url = ":".join((app, scope.replace("view_", "") + "_list"))
-                        stat["items"].append(
-                            {"label": item_label, "description": description, "count": get_count(), "url": url}
-                        )
+                        item["count"] = get_count()
+                        item["disabled"] = False
+                    stat["items"].append(item)
                 stats.append(stat)
             return stats
 
