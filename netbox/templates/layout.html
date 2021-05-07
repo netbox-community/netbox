@@ -6,7 +6,6 @@
 {% block layout %}
 <div class="container-fluid">
   <div class="row">
-
     <main class="col-md-9 ms-sm-auto col-lg-10 px-0">
       <nav id="sidebar-menu" class="col-md-3 col-lg-2 d-md-block sidebar collapse px-0">
         <div class="position-sticky pt-3">
@@ -64,6 +63,15 @@
           {% block tabs %}{% endblock %}
           {% block content %}{% endblock %}
         </div>
+        <footer class="footer container-fluid pb-3 pt-4 px-0">
+          <div class="row align-items-center justify-content-end">
+          <div class="col-auto d-none d-md-block"></div>
+            <div class="col text-center text-md-end small text-muted">
+              <span class="fw-light d-block d-md-inline">{% now 'Y-m-d H:i:s T' %}</span>
+              <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
   </div>
