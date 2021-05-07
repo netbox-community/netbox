@@ -20,6 +20,7 @@
   --nbx-cable-node-border-color: #{$gray-200};
   --nbx-cable-termination-bg: #{$gray-200};
   --nbx-cable-termination-border-color: #{$gray-300};
+  --nbx-search-filter-border-left-color: #{$gray-300};
 
   body[data-netbox-color-mode='dark'] {
     --nbx-logo-color-1: #{$white};
@@ -39,6 +40,7 @@
     --nbx-cable-node-border-color: #{$gray-600};
     --nbx-cable-termination-bg: #{$gray-800};
     --nbx-cable-termination-border-color: #{$gray-700};
+    --nbx-search-filter-border-left-color: #{$gray-600};
   }
 }
 
@@ -149,6 +151,19 @@ div.title-container {
 
 nav.search {
   background-color: var(--nbx-body-bg);
+  form button.dropdown-toggle {
+    border-color: $input-border-color;
+    font-weight: $input-group-addon-font-weight;
+    line-height: $input-line-height;
+    color: $input-group-addon-color;
+    background-color: $input-group-addon-bg;
+    border: $input-border-width solid $input-group-addon-border-color;
+    @include border-radius($input-border-radius);
+    border-left: 1px solid var(--nbx-search-filter-border-left-color);
+    &:focus {
+      box-shadow: unset !important;
+    }
+  }
 }
 
 main.login-container {
