@@ -22,6 +22,7 @@
   --nbx-cable-termination-border-color: #{$gray-300};
   --nbx-search-filter-border-left-color: #{$gray-300};
   --nbx-color-mode-toggle-color: #{$primary};
+  --nbx-stat-badge-bg: #{$gray-600};
 
   body[data-netbox-color-mode='dark'] {
     --nbx-logo-color-1: #{$white};
@@ -43,6 +44,7 @@
     --nbx-cable-termination-border-color: #{$gray-700};
     --nbx-search-filter-border-left-color: #{$gray-600};
     --nbx-color-mode-toggle-color: #{$yellow-300};
+    --nbx-stat-badge-bg: #{$gray-600};
   }
 }
 
@@ -72,6 +74,11 @@ body {
     fill: #1685fc;
     stroke: #1685fc;
   }
+  span.badge.stat-badge {
+    margin-left: map.get($spacers, 2);
+    background-color: var(--nbx-stat-badge-bg);
+  }
+
   &[data-netbox-color-mode='light'] {
     .btn.btn-primary {
       color: $white;
@@ -219,7 +226,8 @@ h3.accordion-item-title,
 h4.accordion-item-title,
 h5.accordion-item-title,
 h6.accordion-item-title {
-  padding: 0 0.5rem;
+  // padding: 0 0.5rem;
+  padding: 0.25rem 0.5rem;
   font-weight: $font-weight-bold;
   text-transform: uppercase;
   color: var(--nbx-sidebar-title-color);
@@ -277,11 +285,14 @@ li.dropdown-item.dropdown-item-btns {
 nav.nav.nav-pills {
   .nav-item.nav-link {
     padding: 0.25rem 0.5rem;
-    font-size: $font-size-base;
+    // font-size: $font-size-base;
+    font-size: $font-size-sm;
     border-radius: $border-radius;
     &:hover {
-      color: $body-color;
-      background-color: var(--nbx-sidebar-link-hover-bg);
+      // color: $body-color;
+      // background-color: var(--nbx-sidebar-link-hover-bg);
+      background-color: $accordion-button-active-bg;
+      color: $accordion-button-active-color;
     }
   }
 }
@@ -307,13 +318,17 @@ nav.nav.nav-pills {
     top: 8.125rem;
   }
 
-  .sidebar-nav-link {
-    color: var(--nbx-sidebar-link-color);
-  }
-
-  div.accordion-item > a.accordion-button.nav-link:focus {
-    border-color: unset;
-    box-shadow: unset;
+  div.accordion-item > a.accordion-button.nav-link {
+    &:hover {
+      // color: $body-color;
+      // background-color: var(--nbx-sidebar-link-hover-bg);
+      color: $accordion-button-active-color;
+      background-color: $accordion-button-active-bg;
+    }
+    &:focus {
+      border-color: unset;
+      box-shadow: unset;
+    }
   }
 
   .accordion-body {
@@ -321,12 +336,15 @@ nav.nav.nav-pills {
     overflow-y: auto;
     .nav-item {
       .nav-link {
-        padding: 0.25rem 0.5rem;
-        font-size: $font-size-base;
+        padding: 0.25rem 0.6rem;
+        // font-size: $font-size-base;
+        font-size: $font-size-sm;
         border-radius: $border-radius;
         &:hover {
-          color: $body-color;
-          background-color: var(--nbx-sidebar-link-hover-bg);
+          // color: $body-color;
+          // background-color: var(--nbx-sidebar-link-hover-bg);
+          color: $accordion-button-active-color;
+          background-color: $accordion-button-active-bg;
         }
       }
     }
