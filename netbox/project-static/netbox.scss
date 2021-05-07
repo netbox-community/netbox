@@ -72,6 +72,11 @@
   }
 }
 
+// Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
+table td > .progress {
+  min-width: 6rem;
+}
+
 body {
   background-color: var(--nbx-body-bg);
   color: var(--nbx-body-color);
