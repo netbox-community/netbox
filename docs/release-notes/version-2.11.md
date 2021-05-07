@@ -14,6 +14,7 @@
 * [#6240](https://github.com/netbox-community/netbox/issues/6240) - Fix display of available VLAN ranges under VLAN group view
 * [#6308](https://github.com/netbox-community/netbox/issues/6308) - Fix linking of available VLANs in VLAN group view
 * [#6309](https://github.com/netbox-community/netbox/issues/6309) - Restrict parent VM interface assignment to the parent VM
+* [#6312](https://github.com/netbox-community/netbox/issues/6312) - Interface device filter should return all virtual chassis interfaces only if device is master
 * [#6313](https://github.com/netbox-community/netbox/issues/6313) - Fix device type instance count under manufacturer view
 * [#6321](https://github.com/netbox-community/netbox/issues/6321) - Restore "add an IP" button under prefix IPs view
 * [#6333](https://github.com/netbox-community/netbox/issues/6333) - Fix filtering of circuit terminations by primary key
