@@ -288,6 +288,11 @@ nav.nav.nav-pills {
     color: var(--nbx-sidebar-link-color);
   }
 
+  div.accordion-item > a.accordion-button.nav-link:focus {
+    border-color: unset;
+    box-shadow: unset;
+  }
+
   .accordion-body {
     max-height: calc(100vh - 24rem);
     overflow-y: auto;
