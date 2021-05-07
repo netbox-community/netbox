@@ -10,6 +10,15 @@
   <li>{{ object }}</li>
 {% endblock %}
 
+{% block buttons %}
+  {% if perms.ipam.add_vlan %}
+    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-success">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
+    </a>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
 {% block content %}
 <div class="row">
 	<div class="col-md-6">
@@ -52,21 +61,8 @@
 </div>
 <div class="row">
 	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>VLANs</strong>
-      </div>
-      {% include 'inc/table.html' with table=vlans_table %}
-      {% if perms.ipam.add_vlan %}
-        <div class="panel-footer text-right noprint">
-          <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
-          </a>
-        </div>
-      {% endif %}
-    </div>
-    {% include 'inc/paginator.html' with paginator=vlans_table.paginator page=vlans_table.page %}
-    </div>
+    {% include 'utilities/obj_table.html' with table=vlans_table table_template='panel_table.html' heading='VLANs' bulk_edit_url='ipam:vlan_bulk_edit' bulk_delete_url='ipam:vlan_bulk_delete' %}
+  </div>
 </div>
 {% endblock %}
 

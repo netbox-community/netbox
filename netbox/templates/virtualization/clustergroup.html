@@ -47,7 +47,7 @@
       {% include 'inc/table.html' with table=clusters_table %}
       {% if perms.virtualization.add_cluster %}
         <div class="panel-footer text-right noprint">
-          <a href="{% url 'virtualization:cluster_add' %}?type={{ object.pk }}" class="btn btn-xs btn-primary">
+          <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-xs btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add cluster
           </a>
         </div>

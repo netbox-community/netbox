@@ -4,7 +4,7 @@ from circuits.models import Circuit
 from dcim.models import Device, Rack, Site
 from extras.api.views import CustomFieldModelViewSet
 from ipam.models import IPAddress, Prefix, VLAN, VRF
-from tenancy import filters
+from tenancy import filtersets
 from tenancy.models import Tenant, TenantGroup
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine
@@ -32,7 +32,7 @@ class TenantGroupViewSet(CustomFieldModelViewSet):
         cumulative=True
     )
     serializer_class = serializers.TenantGroupSerializer
-    filterset_class = filters.TenantGroupFilterSet
+    filterset_class = filtersets.TenantGroupFilterSet
 
 
 #
@@ -54,4 +54,4 @@ class TenantViewSet(CustomFieldModelViewSet):
         vrf_count=count_related(VRF, 'tenant')
     )
     serializer_class = serializers.TenantSerializer
-    filterset_class = filters.TenantFilterSet
+    filterset_class = filtersets.TenantFilterSet

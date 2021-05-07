@@ -1,12 +1,13 @@
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from secrets.filters import *
+from secrets.filtersets import *
 from secrets.models import Secret, SecretRole
+from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterType, VirtualMachine
 
 
-class SecretRoleTestCase(TestCase):
+class SecretRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = SecretRole.objects.all()
     filterset = SecretRoleFilterSet
 
@@ -20,10 +21,6 @@ class SecretRoleTestCase(TestCase):
         )
         SecretRole.objects.bulk_create(roles)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Secret Role 1', 'Secret Role 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -33,7 +30,7 @@ class SecretRoleTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class SecretTestCase(TestCase):
+class SecretTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Secret.objects.all()
     filterset = SecretFilterSet
 
@@ -79,10 +76,6 @@ class SecretTestCase(TestCase):
         # Must call save() to encrypt Secrets
         for s in secrets:
             s.save()
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Secret 1', 'Secret 2']}

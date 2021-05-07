@@ -1,9 +1,8 @@
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from django.utils import timezone
 
 from dcim.signals import rebuild_paths
-from .models import Circuit, CircuitTermination
+from .models import CircuitTermination
 
 
 @receiver(post_save, sender=CircuitTermination)
@@ -11,11 +10,9 @@ def update_circuit(instance, **kwargs):
     """
     When a CircuitTermination has been modified, update its parent Circuit.
     """
-    fields = {
-        'last_updated': timezone.now(),
-        f'termination_{instance.term_side.lower()}': instance.pk,
-    }
-    Circuit.objects.filter(pk=instance.circuit_id).update(**fields)
+    termination_name = f'termination_{instance.term_side.lower()}'
+    setattr(instance.circuit, termination_name, instance)
+    instance.circuit.save()
 
 
 @receiver((post_save, post_delete), sender=CircuitTermination)
