@@ -37,7 +37,7 @@
   </ul>
 </span>
 {% else %}
-<div class="ms-0 ms-md-3">
+<div class="btn-group ms-0 ms-md-3">
   <a
     class="btn btn-primary ws-nowrap"
     type="button"
@@ -45,5 +45,16 @@
   >
     <i class="mdi mdi-login-variant"></i> Log In
   </a>
+  <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+    <span class="visually-hidden">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li>
+      <button class="dropdown-item color-mode-toggle">
+        <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        <span class="color-mode-text">Dark Mode</span>
+      </button>
+    </li>
+  </ul>
 </div>
 {% endif %}
