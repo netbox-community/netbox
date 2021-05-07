@@ -103,6 +103,12 @@ body {
     }
   }
   table {
+    a {
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
     &.table > :not(caption) > * > * {
       padding-left: $table-cell-padding-x-sm !important;
       padding-right: $table-cell-padding-x-sm !important;
