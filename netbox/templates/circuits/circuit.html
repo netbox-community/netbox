@@ -18,12 +18,6 @@
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <td colspan="2">
-                        <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                        </td>
-
-                    </tr>
-                    <tr>
                         <th scope="row">Provider</th>
                         <td>
                             <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
@@ -48,6 +42,12 @@
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                         </td>
                     </tr>
                     <tr>
