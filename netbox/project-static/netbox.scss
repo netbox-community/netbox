@@ -62,6 +62,16 @@
   margin-bottom: $spacer;
 }
 
+// Use proper contrasting color for badge & progress-bar foreground color.
+@each $color, $value in $theme-colors {
+  .badge,
+  .progress-bar {
+    &.bg-#{$color} {
+      color: color-contrast($value);
+    }
+  }
+}
+
 body {
   background-color: var(--nbx-body-bg);
   color: var(--nbx-body-color);
@@ -80,8 +90,10 @@ body {
   }
 
   &[data-netbox-color-mode='light'] {
-    .btn.btn-primary {
-      color: $white;
+    .btn.btn-primary,
+    .progress-bar.bg-primary,
+    .badge.bg-primary {
+      color: $gray-50;
     }
   }
   &[data-netbox-color-mode='dark'] {
