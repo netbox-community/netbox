@@ -1,40 +1,44 @@
 import debounce from 'just-debounce-it';
-import { getElements, getRowValues, findFirstAdjacent } from './util';
+import { getElements, getRowValues, findFirstAdjacent, isTruthy } from './util';
 
-interface SearchFilterButton extends EventTarget {
-  dataset: { searchValue: string };
+/**
+ * Change the display value and hidden input values of the search filter based on dropdown
+ * selection.
+ *
+ * @param event "click" event for each dropdown item.
+ * @param button Each dropdown item element.
+ */
+function handleSearchDropdownClick(event: Event, button: HTMLButtonElement) {
+  const dropdown = event.currentTarget as HTMLButtonElement;
+  const selectedValue = findFirstAdjacent<HTMLSpanElement>(dropdown, 'span.search-obj-selected');
+  const selectedType = findFirstAdjacent<HTMLInputElement>(dropdown, 'input.search-obj-type');
+  const searchValue = dropdown.getAttribute('data-search-value');
+  let selected = '' as string;
+
+  if (selectedValue !== null && selectedType !== null) {
+    if (isTruthy(searchValue) && selected !== searchValue) {
+      selected = searchValue;
+      selectedValue.innerHTML = button.textContent ?? 'Error';
+      selectedType.value = searchValue;
+    } else {
+      selected = '';
+      selectedType.innerHTML = 'All Objects';
+      selectedType.value = '';
+    }
+  }
 }
 
-function isSearchButton(el: any): el is SearchFilterButton {
-  return el?.dataset?.searchValue ?? null !== null;
-}
-
+/**
+ * Initialize Search Bar Elements.
+ */
 function initSearchBar() {
-  const dropdown = document.getElementById('object-type-selector');
-  const selectedValue = document.getElementById('selected-value') as HTMLSpanElement;
-  const selectedType = document.getElementById('search-obj-type') as HTMLInputElement;
-  let selected = '';
-
-  if (dropdown !== null) {
-    const buttons = dropdown.querySelectorAll('li > button.dropdown-item');
-    for (const button of buttons) {
-      if (button !== null) {
-        function handleClick(event: Event) {
-          if (isSearchButton(event.target)) {
-            const objectType = event.target.dataset.searchValue;
-            if (objectType !== '' && selected !== objectType) {
-              selected = objectType;
-              selectedValue.innerHTML = button.textContent ?? 'Error';
-              selectedType.value = objectType;
-            } else {
-              selected = '';
-              selectedType.innerHTML = 'All Objects';
-              selectedType.value = '';
-            }
-          }
-        }
-        button.addEventListener('click', handleClick);
-      }
+  for (const dropdown of getElements<HTMLUListElement>(
+    'div.search-container ul.search-obj-selector',
+  )) {
+    for (const button of dropdown.querySelectorAll<HTMLButtonElement>(
+      'li > button.dropdown-item',
+    )) {
+      button.addEventListener('click', event => handleSearchDropdownClick(event, button));
     }
   }
 }
