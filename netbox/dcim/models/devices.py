@@ -36,7 +36,7 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -333,7 +333,7 @@ class DeviceType(PrimaryModel):
 # Devices
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -384,7 +384,7 @@ class DeviceRole(OrganizationalModel):
         )
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
@@ -718,7 +718,7 @@ class Device(PrimaryModel, ConfigContextModel):
                 pass
 
         # Validate primary IP addresses
-        vc_interfaces = self.vc_interfaces()
+        vc_interfaces = self.vc_interfaces(if_master=False)
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
                 raise ValidationError({
@@ -847,9 +847,7 @@ class Device(PrimaryModel, ConfigContextModel):
 
     @property
     def interfaces_count(self):
-        if self.virtual_chassis and self.virtual_chassis.master == self:
-            return self.vc_interfaces().count()
-        return self.interfaces.count()
+        return self.vc_interfaces().count()
 
     def get_vc_master(self):
         """
@@ -857,7 +855,7 @@ class Device(PrimaryModel, ConfigContextModel):
         """
         return self.virtual_chassis.master if self.virtual_chassis else None
 
-    def vc_interfaces(self, if_master=False):
+    def vc_interfaces(self, if_master=True):
         """
         Return a QuerySet matching all Interfaces assigned to this Device or, if this Device is a VC master, to another
         Device belonging to the same VirtualChassis.
@@ -865,7 +863,7 @@ class Device(PrimaryModel, ConfigContextModel):
         :param if_master: If True, return VC member interfaces only if this Device is the VC master.
         """
         filter = Q(device=self)
-        if self.virtual_chassis and (not if_master or self.virtual_chassis.master == self):
+        if self.virtual_chassis and (self.virtual_chassis.master == self or not if_master):
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)
 
