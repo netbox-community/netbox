@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
 from extras.api.views import CustomFieldModelViewSet
-from ipam import filters
+from ipam import filtersets
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from netbox.api.views import ModelViewSet
 from utilities.constants import ADVISORY_LOCK_KEYS
@@ -38,7 +38,7 @@ class VRFViewSet(CustomFieldModelViewSet):
         prefix_count=count_related(Prefix, 'vrf')
     )
     serializer_class = serializers.VRFSerializer
-    filterset_class = filters.VRFFilterSet
+    filterset_class = filtersets.VRFFilterSet
 
 
 #
@@ -48,7 +48,7 @@ class VRFViewSet(CustomFieldModelViewSet):
 class RouteTargetViewSet(CustomFieldModelViewSet):
     queryset = RouteTarget.objects.prefetch_related('tenant').prefetch_related('tags')
     serializer_class = serializers.RouteTargetSerializer
-    filterset_class = filters.RouteTargetFilterSet
+    filterset_class = filtersets.RouteTargetFilterSet
 
 
 #
@@ -60,7 +60,7 @@ class RIRViewSet(CustomFieldModelViewSet):
         aggregate_count=count_related(Aggregate, 'rir')
     )
     serializer_class = serializers.RIRSerializer
-    filterset_class = filters.RIRFilterSet
+    filterset_class = filtersets.RIRFilterSet
 
 
 #
@@ -70,7 +70,7 @@ class RIRViewSet(CustomFieldModelViewSet):
 class AggregateViewSet(CustomFieldModelViewSet):
     queryset = Aggregate.objects.prefetch_related('rir').prefetch_related('tags')
     serializer_class = serializers.AggregateSerializer
-    filterset_class = filters.AggregateFilterSet
+    filterset_class = filtersets.AggregateFilterSet
 
 
 #
@@ -83,7 +83,7 @@ class RoleViewSet(CustomFieldModelViewSet):
         vlan_count=count_related(VLAN, 'role')
     )
     serializer_class = serializers.RoleSerializer
-    filterset_class = filters.RoleFilterSet
+    filterset_class = filtersets.RoleFilterSet
 
 
 #
@@ -95,7 +95,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
         'site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags'
     )
     serializer_class = serializers.PrefixSerializer
-    filterset_class = filters.PrefixFilterSet
+    filterset_class = filtersets.PrefixFilterSet
 
     def get_serializer_class(self):
         if self.action == "available_prefixes" and self.request.method == "POST":
@@ -275,7 +275,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
         'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags', 'assigned_object'
     )
     serializer_class = serializers.IPAddressSerializer
-    filterset_class = filters.IPAddressFilterSet
+    filterset_class = filtersets.IPAddressFilterSet
 
 
 #
@@ -287,7 +287,7 @@ class VLANGroupViewSet(CustomFieldModelViewSet):
         vlan_count=count_related(VLAN, 'group')
     )
     serializer_class = serializers.VLANGroupSerializer
-    filterset_class = filters.VLANGroupFilterSet
+    filterset_class = filtersets.VLANGroupFilterSet
 
 
 #
@@ -301,7 +301,7 @@ class VLANViewSet(CustomFieldModelViewSet):
         prefix_count=count_related(Prefix, 'vlan')
     )
     serializer_class = serializers.VLANSerializer
-    filterset_class = filters.VLANFilterSet
+    filterset_class = filtersets.VLANFilterSet
 
 
 #
@@ -313,4 +313,4 @@ class ServiceViewSet(ModelViewSet):
         'device', 'virtual_machine', 'tags', 'ipaddresses'
     )
     serializer_class = serializers.ServiceSerializer
-    filterset_class = filters.ServiceFilterSet
+    filterset_class = filtersets.ServiceFilterSet

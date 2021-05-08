@@ -7,7 +7,9 @@
   {% endif %}
   <div class="form-login">
     <form action="{% url 'login' %}" method="post">
-      <img src="{% static 'netbox_logo.svg' %}" class="mb-4" />
+      <div class="mb-4">
+        {% include 'logo.html' with height=80 %}
+      </div>
       {% csrf_token %} {% if 'next' in request.GET %}
       <input type="hidden" name="next" value="{{ request.GET.next }}" />
       {% endif %} {% if 'next' in request.POST %}
@@ -44,11 +46,19 @@
   </div>
   {% endif %}
 </main>
-<footer class="footer login-footer py-3">
-  <div class="container-fluid">
-    <small class="text-muted">
-      {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
-    </small>
+<footer class="footer container-fluid login-footer py-3">
+  <div class="row align-items-center">
+      <div class="col-2 col-md-1 mb-0">
+        <button type="button" class="btn btn-sm color-mode-toggle" title="Toggle Color Mode">
+          <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        </button>
+      </div>
+      <div class="col-1 col-md-auto mb-0"></div>
+      <div class="col text-end mb-0">
+        <small class="text-muted">
+          {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+        </small>
+      </div>
   </div>
 </footer>
 {% endblock %}

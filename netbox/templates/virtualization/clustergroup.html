@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="row mb-3">
-	<div class="col-md-6">
+	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
         Cluster Group
@@ -35,13 +35,13 @@
     </div>
     {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
     {% include 'inc/custom_fields_panel.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row">
-	<div class="col-md-12">
+	<div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">
         Clusters
@@ -51,7 +51,7 @@
       </div>
       {% if perms.virtualization.add_cluster %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'virtualization:cluster_add' %}?type={{ object.pk }}" class="btn btn-sm btn-primary">
+          <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Cluster
           </a>
         </div>

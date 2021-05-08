@@ -265,6 +265,19 @@ function initSelectAll() {
   }
 }
 
+function handlePerPageSelect(event: Event) {
+  const select = event.currentTarget as HTMLSelectElement;
+  if (select.form !== null) {
+    select.form.submit();
+  }
+}
+
+function initPerPage() {
+  for (const element of getElements<HTMLSelectElement>('select.per-page')) {
+    element.addEventListener('change', handlePerPageSelect);
+  }
+}
+
 export function initButtons() {
   for (const func of [
     initRackElevation,
@@ -272,6 +285,7 @@ export function initButtons() {
     initReslug,
     initSelectAll,
     initPreferenceUpdate,
+    initPerPage,
   ]) {
     func();
   }

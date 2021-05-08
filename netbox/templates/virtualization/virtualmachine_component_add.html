@@ -8,7 +8,7 @@
 <form action="" method="post" class="form form-horizontal">
     {% csrf_token %}
     <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col col-md-6">
             <div class="field-group">
                 <h4>{{ component_type|bettertitle }}</h4>
                 {% render_form form %}
@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col col-md-6">
             <div class="float-end">
                 <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 <button type="submit" name="_addanother" class="btn btn-outline-primary">Create & Add More</button>

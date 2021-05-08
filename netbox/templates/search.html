@@ -8,7 +8,7 @@
     {% if request.GET.q %}
         {% if results %}
             <div class="row">
-                <div class="col-md-9">
+                <div class="col col-md-9">
                     {% for obj_type in results %}
                         <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
                         {% include 'panel_table.html' with table=obj_type.table %}
@@ -22,7 +22,7 @@
                         </a>
                     {% endfor %}
                 </div>
-                <div class="col-md-3">
+                <div class="col col-md-3">
                     <h3 class="invisible">&nbsp;</h3>
                     <div class="card">
                         <h5 class="card-header">
@@ -46,7 +46,7 @@
         {% endif %}
     {% else %}
         <div class="row">
-            <div class="col-sm-4 col-sm-offset-4">
+            <div class="col-4 offset-4">
                 <form action="{% url 'search' %}" method="get" class="form form-horizontal">
                     <div class="card">
                         <h5 class="card-header">

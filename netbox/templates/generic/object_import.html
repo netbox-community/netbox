@@ -6,12 +6,12 @@
 
 {% block content %}
 <div class="row mb-3">
-	<div class="col-md-8 col-md-offset-2">
+	<div class="col col-md-8">
 		<form action="" method="post" class="form form-horizontal">
 		    {% csrf_token %}
 		    {% render_form form %}
             <div class="form-group">
-                <div class="col-md-12 text-end">
+                <div class="col col-md-12 text-end">
                     {% if return_url %}
                         <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                     {% endif %}

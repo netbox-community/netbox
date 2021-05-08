@@ -9,7 +9,7 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from rq import Worker
 
-from extras import filters
+from extras import filtersets
 from extras.choices import JobResultStatusChoices
 from extras.models import *
 from extras.models import CustomField
@@ -61,7 +61,7 @@ class WebhookViewSet(ModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = Webhook.objects.all()
     serializer_class = serializers.WebhookSerializer
-    filterset_class = filters.WebhookFilterSet
+    filterset_class = filtersets.WebhookFilterSet
 
 
 #
@@ -72,7 +72,7 @@ class CustomFieldViewSet(ModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = CustomField.objects.all()
     serializer_class = serializers.CustomFieldSerializer
-    filterset_class = filters.CustomFieldFilterSet
+    filterset_class = filtersets.CustomFieldFilterSet
 
 
 class CustomFieldModelViewSet(ModelViewSet):
@@ -101,7 +101,7 @@ class CustomLinkViewSet(ModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = CustomLink.objects.all()
     serializer_class = serializers.CustomLinkSerializer
-    filterset_class = filters.CustomLinkFilterSet
+    filterset_class = filtersets.CustomLinkFilterSet
 
 
 #
@@ -112,7 +112,7 @@ class ExportTemplateViewSet(ModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
-    filterset_class = filters.ExportTemplateFilterSet
+    filterset_class = filtersets.ExportTemplateFilterSet
 
 
 #
@@ -124,7 +124,7 @@ class TagViewSet(ModelViewSet):
         tagged_items=count_related(TaggedItem, 'tag')
     )
     serializer_class = serializers.TagSerializer
-    filterset_class = filters.TagFilterSet
+    filterset_class = filtersets.TagFilterSet
 
 
 #
@@ -135,7 +135,7 @@ class ImageAttachmentViewSet(ModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
-    filterset_class = filters.ImageAttachmentFilterSet
+    filterset_class = filtersets.ImageAttachmentFilterSet
 
 
 #
@@ -146,7 +146,7 @@ class JournalEntryViewSet(ModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = JournalEntry.objects.all()
     serializer_class = serializers.JournalEntrySerializer
-    filterset_class = filters.JournalEntryFilterSet
+    filterset_class = filtersets.JournalEntryFilterSet
 
 
 #
@@ -158,7 +158,7 @@ class ConfigContextViewSet(ModelViewSet):
         'regions', 'site_groups', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
-    filterset_class = filters.ConfigContextFilterSet
+    filterset_class = filtersets.ConfigContextFilterSet
 
 
 #
@@ -358,7 +358,7 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ObjectChange.objects.prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
-    filterset_class = filters.ObjectChangeFilterSet
+    filterset_class = filtersets.ObjectChangeFilterSet
 
 
 #
@@ -371,7 +371,7 @@ class JobResultViewSet(ReadOnlyModelViewSet):
     """
     queryset = JobResult.objects.prefetch_related('user')
     serializer_class = serializers.JobResultSerializer
-    filterset_class = filters.JobResultFilterSet
+    filterset_class = filtersets.JobResultFilterSet
 
 
 #
@@ -384,4 +384,4 @@ class ContentTypeViewSet(ReadOnlyModelViewSet):
     """
     queryset = ContentType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ContentTypeSerializer
-    filterset_class = filters.ContentTypeFilterSet
+    filterset_class = filtersets.ContentTypeFilterSet

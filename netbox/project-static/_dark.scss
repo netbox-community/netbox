@@ -1,0 +1,10 @@
+// Entry for netbox-dark.css stylesheet.
+
+body[data-netbox-color-mode='dark'] {
+  // Imports are scoped under the body when its data-netbox-color-mode attribute is set to 'dark'.
+  @import './theme-dark.scss';
+  @import './bootstrap.scss';
+  @import './select.scss';
+  @import './flatpickr-dark.scss';
+  @import './netbox.scss';
+}

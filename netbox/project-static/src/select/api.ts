@@ -184,7 +184,7 @@ export function initApiSelect() {
     // element's value.
     const event = new Event(`netbox.select.onload.${select.name}`);
     // Query Parameters - will have attributes added below.
-    const query = {} as Record<string, string>;
+    const query = { limit: 0 } as Record<string, string | number>;
 
     if (hasUrl(select)) {
       // Store the original URL, so it can be referred back to as filter-by elements change.

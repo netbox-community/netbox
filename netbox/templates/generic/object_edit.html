@@ -15,7 +15,7 @@
   {% csrf_token %}
   {% for field in form.hidden_fields %}{{ field }}{% endfor %}
   <div class="row">
-    <div class="col-md-8 col-md-offset-3">
+    <div class="col col-md-8">
       {% block tabs %}{% endblock %}
       {% block form %}
       {% if form.Meta.fieldsets %}
@@ -51,12 +51,12 @@
     </div>
   </div>
   <div class="row my-3">
-    <div class="col-md-8 col-md-offset-3 text-end">
+    <div class="col col-md-8 text-end">
       {% block buttons %}
       <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
       {% if obj.pk %}
       <button type="submit" name="_update" class="btn btn-primary">
-        Update
+        Save
       </button>
       {% else %}
       <button type="submit" name="_addanother" class="btn btn-outline-primary">

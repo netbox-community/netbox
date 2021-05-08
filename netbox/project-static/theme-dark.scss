@@ -47,11 +47,11 @@ $box-shadow: 0 0.5rem 1rem rgba($black, 0.15);
 $box-shadow-sm: 0 0.125rem 0.25rem rgba($black, 0.075);
 $box-shadow-lg: 0 1rem 3rem rgba($black, 0.175);
 $box-shadow-inset: inset 0 1px 2px rgba($black, 0.075);
-// $component-active-color:      $white;
-// $component-active-bg:         $primary;
-$text-muted: $gray-500;
+$text-muted: $gray-400;
 $blockquote-footer-color: $gray-600;
 $mark-bg: #fcf8e3;
+$link-color: $primary;
+$link-hover-color: $blue-200;
 
 // Tables
 $table-color: $gray-100;
@@ -129,6 +129,10 @@ $nav-tabs-link-active-border-color: $gray-800 $gray-800 $nav-tabs-link-active-bg
 $nav-pills-link-active-color: $component-active-color;
 $nav-pills-link-active-bg: $component-active-bg;
 
+$navbar-light-color: $gray-500;
+$navbar-light-toggler-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='#{$navbar-light-color}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+$navbar-light-toggler-border-color: $gray-700;
+
 // Dropdowns
 $dropdown-color: $body-color;
 $dropdown-bg: $gray-900;
@@ -170,8 +174,8 @@ $accordion-bg: transparent;
 $accordion-border-color: rgba($white, 0.125);
 $accordion-button-color: $accordion-color;
 $accordion-button-bg: $accordion-bg;
-$accordion-button-active-bg: tint-color($component-active-bg, 5%);
-$accordion-button-active-color: shade-color($primary, 10%);
+$accordion-button-active-bg: rgba($blue-300, 0.15);
+$accordion-button-active-color: $gray-300;
 $accordion-button-focus-border-color: $input-focus-border-color;
 $accordion-icon-color: $accordion-color;
 $accordion-icon-active-color: $accordion-button-active-color;
@@ -259,7 +263,7 @@ $btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' v
 $btn-close-white-filter: invert(1) grayscale(100%) brightness(200%);
 
 // Code
-$code-color: $pink-300;
+$code-color: $gray-200;
 $kbd-color: $white;
 $kbd-bg: $gray-300;
 $pre-color: null;

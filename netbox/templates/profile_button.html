@@ -1,10 +1,10 @@
 {% if request.user.is_authenticated %}
-<div class="dropdown">
+<span class="dropdown ms-0 ms-md-3">
   <button
     type="button"
     aria-expanded="false"
     data-bs-toggle="dropdown"
-    class="btn btn-outline-secondary dropdown-toggle ms-4"
+    class="btn btn-outline-secondary dropdown-toggle"
   >
     <i class="mdi mdi-account"></i>
     <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
@@ -35,15 +35,26 @@
       </a>
     </li>
   </ul>
-</div>
+</span>
 {% else %}
-<div>
+<div class="btn-group ms-0 ms-md-3">
   <a
-    class="btn btn-primary mx-4 ws-nowrap"
+    class="btn btn-primary ws-nowrap"
     type="button"
     href="{% url 'login' %}"
   >
     <i class="mdi mdi-login-variant"></i> Log In
   </a>
+  <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+    <span class="visually-hidden">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li>
+      <button class="dropdown-item color-mode-toggle">
+        <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        <span class="color-mode-text">Dark Mode</span>
+      </button>
+    </li>
+  </ul>
 </div>
 {% endif %}

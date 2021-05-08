@@ -1,4 +1,5 @@
-// Base Netbox Theme Overrides and Settings - color mode agnostic.
+// Base NetBox Theme Overrides and Settings - color mode agnostic.
+
 @import 'bootstrap/scss/functions';
 
 $alt: #13293d;
@@ -11,6 +12,7 @@ $green: #10b981;
 $blue: #3b82f6;
 $purple: #8b5cf6;
 $pink: #ec4899;
+$cyan: #06b6d4;
 
 $gray-50: #f9fafb;
 $gray-100: #f3f4f6;
@@ -67,6 +69,17 @@ $blue-700: #1d4ed8;
 $blue-800: #1e40af;
 $blue-900: #1e3a8a;
 
+$cyan-50: #ecfeff;
+$cyan-100: #cffafe;
+$cyan-200: #a5f3fc;
+$cyan-300: #67e8f9;
+$cyan-400: #22d3ee;
+$cyan-500: #06b6d4;
+$cyan-600: #0891b2;
+$cyan-700: #0e7490;
+$cyan-800: #155e75;
+$cyan-900: #164e63;
+
 $indigo-50: #eef2ff;
 $indigo-100: #e0e7ff;
 $indigo-200: #c7d2fe;
@@ -118,6 +131,13 @@ $progress-border-radius: $border-radius-md;
 $font-weight-lighter: 200;
 $font-weight-medium: 600;
 $font-weight-bolder: 800;
+
+$font-size-xs: 0.9rem;
+
+$line-height-base: 1.5;
+$line-height-xs: 1;
+$line-height-sm: 1.25;
+$line-height-lg: 1.75;
 
 $theme-color-addons: (
   'alt': $alt,
@@ -173,6 +193,16 @@ $theme-color-addons: (
   'blue-700': $blue-700,
   'blue-800': $blue-800,
   'blue-900': $blue-900,
+  'cyan-50': $cyan-50,
+  'cyan-100': $cyan-100,
+  'cyan-200': $cyan-200,
+  'cyan-300': $cyan-300,
+  'cyan-400': $cyan-400,
+  'cyan-500': $cyan-500,
+  'cyan-600': $cyan-600,
+  'cyan-700': $cyan-700,
+  'cyan-800': $cyan-800,
+  'cyan-900': $cyan-900,
   'indigo-50': $indigo-50,
   'indigo-100': $indigo-100,
   'indigo-200': $indigo-200,
@@ -210,3 +240,6 @@ $font-family-sans-serif: ui-sans-serif, system-ui, -apple-system, BlinkMacSystem
   'Segoe UI Symbol', 'Noto Color Emoji';
 $font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
   'Courier New', monospace;
+
+$accordion-padding-y: 0.8125rem;
+$accordion-padding-x: 0.8125rem;

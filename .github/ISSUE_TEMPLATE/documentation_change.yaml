@@ -30,6 +30,6 @@ body:
   - type: textarea
     attributes:
       label: Proposed Changes
-      description: "Describe the proposed changes and why they are necessary"
+      description: Describe the proposed changes and why they are necessary.
     validations:
       required: true

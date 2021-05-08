@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 from rest_framework import status
 
-from dcim.filters import SiteFilterSet
+from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteCSVForm
 from dcim.models import Site, Rack
 from extras.choices import *

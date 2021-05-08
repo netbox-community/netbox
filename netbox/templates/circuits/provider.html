@@ -4,13 +4,13 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-4">
+	<div class="col col-md-4">
         <div class="card">
             <h5 class="card-header">
                 Provider
@@ -54,7 +54,7 @@
         </div>
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-6">
+    <div class="col col-md-6">
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:provider_list' %}
         <div class="card">
@@ -71,7 +71,7 @@
         </div>
         {% plugin_right_page object %}
 	</div>
-	<div class="col-md-8">
+	<div class="col col-md-8">
         <div class="card">
             <h5 class="card-header">
                 Circuits
@@ -91,7 +91,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

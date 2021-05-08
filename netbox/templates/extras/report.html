@@ -32,7 +32,7 @@
 </div>
 {% endif %}
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% if report.result %}
             Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
                 <strong>{{ report.result.created }}</strong>

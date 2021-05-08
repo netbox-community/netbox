@@ -7,7 +7,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-5 col-sm-12">
+        <div class="col col-md-5">
             <div class="cable-trace">
                 {% with traced_path=path.origin.trace %}
                     {% for near_end, cable, far_end in traced_path %}
@@ -87,7 +87,7 @@
                 {% endwith %}
             </div>
         </div>
-        <div class="col-md-7 col-sm-12">
+        <div class="col col-md-7">
 
             <div class="card">
                 <h5 class="card-header">

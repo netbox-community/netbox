@@ -10,7 +10,7 @@ from rest_framework.viewsets import ViewSet
 
 from extras.api.views import CustomFieldModelViewSet
 from netbox.api.views import ModelViewSet
-from secrets import filters
+from secrets import filtersets
 from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.utils import count_related
@@ -39,7 +39,7 @@ class SecretRoleViewSet(CustomFieldModelViewSet):
         secret_count=count_related(Secret, 'role')
     )
     serializer_class = serializers.SecretRoleSerializer
-    filterset_class = filters.SecretRoleFilterSet
+    filterset_class = filtersets.SecretRoleFilterSet
 
 
 #
@@ -49,7 +49,7 @@ class SecretRoleViewSet(CustomFieldModelViewSet):
 class SecretViewSet(ModelViewSet):
     queryset = Secret.objects.prefetch_related('role', 'tags')
     serializer_class = serializers.SecretSerializer
-    filterset_class = filters.SecretFilterSet
+    filterset_class = filtersets.SecretFilterSet
 
     master_key = None
 

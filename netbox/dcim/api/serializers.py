@@ -172,10 +172,9 @@ class RackSerializer(PrimaryModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'url', 'display', 'name', 'facility_id', 'display_name', 'site', 'location', 'tenant', 'status',
-            'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'powerfeed_count',
+            'id', 'url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status', 'role', 'serial',
+            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (location, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -284,9 +283,9 @@ class DeviceTypeSerializer(PrimaryModelSerializer):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'display_name', 'part_number', 'u_height',
-            'is_full_depth', 'subdevice_role', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', 'device_count',
+            'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'device_count',
         ]
 
 
@@ -465,10 +464,10 @@ class DeviceSerializer(PrimaryModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'id', 'url', 'display', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform',
-            'serial', 'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
+            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 
@@ -501,10 +500,10 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
     class Meta(DeviceSerializer.Meta):
         fields = [
-            'id', 'url', 'display', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform',
-            'serial', 'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
+            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data',
+            'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)

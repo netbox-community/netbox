@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-9">
+        <div class="col col-md-9">
             {% if scripts %}
                 {% for module, module_scripts in scripts.items %}
                     <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
@@ -49,7 +49,7 @@
                 </div>
             {% endif %}
         </div>
-        <div class="col-md-3">
+        <div class="col col-md-3">
             {% if scripts %}
                 <div class="card">
                     <div class="card-body">

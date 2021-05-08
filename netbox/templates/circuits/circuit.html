@@ -10,19 +10,13 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
                 Circuit
             </h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
-                    <tr>
-                        <td colspan="2">
-                        <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                        </td>
-
-                    </tr>
                     <tr>
                         <th scope="row">Provider</th>
                         <td>
@@ -48,6 +42,12 @@
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -81,14 +81,14 @@
         </div>
         {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
-        {% include 'circuits/inc/circuit_termination.html' with termination=termination_a side='A' %}
-        {% include 'circuits/inc/circuit_termination.html' with termination=termination_z side='Z' %}
+	<div class="col col-md-6">
+        {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_a side='A' %}
+        {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_z side='Z' %}
         {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

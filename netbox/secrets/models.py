@@ -233,7 +233,7 @@ class SessionKey(BigIDModel):
         return session_key
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class SecretRole(OrganizationalModel):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles

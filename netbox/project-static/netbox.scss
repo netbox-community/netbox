@@ -11,7 +11,7 @@
   --nbx-sidebar-title-color: #{$text-muted};
   --nbx-breadcrumb-bg: #{$light};
   --nbx-body-bg: #{$white};
-  --nbx-body-color: #{$black};
+  --nbx-body-color: #{$gray-800};
   --nbx-pre-bg: #{$gray-100};
   --nbx-pre-border-color: #{$gray-600};
   --nbx-change-added: #{rgba($green, 0.4)};
@@ -20,6 +20,9 @@
   --nbx-cable-node-border-color: #{$gray-200};
   --nbx-cable-termination-bg: #{$gray-200};
   --nbx-cable-termination-border-color: #{$gray-300};
+  --nbx-search-filter-border-left-color: #{$gray-300};
+  --nbx-color-mode-toggle-color: #{$primary};
+  --nbx-stat-badge-bg: #{$gray-600};
 
   body[data-netbox-color-mode='dark'] {
     --nbx-logo-color-1: #{$white};
@@ -30,7 +33,7 @@
     --nbx-sidebar-title-color: #{$gray-300};
     --nbx-breadcrumb-bg: #{$gray-800};
     --nbx-body-bg: #{$gray-900};
-    --nbx-body-color: #{$white};
+    --nbx-body-color: #{$gray-50};
     --nbx-pre-bg: #{$gray-700};
     --nbx-pre-border-color: #{$gray-600};
     --nbx-change-added: #{rgba($green-300, 0.4)};
@@ -39,11 +42,39 @@
     --nbx-cable-node-border-color: #{$gray-600};
     --nbx-cable-termination-bg: #{$gray-800};
     --nbx-cable-termination-border-color: #{$gray-700};
+    --nbx-search-filter-border-left-color: #{$gray-600};
+    --nbx-color-mode-toggle-color: #{$yellow-300};
+    --nbx-stat-badge-bg: #{$gray-600};
   }
 }
 
 * {
   transition: background-color, color 0.15s ease-in-out;
+}
+
+.text-xs {
+  font-size: $font-size-xs;
+  line-height: $line-height-sm;
+}
+
+// Automatically space out adjacent columns.
+.col:not(:last-child):not(:only-child) {
+  margin-bottom: $spacer;
+}
+
+// Use proper contrasting color for badge & progress-bar foreground color.
+@each $color, $value in $theme-colors {
+  .badge,
+  .progress-bar {
+    &.bg-#{$color} {
+      color: color-contrast($value);
+    }
+  }
+}
+
+// Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
+table td > .progress {
+  min-width: 6rem;
 }
 
 body {
@@ -58,9 +89,16 @@ body {
     fill: #1685fc;
     stroke: #1685fc;
   }
+  span.badge.stat-badge {
+    margin-left: map.get($spacers, 2);
+    background-color: var(--nbx-stat-badge-bg);
+  }
+
   &[data-netbox-color-mode='light'] {
-    .btn.btn-primary {
-      color: $white;
+    .btn.btn-primary,
+    .progress-bar.bg-primary,
+    .badge.bg-primary {
+      color: $gray-50;
     }
   }
   &[data-netbox-color-mode='dark'] {
@@ -92,6 +130,32 @@ body {
       stroke: $gray-200;
     }
   }
+  & table,
+  &[data-netbox-color-mode] table {
+    a {
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    &.table > :not(caption) > * > * {
+      padding-left: $table-cell-padding-x-sm !important;
+      padding-right: $table-cell-padding-x-sm !important;
+    }
+    td,
+    th {
+      font-size: $font-size-xs;
+      line-height: $line-height-sm;
+      vertical-align: middle;
+    }
+    &.attr-table {
+      td,
+      th {
+        font-size: $font-size-sm;
+        line-height: $line-height-sm;
+      }
+    }
+  }
 }
 
 div.title-container {
@@ -113,17 +177,35 @@ div.title-container {
 
 nav.search {
   background-color: var(--nbx-body-bg);
+  form button.dropdown-toggle {
+    border-color: $input-border-color;
+    font-weight: $input-group-addon-font-weight;
+    line-height: $input-line-height;
+    color: $input-group-addon-color;
+    background-color: $input-group-addon-bg;
+    border: $input-border-width solid $input-group-addon-border-color;
+    @include border-radius($input-border-radius);
+    border-left: 1px solid var(--nbx-search-filter-border-left-color);
+    &:focus {
+      box-shadow: unset !important;
+    }
+  }
 }
 
 main.login-container {
   display: flex;
   height: calc(100vh - 4rem);
-  width: 100vw;
+  width: 100%;
+  max-width: 100vw;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   padding-top: 40px;
   padding-bottom: 40px;
+
+  & + footer.footer button.color-mode-toggle {
+    color: var(--nbx-color-mode-toggle-color);
+  }
 }
 
 footer.login-footer {
@@ -161,7 +243,8 @@ h3.accordion-item-title,
 h4.accordion-item-title,
 h5.accordion-item-title,
 h6.accordion-item-title {
-  padding: 0 0.5rem;
+  // padding: 0 0.5rem;
+  padding: 0.25rem 0.5rem;
   font-weight: $font-weight-bold;
   text-transform: uppercase;
   color: var(--nbx-sidebar-title-color);
@@ -201,12 +284,6 @@ li.dropdown-item.dropdown-item-btns {
   align-items: center;
 }
 
-@media (max-width: 767.98px) {
-  .sidebar {
-    top: 5rem;
-  }
-}
-
 .sidebar-sticky {
   position: relative;
   top: 0;
@@ -225,12 +302,23 @@ li.dropdown-item.dropdown-item-btns {
 nav.nav.nav-pills {
   .nav-item.nav-link {
     padding: 0.25rem 0.5rem;
-    font-size: $font-size-base;
+    // font-size: $font-size-base;
+    font-size: $font-size-sm;
     border-radius: $border-radius;
     &:hover {
-      color: $body-color;
-      background-color: var(--nbx-sidebar-link-hover-bg);
+      // color: $body-color;
+      // background-color: var(--nbx-sidebar-link-hover-bg);
+      background-color: $accordion-button-active-bg;
+      color: $accordion-button-active-color;
     }
+  }
+}
+
+// Prevent scrolling of body content when nav menu is open on mobile.
+.sidebar.collapse.show ~ .content-container {
+  @media (max-width: map.get($grid-breakpoints, 'md')) {
+    position: fixed;
+    overflow-y: hidden;
   }
 }
 
@@ -242,26 +330,51 @@ nav.nav.nav-pills {
   z-index: 100; /* Behind the navbar */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
   background-color: var(--nbx-sidebar-bg);
-  .sidebar-nav-link {
-    color: var(--nbx-sidebar-link-color);
+
+  @media (max-width: map.get($grid-breakpoints, 'md')) {
+    top: 8.125rem;
   }
+
+  div.accordion-item > a.accordion-button.nav-link {
+    &:hover {
+      // color: $body-color;
+      // background-color: var(--nbx-sidebar-link-hover-bg);
+      color: $accordion-button-active-color;
+      background-color: $accordion-button-active-bg;
+    }
+    &:focus {
+      border-color: unset;
+      box-shadow: unset;
+    }
+  }
+
   .accordion-body {
     max-height: calc(100vh - 24rem);
     overflow-y: auto;
     .nav-item {
       .nav-link {
-        padding: 0.25rem 0.5rem;
-        font-size: $font-size-base;
+        padding: 0.25rem 0.6rem;
+        // font-size: $font-size-base;
+        font-size: $font-size-sm;
         border-radius: $border-radius;
         &:hover {
-          color: $body-color;
-          background-color: var(--nbx-sidebar-link-hover-bg);
+          // color: $body-color;
+          // background-color: var(--nbx-sidebar-link-hover-bg);
+          color: $accordion-button-active-color;
+          background-color: $accordion-button-active-bg;
         }
       }
     }
   }
+  // Ensure navigation accounts for the height of the header on mobile when nav is expanded.
+  &.collapse.show div.position-sticky {
+    @media (max-width: map.get($grid-breakpoints, 'md')) {
+      height: calc(100vh - 16.125rem);
+      overflow-y: auto;
+    }
+  }
   div.position-sticky {
-    height: calc(100% - 8rem);
+    height: calc(100vh - 8rem);
   }
   div.sidebar-bottom {
     padding-left: 0.5rem;
@@ -498,10 +611,6 @@ table tbody {
       border-color: $gray-500;
     }
   }
-}
-table td,
-table th {
-  font-size: $font-size-sm;
 }
 
 // Cable Tracing

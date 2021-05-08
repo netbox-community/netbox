@@ -56,17 +56,19 @@
 {% endwith %}
 {% endif %}
 <div class="row mb-3">
-    <div class="{% if filter_form %}col-9{% else %}col-12{% endif %}">
+    <div class="col{% if filter_form %} col-md-9{% else %} col-md-12{% endif %}">
         <div class="card">
             <div class="card-header">
-                <div class="float-end col-md-2 noprint table-controls">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control object-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
-                        {% if request.user.is_authenticated and table_config_form %}
-                            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ObjectTable_config" title="Configure Table">
-                                <i class="mdi mdi-table-eye"></i>
-                            </button>
-                        {% endif %}
+                <div class="row">
+                    <div class="col col-md-2 offset-md-10 noprint table-controls">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control object-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
+                            {% if request.user.is_authenticated and table_config_form %}
+                                <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ObjectTable_config" title="Configure Table">
+                                    <i class="mdi mdi-table-eye"></i>
+                                </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -102,7 +104,7 @@
         </div>
     </div>
     {% if filter_form %}
-    <div class="col-3 noprint">
+    <div class="col col-md-3 noprint">
         {% block sidebar %}{% endblock %}
         {% include 'inc/search_panel.html' %}
     </div>

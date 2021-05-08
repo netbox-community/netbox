@@ -9,7 +9,7 @@
 <form action="." method="post">
     {% csrf_token %}
     <div class="row">
-        <div class="col-md-6 col-md-offset-3">
+        <div class="col col-md-6">
             <div class="field-group mb-3">
                 <h4>New {{ component_type }}</h4>
                     <div class="form-floating mb-3">
@@ -19,7 +19,7 @@
                     {% render_form form %}
                 </div>
             </div>
-            <div class="col-md-9 col-md-offset-3">
+            <div class="col col-md-9">
                 <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 <button type="submit" name="_update" class="btn btn-primary">Save</button>
             </div>

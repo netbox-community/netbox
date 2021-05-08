@@ -27,8 +27,10 @@ if (args.includes('--no-cache')) {
 // Style (SCSS) bundle jobs. Generally, everything should be bundled into netbox.css from main.scss
 // unless there is a specific reason to do otherwise.
 const styles = [
-  ['main.scss', 'netbox.css'],
-  ['rack_elevation.scss', 'rack_elevation.css'],
+  ['_external.scss', 'netbox-external.css'],
+  ['_light.scss', 'netbox-light.css'],
+  ['_dark.scss', 'netbox-dark.css'],
+  ['_elevations.scss', 'rack_elevation.css'],
 ];
 
 // Script (JavaScript) bundle jobs. Generally, everything should be bundled into netbox.js from

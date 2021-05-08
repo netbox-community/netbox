@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="row">
-  <div class="col-md-6">
+  <div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
         Tag
@@ -50,13 +50,13 @@
       </div>
     </div>
   </div>
-  <div class="col-md-6">
+  <div class="col col-md-6">
     {% include 'panel_table.html' with table=items_table heading='Tagged Objects' %}
     {% include 'inc/paginator.html' with paginator=items_table.paginator page=items_table.page %}
   </div>
 </div>
 <div class="row">
-  <div class="col-md-12">
+  <div class="col col-md-12">
     {% include 'inc/paginator.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
   </div>
 </div>

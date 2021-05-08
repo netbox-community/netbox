@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-5">
+    <div class="col col-md-5">
         <div class="card">
             <h5 class="card-header">
                 Prefix
@@ -79,7 +79,7 @@
                             {% if object.vlan.group %}
                                 <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
                             {% endif %}
-                            <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan.display_name }}</a>
+                            <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -109,7 +109,7 @@
         {% include 'inc/custom_fields_panel.html' %}
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-7">
+    <div class="col col-md-7">
         {% if duplicate_prefix_table.rows %}
             {% include 'panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' %}
         {% endif %}
@@ -118,12 +118,12 @@
     </div>
 </div>
 <div class="row my-3">
-    <div class="col-md-5">
+    <div class="col col-md-5">
     {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:prefix_list' %}
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

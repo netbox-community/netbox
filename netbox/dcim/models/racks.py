@@ -35,7 +35,7 @@ __all__ = (
 # Racks
 #
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
@@ -209,7 +209,9 @@ class Rack(PrimaryModel):
         )
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        if self.facility_id:
+            return f'{self.name} ({self.facility_id})'
+        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -276,12 +278,6 @@ class Rack(PrimaryModel):
             return range(1, self.u_height + 1)
         else:
             return reversed(range(1, self.u_height + 1))
-
-    @property
-    def display_name(self):
-        if self.facility_id:
-            return f'{self.name} ({self.facility_id})'
-        return self.name
 
     def get_status_class(self):
         return RackStatusChoices.CSS_CLASSES.get(self.status)

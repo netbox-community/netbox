@@ -1,13 +1,16 @@
 import django_filters
 from django.contrib.auth.models import User
 
-from extras.filters import CustomFieldModelFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
-from tenancy.filters import TenancyFilterSet
+from extras.filters import TagFilter
+from extras.filtersets import LocalConfigContextFilterSet
+from netbox.filtersets import (
+    BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
+)
+from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
-    BaseFilterSet, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
-    NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .choices import *
@@ -57,7 +60,7 @@ __all__ = (
 )
 
 
-class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class RegionFilterSet(OrganizationalModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -74,7 +77,7 @@ class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilt
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class SiteGroupFilterSet(OrganizationalModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         label='Parent site group (ID)',
@@ -91,7 +94,7 @@ class SiteGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedF
         fields = ['id', 'name', 'slug', 'description']
 
 
-class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -154,7 +157,7 @@ class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         return queryset.filter(qs_filter)
 
 
-class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class LocationFilterSet(OrganizationalModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -218,14 +221,14 @@ class LocationFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFi
         )
 
 
-class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class RackRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = RackRole
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -323,7 +326,7 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, 
         )
 
 
-class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -383,14 +386,14 @@ class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldModel
         )
 
 
-class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class ManufacturerFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = Manufacturer
         fields = ['id', 'name', 'slug', 'description']
 
 
-class DeviceTypeFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class DeviceTypeFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -476,7 +479,7 @@ class DeviceTypeFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdat
         return queryset.exclude(devicebaytemplates__isnull=value)
 
 
-class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class DeviceTypeComponentFilterSet(django_filters.FilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         field_name='device_type_id',
@@ -484,28 +487,28 @@ class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet, CreatedUpdatedFilter
     )
 
 
-class ConsolePortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsolePortTemplate
         fields = ['id', 'name', 'type']
 
 
-class ConsoleServerPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class ConsoleServerPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPortTemplate
         fields = ['id', 'name', 'type']
 
 
-class PowerPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerPortTemplate
         fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw']
 
 
-class PowerOutletTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
     feed_leg = django_filters.MultipleChoiceFilter(
         choices=PowerOutletFeedLegChoices,
         null_value=None
@@ -516,7 +519,7 @@ class PowerOutletTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
         fields = ['id', 'name', 'type', 'feed_leg']
 
 
-class InterfaceTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
         null_value=None
@@ -527,7 +530,7 @@ class InterfaceTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
         fields = ['id', 'name', 'type', 'mgmt_only']
 
 
-class FrontPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -538,7 +541,7 @@ class FrontPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
         fields = ['id', 'name', 'type']
 
 
-class RearPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -549,21 +552,21 @@ class RearPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
         fields = ['id', 'name', 'type', 'positions']
 
 
-class DeviceBayTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
+class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = DeviceBayTemplate
         fields = ['id', 'name']
 
 
-class DeviceRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class DeviceRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = DeviceRole
         fields = ['id', 'name', 'slug', 'color', 'vm_role']
 
 
-class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFilterSet):
+class PlatformFilterSet(OrganizationalModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -581,13 +584,7 @@ class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet, CreatedUpdatedFi
         fields = ['id', 'name', 'slug', 'napalm_driver', 'description']
 
 
-class DeviceFilterSet(
-    BaseFilterSet,
-    TenancyFilterSet,
-    LocalConfigContextFilterSet,
-    CustomFieldModelFilterSet,
-    CreatedUpdatedFilterSet
-):
+class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContextFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -792,7 +789,7 @@ class DeviceFilterSet(
         return queryset.exclude(devicebays__isnull=value)
 
 
-class DeviceComponentFilterSet(CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class DeviceComponentFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -876,7 +873,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
             return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
 
 
-class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class ConsolePortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -887,12 +884,7 @@ class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTermina
         fields = ['id', 'name', 'label', 'description']
 
 
-class ConsoleServerPortFilterSet(
-    BaseFilterSet,
-    DeviceComponentFilterSet,
-    CableTerminationFilterSet,
-    PathEndpointFilterSet
-):
+class ConsoleServerPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -903,7 +895,7 @@ class ConsoleServerPortFilterSet(
         fields = ['id', 'name', 'label', 'description']
 
 
-class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class PowerPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
         null_value=None
@@ -914,7 +906,7 @@ class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
         fields = ['id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description']
 
 
-class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class PowerOutletFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
         null_value=None
@@ -929,7 +921,7 @@ class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTermina
         fields = ['id', 'name', 'label', 'feed_leg', 'description']
 
 
-class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1027,7 +1019,7 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
         }.get(value, queryset.none())
 
 
-class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
+class FrontPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -1038,7 +1030,7 @@ class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminati
         fields = ['id', 'name', 'label', 'type', 'description']
 
 
-class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
+class RearPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -1049,14 +1041,14 @@ class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminatio
         fields = ['id', 'name', 'label', 'type', 'positions', 'description']
 
 
-class DeviceBayFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class DeviceBayFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
         fields = ['id', 'name', 'label', 'description']
 
 
-class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1129,7 +1121,7 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class VirtualChassisFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1209,7 +1201,7 @@ class VirtualChassisFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedU
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class CableFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1273,7 +1265,7 @@ class CableFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFil
         return queryset
 
 
-class ConnectionFilterSet:
+class ConnectionFilterSet(BaseFilterSet):
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
@@ -1286,7 +1278,7 @@ class ConnectionFilterSet:
         return queryset.filter(**{f'{name}__in': value})
 
 
-class ConsoleConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
+class ConsoleConnectionFilterSet(ConnectionFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1304,7 +1296,7 @@ class ConsoleConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
         fields = ['name']
 
 
-class PowerConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
+class PowerConnectionFilterSet(ConnectionFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1322,7 +1314,7 @@ class PowerConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
         fields = ['name']
 
 
-class InterfaceConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
+class InterfaceConnectionFilterSet(ConnectionFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1340,7 +1332,7 @@ class InterfaceConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
         fields = []
 
 
-class PowerPanelFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdatedFilterSet):
+class PowerPanelFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1402,13 +1394,7 @@ class PowerPanelFilterSet(BaseFilterSet, CustomFieldModelFilterSet, CreatedUpdat
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(
-    BaseFilterSet,
-    CableTerminationFilterSet,
-    PathEndpointFilterSet,
-    CustomFieldModelFilterSet,
-    CreatedUpdatedFilterSet
-):
+class PowerFeedFilterSet(PrimaryModelFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

@@ -60,6 +60,7 @@ div.form-floating div.ss-main div.ss-multi-selected {
   div.ss-multi-selected .ss-values .ss-disabled,
   div.ss-single-selected span.placeholder .ss-disabled {
     color: var(--nbx-select-placeholder-color);
+    font-size: $font-size-xs;
   }
 
   .ss-single-selected {
@@ -109,12 +110,19 @@ div.form-floating div.ss-main div.ss-multi-selected {
         border-bottom-left-radius: $form-select-border-radius;
         border-bottom-right-radius: $form-select-border-radius;
       }
+      .ss-option.ss-disabled {
+        background-color: transparent;
+      }
+      .ss-option.ss-disabled:hover {
+        color: unset;
+      }
     }
     border-bottom-left-radius: $form-select-border-radius;
     border-bottom-right-radius: $form-select-border-radius;
     .ss-search {
       input[type='search'] {
         background-color: $form-select-bg;
+        color: $input-color;
         border: $form-select-border-width solid $form-select-border-color;
         &:focus {
           border-color: $form-select-focus-border-color;
