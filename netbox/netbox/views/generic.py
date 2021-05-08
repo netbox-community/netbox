@@ -1108,7 +1108,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         form = self.form(request.POST, initial=request.GET)
         self.validate_form(request, form)
 
-        if form.is_valid():
+        if form.is_valid() and not form.errors:
             if '_addanother' in request.POST:
                 return redirect(request.get_full_path())
             else:
