@@ -1088,6 +1088,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     form = None
     model_form = None
     template_name = None
+    created_objects = []
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -1105,25 +1106,47 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     def post(self, request):
         logger = logging.getLogger('netbox.views.ComponentCreateView')
         form = self.form(request.POST, initial=request.GET)
+        self.validate_form(request, form)
 
         if form.is_valid():
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+            else:
+                return redirect(self.get_return_url(request))
 
+        return render(request, self.template_name, {
+            'component_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request),
+        })
+
+    def validate_form(self, request, form):
+        """
+        Validate form values and set errors on the form object as they are detected. If
+        no errors are found, signal success messages.
+        """
+
+        logger = logging.getLogger('netbox.views.ComponentCreateView')
+        if form.is_valid():
             new_components = []
             data = deepcopy(request.POST)
-
             names = form.cleaned_data['name_pattern']
             labels = form.cleaned_data.get('label_pattern')
+
             for i, name in enumerate(names):
                 label = labels[i] if labels else None
                 # Initialize the individual component form
                 data['name'] = name
                 data['label'] = label
+
                 if hasattr(form, 'get_iterative_data'):
                     data.update(form.get_iterative_data(i))
+
                 component_form = self.model_form(data)
 
                 if component_form.is_valid():
                     new_components.append(component_form)
+
                 else:
                     for field, errors in component_form.errors.as_data().items():
                         # Assign errors on the child form's name/label field to name_pattern/label_pattern on the parent form
@@ -1135,39 +1158,25 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                             form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
 
             if not form.errors:
-
                 try:
-
                     with transaction.atomic():
-
                         # Create the new components
-                        new_objs = []
                         for component_form in new_components:
                             obj = component_form.save()
-                            new_objs.append(obj)
+                            self.created_objects.append(obj)
 
                         # Enforce object-level permissions
-                        if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                        if self.queryset.filter(pk__in=[obj.pk for obj in self.created_objects]).count() != len(self.created_objects):
                             raise ObjectDoesNotExist
 
                     messages.success(request, "Added {} {}".format(
                         len(new_components), self.queryset.model._meta.verbose_name_plural
                     ))
-                    if '_addanother' in request.POST:
-                        return redirect(request.get_full_path())
-                    else:
-                        return redirect(self.get_return_url(request))
 
                 except ObjectDoesNotExist:
                     msg = "Component creation failed due to object-level permissions violation"
                     logger.debug(msg)
                     form.add_error(None, msg)
-
-        return render(request, self.template_name, {
-            'component_type': self.queryset.model._meta.verbose_name,
-            'form': form,
-            'return_url': self.get_return_url(request),
-        })
 
 
 class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
