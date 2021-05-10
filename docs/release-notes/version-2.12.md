@@ -2,6 +2,10 @@
 
 ## v2.12-beta1 (FUTURE)
 
+### Enhancements
+
+* [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
+
 ### Other Changes
 
 * [#5532](https://github.com/netbox-community/netbox/issues/5532) - Drop support for Python 3.6

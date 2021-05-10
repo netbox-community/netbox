@@ -1064,14 +1064,21 @@ class CableStatusChoices(ChoiceSet):
 
 class CableLengthUnitChoices(ChoiceSet):
 
+    # Metric
+    UNIT_KILOMETER = 'km'
     UNIT_METER = 'm'
     UNIT_CENTIMETER = 'cm'
+
+    # Imperial
+    UNIT_MILE = 'mi'
     UNIT_FOOT = 'ft'
     UNIT_INCH = 'in'
 
     CHOICES = (
+        (UNIT_KILOMETER, 'Kilometers'),
         (UNIT_METER, 'Meters'),
         (UNIT_CENTIMETER, 'Centimeters'),
+        (UNIT_MILE, 'Miles'),
         (UNIT_FOOT, 'Feet'),
         (UNIT_INCH, 'Inches'),
     )
