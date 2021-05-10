@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
+* [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
 
 ### Other Changes
 
@@ -13,6 +14,8 @@
 
 ### REST API Changes
 
+* dcim.Cable
+    * `length` is now a decimal value
 * dcim.Device
     * Removed the `display_name` attribute (use `display` instead)
 * dcim.DeviceType
