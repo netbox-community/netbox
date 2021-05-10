@@ -1922,7 +1922,7 @@ class InterfaceCreateView(generic.ComponentCreateView):
         form = self.form(request.POST, initial=request.GET)
         self.validate_form(request, form)
 
-        if form.is_valid():
+        if form.is_valid() and not form.errors:
             if '_addanother' in request.POST:
                 return redirect(request.get_full_path())
             elif '_assignip' in request.POST and len(self.created_objects) >= 1 and request.user.has_perm('ipam.add_ipaddress'):
