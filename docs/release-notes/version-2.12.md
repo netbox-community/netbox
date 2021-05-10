@@ -11,6 +11,7 @@
 
 * [#5532](https://github.com/netbox-community/netbox/issues/5532) - Drop support for Python 3.6
 * [#5994](https://github.com/netbox-community/netbox/issues/5994) - Drop support for `display_field` argument on ObjectVar
+* [#6338](https://github.com/netbox-community/netbox/issues/6338) - Decimal fields are no longer coerced to strings in REST API
 
 ### REST API Changes
 
@@ -22,9 +23,13 @@
     * Removed the `display_name` attribute (use `display` instead)
 * dcim.Rack
     * Removed the `display_name` attribute (use `display` instead)
+* dcim.Site
+    * `latitude` and `longitude` are now decimal fields rather than strings
 * extras.ContentType
     * Removed the `display_name` attribute (use `display` instead)
 * ipam.VLAN
     * Removed the `display_name` attribute (use `display` instead)
 * ipam.VRF
     * Removed the `display_name` attribute (use `display` instead)
+* virtualization.VirtualMachine
+    * `vcpus` is now a decimal field rather than a string
