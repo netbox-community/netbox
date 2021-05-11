@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#3665](https://github.com/netbox-community/netbox/issues/3665) - Enable rendering export templates via REST API
 * [#4609](https://github.com/netbox-community/netbox/issues/4609) - Allow marking prefixes as fully utilized
 * [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
