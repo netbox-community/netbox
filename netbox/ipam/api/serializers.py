@@ -202,7 +202,7 @@ class PrefixSerializer(PrimaryModelSerializer):
         model = Prefix
         fields = [
             'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'mark_utilized', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 
