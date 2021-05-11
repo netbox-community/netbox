@@ -7,10 +7,10 @@
     <div class="col col-md-5">
         <div class="card">
             <h5 class="card-header">
-                Prefix
+              Prefix
             </h5>
             <div class="card-body">
-            <table class="table table-hover attr-table">
+              <table class="table table-hover attr-table">
                 <tr>
                     <td colspan="2">
                     <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
@@ -20,7 +20,6 @@
                         <span class="badge bg-info">Not a Pool</span>
                     {% endif %}
                     </td>
-
                 </tr>
                 <tr>
                     <th scope="row">Family</th>
@@ -101,9 +100,15 @@
                 </tr>
                 <tr>
                     <th scope="row">Utilization</th>
-                    <td>{% utilization_graph object.get_utilization %}</td>
+                    <td>
+                      {% if object.marked_utilized %}
+                        {% utilization_graph 100 %}
+                      {% else %}
+                        {% utilization_graph object.get_utilization %}
+                      {% endif %}
+                    </td>
                 </tr>
-            </table>
+              </table>
             </div>
         </div>
         {% include 'inc/custom_fields_panel.html' %}

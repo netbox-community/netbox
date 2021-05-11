@@ -283,11 +283,15 @@ class PrefixTable(BaseTable):
     is_pool = BooleanColumn(
         verbose_name='Pool'
     )
+    mark_utilized = BooleanColumn(
+        verbose_name='Marked Utilized'
+    )
 
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'prefix', 'status', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
+            'pk', 'prefix', 'status', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'mark_utilized',
+            'description',
         )
         default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
@@ -308,7 +312,7 @@ class PrefixDetailTable(PrefixTable):
     class Meta(PrefixTable.Meta):
         fields = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'is_pool',
-            'description', 'tags',
+            'mark_utilized', 'description', 'tags',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',

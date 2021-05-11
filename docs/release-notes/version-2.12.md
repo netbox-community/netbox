@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#4609](https://github.com/netbox-community/netbox/issues/4609) - Allow marking prefixes as fully utilized
 * [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
 
@@ -27,6 +28,8 @@
     * `latitude` and `longitude` are now decimal fields rather than strings
 * extras.ContentType
     * Removed the `display_name` attribute (use `display` instead)
+* ipam.Prefix
+    * Added the `mark_utilized` boolean field
 * ipam.VLAN
     * Removed the `display_name` attribute (use `display` instead)
 * ipam.VRF
