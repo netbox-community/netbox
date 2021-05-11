@@ -1,42 +1,18 @@
 {% if utilization == 0 %}
-<div class="progress align-items-center justify-content-center">
+  <div class="progress align-items-center justify-content-center">
     <span class="w-100 text-center">{{ utilization }}%</span>
-</div>
+  </div>
 {% else %}
-<div class="progress">
-    {% if utilization >= danger_threshold %}
-    <div 
-        aria-valuemin="0"
-        role="progressbar"
-        aria-valuemax="100"
-        class="progress-bar bg-danger"
-        aria-valuenow="{{ utilization }}"
-        style="width: {{ utilization }}%;"
+  <div class="progress">
+    <div
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="{{ utilization }}"
+      class="progress-bar {{ bar_class }}"
+      style="min-width: 8%; width: {{ utilization }}%;"
     >
-        {{ utilization }}%
+      {{ utilization }}%
     </div>
-    {% elif utilization >= warning_threshold %}
-    <div 
-        aria-valuemin="0"
-        role="progressbar"
-        aria-valuemax="100"
-        aria-valuenow="{{ utilization }}"
-        style="width: {{ utilization }}%;"
-        class="progress-bar bg-warning"
-    >
-        {{ utilization }}%
-    </div>
-    {% else %}
-    <div 
-        aria-valuemin="0"
-        role="progressbar"
-        aria-valuemax="100"
-        class="progress-bar bg-success"
-        aria-valuenow="{{ utilization }}"
-        style="min-width: 8%;width: {{ utilization }}%;"
-    >
-        {{ utilization }}%
-    </div>
-    {% endif %}
-</div>
+  </div>
 {% endif %}
