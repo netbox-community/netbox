@@ -12,7 +12,6 @@
             <a class="nav-link nav-item text-start{% if active_tab == 'change-password' %} active{% endif %}" href="{% url 'user:change_password' %}">Change Password</a>
             {% endif %}
             <a class="nav-link nav-item text-start{% if active_tab == 'api-tokens' %} active{% endif %}" href="{% url 'user:token_list' %}">API Tokens</a>
-            <a class="nav-link nav-item text-start{% if active_tab == 'userkey' %} active{% endif %}" href="{% url 'user:userkey' %}">User Key</a>
         </nav>
     </div>
 	<div class="col-sm-9 col-md-8 px-4">
