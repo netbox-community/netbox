@@ -6,6 +6,10 @@
 
 * [#6393](https://github.com/netbox-community/netbox/issues/6393) - Add `description` filter for IP addresses
 
+### Bug Fixes
+
+* [#6376](https://github.com/netbox-community/netbox/issues/6376) - Fix assignment of VLAN groups to clusters, cluster groups via REST API
+
 ---
 
 ## v2.11.3 (2021-05-07)
