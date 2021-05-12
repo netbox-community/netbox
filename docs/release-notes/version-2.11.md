@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.4 (FUTURE)
+
+### Enhancements
+
+* [#6393](https://github.com/netbox-community/netbox/issues/6393) - Add `description` filter for IP addresses
+
+---
+
 ## v2.11.3 (2021-05-07)
 
 ### Enhancements

@@ -468,7 +468,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'dns_name']
+        fields = ['id', 'dns_name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
