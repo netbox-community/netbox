@@ -7,14 +7,16 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.fields import MACAddressField
-from dcim.filters import DeviceFilterSet, SiteFilterSet
+from dcim.filtersets import DeviceFilterSet, SiteFilterSet
 from dcim.models import (
     Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
 )
+from extras.filters import TagFilter
 from extras.models import TaggedItem
+from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
-    BaseFilterSet, MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter,
-    MultiValueNumberFilter, MultiValueTimeFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueNumberFilter,
+    MultiValueTimeFilter, TreeNodeMultipleChoiceFilter,
 )
 
 

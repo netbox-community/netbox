@@ -101,7 +101,7 @@ class NestedRackSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Rack
-        fields = ['id', 'url', 'display', 'name', 'display_name', 'device_count']
+        fields = ['id', 'url', 'display', 'name', 'device_count']
 
 
 class NestedRackReservationSerializer(WritableNestedSerializer):
@@ -136,7 +136,7 @@ class NestedDeviceTypeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.DeviceType
-        fields = ['id', 'url', 'display', 'manufacturer', 'model', 'slug', 'display_name', 'device_count']
+        fields = ['id', 'url', 'display', 'manufacturer', 'model', 'slug', 'device_count']
 
 
 class NestedConsolePortTemplateSerializer(WritableNestedSerializer):
@@ -232,7 +232,7 @@ class NestedDeviceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Device
-        fields = ['id', 'url', 'display', 'name', 'display_name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):

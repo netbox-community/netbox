@@ -246,6 +246,9 @@ RQ_DEFAULT_TIMEOUT = 300
 # this setting is derived from the installed location.
 # SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
 
+# The name to use for the session cookie.
+SESSION_COOKIE_NAME = 'sessionid'
+
 # By default, NetBox will store session data in the database. Alternatively, a file path can be specified here to use
 # local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.

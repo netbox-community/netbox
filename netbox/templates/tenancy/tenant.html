@@ -79,6 +79,10 @@
                     <p>VRFs</p>
                 </div>
                 <div class="col col-md-4 text-center">
+                    <h2><a href="{% url 'ipam:aggregate_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.aggregate_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.aggregate_count }}</a></h2>
+                    <p>Aggregates</p>
+                </div>
+                <div class="col col-md-4 text-center">
                     <h2><a href="{% url 'ipam:prefix_list' %}?tenant_id={{ object.pk }}" class="stat-btn btn {% if stats.prefix_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.prefix_count }}</a></h2>
                     <p>Prefixes</p>
                 </div>

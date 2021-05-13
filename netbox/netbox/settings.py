@@ -114,6 +114,7 @@ REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 're
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
+SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -461,6 +462,7 @@ FILTERS_NULL_CHOICE_VALUE = 'null'
 REST_FRAMEWORK_VERSION = VERSION.rsplit('.', 1)[0]  # Use major.minor as API version
 REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
+    'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'netbox.api.authentication.TokenAuthentication',

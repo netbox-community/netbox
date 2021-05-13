@@ -64,6 +64,7 @@ class VLANQuerySet(RestrictedQuerySet):
         return self.filter(
             Q(group__in=VLANGroup.objects.filter(q)) |
             Q(site=device.site) |
+            Q(group__scope_id__isnull=True, site__isnull=True) |  # Global group VLANs
             Q(group__isnull=True, site__isnull=True)  # Global VLANs
         )
 
@@ -104,6 +105,7 @@ class VLANQuerySet(RestrictedQuerySet):
         # Return all applicable VLANs
         q = (
             Q(group__in=vlan_groups) |
+            Q(group__scope_id__isnull=True, site__isnull=True) |  # Global group VLANs
             Q(group__isnull=True, site__isnull=True)  # Global VLANs
         )
         if vm.cluster.site:

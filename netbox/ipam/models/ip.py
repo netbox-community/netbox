@@ -29,7 +29,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class RIR(OrganizationalModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
@@ -184,7 +184,7 @@ class Aggregate(PrimaryModel):
         return int(float(child_prefixes.size) / self.prefix.size * 100)
 
 
-@extras_features('custom_fields', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Role(OrganizationalModel):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
@@ -288,6 +288,10 @@ class Prefix(PrimaryModel):
         default=False,
         help_text='All IP addresses within this prefix are considered usable'
     )
+    mark_utilized = models.BooleanField(
+        default=False,
+        help_text="Treat as 100% utilized"
+    )
     description = models.CharField(
         max_length=200,
         blank=True
@@ -296,10 +300,11 @@ class Prefix(PrimaryModel):
     objects = PrefixQuerySet.as_manager()
 
     csv_headers = [
-        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'description',
+        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
+        'description',
     ]
     clone_fields = [
-        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
+        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
     ]
 
     class Meta:
@@ -364,6 +369,7 @@ class Prefix(PrimaryModel):
             self.get_status_display(),
             self.role.name if self.role else None,
             self.is_pool,
+            self.mark_utilized,
             self.description,
         )
 
@@ -422,23 +428,18 @@ class Prefix(PrimaryModel):
         """
         Return all available IPs within this prefix as an IPSet.
         """
+        if self.mark_utilized:
+            return list()
+
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
         available_ips = prefix - child_ips
 
-        # All IP addresses within a pool are considered usable
-        if self.is_pool:
+        # IPv6, pool, or IPv4 /31 sets are fully usable
+        if self.family == 6 or self.is_pool or self.prefix.prefixlen == 31:
             return available_ips
 
-        # All IP addresses within a point-to-point prefix (IPv4 /31 or IPv6 /127) are considered usable
-        if (
-            self.prefix.version == 4 and self.prefix.prefixlen == 31  # RFC 3021
-        ) or (
-            self.prefix.version == 6 and self.prefix.prefixlen == 127  # RFC 6164
-        ):
-            return available_ips
-
-        # Omit first and last IP address from the available set
+        # For "normal" IPv4 prefixes, omit first and last addresses
         available_ips -= netaddr.IPSet([
             netaddr.IPAddress(self.prefix.first),
             netaddr.IPAddress(self.prefix.last),
@@ -469,6 +470,9 @@ class Prefix(PrimaryModel):
         Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
         "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
+        if self.mark_utilized:
+            return 100
+
         if self.status == PrefixStatusChoices.STATUS_CONTAINER:
             queryset = Prefix.objects.filter(
                 prefix__net_contained=str(self.prefix),

@@ -2,11 +2,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{% block title %}Home{% endblock %} - NetBox</title>
+    <title>{% block title %}Home{% endblock %} | NetBox</title>
     <link
       rel="stylesheet"
-      href="{% static 'netbox.css'%}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox.css'"
+      href="{% static 'netbox-external.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-external.css'"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-light.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-light.css'"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-dark.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-dark.css'"
     />
 
     <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />

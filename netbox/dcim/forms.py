@@ -2153,7 +2153,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 ip_choices = [(None, '---------')]
 
                 # Gather PKs of all interfaces belonging to this Device or a peer VirtualChassis member
-                interface_ids = self.instance.vc_interfaces().values_list('pk', flat=True)
+                interface_ids = self.instance.vc_interfaces(if_master=False).values_list('pk', flat=True)
 
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.filter(

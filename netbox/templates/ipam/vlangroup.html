@@ -10,6 +10,15 @@
   <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
+{% block buttons %}
+  {% if perms.ipam.add_vlan %}
+    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-success">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
+    </a>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">

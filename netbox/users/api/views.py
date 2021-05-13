@@ -6,7 +6,7 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
 from netbox.api.views import ModelViewSet
-from users import filters
+from users import filtersets
 from users.models import ObjectPermission, UserConfig
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge
@@ -28,13 +28,13 @@ class UsersRootView(APIRootView):
 class UserViewSet(ModelViewSet):
     queryset = RestrictedQuerySet(model=User).prefetch_related('groups').order_by('username')
     serializer_class = serializers.UserSerializer
-    filterset_class = filters.UserFilterSet
+    filterset_class = filtersets.UserFilterSet
 
 
 class GroupViewSet(ModelViewSet):
     queryset = RestrictedQuerySet(model=Group).annotate(user_count=Count('user')).order_by('name')
     serializer_class = serializers.GroupSerializer
-    filterset_class = filters.GroupFilterSet
+    filterset_class = filtersets.GroupFilterSet
 
 
 #
@@ -44,7 +44,7 @@ class GroupViewSet(ModelViewSet):
 class ObjectPermissionViewSet(ModelViewSet):
     queryset = ObjectPermission.objects.prefetch_related('object_types', 'groups', 'users')
     serializer_class = serializers.ObjectPermissionSerializer
-    filterset_class = filters.ObjectPermissionFilterSet
+    filterset_class = filtersets.ObjectPermissionFilterSet
 
 
 #

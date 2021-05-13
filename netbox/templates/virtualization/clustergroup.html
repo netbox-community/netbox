@@ -51,7 +51,7 @@
       </div>
       {% if perms.virtualization.add_cluster %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'virtualization:cluster_add' %}?type={{ object.pk }}" class="btn btn-sm btn-primary">
+          <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Cluster
           </a>
         </div>

@@ -1,10 +1,11 @@
 from django.test import TestCase
 
-from tenancy.filters import *
+from tenancy.filtersets import *
 from tenancy.models import Tenant, TenantGroup
+from utilities.testing import ChangeLoggedFilterSetTests
 
 
-class TenantGroupTestCase(TestCase):
+class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = TenantGroup.objects.all()
     filterset = TenantGroupFilterSet
 
@@ -27,10 +28,6 @@ class TenantGroupTestCase(TestCase):
         for tenantgroup in tenant_groups:
             tenantgroup.save()
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Tenant Group 1', 'Tenant Group 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -51,7 +48,7 @@ class TenantGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TenantTestCase(TestCase):
+class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tenant.objects.all()
     filterset = TenantFilterSet
 
@@ -72,10 +69,6 @@ class TenantTestCase(TestCase):
             Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
         )
         Tenant.objects.bulk_create(tenants)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Tenant 1', 'Tenant 2']}

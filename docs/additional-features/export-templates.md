@@ -33,6 +33,16 @@ The `as_attachment` attribute of an export template controls its behavior when r
 
 A MIME type and file extension can optionally be defined for each export template. The default MIME type is `text/plain`.
 
+## REST API Integration
+
+When it is necessary to provide authentication credentials (such as when [`LOGIN_REQUIRED`](../configuration/optional-settings.md#login_required) has been enabled), it is recommended to render export templates via the REST API. This allows the client to specify an authentication token. To render an export template via the REST API, make a `GET` request to the model's list endpoint and append the `export` parameter specifying the export template name. For example:
+
+```
+GET /api/dcim/sites/?export=MyTemplateName
+```
+
+Note that the body of the response will contain only the rendered export template content, as opposed to a JSON object or list.
+
 ## Example
 
 Here's an example device export template that will generate a simple Nagios configuration from a list of devices.

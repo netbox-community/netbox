@@ -515,6 +515,14 @@ The file path to the location where custom scripts will be kept. By default, thi
 
 ---
 
+## SESSION_COOKIE_NAME
+
+Default: `sessionid`
+
+The name used for the session cookie. See the [Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#session-cookie-name) for more detail.
+
+---
+
 ## SESSION_FILE_PATH
 
 Default: None

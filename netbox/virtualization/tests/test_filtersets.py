@@ -3,12 +3,13 @@ from django.test import TestCase
 from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
+from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.choices import *
-from virtualization.filters import *
+from virtualization.filtersets import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
-class ClusterTypeTestCase(TestCase):
+class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ClusterType.objects.all()
     filterset = ClusterTypeFilterSet
 
@@ -21,10 +22,6 @@ class ClusterTypeTestCase(TestCase):
             ClusterType(name='Cluster Type 3', slug='cluster-type-3', description='C'),
         )
         ClusterType.objects.bulk_create(cluster_types)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Cluster Type 1', 'Cluster Type 2']}
@@ -39,7 +36,7 @@ class ClusterTypeTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ClusterGroupTestCase(TestCase):
+class ClusterGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ClusterGroup.objects.all()
     filterset = ClusterGroupFilterSet
 
@@ -52,10 +49,6 @@ class ClusterGroupTestCase(TestCase):
             ClusterGroup(name='Cluster Group 3', slug='cluster-group-3', description='C'),
         )
         ClusterGroup.objects.bulk_create(cluster_groups)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Cluster Group 1', 'Cluster Group 2']}
@@ -70,7 +63,7 @@ class ClusterGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ClusterTestCase(TestCase):
+class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Cluster.objects.all()
     filterset = ClusterFilterSet
 
@@ -136,10 +129,6 @@ class ClusterTestCase(TestCase):
         )
         Cluster.objects.bulk_create(clusters)
 
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_name(self):
         params = {'name': ['Cluster 1', 'Cluster 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -194,7 +183,7 @@ class ClusterTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualMachineTestCase(TestCase):
+class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VirtualMachine.objects.all()
     filterset = VirtualMachineFilterSet
 
@@ -296,10 +285,6 @@ class VirtualMachineTestCase(TestCase):
         IPAddress.objects.bulk_create(ipaddresses)
         VirtualMachine.objects.filter(pk=vms[0].pk).update(primary_ip4=ipaddresses[0])
         VirtualMachine.objects.filter(pk=vms[1].pk).update(primary_ip4=ipaddresses[1])
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Virtual Machine 1', 'Virtual Machine 2']}
@@ -409,7 +394,7 @@ class VirtualMachineTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VMInterfaceTestCase(TestCase):
+class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VMInterface.objects.all()
     filterset = VMInterfaceFilterSet
 
@@ -443,11 +428,6 @@ class VMInterfaceTestCase(TestCase):
             VMInterface(virtual_machine=vms[2], name='Interface 3', enabled=False, mtu=300, mac_address='00-00-00-00-00-03'),
         )
         VMInterface.objects.bulk_create(interfaces)
-
-    def test_id(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}

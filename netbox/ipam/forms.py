@@ -454,11 +454,11 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Prefix
         fields = [
-            'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'description', 'tenant_group', 'tenant',
-            'tags',
+            'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+            'tenant_group', 'tenant', 'tags',
         ]
         fieldsets = (
-            ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'description', 'tags')),
+            ('Prefix', ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
             ('Site/VLAN Assignment', ('region', 'site_group', 'site', 'vlan_group', 'vlan')),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
@@ -582,6 +582,11 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         widget=BulkEditNullBooleanSelect(),
         label='Is a pool'
     )
+    mark_utilized = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label='Treat as 100% utilized'
+    )
     description = forms.CharField(
         max_length=100,
         required=False
@@ -597,7 +602,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     model = Prefix
     field_order = [
         'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region_id',
-        'site_group_id', 'site_id', 'role_id', 'tenant_group_id', 'tenant_id', 'is_pool',
+        'site_group_id', 'site_id', 'role_id', 'tenant_group_id', 'tenant_id', 'is_pool', 'mark_utilized',
     ]
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()
@@ -671,6 +676,13 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     is_pool = forms.NullBooleanField(
         required=False,
         label=_('Is a pool'),
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    mark_utilized = forms.NullBooleanField(
+        required=False,
+        label=_('Marked as 100% utilized'),
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
