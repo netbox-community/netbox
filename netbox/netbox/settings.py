@@ -572,9 +572,6 @@ RQ_QUEUES = {
 # NetBox internal settings
 #
 
-# Secrets
-SECRETS_MIN_PUBKEY_SIZE = 2048
-
 # Pagination
 PER_PAGE_DEFAULTS = [
     25, 50, 100, 250, 500, 1000
