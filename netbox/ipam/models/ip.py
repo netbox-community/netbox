@@ -288,6 +288,10 @@ class Prefix(PrimaryModel):
         default=False,
         help_text='All IP addresses within this prefix are considered usable'
     )
+    mark_utilized = models.BooleanField(
+        default=False,
+        help_text="Treat as 100% utilized"
+    )
     description = models.CharField(
         max_length=200,
         blank=True
@@ -296,10 +300,11 @@ class Prefix(PrimaryModel):
     objects = PrefixQuerySet.as_manager()
 
     csv_headers = [
-        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'description',
+        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
+        'description',
     ]
     clone_fields = [
-        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
+        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
     ]
 
     class Meta:
@@ -364,6 +369,7 @@ class Prefix(PrimaryModel):
             self.get_status_display(),
             self.role.name if self.role else None,
             self.is_pool,
+            self.mark_utilized,
             self.description,
         )
 
@@ -422,6 +428,9 @@ class Prefix(PrimaryModel):
         """
         Return all available IPs within this prefix as an IPSet.
         """
+        if self.mark_utilized:
+            return list()
+
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
         available_ips = prefix - child_ips
@@ -461,6 +470,9 @@ class Prefix(PrimaryModel):
         Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
         "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
+        if self.mark_utilized:
+            return 100
+
         if self.status == PrefixStatusChoices.STATUS_CONTAINER:
             queryset = Prefix.objects.filter(
                 prefix__net_contained=str(self.prefix),

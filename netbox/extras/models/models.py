@@ -300,13 +300,12 @@ class ExportTemplate(BigIDModel):
 
         # Build the response
         response = HttpResponse(output, content_type=mime_type)
-        filename = 'netbox_{}{}'.format(
-            queryset.model._meta.verbose_name_plural,
-            '.{}'.format(self.file_extension) if self.file_extension else ''
-        )
 
         if self.as_attachment:
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            basename = queryset.model._meta.verbose_name_plural.replace(' ', '_')
+            extension = f'.{self.file_extension}' if self.file_extension else ''
+            filename = f'netbox_{basename}{extension}'
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         return response
 
