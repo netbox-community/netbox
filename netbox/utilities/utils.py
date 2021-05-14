@@ -198,15 +198,19 @@ def to_meters(length, unit):
             "Unknown unit {}. Must be one of the following: {}".format(unit, ', '.join(valid_units))
         )
 
+    if unit == CableLengthUnitChoices.UNIT_KILOMETER:
+        return length * 1000
     if unit == CableLengthUnitChoices.UNIT_METER:
         return length
     if unit == CableLengthUnitChoices.UNIT_CENTIMETER:
         return length / 100
+    if unit == CableLengthUnitChoices.UNIT_MILE:
+        return length * 1609.344
     if unit == CableLengthUnitChoices.UNIT_FOOT:
         return length * 0.3048
     if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * 0.3048 * 12
-    raise ValueError("Unknown unit {}. Must be 'm', 'cm', 'ft', or 'in'.".format(unit))
+    raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
 
 
 def render_jinja2(template_code, context):

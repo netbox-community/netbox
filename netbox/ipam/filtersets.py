@@ -304,7 +304,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'is_pool']
+        fields = ['id', 'is_pool', 'mark_utilized']
 
     def search(self, queryset, name, value):
         if not value.strip():

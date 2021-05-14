@@ -60,7 +60,7 @@
                             <th scope="row">Length</th>
                             <td>
                                 {% if object.length %}
-                                    {{ object.length }} {{ object.get_length_unit_display }}
+                                    {{ object.length|floatformat }} {{ object.get_length_unit_display }}
                                 {% else %}
                                     <span class="text-muted">&mdash;</span>
                                 {% endif %}
