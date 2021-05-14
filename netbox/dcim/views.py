@@ -1,7 +1,10 @@
+import logging
+from copy import deepcopy
 from collections import OrderedDict
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import F, Prefetch
@@ -1909,6 +1912,30 @@ class InterfaceCreateView(generic.ComponentCreateView):
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
     template_name = 'dcim/device_component_add.html'
+
+    def post(self, request):
+        """
+        Override inherited post() method to handle request to assign newly created
+        interface objects (first object) to an IP Address object.
+        """
+        logger = logging.getLogger('netbox.dcim.views.InterfaceCreateView')
+        form = self.form(request.POST, initial=request.GET)
+        new_objs = self.validate_form(request, form)
+
+        if form.is_valid() and not form.errors:
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+            elif new_objs is not None and '_assignip' in request.POST and len(new_objs) >= 1 and request.user.has_perm('ipam.add_ipaddress'):
+                first_obj = new_objs[0].pk
+                return redirect(f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}')
+            else:
+                return redirect(self.get_return_url(request))
+
+        return render(request, self.template_name, {
+            'component_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request),
+        })
 
 
 class InterfaceEditView(generic.ObjectEditView):
