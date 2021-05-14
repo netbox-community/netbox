@@ -1088,7 +1088,6 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     form = None
     model_form = None
     template_name = None
-    created_objects = []
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -1161,22 +1160,26 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                 try:
                     with transaction.atomic():
                         # Create the new components
+                        new_objs = []
                         for component_form in new_components:
                             obj = component_form.save()
-                            self.created_objects.append(obj)
+                            new_objs.append(obj)
 
                         # Enforce object-level permissions
-                        if self.queryset.filter(pk__in=[obj.pk for obj in self.created_objects]).count() != len(self.created_objects):
+                        if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
                             raise ObjectDoesNotExist
 
-                    messages.success(request, "Added {} {}".format(
-                        len(new_components), self.queryset.model._meta.verbose_name_plural
-                    ))
+                        messages.success(request, "Added {} {}".format(
+                            len(new_components), self.queryset.model._meta.verbose_name_plural
+                        ))
+                        # Return the newly created objects so overridden post methods can use the data as needed.
+                        return new_objs
 
                 except ObjectDoesNotExist:
                     msg = "Component creation failed due to object-level permissions violation"
                     logger.debug(msg)
                     form.add_error(None, msg)
+        return None
 
 
 class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):

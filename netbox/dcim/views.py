@@ -1920,13 +1920,13 @@ class InterfaceCreateView(generic.ComponentCreateView):
         """
         logger = logging.getLogger('netbox.dcim.views.InterfaceCreateView')
         form = self.form(request.POST, initial=request.GET)
-        self.validate_form(request, form)
+        new_objs = self.validate_form(request, form)
 
         if form.is_valid() and not form.errors:
             if '_addanother' in request.POST:
                 return redirect(request.get_full_path())
-            elif '_assignip' in request.POST and len(self.created_objects) >= 1 and request.user.has_perm('ipam.add_ipaddress'):
-                first_obj = self.created_objects[0].pk
+            elif new_objs is not None and '_assignip' in request.POST and len(new_objs) >= 1 and request.user.has_perm('ipam.add_ipaddress'):
+                first_obj = new_objs[0].pk
                 return redirect(f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}')
             else:
                 return redirect(self.get_return_url(request))
