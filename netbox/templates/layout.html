@@ -17,7 +17,7 @@
 
             {# Logo #}
             <a class="px-2 sidebar-logo d-none d-md-flex" href="{% url 'home' %}">
-              {% include 'logo.html' %}
+              <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" />
             </a>
 
             {# Search bar #}
@@ -65,7 +65,7 @@
         <nav class="navbar navbar-light sticky-top flex-md-nowrap py-4 search container-fluid">
           <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
               <a class="px-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
-                {% include 'logo.html' %}
+                <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" />
               </a>
               <button
                 type="button"
