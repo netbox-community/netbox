@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#6376](https://github.com/netbox-community/netbox/issues/6376) - Fix assignment of VLAN groups to clusters, cluster groups via REST API
+* [#6398](https://github.com/netbox-community/netbox/issues/6398) - Avoid exception when deleting device connected to self via circuit
 
 ---
 
