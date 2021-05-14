@@ -3,20 +3,16 @@
 
 {% block title %}{{ object }}{% endblock %}
 
-{% block breadcrumb_main %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
-        {% if object.related_object.get_absolute_url %}
-            <li class="breadcrumb-item"><a href="{{ object.related_object.get_absolute_url }}changelog/">{{ object.related_object }}</a></li>
-        {% elif object.changed_object.get_absolute_url %}
-            <li class="breadcrumb-item"><a href="{{ object.changed_object.get_absolute_url }}changelog/">{{ object.changed_object }}</a></li>
-        {% elif object.changed_object %}
-            <li class="breadcrumb-item">{{ object.changed_object }}</li>
-        {% endif %}
-        <li class="breadcrumb-item">{{ object }}</li>
-    </ol>
-</nav>
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
+  {% if object.related_object.get_absolute_url %}
+    <li class="breadcrumb-item"><a href="{{ object.related_object.get_absolute_url }}changelog/">{{ object.related_object }}</a></li>
+  {% elif object.changed_object.get_absolute_url %}
+    <li class="breadcrumb-item"><a href="{{ object.changed_object.get_absolute_url }}changelog/">{{ object.changed_object }}</a></li>
+  {% elif object.changed_object %}
+    <li class="breadcrumb-item">{{ object.changed_object }}</li>
+  {% endif %}
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block header %}

@@ -8,15 +8,6 @@
 
 {% block title %}{{ object }}{% endblock %}
 
-{% block breadcrumb_main %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-    {% block breadcrumbs %}{%endblock%}
-  </ol>
-</nav>
-{% endblock %}
-
 {% block controls %}
 <div class="controls mb-2 mx-0">
   <div class="d-flex flex-wrap justify-content-end">

@@ -88,14 +88,26 @@
         {# Body #}
         <div class="px-4 content-container">
 
-          {# Page title #}
+          {# Page header #}
           {% block title_container %}
             <div class="title-container">
               <div id="content-title">
+
+                {# Title #}
                 <h1 class="h2 w-100">{% block title %}{% endblock %}</h1>
-                {% block breadcrumb_main %}{% endblock %}
+
+                {# Breadcrumbs #}
+                <nav class="breadcrumb-container" aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    {% block breadcrumbs %}{%endblock%}
+                  </ol>
+                </nav>
+
               </div>
+
+              {# Controls #}
               {% block controls %}{% endblock %}
+
             </div>
           {% endblock %}
 
