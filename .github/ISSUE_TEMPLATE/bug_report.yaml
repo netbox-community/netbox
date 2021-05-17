@@ -39,8 +39,9 @@ body:
         reproduce this bug using the current stable release of NetBox. Begin with the
         creation of any necessary database objects and call out every operation being
         performed explicitly. If reporting a bug in the REST API, be sure to reconstruct
-        the raw HTTP request(s) being made: Don't rely on a client  library such as
-        pynetbox."
+        the raw HTTP request(s) being made: Don't rely on a client library such as
+        pynetbox. Additionally, **do not rely on the demo instance** for reproducing
+        suspected bugs, as its data is prone to modification or deletion at any time."
       placeholder: |
         1. Click on "create widget"
         2. Set foo to 12 and bar to G
