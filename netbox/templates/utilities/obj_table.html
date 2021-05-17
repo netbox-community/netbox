@@ -27,7 +27,7 @@
                 </div>
             </div>
         {% endif %}
-        {% include table_template|default:'responsive_table.html' %}
+        {% include table_template|default:'inc/responsive_table.html' %}
         <div class="float-start noprint">
             {% block extra_actions %}{% endblock %}
             {% if bulk_edit_url and permissions.change %}
@@ -43,7 +43,7 @@
         </div>
     </form>
 {% else %}
-    {% include table_template|default:'responsive_table.html' %}
+    {% include table_template|default:'inc/responsive_table.html' %}
 {% endif %}
     {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
 <div class="clearfix"></div>

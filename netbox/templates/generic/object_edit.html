@@ -1,4 +1,4 @@
-{% extends 'layout.html' %} {% load form_helpers %} {% load helpers %} 
+{% extends 'base/layout.html' %} {% load form_helpers %} {% load helpers %}
 
 {% block title %}{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}{% endblock %}
 
