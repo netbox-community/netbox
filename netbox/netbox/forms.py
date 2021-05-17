@@ -25,9 +25,6 @@ OBJ_TYPE_CHOICES = (
         ('ipaddress', 'IP Addresses'),
         ('vlan', 'VLANs'),
     )),
-    ('Secrets', (
-        ('secret', 'Secrets'),
-    )),
     ('Tenancy', (
         ('tenant', 'Tenants'),
     )),

@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
-APPS = ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'users', 'virtualization']
+APPS = ['circuits', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'virtualization']
 
 BANNER_TEXT = """### NetBox interactive shell ({node})
 ### Python {python} | Django {django} | NetBox {netbox}

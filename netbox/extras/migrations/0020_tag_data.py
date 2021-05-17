@@ -52,7 +52,6 @@ class Migration(migrations.Migration):
         ('circuits', '0015_custom_tag_models'),
         ('dcim', '0070_custom_tag_models'),
         ('ipam', '0025_custom_tag_models'),
-        ('secrets', '0006_custom_tag_models'),
         ('tenancy', '0006_custom_tag_models'),
         ('virtualization', '0009_custom_tag_models'),
     ]

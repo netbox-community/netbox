@@ -3,7 +3,6 @@ import { initBootstrap } from './bs';
 import { initSearch } from './search';
 import { initSelect } from './select';
 import { initButtons } from './buttons';
-import { initSecrets } from './secrets';
 import { initColorMode } from './colorMode';
 import { initMessages } from './messages';
 import { initClipboard } from './clipboard';
@@ -21,7 +20,6 @@ function init() {
     initDateSelector,
     initButtons,
     initClipboard,
-    initSecrets,
     initTableConfig,
   ]) {
     init();

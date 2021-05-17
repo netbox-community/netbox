@@ -194,7 +194,7 @@ To delete multiple objects at once, call `delete()` on a filtered queryset. It's
 >>> Device.objects.filter(name__icontains='test').count()
 27
 >>> Device.objects.filter(name__icontains='test').delete()
-(35, {'dcim.DeviceBay': 0, 'secrets.Secret': 0, 'dcim.InterfaceConnection': 4,
+(35, {'dcim.DeviceBay': 0, 'dcim.InterfaceConnection': 4,
 'extras.ImageAttachment': 0, 'dcim.Device': 27, 'dcim.Interface': 4,
 'dcim.ConsolePort': 0, 'dcim.PowerPort': 0})
 ```

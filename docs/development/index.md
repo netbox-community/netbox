@@ -25,7 +25,6 @@ NetBox components are arranged into functional subsections called _apps_ (a carr
 * `dcim`: Datacenter infrastructure management (sites, racks, and devices)
 * `extras`: Additional features not considered part of the core data model
 * `ipam`: IP address management (VRFs, prefixes, IP addresses, and VLANs)
-* `secrets`: Encrypted storage of sensitive data (e.g. login credentials)
 * `tenancy`: Tenants (such as customers) to which NetBox objects may be assigned
 * `users`: Authentication and user preferences
 * `utilities`: Resources which are not user-facing (extendable classes, etc.)

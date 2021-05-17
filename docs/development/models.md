@@ -47,7 +47,6 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 * [ipam.Service](../models/ipam/service.md)
 * [ipam.VLAN](../models/ipam/vlan.md)
 * [ipam.VRF](../models/ipam/vrf.md)
-* [secrets.Secret](../models/secrets/secret.md)
 * [tenancy.Tenant](../models/tenancy/tenant.md)
 * [virtualization.Cluster](../models/virtualization/cluster.md)
 * [virtualization.VirtualMachine](../models/virtualization/virtualmachine.md)
@@ -62,7 +61,6 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 * [ipam.RIR](../models/ipam/rir.md)
 * [ipam.Role](../models/ipam/role.md)
 * [ipam.VLANGroup](../models/ipam/vlangroup.md)
-* [secrets.SecretRole](../models/secrets/secretrole.md)
 * [virtualization.ClusterGroup](../models/virtualization/clustergroup.md)
 * [virtualization.ClusterType](../models/virtualization/clustertype.md)
 

@@ -292,7 +292,6 @@ INSTALLED_APPS = [
     'dcim',
     'ipam',
     'extras',
-    'secrets',
     'tenancy',
     'users',
     'utilities',
@@ -433,7 +432,6 @@ CACHEOPS = {
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},
-    'secrets.*': {'ops': 'all'},
     'users.*': {'ops': 'all'},
     'tenancy.tenantgroup': None,  # MPTT models are exempt due to raw SQL
     'tenancy.*': {'ops': 'all'},
@@ -573,9 +571,6 @@ RQ_QUEUES = {
 #
 # NetBox internal settings
 #
-
-# Secrets
-SECRETS_MIN_PUBKEY_SIZE = 2048
 
 # Pagination
 PER_PAGE_DEFAULTS = [

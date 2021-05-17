@@ -274,23 +274,6 @@
                                 </div>
                             </div>
                         {% endif %}
-                        {% if perms.secrets.view_secret %}
-                        <div class="card">
-                            <h5 class="card-header">
-                                Secrets
-                            </h5>
-                            <div class="card-body">
-                                {% include 'secrets/inc/assigned_secrets.html' %}
-                            </div>
-                            {% if perms.secrets.add_secret %}
-                            <div class="card-footer text-end noprint">
-                                <a href="{% url 'secrets:secret_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
-                                    <i class="mdi mdi-plus-thick"></i> Add Secret
-                                </a>
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% endif %}
                         <div class="card">
                             <h5 class="card-header">
                                 Services
@@ -377,5 +360,4 @@
         </div>
     </div>
 </div>
-{% include 'secrets/inc/private_key_modal.html' %}
 {% endblock %}

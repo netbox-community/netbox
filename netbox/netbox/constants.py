@@ -15,9 +15,6 @@ from dcim.tables import (
 from ipam.filtersets import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
-from secrets.filtersets import SecretFilterSet
-from secrets.models import Secret
-from secrets.tables import SecretTable
 from tenancy.filtersets import TenantFilterSet
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
@@ -160,13 +157,6 @@ SEARCH_TYPES = OrderedDict((
         'filterset': VLANFilterSet,
         'table': VLANTable,
         'url': 'ipam:vlan_list',
-    }),
-    # Secrets
-    ('secret', {
-        'queryset': Secret.objects.prefetch_related('role', 'device'),
-        'filterset': SecretFilterSet,
-        'table': SecretTable,
-        'url': 'secrets:secret_list',
     }),
     # Tenancy
     ('tenant', {
