@@ -91,18 +91,10 @@
           {# Page header #}
           {% block header %}
             <div class="title-container">
+
+              {# Title #}
               <div id="content-title">
-
-                {# Title #}
                 <h1 class="h2 w-100">{% block title %}{% endblock %}</h1>
-
-                {# Breadcrumbs #}
-                <nav class="breadcrumb-container" aria-label="breadcrumb">
-                  <ol class="breadcrumb">
-                    {% block breadcrumbs %}{%endblock%}
-                  </ol>
-                </nav>
-
               </div>
 
               {# Controls #}
