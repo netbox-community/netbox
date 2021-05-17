@@ -21,7 +21,7 @@
     {% endif %}
   </div>
 </div>
-{% endblock %}
+{% endblock controls %}
 
 {% block content %}
 {% if table.paginator.num_pages > 1 %}
@@ -111,4 +111,4 @@
     {% endif %}
 </div>
 {% table_config_form table table_name="ObjectTable" %}
-{% endblock %}
+{% endblock content %}
