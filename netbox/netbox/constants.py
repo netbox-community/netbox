@@ -15,7 +15,7 @@ from dcim.tables import (
 from ipam.filtersets import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
-from tenancy.filters import TenantFilterSet
+from tenancy.filtersets import TenantFilterSet
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
 from utilities.utils import count_related
