@@ -1,4 +1,4 @@
-{% extends 'layout.html' %} {% load form_helpers %} {% load helpers %} 
+{% extends 'base/layout.html' %} {% load form_helpers %} {% load helpers %}
 
 {% block title %}{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}{% endblock %}
 
@@ -8,7 +8,7 @@
     <i class="mdi mdi-help-circle"></i>
   </button>
   {% endif %}
-{% endblock %}
+{% endblock controls %}
 
 {% block content %}
 <form action="" method="post" enctype="multipart/form-data">
@@ -47,7 +47,7 @@
         {% block form_fields %}{% render_form form %}{% endblock %}
       </div>
       {% endif %}
-      {% endblock %}
+      {% endblock form %}
     </div>
   </div>
   <div class="row my-3">
@@ -66,11 +66,11 @@
         Create
       </button>
       {% endif %}
-      {% endblock %}
+      {% endblock buttons %}
     </div>
   </div>
 </form>
 {% if obj and settings.DOCS_ROOT %} 
   {% include 'inc/modal.html' with name='docs' content=obj|get_docs %}
 {% endif %}
-{% endblock %}
+{% endblock content %}

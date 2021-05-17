@@ -26,7 +26,7 @@
     </form>
     {% endif %}
     <div class="col col-md-9 mb-3">
-        {% include 'panel_table.html' %}
+        {% include 'inc/panel_table.html' %}
     </div>
     {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
 {% endblock %}

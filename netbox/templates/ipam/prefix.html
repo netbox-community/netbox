@@ -117,9 +117,9 @@
     </div>
     <div class="col col-md-7">
         {% if duplicate_prefix_table.rows %}
-            {% include 'panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' %}
+            {% include 'inc/panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' %}
         {% endif %}
-        {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' %}
+        {% include 'inc/panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' %}
         {% plugin_right_page object %}
     </div>
 </div>

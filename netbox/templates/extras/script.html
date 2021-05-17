@@ -1,19 +1,14 @@
-{% extends 'layout.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load log_levels %}
 
 {% block title %}{{ script }}{% endblock %}
 
-{% block breadcrumb_main %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
-        <li class="breadcrumb-item">{{ script }}</li>
-    </ol>
-</nav>
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
+  <li class="breadcrumb-item">{{ script }}</li>
 {% endblock %}
 
 {% block content %}

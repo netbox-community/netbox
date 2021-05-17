@@ -1,9 +1,9 @@
-{% extends 'layout.html' %}
+{% extends 'base/layout.html' %}
 
 {% block title %}Import Completed{% endblock %}
 
 {% block content %}
-    {% include 'responsive_table.html' %}
+    {% include 'inc/responsive_table.html' %}
     {% if return_url %}
         <a href="{{ return_url }}" class="btn btn-outline-dark">View All</a>
     {% endif %}
@@ -11,4 +11,4 @@
         <span class="mdi mdi-database-import-outline" aria-hidden="true"></span>
         Import More
     </a>
-{% endblock %}
+{% endblock content %}

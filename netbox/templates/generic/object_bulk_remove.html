@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 
 {% block title %}Remove {{ table.rows|length }} {{ obj_type_plural|bettertitle }}?{% endblock %}
@@ -37,4 +37,4 @@
         </form>
     </div>
 </div>
-{% endblock %}
+{% endblock content %}

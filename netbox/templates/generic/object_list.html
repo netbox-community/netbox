@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'base/layout.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
@@ -21,7 +21,7 @@
     {% endif %}
   </div>
 </div>
-{% endblock %}
+{% endblock controls %}
 
 {% block content %}
 {% if table.paginator.num_pages > 1 %}
@@ -78,7 +78,7 @@
                 <form method="post" class="form form-horizontal">
                     {% csrf_token %}
                     <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
-                    {% include table_template|default:'responsive_table.html' %}
+                    {% include table_template|default:'inc/responsive_table.html' %}
                     <div class="float-start noprint bulk-buttons">
                         {% block bulk_buttons %}{% endblock %}
                         {% if bulk_edit_url and permissions.change %}
@@ -111,4 +111,4 @@
     {% endif %}
 </div>
 {% table_config_form table table_name="ObjectTable" %}
-{% endblock %}
+{% endblock content %}

@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'base/layout.html' %}
 {% load buttons %}
 
 {% block title %}{{ title }}{% endblock %}
@@ -10,7 +10,7 @@
     <div class="col col-md-9">
         <div class="card">
             <div class="card-body">
-                {% include 'responsive_table.html' %}
+                {% include 'inc/responsive_table.html' %}
             </div>
         </div>
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}

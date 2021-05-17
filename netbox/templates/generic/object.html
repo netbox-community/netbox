@@ -1,21 +1,21 @@
-{% extends 'layout.html' %}
+{% extends 'base/layout.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 {% load perms %}
 {% load plugins %}
 
+{% block header %}
+  {# Breadcrumbs #}
+  <nav class="breadcrumb-container" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      {% block breadcrumbs %}{% endblock %}
+    </ol>
+  </nav>
+  {{ block.super }}
+{% endblock %}
 
 {% block title %}{{ object }}{% endblock %}
-
-{% block breadcrumb_main %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-    {% block breadcrumbs %}{%endblock%}
-  </ol>
-</nav>
-{% endblock %}
 
 {% block controls %}
 <div class="controls mb-2 mx-0">
@@ -34,15 +34,15 @@
   {% endif %}
   </div>
 </div>
-{% endblock %}
+{% endblock controls %}
 
 {% block tabs %}
 <ul class="nav nav-tabs mb-3">
   {% block tab_items %}
-  <li class="nav-item" role="presentation">
-    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
-  </li>
-  {% endblock %}
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
+    </li>
+  {% endblock tab_items %}
   {% if perms.extras.view_journalentry %}
     {% with journal_viewname=object|viewname:'journal' %}
     {% url journal_viewname pk=object.pk as journal_url %}
@@ -62,7 +62,7 @@
     {% endwith %}
   {% endif %}
 </ul>
-{% endblock %}
+{% endblock tabs %}
 
 {% block content %}
 <p>
@@ -72,5 +72,5 @@
   </small>
   <span class="badge bg-primary">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
 </p>
-{% endblock %}
+{% endblock content %}
 {% block components %}{% endblock %}

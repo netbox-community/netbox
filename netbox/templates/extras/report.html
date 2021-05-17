@@ -1,16 +1,12 @@
-{% extends 'layout.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 
 {% block title %}{{ report.name }}{% endblock %}
 
-{% block breadcrumb_main %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">Reports</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
-        <li class="breadcrumb-item">{{ report.name }}</li>
-    </ol>
-</nav>
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">Reports</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
+  <li class="breadcrumb-item">{{ report.name }}</li>
 {% endblock %}
 
 {% block content %}
