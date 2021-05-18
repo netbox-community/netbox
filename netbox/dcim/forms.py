@@ -3126,9 +3126,13 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
 
         device = Device.objects.get(pk=self.data['device']) if self.is_bound else self.instance.device
 
-        # Restrict parent/LAG interface assignment by device
+        # Restrict parent/LAG interface assignment by device/VC
         self.fields['parent'].widget.add_query_param('device_id', device.pk)
-        self.fields['lag'].widget.add_query_param('device_id', device.pk)
+        if device.virtual_chassis and device.virtual_chassis.master:
+            # Get available LAG interfaces by VirtualChassis master
+            self.fields['lag'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
+        else:
+            self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
         # Limit VLAN choices by device
         self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)
