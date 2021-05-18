@@ -163,9 +163,6 @@ div.title-container {
   justify-content: space-between;
   flex-wrap: wrap;
   align-items: center;
-  padding-top: $spacer * 2;
-  margin-bottom: $spacer * 2;
-  border-bottom: 1px solid $border-color;
 
   div#content-title {
     display: flex;
@@ -542,12 +539,8 @@ table tr.vertical-align {
 
 nav.breadcrumb-container {
   padding: $badge-padding-y $badge-padding-x;
-  border-radius: $border-radius;
   font-size: $font-size-sm;
   width: fit-content;
-  background-color: var(--nbx-breadcrumb-bg);
-  margin-top: $spacer;
-  margin-bottom: $spacer;
 
   ol.breadcrumb {
     margin-bottom: 0;

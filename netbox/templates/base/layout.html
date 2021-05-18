@@ -62,7 +62,7 @@
         </nav>
 
         {# Top bar #}
-        <nav class="navbar navbar-light sticky-top flex-md-nowrap py-4 search container-fluid">
+        <nav class="navbar navbar-light sticky-top flex-md-nowrap p-3 search container-fluid">
           <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
               <a class="px-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
                 <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" />
@@ -86,11 +86,11 @@
         </nav>
 
         {# Body #}
-        <div class="px-4 content-container">
+        <div class="content-container">
 
           {# Page header #}
           {% block header %}
-            <div class="title-container">
+            <div class="title-container px-3 py-3">
 
               {# Title #}
               <div id="content-title">
@@ -104,9 +104,11 @@
           {% endblock header %}
 
           {# Page content #}
-          <div id="content" class="container-fluid p-0 m-0">
+          <div id="content" class="container-fluid px-0 m-0">
             {% block tabs %}{% endblock %}
-            {% block content %}{% endblock %}
+            <div class="px-3">
+              {% block content %}{% endblock %}
+            </div>
           </div>
 
           {# Page footer #}

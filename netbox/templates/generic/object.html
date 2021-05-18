@@ -7,7 +7,7 @@
 
 {% block header %}
   {# Breadcrumbs #}
-  <nav class="breadcrumb-container" aria-label="breadcrumb">
+  <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
     <ol class="breadcrumb">
       {% block breadcrumbs %}{% endblock %}
     </ol>
@@ -37,7 +37,7 @@
 {% endblock controls %}
 
 {% block tabs %}
-<ul class="nav nav-tabs mb-3">
+<ul class="nav nav-tabs mb-3 px-3">
   {% block tab_items %}
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
