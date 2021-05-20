@@ -22,6 +22,8 @@ The complete documentation for NetBox can be found at [Read the Docs](https://ne
 <div align="center">
   <h4>Thank you to our sponsors!</h4>
 
+  [![DigitalOcean](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/digitalocean.png)](https://try.digitalocean.com/developer-cloud)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   [![NS1](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/ns1.png)](https://ns1.com/)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   [![Stellar Technologies](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/stellar.png)](https://stellar.tech/)
