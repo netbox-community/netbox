@@ -86,6 +86,18 @@ class SecretRoleBulkDeleteView(generic.BulkDeleteView):
 # Secrets
 #
 
+def inject_deprecation_warning(request):
+    """
+    Inject a warning message notifying the user of the pending removal of secrets functionality.
+    """
+    messages.warning(
+        request,
+        mark_safe('<i class="mdi mdi-alert"></i> The secrets functionality will be moved to a plugin in NetBox v2.12. '
+                  'Please see <a href="https://github.com/netbox-community/netbox/issues/5278">issue #5278</a> for '
+                  'more information.')
+    )
+
+
 class SecretListView(generic.ObjectListView):
     queryset = Secret.objects.all()
     filterset = filtersets.SecretFilterSet
@@ -93,9 +105,17 @@ class SecretListView(generic.ObjectListView):
     table = tables.SecretTable
     action_buttons = ('import', 'export')
 
+    def get(self, request):
+        inject_deprecation_warning(request)
+        return super().get(request)
+
 
 class SecretView(generic.ObjectView):
     queryset = Secret.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        inject_deprecation_warning(request)
+        return super().get(request, *args, **kwargs)
 
 
 class SecretEditView(generic.ObjectEditView):
