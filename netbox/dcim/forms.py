@@ -1825,7 +1825,7 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type',
+            'device_type', 'name', 'label', 'type', 'description',
         ]
 
 
@@ -1834,7 +1834,7 @@ class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type',
+            'device_type', 'name', 'label', 'type', 'description',
         ]
 
 
@@ -1843,7 +1843,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
         ]
 
 
@@ -1857,7 +1857,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
+            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
         ]
 
 
@@ -1869,7 +1869,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'mgmt_only',
+            'device_type', 'name', 'label', 'type', 'mgmt_only', 'description',
         ]
 
 
@@ -1886,7 +1886,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'rear_port', 'rear_port_position',
+            'device_type', 'name', 'type', 'rear_port', 'rear_port_position', 'label', 'description',
         ]
 
 
@@ -1898,7 +1898,7 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'positions',
+            'device_type', 'name', 'type', 'positions', 'label', 'description',
         ]
 
 
@@ -1907,7 +1907,7 @@ class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'label', 'description',
         ]
 
 

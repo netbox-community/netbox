@@ -183,6 +183,8 @@ class DeviceType(PrimaryModel):
                 {
                     'name': c.name,
                     'type': c.type,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.consoleporttemplates.all()
             ]
@@ -191,6 +193,8 @@ class DeviceType(PrimaryModel):
                 {
                     'name': c.name,
                     'type': c.type,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.consoleserverporttemplates.all()
             ]
@@ -201,6 +205,8 @@ class DeviceType(PrimaryModel):
                     'type': c.type,
                     'maximum_draw': c.maximum_draw,
                     'allocated_draw': c.allocated_draw,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.powerporttemplates.all()
             ]
@@ -211,6 +217,8 @@ class DeviceType(PrimaryModel):
                     'type': c.type,
                     'power_port': c.power_port.name if c.power_port else None,
                     'feed_leg': c.feed_leg,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.poweroutlettemplates.all()
             ]
@@ -220,6 +228,8 @@ class DeviceType(PrimaryModel):
                     'name': c.name,
                     'type': c.type,
                     'mgmt_only': c.mgmt_only,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.interfacetemplates.all()
             ]
@@ -230,6 +240,8 @@ class DeviceType(PrimaryModel):
                     'type': c.type,
                     'rear_port': c.rear_port.name,
                     'rear_port_position': c.rear_port_position,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.frontporttemplates.all()
             ]
@@ -239,6 +251,8 @@ class DeviceType(PrimaryModel):
                     'name': c.name,
                     'type': c.type,
                     'positions': c.positions,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.rearporttemplates.all()
             ]
@@ -246,6 +260,8 @@ class DeviceType(PrimaryModel):
             data['device-bays'] = [
                 {
                     'name': c.name,
+                    'label': c.label,
+                    'description': c.description,
                 }
                 for c in self.devicebaytemplates.all()
             ]
