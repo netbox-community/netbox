@@ -6,6 +6,7 @@
 
 * [#6393](https://github.com/netbox-community/netbox/issues/6393) - Add `description` filter for IP addresses
 * [#6400](https://github.com/netbox-community/netbox/issues/6400) - Add cyan color choice for plugin buttons
+* [#6441](https://github.com/netbox-community/netbox/issues/6441) - Improve UI paginator to optimize page object count
 
 ### Bug Fixes
 

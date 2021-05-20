@@ -4,7 +4,9 @@ from django.core.paginator import Paginator, Page
 
 class EnhancedPaginator(Paginator):
 
-    def __init__(self, object_list, per_page, **kwargs):
+    def __init__(self, object_list, per_page, orphans=None, **kwargs):
+
+        # Determine the page size
         try:
             per_page = int(per_page)
             if per_page < 1:
@@ -12,7 +14,13 @@ class EnhancedPaginator(Paginator):
         except ValueError:
             per_page = settings.PAGINATE_COUNT
 
-        super().__init__(object_list, per_page, **kwargs)
+        # Set orphans count based on page size
+        if orphans is None and per_page <= 50:
+            orphans = 5
+        elif orphans is None:
+            orphans = 10
+
+        super().__init__(object_list, per_page, orphans=orphans, **kwargs)
 
     def _get_page(self, *args, **kwargs):
         return EnhancedPage(*args, **kwargs)
