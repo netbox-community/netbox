@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
+from circuits.models import Provider
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import JournalEntryKindChoices, ObjectChangeActionChoices
 from extras.filtersets import *
@@ -537,6 +538,13 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tag.objects.bulk_create(tags)
 
+        # Apply some tags so we can filter by content type
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+
+        site.tags.set(tags[0])
+        provider.tags.set(tags[1])
+
     def test_name(self):
         params = {'name': ['Tag 1', 'Tag 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -547,6 +555,14 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_color(self):
         params = {'color': ['ff0000', '00ff00']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_type(self):
+        params = {'content_type': ['dcim.site', 'circuits.provider']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        site_ct = ContentType.objects.get_for_model(Site).pk
+        provider_ct = ContentType.objects.get_for_model(Provider).pk
+        params = {'content_type_id': [site_ct, provider_ct]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
