@@ -13,6 +13,7 @@
 * [#6376](https://github.com/netbox-community/netbox/issues/6376) - Fix assignment of VLAN groups to clusters, cluster groups via REST API
 * [#6398](https://github.com/netbox-community/netbox/issues/6398) - Avoid exception when deleting device connected to self via circuit
 * [#6426](https://github.com/netbox-community/netbox/issues/6426) - Allow assigning virtual chassis member interfaces to LAG on VC master
+* [#6438](https://github.com/netbox-community/netbox/issues/6438) - Fix missing descriptions and label for device type imports and exports
 
 ---
 
