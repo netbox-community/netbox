@@ -392,7 +392,7 @@ class ScriptLogMessageSerializer(serializers.Serializer):
         return instance[0]
 
     def get_message(self, instance):
-        return instance[1]
+        return str(instance[1])
 
 
 class ScriptOutputSerializer(serializers.Serializer):
