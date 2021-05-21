@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VRF(PrimaryModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -92,7 +92,7 @@ class VRF(PrimaryModel):
         return self.name
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RouteTarget(PrimaryModel):
     """
     A BGP extended community used to control the redistribution of routes among VRFs, as defined in RFC 4364.

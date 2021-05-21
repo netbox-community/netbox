@@ -21,7 +21,7 @@ __all__ = (
 # Power
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class PowerPanel(PrimaryModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
@@ -71,7 +71,7 @@ class PowerPanel(PrimaryModel):
             )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
     """
     An electrical circuit delivered from a PowerPanel.

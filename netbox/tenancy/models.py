@@ -57,7 +57,7 @@ class TenantGroup(NestedGroupModel):
         )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Tenant(PrimaryModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal

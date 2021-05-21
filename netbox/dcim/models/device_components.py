@@ -211,7 +211,7 @@ class PathEndpoint(models.Model):
 # Console ports
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
@@ -254,7 +254,7 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
 # Console server ports
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
@@ -297,7 +297,7 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
 # Power ports
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class PowerPort(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
@@ -408,7 +408,7 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
 # Power outlets
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
@@ -512,7 +512,7 @@ class BaseInterface(models.Model):
         return self.ip_addresses.count()
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
@@ -683,7 +683,7 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
 # Pass-through ports
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class FrontPort(ComponentModel, CableTermination):
     """
     A pass-through port on the front of a Device.
@@ -748,7 +748,7 @@ class FrontPort(ComponentModel, CableTermination):
             })
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RearPort(ComponentModel, CableTermination):
     """
     A pass-through port on the rear of a Device.
@@ -801,7 +801,7 @@ class RearPort(ComponentModel, CableTermination):
 # Device bays
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
@@ -860,7 +860,7 @@ class DeviceBay(ComponentModel):
 # Inventory items
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class InventoryItem(MPTTModel, ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
