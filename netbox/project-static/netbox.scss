@@ -252,13 +252,15 @@ h6.accordion-item-title {
   width: 100%;
   max-width: 330px;
   padding: 15px;
-  // margin: auto;
+  & input:focus {
+    z-index: 1;
+  }
 }
 
 .form-login input[type='text'] {
   margin-bottom: -1px;
-  border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .form-login input[type='password'] {
@@ -299,15 +301,23 @@ li.dropdown-item.dropdown-item-btns {
 nav.nav.nav-pills {
   .nav-item.nav-link {
     padding: 0.25rem 0.5rem;
-    // font-size: $font-size-base;
     font-size: $font-size-sm;
     border-radius: $border-radius;
     &:hover {
-      // color: $body-color;
-      // background-color: var(--nbx-sidebar-link-hover-bg);
       background-color: $accordion-button-active-bg;
       color: $accordion-button-active-color;
     }
+  }
+}
+
+// Ensure the content container is full-height, and that the content block is also full height so
+// that the footer is always at the bottom.
+div.content-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  div.content {
+    flex: 1;
   }
 }
 

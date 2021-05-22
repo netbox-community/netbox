@@ -61,32 +61,32 @@
 
         </nav>
 
-        {# Top bar #}
-        <nav class="navbar navbar-light sticky-top flex-md-nowrap p-3 search container-fluid">
-          <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
-              <a class="px-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
-                <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" />
-              </a>
-              <button
-                type="button"
-                aria-expanded="false"
-                data-bs-toggle="collapse"
-                aria-controls="sidebar-menu"
-                data-bs-target="#sidebar-menu"
-                aria-label="Toggle Navigation"
-                class="navbar-toggler position-relative collapsed"
-              >
-                <span class="navbar-toggler-icon"></span>
-              </button>
-            </div>
-            <div class="d-none d-md-flex w-100 search-container">
-              {% search_options %}
-              {% include 'inc/profile_button.html' %}
-            </div>
-        </nav>
-
         {# Body #}
         <div class="content-container">
+
+          {# Top bar #}
+          <nav class="navbar navbar-light sticky-top flex-md-nowrap p-3 search container-fluid">
+            <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
+                <a class="px-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
+                  <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" />
+                </a>
+                <button
+                  type="button"
+                  aria-expanded="false"
+                  data-bs-toggle="collapse"
+                  aria-controls="sidebar-menu"
+                  data-bs-target="#sidebar-menu"
+                  aria-label="Toggle Navigation"
+                  class="navbar-toggler position-relative collapsed"
+                >
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+              </div>
+              <div class="d-none d-md-flex w-100 search-container">
+                {% search_options %}
+                {% include 'inc/profile_button.html' %}
+              </div>
+          </nav>
 
           {# Page header #}
           {% block header %}
@@ -104,7 +104,7 @@
           {% endblock header %}
 
           {# Page content #}
-          <div id="content" class="container-fluid px-0 m-0">
+          <div id="content" class="container-fluid content px-0 m-0">
             {% block tabs %}{% endblock %}
             <div class="px-3">
               {% block content %}{% endblock %}
@@ -113,7 +113,7 @@
 
           {# Page footer #}
           <footer class="footer container-fluid pb-3 pt-4 px-0">
-            <div class="row align-items-center justify-content-end">
+            <div class="row align-items-center justify-content-end mx-0">
             <div class="col-auto d-none d-md-block"></div>
               <div class="col text-center text-md-end small text-muted">
                 <span class="fw-light d-block d-md-inline">{% now 'Y-m-d H:i:s T' %}</span>
