@@ -2,24 +2,33 @@
 {% load form_helpers %}
 
 {% block content %}
-<div class="row mt-5">
-	<div class="col col-md-6 offset-md-3">
-        <form action="" method="post" class="form">
-            {% csrf_token %}
-            {% for field in form.hidden_fields %}
-                {{ field }}
-            {% endfor %}
-            <div class="card bg-{{ panel_class|default:"danger" }}">
-                <h5 class="card-header">{% block confirmation_title %}{% endblock %}</h5>
-                <div class="card-body">
-                    {% block message %}<p>Are you sure?</p>{% endblock %}
+    <div class="row mt-5">
+
+        <div class="col col-md-6 offset-md-3">
+
+            <form action="" method="post" class="form">
+                {% csrf_token %}
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
+
+                <div class="card">
+                    <h5 class="card-header">{% block confirmation_title %}{% endblock %}</h5>
+            
+                    <div class="card-body">
+                        {% block message %}<p>Are you sure?</p>{% endblock %}
+                    </div>
+
+                    <div class="card-footer text-end">
+                        <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
+                        <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"danger" }}">Confirm</button>
+                    </div>
+
                 </div>
-                <div class="card-footer text-end">
-                    <a href="{{ return_url }}" class="btn btn-outline-gray-900">Cancel</a>
-                    <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"gray-900" }}">Confirm</button>
-                </div>
-            </div>
-        </form>
-	</div>
-</div>
+
+            </form>
+
+        </div>
+
+    </div>
 {% endblock %}
