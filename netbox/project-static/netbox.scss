@@ -152,6 +152,10 @@ body {
       font-size: $font-size-xs;
       line-height: $line-height-sm;
       vertical-align: middle;
+      & input.form-check-input {
+        // Ensure checkboxes aren't too small inside object tables.
+        font-size: $font-size-base;
+      }
     }
     &.attr-table {
       td,
