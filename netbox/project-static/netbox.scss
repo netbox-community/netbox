@@ -65,6 +65,7 @@
 // Use proper contrasting color for badge & progress-bar foreground color.
 @each $color, $value in $theme-colors {
   .badge,
+  .toast,
   .progress-bar {
     &.bg-#{$color} {
       color: color-contrast($value);
