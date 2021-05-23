@@ -1,0 +1,62 @@
+{% load form_helpers %}
+{% load helpers %}
+
+<div class="collapse" id="advanced-search-content">
+    <form action="." method="get">
+        <div class="card">
+            <h5 class="card-header">
+                Advanced Search
+            </h5>
+            <div class="card-body overflow-visible d-flex flex-wrap justify-content-between py-3">
+                    {% for field in filter_form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    {% if filter_form.field_groups %}
+                        {% for group in filter_form.field_groups %}
+                            <div class="col">
+                                {% for name in group %}
+                                    {% with field=filter_form|get_item:name %}
+                                        {% if field|widget_type == 'checkboxinput' %}
+                                            <div class="form-check mb-3">
+                                                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% else %}
+                                            <div class="form-floating mb-3 mx-3">
+                                                {{ field }}
+                                                {{ field.label_tag }}
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for field in filter_form.visible_fields %}
+                            <div class="col">
+                                {% if field|widget_type == 'checkboxinput' %}
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
+                                    </div>
+                                {% else %}
+                                    <div class="form-floating mb-3">
+                                        {{ field }}
+                                        {{ field.label_tag }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+            </div>
+            <div class="card-footer text-end noprint border-0">
+                <a href="." class="btn btn-sm btn-outline-dark m-1">
+                    <i class="mdi mdi-close"></i> Clear
+                </a>
+                <button type="submit" class="btn btn-sm btn-primary m-1">
+                    <i class="mdi mdi-magnify"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

@@ -47,6 +47,7 @@ class CustomFieldModelForm(forms.ModelForm):
     """
     Extend ModelForm to include custom field support.
     """
+
     def __init__(self, *args, **kwargs):
 
         self.obj_type = ContentType.objects.get_for_model(self._meta.model)
@@ -176,10 +177,6 @@ class AddRemoveTagsForm(forms.Form):
 
 class TagFilterForm(BootstrapMixin, forms.Form):
     model = Tag
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
 
 
 class TagBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -288,13 +285,15 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     field_order = [
-        'q', 'region_id', 'site_group_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id', 'cluster_id',
+        'region_id', 'site_group_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id', 'cluster_id',
         'tenant_group_id', 'tenant_id',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['region_id', 'site_group_id', 'site_id'],
+        ['device_type_id', 'role_id', 'platform_id'],
+        ['cluster_group_id', 'cluster_id'],
+        ['tenant_group_id', 'tenant_id', 'tag']
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -422,10 +421,10 @@ class JournalEntryBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class JournalEntryFilterForm(BootstrapMixin, forms.Form):
     model = JournalEntry
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['created_before', 'created_after', 'created_by_id'],
+        ['assigned_object_type_id', 'kind']
+    ]
     created_after = forms.DateTimeField(
         required=False,
         label=_('After'),
@@ -465,10 +464,10 @@ class JournalEntryFilterForm(BootstrapMixin, forms.Form):
 
 class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     model = ObjectChange
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['time_before', 'time_after', 'action'],
+        ['user_id', 'changed_object_type_id'],
+    ]
     time_after = forms.DateTimeField(
         required=False,
         label=_('After'),

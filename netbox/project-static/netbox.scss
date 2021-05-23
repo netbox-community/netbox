@@ -78,6 +78,10 @@ table td > .progress {
   min-width: 6rem;
 }
 
+div#advanced-search-content div.card div.card-body div.col:not(:last-child) {
+  margin-right: 1rem;
+}
+
 body {
   background-color: var(--nbx-body-bg);
   color: var(--nbx-body-color);

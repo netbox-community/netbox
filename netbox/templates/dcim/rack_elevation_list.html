@@ -7,6 +7,9 @@
 {% block controls %}
 <div class="container mb-2 mx-0">
     <div class="d-flex flex-wrap justify-content-end">
+        <button type="button" class="btn btn-sm btn-outline-dark m-1" data-bs-toggle="collapse" data-bs-target="#advanced-search-content">
+            Advanced Search
+        </button>
         <button class="btn btn-sm btn-outline-dark toggle-images m-1" selected="selected">
             <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
         </button>
@@ -23,11 +26,11 @@
 {% endblock %}
 
 {% block content %}
+<div class="col col-md-12 noprint">
+    {% include 'inc/advanced_search.html' %}
+</div>
 <div class="row">
     <div class="col col-md-12">
-        <div class="col col-md-3 float-end right-side-panel noprint">
-            {% include 'inc/search_panel.html' %}
-        </div>
         {% if page %}
             <div style="white-space: nowrap; overflow-x: scroll;">
                 {% for rack in page %}

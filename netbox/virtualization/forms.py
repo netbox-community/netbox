@@ -224,12 +224,14 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Cluster
     field_order = [
-        'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
+        'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['type_id'],
+        ['region_id', 'site_id'],
+        ['tenant_group_id', 'tenant_id'],
+        ['tag'],
+    ]
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
@@ -527,13 +529,17 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
 class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VirtualMachine
     field_order = [
-        'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_id',
+        'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_id',
         'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['status', 'role_id'],
+        ['platform_id', 'mac_address'],
+        ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
+        ['region_id', 'site_id'],
+        ['tenant_group_id', 'tenant_id'],
+
+    ]
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -830,6 +836,11 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 
 class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
+    field_groups = [
+        ['cluster_id', 'virtual_machine_id'],
+        ['enabled', 'mac_address'],
+        ['tag']
+    ]
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,

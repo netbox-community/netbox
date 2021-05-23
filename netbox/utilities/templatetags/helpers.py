@@ -249,6 +249,15 @@ def get_key(value: Dict, arg: str) -> Any:
     return value.get(arg, None)
 
 
+@register.filter
+def get_item(value: object, attr: str) -> Any:
+    """
+    Template implementation of `__getitem__`, for accessing the `__getitem__` method
+    of a class from a template.
+    """
+    return value[attr]
+
+
 #
 # Tags
 #
