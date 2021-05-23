@@ -2,44 +2,38 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="card">
-        <div class="card-header">Interface</div>
-        <div class="card-body">
+    <div class="field-group">
+        <h4 class="mb-3">Interface</h4>
             {% if form.instance.device %}
-            <div class="form-floating mb-3">
-                <input class="form-control" value="{{ form.instance.device }}" disabled />
-                <label class="form-label required" for="id_device">Device</label>
-            </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" value="{{ form.instance.device }}" disabled />
+                    <label class="form-label required" for="id_device">Device</label>
+                </div>
             {% endif %}
-            {% render_field form.name %}
-            {% render_field form.label %}
-            {% render_field form.type %}
-            {% render_field form.enabled %}
-            {% render_field form.parent %}
-            {% render_field form.lag %}
-            {% render_field form.mac_address %}
-            {% render_field form.mtu %}
-            {% render_field form.mgmt_only %}
-            {% render_field form.mark_connected %}
-            {% render_field form.description %}
-            {% render_field form.tags %}
-        </div>
+        {% render_field form.name %}
+        {% render_field form.label %}
+        {% render_field form.type %}
+        {% render_field form.enabled %}
+        {% render_field form.parent %}
+        {% render_field form.lag %}
+        {% render_field form.mac_address %}
+        {% render_field form.mtu %}
+        {% render_field form.mgmt_only %}
+        {% render_field form.mark_connected %}
+        {% render_field form.description %}
+        {% render_field form.tags %}
     </div>
-    <div class="card">
-        <div class="card-header">802.1Q Switching</div>
-        <div class="card-body">
-            {% render_field form.mode %}
-            {% render_field form.untagged_vlan %}
-            {% render_field form.tagged_vlans %}
-        </div>
+    <div class="field-group">
+        <h4 class="mb-3">802.1Q Switching</h4>
+        {% render_field form.mode %}
+        {% render_field form.untagged_vlan %}
+        {% render_field form.tagged_vlans %}
     </div>
     {% if form.custom_fields %}
-      <div class="card">
-        <div class="card-header">Custom Fields</div>
-        <div class="card-body">
-          {% render_custom_fields form %}
+        <div class="field-group">
+            <h4 class="mb-3">Custom Fields</h4>
+            {% render_custom_fields form %}
         </div>
-      </div>
     {% endif %}
 {% endblock %}
 

@@ -3,7 +3,7 @@
 {% load form_helpers %}
 {% load helpers %}
 
-{% block title %}Assign an IP Address{% endblock %}
+{% block title %}Assign an IP Address{% endblock title %}
 
 {% block content %}
     <form action="{% querystring request %}" method="post" class="form form-horizontal">
@@ -12,7 +12,7 @@
             {{ field }}
         {% endfor %}
         <div class="row mb-3">
-            <div class="col col-md-6">
+            <div class="col col-md-8 offset-md-2">
                 {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='assign' %}
                 <div class="card">
                     <h5 class="card-header">Select IP Address</h5>
@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col col-md-6 text-end">
+            <div class="col col-md-8 offset-md-2 text-end">
                 <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
                 <button type="submit" class="btn btn-primary">Search</button>
             </div>

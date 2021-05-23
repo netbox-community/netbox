@@ -94,11 +94,12 @@
 
               {# Title #}
               <div id="content-title">
-                <h1 class="h2 w-100">{% block title %}{% endblock %}</h1>
+                {# Center-align title in object-edit views #}
+                <h1 class="h2 w-100{% if form or vc_form %} text-center{% endif %}">{% block title %}{% endblock title %}</h1>
               </div>
 
               {# Controls #}
-              {% block controls %}{% endblock %}
+              {% block controls %}{% endblock controls %}
 
             </div>
           {% endblock header %}

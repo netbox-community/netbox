@@ -5,52 +5,48 @@
 {% block title %}{{ obj.circuit.provider }} {{ obj.circuit }} - Side {{ form.term_side.value }}{% endblock %}
 
 {% block form %}
-  <div class="card">
-      <h5 class="card-header">Termination</h5>
-      <div class="card-body">
-          <div class="form-floating mb-3">
-              <input class="form-control" value="{{ obj.circuit.provider }}" disabled />
-              <label>Provider</label>
-          </div>
-          <div class="form-floating mb-3">
-              <input class="form-control" value="{{ obj.circuit.cid }}" disabled />
-              <label>Circuit</label>
-          </div>
-          <div class="form-floating mb-3">
-              <input class="form-control" value="{{ form.term_side.value }}" disabled />
-              <label>Termination</label>
-          </div>
-          {% render_field form.mark_connected %}
-          {% with providernetwork_tab_active=form.initial.provider_network %}
-              <ul class="nav nav-tabs mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">Site</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link{% if providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-toggle="tab" data-bs-target="#providernetwork">Provider Network</button>
-                </li>
-              </ul>
-              <div class="tab-content">
-                  <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
-                      {% render_field form.region %}
-                      {% render_field form.site_group %}
-                      {% render_field form.site %}
-                  </div>
-                  <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
-                      {% render_field form.provider_network %}
-                  </div>
-              </div>
-          {% endwith %}
-      </div>
+  <div class="field-group">
+    <h4 class="mb-3">Termination</h4>
+        <div class="form-floating mb-3">
+            <input class="form-control" value="{{ obj.circuit.provider }}" disabled />
+            <label>Provider</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input class="form-control" value="{{ obj.circuit.cid }}" disabled />
+            <label>Circuit</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input class="form-control" value="{{ form.term_side.value }}" disabled />
+            <label>Termination</label>
+        </div>
+        {% render_field form.mark_connected %}
+        {% with providernetwork_tab_active=form.initial.provider_network %}
+            <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">Site</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link{% if providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-toggle="tab" data-bs-target="#providernetwork">Provider Network</button>
+            </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
+                    {% render_field form.region %}
+                    {% render_field form.site_group %}
+                    {% render_field form.site %}
+                </div>
+                <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
+                    {% render_field form.provider_network %}
+                </div>
+            </div>
+        {% endwith %}
   </div>
-  <div class="card">
-      <h5 class="card-header">Termination Details</h5>
-      <div class="card-body">
-          {% render_field form.port_speed %}
-          {% render_field form.upstream_speed %}
-          {% render_field form.xconnect_id %}
-          {% render_field form.pp_info %}
-          {% render_field form.description %}
-      </div>
+  <div class="field-group">
+    <h4 class="mb-3">Termination Details</h4>
+        {% render_field form.port_speed %}
+        {% render_field form.upstream_speed %}
+        {% render_field form.xconnect_id %}
+        {% render_field form.pp_info %}
+        {% render_field form.description %}
   </div>
 {% endblock %}
