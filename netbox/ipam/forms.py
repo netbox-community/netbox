@@ -179,7 +179,7 @@ class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilter
     model = RouteTarget
     field_order = ['name', 'tenant_group_id', 'tenant_id', 'importing_vrfs', 'exporting_vrfs']
     field_groups = [
-        ['name', 'importing_vrfs', 'exporting_vrfs'],
+        ['importing_vrf_id', 'exporting_vrf_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
     importing_vrf_id = DynamicModelMultipleChoiceField(
@@ -333,7 +333,7 @@ class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     model = Aggregate
     field_order = ['family', 'rir', 'tenant_group_id', 'tenant_id']
     field_groups = [
-        ['family', 'rir'],
+        ['family', 'rir_id'],
         ['tenant_group_id', 'tenant_id']
     ]
     family = forms.ChoiceField(

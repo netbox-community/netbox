@@ -4379,7 +4379,7 @@ class CableFilterForm(BootstrapMixin, CustomFieldFilterForm):
     field_groups = [
         ['type', 'status', 'color'],
         ['device_id', 'rack_id'],
-        ['region_id', 'site_group_id', 'site_id', 'tenant_id'],
+        ['region_id', 'site_id', 'tenant_id'],
         ['tag']
     ]
     region_id = DynamicModelMultipleChoiceField(
