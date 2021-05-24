@@ -251,13 +251,23 @@ export function* getRowValues(table: HTMLTableRowElement): Generator<string> {
  *
  * @param base Base Element
  * @param query CSS Query
+ * @param boundary Optionally specify a CSS Query which, when matched, recursion will cease.
  */
 export function findFirstAdjacent<R extends HTMLElement, B extends Element = Element>(
   base: B,
   query: string,
+  boundary?: string,
 ): Nullable<R> {
+  function atBoundary<E extends Element | null>(element: E): boolean {
+    if (typeof boundary === 'string' && element !== null) {
+      if (element.matches(boundary)) {
+        return true;
+      }
+    }
+    return false;
+  }
   function match<P extends Element | null>(parent: P): Nullable<R> {
-    if (parent !== null && parent.parentElement !== null) {
+    if (parent !== null && parent.parentElement !== null && !atBoundary(parent)) {
       for (const child of parent.parentElement.querySelectorAll<R>(query)) {
         if (child !== null) {
           return child;

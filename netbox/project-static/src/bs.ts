@@ -18,7 +18,7 @@ function initMasonry(): void {
 
 function initTooltips() {
   for (const tooltip of getElements('[data-bs-toggle="tooltip"]')) {
-    new Tooltip(tooltip, { container: 'body', boundary: 'window' });
+    new Tooltip(tooltip, { container: 'body' });
   }
 }
 

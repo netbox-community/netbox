@@ -1,4 +1,5 @@
 import { readableColor } from 'color2k';
+import { findFirstAdjacent, getElements } from '../util';
 
 import type SlimSelect from 'slim-select';
 
@@ -183,4 +184,24 @@ function* getAllDependencyIds<E extends HTMLElement>(element: Nullable<E>): Gene
 export function getDependencyIds<E extends HTMLElement>(element: Nullable<E>): string[] {
   const ids = new Set<string>(getAllDependencyIds(element));
   return Array.from(ids).map(i => i.replaceAll('_id', ''));
+}
+
+/**
+ * Initialize any adjacent reset buttons so that when clicked, the instance's selected value is cleared.
+ *
+ * @param select Select Element
+ * @param instance SlimSelect Instance
+ */
+export function initResetButton(select: HTMLSelectElement, instance: SlimSelect) {
+  const resetButton = findFirstAdjacent<HTMLButtonElement>(select, 'button[data-reset-select');
+  if (resetButton !== null) {
+    resetButton.addEventListener('click', () => {
+      select.value = '';
+      if (select.multiple) {
+        instance.setSelected([]);
+      } else {
+        instance.setSelected('');
+      }
+    });
+  }
 }

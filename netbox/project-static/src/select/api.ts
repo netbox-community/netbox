@@ -1,8 +1,15 @@
 import SlimSelect from 'slim-select';
 import queryString from 'query-string';
-import { getApiData, isApiError, getElements, isTruthy, hasError } from '../util';
+import {
+  getApiData,
+  isApiError,
+  getElements,
+  isTruthy,
+  hasError,
+  findFirstAdjacent,
+} from '../util';
 import { createToast } from '../bs';
-import { setOptionStyles, toggle, getDependencyIds } from './util';
+import { setOptionStyles, toggle, getDependencyIds, initResetButton } from './util';
 
 import type { Option } from 'slim-select/dist/data';
 
@@ -318,18 +325,45 @@ export function initApiSelect() {
         select.addEventListener(`netbox.select.onload.${dep}`, handleEvent);
       }
 
-      // Load data.
-      getOptions(url, select, disabledOptions)
-        .then(options => instance.setData(options))
-        .catch(console.error)
-        .finally(() => {
-          // Set option styles, if the field calls for it (color selectors).
+      /**
+       * Load this element's options from the NetBox API.
+       */
+      async function loadData(): Promise<void> {
+        try {
+          const options = await getOptions(url, select, disabledOptions);
+          instance.setData(options);
+        } catch (err) {
+          console.error(err);
+        } finally {
           setOptionStyles(instance);
-          // Enable the element after data has loaded.
           toggle('enable', instance);
-          // Inform any event listeners that data has updated.
           select.dispatchEvent(event);
-        });
+        }
+      }
+
+      /**
+       * Delete this element's options.
+       */
+      function clearData(): void {
+        return instance.setData([]);
+      }
+
+      // Determine if this element is part of collapsible element.
+      const collapse = findFirstAdjacent(select, '.collapse', '.content-container');
+      console.log('collapse', collapse);
+      if (collapse !== null) {
+        // If this element is part of a collapsible element, only load the data when the
+        // collapsible element is shown.
+        // See: https://getbootstrap.com/docs/5.0/components/collapse/#events
+        collapse.addEventListener('show.bs.collapse', loadData);
+        collapse.addEventListener('hide.bs.collapse', clearData);
+      } else {
+        // Otherwise, load the data on render.
+        Promise.all([loadData()]);
+      }
+
+      // Bind event listener to
+      initResetButton(select, instance);
 
       // Set the underlying select element to the same size as the SlimSelect instance.
       // This is primarily for built-in HTML form validation, which doesn't really work,

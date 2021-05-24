@@ -50,9 +50,12 @@
                     {% endif %}
             </div>
             <div class="card-footer text-end noprint border-0">
-                <a href="." class="btn btn-sm btn-outline-dark m-1">
-                    <i class="mdi mdi-close"></i> Clear
-                </a>
+                <button type="button" class="btn btn-sm btn-outline-dark m-1" data-bs-toggle="collapse" data-bs-target="#advanced-search-content">
+                    <i class="mdi mdi-close"></i> Close
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger m-1" data-reset-select>
+                    <i class="mdi mdi-backspace"></i> Reset
+                </button>
                 <button type="submit" class="btn btn-sm btn-primary m-1">
                     <i class="mdi mdi-magnify"></i> Search
                 </button>
