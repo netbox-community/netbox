@@ -15,7 +15,7 @@ AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>'
 
 PREFIX_LINK = """
 {% load helpers %}
-{% for i in record.parents|as_range %}
+{% for i in record.depth|as_range %}
     <i class="mdi mdi-circle-small"></i>
 {% endfor %}
 <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
@@ -262,6 +262,14 @@ class PrefixTable(BaseTable):
         template_code=PREFIX_LINK,
         attrs={'td': {'class': 'text-nowrap'}}
     )
+    depth = tables.Column(
+        accessor=Accessor('_depth'),
+        verbose_name='Depth'
+    )
+    children = tables.Column(
+        accessor=Accessor('_children'),
+        verbose_name='Children'
+    )
     status = ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
@@ -287,7 +295,8 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'prefix', 'status', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
+            'pk', 'prefix', 'status', 'depth', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool',
+            'description',
         )
         default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
