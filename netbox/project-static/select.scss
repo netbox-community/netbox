@@ -19,18 +19,20 @@ $spacing-s: $input-padding-x;
   --nbx-select-option-hover-bg: #{$blue};
   --nbx-select-option-hover-color: #{$white};
   --nbx-select-placeholder-color: #{$gray-500};
+  --nbx-select-value-color: #{$white};
   & body[data-netbox-color-mode='dark'] {
     --nbx-select-content-bg: #{$gray-900};
     --nbx-select-option-selected-bg: #{$gray-500};
     --nbx-select-option-hover-bg: #{$blue-200};
     --nbx-select-option-hover-color: #{color-contrast($blue-200)};
     --nbx-select-placeholder-color: #{$gray-500};
+    --nbx-select-value-color: #{$black};
   }
 }
 
 div.form-floating div.ss-main div.ss-single-selected,
 div.form-floating div.ss-main div.ss-multi-selected {
-  height: $form-floating-height;
+  min-height: $form-floating-height;
 }
 
 @import './node_modules/slim-select/src/slim-select/slimselect.scss';
@@ -88,6 +90,10 @@ div.form-floating div.ss-main div.ss-multi-selected {
       padding-top: $spacer * 2 !important;
       .ss-disabled {
         padding: 4px 0px;
+      }
+      .ss-value {
+        border-radius: $badge-border-radius;
+        color: var(--nbx-select-value-color);
       }
     }
     .ss-add {
