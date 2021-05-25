@@ -1,5 +1,28 @@
 # NetBox v2.11
 
+## v2.11.4 (2021-05-25)
+
+### Enhancements
+
+* [#5121](https://github.com/netbox-community/netbox/issues/5121) - Add content type filters for tags
+* [#6358](https://github.com/netbox-community/netbox/issues/6358) - Add search field for VLAN groups
+* [#6393](https://github.com/netbox-community/netbox/issues/6393) - Add `description` filter for IP addresses
+* [#6400](https://github.com/netbox-community/netbox/issues/6400) - Add cyan color choice for plugin buttons
+* [#6422](https://github.com/netbox-community/netbox/issues/6422) - Enable filtering users by group under admin UI
+* [#6441](https://github.com/netbox-community/netbox/issues/6441) - Improve UI paginator to optimize page object count
+
+### Bug Fixes
+
+* [#6376](https://github.com/netbox-community/netbox/issues/6376) - Fix assignment of VLAN groups to clusters, cluster groups via REST API
+* [#6398](https://github.com/netbox-community/netbox/issues/6398) - Avoid exception when deleting device connected to self via circuit
+* [#6426](https://github.com/netbox-community/netbox/issues/6426) - Allow assigning virtual chassis member interfaces to LAG on VC master
+* [#6438](https://github.com/netbox-community/netbox/issues/6438) - Fix missing descriptions and label for device type imports and exports
+* [#6465](https://github.com/netbox-community/netbox/issues/6465) - Fix typo in installed plugins REST API endpoint
+* [#6467](https://github.com/netbox-community/netbox/issues/6467) - Fix access to metrics on custom `BASE_PATH` when login is required
+* [#6468](https://github.com/netbox-community/netbox/issues/6468) - Disable ordering VLAN groups list by scope object
+
+---
+
 ## v2.11.3 (2021-05-07)
 
 ### Enhancements

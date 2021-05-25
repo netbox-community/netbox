@@ -20,7 +20,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Provider(PrimaryModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
@@ -96,7 +96,7 @@ class Provider(PrimaryModel):
 # Provider networks
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ProviderNetwork(PrimaryModel):
     """
     This represents a provider network which exists outside of NetBox, the details of which are unknown or
@@ -189,7 +189,7 @@ class CircuitType(OrganizationalModel):
         )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Circuit(PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple

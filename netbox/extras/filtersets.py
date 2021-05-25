@@ -6,7 +6,7 @@ from django.db.models import Q
 from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet
 from tenancy.models import Tenant, TenantGroup
-from utilities.filters import ContentTypeFilter
+from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import *
@@ -114,6 +114,12 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
         method='search',
         label='Search',
     )
+    content_type = MultiValueCharFilter(
+        method='_content_type'
+    )
+    content_type_id = MultiValueNumberFilter(
+        method='_content_type_id'
+    )
 
     class Meta:
         model = Tag
@@ -126,6 +132,32 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
             Q(name__icontains=value) |
             Q(slug__icontains=value)
         )
+
+    def _content_type(self, queryset, name, values):
+        ct_filter = Q()
+
+        # Compile list of app_label & model pairings
+        for value in values:
+            try:
+                app_label, model = value.lower().split('.')
+                ct_filter |= Q(
+                    app_label=app_label,
+                    model=model
+                )
+            except ValueError:
+                pass
+
+        # Get ContentType instances
+        content_types = ContentType.objects.filter(ct_filter)
+
+        return queryset.filter(extras_taggeditem_items__content_type__in=content_types).distinct()
+
+    def _content_type_id(self, queryset, name, values):
+
+        # Get ContentType instances
+        content_types = ContentType.objects.filter(pk__in=values)
+
+        return queryset.filter(extras_taggeditem_items__content_type__in=content_types).distinct()
 
 
 class ConfigContextFilterSet(ChangeLoggedModelFilterSet):

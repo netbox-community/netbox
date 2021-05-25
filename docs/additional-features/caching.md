@@ -6,7 +6,7 @@ If a change is made to any of the objects returned by the query within that time
 
 ## Invalidating Cached Data
 
-Although caching is performed automatically and rarely requires administrative intervention, NetBox provides the `invalidate` management command to force invalidation of cached results. This command can reference a specific object my its type and numeric ID:
+Although caching is performed automatically and rarely requires administrative intervention, NetBox provides the `invalidate` management command to force invalidation of cached results. This command can reference a specific object by its type and numeric ID:
 
 ```no-highlight
 $ python netbox/manage.py invalidate dcim.Device.34

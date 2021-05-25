@@ -78,7 +78,7 @@ class RackRole(OrganizationalModel):
         )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Rack(PrimaryModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
@@ -467,7 +467,7 @@ class Rack(PrimaryModel):
         return int(allocated_draw_total / available_power_total * 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RackReservation(PrimaryModel):
     """
     One or more reserved units within a Rack.

@@ -8,12 +8,13 @@ from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGrou
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeMultipleChoiceField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField,
+    JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import ConfigContext, CustomField, ImageAttachment, JournalEntry, ObjectChange, Tag
+from .utils import FeatureQuery
 
 
 #
@@ -179,6 +180,11 @@ class TagFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(
         required=False,
         label=_('Search')
+    )
+    content_type_id = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
+        required=False,
+        label=_('Tagged object type')
     )
 
 
