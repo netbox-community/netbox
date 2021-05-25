@@ -103,7 +103,8 @@ $form-select-color: $input-color;
 $form-select-disabled-color: $gray-400;
 $form-select-bg: $input-bg;
 $form-select-disabled-bg: $input-disabled-bg;
-$form-select-indicator-color: $gray-800;
+$form-select-indicator-color: $form-select-color;
+$form-select-indicator: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='#{$form-select-indicator-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>");
 
 $form-select-border-color: $input-border-color;
 $form-range-track-bg: $gray-300;

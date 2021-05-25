@@ -23,6 +23,7 @@ class BootstrapMixin(forms.BaseForm):
     """
     Add the base Bootstrap CSS classes to form elements.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -31,6 +32,7 @@ class BootstrapMixin(forms.BaseForm):
             forms.ClearableFileInput,
             forms.FileInput,
             forms.RadioSelect,
+            forms.Select,
             APISelect,
             APISelectMultiple,
             StaticSelect2,
@@ -52,6 +54,10 @@ class BootstrapMixin(forms.BaseForm):
                 css = field.widget.attrs.get('class', '')
                 field.widget.attrs['class'] = ' '.join((css, 'form-check-input')).strip()
 
+            if field.widget.__class__ == forms.Select:
+                css = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = ' '.join((css, 'form-select')).strip()
+
 
 class ReturnURLForm(forms.Form):
     """
@@ -71,6 +77,7 @@ class BulkEditForm(forms.Form):
     """
     Base form for editing multiple objects in bulk
     """
+
     def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
@@ -110,6 +117,7 @@ class CSVModelForm(forms.ModelForm):
     """
     ModelForm used for the import of objects in CSV format.
     """
+
     def __init__(self, *args, headers=None, **kwargs):
         super().__init__(*args, **kwargs)
 
