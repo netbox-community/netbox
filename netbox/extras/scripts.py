@@ -188,10 +188,10 @@ class ObjectVar(ScriptVariable):
 
     def __init__(self, model, query_params=None, null_option=None, *args, **kwargs):
 
-        # TODO: Remove display_field in v2.12
+        # TODO: Remove display_field in v3.0
         if 'display_field' in kwargs:
             warnings.warn(
-                "The 'display_field' parameter has been deprecated, and will be removed in NetBox v2.12. Object "
+                "The 'display_field' parameter has been deprecated, and will be removed in NetBox v3.0. Object "
                 "variables will now reference the 'display' attribute available on all model serializers by default."
             )
         display_field = kwargs.pop('display_field', 'display')

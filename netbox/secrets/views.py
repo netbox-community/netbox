@@ -92,7 +92,7 @@ def inject_deprecation_warning(request):
     """
     messages.warning(
         request,
-        mark_safe('<i class="mdi mdi-alert"></i> The secrets functionality will be moved to a plugin in NetBox v2.12. '
+        mark_safe('<i class="mdi mdi-alert"></i> The secrets functionality will be moved to a plugin in NetBox v3.0. '
                   'Please see <a href="https://github.com/netbox-community/netbox/issues/5278">issue #5278</a> for '
                   'more information.')
     )

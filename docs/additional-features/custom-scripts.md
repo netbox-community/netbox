@@ -175,7 +175,7 @@ A particular object within NetBox. Each ObjectVar must specify a particular mode
 * `null_option` - A label representing a "null" or empty choice (optional)
 
 !!! warning
-    The `display_field` parameter is now deprecated, and will be removed in NetBox v2.12. All ObjectVar instances will
+    The `display_field` parameter is now deprecated, and will be removed in NetBox v3.0. All ObjectVar instances will
     instead use the new standard `display` field for all serializers (introduced in NetBox v2.11).
 
 To limit the selections available within the list, additional query parameters can be passed as the `query_params` dictionary. For example, to show only devices with an "active" status:

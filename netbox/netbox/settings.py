@@ -29,10 +29,10 @@ if platform.python_version_tuple() < ('3', '6'):
     raise RuntimeError(
         "NetBox requires Python 3.6 or higher (current: Python {})".format(platform.python_version())
     )
-# TODO: Remove in NetBox v2.12
+# TODO: Remove in NetBox v3.0
 if platform.python_version_tuple() < ('3', '7'):
     warnings.warn(
-        "Support for Python 3.6 will be dropped in NetBox v2.12. Please upgrade to Python 3.7 or later at your "
+        "Support for Python 3.6 will be dropped in NetBox v3.0. Please upgrade to Python 3.7 or later at your "
         "earliest convenience."
     )
 
