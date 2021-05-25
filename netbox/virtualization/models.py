@@ -116,7 +116,7 @@ class ClusterGroup(OrganizationalModel):
 # Clusters
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Cluster(PrimaryModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
@@ -199,7 +199,7 @@ class Cluster(PrimaryModel):
 # Virtual machines
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VirtualMachine(PrimaryModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
@@ -374,7 +374,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 # Interfaces
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VMInterface(PrimaryModel, BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',

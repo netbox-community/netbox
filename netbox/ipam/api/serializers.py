@@ -7,7 +7,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
 from ipam.choices import *
-from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
+from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import OrganizationalModelSerializer
@@ -115,8 +115,7 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
-            app_label='dcim',
-            model__in=['region', 'sitegroup', 'site', 'location', 'rack']
+            model__in=VLANGROUP_SCOPE_TYPES
         ),
         required=False
     )

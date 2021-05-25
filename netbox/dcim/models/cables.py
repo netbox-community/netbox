@@ -30,7 +30,7 @@ __all__ = (
 # Cables
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.

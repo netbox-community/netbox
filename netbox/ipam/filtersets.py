@@ -468,7 +468,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'dns_name']
+        fields = ['id', 'dns_name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -536,6 +536,10 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class VLANGroupFilterSet(OrganizationalModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'
@@ -562,6 +566,15 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     class Meta:
         model = VLANGroup
         fields = ['id', 'name', 'slug', 'description', 'scope_id']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
     def filter_scope(self, queryset, name, value):
         return queryset.filter(

@@ -5,7 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
 from django.urls import reverse
-from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django_tables2 import RequestConfig
 from django_tables2.data import TableQuerysetData
@@ -13,19 +12,6 @@ from django_tables2.utils import Accessor
 
 from extras.models import CustomField
 from .paginator import EnhancedPaginator, get_paginate_count
-
-
-def stripped_value(self, **kwargs):
-    """
-    Replaces TemplateColumn's value() method to both strip HTML tags and remove any leading/trailing whitespace.
-    """
-    html = super(tables.TemplateColumn, self).value(**kwargs)
-    return strip_tags(html).strip() if isinstance(html, str) else html
-
-
-# TODO: We're monkey-patching TemplateColumn here to strip leading/trailing whitespace. This will no longer
-# be necessary under django-tables2 v2.3.5+. (See #5926)
-tables.TemplateColumn.value = stripped_value
 
 
 class BaseTable(tables.Table):

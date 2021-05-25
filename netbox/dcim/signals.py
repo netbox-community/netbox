@@ -31,9 +31,10 @@ def rebuild_paths(obj):
 
     with transaction.atomic():
         for cp in cable_paths:
-            invalidate_obj(cp.origin)
             cp.delete()
-            create_cablepath(cp.origin)
+            if cp.origin:
+                invalidate_obj(cp.origin)
+                create_cablepath(cp.origin)
 
 
 #

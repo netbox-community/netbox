@@ -1291,6 +1291,10 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
         ['region', 'sitegroup', 'site'],
         ['location', 'rack']
     ]
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,

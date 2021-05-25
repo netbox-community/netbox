@@ -449,7 +449,8 @@ class VLANGroupTable(BaseTable):
     name = tables.Column(linkify=True)
     scope_type = ContentTypeColumn()
     scope = tables.Column(
-        linkify=True
+        linkify=True,
+        orderable=False
     )
     vlan_count = LinkedCountColumn(
         viewname='ipam:vlan_list',

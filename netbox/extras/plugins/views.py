@@ -42,7 +42,7 @@ class InstalledPluginsAPIView(APIView):
             'author': plugin_app_config.author,
             'author_email': plugin_app_config.author_email,
             'description': plugin_app_config.description,
-            'verison': plugin_app_config.version
+            'version': plugin_app_config.version
         }
 
     def get(self, request, format=None):
