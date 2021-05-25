@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea, FileField, CharField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
@@ -665,7 +665,10 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 from_form=self.model_form,
                 widget=Textarea(attrs=self.widget_attrs)
             )
-
+            Upload_CSV = FileField(
+                required=False
+            )
+        # this is where the import form is created -- add csv upload here or create new form?
         return ImportForm(*args, **kwargs)
 
     def _save_obj(self, obj_form, request):
@@ -690,6 +693,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         logger = logging.getLogger('netbox.views.BulkImportView')
         new_objs = []
         form = self._import_form(request.POST)
+        # this is where the csv data is handled
 
         if form.is_valid():
             logger.debug("Form validation was successful")
@@ -697,6 +701,9 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
+                    # some prints trying to figure out how the form works
+                    print(type(form["Upload_CSV"]))
+                    print(form["Upload_CSV"].data)
                     headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):
                         obj_form = self.model_form(data, headers=headers)
