@@ -545,13 +545,15 @@ pre {
   }
 }
 
-textarea#id_local_context_data,
-textarea.markdown,
-textarea#id_public_key {
-  font-family: $font-family-monospace;
+textarea.form-control[rows='10'] {
+  height: 18rem;
 }
 
-textarea.form-control[name='csv'] {
+textarea#id_local_context_data,
+textarea.markdown,
+textarea#id_public_key,
+textarea.form-control[name='csv'],
+textarea.form-control[name='data'] {
   font-family: $font-family-monospace;
 }
 

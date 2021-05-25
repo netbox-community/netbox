@@ -6,18 +6,16 @@
 
 {% block content %}
 <div class="row mb-3">
-	<div class="col col-md-8">
+	<div class="col col-md-12 col-xl-8 offset-xl-2">
 		<form action="" method="post" class="form form-horizontal">
 		    {% csrf_token %}
 		    {% render_form form %}
-            <div class="form-group">
-                <div class="col col-md-12 text-end">
-                    {% if return_url %}
-                        <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                    {% endif %}
-                    <button type="submit" name="_addanother" class="btn btn-outline-primary">Submit & Import Another</button>
-                    <button type="submit" name="_create" class="btn btn-primary">Submit</button>
-                </div>
+            <div class="col col-md-12 text-end">
+                {% if return_url %}
+                    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                {% endif %}
+                <button type="submit" name="_addanother" class="btn btn-outline-primary">Submit & Import Another</button>
+                <button type="submit" name="_create" class="btn btn-primary">Submit</button>
             </div>
 		</form>
 	</div>
