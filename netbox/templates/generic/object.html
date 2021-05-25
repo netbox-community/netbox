@@ -18,22 +18,27 @@
 {% block title %}{{ object }}{% endblock %}
 
 {% block controls %}
-<div class="controls mb-2 mx-0">
-  <div class="d-flex flex-wrap justify-content-end">
-  {% custom_links object %}
-  {% plugin_buttons object %}
-  {% block extra_controls %}{% endblock %}
-  {% if request.user|can_add:object %}
-    {% clone_button object %}
-  {% endif %}
-  {% if request.user|can_change:object %}
-    {% edit_button object %}
-  {% endif %}
-  {% if request.user|can_delete:object %}
-    {% delete_button object %}
-  {% endif %}
+  {# Clone/Edit/Delete Buttons #}
+  <div class="controls pb-2 mx-0">
+    <div class="d-flex flex-wrap justify-content-end mb-2">
+      {% custom_links object %}
+      {% plugin_buttons object %}
+  
+      {# Extra buttons #}
+      {% block extra_controls %}{% endblock %}
+
+        {% if request.user|can_add:object %}
+          {% clone_button object %}
+        {% endif %}
+        {% if request.user|can_change:object %}
+          {% edit_button object %}
+        {% endif %}
+        {% if request.user|can_delete:object %}
+          {% delete_button object %}
+        {% endif %}
+
+    </div>
   </div>
-</div>
 {% endblock controls %}
 
 {% block tabs %}
