@@ -52,6 +52,26 @@
   transition: background-color, color 0.15s ease-in-out;
 }
 
+.mw-25 {
+  max-width: 25% !important;
+}
+
+.mw-33 {
+  max-width: 33.33% !important;
+}
+
+.mw-50 {
+  max-width: 50% !important;
+}
+
+.mw-66 {
+  max-width: 66.66% !important;
+}
+
+.mw-75 {
+  max-width: 75% !important;
+}
+
 .text-xs {
   font-size: $font-size-xs;
   line-height: $line-height-sm;
@@ -109,15 +129,18 @@ body {
     }
   }
   &[data-netbox-color-mode='dark'] {
-    .btn.btn-primary,
-    .progress-bar.bg-primary,
-    .badge.bg-primary,
-    .nav.nav-pills .nav-item .nav-link.active,
-    .nav.nav-pills .nav-item .show > .nav-link {
-      color: $black;
+    & {
+      .btn.btn-primary,
+      .progress-bar.bg-primary,
+      .badge.bg-primary,
+      .nav.nav-pills .nav-item .nav-link.active,
+      .nav.nav-pills .nav-item .show > .nav-link {
+        color: $black;
+      }
     }
-  }
-  &[data-netbox-color-mode='dark'] {
+    .card table caption {
+      color: $gray-300;
+    }
     a:not(.btn) {
       color: $blue-300;
     }
@@ -726,4 +749,10 @@ div.card-overlay {
 div.card > div.card-header > div.table-controls {
   max-width: 25%;
   width: 100%;
+  display: flex;
+  align-items: center;
+  & .form-switch.form-check-inline {
+    flex: 1 0 auto;
+    font-size: $font-size-sm;
+  }
 }

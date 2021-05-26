@@ -9,12 +9,26 @@
     <div class="card">
         <div class="card-header">
             <h5 class="d-inline">Interfaces</h5>
-            <div class="float-end col-md-2 noprint table-controls">
+            <div class="float-end col-md-4 noprint table-controls mw-33">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
-                    {% if request.user.is_authenticated %}
-                        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceInterfaceTable_config" title="Configure Table"><i class="mdi mdi-table-eye"></i></button>
-                    {% endif %}
+                    <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="mdi mdi-table-cog"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% if request.user.is_authenticated %}
+                            <button
+                                type="button"
+                                class="dropdown-item"
+                                data-bs-toggle="modal"
+                                data-bs-target="#DeviceInterfaceTable_config"
+                                title="Configure Table">
+                                Configure Table
+                            </button>
+                        {% endif %}
+                        <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
+                        <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
+                    </ul>
                 </div>
             </div>
         </div>

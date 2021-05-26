@@ -8,6 +8,7 @@ import { initMessages } from './messages';
 import { initClipboard } from './clipboard';
 import { initDateSelector } from './dateSelector';
 import { initTableConfig } from './tableConfig';
+import { initInterfaceTable } from './tables';
 
 function init() {
   for (const init of [
@@ -21,6 +22,7 @@ function init() {
     initButtons,
     initClipboard,
     initTableConfig,
+    initInterfaceTable,
   ]) {
     init();
   }
