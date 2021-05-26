@@ -355,23 +355,29 @@ div.content-container {
   bottom: 0;
   left: 0;
   z-index: 100; /* Behind the navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  border-right: 1px solid $border-color;
   background-color: var(--nbx-sidebar-bg);
 
   @media (max-width: map.get($grid-breakpoints, 'md')) {
     top: 8.125rem;
   }
 
-  div.accordion-item > a.accordion-button.nav-link {
-    &:hover {
-      // color: $body-color;
-      // background-color: var(--nbx-sidebar-link-hover-bg);
-      color: $accordion-button-active-color;
-      background-color: $accordion-button-active-bg;
+  div.accordion-item {
+    div.accordion-collapse {
+      &.collapse.show,
+      &.collapsing {
+        background-color: $accordion-body-active-bg;
+      }
     }
-    &:focus {
-      border-color: unset;
-      box-shadow: unset;
+    & > a.accordion-button.nav-link {
+      &:hover {
+        color: $accordion-button-active-color;
+        background-color: $accordion-button-active-bg;
+      }
+      &:focus {
+        border-color: unset;
+        box-shadow: unset;
+      }
     }
   }
 
@@ -381,12 +387,9 @@ div.content-container {
     .nav-item {
       .nav-link {
         padding: 0.25rem 0.6rem;
-        // font-size: $font-size-base;
         font-size: $font-size-sm;
         border-radius: $border-radius;
         &:hover {
-          // color: $body-color;
-          // background-color: var(--nbx-sidebar-link-hover-bg);
           color: $accordion-button-active-color;
           background-color: $accordion-button-active-bg;
         }
@@ -409,7 +412,6 @@ div.content-container {
     position: sticky;
     height: 8rem;
     background-color: var(--nbx-sidebar-bg);
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
     .nav-link {
       padding: 0.5rem 0.25rem;
     }

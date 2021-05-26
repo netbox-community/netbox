@@ -173,9 +173,10 @@ $card-bg: $gray-800;
 // Accordion
 $accordion-color: $body-color;
 $accordion-bg: transparent;
-$accordion-border-color: rgba($white, 0.125);
+$accordion-border-color: $border-color;
 $accordion-button-color: $accordion-color;
 $accordion-button-bg: $accordion-bg;
+$accordion-body-active-bg: rgba($blue-300, 0.1);
 $accordion-button-active-bg: rgba($blue-300, 0.15);
 $accordion-button-active-color: $gray-300;
 $accordion-button-focus-border-color: $input-focus-border-color;
