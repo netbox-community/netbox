@@ -190,6 +190,9 @@ body {
         // Ensure checkboxes aren't too small inside object tables.
         font-size: $font-size-base;
       }
+      & .btn-sm {
+        line-height: $line-height-xs;
+      }
     }
     &.attr-table {
       td,
