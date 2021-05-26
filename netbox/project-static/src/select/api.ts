@@ -350,7 +350,6 @@ export function initApiSelect() {
 
       // Determine if this element is part of collapsible element.
       const collapse = findFirstAdjacent(select, '.collapse', '.content-container');
-      console.log('collapse', collapse);
       if (collapse !== null) {
         // If this element is part of a collapsible element, only load the data when the
         // collapsible element is shown.
