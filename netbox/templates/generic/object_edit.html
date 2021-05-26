@@ -6,73 +6,89 @@
 
 {% block controls %}
   {% if settings.DOCS_ROOT %}
-  <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
-    <i class="mdi mdi-help-circle"></i>
-  </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
+      <i class="mdi mdi-help-circle"></i>
+    </button>
   {% endif %}
 {% endblock controls %}
 
 {% block content %}
-<form action="" method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {% for field in form.hidden_fields %}{{ field }}{% endfor %}
-  <div class="row">
-    <div class="col col-md-8 offset-md-2">
-      {% block tabs %}{% endblock %}
-      {% block form %}
-      {% if form.Meta.fieldsets %}
+  <form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
 
-      {# Render grouped fields according to Form #} 
-      {% for group, fields in form.Meta.fieldsets %}
-        <div class="field-group">
-          <h4 class="mb-3">{{ group }}</h4>
-          {% for name in fields %}{% render_field form|getfield:name %}{% endfor %}
-        </div>
-        
-      {% endfor %}
-      {% if form.custom_fields %}
-      <div class="field-group">
-        <h4 class="mb-3">Custom Fields</h4>
-        {% render_custom_fields form %}
+    <div class="row">
+      <div class="col col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+        {% block tabs %}{% endblock %}
+        {% block form %}
+          {% if form.Meta.fieldsets %}
+
+          {# Render grouped fields according to Form #} 
+          {% for group, fields in form.Meta.fieldsets %}
+            <div class="field-group">
+
+              <h4>{{ group }}</h4>
+
+              {% for name in fields %}
+                  {% render_field form|getfield:name %}
+              {% endfor %}
+
+            </div>
+          {% endfor %}
+
+          {% if form.custom_fields %}
+            <div class="field-group">
+              <h4>Custom Fields</h4>
+              {% render_custom_fields form %}
+            </div>
+          {% endif %}
+
+          {% if form.comments %}
+            <div class="field-group">
+              <h4>Comments</h4>
+              {% render_field form.comments %}
+            </div>
+          {% endif %}
+
+          {% else %} 
+            {# Render all fields in a single group #}
+            <div class="field-group">
+              <h4>{{ obj_type|capfirst }}</h4>
+              {% block form_fields %}{% render_form form %}{% endblock %}
+            </div>
+          {% endif %}
+
+        {% endblock form %}
       </div>
-      {% endif %}
-      {% if form.comments %}
-      <div class="field-group">
-        <h4 class="mb-3">Comments</h4>
-        {% render_field form.comments %}
-      </div>  
-      {% endif %}
-      {% else %} 
-      {# Render all fields in a single group #}
-      <div class="field-group">
-        <h4 class="mb-3">{{ obj_type|capfirst }}</h4>
-        {% block form_fields %}{% render_form form %}{% endblock %}
+    </div>
+
+    <div class="row my-3">
+      <div class="col col-md-8 offset-md-2 text-end">
+        {% block buttons %}
+          <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+
+          {% if obj.pk %}
+            <button type="submit" name="_update" class="btn btn-primary">
+              Save
+            </button>
+
+          {% else %}
+            <button type="submit" name="_addanother" class="btn btn-outline-primary">
+              Create & Add Another
+            </button>
+            <button type="submit" name="_create" class="btn btn-primary">
+              Create
+            </button>
+
+          {% endif %}
+
+        {% endblock buttons %}
       </div>
-      {% endif %}
-      {% endblock form %}
     </div>
-  </div>
-  <div class="row my-3">
-    <div class="col col-md-8 offset-md-2 text-end">
-      {% block buttons %}
-      <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
-      {% if obj.pk %}
-      <button type="submit" name="_update" class="btn btn-primary">
-        Save
-      </button>
-      {% else %}
-      <button type="submit" name="_addanother" class="btn btn-outline-primary">
-        Create & Add Another
-      </button>
-      <button type="submit" name="_create" class="btn btn-primary">
-        Create
-      </button>
-      {% endif %}
-      {% endblock buttons %}
-    </div>
-  </div>
-</form>
+  </form>
+
 {% if obj and settings.DOCS_ROOT %} 
   {% include 'inc/modal.html' with name='docs' content=obj|get_docs %}
 {% endif %}
+
 {% endblock content %}

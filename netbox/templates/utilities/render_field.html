@@ -33,83 +33,90 @@
     </div>
 
 {% elif field|widget_type == 'slugwidget' %}
-<div class="form-floating mb-3">
-    <div class="input-group">
-        {{ field }}
-        <label  class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
-            {{ field.label }}
-        </label>
-        <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark">
-            <i class="mdi mdi-undo-variant"></i>
-        </button>
+    <div class="form-floating mb-3">
+        <div class="input-group">
+            {{ field }}
+            <label  class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+            <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark">
+                <i class="mdi mdi-undo-variant"></i>
+            </button>
+        </div>
     </div>
-</div>
 
 {% elif field|widget_type == 'selectspeedwidget' %}
-{# This is outside the widget because bootstrap requires a specific order for border-radius purposes.#}
-<div class="form-floating mb-3">
-    <div class="input-group">
-        {{ field }}
-        <label class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
+    {# This is outside the widget because bootstrap requires a specific order for border-radius purposes. #}
+    <div class="form-floating mb-3">
+        <div class="input-group">
+            {{ field }}
+            <label class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+            <button type="button" class="btn btn-outline-gray dropdown-toggle" data-bs-toggle="dropdown">
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a href="#" target="{{ field.id_for_label }}" data="10000" class="set_speed dropdown-item">10 Mbps</a></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="100000" class="set_speed dropdown-item">100 Mbps</a></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="1000000" class="set_speed dropdown-item">1 Gbps</a></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="10000000" class="set_speed dropdown-item">10 Gbps</a></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="25000000" class="set_speed dropdown-item">25 Gbps</a></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="40000000" class="set_speed dropdown-item">40 Gbps</a></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="100000000" class="set_speed dropdown-item">100 Gbps</a></li>
+                <li><hr class="dropdown-divider"/></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="1544" class="set_speed dropdown-item">T1 (1.544 Mbps)</a></li>
+                <li><a href="#" target="{{ field.id_for_label }}" data="2048" class="set_speed dropdown-item">E1 (2.048 Mbps)</a></li>
+            </ul>
+        </div>
+    </div>
+
+{% elif field|widget_type == 'fileinput' or field|widget_type == 'clearablefileinput' %}
+    <div class="input-group mb-3">
+        <input
+            class="form-control"
+            type="file"
+            name="{{ field.name }}"
+            placeholder="{{ field.placeholder }}"
+            id="id_{{ field.name }}"
+            accept="{{ field.field.widget.attrs.accept }}"
+            {% if field.is_required %}required{% endif %}
+        />
+        <label for="{{ field.id_for_label }}" class="input-group-text">{{ field.label|bettertitle }}</label>
+    </div>
+
+{% elif field|widget_type == 'selectmultiple' %}
+    <div class="row">
+        <label for="{{ field.id_for_label }}" class="form-label col col-md-3{% if field.field.required %} required{% endif %}">
             {{ field.label }}
         </label>
-        <button type="button" class="btn btn-outline-gray dropdown-toggle" data-bs-toggle="dropdown">
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li><a href="#" target="{{ field.id_for_label }}" data="10000" class="set_speed dropdown-item">10 Mbps</a></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="100000" class="set_speed dropdown-item">100 Mbps</a></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="1000000" class="set_speed dropdown-item">1 Gbps</a></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="10000000" class="set_speed dropdown-item">10 Gbps</a></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="25000000" class="set_speed dropdown-item">25 Gbps</a></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="40000000" class="set_speed dropdown-item">40 Gbps</a></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="100000000" class="set_speed dropdown-item">100 Gbps</a></li>
-            <li><hr class="dropdown-divider"/></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="1544" class="set_speed dropdown-item">T1 (1.544 Mbps)</a></li>
-            <li><a href="#" target="{{ field.id_for_label }}" data="2048" class="set_speed dropdown-item">E1 (2.048 Mbps)</a></li>
-        </ul>
+        <div class="col col-md-9">
+            {{ field }}
+        </div>
     </div>
-</div>
-{% elif field|widget_type == 'fileinput' or field|widget_type == 'clearablefileinput' %}
-<div class="input-group mb-3">
-    <input
-        class="form-control"
-        type="file"
-        name="{{ field.name }}"
-        placeholder="{{ field.placeholder }}"
-        id="id_{{ field.name }}"
-        accept="{{ field.field.widget.attrs.accept }}"
-        {% if field.is_required %}required{% endif %}
-    />
-    <label for="{{ field.id_for_label }}" class="input-group-text">{{ field.label|bettertitle }}</label>
-</div>
-{% elif field|widget_type == 'selectmultiple' %}
-<div class="row">
-    <label for="{{ field.id_for_label }}" class="form-label col col-md-3{% if field.field.required %} required{% endif %}">
-        {{ field.label }}
-    </label>
-    <div class="col col-md-9">
-        {{ field }}
-    </div>
-</div>
+
 {% else %}
     <div class="form-floating mb-3">
         {{ field }}
         <label for="{{ field.id_for_label }}" {% if field.field.required %}class="required"{% endif %}>
             {{ field.label }}
         </label>
+        
         {% if field.help_text %}
-        <span class="form-text">{{ field.help_text|safe }}</span>
+            <span class="form-text">{{ field.help_text|safe }}</span>
         {% endif %}
+        
         <div class="invalid-feedback">{% if field.field.required %}<strong>{{ field.label }}</strong> field is required.{% endif %}</div>
     </div>
-    {% if bulk_nullable %}
+    
+{% endif %}
+
+{% if bulk_nullable %}
     <div class="form-check">
         <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
         <label class="form-check-label">Set Null</label>
     </div>
+
     {% if field.help_text %}
-    <span class="form-text">{{ field.help_text|safe }}</span>
+        <span class="form-text">{{ field.help_text|safe }}</span>
     {% endif %}
-    {% endif %}
-    
 {% endif %}
