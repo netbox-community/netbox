@@ -209,10 +209,10 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         method='search_contains',
         label='Prefixes which contain this prefix or IP',
     )
-    depth = django_filters.NumberFilter(
+    depth = MultiValueNumberFilter(
         field_name='_depth'
     )
-    children = django_filters.NumberFilter(
+    children = MultiValueNumberFilter(
         field_name='_children'
     )
     mask_length = django_filters.NumberFilter(
