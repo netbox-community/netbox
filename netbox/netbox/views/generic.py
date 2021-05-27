@@ -701,10 +701,33 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
-                    # some prints trying to figure out how the form works
-                    print(type(form["Upload_CSV"]))
-                    print(form["Upload_CSV"].data)
-                    headers, records = form.cleaned_data['csv']
+                    
+                    if len(request.FILES) != 0:
+                        csv_file = request.FILES["Upload_CSV"]
+                        csv_file.seek(0)
+                        csv_str = csv_file.read().decode('utf-8')
+
+                        csv_list = csv_str.split('\n')
+                        header_row = csv_list[0]
+                        csv_list.pop(0)
+                        header_list = header_row.split(',')
+                        headers = {}
+                        for elt in header_list:
+                            headers[elt] = None
+                        records = []
+                        for row in csv_list:
+                            if row != "":
+                                row_str = (',').join(row)
+                                row_list = row.split(',')
+                                row_dict = {}
+                                for i, elt in enumerate(row_list):
+                                    if elt == '':
+                                        row_dict[header_list[i]] = None
+                                    else:
+                                        row_dict[header_list[i]] = elt
+                                records.append(row_dict)
+                    else:
+                        headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):
                         obj_form = self.model_form(data, headers=headers)
                         restrict_form_fields(obj_form, request.user)
