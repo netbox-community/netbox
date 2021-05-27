@@ -13,7 +13,7 @@ def update_parents_children(prefix):
     parents = prefix.get_parents(include_self=True).annotate_hierarchy()
     for parent in parents:
         parent._children = parent.hierarchy_children
-    Prefix.objects.bulk_update(parents, ['_children'])
+    Prefix.objects.bulk_update(parents, ['_children'], batch_size=100)
 
 
 def update_children_depth(prefix):
@@ -23,7 +23,7 @@ def update_children_depth(prefix):
     children = prefix.get_children(include_self=True).annotate_hierarchy()
     for child in children:
         child._depth = child.hierarchy_depth
-    Prefix.objects.bulk_update(children, ['_depth'])
+    Prefix.objects.bulk_update(children, ['_depth'], batch_size=100)
 
 
 @receiver(post_save, sender=Prefix)
