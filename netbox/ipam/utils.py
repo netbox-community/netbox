@@ -105,7 +105,7 @@ def rebuild_prefixes(vrf):
         for n in stack:
             n['children'] += 1
         stack.append({
-            'pk': prefix['pk'],
+            'pk': [prefix['pk']],
             'prefix': prefix['prefix'],
             'children': 0,
         })
@@ -123,18 +123,17 @@ def rebuild_prefixes(vrf):
 
         # Handle duplicate prefixes
         elif stack[-1]['prefix'] == p['prefix']:
-            update_queue.append(
-                Prefix(pk=p['pk'], _depth=len(stack) - 1, _children=stack[-1]['children'])
-            )
+            stack[-1]['pk'].append(p['pk'])
 
         # If this is a sibling or parent of the most recent prefix, pop nodes from the
         # stack until we reach a parent prefix (or the root)
         else:
             while stack and not contains(stack[-1]['prefix'], p['prefix']):
                 node = stack.pop()
-                update_queue.append(
-                    Prefix(pk=node['pk'], _depth=len(stack), _children=node['children'])
-                )
+                for pk in node['pk']:
+                    update_queue.append(
+                        Prefix(pk=pk, _depth=len(stack), _children=node['children'])
+                    )
             push_to_stack(p)
 
         # Flush the update queue once it reaches 100 Prefixes
@@ -145,9 +144,10 @@ def rebuild_prefixes(vrf):
     # Clear out any prefixes remaining in the stack
     while stack:
         node = stack.pop()
-        update_queue.append(
-            Prefix(pk=node['pk'], _depth=len(stack), _children=node['children'])
-        )
+        for pk in node['pk']:
+            update_queue.append(
+                Prefix(pk=pk, _depth=len(stack), _children=node['children'])
+            )
 
     # Final flush of any remaining Prefixes
     Prefix.objects.bulk_update(update_queue, ['_depth', '_children'])
