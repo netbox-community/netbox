@@ -266,8 +266,13 @@ class PrefixTable(BaseTable):
         accessor=Accessor('_depth'),
         verbose_name='Depth'
     )
-    children = tables.Column(
+    children = LinkedCountColumn(
         accessor=Accessor('_children'),
+        viewname='ipam:prefix_list',
+        url_params={
+            'vrf_id': 'vrf_id',
+            'within': 'prefix',
+        },
         verbose_name='Children'
     )
     status = ChoiceFieldColumn(
