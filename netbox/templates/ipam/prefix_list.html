@@ -5,6 +5,26 @@
     <div class="btn-group" role="group">
         <div class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="max_length" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                Max Depth{% if "depth__lte" in request.GET %}: {{ request.GET.depth__lte }}{% endif %}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="max_length">
+                {% if request.GET.depth__lte %}
+                    <li>
+                        <a href="{% url 'ipam:prefix_list' %}{% querystring request depth__lte=None page=1 %}">Clear</a>
+                    </li>
+                {% endif %}
+                {% for i in 16|as_range %}
+                    <li><a href="{% url 'ipam:prefix_list' %}{% querystring request depth__lte=i page=1 %}">
+                        {{ i }} {% if request.GET.depth__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}
+                    </a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="btn-group" role="group">
+        <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="max_length" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 Max Length{% if "mask_length__lte" in request.GET %}: {{ request.GET.mask_length__lte }}{% endif %}
                 <span class="caret"></span>
             </button>
