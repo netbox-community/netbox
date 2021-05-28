@@ -1,5 +1,14 @@
 # NetBox v2.11
 
+## v2.11.5 (FUTURE)
+
+### Enhancements
+
+* [#6087](https://github.com/netbox-community/netbox/issues/6087) - Improved prefix hierarchy rendering
+* [#6501](https://github.com/netbox-community/netbox/issues/6501) - Expose prefix depth and children on REST API serializer
+
+---
+
 ## v2.11.4 (2021-05-25)
 
 ### Enhancements
