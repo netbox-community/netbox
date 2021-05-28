@@ -17,8 +17,6 @@ from .constants import *
 
 
 __all__ = (
-    'AdminGroup',
-    'AdminUser',
     'ObjectPermission',
     'Token',
     'UserConfig',
@@ -163,7 +161,6 @@ class UserConfig(models.Model):
 
 
 @receiver(post_save, sender=User)
-@receiver(post_save, sender=AdminUser)
 def create_userconfig(instance, created, **kwargs):
     """
     Automatically create a new UserConfig when a new User is created.
