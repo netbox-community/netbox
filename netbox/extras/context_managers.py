@@ -4,6 +4,7 @@ from django.db.models.signals import m2m_changed, pre_delete, post_save
 
 from extras.signals import _handle_changed_object, _handle_deleted_object
 from utilities.utils import curry
+from .webhooks import flush_webhooks
 
 
 @contextmanager
@@ -14,9 +15,11 @@ def change_logging(request):
 
     :param request: WSGIRequest object with a unique `id` set
     """
+    webhook_queue = []
+
     # Curry signals receivers to pass the current request
-    handle_changed_object = curry(_handle_changed_object, request)
-    handle_deleted_object = curry(_handle_deleted_object, request)
+    handle_changed_object = curry(_handle_changed_object, request, webhook_queue)
+    handle_deleted_object = curry(_handle_deleted_object, request, webhook_queue)
 
     # Connect our receivers to the post_save and post_delete signals.
     post_save.connect(handle_changed_object, dispatch_uid='handle_changed_object')
@@ -30,3 +33,7 @@ def change_logging(request):
     post_save.disconnect(handle_changed_object, dispatch_uid='handle_changed_object')
     m2m_changed.disconnect(handle_changed_object, dispatch_uid='handle_changed_object')
     pre_delete.disconnect(handle_deleted_object, dispatch_uid='handle_deleted_object')
+
+    # Flush queued webhooks to RQ
+    flush_webhooks(webhook_queue)
+    del webhook_queue

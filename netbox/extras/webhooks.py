@@ -12,6 +12,19 @@ from .models import Webhook
 from .registry import registry
 
 
+def serialize_for_webhook(instance):
+    """
+    Return a serialized representation of the given instance suitable for use in a webhook.
+    """
+    serializer_class = get_serializer_for_model(instance.__class__)
+    serializer_context = {
+        'request': None,
+    }
+    serializer = serializer_class(instance, context=serializer_context)
+
+    return serializer.data
+
+
 def generate_signature(request_body, secret):
     """
     Return a cryptographic signature that can be used to verify the authenticity of webhook data.
@@ -24,10 +37,10 @@ def generate_signature(request_body, secret):
     return hmac_prep.hexdigest()
 
 
-def enqueue_webhooks(instance, user, request_id, action):
+def enqueue_object(queue, instance, user, request_id, action):
     """
-    Find Webhook(s) assigned to this instance + action and enqueue them
-    to be processed
+    Enqueue a serialized representation of a created/updated/deleted object for the processing of
+    webhooks once the request has completed.
     """
     # Determine whether this type of object supports webhooks
     app_label = instance._meta.app_label
@@ -35,41 +48,50 @@ def enqueue_webhooks(instance, user, request_id, action):
     if model_name not in registry['model_features']['webhooks'].get(app_label, []):
         return
 
-    # Retrieve any applicable Webhooks
-    content_type = ContentType.objects.get_for_model(instance)
-    action_flag = {
-        ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
-        ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
-        ObjectChangeActionChoices.ACTION_DELETE: 'type_delete',
-    }[action]
-    webhooks = Webhook.objects.filter(content_types=content_type, enabled=True, **{action_flag: True})
+    # Gather pre- and post-change snapshots
+    snapshots = {
+        'prechange': getattr(instance, '_prechange_snapshot', None),
+        'postchange': serialize_object(instance) if action != ObjectChangeActionChoices.ACTION_DELETE else None,
+    }
 
-    if webhooks.exists():
+    queue.append({
+        'content_type': ContentType.objects.get_for_model(instance),
+        'object_id': instance.pk,
+        'event': action,
+        'data': serialize_for_webhook(instance),
+        'snapshots': snapshots,
+        'username': user.username,
+        'request_id': request_id
+    })
 
-        # Get the Model's API serializer class and serialize the object
-        serializer_class = get_serializer_for_model(instance.__class__)
-        serializer_context = {
-            'request': None,
-        }
-        serializer = serializer_class(instance, context=serializer_context)
 
-        # Gather pre- and post-change snapshots
-        snapshots = {
-            'prechange': getattr(instance, '_prechange_snapshot', None),
-            'postchange': serialize_object(instance) if action != ObjectChangeActionChoices.ACTION_DELETE else None,
-        }
+def flush_webhooks(queue):
+    """
+    Flush a list of object representation to RQ for webhook processing.
+    """
+    rq_queue = get_queue('default')
 
-        # Enqueue the webhooks
-        webhook_queue = get_queue('default')
+    for data in queue:
+
+        # Collect Webhooks that apply for this object and action
+        content_type = data['content_type']
+        action_flag = {
+            ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
+            ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
+            ObjectChangeActionChoices.ACTION_DELETE: 'type_delete',
+        }[data['event']]
+        # TODO: Cache these so we're not calling multiple times for bulk operations
+        webhooks = Webhook.objects.filter(content_types=content_type, enabled=True, **{action_flag: True})
+
         for webhook in webhooks:
-            webhook_queue.enqueue(
+            rq_queue.enqueue(
                 "extras.webhooks_worker.process_webhook",
                 webhook=webhook,
-                model_name=instance._meta.model_name,
-                event=action,
-                data=serializer.data,
-                snapshots=snapshots,
+                model_name=content_type.model,
+                event=data['event'],
+                data=data['data'],
+                snapshots=data['snapshots'],
                 timestamp=str(timezone.now()),
-                username=user.username,
-                request_id=request_id
+                username=data['username'],
+                request_id=data['request_id']
             )
