@@ -8,6 +8,10 @@
 * [#6487](https://github.com/netbox-community/netbox/issues/6487) - Add location filter to cable connection form
 * [#6501](https://github.com/netbox-community/netbox/issues/6501) - Expose prefix depth and children on REST API serializer
 
+### Bug Fixes
+
+* [#6502](https://github.com/netbox-community/netbox/issues/6502) - Correct permissions evaluation for running a report via the REST API
+
 ---
 
 ## v2.11.4 (2021-05-25)
