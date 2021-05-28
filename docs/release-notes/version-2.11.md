@@ -10,6 +10,7 @@
 
 ### Bug Fixes
 
+* [#6496](https://github.com/netbox-community/netbox/issues/6496) - Fix upgrade script when Python installed in nonstandard path
 * [#6502](https://github.com/netbox-community/netbox/issues/6502) - Correct permissions evaluation for running a report via the REST API
 
 ---

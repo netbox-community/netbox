@@ -15,7 +15,7 @@ else
 fi
 
 # Create a new virtual environment
-COMMAND="/usr/bin/python3 -m venv ${VIRTUALENV}"
+COMMAND="python3 -m venv ${VIRTUALENV}"
 echo "Creating a new virtual environment at ${VIRTUALENV}..."
 eval $COMMAND || {
   echo "--------------------------------------------------------------------"
