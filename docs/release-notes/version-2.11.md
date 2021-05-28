@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6087](https://github.com/netbox-community/netbox/issues/6087) - Improved prefix hierarchy rendering
+* [#6487](https://github.com/netbox-community/netbox/issues/6487) - Add location filter to cable connection form
 * [#6501](https://github.com/netbox-community/netbox/issues/6501) - Expose prefix depth and children on REST API serializer
 
 ---
