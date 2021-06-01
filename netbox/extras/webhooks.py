@@ -25,6 +25,13 @@ def serialize_for_webhook(instance):
     return serializer.data
 
 
+def get_snapshots(instance, action):
+    return {
+        'prechange': getattr(instance, '_prechange_snapshot', None),
+        'postchange': serialize_object(instance) if action != ObjectChangeActionChoices.ACTION_DELETE else None,
+    }
+
+
 def generate_signature(request_body, secret):
     """
     Return a cryptographic signature that can be used to verify the authenticity of webhook data.
@@ -48,18 +55,12 @@ def enqueue_object(queue, instance, user, request_id, action):
     if model_name not in registry['model_features']['webhooks'].get(app_label, []):
         return
 
-    # Gather pre- and post-change snapshots
-    snapshots = {
-        'prechange': getattr(instance, '_prechange_snapshot', None),
-        'postchange': serialize_object(instance) if action != ObjectChangeActionChoices.ACTION_DELETE else None,
-    }
-
     queue.append({
         'content_type': ContentType.objects.get_for_model(instance),
         'object_id': instance.pk,
         'event': action,
         'data': serialize_for_webhook(instance),
-        'snapshots': snapshots,
+        'snapshots': get_snapshots(instance, action),
         'username': user.username,
         'request_id': request_id
     })

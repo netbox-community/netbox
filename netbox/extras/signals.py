@@ -12,7 +12,7 @@ from prometheus_client import Counter
 
 from .choices import ObjectChangeActionChoices
 from .models import CustomField, ObjectChange
-from .webhooks import enqueue_object, serialize_for_webhook
+from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
 
 #
@@ -23,6 +23,13 @@ def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
     """
     Fires when an object is created or updated.
     """
+    def is_same_object(instance, webhook_data):
+        return (
+            ContentType.objects.get_for_model(instance) == webhook_data['content_type'] and
+            instance.pk == webhook_data['object_id'] and
+            request.id == webhook_data['request_id']
+        )
+
     if not hasattr(instance, 'to_objectchange'):
         return
 
@@ -57,11 +64,10 @@ def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
             objectchange.save()
 
     # If this is an M2M change, update the previously queued webhook (from post_save)
-    if m2m_changed and webhook_queue:
-        # TODO: Need more validation here
-        # TODO: Need to account for snapshot changes
+    if m2m_changed and webhook_queue and is_same_object(instance, webhook_queue[-1]):
         instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
         webhook_queue[-1]['data'] = serialize_for_webhook(instance)
+        webhook_queue[-1]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
     else:
         enqueue_object(webhook_queue, instance, request.user, request.id, action)
 

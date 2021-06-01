@@ -67,10 +67,12 @@ class WebhookTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_create=True))
+        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], response.data['id'])
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
-        self.assertEqual(job.kwargs['model_name'], 'site')
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site 1')
+        self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
 
     def test_enqueue_webhook_update(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
@@ -78,6 +80,7 @@ class WebhookTest(APITestCase):
 
         # Update an object via the REST API
         data = {
+            'name': 'Site X',
             'comments': 'Updated the site',
             'tags': [
                 {'name': 'Baz'}
@@ -92,10 +95,14 @@ class WebhookTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_update=True))
+        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
-        self.assertEqual(job.kwargs['model_name'], 'site')
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
+        self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
+        self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site X')
+        self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
 
     def test_enqueue_webhook_delete(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
@@ -111,9 +118,11 @@ class WebhookTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_delete=True))
-        self.assertEqual(job.kwargs['data']['id'], site.pk)
-        self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(job.kwargs['model_name'], 'site')
+        self.assertEqual(job.kwargs['data']['id'], site.pk)
+        self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
+        self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
     # TODO: Replace webhook worker test
     # def test_webhooks_worker(self):
