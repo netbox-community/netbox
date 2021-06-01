@@ -60,6 +60,7 @@ def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
     if m2m_changed and webhook_queue:
         # TODO: Need more validation here
         # TODO: Need to account for snapshot changes
+        instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
         webhook_queue[-1]['data'] = serialize_for_webhook(instance)
     else:
         enqueue_object(webhook_queue, instance, request.user, request.id, action)
