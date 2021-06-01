@@ -74,6 +74,52 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
 
+    def test_enqueue_webhook_bulk_create(self):
+        # Create multiple objects via the REST API
+        data = [
+            {
+                'name': 'Site 1',
+                'slug': 'site-1',
+                'tags': [
+                    {'name': 'Foo'},
+                    {'name': 'Bar'},
+                ]
+            },
+            {
+                'name': 'Site 2',
+                'slug': 'site-2',
+                'tags': [
+                    {'name': 'Foo'},
+                    {'name': 'Bar'},
+                ]
+            },
+            {
+                'name': 'Site 3',
+                'slug': 'site-3',
+                'tags': [
+                    {'name': 'Foo'},
+                    {'name': 'Bar'},
+                ]
+            },
+        ]
+        url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Site.objects.count(), 3)
+        self.assertEqual(Site.objects.first().tags.count(), 2)
+
+        # Verify that a webhook was queued for each object
+        self.assertEqual(self.queue.count, 3)
+        for i, job in enumerate(self.queue.jobs):
+            self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_create=True))
+            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+            self.assertEqual(job.kwargs['model_name'], 'site')
+            self.assertEqual(job.kwargs['data']['id'], response.data[i]['id'])
+            self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
+            self.assertEqual(job.kwargs['snapshots']['postchange']['name'], response.data[i]['name'])
+            self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
+
     def test_enqueue_webhook_update(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
         site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
@@ -104,6 +150,58 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site X')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
 
+    def test_enqueue_webhook_bulk_update(self):
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        for site in sites:
+            site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
+
+        # Update three objects via the REST API
+        data = [
+            {
+                'id': sites[0].pk,
+                'name': 'Site X',
+                'tags': [
+                    {'name': 'Baz'}
+                ]
+            },
+            {
+                'id': sites[1].pk,
+                'name': 'Site Y',
+                'tags': [
+                    {'name': 'Baz'}
+                ]
+            },
+            {
+                'id': sites[2].pk,
+                'name': 'Site Z',
+                'tags': [
+                    {'name': 'Baz'}
+                ]
+            },
+        ]
+        url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.change_site')
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Verify that a job was queued for the object update webhook
+        self.assertEqual(self.queue.count, 3)
+        for i, job in enumerate(self.queue.jobs):
+            self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_update=True))
+            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(job.kwargs['model_name'], 'site')
+            self.assertEqual(job.kwargs['data']['id'], data[i]['id'])
+            self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
+            self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
+            self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
+            self.assertEqual(job.kwargs['snapshots']['postchange']['name'], response.data[i]['name'])
+            self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
+
     def test_enqueue_webhook_delete(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
         site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
@@ -123,6 +221,35 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
+
+    def test_enqueue_webhook_bulk_delete(self):
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        for site in sites:
+            site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
+
+        # Delete three objects via the REST API
+        data = [
+            {'id': site.pk} for site in sites
+        ]
+        url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.delete_site')
+        response = self.client.delete(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+
+        # Verify that a job was queued for the object update webhook
+        self.assertEqual(self.queue.count, 3)
+        for i, job in enumerate(self.queue.jobs):
+            self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_delete=True))
+            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+            self.assertEqual(job.kwargs['model_name'], 'site')
+            self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
+            self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
+            self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
     # TODO: Replace webhook worker test
     # def test_webhooks_worker(self):
