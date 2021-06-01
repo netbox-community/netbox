@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
@@ -71,18 +72,29 @@ def flush_webhooks(queue):
     Flush a list of object representation to RQ for webhook processing.
     """
     rq_queue = get_queue('default')
+    webhooks_cache = {
+        'type_create': {},
+        'type_update': {},
+        'type_delete': {},
+    }
 
     for data in queue:
 
-        # Collect Webhooks that apply for this object and action
-        content_type = data['content_type']
         action_flag = {
             ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
             ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
             ObjectChangeActionChoices.ACTION_DELETE: 'type_delete',
         }[data['event']]
-        # TODO: Cache these so we're not calling multiple times for bulk operations
-        webhooks = Webhook.objects.filter(content_types=content_type, enabled=True, **{action_flag: True})
+        content_type = data['content_type']
+
+        # Cache applicable Webhooks
+        if content_type not in webhooks_cache[action_flag]:
+            webhooks_cache[action_flag][content_type] = Webhook.objects.filter(
+                **{action_flag: True},
+                content_types=content_type,
+                enabled=True
+            )
+        webhooks = webhooks_cache[action_flag][content_type]
 
         for webhook in webhooks:
             rq_queue.enqueue(
