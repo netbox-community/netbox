@@ -1,5 +1,6 @@
 import logging
 import re
+import csv
 from copy import deepcopy
 
 from django.contrib import messages
@@ -7,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea, FileField, CharField
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea, FileField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
@@ -668,7 +669,6 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             Upload_CSV = FileField(
                 required=False
             )
-        # this is where the import form is created -- add csv upload here or create new form?
         return ImportForm(*args, **kwargs)
 
     def _save_obj(self, obj_form, request):
@@ -693,7 +693,6 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         logger = logging.getLogger('netbox.views.BulkImportView')
         new_objs = []
         form = self._import_form(request.POST)
-        # this is where the csv data is handled
 
         if form.is_valid():
             logger.debug("Form validation was successful")
@@ -701,33 +700,27 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
-                    
                     if len(request.FILES) != 0:
                         csv_file = request.FILES["Upload_CSV"]
                         csv_file.seek(0)
                         csv_str = csv_file.read().decode('utf-8')
-
-                        csv_list = csv_str.split('\n')
-                        header_row = csv_list[0]
-                        csv_list.pop(0)
-                        header_list = header_row.split(',')
+                        reader = csv.reader(csv_str.splitlines())
+                        headers_list = next(reader)
                         headers = {}
-                        for elt in header_list:
-                            headers[elt] = None
+                        for header in headers_list:
+                            headers[header] = None
                         records = []
-                        for row in csv_list:
-                            if row != "":
-                                row_str = (',').join(row)
-                                row_list = row.split(',')
-                                row_dict = {}
-                                for i, elt in enumerate(row_list):
-                                    if elt == '':
-                                        row_dict[header_list[i]] = None
-                                    else:
-                                        row_dict[header_list[i]] = elt
-                                records.append(row_dict)
+                        for row in reader:
+                            row_dict = {}
+                            for i, elt in enumerate(row):
+                                if elt == '':
+                                    row_dict[headers_list[i]] = None
+                                else:
+                                    row_dict[headers_list[i]] = elt
+                            records.append(row_dict)
                     else:
                         headers, records = form.cleaned_data['csv']
+                    print("headers:", headers, "records:", records)
                     for row, data in enumerate(records, start=1):
                         obj_form = self.model_form(data, headers=headers)
                         restrict_form_fields(obj_form, request.user)
