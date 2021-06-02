@@ -1,3 +1,4 @@
+import sys
 from django.db import migrations
 
 from ipam.utils import rebuild_prefixes
@@ -22,7 +23,8 @@ def populate_prefix_hierarchy(apps, schema_editor):
     VRF = apps.get_model('ipam', 'VRF')
 
     total_count = Prefix.objects.count()
-    print(f'\nUpdating {total_count} prefixes...')
+    if 'test' not in sys.argv:
+        print(f'\nUpdating {total_count} prefixes...')
 
     # Rebuild the global table
     rebuild_prefixes(None)
