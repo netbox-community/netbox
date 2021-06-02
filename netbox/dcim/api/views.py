@@ -246,10 +246,6 @@ class RackReservationViewSet(ModelViewSet):
     serializer_class = serializers.RackReservationSerializer
     filterset_class = filtersets.RackReservationFilterSet
 
-    # Assign user from request
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
 
 #
 # Manufacturers
