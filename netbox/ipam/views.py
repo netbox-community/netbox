@@ -551,6 +551,7 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
         )
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
+        paginate_table(related_ips_table, request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,

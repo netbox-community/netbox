@@ -14,6 +14,7 @@
 * [#6284](https://github.com/netbox-community/netbox/issues/6284) - Avoid sending redundant webhooks when adding/removing tags
 * [#6496](https://github.com/netbox-community/netbox/issues/6496) - Fix upgrade script when Python installed in nonstandard path
 * [#6502](https://github.com/netbox-community/netbox/issues/6502) - Correct permissions evaluation for running a report via the REST API
+* [#6525](https://github.com/netbox-community/netbox/issues/6525) - Paginate related IPs table under IP address view
 
 ---
 
