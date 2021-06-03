@@ -666,7 +666,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 from_form=self.model_form,
                 widget=Textarea(attrs=self.widget_attrs)
             )
-            Upload_CSV = FileField(
+            upload_csv = FileField(
                 required=False
             )
         return ImportForm(*args, **kwargs)
@@ -692,7 +692,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkImportView')
         new_objs = []
-        form = self._import_form(request.POST)
+        form = self._import_form(request.POST, request.FILES)
 
         if form.is_valid():
             logger.debug("Form validation was successful")
@@ -700,8 +700,8 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
-                    if len(request.FILES) != 0:
-                        csv_file = request.FILES["Upload_CSV"]
+                    if request.FILES:
+                        csv_file = request.FILES["upload_csv"]
                         csv_file.seek(0)
                         csv_str = csv_file.read().decode('utf-8')
                         reader = csv.reader(csv_str.splitlines())
