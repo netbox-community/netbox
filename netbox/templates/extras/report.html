@@ -29,7 +29,7 @@
     {% endif %}
     <h1 class="title">{{ report.name }}</h1>
     {% if report.description %}
-        <p class="lead">{{ report.description }}</p>
+        <p class="lead">{{ report.description|render_markdown }}</p>
     {% endif %}
 {% endblock %}
 
