@@ -274,7 +274,7 @@ class IPAddressSerializer(PrimaryModelSerializer):
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)
-    nat_outside = NestedIPAddressSerializer(read_only=True)
+    nat_outside = NestedIPAddressSerializer(required=False, read_only=True)
 
     class Meta:
         model = IPAddress
@@ -283,7 +283,7 @@ class IPAddressSerializer(PrimaryModelSerializer):
             'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
-        read_only_fields = ['family']
+        read_only_fields = ['family', 'nat_outside']
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_assigned_object(self, obj):
