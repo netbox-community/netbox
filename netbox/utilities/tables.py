@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -293,7 +294,10 @@ class LinkedCountColumn(tables.Column):
         if value:
             url = reverse(self.viewname, kwargs=self.view_kwargs)
             if self.url_params:
-                url += '?' + '&'.join([f'{k}={getattr(record, v)}' for k, v in self.url_params.items()])
+                url += '?' + '&'.join([
+                    f'{k}={getattr(record, v) or settings.FILTERS_NULL_CHOICE_VALUE}'
+                    for k, v in self.url_params.items()
+                ])
             return mark_safe(f'<a href="{url}">{value}</a>')
         return value
 

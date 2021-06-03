@@ -31,6 +31,10 @@
                             <label>Site</label>
                         </div>
                         <div class="form-floating mb-3">
+                            <input class="form-control" value="{{ termination_a.device.location|default:"None" }}" disabled />
+                            <label>Location</label>
+                        </div>
+                        <div class="form-floating mb-3">
                             <input class="form-control" value="{{ termination_a.device.rack|default:"None" }}" disabled />
                             <label>Rack</label>
                         </div>
@@ -95,8 +99,8 @@
                     {% if 'termination_b_site' in form.fields %}
                         {% render_field form.termination_b_site %}
                     {% endif %}
-                    {% if 'termination_b_rackgroup' in form.fields %}
-                        {% render_field form.termination_b_rackgroup %}
+                    {% if 'termination_b_location' in form.fields %}
+                        {% render_field form.termination_b_location %}
                     {% endif %}
                     {% if 'termination_b_rack' in form.fields %}
                         {% render_field form.termination_b_rack %}

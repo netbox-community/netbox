@@ -238,7 +238,7 @@ class AggregateView(generic.ObjectView):
             'site', 'role'
         ).order_by(
             'prefix'
-        ).annotate_tree()
+        )
 
         # Add available prefixes to the table if requested
         if request.GET.get('show_available', 'true') == 'true':
@@ -352,7 +352,7 @@ class RoleBulkDeleteView(generic.BulkDeleteView):
 #
 
 class PrefixListView(generic.ObjectListView):
-    queryset = Prefix.objects.annotate_tree()
+    queryset = Prefix.objects.all()
     filterset = filtersets.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable
@@ -377,7 +377,7 @@ class PrefixView(generic.ObjectView):
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(
             'site', 'role'
-        ).annotate_tree()
+        )
         parent_prefix_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
         parent_prefix_table.exclude = ('vrf',)
 
@@ -407,7 +407,7 @@ class PrefixPrefixesView(generic.ObjectView):
         # Child prefixes table
         child_prefixes = instance.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
             'site', 'vlan', 'role',
-        ).annotate_tree()
+        )
 
         # Add available prefixes to the table if requested
         if child_prefixes and request.GET.get('show_available', 'true') == 'true':
@@ -551,6 +551,7 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
         )
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
+        paginate_table(related_ips_table, request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,

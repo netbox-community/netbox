@@ -239,7 +239,7 @@ class ReportViewSet(ViewSet):
         Run a Report identified as "<module>.<script>" and return the pending JobResult as the result
         """
         # Check that the user has permission to run reports.
-        if not request.user.has_perm('extras.run_script'):
+        if not request.user.has_perm('extras.run_report'):
             raise PermissionDenied("This user does not have permission to run reports.")
 
         # Check that at least one RQ worker is running

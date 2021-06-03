@@ -7,7 +7,7 @@ from django.core.exceptions import FieldError, ValidationError
 
 from utilities.forms.fields import ContentTypeMultipleChoiceField
 from .constants import *
-from .models import AdminGroup, AdminUser, ObjectPermission, Token, UserConfig
+from .models import ObjectPermission, Token, UserConfig
 
 
 #
@@ -39,11 +39,11 @@ class ObjectPermissionInline(admin.TabularInline):
 
 
 class GroupObjectPermissionInline(ObjectPermissionInline):
-    model = AdminGroup.object_permissions.through
+    model = Group.object_permissions.through
 
 
 class UserObjectPermissionInline(ObjectPermissionInline):
-    model = AdminUser.object_permissions.through
+    model = User.object_permissions.through
 
 
 class UserConfigInline(admin.TabularInline):
@@ -62,7 +62,7 @@ admin.site.unregister(Group)
 admin.site.unregister(User)
 
 
-@admin.register(AdminGroup)
+@admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     fields = ('name',)
     list_display = ('name', 'user_count')
@@ -75,7 +75,7 @@ class GroupAdmin(admin.ModelAdmin):
         return obj.user_set.count()
 
 
-@admin.register(AdminUser)
+@admin.register(User)
 class UserAdmin(UserAdmin_):
     list_display = [
         'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'

@@ -3968,13 +3968,23 @@ class ConnectCableToDeviceForm(BootstrapMixin, CustomFieldModelForm):
             'group_id': '$termination_b_site_group',
         }
     )
+    termination_b_location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        label='Location',
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$termination_b_site'
+        }
+    )
     termination_b_rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',
         required=False,
         null_option='None',
         query_params={
-            'site_id': '$termination_b_site'
+            'site_id': '$termination_b_site',
+            'location_id': '$termination_b_location',
         }
     )
     termination_b_device = DynamicModelChoiceField(

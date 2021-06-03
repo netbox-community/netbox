@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0046_set_vlangroup_scope_types'),
+        ('ipam', '0048_prefix_populate_depth_children'),
     ]
 
     operations = [

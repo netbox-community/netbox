@@ -6,10 +6,10 @@ from io import StringIO
 import django_filters
 from django import forms
 from django.conf import settings
-from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count
 from django.forms import BoundField
+from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices

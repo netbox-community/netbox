@@ -196,12 +196,14 @@ class PrefixSerializer(PrimaryModelSerializer):
     vlan = NestedVLANSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=PrefixStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
+    children = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Prefix
         fields = [
             'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
-            'mark_utilized', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'mark_utilized', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
         ]
         read_only_fields = ['family']
 

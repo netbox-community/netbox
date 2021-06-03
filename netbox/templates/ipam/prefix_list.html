@@ -3,6 +3,23 @@
 
 {% block extra_controls %}
     <div class="dropdown m-1">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="max_depth" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Max Depth{% if "depth__lte" in request.GET %}: {{ request.GET.depth__lte }}{% endif %}
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="max_depth">
+            {% if request.GET.depth__lte %}
+                <li>
+                    <a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request depth__lte=None page=1 %}">Clear</a>
+                </li>
+            {% endif %}
+            {% for i in 16|as_range %}
+                <li><a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request depth__lte=i page=1 %}">
+                    {{ i }} {% if request.GET.depth__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}
+                </a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="dropdown m-1">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="max_length" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
             Max Length{% if "mask_length__lte" in request.GET %}: {{ request.GET.mask_length__lte }}{% endif %}
         </button>

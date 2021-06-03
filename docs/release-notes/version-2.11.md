@@ -1,5 +1,26 @@
 # NetBox v2.11
 
+## v2.11.5 (FUTURE)
+
+### Enhancements
+
+* [#6087](https://github.com/netbox-community/netbox/issues/6087) - Improved prefix hierarchy rendering
+* [#6487](https://github.com/netbox-community/netbox/issues/6487) - Add location filter to cable connection form
+* [#6501](https://github.com/netbox-community/netbox/issues/6501) - Expose prefix depth and children on REST API serializer
+
+### Bug Fixes
+
+* [#6064](https://github.com/netbox-community/netbox/issues/6064) - Fix object permission assignments for user and group models
+* [#6217](https://github.com/netbox-community/netbox/issues/6217) - Disallow passing of string values for integer custom fields
+* [#6284](https://github.com/netbox-community/netbox/issues/6284) - Avoid sending redundant webhooks when adding/removing tags
+* [#6492](https://github.com/netbox-community/netbox/issues/6492) - Correct tag population in post-change data resulting from REST API changes
+* [#6496](https://github.com/netbox-community/netbox/issues/6496) - Fix upgrade script when Python installed in nonstandard path
+* [#6502](https://github.com/netbox-community/netbox/issues/6502) - Correct permissions evaluation for running a report via the REST API
+* [#6517](https://github.com/netbox-community/netbox/issues/6517) - Fix assignment of user when creating rack reservations via REST API
+* [#6525](https://github.com/netbox-community/netbox/issues/6525) - Paginate related IPs table under IP address view
+
+---
+
 ## v2.11.4 (2021-05-25)
 
 ### Enhancements
@@ -93,7 +114,7 @@
 
 ## v2.11.0 (2021-04-16)
 
-**Note:** NetBox v2.11 is the last major release that will support Python 3.6. Beginning with NetBox v2.12, Python 3.7 or later will be required.
+**Note:** NetBox v2.11 is the last major release that will support Python 3.6. Beginning with NetBox v3.0, Python 3.7 or later will be required.
 
 ### Breaking Changes
 
@@ -151,7 +172,7 @@ Devices can now be assigned to locations (formerly known as rack groups) within 
 
 When exporting a list of objects in NetBox, users now have the option of selecting the "current view". This will render CSV output matching the current configuration of the table being viewed. For example, if you modify the sites list to display only the site name, tenant, and status, the rendered CSV will include only these columns, and they will appear in the order chosen.
 
-The legacy static export behavior has been retained to ensure backward compatibility for dependent integrations. However, users are strongly encouraged to adapt custom export templates where needed as this functionality will be removed in v2.12.
+The legacy static export behavior has been retained to ensure backward compatibility for dependent integrations. However, users are strongly encouraged to adapt custom export templates where needed as this functionality will be removed in v3.0.
 
 #### Variable Scope Support for VLAN Groups ([#5284](https://github.com/netbox-community/netbox/issues/5284))
 
