@@ -80,13 +80,10 @@ class DeviceConnectionsReport(Report):
                 self.log_success(device)
 ```
 
-As you can see, reports are completely customizable. Validation logic can be as simple or as complex as needed.
+As you can see, reports are completely customizable. Validation logic can be as simple or as complex as needed. Also note that the `description` attribute support markdown syntax. It will be rendered in the report list page.
 
 !!! warning
     Reports should never alter data: If you find yourself using the `create()`, `save()`, `update()`, or `delete()` methods on objects within reports, stop and re-evaluate what you're trying to accomplish. Note that there are no safeguards against the accidental alteration or destruction of data.
-
-!!! note 
-    The `description`attribute support markdown syntax. You can use markdown to print fency description in the report list page.
 
 The following methods are available to log results within a report:
 
@@ -96,10 +93,7 @@ The following methods are available to log results within a report:
 * log_warning(object, message)
 * log_failure(object, message)
 
-The recording of one or more failure messages will automatically flag a report as failed. It is advised to log a success for each object that is evaluated so that the results will reflect how many objects are being reported on. (The inclusion of a log message is optional for successes.) Messages recorded with `log()` will appear in a report's results but are not associated with a particular object or status.
-
-!!! note 
-    Every `log_`methods support markdown syntax. Thus you can use markdown in the message and it will be printed as such in the report result.
+The recording of one or more failure messages will automatically flag a report as failed. It is advised to log a success for each object that is evaluated so that the results will reflect how many objects are being reported on. (The inclusion of a log message is optional for successes.) Messages recorded with `log()` will appear in a report's results but are not associated with a particular object or status. Log messages also support using markdown syntax and will be rendered on the report result page.
 
 To perform additional tasks, such as sending an email or calling a webhook, after a report has been run, extend the `post_run()` method. The status of the report is available as `self.failed` and the results object is `self.result`.
 
