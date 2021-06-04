@@ -22,6 +22,6 @@ class Command(BaseCommand):
         for vrf in VRF.objects.all():
             vrf_count = Prefix.objects.filter(vrf=vrf).count()
             self.stdout.write(f'VRF {vrf}: {vrf_count} prefixes...')
-            rebuild_prefixes(vrf)
+            rebuild_prefixes(vrf.pk)
 
         self.stdout.write(self.style.SUCCESS('Finished.'))

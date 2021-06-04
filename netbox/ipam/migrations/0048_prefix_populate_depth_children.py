@@ -20,7 +20,7 @@ def populate_prefix_hierarchy(apps, schema_editor):
 
     # Iterate through all VRFs, rebuilding each
     for vrf in VRF.objects.all():
-        rebuild_prefixes(vrf)
+        rebuild_prefixes(vrf.pk)
 
 
 class Migration(migrations.Migration):
