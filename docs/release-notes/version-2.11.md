@@ -1,6 +1,8 @@
 # NetBox v2.11
 
-## v2.11.5 (FUTURE)
+## v2.11.5 (2021-06-04)
+
+**NOTE:** This release includes a database migration that calculates and annotates prefix depth. It may impose a noticeable delay on the upgrade process: Users should anticipate roughly one minute of delay per 100 thousand prefixes being updated.
 
 ### Enhancements
 
