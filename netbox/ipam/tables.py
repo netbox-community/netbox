@@ -277,6 +277,11 @@ class PrefixTable(BaseTable):
         template_code=PREFIX_LINK,
         attrs={'td': {'class': 'text-nowrap'}}
     )
+    prefix_flat = tables.Column(
+        accessor=Accessor('prefix'),
+        linkify=True,
+        verbose_name='Prefix (Flat)'
+    )
     depth = tables.Column(
         accessor=Accessor('_depth'),
         verbose_name='Depth'
@@ -318,8 +323,8 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'prefix', 'status', 'depth', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool',
-            'mark_utilized', 'description',
+            'pk', 'prefix', 'prefix_flat', 'status', 'depth', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role',
+            'is_pool', 'mark_utilized', 'description',
         )
         default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
@@ -332,15 +337,14 @@ class PrefixDetailTable(PrefixTable):
         accessor='get_utilization',
         orderable=False
     )
-    tenant = TenantColumn()
     tags = TagColumn(
         url_name='ipam:prefix_list'
     )
 
     class Meta(PrefixTable.Meta):
         fields = (
-            'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'is_pool',
-            'mark_utilized', 'description', 'tags',
+            'pk', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
+            'is_pool', 'mark_utilized', 'description', 'tags',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',

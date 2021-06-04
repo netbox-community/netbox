@@ -4,17 +4,6 @@ from django.db import migrations
 from ipam.utils import rebuild_prefixes
 
 
-def push_to_stack(stack, prefix):
-    # Increment child count on parent nodes
-    for n in stack:
-        n['children'] += 1
-    stack.append({
-        'pk': prefix['pk'],
-        'prefix': prefix['prefix'],
-        'children': 0,
-    })
-
-
 def populate_prefix_hierarchy(apps, schema_editor):
     """
     Populate _depth and _children attrs for all Prefixes.

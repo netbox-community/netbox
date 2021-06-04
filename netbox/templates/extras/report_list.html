@@ -9,7 +9,7 @@
             {% if reports %}
                 {% for module, module_reports in reports %}
                     <div class="card">
-                        <h5 class="card-header"><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
+                        <h5 class="card-header"><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h5>
                         <div class="card-body">
                             <table class="table table-hover table-headings reports">
                                 <thead>
@@ -32,7 +32,7 @@
                                             <td>
                                                 {% include 'extras/inc/job_label.html' with result=report.result %}
                                             </td>
-                                            <td>{{ report.description|placeholder }}</td>
+                                            <td>{{ report.description|render_markdown|placeholder }}</td>
                                             <td class="text-end">
                                                 {% if report.result %}
                                                     <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created }}</a>

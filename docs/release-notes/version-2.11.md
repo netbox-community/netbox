@@ -1,12 +1,16 @@
 # NetBox v2.11
 
-## v2.11.5 (FUTURE)
+## v2.11.5 (2021-06-04)
+
+**NOTE:** This release includes a database migration that calculates and annotates prefix depth. It may impose a noticeable delay on the upgrade process: Users should anticipate roughly one minute of delay per 100 thousand prefixes being updated.
 
 ### Enhancements
 
 * [#6087](https://github.com/netbox-community/netbox/issues/6087) - Improved prefix hierarchy rendering
 * [#6487](https://github.com/netbox-community/netbox/issues/6487) - Add location filter to cable connection form
 * [#6501](https://github.com/netbox-community/netbox/issues/6501) - Expose prefix depth and children on REST API serializer
+* [#6527](https://github.com/netbox-community/netbox/issues/6527) - Support Markdown for report descriptions
+* [#6540](https://github.com/netbox-community/netbox/issues/6540) - Add a "flat" column to the prefix table
 
 ### Bug Fixes
 
