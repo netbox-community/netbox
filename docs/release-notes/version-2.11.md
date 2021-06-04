@@ -8,6 +8,7 @@
 * [#6487](https://github.com/netbox-community/netbox/issues/6487) - Add location filter to cable connection form
 * [#6501](https://github.com/netbox-community/netbox/issues/6501) - Expose prefix depth and children on REST API serializer
 * [#6527](https://github.com/netbox-community/netbox/issues/6527) - Support Markdown for report descriptions
+* [#6540](https://github.com/netbox-community/netbox/issues/6540) - Add a "flat" column to the prefix table
 
 ### Bug Fixes
 
