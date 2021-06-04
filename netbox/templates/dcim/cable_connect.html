@@ -35,13 +35,13 @@
                             <div class="form-group">
                                 <label class="col-md-3 control-label required">Region</label>
                                 <div class="col-md-9">
-                                    <p class="form-control-static">{{ termination_a.device.site.region }}</p>
+                                    <p class="form-control-static">{{ termination_a.device.site.region|placeholder }}</p>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-md-3 control-label required">Site Group</label>
                                 <div class="col-md-9">
-                                    <p class="form-control-static">{{ termination_a.device.site.group }}</p>
+                                    <p class="form-control-static">{{ termination_a.device.site.group|placeholder }}</p>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -51,9 +51,15 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-md-3 control-label required">Location</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.device.location|placeholder }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-md-3 control-label required">Rack</label>
                                 <div class="col-md-9">
-                                    <p class="form-control-static">{{ termination_a.device.rack|default:"None" }}</p>
+                                    <p class="form-control-static">{{ termination_a.device.rack|placeholder }}</p>
                                 </div>
                             </div>
                             <div class="form-group">

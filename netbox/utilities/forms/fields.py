@@ -338,7 +338,7 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    # TODO: Remove display_field in v2.12
+    # TODO: Remove display_field in v3.0
     def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
                  disabled_indicator=None, *args, **kwargs):
         self.display_field = display_field

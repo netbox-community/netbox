@@ -12,17 +12,27 @@ from prometheus_client import Counter
 
 from .choices import ObjectChangeActionChoices
 from .models import CustomField, ObjectChange
-from .webhooks import enqueue_webhooks
+from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
 
 #
 # Change logging/webhooks
 #
 
-def _handle_changed_object(request, sender, instance, **kwargs):
+def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
     """
     Fires when an object is created or updated.
     """
+    def is_same_object(instance, webhook_data):
+        return (
+            ContentType.objects.get_for_model(instance) == webhook_data['content_type'] and
+            instance.pk == webhook_data['object_id'] and
+            request.id == webhook_data['request_id']
+        )
+
+    if not hasattr(instance, 'to_objectchange'):
+        return
+
     m2m_changed = False
 
     # Determine the type of change being made
@@ -53,8 +63,13 @@ def _handle_changed_object(request, sender, instance, **kwargs):
             objectchange.request_id = request.id
             objectchange.save()
 
-    # Enqueue webhooks
-    enqueue_webhooks(instance, request.user, request.id, action)
+    # If this is an M2M change, update the previously queued webhook (from post_save)
+    if m2m_changed and webhook_queue and is_same_object(instance, webhook_queue[-1]):
+        instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
+        webhook_queue[-1]['data'] = serialize_for_webhook(instance)
+        webhook_queue[-1]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
+    else:
+        enqueue_object(webhook_queue, instance, request.user, request.id, action)
 
     # Increment metric counters
     if action == ObjectChangeActionChoices.ACTION_CREATE:
@@ -68,10 +83,13 @@ def _handle_changed_object(request, sender, instance, **kwargs):
         ObjectChange.objects.filter(time__lt=cutoff)._raw_delete(using=DEFAULT_DB_ALIAS)
 
 
-def _handle_deleted_object(request, sender, instance, **kwargs):
+def _handle_deleted_object(request, webhook_queue, sender, instance, **kwargs):
     """
     Fires when an object is deleted.
     """
+    if not hasattr(instance, 'to_objectchange'):
+        return
+
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
         objectchange = instance.to_objectchange(ObjectChangeActionChoices.ACTION_DELETE)
@@ -80,7 +98,7 @@ def _handle_deleted_object(request, sender, instance, **kwargs):
         objectchange.save()
 
     # Enqueue webhooks
-    enqueue_webhooks(instance, request.user, request.id, ObjectChangeActionChoices.ACTION_DELETE)
+    enqueue_object(webhook_queue, instance, request.user, request.id, ObjectChangeActionChoices.ACTION_DELETE)
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()

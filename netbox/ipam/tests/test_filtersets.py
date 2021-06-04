@@ -400,7 +400,8 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
             Prefix(prefix='10.0.0.0/16'),
             Prefix(prefix='2001:db8::/32'),
         )
-        Prefix.objects.bulk_create(prefixes)
+        for prefix in prefixes:
+            prefix.save()
 
     def test_family(self):
         params = {'family': '6'}
@@ -429,6 +430,18 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'contains': '10.0.1.0/24'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'contains': '2001:db8:0:1::/64'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_depth(self):
+        params = {'depth': '0'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'depth__gt': '0'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_children(self):
+        params = {'children': '0'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'children__gt': '0'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mask_length(self):

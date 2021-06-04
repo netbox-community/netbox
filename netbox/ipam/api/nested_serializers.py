@@ -102,10 +102,11 @@ class NestedVLANSerializer(WritableNestedSerializer):
 class NestedPrefixSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:prefix-detail')
     family = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = models.Prefix
-        fields = ['id', 'url', 'display', 'family', 'prefix']
+        fields = ['id', 'url', 'display', 'family', 'prefix', '_depth']
 
 
 #

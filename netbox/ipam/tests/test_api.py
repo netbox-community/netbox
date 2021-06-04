@@ -186,7 +186,7 @@ class RoleTest(APIViewTestCases.APIViewTestCase):
 
 class PrefixTest(APIViewTestCases.APIViewTestCase):
     model = Prefix
-    brief_fields = ['display', 'family', 'id', 'prefix', 'url']
+    brief_fields = ['_depth', 'display', 'family', 'id', 'prefix', 'url']
     create_data = [
         {
             'prefix': '192.168.4.0/24',

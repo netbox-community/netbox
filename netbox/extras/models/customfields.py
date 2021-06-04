@@ -286,9 +286,7 @@ class CustomField(BigIDModel):
 
             # Validate integer
             if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
-                try:
-                    int(value)
-                except ValueError:
+                if type(value) is not int:
                     raise ValidationError("Value must be an integer.")
                 if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(f"Value must be at least {self.validation_minimum}")
