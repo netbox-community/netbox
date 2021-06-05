@@ -128,6 +128,8 @@
                       <span{% if k in diff_removed %} style="background-color: #ffdce0"{% endif %}>{{ k }}: {{ v|render_json }}</span>
                     {% endspaceless %}
 {% endfor %}</pre>
+                  {% elif non_atomic_change %}
+                    Warning: Comparing non-atomic change to previous change record (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
                   {% else %}
                     <span class="text-muted">None</span>
                   {% endif %}
