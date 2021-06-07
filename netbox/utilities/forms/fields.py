@@ -246,7 +246,6 @@ class CSVFileField(forms.FileField):
     def to_python(self, file):
 
         records = []
-        file.seek(0)
         csv_str = file.read().decode('utf-8')
         reader = csv.reader(csv_str.splitlines())
 
