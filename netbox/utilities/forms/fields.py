@@ -224,9 +224,10 @@ class CSVDataField(forms.CharField):
 
 class CSVFileField(forms.FileField):
     """
-    A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns data as a two-tuple: The first
-    item is a dictionary of column headers, mapping field names to the attribute by which they match a related object
-    (where applicable). The second item is a list of dictionaries, each representing a discrete row of CSV data.
+    A FileField (rendered as a file input button) which accepts a file containing CSV-formatted data. It returns
+    data as a two-tuple: The first item is a dictionary of column headers, mapping field names to the attribute
+    by which they match a related object (where applicable). The second item is a list of dictionaries, each
+    representing a discrete row of CSV data.
 
     :param from_form: The form from which the field derives its validation rules.
     """
