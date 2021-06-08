@@ -202,15 +202,22 @@ class ObjectChangeView(generic.ObjectView):
         next_change = objectchanges.filter(time__gt=instance.time).order_by('time').first()
         prev_change = objectchanges.filter(time__lt=instance.time).order_by('-time').first()
 
-        if instance.prechange_data and instance.postchange_data:
+        if not instance.prechange_data and instance.action in ['update', 'delete'] and prev_change:
+            non_atomic_change = True
+            prechange_data = prev_change.postchange_data
+        else:
+            non_atomic_change = False
+            prechange_data = instance.prechange_data
+
+        if prechange_data and instance.postchange_data:
             diff_added = shallow_compare_dict(
-                instance.prechange_data or dict(),
+                prechange_data or dict(),
                 instance.postchange_data or dict(),
                 exclude=['last_updated'],
             )
             diff_removed = {
-                x: instance.prechange_data.get(x) for x in diff_added
-            } if instance.prechange_data else {}
+                x: prechange_data.get(x) for x in diff_added
+            } if prechange_data else {}
         else:
             diff_added = None
             diff_removed = None
@@ -221,7 +228,8 @@ class ObjectChangeView(generic.ObjectView):
             'next_change': next_change,
             'prev_change': prev_change,
             'related_changes_table': related_changes_table,
-            'related_changes_count': related_changes.count()
+            'related_changes_count': related_changes.count(),
+            'non_atomic_change': non_atomic_change
         }
 
 
