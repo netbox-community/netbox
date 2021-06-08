@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.7 (FUTURE)
+
+### Bug Fixes
+
+* [#6553](https://github.com/netbox-community/netbox/issues/6553) - ProviderNetwork search should match on name
+
+---
+
 ## v2.11.6 (2021-06-04)
 
 ### Bug Fixes
