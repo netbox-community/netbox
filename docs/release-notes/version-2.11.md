@@ -2,6 +2,11 @@
 
 ## v2.11.7 (FUTURE)
 
+### Enhancements
+
+* [#6455](https://github.com/netbox-community/netbox/issues/6455) - Permit /32 IPv4 and /128 IPv6 prefixes
+* [#6493](https://github.com/netbox-community/netbox/issues/6493) - Show change log diff for non-atomic (pre-2.11) changes
+
 ### Bug Fixes
 
 * [#6553](https://github.com/netbox-community/netbox/issues/6553) - ProviderNetwork search should match on name
