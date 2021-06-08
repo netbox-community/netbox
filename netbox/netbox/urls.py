@@ -4,9 +4,11 @@ from django.urls import path, re_path
 from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from graphene_django.views import GraphQLView
 
 from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.api.views import APIRootView, StatusView
+from netbox.graphql.schema import schema
 from netbox.views import HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
@@ -59,6 +61,9 @@ _patterns = [
     path('api/docs/', schema_view.with_ui('swagger'), name='api_docs'),
     path('api/redoc/', schema_view.with_ui('redoc'), name='api_redocs'),
     re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(), name='schema_swagger'),
+
+    # GraphQL
+    path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),

@@ -282,9 +282,11 @@ INSTALLED_APPS = [
     'cacheops',
     'corsheaders',
     'debug_toolbar',
+    'graphiql_debug_toolbar',
     'django_filters',
     'django_tables2',
     'django_prometheus',
+    'graphene_django',
     'mptt',
     'rest_framework',
     'taggit',
@@ -303,7 +305,7 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'graphiql_debug_toolbar.middleware.DebugToolbarMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

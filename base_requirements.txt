@@ -18,6 +18,10 @@ django-debug-toolbar
 # https://github.com/carltongibson/django-filter
 django-filter
 
+# Django debug toolbar extension with support for GraphiQL
+# https://github.com/flavors/django-graphiql-debug-toolbar/
+django-graphiql-debug-toolbar
+
 # Modified Preorder Tree Traversal (recursive nesting of objects)
 # https://github.com/django-mptt/django-mptt
 django-mptt
@@ -53,6 +57,10 @@ djangorestframework
 # Swagger/OpenAPI schema generation for REST APIs
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
+
+# Django wrapper for Graphene (GraphQL support)
+# https://github.com/graphql-python/graphene-django
+graphene_django
 
 # WSGI HTTP server
 # https://gunicorn.org/
