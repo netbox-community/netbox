@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6553](https://github.com/netbox-community/netbox/issues/6553) - ProviderNetwork search should match on name
+* [#6563](https://github.com/netbox-community/netbox/issues/6563) - Fix filtering by location for cable connection forms
 
 ---
 
