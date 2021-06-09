@@ -54,8 +54,6 @@ class VLANGroup(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'scope_type', 'scope_id', 'description']
-
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
         unique_together = [
@@ -148,7 +146,6 @@ class VLAN(PrimaryModel):
 
     objects = VLANQuerySet.as_manager()
 
-    csv_headers = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
     clone_fields = [
         'site', 'group', 'tenant', 'status', 'role', 'description',
     ]

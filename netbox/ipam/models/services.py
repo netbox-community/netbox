@@ -67,8 +67,6 @@ class Service(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'ports', 'description']
-
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
 

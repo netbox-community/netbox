@@ -111,11 +111,6 @@ class Cable(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
-        'color', 'length', 'length_unit',
-    ]
-
     class Meta:
         ordering = ['pk']
         unique_together = (

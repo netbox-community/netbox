@@ -40,8 +40,6 @@ class TenantGroup(NestedGroupModel):
         blank=True
     )
 
-    csv_headers = ['name', 'slug', 'parent', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -80,7 +78,6 @@ class Tenant(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'group', 'description', 'comments']
     clone_fields = [
         'group', 'description',
     ]

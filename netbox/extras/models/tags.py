@@ -26,8 +26,6 @@ class Tag(ChangeLoggedModel, TagBase):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'color', 'description']
-
     class Meta:
         ordering = ['name']
 

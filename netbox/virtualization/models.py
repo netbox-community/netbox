@@ -50,8 +50,6 @@ class ClusterType(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -85,8 +83,6 @@ class ClusterGroup(OrganizationalModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -143,7 +139,6 @@ class Cluster(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'type', 'group', 'site', 'comments']
     clone_fields = [
         'type', 'group', 'tenant', 'site',
     ]
@@ -263,9 +258,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    csv_headers = [
-        'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
-    ]
     clone_fields = [
         'cluster', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     ]
@@ -386,10 +378,6 @@ class VMInterface(PrimaryModel, BaseInterface):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = [
-        'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-    ]
 
     class Meta:
         verbose_name = 'interface'

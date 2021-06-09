@@ -54,8 +54,6 @@ class Region(NestedGroupModel):
         blank=True
     )
 
-    csv_headers = ['name', 'slug', 'parent', 'description']
-
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
 
@@ -97,8 +95,6 @@ class SiteGroup(NestedGroupModel):
         max_length=200,
         blank=True
     )
-
-    csv_headers = ['name', 'slug', 'parent', 'description']
 
     def get_absolute_url(self):
         return reverse('dcim:sitegroup', args=[self.pk])
@@ -220,11 +216,6 @@ class Site(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
-        'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-        'contact_email', 'comments',
-    ]
     clone_fields = [
         'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
@@ -280,7 +271,6 @@ class Location(NestedGroupModel):
         to='extras.ImageAttachment'
     )
 
-    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
     clone_fields = ['site', 'parent', 'description']
 
     class Meta:

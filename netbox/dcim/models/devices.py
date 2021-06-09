@@ -56,8 +56,6 @@ class Manufacturer(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -372,8 +370,6 @@ class DeviceRole(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'color', 'vm_role', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -425,8 +421,6 @@ class Platform(OrganizationalModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
 
     class Meta:
         ordering = ['name']
@@ -585,10 +579,6 @@ class Device(PrimaryModel, ConfigContextModel):
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    csv_headers = [
-        'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-        'site', 'location', 'rack_name', 'position', 'face', 'comments',
-    ]
     clone_fields = [
         'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
     ]
@@ -883,8 +873,6 @@ class VirtualChassis(PrimaryModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'domain', 'master']
 
     class Meta:
         ordering = ['name']

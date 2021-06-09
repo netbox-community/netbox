@@ -58,8 +58,6 @@ class RackRole(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'color', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -183,10 +181,6 @@ class Rack(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
-        'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
-    ]
     clone_fields = [
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit',
@@ -463,8 +457,6 @@ class RackReservation(PrimaryModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['site', 'location', 'rack', 'units', 'tenant', 'user', 'description']
 
     class Meta:
         ordering = ['created', 'pk']

@@ -42,8 +42,6 @@ class PowerPanel(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['site', 'location', 'name']
-
     class Meta:
         ordering = ['site', 'name']
         unique_together = ['site', 'name']
@@ -126,10 +124,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
-        'voltage', 'amperage', 'max_utilization', 'comments',
-    ]
     clone_fields = [
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
         'max_utilization', 'available_power',

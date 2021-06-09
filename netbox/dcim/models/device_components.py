@@ -229,8 +229,6 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
         help_text='Port speed in bits per second'
     )
 
-    csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
-
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
@@ -260,8 +258,6 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
         null=True,
         help_text='Port speed in bits per second'
     )
-
-    csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -298,10 +294,6 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
         validators=[MinValueValidator(1)],
         help_text="Allocated power draw (watts)"
     )
-
-    csv_headers = [
-        'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description',
-    ]
 
     class Meta:
         ordering = ('device', '_name')
@@ -398,8 +390,6 @@ class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
         blank=True,
         help_text="Phase (for three-phase feeds)"
     )
-
-    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -524,11 +514,6 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         related_query_name='interface'
     )
 
-    csv_headers = [
-        'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
-        'mgmt_only', 'description', 'mode',
-    ]
-
     class Meta:
         ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
@@ -642,10 +627,6 @@ class FrontPort(ComponentModel, CableTermination):
         ]
     )
 
-    csv_headers = [
-        'device', 'name', 'label', 'type', 'mark_connected', 'rear_port', 'rear_port_position', 'description',
-    ]
-
     class Meta:
         ordering = ('device', '_name')
         unique_together = (
@@ -690,8 +671,6 @@ class RearPort(ComponentModel, CableTermination):
         ]
     )
 
-    csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'positions', 'description']
-
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
@@ -727,8 +706,6 @@ class DeviceBay(ComponentModel):
         blank=True,
         null=True
     )
-
-    csv_headers = ['device', 'name', 'label', 'installed_device', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -811,10 +788,6 @@ class InventoryItem(MPTTModel, ComponentModel):
     )
 
     objects = TreeManager()
-
-    csv_headers = [
-        'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
-    ]
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')

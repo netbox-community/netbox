@@ -60,7 +60,6 @@ class VRF(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
     clone_fields = [
         'tenant', 'enforce_unique', 'description',
     ]
@@ -102,8 +101,6 @@ class RouteTarget(PrimaryModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'description', 'tenant']
 
     class Meta:
         ordering = ['name']

@@ -41,7 +41,7 @@ class TenantGroupCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = TenantGroup
-        fields = TenantGroup.csv_headers
+        fields = ('name', 'slug', 'parent', 'description')
 
 
 class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -99,7 +99,7 @@ class TenantCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Tenant
-        fields = Tenant.csv_headers
+        fields = ('name', 'slug', 'group', 'description', 'comments')
 
 
 class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

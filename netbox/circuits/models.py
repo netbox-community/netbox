@@ -63,9 +63,6 @@ class Provider(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-    ]
     clone_fields = [
         'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
     ]
@@ -106,10 +103,6 @@ class ProviderNetwork(PrimaryModel):
         blank=True
     )
 
-    csv_headers = [
-        'provider', 'name', 'description', 'comments',
-    ]
-
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
@@ -149,8 +142,6 @@ class CircuitType(OrganizationalModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -232,9 +223,6 @@ class Circuit(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-    ]
     clone_fields = [
         'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
     ]

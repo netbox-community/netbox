@@ -55,8 +55,6 @@ class RIR(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'is_private', 'description']
-
     class Meta:
         ordering = ['name']
         verbose_name = 'RIR'
@@ -100,7 +98,6 @@ class Aggregate(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['prefix', 'rir', 'tenant', 'date_added', 'description']
     clone_fields = [
         'rir', 'tenant', 'date_added', 'description',
     ]
@@ -190,8 +187,6 @@ class Role(OrganizationalModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-
-    csv_headers = ['name', 'slug', 'weight', 'description']
 
     class Meta:
         ordering = ['weight', 'name']
@@ -284,10 +279,6 @@ class Prefix(PrimaryModel):
 
     objects = PrefixQuerySet.as_manager()
 
-    csv_headers = [
-        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
-        'description',
-    ]
     clone_fields = [
         'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
     ]
@@ -575,10 +566,6 @@ class IPAddress(PrimaryModel):
 
     objects = IPAddressManager()
 
-    csv_headers = [
-        'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type', 'assigned_object_id', 'is_primary',
-        'dns_name', 'description',
-    ]
     clone_fields = [
         'vrf', 'tenant', 'status', 'role', 'description',
     ]
