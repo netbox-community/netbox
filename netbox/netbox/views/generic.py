@@ -16,7 +16,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2.export import TableExport
 
-from extras.models import CustomField, ExportTemplate
+from extras.models import ExportTemplate
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortTransaction
 from utilities.forms import (
@@ -24,7 +24,7 @@ from utilities.forms import (
 )
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
-from utilities.utils import csv_format, normalize_querydict, prepare_cloned_fields
+from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 
 
@@ -105,18 +105,13 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         Export all table data in CSV format.
 
         :param table: The Table instance to export
-        :param columns: A list of specific columns to include. If not specified, the default view
-        will be exported.
+        :param columns: A list of specific columns to include. If not specified, all columns will be exported.
         """
         exclude_columns = {'pk'}
         if columns:
             all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
             exclude_columns.update({
                 col for col in all_columns if col not in columns
-            })
-        else:
-            exclude_columns.update({
-                name for name, _ in table.available_columns
             })
         exporter = TableExport(
             export_format=TableExport.CSV,
@@ -171,9 +166,10 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
         # Handle table-based exports (current view or static CSV-based)
         if request.GET.get('export') == 'table':
-            return self.export_table(table)
+            columns = [name for name, _ in table.selected_columns]
+            return self.export_table(table, columns)
         elif 'export' in request.GET:
-            return self.export_table(table, model.csv_headers)
+            return self.export_table(table)
 
         # Paginate the objects table
         paginate_table(table, request)

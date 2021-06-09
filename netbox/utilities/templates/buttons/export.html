@@ -4,7 +4,7 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export=table">Current View</a></li>
-        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Default Format</a></li>
+        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">All Data</a></li>
         {% if export_templates %}
         <li>
           <hr class="dropdown-divider">
