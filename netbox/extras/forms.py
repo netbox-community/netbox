@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
+    add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
     CommentField, ContentTypeMultipleChoiceField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField,
     JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
@@ -194,10 +194,8 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Tag.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    color = forms.CharField(
-        max_length=6,
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     description = forms.CharField(
         max_length=200,

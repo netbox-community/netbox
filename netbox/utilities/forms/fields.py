@@ -20,6 +20,7 @@ from .constants import *
 from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 __all__ = (
+    'ColorField',
     'CommentField',
     'ContentTypeChoiceField',
     'ContentTypeMultipleChoiceField',
@@ -67,6 +68,13 @@ class SlugField(forms.SlugField):
         widget = kwargs.pop('widget', widgets.SlugWidget)
         super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
+
+
+class ColorField(forms.CharField):
+    """
+    A field which represents a color in hexadecimal RRGGBB format.
+    """
+    widget = widgets.ColorSelect
 
 
 class TagFilterField(forms.MultipleChoiceField):

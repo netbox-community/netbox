@@ -23,7 +23,7 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField,
+    ColorField, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
     NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
@@ -610,10 +610,8 @@ class RackRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         queryset=RackRole.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     description = forms.CharField(
         max_length=200,
@@ -1703,10 +1701,8 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     description = forms.CharField(
         required=False
@@ -1734,10 +1730,8 @@ class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     positions = forms.IntegerField(
         min_value=REARPORT_POSITIONS_MIN,
@@ -1764,10 +1758,8 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     description = forms.CharField(
         required=False
@@ -1958,10 +1950,8 @@ class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         queryset=DeviceRole.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     vm_role = forms.NullBooleanField(
         required=False,
@@ -3454,10 +3444,8 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -3497,10 +3485,8 @@ class FrontPortCreateForm(ComponentCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
@@ -3646,10 +3632,8 @@ class RearPortFilterForm(DeviceComponentFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -3677,10 +3661,8 @@ class RearPortCreateForm(ComponentCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     positions = forms.IntegerField(
         min_value=REARPORT_POSITIONS_MIN,
@@ -4411,10 +4393,8 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFo
         max_length=100,
         required=False
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     length = forms.IntegerField(
         min_value=1,
@@ -4489,10 +4469,8 @@ class CableFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=add_blank_choice(CableStatusChoices),
         widget=StaticSelect2()
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
