@@ -106,6 +106,20 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     # r'^(https?://)?(\w+\.)?example\.com$',
 ]
 
+# Specify any custom validators here, as a mapping of model to a list of validators classes. Validators should be
+# instances of or inherit from CustomValidator.
+# from extras.validators import CustomValidator
+CUSTOM_VALIDATORS = {
+    # 'dcim.site': [
+    #     CustomValidator({
+    #         'name': {
+    #             'min_length': 10,
+    #             'regex': r'\d{3}$',
+    #         }
+    #     })
+    # ],
+}
+
 # Set to True to enable server debugging. WARNING: Debugging introduces a substantial performance penalty and may reveal
 # sensitive information about your installation. Only enable debugging while performing testing. Never enable debugging
 # on a production system.

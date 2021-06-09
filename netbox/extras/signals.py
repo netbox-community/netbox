@@ -6,10 +6,12 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models.signals import m2m_changed, post_save, pre_delete
+from django.dispatch import receiver
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
 
+from netbox.signals import post_clean
 from .choices import ObjectChangeActionChoices
 from .models import CustomField, ObjectChange
 from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
@@ -134,6 +136,18 @@ def handle_cf_deleted(instance, **kwargs):
 m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
+
+
+#
+# Custom validation
+#
+
+@receiver(post_clean)
+def run_custom_validators(sender, instance, **kwargs):
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = settings.CUSTOM_VALIDATORS.get(model_name, [])
+    for validator in validators:
+        validator(instance)
 
 
 #
