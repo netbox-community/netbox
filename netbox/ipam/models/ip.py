@@ -68,14 +68,6 @@ class RIR(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('ipam:rir', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.is_private,
-            self.description,
-        )
-
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Aggregate(PrimaryModel):
@@ -160,15 +152,6 @@ class Aggregate(PrimaryModel):
                     )
                 })
 
-    def to_csv(self):
-        return (
-            self.prefix,
-            self.rir.name,
-            self.tenant.name if self.tenant else None,
-            self.date_added,
-            self.description,
-        )
-
     @property
     def family(self):
         if self.prefix:
@@ -218,14 +201,6 @@ class Role(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('ipam:role', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.weight,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -374,21 +349,6 @@ class Prefix(PrimaryModel):
             self.prefix = self.prefix.cidr
 
         super().save(*args, **kwargs)
-
-    def to_csv(self):
-        return (
-            self.prefix,
-            self.vrf.name if self.vrf else None,
-            self.tenant.name if self.tenant else None,
-            self.site.name if self.site else None,
-            self.vlan.group.name if self.vlan and self.vlan.group else None,
-            self.vlan.vid if self.vlan else None,
-            self.get_status_display(),
-            self.role.name if self.role else None,
-            self.is_pool,
-            self.mark_utilized,
-            self.description,
-        )
 
     @property
     def family(self):
@@ -696,32 +656,6 @@ class IPAddress(PrimaryModel):
     def to_objectchange(self, action):
         # Annotate the assigned object, if any
         return super().to_objectchange(action, related_object=self.assigned_object)
-
-    def to_csv(self):
-
-        # Determine if this IP is primary for a Device
-        is_primary = False
-        if self.address.version == 4 and getattr(self, 'primary_ip4_for', False):
-            is_primary = True
-        elif self.address.version == 6 and getattr(self, 'primary_ip6_for', False):
-            is_primary = True
-
-        obj_type = None
-        if self.assigned_object_type:
-            obj_type = f'{self.assigned_object_type.app_label}.{self.assigned_object_type.model}'
-
-        return (
-            self.address,
-            self.vrf.name if self.vrf else None,
-            self.tenant.name if self.tenant else None,
-            self.get_status_display(),
-            self.get_role_display(),
-            obj_type,
-            self.assigned_object_id,
-            is_primary,
-            self.dns_name,
-            self.description,
-        )
 
     @property
     def family(self):

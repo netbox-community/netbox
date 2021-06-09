@@ -67,13 +67,6 @@ class Manufacturer(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('dcim:manufacturer', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.description
-        )
-
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceType(PrimaryModel):
@@ -390,15 +383,6 @@ class DeviceRole(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.color,
-            self.vm_role,
-            self.description,
-        )
-
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Platform(OrganizationalModel):
@@ -452,16 +436,6 @@ class Platform(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:platform', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.manufacturer.name if self.manufacturer else None,
-            self.napalm_driver,
-            self.napalm_args,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -816,25 +790,6 @@ class Device(PrimaryModel, ConfigContextModel):
             device.rack = self.rack
             device.save()
 
-    def to_csv(self):
-        return (
-            self.name or '',
-            self.device_role.name,
-            self.tenant.name if self.tenant else None,
-            self.device_type.manufacturer.name,
-            self.device_type.model,
-            self.platform.name if self.platform else None,
-            self.serial,
-            self.asset_tag,
-            self.get_status_display(),
-            self.site.name,
-            self.rack.location.name if self.rack and self.rack.location else None,
-            self.rack.name if self.rack else None,
-            self.position,
-            self.get_face_display(),
-            self.comments,
-        )
-
     @property
     def identifier(self):
         """
@@ -967,10 +922,3 @@ class VirtualChassis(PrimaryModel):
             )
 
         return super().delete(*args, **kwargs)
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.domain,
-            self.master.name if self.master else None,
-        )

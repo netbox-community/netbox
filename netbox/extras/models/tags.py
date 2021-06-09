@@ -41,14 +41,6 @@ class Tag(ChangeLoggedModel, TagBase):
             slug += "_%d" % i
         return slug
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.color,
-            self.description
-        )
-
 
 class TaggedItem(BigIDModel, GenericTaggedItemBase):
     tag = models.ForeignKey(

@@ -61,13 +61,6 @@ class ClusterType(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('virtualization:clustertype', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.description,
-        )
-
 
 #
 # Cluster groups
@@ -103,13 +96,6 @@ class ClusterGroup(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:clustergroup', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.description,
-        )
 
 
 #
@@ -183,16 +169,6 @@ class Cluster(PrimaryModel):
                         nonsite_devices, self.site
                     )
                 })
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.type.name,
-            self.group.name if self.group else None,
-            self.site.name if self.site else None,
-            self.tenant.name if self.tenant else None,
-            self.comments,
-        )
 
 
 #
@@ -337,20 +313,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
                         field: f"The specified IP address ({ip}) is not assigned to this VM.",
                     })
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.get_status_display(),
-            self.role.name if self.role else None,
-            self.cluster.name,
-            self.tenant.name if self.tenant else None,
-            self.platform.name if self.platform else None,
-            self.vcpus,
-            self.memory,
-            self.disk,
-            self.comments,
-        )
-
     def get_status_class(self):
         return VirtualMachineStatusChoices.CSS_CLASSES.get(self.status)
 
@@ -439,18 +401,6 @@ class VMInterface(PrimaryModel, BaseInterface):
 
     def get_absolute_url(self):
         return reverse('virtualization:vminterface', kwargs={'pk': self.pk})
-
-    def to_csv(self):
-        return (
-            self.virtual_machine.name,
-            self.name,
-            self.enabled,
-            self.parent.name if self.parent else None,
-            self.mac_address,
-            self.mtu,
-            self.description,
-            self.get_mode_display(),
-        )
 
     def clean(self):
         super().clean()

@@ -91,16 +91,6 @@ class Service(PrimaryModel):
         if not self.device and not self.virtual_machine:
             raise ValidationError("A service must be associated with either a device or a virtual machine.")
 
-    def to_csv(self):
-        return (
-            self.device.name if self.device else None,
-            self.virtual_machine.name if self.virtual_machine else None,
-            self.name,
-            self.get_protocol_display(),
-            self.ports,
-            self.description,
-        )
-
     @property
     def port_list(self):
         return array_to_string(self.ports)

@@ -79,18 +79,6 @@ class Provider(PrimaryModel):
     def get_absolute_url(self):
         return reverse('circuits:provider', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.asn,
-            self.account,
-            self.portal_url,
-            self.noc_contact,
-            self.admin_contact,
-            self.comments,
-        )
-
 
 #
 # Provider networks
@@ -140,14 +128,6 @@ class ProviderNetwork(PrimaryModel):
     def get_absolute_url(self):
         return reverse('circuits:providernetwork', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.provider.name,
-            self.name,
-            self.description,
-            self.comments,
-        )
-
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class CircuitType(OrganizationalModel):
@@ -180,13 +160,6 @@ class CircuitType(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('circuits:circuittype', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -275,19 +248,6 @@ class Circuit(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('circuits:circuit', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.cid,
-            self.provider.name,
-            self.type.name,
-            self.get_status_display(),
-            self.tenant.name if self.tenant else None,
-            self.install_date,
-            self.commit_rate,
-            self.description,
-            self.comments,
-        )
 
     def get_status_class(self):
         return CircuitStatusChoices.CSS_CLASSES.get(self.status)

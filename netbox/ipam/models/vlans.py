@@ -80,15 +80,6 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError("Cannot set scope_id without scope_type.")
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            f'{self.scope_type.app_label}.{self.scope_type.model}',
-            self.scope_id,
-            self.description,
-        )
-
     def get_next_available_vid(self):
         """
         Return the first available VLAN ID (1-4094) in the group.
@@ -186,18 +177,6 @@ class VLAN(PrimaryModel):
                 'group': f"VLAN is assigned to group {self.group} (scope: {self.group.scope}); cannot also assign to "
                          f"site {self.site}."
             })
-
-    def to_csv(self):
-        return (
-            self.site.name if self.site else None,
-            self.group.name if self.group else None,
-            self.vid,
-            self.name,
-            self.tenant.name if self.tenant else None,
-            self.get_status_display(),
-            self.role.name if self.role else None,
-            self.description,
-        )
 
     def get_status_class(self):
         return VLANStatusChoices.CSS_CLASSES.get(self.status)

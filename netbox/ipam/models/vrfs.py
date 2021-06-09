@@ -78,15 +78,6 @@ class VRF(PrimaryModel):
     def get_absolute_url(self):
         return reverse('ipam:vrf', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.rd,
-            self.tenant.name if self.tenant else None,
-            self.enforce_unique,
-            self.description,
-        )
-
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RouteTarget(PrimaryModel):
@@ -122,10 +113,3 @@ class RouteTarget(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('ipam:routetarget', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.description,
-            self.tenant.name if self.tenant else None,
-        )

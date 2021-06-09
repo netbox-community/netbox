@@ -48,14 +48,6 @@ class TenantGroup(NestedGroupModel):
     def get_absolute_url(self):
         return reverse('tenancy:tenantgroup', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.parent.name if self.parent else '',
-            self.description,
-        )
-
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Tenant(PrimaryModel):
@@ -101,12 +93,3 @@ class Tenant(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('tenancy:tenant', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.group.name if self.group else None,
-            self.description,
-            self.comments,
-        )

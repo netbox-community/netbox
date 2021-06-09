@@ -54,13 +54,6 @@ class PowerPanel(PrimaryModel):
     def get_absolute_url(self):
         return reverse('dcim:powerpanel', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.site.name,
-            self.location.name if self.location else None,
-            self.name,
-        )
-
     def clean(self):
         super().clean()
 
@@ -151,24 +144,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
 
     def get_absolute_url(self):
         return reverse('dcim:powerfeed', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.power_panel.site.name,
-            self.power_panel.name,
-            self.rack.location.name if self.rack and self.rack.location else None,
-            self.rack.name if self.rack else None,
-            self.name,
-            self.get_status_display(),
-            self.get_type_display(),
-            self.mark_connected,
-            self.get_supply_display(),
-            self.get_phase_display(),
-            self.voltage,
-            self.amperage,
-            self.max_utilization,
-            self.comments,
-        )
 
     def clean(self):
         super().clean()

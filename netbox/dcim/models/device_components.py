@@ -238,17 +238,6 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
     def get_absolute_url(self):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
-    def to_csv(self):
-        return (
-            self.device.identifier,
-            self.name,
-            self.label,
-            self.type,
-            self.speed,
-            self.mark_connected,
-            self.description,
-        )
-
 
 #
 # Console server ports
@@ -280,17 +269,6 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
 
     def get_absolute_url(self):
         return reverse('dcim:consoleserverport', kwargs={'pk': self.pk})
-
-    def to_csv(self):
-        return (
-            self.device.identifier,
-            self.name,
-            self.label,
-            self.type,
-            self.speed,
-            self.mark_connected,
-            self.description,
-        )
 
 
 #
@@ -331,18 +309,6 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
 
     def get_absolute_url(self):
         return reverse('dcim:powerport', kwargs={'pk': self.pk})
-
-    def to_csv(self):
-        return (
-            self.device.identifier,
-            self.name,
-            self.label,
-            self.get_type_display(),
-            self.mark_connected,
-            self.maximum_draw,
-            self.allocated_draw,
-            self.description,
-        )
 
     def clean(self):
         super().clean()
@@ -441,18 +407,6 @@ class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
 
     def get_absolute_url(self):
         return reverse('dcim:poweroutlet', kwargs={'pk': self.pk})
-
-    def to_csv(self):
-        return (
-            self.device.identifier,
-            self.name,
-            self.label,
-            self.get_type_display(),
-            self.mark_connected,
-            self.power_port.name if self.power_port else None,
-            self.get_feed_leg_display(),
-            self.description,
-        )
 
     def clean(self):
         super().clean()
@@ -582,23 +536,6 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
 
-    def to_csv(self):
-        return (
-            self.device.identifier if self.device else None,
-            self.name,
-            self.label,
-            self.parent.name if self.parent else None,
-            self.lag.name if self.lag else None,
-            self.get_type_display(),
-            self.enabled,
-            self.mark_connected,
-            self.mac_address,
-            self.mtu,
-            self.mgmt_only,
-            self.description,
-            self.get_mode_display(),
-        )
-
     def clean(self):
         super().clean()
 
@@ -719,18 +656,6 @@ class FrontPort(ComponentModel, CableTermination):
     def get_absolute_url(self):
         return reverse('dcim:frontport', kwargs={'pk': self.pk})
 
-    def to_csv(self):
-        return (
-            self.device.identifier,
-            self.name,
-            self.label,
-            self.get_type_display(),
-            self.mark_connected,
-            self.rear_port.name,
-            self.rear_port_position,
-            self.description,
-        )
-
     def clean(self):
         super().clean()
 
@@ -785,17 +710,6 @@ class RearPort(ComponentModel, CableTermination):
                              f"({frontport_count})"
             })
 
-    def to_csv(self):
-        return (
-            self.device.identifier,
-            self.name,
-            self.label,
-            self.get_type_display(),
-            self.mark_connected,
-            self.positions,
-            self.description,
-        )
-
 
 #
 # Device bays
@@ -822,15 +736,6 @@ class DeviceBay(ComponentModel):
 
     def get_absolute_url(self):
         return reverse('dcim:devicebay', kwargs={'pk': self.pk})
-
-    def to_csv(self):
-        return (
-            self.device.identifier,
-            self.name,
-            self.label,
-            self.installed_device.identifier if self.installed_device else None,
-            self.description,
-        )
 
     def clean(self):
         super().clean()
@@ -917,16 +822,3 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
-
-    def to_csv(self):
-        return (
-            self.device.name or '{{{}}}'.format(self.device.pk),
-            self.name,
-            self.label,
-            self.manufacturer.name if self.manufacturer else None,
-            self.part_id,
-            self.serial,
-            self.asset_tag,
-            self.discovered,
-            self.description,
-        )
