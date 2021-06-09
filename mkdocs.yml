@@ -90,6 +90,7 @@ nav:
         - Style Guide: 'development/style-guide.md'
         - Models: 'development/models.md'
         - Extending Models: 'development/extending-models.md'
+        - Signals: 'development/signals.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
         - Release Checklist: 'development/release-checklist.md'
