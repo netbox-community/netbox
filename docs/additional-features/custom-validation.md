@@ -41,7 +41,7 @@ from extras.validators import CustomValidator
 class MyValidator(CustomValidator):
     def validate(self, instance):
         if instance.status == 'active' and not instance.description:
-            self.fail("Active sites must have a description set!", attr='status')
+            self.fail("Active sites must have a description set!", field='status')
 ```
 
 The `fail()` method may optionally specify a field with which to associate the supplied error message. If specified, the error message will appear to the user as associated with this field. If omitted, the error message will not be associated with any field.

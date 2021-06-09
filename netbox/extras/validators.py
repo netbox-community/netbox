@@ -63,10 +63,10 @@ class CustomValidator:
         """
         return
 
-    def fail(self, message, attr=None):
+    def fail(self, message, field=None):
         """
-        Raise a ValidationError exception. Associate the provided message with an attribute if specified.
+        Raise a ValidationError exception. Associate the provided message with a form/serializer field if specified.
         """
-        if attr is not None:
-            raise ValidationError({attr: message})
+        if field is not None:
+            raise ValidationError({field: message})
         raise ValidationError(message)
