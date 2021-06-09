@@ -96,6 +96,12 @@ CORS_ORIGIN_WHITELIST = [
 
 ---
 
+## CUSTOM_VALIDATORS
+
+This is a mapping of models to [custom validators](../additional-features/custom-validation.md) that have been defined locally to enforce custom validation logic.
+
+---
+
 ## DEBUG
 
 Default: False
@@ -144,7 +150,7 @@ In order to send email, NetBox needs an email server configured. The following i
 !!! note
     The `USE_SSL` and `USE_TLS` parameters are mutually exclusive.
 
-Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) fuction accessible within the NetBox shell:
+Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) function accessible within the NetBox shell:
 
 ```no-highlight
 # python ./manage.py nbshell
