@@ -2,6 +2,31 @@
 
 ## v3.0-beta1 (FUTURE)
 
+### New Features
+
+#### Custom Model Validation ([#5963](https://github.com/netbox-community/netbox/issues/5963))
+
+This release introduces the [`CUSTOM_VALIDATORS`](../configuration/optional-settings.md#custom_validators) configuration parameter, which allows administrators to map NetBox models to custom validator classes to enforce custom validation logic. For example, the following configuration requires every site to have a name of at least ten characters and a description:
+
+```python
+from extras.validators import CustomValidator
+
+CUSTOM_VALIDATORS = {
+    'dcim.site': (
+        CustomValidator({
+            'name': {
+                'min_length': 10,
+            },
+            'description': {
+                'required': True,
+            }
+        }),
+    )
+}
+```
+
+CustomValidator can also be subclassed to enforce more complex logic by overriding its `validate()` method. See the [custom validation](../additional-features/custom-validation.md) documentation for more details.
+
 ### Enhancements
 
 * [#2434](https://github.com/netbox-community/netbox/issues/2434) - Add option to assign IP address upon creating a new interface
