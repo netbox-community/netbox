@@ -12,7 +12,7 @@ from dcim.constants import *
 from dcim.fields import MACAddressField
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
-from utilities.fields import NaturalOrderingField
+from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.querysets import RestrictedQuerySet
@@ -614,6 +614,9 @@ class FrontPort(ComponentModel, CableTermination):
         max_length=50,
         choices=PortTypeChoices
     )
+    color = ColorField(
+        blank=True
+    )
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
         on_delete=models.CASCADE,
@@ -662,6 +665,9 @@ class RearPort(ComponentModel, CableTermination):
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
+    )
+    color = ColorField(
+        blank=True
     )
     positions = models.PositiveSmallIntegerField(
         default=1,

@@ -549,6 +549,7 @@ class FrontPortTable(DeviceComponentTable, CableTerminationTable):
             'args': [Accessor('device_id')],
         }
     )
+    color = ColorColumn()
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
@@ -562,10 +563,12 @@ class FrontPortTable(DeviceComponentTable, CableTerminationTable):
     class Meta(DeviceComponentTable.Meta):
         model = FrontPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'mark_connected',
-            'cable', 'cable_color', 'cable_peer', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+            'mark_connected', 'cable', 'cable_color', 'cable_peer', 'tags',
         )
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
+        default_columns = (
+            'pk', 'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+        )
 
 
 class DeviceFrontPortTable(FrontPortTable):
@@ -603,6 +606,7 @@ class RearPortTable(DeviceComponentTable, CableTerminationTable):
             'args': [Accessor('device_id')],
         }
     )
+    color = ColorColumn()
     tags = TagColumn(
         url_name='dcim:rearport_list'
     )
@@ -610,10 +614,10 @@ class RearPortTable(DeviceComponentTable, CableTerminationTable):
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'mark_connected', 'cable',
+            'pk', 'device', 'name', 'label', 'type', 'color', 'positions', 'description', 'mark_connected', 'cable',
             'cable_color', 'cable_peer', 'tags',
         )
-        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'color', 'description')
 
 
 class DeviceRearPortTable(RearPortTable):

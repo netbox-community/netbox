@@ -384,8 +384,8 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'positions', 'description', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'color', 'positions', 'description',
+            'created', 'last_updated',
         ]
 
 
@@ -398,7 +398,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'rear_port', 'rear_port_position',
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
             'description', 'created', 'last_updated',
         ]
 
@@ -665,8 +665,9 @@ class RearPortSerializer(PrimaryModelSerializer, CableTerminationSerializer):
     class Meta:
         model = RearPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'positions', 'description', 'mark_connected',
-            'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'color', 'positions', 'description',
+            'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created',
+            'last_updated', '_occupied',
         ]
 
 
@@ -691,9 +692,9 @@ class FrontPortSerializer(PrimaryModelSerializer, CableTerminationSerializer):
     class Meta:
         model = FrontPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description',
-            'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created',
-            'last_updated', '_occupied',
+            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
+            'description', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields',
+            'created', 'last_updated', '_occupied',
         ]
 
 

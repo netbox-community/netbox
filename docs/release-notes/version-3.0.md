@@ -35,6 +35,7 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 
 * [#2434](https://github.com/netbox-community/netbox/issues/2434) - Add option to assign IP address upon creating a new interface
 * [#3665](https://github.com/netbox-community/netbox/issues/3665) - Enable rendering export templates via REST API
+* [#3682](https://github.com/netbox-community/netbox/issues/3682) - Add `color` field to front and rear ports
 * [#4609](https://github.com/netbox-community/netbox/issues/4609) - Allow marking prefixes as fully utilized
 * [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
@@ -54,8 +55,16 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
     * Removed the `display_name` attribute (use `display` instead)
 * dcim.DeviceType
     * Removed the `display_name` attribute (use `display` instead)
+* dcim.FrontPort
+    * Added `color` field
+* dcim.FrontPortTemplate
+    * Added `color` field
 * dcim.Rack
     * Removed the `display_name` attribute (use `display` instead)
+* dcim.RearPort
+    * Added `color` field
+* dcim.RearPortTemplate
+    * Added `color` field
 * dcim.Site
     * `latitude` and `longitude` are now decimal fields rather than strings
 * extras.ContentType

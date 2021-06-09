@@ -1610,7 +1610,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description',
+            'device_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1639,7 +1639,7 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         help_text='Select one rear port assignment for each front port being created.',
     )
     field_order = (
-        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'description',
+        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'color', 'rear_port_set', 'description',
     )
 
     def __init__(self, *args, **kwargs):
@@ -1703,6 +1703,11 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
+    )
     description = forms.CharField(
         required=False
     )
@@ -1716,7 +1721,7 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'positions', 'description',
+            'device_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1729,13 +1734,20 @@ class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
+    )
     positions = forms.IntegerField(
         min_value=REARPORT_POSITIONS_MIN,
         max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
-    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'positions', 'description')
+    field_order = (
+        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'color', 'positions', 'description',
+    )
 
 
 class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1751,6 +1763,11 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         choices=add_blank_choice(PortTypeChoices),
         required=False,
         widget=StaticSelect2()
+    )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
     )
     description = forms.CharField(
         required=False
@@ -3427,7 +3444,7 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
 
 class FrontPortFilterForm(DeviceComponentFilterForm):
     field_groups = [
-        ['name', 'label', 'type'],
+        ['name', 'label', 'type', 'color'],
         ['region_id', 'site_group_id', 'site_id'],
         ['tag']
     ]
@@ -3436,6 +3453,11 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
         choices=PortTypeChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
     )
     tag = TagFilterField(model)
 
@@ -3449,8 +3471,8 @@ class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = FrontPort
         fields = [
-            'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'mark_connected', 'description',
-            'tags',
+            'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
+            'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -3475,13 +3497,19 @@ class FrontPortCreateForm(ComponentCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
+    )
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'mark_connected', 'description', 'tags',
+        'device', 'name_pattern', 'label_pattern', 'type', 'color', 'rear_port_set', 'mark_connected', 'description',
+        'tags',
     )
 
     def __init__(self, *args, **kwargs):
@@ -3540,7 +3568,7 @@ class FrontPortCreateForm(ComponentCreateForm):
 
 
 class FrontPortBulkEditForm(
-    form_from_model(FrontPort, ['label', 'type', 'mark_connected', 'description']),
+    form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -3572,7 +3600,8 @@ class FrontPortCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = FrontPort
         fields = (
-            'device', 'name', 'label', 'type', 'mark_connected', 'rear_port', 'rear_port_position', 'description',
+            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'rear_port', 'rear_port_position',
+            'description',
         )
         help_texts = {
             'rear_port_position': 'Mapped position on corresponding rear port',
@@ -3608,7 +3637,7 @@ class FrontPortCSVForm(CustomFieldModelCSVForm):
 class RearPortFilterForm(DeviceComponentFilterForm):
     model = RearPort
     field_groups = [
-        ['name', 'label', 'type'],
+        ['name', 'label', 'type', 'color'],
         ['region_id', 'site_group_id', 'site_id'],
         ['tag']
     ]
@@ -3616,6 +3645,11 @@ class RearPortFilterForm(DeviceComponentFilterForm):
         choices=PortTypeChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
     )
     tag = TagFilterField(model)
 
@@ -3629,7 +3663,7 @@ class RearPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = RearPort
         fields = [
-            'device', 'name', 'label', 'type', 'positions', 'mark_connected', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -3643,6 +3677,11 @@ class RearPortCreateForm(ComponentCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
+    color = forms.CharField(
+        max_length=6,  # RGB color code
+        required=False,
+        widget=ColorSelect()
+    )
     positions = forms.IntegerField(
         min_value=REARPORT_POSITIONS_MIN,
         max_value=REARPORT_POSITIONS_MAX,
@@ -3650,12 +3689,13 @@ class RearPortCreateForm(ComponentCreateForm):
         help_text='The number of front ports which may be mapped to each rear port'
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'type', 'positions', 'mark_connected', 'description', 'tags',
+        'device', 'name_pattern', 'label_pattern', 'type', 'color', 'positions', 'mark_connected', 'description',
+        'tags',
     )
 
 
 class RearPortBulkCreateForm(
-    form_from_model(RearPort, ['type', 'positions', 'mark_connected']),
+    form_from_model(RearPort, ['type', 'color', 'positions', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = RearPort
@@ -3663,7 +3703,7 @@ class RearPortBulkCreateForm(
 
 
 class RearPortBulkEditForm(
-    form_from_model(RearPort, ['label', 'type', 'mark_connected', 'description']),
+    form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldBulkEditForm
@@ -3689,7 +3729,7 @@ class RearPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RearPort
-        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'positions', 'description')
+        fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description')
         help_texts = {
             'positions': 'Number of front ports which may be mapped'
         }
