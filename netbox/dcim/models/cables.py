@@ -111,11 +111,6 @@ class Cable(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
-        'color', 'length', 'length_unit',
-    ]
-
     class Meta:
         ordering = ['pk']
         unique_together = (
@@ -288,20 +283,6 @@ class Cable(PrimaryModel):
 
         # Update the private pk used in __str__ in case this is a new object (i.e. just got its pk)
         self._pk = self.pk
-
-    def to_csv(self):
-        return (
-            '{}.{}'.format(self.termination_a_type.app_label, self.termination_a_type.model),
-            self.termination_a_id,
-            '{}.{}'.format(self.termination_b_type.app_label, self.termination_b_type.model),
-            self.termination_b_id,
-            self.get_type_display(),
-            self.get_status_display(),
-            self.label,
-            self.color,
-            self.length,
-            self.length_unit,
-        )
 
     def get_status_class(self):
         return CableStatusChoices.CSS_CLASSES.get(self.status)

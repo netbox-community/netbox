@@ -16,7 +16,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2.export import TableExport
 
-from extras.models import CustomField, ExportTemplate
+from extras.models import ExportTemplate
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortTransaction
 from utilities.forms import (
@@ -24,7 +24,7 @@ from utilities.forms import (
 )
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
-from utilities.utils import csv_format, normalize_querydict, prepare_cloned_fields
+from utilities.utils import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 
 
@@ -92,7 +92,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
-    def queryset_to_yaml(self):
+    def export_yaml(self):
         """
         Export the queryset of objects as concatenated YAML documents.
         """
@@ -100,34 +100,27 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
         return '---\n'.join(yaml_data)
 
-    def queryset_to_csv(self):
+    def export_table(self, table, columns=None):
         """
-        Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
+        Export all table data in CSV format.
+
+        :param table: The Table instance to export
+        :param columns: A list of specific columns to include. If not specified, all columns will be exported.
         """
-        csv_data = []
-        custom_fields = []
-
-        # Start with the column headers
-        headers = self.queryset.model.csv_headers.copy()
-
-        # Add custom field headers, if any
-        if hasattr(self.queryset.model, 'custom_field_data'):
-            for custom_field in CustomField.objects.get_for_model(self.queryset.model):
-                headers.append(custom_field.name)
-                custom_fields.append(custom_field.name)
-
-        csv_data.append(','.join(headers))
-
-        # Iterate through the queryset appending each object
-        for obj in self.queryset:
-            data = obj.to_csv()
-
-            for custom_field in custom_fields:
-                data += (obj.cf.get(custom_field, ''),)
-
-            csv_data.append(csv_format(data))
-
-        return '\n'.join(csv_data)
+        exclude_columns = {'pk'}
+        if columns:
+            all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
+            exclude_columns.update({
+                col for col in all_columns if col not in columns
+            })
+        exporter = TableExport(
+            export_format=TableExport.CSV,
+            table=table,
+            exclude_columns=exclude_columns
+        )
+        return exporter.response(
+            filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+        )
 
     def get(self, request):
 
@@ -137,7 +130,13 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
 
-        # Check for export rendering (except for table-based)
+        # Compile a dictionary indicating which permissions are available to the current user for this model
+        permissions = {}
+        for action in ('add', 'change', 'delete', 'view'):
+            perm_name = get_permission_for_model(model, action)
+            permissions[action] = request.user.has_perm(perm_name)
+
+        # Export template/YAML rendering
         if 'export' in request.GET and request.GET['export'] != 'table':
 
             # An export template has been specified
@@ -155,44 +154,22 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
             # Check for YAML export support
             elif hasattr(model, 'to_yaml'):
-                response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
+                response = HttpResponse(self.export_yaml(), content_type='text/yaml')
                 filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
                 response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
                 return response
-
-            # Fall back to built-in CSV formatting if export requested but no template specified
-            elif 'export' in request.GET and hasattr(model, 'to_csv'):
-                response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
-                filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
-                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-                return response
-
-        # Compile a dictionary indicating which permissions are available to the current user for this model
-        permissions = {}
-        for action in ('add', 'change', 'delete', 'view'):
-            perm_name = get_permission_for_model(model, action)
-            permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the objects table
         table = self.table(self.queryset, user=request.user)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
-        # Handle table-based export
+        # Handle table-based exports (current view or static CSV-based)
         if request.GET.get('export') == 'table':
-            exclude_columns = {'pk'}
-            exclude_columns.update({
-                name for name, _ in table.available_columns
-            })
-            exporter = TableExport(
-                export_format=TableExport.CSV,
-                table=table,
-                exclude_columns=exclude_columns,
-                dataset_kwargs={},
-            )
-            return exporter.response(
-                filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
-            )
+            columns = [name for name, _ in table.selected_columns]
+            return self.export_table(table, columns)
+        elif 'export' in request.GET:
+            return self.export_table(table)
 
         # Paginate the objects table
         paginate_table(table, request)

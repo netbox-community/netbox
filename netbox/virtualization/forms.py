@@ -43,7 +43,7 @@ class ClusterTypeCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ClusterType
-        fields = ClusterType.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
 class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -79,7 +79,7 @@ class ClusterGroupCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ClusterGroup.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
 class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -174,7 +174,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Cluster
-        fields = Cluster.csv_headers
+        fields = ('name', 'type', 'group', 'site', 'comments')
 
 
 class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -468,7 +468,9 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VirtualMachine
-        fields = VirtualMachine.csv_headers
+        fields = (
+            'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        )
 
 
 class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -735,7 +737,9 @@ class VMInterfaceCSVForm(CSVModelForm):
 
     class Meta:
         model = VMInterface
-        fields = VMInterface.csv_headers
+        fields = (
+            'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+        )
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data

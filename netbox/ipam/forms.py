@@ -76,7 +76,7 @@ class VRFCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VRF
-        fields = VRF.csv_headers
+        fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description')
 
 
 class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -152,7 +152,7 @@ class RouteTargetCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RouteTarget
-        fields = RouteTarget.csv_headers
+        fields = ('name', 'description', 'tenant')
 
 
 class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -214,7 +214,7 @@ class RIRCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RIR
-        fields = RIR.csv_headers
+        fields = ('name', 'slug', 'is_private', 'description')
         help_texts = {
             'name': 'RIR name',
         }
@@ -295,7 +295,7 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Aggregate
-        fields = Aggregate.csv_headers
+        fields = ('prefix', 'rir', 'tenant', 'date_added', 'description')
 
 
 class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -369,7 +369,7 @@ class RoleCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Role
-        fields = Role.csv_headers
+        fields = ('name', 'slug', 'weight', 'description')
 
 
 class RoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -517,7 +517,10 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Prefix
-        fields = Prefix.csv_headers
+        fields = (
+            'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
+            'description',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -1265,7 +1268,7 @@ class VLANGroupCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VLANGroup
-        fields = VLANGroup.csv_headers
+        fields = ('name', 'slug', 'scope_type', 'scope_id', 'description')
 
 
 class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -1439,7 +1442,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VLAN
-        fields = VLAN.csv_headers
+        fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description')
         help_texts = {
             'vid': 'Numeric VLAN ID (1-4095)',
             'name': 'VLAN name',
@@ -1630,7 +1633,7 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Service
-        fields = Service.csv_headers
+        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description')
 
 
 class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

@@ -54,18 +54,8 @@ class Region(NestedGroupModel):
         blank=True
     )
 
-    csv_headers = ['name', 'slug', 'parent', 'description']
-
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.parent.name if self.parent else None,
-            self.description,
-        )
 
     def get_site_count(self):
         return Site.objects.filter(
@@ -106,18 +96,8 @@ class SiteGroup(NestedGroupModel):
         blank=True
     )
 
-    csv_headers = ['name', 'slug', 'parent', 'description']
-
     def get_absolute_url(self):
         return reverse('dcim:sitegroup', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.parent.name if self.parent else None,
-            self.description,
-        )
 
     def get_site_count(self):
         return Site.objects.filter(
@@ -236,11 +216,6 @@ class Site(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
-        'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-        'contact_email', 'comments',
-    ]
     clone_fields = [
         'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
@@ -254,28 +229,6 @@ class Site(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('dcim:site', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.get_status_display(),
-            self.region.name if self.region else None,
-            self.group.name if self.group else None,
-            self.tenant.name if self.tenant else None,
-            self.facility,
-            self.asn,
-            self.time_zone,
-            self.description,
-            self.physical_address,
-            self.shipping_address,
-            self.latitude,
-            self.longitude,
-            self.contact_name,
-            self.contact_phone,
-            self.contact_email,
-            self.comments,
-        )
 
     def get_status_class(self):
         return SiteStatusChoices.CSS_CLASSES.get(self.status)
@@ -318,7 +271,6 @@ class Location(NestedGroupModel):
         to='extras.ImageAttachment'
     )
 
-    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
     clone_fields = ['site', 'parent', 'description']
 
     class Meta:
@@ -330,15 +282,6 @@ class Location(NestedGroupModel):
 
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.site,
-            self.parent.name if self.parent else '',
-            self.name,
-            self.slug,
-            self.description,
-        )
 
     def clean(self):
         super().clean()

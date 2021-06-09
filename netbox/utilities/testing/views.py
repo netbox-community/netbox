@@ -454,10 +454,7 @@ class ViewTestCases:
             # Test default CSV export
             response = self.client.get(f'{url}?export')
             self.assertHttpStatus(response, 200)
-            if hasattr(self.model, 'csv_headers'):
-                self.assertEqual(response.get('Content-Type'), 'text/csv')
-                content = response.content.decode('utf-8')
-                self.assertEqual(content.splitlines()[0], ','.join(self.model.csv_headers))
+            self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
 
             # Test table-based export
             response = self.client.get(f'{url}?export=table')

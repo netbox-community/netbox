@@ -26,8 +26,6 @@ class Tag(ChangeLoggedModel, TagBase):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'color', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -40,14 +38,6 @@ class Tag(ChangeLoggedModel, TagBase):
         if i is not None:
             slug += "_%d" % i
         return slug
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.color,
-            self.description
-        )
 
 
 class TaggedItem(BigIDModel, GenericTaggedItemBase):

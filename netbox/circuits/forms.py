@@ -60,7 +60,9 @@ class ProviderCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Provider
-        fields = Provider.csv_headers
+        fields = (
+            'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+        )
 
 
 class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -234,7 +236,7 @@ class CircuitTypeCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = CircuitType
-        fields = CircuitType.csv_headers
+        fields = ('name', 'slug', 'description')
         help_texts = {
             'name': 'Name of circuit type',
         }

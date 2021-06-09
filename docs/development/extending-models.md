@@ -34,7 +34,7 @@ class Foo(models.Model):
 
 ## 3. Add CSV helpers
 
-Add the name of the new field to `csv_headers` and included a CSV-friendly representation of its data in the model's `to_csv()` method. These will be used when exporting objects in CSV format.
+Add the name of the new field to `csv_headers`. This will be used when exporting objects in CSV format.
 
 ## 4. Update relevant querysets
 

@@ -67,8 +67,6 @@ class Service(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'ports', 'description']
-
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
 
@@ -90,16 +88,6 @@ class Service(PrimaryModel):
             raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
         if not self.device and not self.virtual_machine:
             raise ValidationError("A service must be associated with either a device or a virtual machine.")
-
-    def to_csv(self):
-        return (
-            self.device.name if self.device else None,
-            self.virtual_machine.name if self.virtual_machine else None,
-            self.name,
-            self.get_protocol_display(),
-            self.ports,
-            self.description,
-        )
 
     @property
     def port_list(self):

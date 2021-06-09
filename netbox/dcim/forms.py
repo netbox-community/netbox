@@ -209,7 +209,7 @@ class RegionCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Region
-        fields = Region.csv_headers
+        fields = ('name', 'slug', 'parent', 'description')
 
 
 class RegionBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -262,7 +262,7 @@ class SiteGroupCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = SiteGroup
-        fields = SiteGroup.csv_headers
+        fields = ('name', 'slug', 'parent', 'description')
 
 
 class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -383,7 +383,11 @@ class SiteCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Site
-        fields = Site.csv_headers
+        fields = (
+            'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+            'contact_email', 'comments',
+        )
         help_texts = {
             'time_zone': mark_safe(
                 'Time zone (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">available options</a>)'
@@ -522,7 +526,7 @@ class LocationCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Location
-        fields = Location.csv_headers
+        fields = ('site', 'parent', 'name', 'slug', 'description')
 
 
 class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -595,7 +599,7 @@ class RackRoleCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RackRole
-        fields = RackRole.csv_headers
+        fields = ('name', 'slug', 'color', 'description')
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
@@ -728,7 +732,10 @@ class RackCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Rack
-        fields = Rack.csv_headers
+        fields = (
+            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
+            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -1114,7 +1121,7 @@ class ManufacturerCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Manufacturer
-        fields = Manufacturer.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
 class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -1923,7 +1930,7 @@ class DeviceRoleCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = DeviceRole
-        fields = DeviceRole.csv_headers
+        fields = ('name', 'slug', 'color', 'vm_role', 'description')
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
@@ -1987,7 +1994,7 @@ class PlatformCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Platform
-        fields = Platform.csv_headers
+        fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description')
 
 
 class PlatformBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -2676,7 +2683,7 @@ class ConsolePortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ConsolePort
-        fields = ConsolePort.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description')
 
 
 #
@@ -2783,7 +2790,7 @@ class ConsoleServerPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ConsoleServerPort.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description')
 
 
 #
@@ -2886,7 +2893,9 @@ class PowerPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerPort
-        fields = PowerPort.csv_headers
+        fields = (
+            'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description',
+        )
 
 
 #
@@ -3036,7 +3045,7 @@ class PowerOutletCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerOutlet
-        fields = PowerOutlet.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3376,7 +3385,10 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Interface
-        fields = Interface.csv_headers
+        fields = (
+            'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
+            'mgmt_only', 'description', 'mode',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3559,7 +3571,9 @@ class FrontPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = FrontPort
-        fields = FrontPort.csv_headers
+        fields = (
+            'device', 'name', 'label', 'type', 'mark_connected', 'rear_port', 'rear_port_position', 'description',
+        )
         help_texts = {
             'rear_port_position': 'Mapped position on corresponding rear port',
         }
@@ -3675,7 +3689,7 @@ class RearPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RearPort
-        fields = RearPort.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'positions', 'description')
         help_texts = {
             'positions': 'Number of front ports which may be mapped'
         }
@@ -3774,7 +3788,7 @@ class DeviceBayCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = DeviceBay
-        fields = DeviceBay.csv_headers
+        fields = ('device', 'name', 'label', 'installed_device', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3880,7 +3894,9 @@ class InventoryItemCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = InventoryItem
-        fields = InventoryItem.csv_headers
+        fields = (
+            'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
+        )
 
 
 class InventoryItemBulkCreateForm(
@@ -4763,7 +4779,7 @@ class VirtualChassisCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VirtualChassis
-        fields = VirtualChassis.csv_headers
+        fields = ('name', 'domain', 'master')
 
 
 class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
@@ -4857,7 +4873,7 @@ class PowerPanelCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerPanel
-        fields = PowerPanel.csv_headers
+        fields = ('site', 'location', 'name')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -5054,7 +5070,10 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerFeed
-        fields = PowerFeed.csv_headers
+        fields = (
+            'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
+            'voltage', 'amperage', 'max_utilization', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)

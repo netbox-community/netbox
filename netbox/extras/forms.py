@@ -154,7 +154,7 @@ class TagCSVForm(CSVModelForm):
 
     class Meta:
         model = Tag
-        fields = Tag.csv_headers
+        fields = ('name', 'slug', 'color', 'description')
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }

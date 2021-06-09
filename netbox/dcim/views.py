@@ -2530,23 +2530,6 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/connections_list.html'
 
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join(['console_server', 'port', 'device', 'console_port', 'reachable'])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
-
     def extra_context(self):
         return {
             'title': 'Console Connections'
@@ -2559,23 +2542,6 @@ class PowerConnectionsListView(generic.ObjectListView):
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/connections_list.html'
-
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join(['pdu', 'outlet', 'device', 'power_port', 'reachable'])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
 
     def extra_context(self):
         return {
@@ -2593,25 +2559,6 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/connections_list.html'
-
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join([
-                'device_a', 'interface_a', 'device_b', 'interface_b', 'reachable'
-            ])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
 
     def extra_context(self):
         return {

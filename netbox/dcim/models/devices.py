@@ -56,8 +56,6 @@ class Manufacturer(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -66,13 +64,6 @@ class Manufacturer(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:manufacturer', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.description
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -379,8 +370,6 @@ class DeviceRole(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'color', 'vm_role', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -389,15 +378,6 @@ class DeviceRole(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.color,
-            self.vm_role,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
@@ -442,8 +422,6 @@ class Platform(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -452,16 +430,6 @@ class Platform(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:platform', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.manufacturer.name if self.manufacturer else None,
-            self.napalm_driver,
-            self.napalm_args,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -611,10 +579,6 @@ class Device(PrimaryModel, ConfigContextModel):
 
     objects = ConfigContextModelQuerySet.as_manager()
 
-    csv_headers = [
-        'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-        'site', 'location', 'rack_name', 'position', 'face', 'comments',
-    ]
     clone_fields = [
         'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
     ]
@@ -816,25 +780,6 @@ class Device(PrimaryModel, ConfigContextModel):
             device.rack = self.rack
             device.save()
 
-    def to_csv(self):
-        return (
-            self.name or '',
-            self.device_role.name,
-            self.tenant.name if self.tenant else None,
-            self.device_type.manufacturer.name,
-            self.device_type.model,
-            self.platform.name if self.platform else None,
-            self.serial,
-            self.asset_tag,
-            self.get_status_display(),
-            self.site.name,
-            self.rack.location.name if self.rack and self.rack.location else None,
-            self.rack.name if self.rack else None,
-            self.position,
-            self.get_face_display(),
-            self.comments,
-        )
-
     @property
     def identifier(self):
         """
@@ -929,8 +874,6 @@ class VirtualChassis(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'domain', 'master']
-
     class Meta:
         ordering = ['name']
         verbose_name_plural = 'virtual chassis'
@@ -967,10 +910,3 @@ class VirtualChassis(PrimaryModel):
             )
 
         return super().delete(*args, **kwargs)
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.domain,
-            self.master.name if self.master else None,
-        )
