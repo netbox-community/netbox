@@ -28,8 +28,13 @@ The `CustomValidator` class supports several validation types:
 * `min_length`: Minimum string length
 * `max_length`: Maximum string length
 * `regex`: Application of a [regular expression](https://en.wikipedia.org/wiki/Regular_expression)
+* `required`: A value must be specified
+* `prohibited`: A value must _not_ be specified
 
-The `min` and `max` types should be defined for numeric values, whereas `min_length`, `max_length`, and `regex` are suitable for character strings (text values).
+The `min` and `max` types should be defined for numeric values, whereas `min_length`, `max_length`, and `regex` are suitable for character strings (text values). The `required` and `prohibited` validators may be used for any field, and should be passed a value of `True`.
+
+!!! warning
+    Bear in mind that these validators merely supplement NetBox's own validation: They will not override it. For example, if a certain model field is required by NetBox, setting a validator for it with `{'prohibited': True}` will not work.
 
 ### Custom Validation Logic
 

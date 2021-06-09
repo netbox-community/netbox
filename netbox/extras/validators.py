@@ -1,6 +1,39 @@
 from django.core.exceptions import ValidationError
 from django.core import validators
 
+# NOTE: As this module may be imported by configuration.py, we cannot import
+# anything from NetBox itself.
+
+
+class IsEmptyValidator:
+    """
+    Employed by CustomValidator to enforce required fields.
+    """
+    message = "This field must be empty."
+    code = 'is_empty'
+
+    def __init__(self, enforce=True):
+        self._enforce = enforce
+
+    def __call__(self, value):
+        if self._enforce and value not in validators.EMPTY_VALUES:
+            raise ValidationError(self.message, code=self.code)
+
+
+class IsNotEmptyValidator:
+    """
+    Employed by CustomValidator to enforce prohibited fields.
+    """
+    message = "This field must not be empty."
+    code = 'not_empty'
+
+    def __init__(self, enforce=True):
+        self._enforce = enforce
+
+    def __call__(self, value):
+        if self._enforce and value in validators.EMPTY_VALUES:
+            raise ValidationError(self.message, code=self.code)
+
 
 class CustomValidator:
     """
@@ -22,6 +55,8 @@ class CustomValidator:
         'min_length': validators.MinLengthValidator,
         'max_length': validators.MaxLengthValidator,
         'regex': validators.RegexValidator,
+        'required': IsNotEmptyValidator,
+        'prohibited': IsEmptyValidator,
     }
 
     def __init__(self, validation_rules=None):
