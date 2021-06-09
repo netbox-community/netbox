@@ -1,6 +1,6 @@
-# NetBox v2.12
+# NetBox v3.0
 
-## v2.12-beta1 (FUTURE)
+## v3.0-beta1 (FUTURE)
 
 ### Enhancements
 

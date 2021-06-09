@@ -94,6 +94,7 @@ nav:
         - User Preferences: 'development/user-preferences.md'
         - Release Checklist: 'development/release-checklist.md'
     - Release Notes:
+        - Version 3.0: 'release-notes/version-3.0.md'
         - Version 2.11: 'release-notes/version-2.11.md'
         - Version 2.10: 'release-notes/version-2.10.md'
         - Version 2.9: 'release-notes/version-2.9.md'
