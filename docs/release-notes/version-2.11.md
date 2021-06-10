@@ -12,6 +12,7 @@
 * [#6553](https://github.com/netbox-community/netbox/issues/6553) - ProviderNetwork search should match on name
 * [#6562](https://github.com/netbox-community/netbox/issues/6562) - Disable ordering of secrets by assigned object
 * [#6563](https://github.com/netbox-community/netbox/issues/6563) - Fix filtering by location for cable connection forms
+* [#6584](https://github.com/netbox-community/netbox/issues/6584) - Fix ordering of nested inventory items
 
 ---
 

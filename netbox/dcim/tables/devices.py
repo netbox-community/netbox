@@ -694,7 +694,7 @@ class InventoryItemTable(DeviceComponentTable):
     )
     cable = None  # Override DeviceComponentTable
 
-    class Meta(DeviceComponentTable.Meta):
+    class Meta(BaseTable.Meta):
         model = InventoryItem
         fields = (
             'pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
@@ -715,7 +715,7 @@ class DeviceInventoryItemTable(InventoryItemTable):
         buttons=('edit', 'delete')
     )
 
-    class Meta(DeviceComponentTable.Meta):
+    class Meta(BaseTable.Meta):
         model = InventoryItem
         fields = (
             'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered',
