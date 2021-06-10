@@ -665,10 +665,16 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 from_form=self.model_form,
                 widget=Textarea(attrs=self.widget_attrs)
             )
-            upload_csv = CSVFileField(
+            csv_file = CSVFileField(
+                label="CSV file",
                 from_form=self.model_form,
                 required=False
             )
+            def used_both_methods(self):
+                if self.cleaned_data['csv_file'][1] and self.cleaned_data['csv'][1]:
+                    raise ValidationError('')
+                return False
+
         return ImportForm(*args, **kwargs)
 
     def _save_obj(self, obj_form, request):
@@ -694,14 +700,14 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         new_objs = []
         form = self._import_form(request.POST, request.FILES)
 
-        if form.is_valid():
+        if form.is_valid() and not form.used_both_methods():
             logger.debug("Form validation was successful")
 
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
                     if request.FILES:
-                        headers, records = form.cleaned_data['upload_csv']
+                        headers, records = form.cleaned_data['csv_file']
                     else:
                         headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):

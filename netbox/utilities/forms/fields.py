@@ -246,35 +246,39 @@ class CSVFileField(forms.FileField):
     def to_python(self, file):
 
         records = []
-        csv_str = file.read().decode('utf-8')
-        reader = csv.reader(csv_str.splitlines())
+        if file:
+            csv_str = file.read().decode('utf-8')
+            reader = csv.reader(csv_str.splitlines())
 
         # Consume the first line of CSV data as column headers. Create a dictionary mapping each header to an optional
         # "to" field specifying how the related object is being referenced. For example, importing a Device might use a
         # `site.slug` header, to indicate the related site is being referenced by its slug.
 
         headers = {}
-        for header in next(reader):
-            if '.' in header:
-                field, to_field = header.split('.', 1)
-                headers[field] = to_field
-            else:
-                headers[header] = None
+        if file:
+            for header in next(reader):
+                if '.' in header:
+                    field, to_field = header.split('.', 1)
+                    headers[field] = to_field
+                else:
+                    headers[header] = None
 
-        # Parse CSV rows into a list of dictionaries mapped from the column headers.
-        for i, row in enumerate(reader, start=1):
-            if len(row) != len(headers):
-                raise forms.ValidationError(
-                    f"Row {i}: Expected {len(headers)} columns but found {len(row)}"
-                )
-            row = [col.strip() for col in row]
-            record = dict(zip(headers.keys(), row))
-            records.append(record)
+            # Parse CSV rows into a list of dictionaries mapped from the column headers.
+            for i, row in enumerate(reader, start=1):
+                if len(row) != len(headers):
+                    raise forms.ValidationError(
+                        f"Row {i}: Expected {len(headers)} columns but found {len(row)}"
+                    )
+                row = [col.strip() for col in row]
+                record = dict(zip(headers.keys(), row))
+                records.append(record)
 
         return headers, records
 
     def validate(self, value):
         headers, records = value
+        if not headers and not records:
+            return value
 
         # Validate provided column headers
         for field, to_field in headers.items():
