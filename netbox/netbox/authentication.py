@@ -173,7 +173,7 @@ class LDAPBackend:
         # Create a new instance of django-auth-ldap's LDAPBackend with our own ObjectPermissions
         class NBLDAPBackend(ObjectPermissionMixin, LDAPBackend_):
             def get_permission_filter(self, user_obj):
-                permission_filter = Q(users=user_obj) | Q(groups__user=user_obj)
+                permission_filter = super().get_permission_filter(user_obj)
                 if self.settings.FIND_GROUP_PERMS:
                     permission_filter = permission_filter | Q(groups__name__in=user_obj.ldap_user.group_names)
                 return permission_filter
