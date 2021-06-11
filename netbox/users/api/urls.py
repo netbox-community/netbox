@@ -9,6 +9,9 @@ router.APIRootView = views.UsersRootView
 router.register('users', views.UserViewSet)
 router.register('groups', views.GroupViewSet)
 
+# Tokens
+router.register('tokens', views.TokenViewSet)
+
 # Permissions
 router.register('permissions', views.ObjectPermissionViewSet)
 

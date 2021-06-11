@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-from users.models import ObjectPermission
+from users.models import ObjectPermission, Token
 from utilities.testing import APIViewTestCases, APITestCase
 from utilities.utils import deepmerge
 
@@ -73,6 +73,38 @@ class GroupTest(APIViewTestCases.APIViewTestCase):
             Group(name='Group 3'),
         )
         Group.objects.bulk_create(users)
+
+
+class TokenTest(APIViewTestCases.APIViewTestCase):
+    model = Token
+    brief_fields = ['display', 'id', 'key', 'url', 'write_enabled']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    def setUp(self):
+        super().setUp()
+
+        tokens = (
+            # We already start with one Token, created by the test class
+            Token(user=self.user),
+            Token(user=self.user),
+        )
+        # Use save() instead of bulk_create() to ensure keys get automatically generated
+        for token in tokens:
+            token.save()
+
+        self.create_data = [
+            {
+                'user': self.user.pk,
+            },
+            {
+                'user': self.user.pk,
+            },
+            {
+                'user': self.user.pk,
+            },
+        ]
 
 
 class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):

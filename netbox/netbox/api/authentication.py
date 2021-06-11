@@ -59,6 +59,10 @@ class TokenPermissions(DjangoObjectPermissions):
 
     def has_permission(self, request, view):
 
+        # User must be authenticated
+        if not request.user.is_authenticated:
+            return False
+
         # Enforce Token write ability
         if isinstance(request.auth, Token) and not self._verify_write_permission(request):
             return False

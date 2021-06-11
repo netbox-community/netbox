@@ -7,7 +7,7 @@ from rest_framework.viewsets import ViewSet
 
 from netbox.api.views import ModelViewSet
 from users import filtersets
-from users.models import ObjectPermission, UserConfig
+from users.models import ObjectPermission, Token, UserConfig
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge
 from . import serializers
@@ -35,6 +35,25 @@ class GroupViewSet(ModelViewSet):
     queryset = RestrictedQuerySet(model=Group).annotate(user_count=Count('user')).order_by('name')
     serializer_class = serializers.GroupSerializer
     filterset_class = filtersets.GroupFilterSet
+
+
+#
+# REST API tokens
+#
+
+class TokenViewSet(ModelViewSet):
+    queryset = RestrictedQuerySet(model=Token).prefetch_related('user')
+    serializer_class = serializers.TokenSerializer
+    filterset_class = filtersets.TokenFilterSet
+
+    def get_queryset(self):
+        """
+        Limit the non-superusers to their own Tokens.
+        """
+        queryset = super().get_queryset()
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(user=self.request.user)
 
 
 #

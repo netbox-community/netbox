@@ -216,7 +216,8 @@ class Token(BigIDModel):
             self.key = self.generate_key()
         return super().save(*args, **kwargs)
 
-    def generate_key(self):
+    @staticmethod
+    def generate_key():
         # Generate a random 160-bit key expressed in hexadecimal.
         return binascii.hexlify(os.urandom(20)).decode()
 
