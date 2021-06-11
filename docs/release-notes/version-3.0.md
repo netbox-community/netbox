@@ -39,6 +39,7 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 * [#4609](https://github.com/netbox-community/netbox/issues/4609) - Allow marking prefixes as fully utilized
 * [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
+* [#6590](https://github.com/netbox-community/netbox/issues/6590) - Introduce a nightly housekeeping command to clear expired sessions and change records
 
 ### Other Changes
 

@@ -102,5 +102,12 @@ Finally, restart the gunicorn and RQ services:
 sudo systemctl restart netbox netbox-rq
 ```
 
-!!! note
-    If upgrading from an installation that uses supervisord, please see the instructions for [migrating to systemd](migrating-to-systemd.md). The use of supervisord is no longer supported.
+## Verify Housekeeping Scheduling
+
+If upgrading from a release prior to NetBox v3.0, check that a cron task (or similar scheduled process) has been configured to run NetBox's nightly housekeeping command. A shell script which invokes this command is included at `contrib/netbox-housekeeping.sh`. It can be copied to your system's daily cron task directory, or included within the crontab directly. (If NetBox has been installed in a nonstandard path, be sure to update the system paths within this script first.)
+
+```shell
+cp /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/
+```
+
+See the [housekeeping documentation](../administration/housekeeping.md) for further details.

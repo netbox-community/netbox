@@ -79,6 +79,7 @@ nav:
         - Developing Plugins: 'plugins/development.md'
     - Administration:
         - Permissions: 'administration/permissions.md'
+        - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
     - REST API:
