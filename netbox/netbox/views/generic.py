@@ -670,9 +670,10 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 from_form=self.model_form,
                 required=False
             )
-            def used_both_methods(self):
+
+            def used_both_csv_fields(self):
                 if self.cleaned_data['csv_file'][1] and self.cleaned_data['csv'][1]:
-                    raise ValidationError('')
+                    return True
                 return False
 
         return ImportForm(*args, **kwargs)
@@ -700,10 +701,13 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         new_objs = []
         form = self._import_form(request.POST, request.FILES)
 
-        if form.is_valid() and not form.used_both_methods():
+        if form.is_valid():
             logger.debug("Form validation was successful")
 
             try:
+                if form.used_both_csv_fields():
+                    form.add_error('csv_file', "Choose one of two import methods")
+                    raise ValidationError("")
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
                     if request.FILES:
