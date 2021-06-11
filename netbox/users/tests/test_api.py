@@ -106,6 +106,37 @@ class TokenTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_provision_token_valid(self):
+        """
+        Test the provisioning of a new REST API token given a valid username and password.
+        """
+        data = {
+            'username': 'user1',
+            'password': 'abc123',
+        }
+        user = User.objects.create_user(**data)
+        url = reverse('users-api:token_provision')
+
+        response = self.client.post(url, **self.header, data=data)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('key', response.data)
+        self.assertEqual(len(response.data['key']), 40)
+        token = Token.objects.get(user=user)
+        self.assertEqual(token.key, response.data['key'])
+
+    def test_provision_token_invalid(self):
+        """
+        Test the behavior of the token provisioning view when invalid credentials are supplied.
+        """
+        data = {
+            'username': 'nonexistentuser',
+            'password': 'abc123',
+        }
+        url = reverse('users-api:token_provision')
+
+        response = self.client.post(url, **self.header, data=data)
+        self.assertEqual(response.status_code, 403)
+
 
 class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
     model = ObjectPermission

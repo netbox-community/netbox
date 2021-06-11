@@ -70,6 +70,11 @@ class TokenSerializer(ValidatedModelSerializer):
         return super().to_internal_value(data)
 
 
+class TokenProvisionSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+
 class ObjectPermissionSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:objectpermission-detail')
     object_types = ContentTypeField(
