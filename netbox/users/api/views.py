@@ -55,6 +55,9 @@ class TokenViewSet(ModelViewSet):
         Limit the non-superusers to their own Tokens.
         """
         queryset = super().get_queryset()
+        # Workaround for schema generation (drf_yasg)
+        if getattr(self, 'swagger_fake_view', False):
+            return queryset.none()
         if self.request.user.is_superuser:
             return queryset
         return queryset.filter(user=self.request.user)
@@ -65,7 +68,6 @@ class TokenProvisionView(APIView):
     Non-authenticated REST API endpoint via which a user may create a Token.
     """
     permission_classes = []
-    swagger_schema = None  # TODO: Generate a schema
 
     def post(self, request):
         serializer = serializers.TokenProvisionSerializer(data=request.data)
