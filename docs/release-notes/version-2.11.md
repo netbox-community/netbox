@@ -13,6 +13,7 @@
 * [#6562](https://github.com/netbox-community/netbox/issues/6562) - Disable ordering of secrets by assigned object
 * [#6563](https://github.com/netbox-community/netbox/issues/6563) - Fix filtering by location for cable connection forms
 * [#6584](https://github.com/netbox-community/netbox/issues/6584) - Fix ordering of nested inventory items
+* [#6602](https://github.com/netbox-community/netbox/issues/6602) - Fix deletion of devices with cables attached
 
 ---
 
