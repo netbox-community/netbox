@@ -104,6 +104,7 @@ class ProviderNetworkFilterSet(PrimaryModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
+            Q(name__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()

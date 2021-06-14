@@ -311,16 +311,6 @@ class Prefix(PrimaryModel):
                     'prefix': "Cannot create prefix with /0 mask."
                 })
 
-            # Disallow host masks
-            if self.prefix.version == 4 and self.prefix.prefixlen == 32:
-                raise ValidationError({
-                    'prefix': "Cannot create host addresses (/32) as prefixes. Create an IPv4 address instead."
-                })
-            elif self.prefix.version == 6 and self.prefix.prefixlen == 128:
-                raise ValidationError({
-                    'prefix': "Cannot create host addresses (/128) as prefixes. Create an IPv6 address instead."
-                })
-
             # Enforce unique IP space (if applicable)
             if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_prefixes = self.get_duplicates()
@@ -431,8 +421,8 @@ class Prefix(PrimaryModel):
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
         available_ips = prefix - child_ips
 
-        # IPv6, pool, or IPv4 /31 sets are fully usable
-        if self.family == 6 or self.is_pool or self.prefix.prefixlen == 31:
+        # IPv6, pool, or IPv4 /31-/32 sets are fully usable
+        if self.family == 6 or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
             return available_ips
 
         # For "normal" IPv4 prefixes, omit first and last addresses

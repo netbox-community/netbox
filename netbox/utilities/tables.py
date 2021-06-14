@@ -349,8 +349,11 @@ class MPTTColumn(tables.TemplateColumn):
     """
     Display a nested hierarchy for MPTT-enabled models.
     """
-    template_code = """{% for i in record.get_ancestors %}<i class="mdi mdi-circle-small"></i>{% endfor %}""" \
-                    """<a href="{{ record.get_absolute_url }}">{{ record.name }}</a>"""
+    template_code = """
+        {% load helpers %}
+        {% for i in record.level|as_range %}<i class="mdi mdi-circle-small"></i>{% endfor %}
+        <a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(

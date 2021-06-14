@@ -4031,6 +4031,7 @@ class ConnectCableToDeviceForm(BootstrapMixin, CustomFieldModelForm):
         required=False,
         query_params={
             'site_id': '$termination_b_site',
+            'location_id': '$termination_b_location',
             'rack_id': '$termination_b_rack',
         }
     )

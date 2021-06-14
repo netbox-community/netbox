@@ -1,5 +1,29 @@
 # NetBox v2.11
 
+## v2.11.7 (FUTURE)
+
+### Enhancements
+
+* [#6455](https://github.com/netbox-community/netbox/issues/6455) - Permit /32 IPv4 and /128 IPv6 prefixes
+* [#6493](https://github.com/netbox-community/netbox/issues/6493) - Show change log diff for non-atomic (pre-2.11) changes
+
+### Bug Fixes
+
+* [#6553](https://github.com/netbox-community/netbox/issues/6553) - ProviderNetwork search should match on name
+* [#6562](https://github.com/netbox-community/netbox/issues/6562) - Disable ordering of secrets by assigned object
+* [#6563](https://github.com/netbox-community/netbox/issues/6563) - Fix filtering by location for cable connection forms
+* [#6584](https://github.com/netbox-community/netbox/issues/6584) - Fix ordering of nested inventory items
+
+---
+
+## v2.11.6 (2021-06-04)
+
+### Bug Fixes
+
+* [#6544](https://github.com/netbox-community/netbox/issues/6544) - Fix migration error when upgrading with VRF(s) defined
+
+---
+
 ## v2.11.5 (2021-06-04)
 
 **NOTE:** This release includes a database migration that calculates and annotates prefix depth. It may impose a noticeable delay on the upgrade process: Users should anticipate roughly one minute of delay per 100 thousand prefixes being updated.
