@@ -8,6 +8,23 @@
 
 ### New Features
 
+### REST API Token Provisioning ([#5264](https://github.com/netbox-community/netbox/issues/5264))
+
+This release introduces the `/api/users/tokens/` REST API endpoint, which includes a child endpoint that can be employed by a user to provision a new REST API token. This allows a user to gain REST API access without needing to first create a token via the web UI.
+
+```
+$ curl -X POST \
+-H "Content-Type: application/json" \
+-H "Accept: application/json; indent=4" \
+https://netbox/api/users/tokens/provision/
+{
+    "username": "hankhill",
+    "password: "I<3C3H8",
+}
+```
+
+If the supplied credentials are valid, NetBox will create and return a new token for the user.
+
 #### Custom Model Validation ([#5963](https://github.com/netbox-community/netbox/issues/5963))
 
 This release introduces the [`CUSTOM_VALIDATORS`](../configuration/optional-settings.md#custom_validators) configuration parameter, which allows administrators to map NetBox models to custom validator classes to enforce custom validation logic. For example, the following configuration requires every site to have a name of at least ten characters and a description:
@@ -50,6 +67,8 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 
 ### REST API Changes
 
+* Added the `/api/users/tokens/` endpoint
+    * The `provision/` child endpoint can be used to provision new REST API tokens by supplying a valid username and password
 * dcim.Cable
     * `length` is now a decimal value
 * dcim.Device
