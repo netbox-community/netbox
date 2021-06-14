@@ -30,7 +30,7 @@ The complete documentation for NetBox can be found at [Read the Docs](https://ne
 ### Discussion
 
 * [GitHub Discussions](https://github.com/netbox-community/netbox/discussions) - Discussion forum hosted by GitHub; ideal for Q&A and other structured discussions
-* [Slack](https://slack.netbox.dev/) - Real-time chat hosted by the NetDev Community; best for unstructured discussion or just hanging out
+* [Slack](https://netdev.chat/) - Real-time chat hosted by the NetDev Community; best for unstructured discussion or just hanging out
 * [Google Group](https://groups.google.com/g/netbox-discuss) - Legacy mailing list; slowly being replaced by GitHub discussions
 
 ### Installation
