@@ -672,9 +672,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             )
 
             def used_both_csv_fields(self):
-                if self.cleaned_data['csv_file'][1] and self.cleaned_data['csv'][1]:
-                    return True
-                return False
+                return self.cleaned_data['csv_file'][1] and self.cleaned_data['csv'][1]
 
         return ImportForm(*args, **kwargs)
 
