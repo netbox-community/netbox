@@ -21,8 +21,10 @@ The complete documentation for NetBox can be found at [Read the Docs](https://ne
 
   [![DigitalOcean](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/digitalocean.png)](https://try.digitalocean.com/developer-cloud)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  [![NS1](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/ns1.png)](https://ns1.com/)
+  [![Equinix Metal](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/equinix.png)](https://metal.equinix.com/)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  [![NS1](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/ns1.png)](https://ns1.com/)
+  <br />
   [![Stellar Technologies](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/stellar.png)](https://stellar.tech/)
 
 </div>
