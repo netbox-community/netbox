@@ -1172,12 +1172,11 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         )
         widgets = {
             'subdevice_role': StaticSelect2(),
-            # Exclude SVG images (unsupported by PIL)
             'front_image': forms.ClearableFileInput(attrs={
-                'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
+                'accept': DEVICETYPE_IMAGE_FORMATS
             }),
             'rear_image': forms.ClearableFileInput(attrs={
-                'accept': 'image/bmp,image/gif,image/jpeg,image/png,image/tiff'
+                'accept': DEVICETYPE_IMAGE_FORMATS
             })
         }
 
@@ -3948,6 +3947,7 @@ class ConnectCableToDeviceForm(BootstrapMixin, CustomFieldModelForm):
         required=False,
         query_params={
             'site_id': '$termination_b_site',
+            'location_id': '$termination_b_location',
             'rack_id': '$termination_b_rack',
         }
     )

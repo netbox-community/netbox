@@ -924,6 +924,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
     TYPE_F = 'f'
+    TYPE_N = 'n'
     TYPE_MRJ21 = 'mrj21'
     TYPE_ST = 'st'
     TYPE_SC = 'sc'
@@ -954,6 +955,7 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
                 (TYPE_F, 'F Connector'),
+                (TYPE_N, 'N Connector'),
                 (TYPE_MRJ21, 'MRJ21'),
             ),
         ),

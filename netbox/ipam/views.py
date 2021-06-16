@@ -522,7 +522,7 @@ class IPAddressView(generic.ObjectView):
         # Parent prefixes table
         parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
             vrf=instance.vrf,
-            prefix__net_contains=str(instance.address.ip)
+            prefix__net_contains_or_equals=str(instance.address.ip)
         ).prefetch_related(
             'site', 'role'
         )
