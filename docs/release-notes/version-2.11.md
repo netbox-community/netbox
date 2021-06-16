@@ -1,11 +1,14 @@
 # NetBox v2.11
 
-## v2.11.7 (FUTURE)
+## v2.11.7 (2021-06-16)
 
 ### Enhancements
 
 * [#6455](https://github.com/netbox-community/netbox/issues/6455) - Permit /32 IPv4 and /128 IPv6 prefixes
 * [#6493](https://github.com/netbox-community/netbox/issues/6493) - Show change log diff for non-atomic (pre-2.11) changes
+* [#6564](https://github.com/netbox-community/netbox/issues/6564) - Add N connector type for pass-through ports
+* [#6588](https://github.com/netbox-community/netbox/issues/6588) - Add support for webp files as front/rear device type images
+* [#6589](https://github.com/netbox-community/netbox/issues/6589) - Standardize breadcrumb navigation for power panels and feeds
 
 ### Bug Fixes
 
@@ -13,6 +16,7 @@
 * [#6562](https://github.com/netbox-community/netbox/issues/6562) - Disable ordering of secrets by assigned object
 * [#6563](https://github.com/netbox-community/netbox/issues/6563) - Fix filtering by location for cable connection forms
 * [#6584](https://github.com/netbox-community/netbox/issues/6584) - Fix ordering of nested inventory items
+* [#6602](https://github.com/netbox-community/netbox/issues/6602) - Fix deletion of devices with cables attached
 
 ---
 
