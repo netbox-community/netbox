@@ -2,6 +2,9 @@ from django.db.models import Q
 
 from .choices import InterfaceTypeChoices
 
+# Exclude SVG images (unsupported by PIL)
+DEVICETYPE_IMAGE_FORMATS = 'image/bmp,image/gif,image/jpeg,image/png,image/tiff,image/webp'
+
 
 #
 # Racks
