@@ -249,6 +249,15 @@ Superuser created successfully.
 
 ## Test the Application
 
+!!! note
+    By default RHEL based distros will likely block your testing attempts with firewalld
+
+=== "CentOS"
+
+    ```no-highlight
+    sudo systemctl stop firewalld
+    ```
+
 At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance:
 
 ```no-highlight
@@ -279,3 +288,9 @@ Try logging in using the superuser account we just created. Once authenticated, 
 ![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)
 
 Type `Ctrl+c` to stop the development server.
+
+=== "CentOS"
+
+    ```no-highlight
+    sudo systemctl start firewalld
+    ```
