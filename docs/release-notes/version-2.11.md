@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.8 (FUTURE)
+
+### Bug Fixes
+
+* [#6626](https://github.com/netbox-community/netbox/issues/6626) - Fix site field on VM search form; add site group
+
+---
+
 ## v2.11.7 (2021-06-16)
 
 ### Enhancements
