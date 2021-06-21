@@ -281,6 +281,8 @@ class CustomField(BigIDModel):
 
             # Validate text field
             if self.type == CustomFieldTypeChoices.TYPE_TEXT and self.validation_regex:
+                if type(value) is not str:
+                    raise ValidationError("Value must be a string.")
                 if not re.match(self.validation_regex, value):
                     raise ValidationError(f"Value must match regex '{self.validation_regex}'")
 
