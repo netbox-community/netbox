@@ -15,7 +15,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ProviderTest(APIViewTestCases.APIViewTestCase):
+class ProviderTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = Provider
     brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -47,7 +47,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
         Provider.objects.bulk_create(providers)
 
 
-class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
+class CircuitTypeTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = CircuitType
     brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = (
@@ -79,7 +79,7 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
         CircuitType.objects.bulk_create(circuit_types)
 
 
-class CircuitTest(APIViewTestCases.APIViewTestCase):
+class CircuitTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = Circuit
     brief_fields = ['cid', 'display', 'id', 'url']
     bulk_update_data = {
@@ -127,7 +127,7 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
+class CircuitTerminationTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = CircuitTermination
     brief_fields = ['_occupied', 'cable', 'circuit', 'display', 'id', 'term_side', 'url']
 
@@ -180,7 +180,7 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
+class ProviderNetworkTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = ProviderNetwork
     brief_fields = ['display', 'id', 'name', 'url']
 

@@ -63,7 +63,7 @@ _patterns = [
     re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(), name='schema_swagger'),
 
     # GraphQL
-    path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
+    path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema), name='graphql'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),

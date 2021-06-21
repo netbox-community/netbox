@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -420,6 +422,49 @@ class APIViewTestCases:
             response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertEqual(self._get_queryset().count(), initial_count - 3)
+
+    class GraphQLTestCase(APITestCase):
+
+        def test_graphql_get_object(self):
+            url = reverse('graphql')
+            object_type = self.model._meta.verbose_name.replace(' ', '_')
+            object_id = self._get_queryset().first().pk
+            query = f"""
+            {{
+                {object_type}(id:{object_id}) {{
+                    id
+                }}
+            }}
+            """
+
+            # Non-authenticated requests should fail
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+
+            response = self.client.post(url, data={'query': query}, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+
+        def test_graphql_list_objects(self):
+            url = reverse('graphql')
+            object_type = self.model._meta.verbose_name_plural.replace(' ', '_')
+            query = f"""
+            {{
+                {object_type} {{
+                    id
+                }}
+            }}
+            """
+
+            # Non-authenticated requests should fail
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+
+            response = self.client.post(url, data={'query': query}, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
 
     class APIViewTestCase(
         GetObjectViewTestCase,
