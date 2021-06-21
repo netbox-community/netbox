@@ -65,7 +65,7 @@ VLAN_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
 {% elif perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}&group={{ vlan_group.pk }}{% if vlan_group.site %}&site={{ vlan_group.site.pk }}{% endif %}" class="btn btn-xs btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
+    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}&group={{ object.id }}{% if object.scope %}&{{ object.scope_type.model }}={{ object.scope_id }}{% endif %}" class="btn btn-xs btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
 {% else %}
     {{ record.available }} VLAN{{ record.available|pluralize }} available
 {% endif %}
