@@ -1,4 +1,5 @@
 import graphene
+from graphene.types.generic import GenericScalar
 from graphene_django import DjangoObjectType
 
 __all__ = (
@@ -22,10 +23,16 @@ class BaseObjectType(DjangoObjectType):
 
 
 class ObjectType(BaseObjectType):
-    # TODO: Custom fields support
+    """
+    Extends BaseObjectType with support for custom field data.
+    """
+    custom_fields = GenericScalar()
 
     class Meta:
         abstract = True
+
+    def resolve_custom_fields(self, info):
+        return self.custom_field_data
 
 
 class TaggedObjectType(ObjectType):
