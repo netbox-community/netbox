@@ -13,8 +13,8 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, CircuitTermination, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldModelCSVForm, CustomFieldFilterForm,
-    CustomFieldModelForm, LocalConfigContextFilterForm,
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
+    CustomFieldsMixin, LocalConfigContextFilterForm,
 )
 from extras.models import Tag
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
@@ -2553,7 +2553,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
 # Device components
 #
 
-class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
+class ComponentCreateForm(BootstrapMixin, CustomFieldsMixin, ComponentForm):
     """
     Base form for the creation of device components (models subclassed from ComponentModel).
     """
@@ -2570,7 +2570,7 @@ class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
     )
 
 
-class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldForm, ComponentForm):
+class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldsMixin, ComponentForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
