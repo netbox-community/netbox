@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6626](https://github.com/netbox-community/netbox/issues/6626) - Fix site field on VM search form; add site group
+* [#6652](https://github.com/netbox-community/netbox/issues/6652) - Fix exception when adding components in bulk to multiple devices
 
 ---
 
