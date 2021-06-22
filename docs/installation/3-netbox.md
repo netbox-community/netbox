@@ -73,6 +73,9 @@ Next, clone the **master** branch of the NetBox GitHub repository into the curre
 
 ```no-highlight
 $ sudo git clone -b master https://github.com/netbox-community/netbox.git .
+```
+The screen below should be the result:
+```
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
