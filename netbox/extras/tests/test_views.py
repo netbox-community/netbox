@@ -6,9 +6,49 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from dcim.models import Site
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ConfigContext, CustomLink, JournalEntry, ObjectChange, Tag
+from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, ObjectChangeActionChoices
+from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
+
+
+class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CustomField
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        custom_fields = (
+            CustomField(name='field1', label='Field 1', type=CustomFieldTypeChoices.TYPE_TEXT),
+            CustomField(name='field2', label='Field 2', type=CustomFieldTypeChoices.TYPE_TEXT),
+            CustomField(name='field3', label='Field 3', type=CustomFieldTypeChoices.TYPE_TEXT),
+        )
+        for customfield in custom_fields:
+            customfield.save()
+            customfield.content_types.add(site_ct)
+
+        cls.form_data = {
+            'name': 'field_x',
+            'label': 'Field X',
+            'type': 'text',
+            'content_types': [site_ct.pk],
+            'filter_logic': CustomFieldFilterLogicChoices.FILTER_EXACT,
+            'default': None,
+            'weight': 200,
+            'required': True,
+        }
+
+        cls.csv_data = (
+            "name,label,type,content_types,weight,filter_logic",
+            "field4,Field 4,text,dcim.site,100,exact",
+            "field5,Field 5,text,dcim.site,100,exact",
+            "field6,Field 6,text,dcim.site,100,exact",
+        )
+
+        cls.bulk_edit_data = {
+            'required': True,
+            'weight': 200,
+        }
 
 
 class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

@@ -1,11 +1,22 @@
 from django.urls import path
 
 from extras import views
-from extras.models import ConfigContext, JournalEntry, Tag
+from extras.models import ConfigContext, CustomField, JournalEntry, Tag
 
 
 app_name = 'extras'
 urlpatterns = [
+
+    # Custom fields
+    path('custom-fields/', views.CustomFieldListView.as_view(), name='customfield_list'),
+    path('custom-fields/add/', views.CustomFieldEditView.as_view(), name='customfield_add'),
+    path('custom-fields/import/', views.CustomFieldBulkImportView.as_view(), name='customfield_import'),
+    path('custom-fields/edit/', views.CustomFieldBulkEditView.as_view(), name='customfield_bulk_edit'),
+    path('custom-fields/delete/', views.CustomFieldBulkDeleteView.as_view(), name='customfield_bulk_delete'),
+    path('custom-fields/<int:pk>/', views.CustomFieldView.as_view(), name='customfield'),
+    path('custom-fields/<int:pk>/edit/', views.CustomFieldEditView.as_view(), name='customfield_edit'),
+    path('custom-fields/<int:pk>/delete/', views.CustomFieldDeleteView.as_view(), name='customfield_delete'),
+    path('custom-fields/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='customfield_changelog', kwargs={'model': CustomField}),
 
     # Tags
     path('tags/', views.TagListView.as_view(), name='tag_list'),

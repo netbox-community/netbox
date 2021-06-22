@@ -1,11 +1,9 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
-from django.utils.safestring import mark_safe
 
 from utilities.forms import ContentTypeChoiceField, ContentTypeMultipleChoiceField, LaxURLField
-from utilities.utils import content_type_name
-from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
+from .models import CustomLink, ExportTemplate, JobResult, Webhook
 from .utils import FeatureQuery
 
 
@@ -57,63 +55,6 @@ class WebhookAdmin(admin.ModelAdmin):
 
     def models(self, obj):
         return ', '.join([ct.name for ct in obj.content_types.all()])
-
-
-#
-# Custom fields
-#
-
-class CustomFieldForm(forms.ModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields')
-    )
-
-    class Meta:
-        model = CustomField
-        exclude = []
-        widgets = {
-            'default': forms.TextInput(),
-            'validation_regex': forms.Textarea(
-                attrs={
-                    'cols': 80,
-                    'rows': 3,
-                }
-            )
-        }
-
-
-@admin.register(CustomField)
-class CustomFieldAdmin(admin.ModelAdmin):
-    actions = None
-    form = CustomFieldForm
-    list_display = [
-        'name', 'models', 'type', 'required', 'filter_logic', 'default', 'weight', 'description',
-    ]
-    list_filter = [
-        'type', 'required', 'content_types',
-    ]
-    fieldsets = (
-        ('Custom Field', {
-            'fields': ('type', 'name', 'weight', 'label', 'description', 'required', 'default', 'filter_logic')
-        }),
-        ('Assignment', {
-            'description': 'A custom field must be assigned to one or more object types.',
-            'fields': ('content_types',)
-        }),
-        ('Validation Rules', {
-            'fields': ('validation_minimum', 'validation_maximum', 'validation_regex'),
-            'classes': ('monospace',)
-        }),
-        ('Choices', {
-            'description': 'A selection field must have two or more choices assigned to it.',
-            'fields': ('choices',)
-        })
-    )
-
-    def models(self, obj):
-        ct_names = [content_type_name(ct) for ct in obj.content_types.all()]
-        return mark_safe('<br/>'.join(ct_names))
 
 
 #

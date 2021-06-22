@@ -8,8 +8,9 @@ from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGrou
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
-    CommentField, ContentTypeMultipleChoiceField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField,
-    JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeMultipleChoiceField, CSVModelForm, CSVMultipleContentTypeField, DateTimePicker,
+    DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2, StaticSelect2Multiple,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -19,6 +20,88 @@ from .utils import FeatureQuery
 
 #
 # Custom fields
+#
+
+class CustomFieldForm(BootstrapMixin, forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+
+    class Meta:
+        model = CustomField
+        fields = '__all__'
+        fieldsets = (
+            ('Custom Field', ('name', 'label', 'type', 'weight', 'required', 'description')),
+            ('Assigned Models', ('content_types',)),
+            ('Behavior', ('filter_logic',)),
+            ('Values', ('default', 'choices')),
+            ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
+        )
+
+
+class CustomFieldCSVForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        help_text="One or more assigned object types"
+    )
+
+    class Meta:
+        model = CustomField
+        fields = (
+            'name', 'label', 'type', 'content_types', 'required', 'description', 'weight', 'filter_logic', 'default',
+            'weight',
+        )
+
+
+class CustomFieldBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CustomField.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        required=False
+    )
+    required = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = []
+
+
+class CustomFieldFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['type', 'content_types'],
+        ['weight', 'required'],
+    ]
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    type = forms.MultipleChoiceField(
+        choices=CustomFieldTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    required = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
+# Custom field models
 #
 
 class CustomFieldsMixin:

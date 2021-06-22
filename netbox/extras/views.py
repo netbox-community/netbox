@@ -15,9 +15,52 @@ from utilities.utils import copy_safe_request, count_related, shallow_compare_di
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, JournalEntry, ObjectChange, JobResult, Tag, TaggedItem
+from .models import *
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
+
+
+#
+# Custom fields
+#
+
+class CustomFieldListView(generic.ObjectListView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    filterset_form = forms.CustomFieldFilterForm
+    table = tables.CustomFieldTable
+
+
+class CustomFieldView(generic.ObjectView):
+    queryset = CustomField.objects.all()
+
+
+class CustomFieldEditView(generic.ObjectEditView):
+    queryset = CustomField.objects.all()
+    model_form = forms.CustomFieldForm
+
+
+class CustomFieldDeleteView(generic.ObjectDeleteView):
+    queryset = CustomField.objects.all()
+
+
+class CustomFieldBulkImportView(generic.BulkImportView):
+    queryset = CustomField.objects.all()
+    model_form = forms.CustomFieldCSVForm
+    table = tables.CustomFieldTable
+
+
+class CustomFieldBulkEditView(generic.BulkEditView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    table = tables.CustomFieldTable
+    form = forms.CustomFieldBulkEditForm
+
+
+class CustomFieldBulkDeleteView(generic.BulkDeleteView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    table = tables.CustomFieldTable
 
 
 #

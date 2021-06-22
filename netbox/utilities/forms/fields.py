@@ -6,8 +6,9 @@ from io import StringIO
 import django_filters
 from django import forms
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.forms import BoundField
 from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.urls import reverse
@@ -28,6 +29,7 @@ __all__ = (
     'CSVContentTypeField',
     'CSVDataField',
     'CSVModelChoiceField',
+    'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
@@ -279,6 +281,20 @@ class CSVContentTypeField(CSVModelChoiceField):
             return self.queryset.get(app_label=app_label, model=model)
         except ObjectDoesNotExist:
             raise forms.ValidationError(f'Invalid object type')
+
+
+class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
+    STATIC_CHOICES = True
+
+    # TODO: Improve validation of selected ContentTypes
+    def prepare_value(self, value):
+        if type(value) is str:
+            ct_filter = Q()
+            for name in value.split(','):
+                app_label, model = name.split('.')
+                ct_filter |= Q(app_label=app_label, model=model)
+            return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
+        return super().prepare_value(value)
 
 
 #

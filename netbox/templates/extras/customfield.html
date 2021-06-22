@@ -1,0 +1,120 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:customfield_list' %}">Cusotm Fields</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Custom Field
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Label</th>
+            <td>{{ object.label|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Type</th>
+            <td>{{ object.get_type_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Required</th>
+            <td>
+              {% if object.required %}
+                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+              {% else %}
+                <i class="mdi mdi-close-thick text-danger" title="No"></i>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Weight</th>
+            <td>{{ object.weight }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        Values
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Default Value</th>
+            <td>{{ object.default }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Choices</th>
+            <td>{{ object.choices|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Filter Logic</th>
+            <td>{{ object.get_filter_logic_display }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% plugin_left_page object %}
+	</div>
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Assigned Models
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          {% for ct in object.content_types.all %}
+            <tr>
+              <td>{{ ct }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        Validation Rules
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Minimum Value</th>
+            <td>{{ object.validation_minimum|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Maximum Value</th>
+            <td>{{ object.validation_maximum|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Regular Expression</th>
+            <td>
+              {% if object.validation_regex %}
+                <code>{{ object.validation_regex }}</code>
+              {% else %}
+                &mdash;
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% plugin_right_page object %}
+  </div>
+</div>
+{% endblock %}

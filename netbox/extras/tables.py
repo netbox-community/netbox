@@ -4,7 +4,7 @@ from django.conf import settings
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ToggleColumn,
 )
-from .models import ConfigContext, JournalEntry, ObjectChange, Tag, TaggedItem
+from .models import *
 
 CONFIGCONTEXT_ACTIONS = """
 {% if perms.extras.change_configcontext %}
@@ -27,6 +27,28 @@ OBJECTCHANGE_REQUEST_ID = """
 <a href="{% url 'extras:objectchange_list' %}?request_id={{ value }}">{{ value }}</a>
 """
 
+
+#
+# Custom fields
+#
+
+class CustomFieldTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+
+    class Meta(BaseTable.Meta):
+        model = CustomField
+        fields = (
+            'pk', 'name', 'label', 'type', 'required', 'weight', 'default', 'description', 'filter_logic', 'choices',
+        )
+        default_columns = ('pk', 'name', 'label', 'type', 'required', 'description')
+
+
+#
+# Tags
+#
 
 class TagTable(BaseTable):
     pk = ToggleColumn()

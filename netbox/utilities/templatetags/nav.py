@@ -290,6 +290,13 @@ OTHER_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label="Customization",
+            items=(
+                MenuItem(label="Custom Fields", url="extras:customfield_list",
+                         add_url="extras:customfield_add", import_url="extras:customfield_import"),
+            ),
+        ),
+        MenuGroup(
             label="Miscellaneous",
             items=(
                 MenuItem(label="Config Contexts",
