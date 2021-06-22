@@ -2,6 +2,10 @@
 
 ## v2.11.8 (FUTURE)
 
+### Enhancements
+
+* [#6620](https://github.com/netbox-community/netbox/issues/6620) - Show assigned VMs count under device role view
+
 ### Bug Fixes
 
 * [#6626](https://github.com/netbox-community/netbox/issues/6626) - Fix site field on VM search form; add site group
