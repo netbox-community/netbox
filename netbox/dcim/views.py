@@ -1171,6 +1171,8 @@ class DeviceRoleView(generic.ObjectView):
 
         return {
             'devices_table': devices_table,
+            'device_count': Device.objects.filter(device_role=instance).count(),
+            'virtualmachine_count': VirtualMachine.objects.filter(role=instance).count(),
         }
 
 
