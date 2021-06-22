@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
 from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
@@ -65,7 +65,7 @@ class ProviderCSVForm(CustomFieldModelCSVForm):
         )
 
 
-class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -104,7 +104,7 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdi
         ]
 
 
-class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Provider
     field_groups = [
         ['region_id', 'site_id'],
@@ -168,7 +168,7 @@ class ProviderNetworkCSVForm(CustomFieldModelCSVForm):
         ]
 
 
-class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -192,7 +192,7 @@ class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         ]
 
 
-class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = ProviderNetwork
     field_order = ['provider_id']
     provider_id = DynamicModelMultipleChoiceField(
@@ -217,7 +217,7 @@ class CircuitTypeForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class CircuitTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class CircuitTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -310,7 +310,7 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
         ]
 
 
-class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Circuit.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -352,7 +352,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Circuit
     field_order = [
         'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',

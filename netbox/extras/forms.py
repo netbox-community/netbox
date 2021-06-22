@@ -88,7 +88,7 @@ class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):
         return customfield.to_form_field(for_csv_import=True)
 
 
-class CustomFieldBulkEditForm(BulkEditForm):
+class CustomFieldModelBulkEditForm(BulkEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -107,7 +107,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
             self.custom_fields.append(cf.name)
 
 
-class CustomFieldFilterForm(forms.Form):
+class CustomFieldModelFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
 

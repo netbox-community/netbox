@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldModelFilterForm,
 )
 from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
@@ -79,7 +79,7 @@ class VRFCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description')
 
 
-class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -104,7 +104,7 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
         ]
 
 
-class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VRF
     field_order = ['import_target_id', 'export_target_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
@@ -155,7 +155,7 @@ class RouteTargetCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'description', 'tenant')
 
 
-class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -175,7 +175,7 @@ class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulk
         ]
 
 
-class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = RouteTarget
     field_order = ['name', 'tenant_group_id', 'tenant_id', 'importing_vrfs', 'exporting_vrfs']
     field_groups = [
@@ -220,7 +220,7 @@ class RIRCSVForm(CustomFieldModelCSVForm):
         }
 
 
-class RIRBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class RIRBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -298,7 +298,7 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
         fields = ('prefix', 'rir', 'tenant', 'date_added', 'description')
 
 
-class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Aggregate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -329,7 +329,7 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         }
 
 
-class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Aggregate
     field_order = ['family', 'rir', 'tenant_group_id', 'tenant_id']
     field_groups = [
@@ -372,7 +372,7 @@ class RoleCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'weight', 'description')
 
 
-class RoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class RoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Role.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -537,7 +537,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
                 self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
 
 
-class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Prefix.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -602,7 +602,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         ]
 
 
-class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Prefix
     field_order = [
         'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region_id',
@@ -1033,7 +1033,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         return ipaddress
 
 
-class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1090,7 +1090,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
     )
 
 
-class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = IPAddress
     field_order = [
         'parent', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'role',
@@ -1271,7 +1271,7 @@ class VLANGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'scope_type', 'scope_id', 'description')
 
 
-class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -1449,7 +1449,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
         }
 
 
-class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1501,7 +1501,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         ]
 
 
-class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VLAN
     field_order = [
         'region_id', 'site_group_id', 'site_id', 'group_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
@@ -1600,7 +1600,7 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
             self.fields['ipaddresses'].choices = []
 
 
-class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ServiceFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Service
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),
@@ -1636,7 +1636,7 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
         fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description')
 
 
-class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),
         widget=forms.MultipleHiddenInput()

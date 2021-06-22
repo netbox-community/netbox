@@ -8,7 +8,7 @@ from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldModelFilterForm,
 )
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN
@@ -46,7 +46,7 @@ class ClusterTypeCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'description')
 
 
-class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -82,7 +82,7 @@ class ClusterGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'description')
 
 
-class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -177,7 +177,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'type', 'group', 'site', 'comments')
 
 
-class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -221,7 +221,7 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cluster
     field_order = [
         'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
@@ -473,7 +473,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         )
 
 
-class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -528,7 +528,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         ]
 
 
-class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
     field_order = [
         'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_group_id',

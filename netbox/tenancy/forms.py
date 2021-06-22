@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelCSVForm,
+    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldModelBulkEditForm, CustomFieldModelFilterForm, CustomFieldModelCSVForm,
 )
 from extras.models import Tag
 from utilities.forms import (
@@ -44,7 +44,7 @@ class TenantGroupCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'parent', 'description')
 
 
-class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -102,7 +102,7 @@ class TenantCSVForm(CustomFieldModelCSVForm):
         fields = ('name', 'slug', 'group', 'description', 'comments')
 
 
-class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -118,7 +118,7 @@ class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         ]
 
 
-class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class TenantFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Tenant
     q = forms.CharField(
         required=False,
