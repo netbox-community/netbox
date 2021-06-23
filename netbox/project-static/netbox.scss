@@ -77,6 +77,22 @@
   line-height: $line-height-sm;
 }
 
+.opacity-0 {
+  opacity: 0 !important;
+}
+.opacity-25 {
+  opacity: 0.25 !important;
+}
+.opacity-50 {
+  opacity: 0.5 !important;
+}
+.opacity-75 {
+  opacity: 0.75 !important;
+}
+.opacity-100 {
+  opacity: 1 !important;
+}
+
 // Automatically space out adjacent columns.
 .col:not(:last-child):not(:only-child) {
   margin-bottom: $spacer;
