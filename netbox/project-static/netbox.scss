@@ -107,9 +107,11 @@ span.profile-button .dropdown-menu {
   box-shadow: $box-shadow;
   &:not(.show) {
     opacity: 0;
+    pointer-events: none;
   }
   &.show {
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
@@ -389,9 +391,11 @@ div.content-container {
 }
 
 // Prevent scrolling of body content when nav menu is open on mobile.
-.sidebar.collapse.show ~ .content-container {
+.sidebar.collapse.show ~ .content-container > .content {
   @media (max-width: map.get($grid-breakpoints, 'md')) {
     position: fixed;
+    top: 0;
+    left: 0;
     overflow-y: hidden;
   }
 }
@@ -412,8 +416,9 @@ div.content-container {
     max-width: $sidebar-width;
   }
 
-  @media (max-width: map.get($grid-breakpoints, 'md')) {
+  @include media-breakpoint-down(md) {
     top: 8.125rem;
+    background-color: var(--nbx-body-bg);
   }
 
   div.accordion-item {
@@ -468,6 +473,11 @@ div.content-container {
     position: sticky;
     height: 8rem;
     background-color: var(--nbx-sidebar-bg);
+
+    @include media-breakpoint-down(md) {
+      background-color: var(--nbx-body-bg);
+    }
+
     .nav-link {
       padding: 0.5rem 0.25rem;
     }
