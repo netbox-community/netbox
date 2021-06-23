@@ -8,13 +8,13 @@ from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGrou
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
-    CommentField, ContentTypeMultipleChoiceField, CSVModelForm, CSVMultipleContentTypeField, DateTimePicker,
-    DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2, StaticSelect2Multiple,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, CSVContentTypeField, CSVModelForm,
+    CSVMultipleContentTypeField, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
+    StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, ImageAttachment, JournalEntry, ObjectChange, Tag
+from .models import *
 from .utils import FeatureQuery
 
 
@@ -93,6 +93,86 @@ class CustomFieldFilterForm(BootstrapMixin, forms.Form):
         required=False
     )
     required = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
+# Custom links
+#
+
+class CustomLinkForm(BootstrapMixin, forms.ModelForm):
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links')
+    )
+
+    class Meta:
+        model = CustomLink
+        fields = '__all__'
+        fieldsets = (
+            ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window')),
+            ('Templates', ('link_text', 'link_url')),
+        )
+
+
+class CustomLinkCSVForm(CSVModelForm):
+    content_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links'),
+        help_text="One or more assigned object types"
+    )
+
+    class Meta:
+        model = CustomLink
+        fields = (
+            'name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window', 'link_text', 'link_url',
+        )
+
+
+class CustomLinkBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CustomLink.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
+    )
+    new_window = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    button_class = forms.ChoiceField(
+        choices=CustomLinkButtonClassChoices,
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = []
+
+
+class CustomLinkFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['content_type'],
+        ['weight', 'new_window'],
+    ]
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    new_window = forms.NullBooleanField(
         required=False,
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES

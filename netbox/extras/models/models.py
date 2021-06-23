@@ -171,7 +171,7 @@ class Webhook(BigIDModel):
 # Custom links
 #
 
-class CustomLink(BigIDModel):
+class CustomLink(ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -220,6 +220,9 @@ class CustomLink(BigIDModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:customlink', args=[self.pk])
 
 
 #

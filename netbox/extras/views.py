@@ -64,6 +64,49 @@ class CustomFieldBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Custom links
+#
+
+class CustomLinkListView(generic.ObjectListView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    filterset_form = forms.CustomLinkFilterForm
+    table = tables.CustomLinkTable
+
+
+class CustomLinkView(generic.ObjectView):
+    queryset = CustomLink.objects.all()
+
+
+class CustomLinkEditView(generic.ObjectEditView):
+    queryset = CustomLink.objects.all()
+    model_form = forms.CustomLinkForm
+
+
+class CustomLinkDeleteView(generic.ObjectDeleteView):
+    queryset = CustomLink.objects.all()
+
+
+class CustomLinkBulkImportView(generic.BulkImportView):
+    queryset = CustomLink.objects.all()
+    model_form = forms.CustomLinkCSVForm
+    table = tables.CustomLinkTable
+
+
+class CustomLinkBulkEditView(generic.BulkEditView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    table = tables.CustomLinkTable
+    form = forms.CustomLinkBulkEditForm
+
+
+class CustomLinkBulkDeleteView(generic.BulkDeleteView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    table = tables.CustomLinkTable
+
+
+#
 # Tags
 #
 

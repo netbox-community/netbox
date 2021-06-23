@@ -47,6 +47,24 @@ class CustomFieldTable(BaseTable):
 
 
 #
+# Custom links
+#
+
+class CustomLinkTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+
+    class Meta(BaseTable.Meta):
+        model = CustomLink
+        fields = (
+            'pk', 'name', 'content_type', 'link_text', 'link_url', 'weight', 'group_name', 'button_class', 'new_window',
+        )
+        default_columns = ('pk', 'name', 'content_type', 'group_name', 'button_class', 'new_window')
+
+
+#
 # Tags
 #
 

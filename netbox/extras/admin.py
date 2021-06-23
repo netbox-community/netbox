@@ -58,52 +58,6 @@ class WebhookAdmin(admin.ModelAdmin):
 
 
 #
-# Custom links
-#
-
-class CustomLinkForm(forms.ModelForm):
-    content_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
-    )
-
-    class Meta:
-        model = CustomLink
-        exclude = []
-        widgets = {
-            'link_text': forms.Textarea,
-            'link_url': forms.Textarea,
-        }
-        help_texts = {
-            'weight': 'A numeric weight to influence the ordering of this link among its peers. Lower weights appear '
-                      'first in a list.',
-            'link_text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. '
-                         'Links which render as empty text will not be displayed.',
-            'link_url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.',
-        }
-
-
-@admin.register(CustomLink)
-class CustomLinkAdmin(admin.ModelAdmin):
-    fieldsets = (
-        ('Custom Link', {
-            'fields': ('content_type', 'name', 'group_name', 'weight', 'button_class', 'new_window')
-        }),
-        ('Templates', {
-            'fields': ('link_text', 'link_url'),
-            'classes': ('monospace',)
-        })
-    )
-    list_display = [
-        'name', 'content_type', 'group_name', 'weight',
-    ]
-    list_filter = [
-        'content_type',
-    ]
-    form = CustomLinkForm
-
-
-#
 # Export templates
 #
 

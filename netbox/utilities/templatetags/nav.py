@@ -294,6 +294,8 @@ OTHER_MENU = Menu(
             items=(
                 MenuItem(label="Custom Fields", url="extras:customfield_list",
                          add_url="extras:customfield_add", import_url="extras:customfield_import"),
+                MenuItem(label="Custom Links", url="extras:customlink_list",
+                         add_url="extras:customlink_add", import_url="extras:customlink_import"),
             ),
         ),
         MenuGroup(
