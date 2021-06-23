@@ -156,6 +156,7 @@ body {
     .btn.btn-primary,
     .progress-bar.bg-primary,
     .badge.bg-primary,
+    .nav.nav-pills .nav-item.nav-link.active,
     .nav.nav-pills .nav-item .nav-link.active,
     .nav.nav-pills .nav-item .show > .nav-link {
       color: $gray-50;
@@ -166,6 +167,7 @@ body {
       .btn.btn-primary,
       .progress-bar.bg-primary,
       .badge.bg-primary,
+      .nav.nav-pills .nav-item.nav-link.active,
       .nav.nav-pills .nav-item .nav-link.active,
       .nav.nav-pills .nav-item .show > .nav-link {
         color: $black;
