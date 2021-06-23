@@ -20,6 +20,7 @@
     "parcel-bundler": "1.12.3",
     "query-string": "^6.14.1",
     "sass": "^1.32.8",
+    "simplebar": "^5.3.4",
     "slim-select": "^1.27.0"
   },
   "devDependencies": {

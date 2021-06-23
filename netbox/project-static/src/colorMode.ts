@@ -1,8 +1,5 @@
 import { getElements, isTruthy } from './util';
 
-type ColorMode = 'light' | 'dark';
-type ColorModePreference = ColorMode | 'none';
-
 const COLOR_MODE_KEY = 'netbox-color-mode';
 const TEXT_WHEN_DARK = 'Light Mode';
 const TEXT_WHEN_LIGHT = 'Dark Mode';

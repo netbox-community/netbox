@@ -169,3 +169,14 @@ interface ObjectWithGroup extends APIObjectBase {
 declare const messages: string[];
 
 type FormControls = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+type ColorMode = 'light' | 'dark';
+type ColorModePreference = ColorMode | 'none';
+type ConfigContextFormat = 'json' | 'yaml';
+
+type UserPreferences = {
+  ui: {
+    colorMode: ColorMode;
+    showRackImages: boolean;
+  };
+};

@@ -9,6 +9,7 @@ import { initClipboard } from './clipboard';
 import { initDateSelector } from './dateSelector';
 import { initTableConfig } from './tableConfig';
 import { initInterfaceTable } from './tables';
+import { initSideNav } from './sidenav';
 
 function init() {
   for (const init of [
@@ -23,6 +24,7 @@ function init() {
     initClipboard,
     initTableConfig,
     initInterfaceTable,
+    initSideNav,
   ]) {
     init();
   }

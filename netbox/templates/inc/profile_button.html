@@ -1,5 +1,5 @@
 {% if request.user.is_authenticated %}
-<span class="dropdown ms-0 ms-md-3">
+<span class="dropdown ms-0 ms-md-3 profile-button">
   <button
     type="button"
     aria-expanded="false"
@@ -25,12 +25,12 @@
     </li>
     <li>
       <a class="dropdown-item" href="{% url 'user:profile' %}">
-        <i class="mdi mdi-account"></i> Profile
+        <i class="mdi mdi-account"></i> Profile & Settings
       </a>
     </li>
     <li><hr class="dropdown-divider" /></li>
     <li>
-      <a class="dropdown-item" href="{% url 'logout' %}">
+      <a class="dropdown-item text-danger" href="{% url 'logout' %}">
         <i class="mdi mdi-logout-variant"></i> Log Out
       </a>
     </li>

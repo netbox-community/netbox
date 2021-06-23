@@ -33,11 +33,13 @@ class Menu:
     """A top level menu group. Example: Organization, Devices, IPAM."""
 
     label: str
+    icon: str
     groups: Sequence[MenuGroup]
 
 
 ORGANIZATION_MENU = Menu(
     label="Organization",
+    icon="domain",
     groups=(
         MenuGroup(
             label="Sites",
@@ -83,6 +85,7 @@ ORGANIZATION_MENU = Menu(
 
 DEVICES_MENU = Menu(
     label="Devices",
+    icon="server",
     groups=(
         MenuGroup(
             label="Devices",
@@ -150,6 +153,7 @@ DEVICES_MENU = Menu(
 
 IPAM_MENU = Menu(
     label="IPAM",
+    icon="counter",
     groups=(
         MenuGroup(
             label="IP Addresses",
@@ -204,6 +208,7 @@ IPAM_MENU = Menu(
 
 VIRTUALIZATION_MENU = Menu(
     label="Virtualization",
+    icon="monitor",
     groups=(
         MenuGroup(
             label="Virtual Machines",
@@ -231,6 +236,7 @@ VIRTUALIZATION_MENU = Menu(
 
 CIRCUITS_MENU = Menu(
     label="Circuits",
+    icon="transit-connection-variant",
     groups=(
         MenuGroup(
             label="Circuits",
@@ -256,6 +262,7 @@ CIRCUITS_MENU = Menu(
 
 POWER_MENU = Menu(
     label="Power",
+    icon="flash",
     groups=(
         MenuGroup(
             label="Power",
@@ -271,6 +278,7 @@ POWER_MENU = Menu(
 
 OTHER_MENU = Menu(
     label="Other",
+    icon="notification-clear-all",
     groups=(
         MenuGroup(
             label="Logging",

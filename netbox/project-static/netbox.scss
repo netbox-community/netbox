@@ -98,6 +98,21 @@ table td > .progress {
   min-width: 6rem;
 }
 
+span.profile-button .dropdown-menu {
+  transition: opacity 0.2s ease-in-out;
+  display: block !important;
+  right: 0;
+  left: auto;
+  margin-top: 0.5rem;
+  box-shadow: $box-shadow;
+  &:not(.show) {
+    opacity: 0;
+  }
+  &.show {
+    opacity: 1;
+  }
+}
+
 div#advanced-search-content div.card div.card-body div.col:not(:last-child) {
   margin-right: 1rem;
 }
@@ -362,6 +377,12 @@ div.content-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+
+  @include media-breakpoint-up(md) {
+    margin-left: $sidebar-width;
+  }
+
   div.content {
     flex: 1;
   }
@@ -383,26 +404,35 @@ div.content-container {
   z-index: 100; /* Behind the navbar */
   border-right: 1px solid $border-color;
   background-color: var(--nbx-sidebar-bg);
+  max-height: 100%;
+  width: 100%;
+
+  @include media-breakpoint-up(md) {
+    width: 100%;
+    max-width: $sidebar-width;
+  }
 
   @media (max-width: map.get($grid-breakpoints, 'md')) {
     top: 8.125rem;
   }
 
   div.accordion-item {
-    div.accordion-collapse {
-      &.collapse.show,
-      &.collapsing {
-        background-color: $accordion-body-active-bg;
-      }
-    }
-    & > a.accordion-button.nav-link {
-      &:hover {
-        color: $accordion-button-active-color;
-        background-color: $accordion-button-active-bg;
-      }
-      &:focus {
-        border-color: unset;
+    border: unset;
+
+    & > a.accordion-button {
+      &:not(.collapsed) {
         box-shadow: unset;
+      }
+      &.nav-link {
+        border-radius: $border-radius;
+        &:hover {
+          color: $accordion-button-active-color;
+          background-color: $accordion-button-active-bg;
+        }
+        &:focus {
+          border-color: unset;
+          box-shadow: unset;
+        }
       }
     }
   }
