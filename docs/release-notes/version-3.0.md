@@ -46,7 +46,7 @@ CUSTOM_VALIDATORS = {
 }
 ```
 
-CustomValidator can also be subclassed to enforce more complex logic by overriding its `validate()` method. See the [custom validation](../additional-features/custom-validation.md) documentation for more details.
+CustomValidator can also be subclassed to enforce more complex logic by overriding its `validate()` method. See the [custom validation](../customization/custom-validation.md) documentation for more details.
 
 ### Enhancements
 

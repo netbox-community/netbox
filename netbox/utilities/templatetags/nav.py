@@ -287,6 +287,19 @@ OTHER_MENU = Menu(
                          add_url=None, import_url=None),
                 MenuItem(label="Journal Entries",
                          url="extras:journalentry_list", add_url=None, import_url=None),
+                MenuItem(label="Webhooks", url="extras:webhook_list",
+                         add_url="extras:webhook_add", import_url="extras:webhook_import"),
+            ),
+        ),
+        MenuGroup(
+            label="Customization",
+            items=(
+                MenuItem(label="Custom Fields", url="extras:customfield_list",
+                         add_url="extras:customfield_add", import_url="extras:customfield_import"),
+                MenuItem(label="Custom Links", url="extras:customlink_list",
+                         add_url="extras:customlink_add", import_url="extras:customlink_import"),
+                MenuItem(label="Export Templates", url="extras:exporttemplate_list",
+                         add_url="extras:exporttemplate_add", import_url="extras:exporttemplate_import"),
             ),
         ),
         MenuGroup(

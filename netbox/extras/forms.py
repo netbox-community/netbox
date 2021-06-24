@@ -8,17 +8,391 @@ from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGrou
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
-    CommentField, ContentTypeMultipleChoiceField, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField,
-    JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, CSVContentTypeField, CSVModelForm,
+    CSVMultipleContentTypeField, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
+    StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, ImageAttachment, JournalEntry, ObjectChange, Tag
+from .models import *
 from .utils import FeatureQuery
 
 
 #
 # Custom fields
+#
+
+class CustomFieldForm(BootstrapMixin, forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+
+    class Meta:
+        model = CustomField
+        fields = '__all__'
+        fieldsets = (
+            ('Custom Field', ('name', 'label', 'type', 'weight', 'required', 'description')),
+            ('Assigned Models', ('content_types',)),
+            ('Behavior', ('filter_logic',)),
+            ('Values', ('default', 'choices')),
+            ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
+        )
+
+
+class CustomFieldCSVForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        help_text="One or more assigned object types"
+    )
+
+    class Meta:
+        model = CustomField
+        fields = (
+            'name', 'label', 'type', 'content_types', 'required', 'description', 'weight', 'filter_logic', 'default',
+            'weight',
+        )
+
+
+class CustomFieldBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CustomField.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        required=False
+    )
+    required = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = []
+
+
+class CustomFieldFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['type', 'content_types'],
+        ['weight', 'required'],
+    ]
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    type = forms.MultipleChoiceField(
+        choices=CustomFieldTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    required = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
+# Custom links
+#
+
+class CustomLinkForm(BootstrapMixin, forms.ModelForm):
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links')
+    )
+
+    class Meta:
+        model = CustomLink
+        fields = '__all__'
+        fieldsets = (
+            ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window')),
+            ('Templates', ('link_text', 'link_url')),
+        )
+
+
+class CustomLinkCSVForm(CSVModelForm):
+    content_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links'),
+        help_text="Assigned object type"
+    )
+
+    class Meta:
+        model = CustomLink
+        fields = (
+            'name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window', 'link_text', 'link_url',
+        )
+
+
+class CustomLinkBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CustomLink.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
+    )
+    new_window = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    button_class = forms.ChoiceField(
+        choices=CustomLinkButtonClassChoices,
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = []
+
+
+class CustomLinkFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['content_type'],
+        ['weight', 'new_window'],
+    ]
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    new_window = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
+# Export templates
+#
+
+class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links')
+    )
+
+    class Meta:
+        model = ExportTemplate
+        fields = '__all__'
+        fieldsets = (
+            ('Custom Link', ('name', 'content_type', 'description')),
+            ('Template', ('template_code',)),
+            ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
+        )
+
+
+class ExportTemplateCSVForm(CSVModelForm):
+    content_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('export_templates'),
+        help_text="Assigned object type"
+    )
+
+    class Meta:
+        model = ExportTemplate
+        fields = (
+            'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+        )
+
+
+class ExportTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ExportTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    mime_type = forms.CharField(
+        max_length=50,
+        required=False
+    )
+    file_extension = forms.CharField(
+        max_length=15,
+        required=False
+    )
+    as_attachment = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+
+    class Meta:
+        nullable_fields = ['description', 'mime_type', 'file_extension']
+
+
+class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['content_type', 'mime_type'],
+        ['file_extension', 'as_attachment'],
+    ]
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    mime_type = forms.CharField(
+        required=False
+    )
+    file_extension = forms.CharField(
+        required=False
+    )
+    as_attachment = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
+# Webhooks
+#
+
+class WebhookForm(BootstrapMixin, forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('webhooks')
+    )
+
+    class Meta:
+        model = Webhook
+        fields = '__all__'
+        fieldsets = (
+            ('Webhook', ('name', 'enabled')),
+            ('Assigned Models', ('content_types',)),
+            ('Events', ('type_create', 'type_update', 'type_delete')),
+            ('HTTP Request', (
+                'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
+            )),
+            ('SSL', ('ssl_verification', 'ca_file_path')),
+        )
+
+
+class WebhookCSVForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('webhooks'),
+        help_text="One or more assigned object types"
+    )
+
+    class Meta:
+        model = Webhook
+        fields = (
+            'name', 'enabled', 'content_types', 'type_create', 'type_update', 'type_delete', 'payload_url',
+            'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret', 'ssl_verification',
+            'ca_file_path'
+        )
+
+
+class WebhookBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Webhook.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    type_create = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    type_update = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    type_delete = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    http_method = forms.ChoiceField(
+        choices=WebhookHttpMethodChoices,
+        required=False
+    )
+    payload_url = forms.CharField(
+        required=False
+    )
+    ssl_verification = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    secret = forms.CharField(
+        required=False
+    )
+    ca_file_path = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['secret', 'ca_file_path']
+
+
+class WebhookFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['content_types', 'http_method'],
+        ['enabled', 'type_create', 'type_update', 'type_delete'],
+    ]
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    http_method = forms.MultipleChoiceField(
+        choices=WebhookHttpMethodChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    type_create = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    type_update = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    type_delete = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
+# Custom field models
 #
 
 class CustomFieldsMixin:

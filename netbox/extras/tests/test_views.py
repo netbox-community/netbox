@@ -6,9 +6,161 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from dcim.models import Site
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ConfigContext, CustomLink, JournalEntry, ObjectChange, Tag
+from extras.choices import *
+from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
+
+
+class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CustomField
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        custom_fields = (
+            CustomField(name='field1', label='Field 1', type=CustomFieldTypeChoices.TYPE_TEXT),
+            CustomField(name='field2', label='Field 2', type=CustomFieldTypeChoices.TYPE_TEXT),
+            CustomField(name='field3', label='Field 3', type=CustomFieldTypeChoices.TYPE_TEXT),
+        )
+        for customfield in custom_fields:
+            customfield.save()
+            customfield.content_types.add(site_ct)
+
+        cls.form_data = {
+            'name': 'field_x',
+            'label': 'Field X',
+            'type': 'text',
+            'content_types': [site_ct.pk],
+            'filter_logic': CustomFieldFilterLogicChoices.FILTER_EXACT,
+            'default': None,
+            'weight': 200,
+            'required': True,
+        }
+
+        cls.csv_data = (
+            "name,label,type,content_types,weight,filter_logic",
+            "field4,Field 4,text,dcim.site,100,exact",
+            "field5,Field 5,text,dcim.site,100,exact",
+            "field6,Field 6,text,dcim.site,100,exact",
+        )
+
+        cls.bulk_edit_data = {
+            'required': True,
+            'weight': 200,
+        }
+
+
+class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CustomLink
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        CustomLink.objects.bulk_create((
+            CustomLink(name='Custom Link 1', content_type=site_ct, link_text='Link 1', link_url='http://example.com/?1'),
+            CustomLink(name='Custom Link 2', content_type=site_ct, link_text='Link 2', link_url='http://example.com/?2'),
+            CustomLink(name='Custom Link 3', content_type=site_ct, link_text='Link 3', link_url='http://example.com/?3'),
+        ))
+
+        cls.form_data = {
+            'name': 'Custom Link X',
+            'content_type': site_ct.pk,
+            'weight': 100,
+            'button_class': CustomLinkButtonClassChoices.CLASS_DEFAULT,
+            'link_text': 'Link X',
+            'link_url': 'http://example.com/?x'
+        }
+
+        cls.csv_data = (
+            "name,content_type,weight,button_class,link_text,link_url",
+            "Custom Link 4,dcim.site,100,primary,Link 4,http://exmaple.com/?4",
+            "Custom Link 5,dcim.site,100,primary,Link 5,http://exmaple.com/?5",
+            "Custom Link 6,dcim.site,100,primary,Link 6,http://exmaple.com/?6",
+        )
+
+        cls.bulk_edit_data = {
+            'button_class': CustomLinkButtonClassChoices.CLASS_INFO,
+            'weight': 200,
+        }
+
+
+class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ExportTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        TEMPLATE_CODE = """{% for object in queryset %}{{ object }}{% endfor %}"""
+        ExportTemplate.objects.bulk_create((
+            ExportTemplate(name='Export Template 1', content_type=site_ct, template_code=TEMPLATE_CODE),
+            ExportTemplate(name='Export Template 2', content_type=site_ct, template_code=TEMPLATE_CODE),
+            ExportTemplate(name='Export Template 3', content_type=site_ct, template_code=TEMPLATE_CODE),
+        ))
+
+        cls.form_data = {
+            'name': 'Export Template X',
+            'content_type': site_ct.pk,
+            'template_code': TEMPLATE_CODE,
+        }
+
+        cls.csv_data = (
+            "name,content_type,template_code",
+            f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
+            f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
+            f"Export Template 6,dcim.site,{TEMPLATE_CODE}",
+        )
+
+        cls.bulk_edit_data = {
+            'mime_type': 'text/html',
+            'file_extension': 'html',
+            'as_attachment': True,
+        }
+
+
+class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = Webhook
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        webhooks = (
+            Webhook(name='Webhook 1', payload_url='http://example.com/?1', type_create=True, http_method='POST'),
+            Webhook(name='Webhook 2', payload_url='http://example.com/?2', type_create=True, http_method='POST'),
+            Webhook(name='Webhook 3', payload_url='http://example.com/?3', type_create=True, http_method='POST'),
+        )
+        for webhook in webhooks:
+            webhook.save()
+            webhook.content_types.add(site_ct)
+
+        cls.form_data = {
+            'name': 'Webhook X',
+            'content_types': [site_ct.pk],
+            'type_create': False,
+            'type_update': True,
+            'type_delete': True,
+            'payload_url': 'http://example.com/?x',
+            'http_method': 'GET',
+            'http_content_type': 'application/foo',
+        }
+
+        cls.csv_data = (
+            "name,content_types,type_create,payload_url,http_method,http_content_type",
+            "Webhook 4,dcim.site,True,http://example.com/?4,GET,application/json",
+            "Webhook 5,dcim.site,True,http://example.com/?5,GET,application/json",
+            "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json",
+        )
+
+        cls.bulk_edit_data = {
+            'enabled': False,
+            'type_create': False,
+            'type_update': True,
+            'type_delete': True,
+            'http_method': 'GET',
+        }
 
 
 class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

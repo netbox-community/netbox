@@ -109,12 +109,12 @@ class ModelTestCase(TestCase):
             # Handle ManyToManyFields
             if value and type(field) in (ManyToManyField, TaggableManager):
 
-                if field.related_model is ContentType:
+                if field.related_model is ContentType and api:
                     model_dict[key] = sorted([f'{ct.app_label}.{ct.model}' for ct in value])
                 else:
                     model_dict[key] = sorted([obj.pk for obj in value])
 
-            if api:
+            elif api:
 
                 # Replace ContentType numeric IDs with <app_label>.<model>
                 if type(getattr(instance, key)) is ContentType:
