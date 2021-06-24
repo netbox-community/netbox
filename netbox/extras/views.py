@@ -107,6 +107,49 @@ class CustomLinkBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Export templates
+#
+
+class ExportTemplateListView(generic.ObjectListView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    filterset_form = forms.ExportTemplateFilterForm
+    table = tables.ExportTemplateTable
+
+
+class ExportTemplateView(generic.ObjectView):
+    queryset = ExportTemplate.objects.all()
+
+
+class ExportTemplateEditView(generic.ObjectEditView):
+    queryset = ExportTemplate.objects.all()
+    model_form = forms.ExportTemplateForm
+
+
+class ExportTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = ExportTemplate.objects.all()
+
+
+class ExportTemplateBulkImportView(generic.BulkImportView):
+    queryset = ExportTemplate.objects.all()
+    model_form = forms.ExportTemplateCSVForm
+    table = tables.ExportTemplateTable
+
+
+class ExportTemplateBulkEditView(generic.BulkEditView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    table = tables.ExportTemplateTable
+    form = forms.ExportTemplateBulkEditForm
+
+
+class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    table = tables.ExportTemplateTable
+
+
+#
 # Tags
 #
 

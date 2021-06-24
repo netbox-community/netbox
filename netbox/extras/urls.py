@@ -30,6 +30,18 @@ urlpatterns = [
     path('custom-links/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='customlink_changelog',
          kwargs={'model': models.CustomLink}),
 
+    # Export templates
+    path('export-templates/', views.ExportTemplateListView.as_view(), name='exporttemplate_list'),
+    path('export-templates/add/', views.ExportTemplateEditView.as_view(), name='exporttemplate_add'),
+    path('export-templates/import/', views.ExportTemplateBulkImportView.as_view(), name='exporttemplate_import'),
+    path('export-templates/edit/', views.ExportTemplateBulkEditView.as_view(), name='exporttemplate_bulk_edit'),
+    path('export-templates/delete/', views.ExportTemplateBulkDeleteView.as_view(), name='exporttemplate_bulk_delete'),
+    path('export-templates/<int:pk>/', views.ExportTemplateView.as_view(), name='exporttemplate'),
+    path('export-templates/<int:pk>/edit/', views.ExportTemplateEditView.as_view(), name='exporttemplate_edit'),
+    path('export-templates/<int:pk>/delete/', views.ExportTemplateDeleteView.as_view(), name='exporttemplate_delete'),
+    path('export-templates/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='exporttemplate_changelog',
+         kwargs={'model': models.ExportTemplate}),
+
     # Tags
     path('tags/', views.TagListView.as_view(), name='tag_list'),
     path('tags/add/', views.TagEditView.as_view(), name='tag_add'),

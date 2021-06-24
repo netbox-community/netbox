@@ -123,7 +123,7 @@ class CustomLinkCSVForm(CSVModelForm):
     content_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
-        help_text="One or more assigned object types"
+        help_text="Assigned object type"
     )
 
     class Meta:
@@ -173,6 +173,94 @@ class CustomLinkFilterForm(BootstrapMixin, forms.Form):
         required=False
     )
     new_window = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
+# Export templates
+#
+
+class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_links')
+    )
+
+    class Meta:
+        model = ExportTemplate
+        fields = '__all__'
+        fieldsets = (
+            ('Custom Link', ('name', 'content_type', 'description')),
+            ('Template', ('template_code',)),
+            ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
+        )
+
+
+class ExportTemplateCSVForm(CSVModelForm):
+    content_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('export_templates'),
+        help_text="Assigned object type"
+    )
+
+    class Meta:
+        model = ExportTemplate
+        fields = (
+            'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+        )
+
+
+class ExportTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ExportTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    mime_type = forms.CharField(
+        max_length=50,
+        required=False
+    )
+    file_extension = forms.CharField(
+        max_length=15,
+        required=False
+    )
+    as_attachment = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+
+    class Meta:
+        nullable_fields = ['description', 'mime_type', 'file_extension']
+
+
+class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['content_type', 'mime_type'],
+        ['file_extension', 'as_attachment'],
+    ]
+    content_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    mime_type = forms.CharField(
+        required=False
+    )
+    file_extension = forms.CharField(
+        required=False
+    )
+    as_attachment = forms.NullBooleanField(
         required=False,
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES

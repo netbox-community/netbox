@@ -86,6 +86,40 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ExportTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        TEMPLATE_CODE = """{% for object in queryset %}{{ object }}{% endfor %}"""
+        ExportTemplate.objects.bulk_create((
+            ExportTemplate(name='Export Template 1', content_type=site_ct, template_code=TEMPLATE_CODE),
+            ExportTemplate(name='Export Template 2', content_type=site_ct, template_code=TEMPLATE_CODE),
+            ExportTemplate(name='Export Template 3', content_type=site_ct, template_code=TEMPLATE_CODE),
+        ))
+
+        cls.form_data = {
+            'name': 'Export Template X',
+            'content_type': site_ct.pk,
+            'template_code': TEMPLATE_CODE,
+        }
+
+        cls.csv_data = (
+            "name,content_type,template_code",
+            f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
+            f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
+            f"Export Template 6,dcim.site,{TEMPLATE_CODE}",
+        )
+
+        cls.bulk_edit_data = {
+            'mime_type': 'text/html',
+            'file_extension': 'html',
+            'as_attachment': True,
+        }
+
+
 class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Tag
 

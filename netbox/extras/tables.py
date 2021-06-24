@@ -55,6 +55,7 @@ class CustomLinkTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    new_window = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = CustomLink
@@ -62,6 +63,27 @@ class CustomLinkTable(BaseTable):
             'pk', 'name', 'content_type', 'link_text', 'link_url', 'weight', 'group_name', 'button_class', 'new_window',
         )
         default_columns = ('pk', 'name', 'content_type', 'group_name', 'button_class', 'new_window')
+
+
+#
+# Export templates
+#
+
+class ExportTemplateTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    as_attachment = BooleanColumn()
+
+    class Meta(BaseTable.Meta):
+        model = ExportTemplate
+        fields = (
+            'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+        )
+        default_columns = (
+            'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+        )
 
 
 #

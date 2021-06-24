@@ -171,6 +171,7 @@ class Webhook(BigIDModel):
 # Custom links
 #
 
+@extras_features('webhooks')
 class CustomLink(ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
@@ -229,7 +230,8 @@ class CustomLink(ChangeLoggedModel):
 # Export templates
 #
 
-class ExportTemplate(BigIDModel):
+@extras_features('webhooks')
+class ExportTemplate(ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
@@ -271,6 +273,9 @@ class ExportTemplate(BigIDModel):
 
     def __str__(self):
         return f"{self.content_type}: {self.name}"
+
+    def get_absolute_url(self):
+        return reverse('extras:exporttemplate', args=[self.pk])
 
     def clean(self):
         super().clean()

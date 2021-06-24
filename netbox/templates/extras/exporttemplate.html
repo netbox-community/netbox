@@ -3,7 +3,7 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:customlink_list' %}">Custom Links</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:exporttemplate_list' %}">Export Templates</a></li>
   <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
@@ -12,7 +12,7 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Custom Link
+        Export Template
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
@@ -25,21 +25,21 @@
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Group Name</th>
-            <td>{{ object.group_name|placeholder }}</td>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Weight</th>
-            <td>{{ object.weight }}</td>
+            <th scope="row">MIME Type</th>
+            <td>{{ object.mime_type|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Button Class</th>
-            <td>{{ object.get_button_class_display }}</td>
+            <th scope="row">File Extension</th>
+            <td>{{ object.file_extension|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">New Window</th>
+            <th scope="row">Attachment</th>
             <td>
-              {% if object.new_window %}
+              {% if object.as_attachment %}
                 <i class="mdi mdi-check-bold text-success" title="Yes"></i>
               {% else %}
                 <i class="mdi mdi-close-thick text-danger" title="No"></i>
@@ -54,18 +54,10 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Link Text
+        Template
       </h5>
       <div class="card-body">
-        <pre>{{ object.link_text }}</pre>
-      </div>
-    </div>
-    <div class="card">
-      <h5 class="card-header">
-        Link URL
-      </h5>
-      <div class="card-body">
-        <pre>{{ object.link_url }}</pre>
+        <pre>{{ object.template_code }}</pre>
       </div>
     </div>
     {% plugin_right_page object %}

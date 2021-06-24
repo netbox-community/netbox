@@ -2,8 +2,8 @@ from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 
-from utilities.forms import ContentTypeChoiceField, ContentTypeMultipleChoiceField, LaxURLField
-from .models import CustomLink, ExportTemplate, JobResult, Webhook
+from utilities.forms import ContentTypeMultipleChoiceField, LaxURLField
+from .models import JobResult, Webhook
 from .utils import FeatureQuery
 
 
@@ -55,41 +55,6 @@ class WebhookAdmin(admin.ModelAdmin):
 
     def models(self, obj):
         return ', '.join([ct.name for ct in obj.content_types.all()])
-
-
-#
-# Export templates
-#
-
-class ExportTemplateForm(forms.ModelForm):
-    content_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
-    )
-
-    class Meta:
-        model = ExportTemplate
-        exclude = []
-
-
-@admin.register(ExportTemplate)
-class ExportTemplateAdmin(admin.ModelAdmin):
-    fieldsets = (
-        ('Export Template', {
-            'fields': ('content_type', 'name', 'description', 'mime_type', 'file_extension', 'as_attachment')
-        }),
-        ('Content', {
-            'fields': ('template_code',),
-            'classes': ('monospace',)
-        })
-    )
-    list_display = [
-        'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
-    ]
-    list_filter = [
-        'content_type',
-    ]
-    form = ExportTemplateForm
 
 
 #
