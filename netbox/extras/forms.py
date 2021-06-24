@@ -269,6 +269,129 @@ class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
 
 
 #
+# Webhooks
+#
+
+class WebhookForm(BootstrapMixin, forms.ModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('webhooks')
+    )
+
+    class Meta:
+        model = Webhook
+        fields = '__all__'
+        fieldsets = (
+            ('Webhook', ('name', 'enabled')),
+            ('Assigned Models', ('content_types',)),
+            ('Events', ('type_create', 'type_update', 'type_delete')),
+            ('HTTP Request', (
+                'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
+            )),
+            ('SSL', ('ssl_verification', 'ca_file_path')),
+        )
+
+
+class WebhookCSVForm(CSVModelForm):
+    content_types = CSVMultipleContentTypeField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('webhooks'),
+        help_text="One or more assigned object types"
+    )
+
+    class Meta:
+        model = Webhook
+        fields = (
+            'name', 'enabled', 'content_types', 'type_create', 'type_update', 'type_delete', 'payload_url',
+            'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret', 'ssl_verification',
+            'ca_file_path'
+        )
+
+
+class WebhookBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Webhook.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    type_create = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    type_update = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    type_delete = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    http_method = forms.ChoiceField(
+        choices=WebhookHttpMethodChoices,
+        required=False
+    )
+    payload_url = forms.CharField(
+        required=False
+    )
+    ssl_verification = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    secret = forms.CharField(
+        required=False
+    )
+    ca_file_path = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['secret', 'ca_file_path']
+
+
+class WebhookFilterForm(BootstrapMixin, forms.Form):
+    field_groups = [
+        ['content_types', 'http_method'],
+        ['enabled', 'type_create', 'type_update', 'type_delete'],
+    ]
+    content_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('custom_fields')
+    )
+    http_method = forms.MultipleChoiceField(
+        choices=WebhookHttpMethodChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    type_create = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    type_update = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    type_delete = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+
+
+#
 # Custom field models
 #
 

@@ -287,6 +287,8 @@ OTHER_MENU = Menu(
                          add_url=None, import_url=None),
                 MenuItem(label="Journal Entries",
                          url="extras:journalentry_list", add_url=None, import_url=None),
+                MenuItem(label="Webhooks", url="extras:webhook_list",
+                         add_url="extras:webhook_add", import_url="extras:webhook_import"),
             ),
         ),
         MenuGroup(

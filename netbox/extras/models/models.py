@@ -36,7 +36,8 @@ __all__ = (
 # Webhooks
 #
 
-class Webhook(BigIDModel):
+@extras_features('webhooks')
+class Webhook(ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -128,6 +129,9 @@ class Webhook(BigIDModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:webhook', args=[self.pk])
 
     def clean(self):
         super().clean()

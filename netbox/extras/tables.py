@@ -87,6 +87,27 @@ class ExportTemplateTable(BaseTable):
 
 
 #
+# Webhooks
+#
+
+class WebhookTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Webhook
+        fields = (
+            'pk', 'name', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method', 'payload_url',
+            'secret', 'ssl_validation', 'ca_file_path',
+        )
+        default_columns = (
+            'pk', 'name', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method', 'payload_url',
+        )
+
+
+#
 # Tags
 #
 

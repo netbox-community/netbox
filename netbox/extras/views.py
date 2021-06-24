@@ -150,6 +150,49 @@ class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Webhooks
+#
+
+class WebhookListView(generic.ObjectListView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    filterset_form = forms.WebhookFilterForm
+    table = tables.WebhookTable
+
+
+class WebhookView(generic.ObjectView):
+    queryset = Webhook.objects.all()
+
+
+class WebhookEditView(generic.ObjectEditView):
+    queryset = Webhook.objects.all()
+    model_form = forms.WebhookForm
+
+
+class WebhookDeleteView(generic.ObjectDeleteView):
+    queryset = Webhook.objects.all()
+
+
+class WebhookBulkImportView(generic.BulkImportView):
+    queryset = Webhook.objects.all()
+    model_form = forms.WebhookCSVForm
+    table = tables.WebhookTable
+
+
+class WebhookBulkEditView(generic.BulkEditView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    table = tables.WebhookTable
+    form = forms.WebhookBulkEditForm
+
+
+class WebhookBulkDeleteView(generic.BulkDeleteView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    table = tables.WebhookTable
+
+
+#
 # Tags
 #
 

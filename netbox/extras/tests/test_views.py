@@ -120,6 +120,49 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = Webhook
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        webhooks = (
+            Webhook(name='Webhook 1', payload_url='http://example.com/?1', type_create=True, http_method='POST'),
+            Webhook(name='Webhook 2', payload_url='http://example.com/?2', type_create=True, http_method='POST'),
+            Webhook(name='Webhook 3', payload_url='http://example.com/?3', type_create=True, http_method='POST'),
+        )
+        for webhook in webhooks:
+            webhook.save()
+            webhook.content_types.add(site_ct)
+
+        cls.form_data = {
+            'name': 'Webhook X',
+            'content_types': [site_ct.pk],
+            'type_create': False,
+            'type_update': True,
+            'type_delete': True,
+            'payload_url': 'http://example.com/?x',
+            'http_method': 'GET',
+            'http_content_type': 'application/foo',
+        }
+
+        cls.csv_data = (
+            "name,content_types,type_create,payload_url,http_method,http_content_type",
+            "Webhook 4,dcim.site,True,http://example.com/?4,GET,application/json",
+            "Webhook 5,dcim.site,True,http://example.com/?5,GET,application/json",
+            "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json",
+        )
+
+        cls.bulk_edit_data = {
+            'enabled': False,
+            'type_create': False,
+            'type_update': True,
+            'type_delete': True,
+            'http_method': 'GET',
+        }
+
+
 class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Tag
 
