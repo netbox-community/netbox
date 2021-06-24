@@ -37,6 +37,7 @@ class CustomFieldTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    required = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = CustomField
@@ -55,6 +56,7 @@ class CustomLinkTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    content_type = ContentTypeColumn()
     new_window = BooleanColumn()
 
     class Meta(BaseTable.Meta):
@@ -74,6 +76,7 @@ class ExportTemplateTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    content_type = ContentTypeColumn()
     as_attachment = BooleanColumn()
 
     class Meta(BaseTable.Meta):
@@ -95,6 +98,10 @@ class WebhookTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    enabled = BooleanColumn()
+    type_create = BooleanColumn()
+    type_update = BooleanColumn()
+    type_delete = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = Webhook
