@@ -98,7 +98,7 @@ CORS_ORIGIN_WHITELIST = [
 
 ## CUSTOM_VALIDATORS
 
-This is a mapping of models to [custom validators](../additional-features/custom-validation.md) that have been defined locally to enforce custom validation logic.
+This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic.
 
 ---
 
@@ -501,7 +501,7 @@ This parameter defines the URL of the repository that will be checked periodical
 
 Default: `$INSTALL_ROOT/netbox/reports/`
 
-The file path to the location where custom reports will be kept. By default, this is the `netbox/reports/` directory within the base NetBox installation path.
+The file path to the location where [custom reports](../customization/reports.md) will be kept. By default, this is the `netbox/reports/` directory within the base NetBox installation path.
 
 ---
 
@@ -517,7 +517,7 @@ The maximum execution time of a background task (such as running a custom script
 
 Default: `$INSTALL_ROOT/netbox/scripts/`
 
-The file path to the location where custom scripts will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
+The file path to the location where [custom scripts](../customization/custom-scripts.md) will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
 
 ---
 

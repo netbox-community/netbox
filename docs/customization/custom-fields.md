@@ -8,7 +8,7 @@ Within the database, custom fields are stored as JSON data directly alongside ea
 
 ## Creating Custom Fields
 
-Custom fields must be created through the admin UI under Extras > Custom Fields. NetBox supports six types of custom field:
+Custom fields may be created by navigating to Customization > Custom Fields. NetBox supports six types of custom field:
 
 * Text: Free-form text (up to 255 characters)
 * Integer: A whole number (positive or negative)
