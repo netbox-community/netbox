@@ -17,7 +17,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
+class ClusterTypeTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = ClusterType
     brief_fields = ['cluster_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -49,7 +49,7 @@ class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
         ClusterType.objects.bulk_create(cluster_types)
 
 
-class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
+class ClusterGroupTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = ClusterGroup
     brief_fields = ['cluster_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -81,7 +81,7 @@ class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
         ClusterGroup.objects.bulk_create(cluster_Groups)
 
 
-class ClusterTest(APIViewTestCases.APIViewTestCase):
+class ClusterTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = Cluster
     brief_fields = ['display', 'id', 'name', 'url', 'virtualmachine_count']
     bulk_update_data = {
@@ -129,7 +129,7 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
+class VirtualMachineTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = VirtualMachine
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -205,12 +205,15 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
+class VMInterfaceTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = VMInterface
     brief_fields = ['display', 'id', 'name', 'url', 'virtual_machine']
     bulk_update_data = {
         'description': 'New description',
     }
+
+    graphql_base_name = 'vm_interface'
+    graphql_base_name_plural = 'vm_interfaces'
 
     @classmethod
     def setUpTestData(cls):

@@ -425,10 +425,16 @@ class APIViewTestCases:
 
     class GraphQLTestCase(APITestCase):
 
+        def _get_graphql_base_name(self, plural=False):
+            if plural:
+                return getattr(self, 'graphql_base_name_plural',
+                               self.model._meta.verbose_name_plural.lower().replace(' ', '_'))
+            return getattr(self, 'graphql_base_name', self.model._meta.verbose_name.lower().replace(' ', '_'))
+
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_get_object(self):
             url = reverse('graphql')
-            object_type = self.model._meta.verbose_name.lower().replace(' ', '_')
+            object_type = self._get_graphql_base_name()
             object_id = self._get_queryset().first().pk
             query = f"""
             {{
@@ -459,7 +465,7 @@ class APIViewTestCases:
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_list_objects(self):
             url = reverse('graphql')
-            object_type = self.model._meta.verbose_name_plural.lower().replace(' ', '_')
+            object_type = self._get_graphql_base_name(plural=True)
             query = f"""
             {{
                 {object_type} {{
