@@ -497,6 +497,17 @@ REST_FRAMEWORK = {
 
 
 #
+# Graphene
+#
+
+GRAPHENE = {
+    # Avoids naming collision on models with 'type' field; see
+    # https://github.com/graphql-python/graphene-django/issues/185
+    'DJANGO_CHOICE_FIELD_ENUM_V3_NAMING': True,
+}
+
+
+#
 # drf_yasg (OpenAPI/Swagger)
 #
 
