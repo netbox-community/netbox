@@ -1,10 +1,12 @@
 import graphene
 
 from circuits.graphql.schema import CircuitsQuery
+from ipam.graphql.schema import IPAMQuery
 
 
 class Query(
     CircuitsQuery,
+    IPAMQuery,
     graphene.ObjectType
 ):
     pass

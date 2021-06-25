@@ -428,7 +428,7 @@ class APIViewTestCases:
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_get_object(self):
             url = reverse('graphql')
-            object_type = self.model._meta.verbose_name.replace(' ', '_')
+            object_type = self.model._meta.verbose_name.lower().replace(' ', '_')
             object_id = self._get_queryset().first().pk
             query = f"""
             {{
@@ -459,7 +459,7 @@ class APIViewTestCases:
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_list_objects(self):
             url = reverse('graphql')
-            object_type = self.model._meta.verbose_name_plural.replace(' ', '_')
+            object_type = self.model._meta.verbose_name_plural.lower().replace(' ', '_')
             query = f"""
             {{
                 {object_type} {{

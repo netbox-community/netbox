@@ -1,33 +1,21 @@
 from circuits import filtersets, models
-from netbox.graphql.types import *
+from netbox.graphql.types import BaseObjectType, ObjectType, TaggedObjectType
 
 __all__ = (
-    'CircuitType',
     'CircuitTerminationType',
+    'CircuitType',
     'CircuitTypeType',
     'ProviderType',
     'ProviderNetworkType',
 )
 
 
-#
-# Object types
-#
-
-class ProviderType(TaggedObjectType):
+class CircuitTerminationType(BaseObjectType):
 
     class Meta:
-        model = models.Provider
+        model = models.CircuitTermination
         fields = '__all__'
-        filterset_class = filtersets.ProviderFilterSet
-
-
-class ProviderNetworkType(TaggedObjectType):
-
-    class Meta:
-        model = models.ProviderNetwork
-        fields = '__all__'
-        filterset_class = filtersets.ProviderNetworkFilterSet
+        filterset_class = filtersets.CircuitTerminationFilterSet
 
 
 class CircuitType(TaggedObjectType):
@@ -46,9 +34,17 @@ class CircuitTypeType(ObjectType):
         filterset_class = filtersets.CircuitTypeFilterSet
 
 
-class CircuitTerminationType(BaseObjectType):
+class ProviderType(TaggedObjectType):
 
     class Meta:
-        model = models.CircuitTermination
+        model = models.Provider
         fields = '__all__'
-        filterset_class = filtersets.CircuitTerminationFilterSet
+        filterset_class = filtersets.ProviderFilterSet
+
+
+class ProviderNetworkType(TaggedObjectType):
+
+    class Meta:
+        model = models.ProviderNetwork
+        fields = '__all__'
+        filterset_class = filtersets.ProviderNetworkFilterSet
