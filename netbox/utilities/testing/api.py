@@ -425,6 +425,7 @@ class APIViewTestCases:
 
     class GraphQLTestCase(APITestCase):
 
+        @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_get_object(self):
             url = reverse('graphql')
             object_type = self.model._meta.verbose_name.replace(' ', '_')
@@ -441,11 +442,21 @@ class APIViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
 
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['view']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
             response = self.client.post(url, data={'query': query}, **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
 
+        @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_list_objects(self):
             url = reverse('graphql')
             object_type = self.model._meta.verbose_name_plural.replace(' ', '_')
@@ -461,10 +472,20 @@ class APIViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
 
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['view']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
             response = self.client.post(url, data={'query': query}, **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
+            self.assertGreater(len(data['data'][object_type]), 0)
 
     class APIViewTestCase(
         GetObjectViewTestCase,

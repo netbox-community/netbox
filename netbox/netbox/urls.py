@@ -4,11 +4,11 @@ from django.urls import path, re_path
 from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from graphene_django.views import GraphQLView
 
 from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.api.views import APIRootView, StatusView
 from netbox.graphql.schema import schema
+from netbox.graphql.views import GraphQLView
 from netbox.views import HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
