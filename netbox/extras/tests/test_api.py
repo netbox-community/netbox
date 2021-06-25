@@ -31,7 +31,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class WebhookTest(APIViewTestCases.APIViewTestCase):
+class WebhookTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = Webhook
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
@@ -85,7 +85,7 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
             webhook.content_types.add(site_ct, rack_ct)
 
 
-class CustomFieldTest(APIViewTestCases.APIViewTestCase):
+class CustomFieldTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = CustomField
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
@@ -132,7 +132,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
             cf.content_types.add(site_ct)
 
 
-class CustomLinkTest(APIViewTestCases.APIViewTestCase):
+class CustomLinkTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = CustomLink
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
@@ -186,7 +186,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
         CustomLink.objects.bulk_create(custom_links)
 
 
-class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
+class ExportTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
@@ -234,7 +234,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
         ExportTemplate.objects.bulk_create(export_templates)
 
 
-class TagTest(APIViewTestCases.APIViewTestCase):
+class TagTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = Tag
     brief_fields = ['color', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -270,7 +270,8 @@ class TagTest(APIViewTestCases.APIViewTestCase):
 class ImageAttachmentTest(
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
-    APIViewTestCases.DeleteObjectViewTestCase
+    APIViewTestCases.DeleteObjectViewTestCase,
+    APIViewTestCases.GraphQLTestCase
 ):
     model = ImageAttachment
     brief_fields = ['display', 'id', 'image', 'name', 'url']
@@ -310,7 +311,7 @@ class ImageAttachmentTest(
         ImageAttachment.objects.bulk_create(image_attachments)
 
 
-class JournalEntryTest(APIViewTestCases.APIViewTestCase):
+class JournalEntryTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = JournalEntry
     brief_fields = ['created', 'display', 'id', 'url']
     bulk_update_data = {
@@ -360,7 +361,7 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ConfigContextTest(APIViewTestCases.APIViewTestCase):
+class ConfigContextTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = ConfigContext
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
