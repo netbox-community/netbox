@@ -14,7 +14,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TenantGroupTest(APIViewTestCases.APIViewTestCase):
+class TenantGroupTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = TenantGroup
     brief_fields = ['_depth', 'display', 'id', 'name', 'slug', 'tenant_count', 'url']
     bulk_update_data = {
@@ -52,7 +52,7 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class TenantTest(APIViewTestCases.APIViewTestCase):
+class TenantTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = Tenant
     brief_fields = ['display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
