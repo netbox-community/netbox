@@ -1,20 +1,36 @@
+from django.conf import settings
+from django.contrib.auth.views import redirect_to_login
+from django.http import HttpResponseForbidden
+from django.urls import reverse
 from graphene_django.views import GraphQLView as GraphQLView_
-from rest_framework.decorators import authentication_classes, permission_classes, api_view
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.settings import api_settings
+from rest_framework.exceptions import AuthenticationFailed
+
+from netbox.api.authentication import TokenAuthentication
 
 
 class GraphQLView(GraphQLView_):
     """
-    Extends grpahene_django's GraphQLView to support DRF's token-based authentication.
+    Extends graphene_django's GraphQLView to support DRF's token-based authentication.
     """
-    @classmethod
-    def as_view(cls, *args, **kwargs):
-        view = super(GraphQLView, cls).as_view(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
 
-        # Apply DRF permission and authentication classes
-        view = permission_classes((IsAuthenticated,))(view)
-        view = authentication_classes(api_settings.DEFAULT_AUTHENTICATION_CLASSES)(view)
-        view = api_view(['GET', 'POST'])(view)
+        # Attempt to authenticate the user using a DRF token, if provided
+        if not request.user.is_authenticated:
+            authenticator = TokenAuthentication()
+            try:
+                auth_info = authenticator.authenticate(request)
+                if auth_info is not None:
+                    request.user = auth_info[0]  # User object
+            except AuthenticationFailed as exc:
+                return HttpResponseForbidden(exc.detail)
 
-        return view
+        # Enforce LOGIN_REQUIRED
+        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
+
+            # If this is a human user, send a redirect to the login page
+            if self.request_wants_html(request):
+                return redirect_to_login(reverse('graphql'))
+
+            return HttpResponseForbidden("No credentials provided.")
+
+        return super().dispatch(request, *args, **kwargs)
