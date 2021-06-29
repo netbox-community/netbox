@@ -130,6 +130,20 @@ def humanize_speed(speed):
 
 
 @register.filter()
+def humanize_megabytes(mb):
+    """
+    Express a number of megabytes in the most suitable unit (e.g. gigabytes or terabytes).
+    """
+    if not mb:
+        return ''
+    if mb >= 1048576:
+        return f'{int(mb / 1048576)} TB'
+    if mb >= 1024:
+        return f'{int(mb / 1024)} GB'
+    return f'{mb} MB'
+
+
+@register.filter()
 def tzoffset(value):
     """
     Returns the hour offset of a given time zone using the current time.
