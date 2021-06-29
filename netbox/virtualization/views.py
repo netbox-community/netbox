@@ -34,6 +34,9 @@ class ClusterTypeView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         clusters = Cluster.objects.restrict(request.user, 'view').filter(
             type=instance
+        ).annotate(
+            device_count=count_related(Device, 'cluster'),
+            vm_count=count_related(VirtualMachine, 'cluster')
         )
 
         clusters_table = tables.ClusterTable(clusters)
@@ -93,6 +96,9 @@ class ClusterGroupView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         clusters = Cluster.objects.restrict(request.user, 'view').filter(
             group=instance
+        ).annotate(
+            device_count=count_related(Device, 'cluster'),
+            vm_count=count_related(VirtualMachine, 'cluster')
         )
 
         clusters_table = tables.ClusterTable(clusters)
