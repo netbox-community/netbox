@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6620](https://github.com/netbox-community/netbox/issues/6620) - Show assigned VMs count under device role view
+* [#6666](https://github.com/netbox-community/netbox/issues/6666) - Show management-only status under interface detail view
 
 ### Bug Fixes
 

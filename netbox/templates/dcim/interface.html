@@ -55,6 +55,16 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Management Only</td>
+                        <td>
+                            {% if object.mgmt_only %}
+                                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                            {% else %}
+                                <span class="text-danger"><i class="mdi mdi-close"></i></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Parent</td>
                         <td>
                             {% if object.parent %}
@@ -88,7 +98,7 @@
                     </tr>
                     <tr>
                         <td>802.1Q Mode</td>
-                        <td>{{ object.get_mode_display }}</td>
+                        <td>{{ object.get_mode_display|placeholder }}</td>
                     </tr>
                 </table>
             </div>
