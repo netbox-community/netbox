@@ -30,6 +30,9 @@ class IPAddressType(TaggedObjectType):
         fields = '__all__'
         filterset_class = filtersets.IPAddressFilterSet
 
+    def resolve_role(self, info):
+        return self.role or None
+
 
 class PrefixType(TaggedObjectType):
 

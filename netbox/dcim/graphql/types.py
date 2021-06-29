@@ -45,6 +45,12 @@ class CableType(TaggedObjectType):
         fields = '__all__'
         filterset_class = filtersets.CableFilterSet
 
+    def resolve_type(self, info):
+        return self.type or None
+
+    def resolve_length_unit(self, info):
+        return self.length_unit or None
+
 
 class ConsolePortType(TaggedObjectType):
 
@@ -52,6 +58,9 @@ class ConsolePortType(TaggedObjectType):
         model = models.ConsolePort
         fields = '__all__'
         filterset_class = filtersets.ConsolePortFilterSet
+
+    def resolve_type(self, info):
+        return self.type or None
 
 
 class ConsolePortTemplateType(BaseObjectType):
@@ -61,6 +70,9 @@ class ConsolePortTemplateType(BaseObjectType):
         fields = '__all__'
         filterset_class = filtersets.ConsolePortTemplateFilterSet
 
+    def resolve_type(self, info):
+        return self.type or None
+
 
 class ConsoleServerPortType(TaggedObjectType):
 
@@ -68,6 +80,9 @@ class ConsoleServerPortType(TaggedObjectType):
         model = models.ConsoleServerPort
         fields = '__all__'
         filterset_class = filtersets.ConsoleServerPortFilterSet
+
+    def resolve_type(self, info):
+        return self.type or None
 
 
 class ConsoleServerPortTemplateType(BaseObjectType):
@@ -77,6 +92,9 @@ class ConsoleServerPortTemplateType(BaseObjectType):
         fields = '__all__'
         filterset_class = filtersets.ConsoleServerPortTemplateFilterSet
 
+    def resolve_type(self, info):
+        return self.type or None
+
 
 class DeviceType(TaggedObjectType):
 
@@ -84,6 +102,9 @@ class DeviceType(TaggedObjectType):
         model = models.Device
         fields = '__all__'
         filterset_class = filtersets.DeviceFilterSet
+
+    def resolve_face(self, info):
+        return self.face or None
 
 
 class DeviceBayType(TaggedObjectType):
@@ -117,6 +138,9 @@ class DeviceTypeType(TaggedObjectType):
         fields = '__all__'
         filterset_class = filtersets.DeviceTypeFilterSet
 
+    def resolve_subdevice_role(self, info):
+        return self.subdevice_role or None
+
 
 class FrontPortType(TaggedObjectType):
 
@@ -141,6 +165,9 @@ class InterfaceType(TaggedObjectType):
         fields = '__all__'
         filterset_class = filtersets.InterfaceFilterSet
 
+    def resolve_mode(self, info):
+        return self.mode or None
+
 
 class InterfaceTemplateType(BaseObjectType):
 
@@ -150,7 +177,7 @@ class InterfaceTemplateType(BaseObjectType):
         filterset_class = filtersets.InterfaceTemplateFilterSet
 
 
-class InventoryItemType(ObjectType):
+class InventoryItemType(TaggedObjectType):
 
     class Meta:
         model = models.InventoryItem
@@ -158,7 +185,7 @@ class InventoryItemType(ObjectType):
         filterset_class = filtersets.InventoryItemFilterSet
 
 
-class LocationType(TaggedObjectType):
+class LocationType(ObjectType):
 
     class Meta:
         model = models.Location
@@ -197,6 +224,12 @@ class PowerOutletType(TaggedObjectType):
         fields = '__all__'
         filterset_class = filtersets.PowerOutletFilterSet
 
+    def resolve_feed_leg(self, info):
+        return self.feed_leg or None
+
+    def resolve_type(self, info):
+        return self.type or None
+
 
 class PowerOutletTemplateType(BaseObjectType):
 
@@ -204,6 +237,12 @@ class PowerOutletTemplateType(BaseObjectType):
         model = models.PowerOutletTemplate
         fields = '__all__'
         filterset_class = filtersets.PowerOutletTemplateFilterSet
+
+    def resolve_feed_leg(self, info):
+        return self.feed_leg or None
+
+    def resolve_type(self, info):
+        return self.type or None
 
 
 class PowerPanelType(TaggedObjectType):
@@ -221,6 +260,9 @@ class PowerPortType(TaggedObjectType):
         fields = '__all__'
         filterset_class = filtersets.PowerPortFilterSet
 
+    def resolve_type(self, info):
+        return self.type or None
+
 
 class PowerPortTemplateType(BaseObjectType):
 
@@ -229,6 +271,9 @@ class PowerPortTemplateType(BaseObjectType):
         fields = '__all__'
         filterset_class = filtersets.PowerPortTemplateFilterSet
 
+    def resolve_type(self, info):
+        return self.type or None
+
 
 class RackType(TaggedObjectType):
 
@@ -236,6 +281,12 @@ class RackType(TaggedObjectType):
         model = models.Rack
         fields = '__all__'
         filterset_class = filtersets.RackFilterSet
+
+    def resolve_type(self, info):
+        return self.type or None
+
+    def resolve_outer_unit(self, info):
+        return self.outer_unit or None
 
 
 class RackReservationType(TaggedObjectType):

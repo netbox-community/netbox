@@ -7,7 +7,7 @@ __all__ = (
 )
 
 
-class TenantType(ObjectType):
+class TenantType(TaggedObjectType):
 
     class Meta:
         model = models.Tenant
@@ -15,7 +15,7 @@ class TenantType(ObjectType):
         filterset_class = filtersets.TenantFilterSet
 
 
-class TenantGroupType(TaggedObjectType):
+class TenantGroupType(ObjectType):
 
     class Meta:
         model = models.TenantGroup

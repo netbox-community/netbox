@@ -42,9 +42,12 @@ class VirtualMachineType(TaggedObjectType):
         filterset_class = filtersets.VirtualMachineFilterSet
 
 
-class VMInterfaceType(ObjectType):
+class VMInterfaceType(TaggedObjectType):
 
     class Meta:
         model = models.VMInterface
         fields = '__all__'
         filterset_class = filtersets.VMInterfaceFilterSet
+
+    def resolve_mode(self, info):
+        return self.mode or None

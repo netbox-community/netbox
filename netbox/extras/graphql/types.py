@@ -65,7 +65,7 @@ class TagType(BaseObjectType):
 
     class Meta:
         model = models.Tag
-        fields = '__all__'
+        exclude = ('extras_taggeditem_items',)
         filterset_class = filtersets.TagFilterSet
 
 

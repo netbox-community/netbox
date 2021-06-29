@@ -1005,7 +1005,11 @@ class DeviceTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestC
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsolePortTest(
+    Mixins.ComponentTraceMixin,
+    APIViewTestCases.GraphQLTestCase,
+    APIViewTestCases.APIViewTestCase
+):
     model = ConsolePort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1044,7 +1048,11 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
         ]
 
 
-class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTest(
+    Mixins.ComponentTraceMixin,
+    APIViewTestCases.GraphQLTestCase,
+    APIViewTestCases.APIViewTestCase
+):
     model = ConsoleServerPort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1083,7 +1091,11 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
         ]
 
 
-class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerPortTest(
+    Mixins.ComponentTraceMixin,
+    APIViewTestCases.GraphQLTestCase,
+    APIViewTestCases.APIViewTestCase
+):
     model = PowerPort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1122,7 +1134,11 @@ class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         ]
 
 
-class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerOutletTest(
+    Mixins.ComponentTraceMixin,
+    APIViewTestCases.GraphQLTestCase,
+    APIViewTestCases.APIViewTestCase
+):
     model = PowerOutlet
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1161,7 +1177,11 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
         ]
 
 
-class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class InterfaceTest(
+    Mixins.ComponentTraceMixin,
+    APIViewTestCases.GraphQLTestCase,
+    APIViewTestCases.APIViewTestCase
+):
     model = Interface
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
