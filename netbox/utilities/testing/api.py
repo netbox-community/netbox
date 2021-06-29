@@ -5,12 +5,14 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
+from graphene.types.dynamic import Dynamic
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from users.models import ObjectPermission, Token
+from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
 from .utils import disable_warnings
 
@@ -431,18 +433,42 @@ class APIViewTestCases:
                                self.model._meta.verbose_name_plural.lower().replace(' ', '_'))
             return getattr(self, 'graphql_base_name', self.model._meta.verbose_name.lower().replace(' ', '_'))
 
+        def _build_query(self, name, **filters):
+            type_class = get_graphql_type_for_model(self.model)
+            if filters:
+                filter_string = ', '.join(f'{k}:{v}' for k, v in filters.items())
+                filter_string = f'({filter_string})'
+            else:
+                filter_string = ''
+
+            # Compile list of fields to include
+            fields_string = ''
+            for field_name, field in type_class._meta.fields.items():
+                # TODO: Omit "hidden" fields from GraphQL types
+                if field_name.startswith('_'):
+                    continue
+                if type(field) is Dynamic:
+                    # Dynamic fields must specify a subselection
+                    fields_string += f'{field_name} {{ id }}\n'
+                else:
+                    fields_string += f'{field_name}\n'
+
+            query = f"""
+            {{
+                {name}{filter_string} {{
+                    {fields_string}
+                }}
+            }}
+            """
+
+            return query
+
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_get_object(self):
             url = reverse('graphql')
             object_type = self._get_graphql_base_name()
             object_id = self._get_queryset().first().pk
-            query = f"""
-            {{
-                {object_type}(id:{object_id}) {{
-                    id
-                }}
-            }}
-            """
+            query = self._build_query(object_type, id=object_id)
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
@@ -466,13 +492,7 @@ class APIViewTestCases:
         def test_graphql_list_objects(self):
             url = reverse('graphql')
             object_type = self._get_graphql_base_name(plural=True)
-            query = f"""
-            {{
-                {object_type} {{
-                    id
-                }}
-            }}
-            """
+            query = self._build_query(object_type)
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
