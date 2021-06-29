@@ -17,7 +17,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class UserTest(APIViewTestCases.APIViewTestCase):
+class UserTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = User
     view_namespace = 'users'
     brief_fields = ['display', 'id', 'url', 'username']
@@ -48,7 +48,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         User.objects.bulk_create(users)
 
 
-class GroupTest(APIViewTestCases.APIViewTestCase):
+class GroupTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
     model = Group
     view_namespace = 'users'
     brief_fields = ['display', 'id', 'name', 'url']
