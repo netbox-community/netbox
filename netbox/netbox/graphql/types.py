@@ -1,4 +1,5 @@
 import graphene
+from django.contrib.contenttypes.models import ContentType
 from graphene.types.generic import GenericScalar
 from graphene_django import DjangoObjectType
 
@@ -8,6 +9,10 @@ __all__ = (
     'TaggedObjectType',
 )
 
+
+#
+# Base types
+#
 
 class BaseObjectType(DjangoObjectType):
     """
@@ -26,13 +31,13 @@ class ObjectType(BaseObjectType):
     """
     Extends BaseObjectType with support for custom field data.
     """
-    # custom_fields = GenericScalar()
+    custom_fields = GenericScalar()
 
     class Meta:
         abstract = True
 
-    # def resolve_custom_fields(self, info):
-    #     return self.custom_field_data
+    def resolve_custom_fields(self, info):
+        return self.custom_field_data
 
 
 class TaggedObjectType(ObjectType):
@@ -46,3 +51,14 @@ class TaggedObjectType(ObjectType):
 
     def resolve_tags(self, info):
         return self.tags.all()
+
+
+#
+# Miscellaneous types
+#
+
+class ContentTypeType(DjangoObjectType):
+
+    class Meta:
+        model = ContentType
+        fields = ('id', 'app_label', 'model')
