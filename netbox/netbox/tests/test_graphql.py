@@ -6,6 +6,15 @@ from utilities.testing import disable_warnings, TestCase
 
 class GraphQLTestCase(TestCase):
 
+    @override_settings(GRAPHQL_ENABLED=False)
+    def test_graphql_enabled(self):
+        """
+        The /graphql URL should return a 404 when GRAPHQL_ENABLED=False
+        """
+        url = reverse('graphql')
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 404)
+
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphiql_interface(self):
         """
