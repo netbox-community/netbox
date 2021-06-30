@@ -87,6 +87,8 @@ nav:
         - Overview: 'rest-api/overview.md'
         - Filtering: 'rest-api/filtering.md'
         - Authentication: 'rest-api/authentication.md'
+    - GraphQL API:
+        - Overview: 'graphql-api/overview.md'
     - Development:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'

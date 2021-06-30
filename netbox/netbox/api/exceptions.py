@@ -8,3 +8,7 @@ class ServiceUnavailable(APIException):
 
 class SerializerNotFound(Exception):
     pass
+
+
+class GraphQLTypeNotFound(Exception):
+    pass

@@ -83,6 +83,7 @@ DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BAS
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
+GRAPHQL_ENABLED = getattr(configuration, 'GRAPHQL_ENABLED', True)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 LOGGING = getattr(configuration, 'LOGGING', {})
@@ -282,9 +283,11 @@ INSTALLED_APPS = [
     'cacheops',
     'corsheaders',
     'debug_toolbar',
+    'graphiql_debug_toolbar',
     'django_filters',
     'django_tables2',
     'django_prometheus',
+    'graphene_django',
     'mptt',
     'rest_framework',
     'taggit',
@@ -303,7 +306,7 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'graphiql_debug_toolbar.middleware.DebugToolbarMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -491,6 +494,17 @@ REST_FRAMEWORK = {
         'bulk_destroy': 'bulk_delete',
     },
     'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
+}
+
+
+#
+# Graphene
+#
+
+GRAPHENE = {
+    # Avoids naming collision on models with 'type' field; see
+    # https://github.com/graphql-python/graphene-django/issues/185
+    'DJANGO_CHOICE_FIELD_ENUM_V3_NAMING': True,
 }
 
 

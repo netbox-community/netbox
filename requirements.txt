@@ -3,6 +3,7 @@ django-cacheops==6.0
 django-cors-headers==3.7.0
 django-debug-toolbar==3.2.1
 django-filter==2.4.0
+django-graphiql-debug-toolbar==0.1.4
 django-mptt==0.12.0
 django-pglocks==1.0.4
 django-prometheus==2.1.0
@@ -12,6 +13,7 @@ django-taggit==1.4.0
 django-timezone-field==4.1.2
 djangorestframework==3.12.4
 drf-yasg[validation]==1.20.0
+graphene_django==2.15.0
 gunicorn==20.1.0
 Jinja2==3.0.1
 Markdown==3.3.4

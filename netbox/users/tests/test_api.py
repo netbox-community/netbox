@@ -75,7 +75,14 @@ class GroupTest(APIViewTestCases.APIViewTestCase):
         Group.objects.bulk_create(users)
 
 
-class TokenTest(APIViewTestCases.APIViewTestCase):
+class TokenTest(
+    # No GraphQL support for Token
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+    APIViewTestCases.CreateObjectViewTestCase,
+    APIViewTestCases.UpdateObjectViewTestCase,
+    APIViewTestCases.DeleteObjectViewTestCase
+):
     model = Token
     brief_fields = ['display', 'id', 'key', 'url', 'write_enabled']
     bulk_update_data = {
@@ -138,7 +145,14 @@ class TokenTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.status_code, 403)
 
 
-class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
+class ObjectPermissionTest(
+    # No GraphQL support for ObjectPermission
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+    APIViewTestCases.CreateObjectViewTestCase,
+    APIViewTestCases.UpdateObjectViewTestCase,
+    APIViewTestCases.DeleteObjectViewTestCase
+):
     model = ObjectPermission
     brief_fields = ['actions', 'display', 'enabled', 'groups', 'id', 'name', 'object_types', 'url', 'users']
 

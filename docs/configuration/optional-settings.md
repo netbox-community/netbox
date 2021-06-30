@@ -201,6 +201,14 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 ---
 
+## GRAPHQL_ENABLED
+
+Default: True
+
+Setting this to False will disable the GraphQL API.
+
+---
+
 ## HTTP_PROXIES
 
 Default: None

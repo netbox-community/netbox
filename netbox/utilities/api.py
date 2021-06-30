@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.utils import formatting
 
-from netbox.api.exceptions import SerializerNotFound
+from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
 from .utils import dynamic_import
 
 
@@ -24,8 +24,23 @@ def get_serializer_for_model(model, prefix=''):
         return dynamic_import(serializer_name)
     except AttributeError:
         raise SerializerNotFound(
-            "Could not determine serializer for {}.{} with prefix '{}'".format(app_name, model_name, prefix)
+            f"Could not determine serializer for {app_name}.{model_name} with prefix '{prefix}'"
         )
+
+
+def get_graphql_type_for_model(model):
+    """
+    Return the GraphQL type class for the given model.
+    """
+    app_name, model_name = model._meta.label.split('.')
+    # Object types for Django's auth models are in the users app
+    if app_name == 'auth':
+        app_name = 'users'
+    class_name = f'{app_name}.graphql.types.{model_name}Type'
+    try:
+        return dynamic_import(class_name)
+    except AttributeError:
+        raise GraphQLTypeNotFound(f"Could not find GraphQL type for {app_name}.{model_name}")
 
 
 def is_api_request(request):
