@@ -57,7 +57,7 @@ class Mixins:
             self.assertEqual(segment1[2]['name'], peer_obj.name)
 
 
-class RegionTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RegionTest(APIViewTestCases.APIViewTestCase):
     model = Region
     brief_fields = ['_depth', 'display', 'id', 'name', 'site_count', 'slug', 'url']
     create_data = [
@@ -86,7 +86,7 @@ class RegionTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestC
         Region.objects.create(name='Region 3', slug='region-3')
 
 
-class SiteGroupTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class SiteGroupTest(APIViewTestCases.APIViewTestCase):
     model = SiteGroup
     brief_fields = ['_depth', 'display', 'id', 'name', 'site_count', 'slug', 'url']
     create_data = [
@@ -115,7 +115,7 @@ class SiteGroupTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTe
         SiteGroup.objects.create(name='Site Group 3', slug='site-group-3')
 
 
-class SiteTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class SiteTest(APIViewTestCases.APIViewTestCase):
     model = Site
     brief_fields = ['display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
@@ -167,7 +167,7 @@ class SiteTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCas
         ]
 
 
-class LocationTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class LocationTest(APIViewTestCases.APIViewTestCase):
     model = Location
     brief_fields = ['_depth', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
     bulk_update_data = {
@@ -214,7 +214,7 @@ class LocationTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTes
         ]
 
 
-class RackRoleTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RackRoleTest(APIViewTestCases.APIViewTestCase):
     model = RackRole
     brief_fields = ['display', 'id', 'name', 'rack_count', 'slug', 'url']
     create_data = [
@@ -249,7 +249,7 @@ class RackRoleTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTes
         RackRole.objects.bulk_create(rack_roles)
 
 
-class RackTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RackTest(APIViewTestCases.APIViewTestCase):
     model = Rack
     brief_fields = ['device_count', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -337,7 +337,7 @@ class RackTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCas
         self.assertEqual(response.get('Content-Type'), 'image/svg+xml')
 
 
-class RackReservationTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RackReservationTest(APIViewTestCases.APIViewTestCase):
     model = RackReservation
     brief_fields = ['display', 'id', 'units', 'url', 'user']
     bulk_update_data = {
@@ -384,7 +384,7 @@ class RackReservationTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.API
         ]
 
 
-class ManufacturerTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class ManufacturerTest(APIViewTestCases.APIViewTestCase):
     model = Manufacturer
     brief_fields = ['devicetype_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -416,7 +416,7 @@ class ManufacturerTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIVie
         Manufacturer.objects.bulk_create(manufacturers)
 
 
-class DeviceTypeTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
     model = DeviceType
     brief_fields = ['device_count', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
@@ -458,7 +458,7 @@ class DeviceTypeTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewT
         ]
 
 
-class ConsolePortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConsolePortTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -495,7 +495,7 @@ class ConsolePortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases
         ]
 
 
-class ConsoleServerPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPortTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -532,7 +532,7 @@ class ConsoleServerPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTes
         ]
 
 
-class PowerPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = PowerPortTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -569,7 +569,7 @@ class PowerPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.A
         ]
 
 
-class PowerOutletTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
     model = PowerOutletTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -606,7 +606,7 @@ class PowerOutletTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases
         ]
 
 
-class InterfaceTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
     model = InterfaceTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -646,7 +646,7 @@ class InterfaceTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.A
         ]
 
 
-class FrontPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = FrontPortTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -717,7 +717,7 @@ class FrontPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.A
         ]
 
 
-class RearPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = RearPortTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -757,7 +757,7 @@ class RearPortTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.AP
         ]
 
 
-class DeviceBayTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBayTemplate
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -797,7 +797,7 @@ class DeviceBayTemplateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.A
         ]
 
 
-class DeviceRoleTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
     brief_fields = ['device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
     create_data = [
@@ -832,7 +832,7 @@ class DeviceRoleTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewT
         DeviceRole.objects.bulk_create(device_roles)
 
 
-class PlatformTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class PlatformTest(APIViewTestCases.APIViewTestCase):
     model = Platform
     brief_fields = ['device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
     create_data = [
@@ -864,7 +864,7 @@ class PlatformTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTes
         Platform.objects.bulk_create(platforms)
 
 
-class DeviceTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class DeviceTest(APIViewTestCases.APIViewTestCase):
     model = Device
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1005,11 +1005,7 @@ class DeviceTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestC
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTest(
-    Mixins.ComponentTraceMixin,
-    APIViewTestCases.GraphQLTestCase,
-    APIViewTestCases.APIViewTestCase
-):
+class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1048,11 +1044,7 @@ class ConsolePortTest(
         ]
 
 
-class ConsoleServerPortTest(
-    Mixins.ComponentTraceMixin,
-    APIViewTestCases.GraphQLTestCase,
-    APIViewTestCases.APIViewTestCase
-):
+class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1091,11 +1083,7 @@ class ConsoleServerPortTest(
         ]
 
 
-class PowerPortTest(
-    Mixins.ComponentTraceMixin,
-    APIViewTestCases.GraphQLTestCase,
-    APIViewTestCases.APIViewTestCase
-):
+class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1134,11 +1122,7 @@ class PowerPortTest(
         ]
 
 
-class PowerOutletTest(
-    Mixins.ComponentTraceMixin,
-    APIViewTestCases.GraphQLTestCase,
-    APIViewTestCases.APIViewTestCase
-):
+class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1177,11 +1161,7 @@ class PowerOutletTest(
         ]
 
 
-class InterfaceTest(
-    Mixins.ComponentTraceMixin,
-    APIViewTestCases.GraphQLTestCase,
-    APIViewTestCases.APIViewTestCase
-):
+class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1239,7 +1219,7 @@ class InterfaceTest(
         ]
 
 
-class FrontPortTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class FrontPortTest(APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1297,7 +1277,7 @@ class FrontPortTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTe
         ]
 
 
-class RearPortTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RearPortTest(APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['_occupied', 'cable', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1339,7 +1319,7 @@ class RearPortTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTes
         ]
 
 
-class DeviceBayTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class DeviceBayTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBay
     brief_fields = ['device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1402,7 +1382,7 @@ class DeviceBayTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTe
         ]
 
 
-class InventoryItemTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class InventoryItemTest(APIViewTestCases.APIViewTestCase):
     model = InventoryItem
     brief_fields = ['_depth', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1440,7 +1420,7 @@ class InventoryItemTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIVi
         ]
 
 
-class CableTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class CableTest(APIViewTestCases.APIViewTestCase):
     model = Cable
     brief_fields = ['display', 'id', 'label', 'url']
     bulk_update_data = {
@@ -1545,7 +1525,7 @@ class ConnectedDeviceTest(APITestCase):
         self.assertEqual(response.data['name'], self.device1.name)
 
 
-class VirtualChassisTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
     model = VirtualChassis
     brief_fields = ['id', 'master', 'member_count', 'name', 'url']
 
@@ -1625,7 +1605,7 @@ class VirtualChassisTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIV
         }
 
 
-class PowerPanelTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class PowerPanelTest(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
     brief_fields = ['display', 'id', 'name', 'powerfeed_count', 'url']
 
@@ -1674,7 +1654,7 @@ class PowerPanelTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewT
         }
 
 
-class PowerFeedTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class PowerFeedTest(APIViewTestCases.APIViewTestCase):
     model = PowerFeed
     brief_fields = ['_occupied', 'cable', 'display', 'id', 'name', 'url']
     bulk_update_data = {

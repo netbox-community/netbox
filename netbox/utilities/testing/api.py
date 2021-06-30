@@ -520,6 +520,7 @@ class APIViewTestCases:
         ListObjectsViewTestCase,
         CreateObjectViewTestCase,
         UpdateObjectViewTestCase,
-        DeleteObjectViewTestCase
+        DeleteObjectViewTestCase,
+        GraphQLTestCase
     ):
         pass

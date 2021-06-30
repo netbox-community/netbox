@@ -20,7 +20,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class VRFTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class VRFTest(APIViewTestCases.APIViewTestCase):
     model = VRF
     brief_fields = ['display', 'id', 'name', 'prefix_count', 'rd', 'url']
     create_data = [
@@ -52,7 +52,7 @@ class VRFTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase
         VRF.objects.bulk_create(vrfs)
 
 
-class RouteTargetTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RouteTargetTest(APIViewTestCases.APIViewTestCase):
     model = RouteTarget
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
@@ -81,7 +81,7 @@ class RouteTargetTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIView
         RouteTarget.objects.bulk_create(route_targets)
 
 
-class RIRTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RIRTest(APIViewTestCases.APIViewTestCase):
     model = RIR
     brief_fields = ['aggregate_count', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -113,7 +113,7 @@ class RIRTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase
         RIR.objects.bulk_create(rirs)
 
 
-class AggregateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class AggregateTest(APIViewTestCases.APIViewTestCase):
     model = Aggregate
     brief_fields = ['display', 'family', 'id', 'prefix', 'url']
     bulk_update_data = {
@@ -152,7 +152,7 @@ class AggregateTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTe
         ]
 
 
-class RoleTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class RoleTest(APIViewTestCases.APIViewTestCase):
     model = Role
     brief_fields = ['display', 'id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
     create_data = [
@@ -184,7 +184,7 @@ class RoleTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCas
         Role.objects.bulk_create(roles)
 
 
-class PrefixTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class PrefixTest(APIViewTestCases.APIViewTestCase):
     model = Prefix
     brief_fields = ['_depth', 'display', 'family', 'id', 'prefix', 'url']
     create_data = [
@@ -358,7 +358,7 @@ class PrefixTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestC
         self.assertEqual(len(response.data), 8)
 
 
-class IPAddressTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class IPAddressTest(APIViewTestCases.APIViewTestCase):
     model = IPAddress
     brief_fields = ['address', 'display', 'family', 'id', 'url']
     create_data = [
@@ -387,7 +387,7 @@ class IPAddressTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTe
         IPAddress.objects.bulk_create(ip_addresses)
 
 
-class VLANGroupTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class VLANGroupTest(APIViewTestCases.APIViewTestCase):
     model = VLANGroup
     brief_fields = ['display', 'id', 'name', 'slug', 'url', 'vlan_count']
     create_data = [
@@ -419,7 +419,7 @@ class VLANGroupTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTe
         VLANGroup.objects.bulk_create(vlan_groups)
 
 
-class VLANTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class VLANTest(APIViewTestCases.APIViewTestCase):
     model = VLAN
     brief_fields = ['display', 'id', 'name', 'url', 'vid']
     bulk_update_data = {
@@ -479,7 +479,7 @@ class VLANTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCas
         self.assertTrue(content['detail'].startswith('Unable to delete object.'))
 
 
-class ServiceTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIViewTestCase):
+class ServiceTest(APIViewTestCases.APIViewTestCase):
     model = Service
     brief_fields = ['display', 'id', 'name', 'ports', 'protocol', 'url']
     bulk_update_data = {
