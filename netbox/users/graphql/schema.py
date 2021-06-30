@@ -6,7 +6,7 @@ from .types import *
 
 class UsersQuery(graphene.ObjectType):
     group = ObjectField(GroupType)
-    groups = ObjectListField(GroupType)
+    group_list = ObjectListField(GroupType)
 
     user = ObjectField(UserType)
-    users = ObjectListField(UserType)
+    user_list = ObjectListField(UserType)

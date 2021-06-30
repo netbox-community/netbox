@@ -1549,8 +1549,6 @@ class VirtualChassisTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIV
     model = VirtualChassis
     brief_fields = ['id', 'master', 'member_count', 'name', 'url']
 
-    graphql_base_name_plural = 'virtual_chassis_list'
-
     @classmethod
     def setUpTestData(cls):
         site = Site.objects.create(name='Test Site', slug='test-site')

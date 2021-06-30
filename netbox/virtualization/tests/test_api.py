@@ -211,9 +211,7 @@ class VMInterfaceTest(APIViewTestCases.GraphQLTestCase, APIViewTestCases.APIView
     bulk_update_data = {
         'description': 'New description',
     }
-
     graphql_base_name = 'vm_interface'
-    graphql_base_name_plural = 'vm_interfaces'
 
     @classmethod
     def setUpTestData(cls):

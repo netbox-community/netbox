@@ -6,16 +6,16 @@ from .types import *
 
 class VirtualizationQuery(graphene.ObjectType):
     cluster = ObjectField(ClusterType)
-    clusters = ObjectListField(ClusterType)
+    cluster_list = ObjectListField(ClusterType)
 
     cluster_group = ObjectField(ClusterGroupType)
-    cluster_groups = ObjectListField(ClusterGroupType)
+    cluster_group_list = ObjectListField(ClusterGroupType)
 
     cluster_type = ObjectField(ClusterTypeType)
-    cluster_types = ObjectListField(ClusterTypeType)
+    cluster_type_list = ObjectListField(ClusterTypeType)
 
     virtual_machine = ObjectField(VirtualMachineType)
-    virtual_machines = ObjectListField(VirtualMachineType)
+    virtual_machine_list = ObjectListField(VirtualMachineType)
 
     vm_interface = ObjectField(VMInterfaceType)
-    vm_interfaces = ObjectListField(VMInterfaceType)
+    vm_interface_list = ObjectListField(VMInterfaceType)

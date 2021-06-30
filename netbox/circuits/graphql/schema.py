@@ -6,16 +6,16 @@ from .types import *
 
 class CircuitsQuery(graphene.ObjectType):
     circuit = ObjectField(CircuitType)
-    circuits = ObjectListField(CircuitType)
+    circuit_list = ObjectListField(CircuitType)
 
     circuit_termination = ObjectField(CircuitTerminationType)
-    circuit_terminations = ObjectListField(CircuitTerminationType)
+    circuit_termination_list = ObjectListField(CircuitTerminationType)
 
     circuit_type = ObjectField(CircuitTypeType)
-    circuit_types = ObjectListField(CircuitTypeType)
+    circuit_type_list = ObjectListField(CircuitTypeType)
 
     provider = ObjectField(ProviderType)
-    providers = ObjectListField(ProviderType)
+    provider_list = ObjectListField(ProviderType)
 
     provider_network = ObjectField(ProviderNetworkType)
-    provider_networks = ObjectListField(ProviderNetworkType)
+    provider_network_list = ObjectListField(ProviderNetworkType)

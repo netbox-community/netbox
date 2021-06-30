@@ -24,7 +24,7 @@ __all__ = (
 
 
 #
-# REST API Tests
+# REST/GraphQL API Tests
 #
 
 class APITestCase(ModelTestCase):
@@ -427,11 +427,13 @@ class APIViewTestCases:
 
     class GraphQLTestCase(APITestCase):
 
-        def _get_graphql_base_name(self, plural=False):
-            if plural:
-                return getattr(self, 'graphql_base_name_plural',
-                               self.model._meta.verbose_name_plural.lower().replace(' ', '_'))
-            return getattr(self, 'graphql_base_name', self.model._meta.verbose_name.lower().replace(' ', '_'))
+        def _get_graphql_base_name(self):
+            """
+            Return graphql_base_name, if set. Otherwise, construct the base name for the query
+            field from the model's verbose name.
+            """
+            base_name = self.model._meta.verbose_name.lower().replace(' ', '_')
+            return getattr(self, 'graphql_base_name', base_name)
 
         def _build_query(self, name, **filters):
             type_class = get_graphql_type_for_model(self.model)
@@ -466,9 +468,9 @@ class APIViewTestCases:
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_get_object(self):
             url = reverse('graphql')
-            object_type = self._get_graphql_base_name()
+            field_name = self._get_graphql_base_name()
             object_id = self._get_queryset().first().pk
-            query = self._build_query(object_type, id=object_id)
+            query = self._build_query(field_name, id=object_id)
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
@@ -491,8 +493,8 @@ class APIViewTestCases:
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_list_objects(self):
             url = reverse('graphql')
-            object_type = self._get_graphql_base_name(plural=True)
-            query = self._build_query(object_type)
+            field_name = f'{self._get_graphql_base_name()}_list'
+            query = self._build_query(field_name)
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
@@ -511,7 +513,7 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
-            self.assertGreater(len(data['data'][object_type]), 0)
+            self.assertGreater(len(data['data'][field_name]), 0)
 
     class APIViewTestCase(
         GetObjectViewTestCase,

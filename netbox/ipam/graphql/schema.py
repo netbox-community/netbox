@@ -6,31 +6,31 @@ from .types import *
 
 class IPAMQuery(graphene.ObjectType):
     aggregate = ObjectField(AggregateType)
-    aggregates = ObjectListField(AggregateType)
+    aggregate_list = ObjectListField(AggregateType)
 
     ip_address = ObjectField(IPAddressType)
-    ip_addresses = ObjectListField(IPAddressType)
+    ip_address_list = ObjectListField(IPAddressType)
 
     prefix = ObjectField(PrefixType)
-    prefixes = ObjectListField(PrefixType)
+    prefix_list = ObjectListField(PrefixType)
 
     rir = ObjectField(RIRType)
-    rirs = ObjectListField(RIRType)
+    rir_list = ObjectListField(RIRType)
 
     role = ObjectField(RoleType)
-    roles = ObjectListField(RoleType)
+    role_list = ObjectListField(RoleType)
 
     route_target = ObjectField(RouteTargetType)
-    route_targets = ObjectListField(RouteTargetType)
+    route_target_list = ObjectListField(RouteTargetType)
 
     service = ObjectField(ServiceType)
-    services = ObjectListField(ServiceType)
+    service_list = ObjectListField(ServiceType)
 
     vlan = ObjectField(VLANType)
-    vlans = ObjectListField(VLANType)
+    vlan_list = ObjectListField(VLANType)
 
     vlan_group = ObjectField(VLANGroupType)
-    vlan_groups = ObjectListField(VLANGroupType)
+    vlan_group_list = ObjectListField(VLANGroupType)
 
     vrf = ObjectField(VRFType)
-    vrfs = ObjectListField(VRFType)
+    vrf_list = ObjectListField(VRFType)
