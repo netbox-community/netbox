@@ -446,9 +446,6 @@ class APIViewTestCases:
             # Compile list of fields to include
             fields_string = ''
             for field_name, field in type_class._meta.fields.items():
-                # TODO: Omit "hidden" fields from GraphQL types
-                if field_name.startswith('_'):
-                    continue
                 if type(field) is Dynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'

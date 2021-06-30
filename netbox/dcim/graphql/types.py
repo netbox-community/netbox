@@ -56,7 +56,7 @@ class ConsolePortType(TaggedObjectType):
 
     class Meta:
         model = models.ConsolePort
-        fields = '__all__'
+        exclude = ('_path',)
         filterset_class = filtersets.ConsolePortFilterSet
 
     def resolve_type(self, info):
@@ -78,7 +78,7 @@ class ConsoleServerPortType(TaggedObjectType):
 
     class Meta:
         model = models.ConsoleServerPort
-        fields = '__all__'
+        exclude = ('_path',)
         filterset_class = filtersets.ConsoleServerPortFilterSet
 
     def resolve_type(self, info):
@@ -162,7 +162,7 @@ class InterfaceType(TaggedObjectType):
 
     class Meta:
         model = models.Interface
-        fields = '__all__'
+        exclude = ('_path',)
         filterset_class = filtersets.InterfaceFilterSet
 
     def resolve_mode(self, info):
@@ -213,7 +213,7 @@ class PowerFeedType(TaggedObjectType):
 
     class Meta:
         model = models.PowerFeed
-        fields = '__all__'
+        exclude = ('_path',)
         filterset_class = filtersets.PowerFeedFilterSet
 
 
@@ -221,7 +221,7 @@ class PowerOutletType(TaggedObjectType):
 
     class Meta:
         model = models.PowerOutlet
-        fields = '__all__'
+        exclude = ('_path',)
         filterset_class = filtersets.PowerOutletFilterSet
 
     def resolve_feed_leg(self, info):
@@ -257,7 +257,7 @@ class PowerPortType(TaggedObjectType):
 
     class Meta:
         model = models.PowerPort
-        fields = '__all__'
+        exclude = ('_path',)
         filterset_class = filtersets.PowerPortFilterSet
 
     def resolve_type(self, info):
