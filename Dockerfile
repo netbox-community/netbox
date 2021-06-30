@@ -30,8 +30,7 @@ RUN pip install --prefix="/install" --no-warn-script-location \
 ARG NETBOX_PATH=.
 COPY ${NETBOX_PATH}/requirements.txt /
 COPY ${NETBOX_PATH}/requirements.extras.txt /
-RUN pip install --prefix="/install" --no-warn-script-location -r /requirements.txt
-RUN pip install --prefix="/install" --no-warn-script-location -r /requirements.extras.txt
+RUN pip install --prefix="/install" --no-warn-script-location -r /requirements.txt -r /requirements.extras.txt
 
 FROM vaporio/python:3.7-slim
 
