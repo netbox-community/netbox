@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#6138](https://github.com/netbox-community/netbox/issues/6138) - Add an `empty` filter modifier for character fields
 * [#6620](https://github.com/netbox-community/netbox/issues/6620) - Show assigned VMs count under device role view
 * [#6666](https://github.com/netbox-community/netbox/issues/6666) - Show management-only status under interface detail view
 * [#6667](https://github.com/netbox-community/netbox/issues/6667) - Display VM memory as GB/TB as appropriate
