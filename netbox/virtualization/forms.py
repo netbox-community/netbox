@@ -8,7 +8,8 @@ from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
+    CustomFieldFilterForm,
 )
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN
@@ -659,7 +660,8 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
-class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
+class VMInterfaceCreateForm(BootstrapMixin, CustomFieldForm, InterfaceCommonForm):
+    model = VMInterface
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all()
     )
@@ -723,7 +725,7 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
         self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
-class VMInterfaceCSVForm(CSVModelForm):
+class VMInterfaceCSVForm(CustomFieldModelCSVForm):
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'
@@ -746,7 +748,7 @@ class VMInterfaceCSVForm(CSVModelForm):
             return self.cleaned_data['enabled']
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()

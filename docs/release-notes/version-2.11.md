@@ -15,6 +15,7 @@
 * [#6640](https://github.com/netbox-community/netbox/issues/6640) - Disallow numeric values in custom text fields
 * [#6652](https://github.com/netbox-community/netbox/issues/6652) - Fix exception when adding components in bulk to multiple devices
 * [#6676](https://github.com/netbox-community/netbox/issues/6676) - Fix device/VM counts per cluster under cluster type/group views
+* [#6680](https://github.com/netbox-community/netbox/issues/6680) - Allow setting custom field values for VM interfaces on intial creation
 
 ---
 
