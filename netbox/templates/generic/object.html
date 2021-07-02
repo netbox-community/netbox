@@ -43,7 +43,7 @@
   <p>
     <small class="text-muted">
       Created {{ object.created|annotated_date }} &middot;
-      Updated <span title="{{ object.last_updated|date:'SHORT_DATETIME_FORMAT' }} ({{ object.last_updated|date:'DATETIME_FORMAT' }})">{{ object.last_updated|timesince }}</span> ago
+      Updated {{ object.last_updated|annotated_date }} ({{ object.last_updated|timesince }} ago)
     </small>
     <span class="label label-default">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
   </p>
