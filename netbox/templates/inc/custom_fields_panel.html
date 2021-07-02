@@ -1,4 +1,3 @@
-{% load helpers %}
 {% with custom_fields=object.get_custom_fields %}
     {% if custom_fields %}
         <div class="panel panel-default">
@@ -18,8 +17,6 @@
                                 <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
                             {% elif field.type == 'multiselect' and value %}
                                 {{ value|join:", " }}
-                            {% elif field.type == 'date' and value %}
-                                {{ value|annotated_date }}
                             {% elif value is not None %}
                                 {{ value }}
                             {% elif field.required %}

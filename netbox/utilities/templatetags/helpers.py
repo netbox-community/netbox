@@ -162,10 +162,6 @@ def annotated_date(date_value):
     if not date_value:
         return ''
 
-    # ../../templates/inc/custom_fields_panel.html passes a string.
-    if type(date_value) == str:
-        date_value = datetime.datetime.strptime(date_value, "%Y-%m-%d").date()
-
     if type(date_value) == datetime.date:
         long_ts = date(date_value, 'DATE_FORMAT')
         short_ts = date(date_value, 'SHORT_DATE_FORMAT')
