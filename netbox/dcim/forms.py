@@ -1878,8 +1878,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     )
     rear_port = forms.ModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
-        to_field_name='name',
-        required=False
+        to_field_name='name'
     )
 
     class Meta:
