@@ -4,12 +4,12 @@ from circuits.filtersets import CircuitFilterSet, ProviderFilterSet, ProviderNet
 from circuits.models import Circuit, ProviderNetwork, Provider
 from circuits.tables import CircuitTable, ProviderNetworkTable, ProviderTable
 from dcim.filtersets import (
-    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, LocationFilterSet,
-    SiteFilterSet, VirtualChassisFilterSet,
+    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackReservationFilterSet,
+    LocationFilterSet, SiteFilterSet, VirtualChassisFilterSet,
 )
-from dcim.models import Cable, Device, DeviceType, PowerFeed, Rack, Location, Site, VirtualChassis
+from dcim.models import Cable, Device, DeviceType, Location, PowerFeed, Rack, RackReservation, Site, VirtualChassis
 from dcim.tables import (
-    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, LocationTable, SiteTable,
+    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackReservationTable, LocationTable, SiteTable,
     VirtualChassisTable,
 )
 from ipam.filtersets import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
@@ -60,6 +60,12 @@ SEARCH_TYPES = OrderedDict((
         'filterset': RackFilterSet,
         'table': RackTable,
         'url': 'dcim:rack_list',
+    }),
+    ('rackreservation', {
+        'queryset': RackReservation.objects.prefetch_related('site', 'rack', 'user'),
+        'filterset': RackReservationFilterSet,
+        'table': RackReservationTable,
+        'url': 'dcim:rackreservation_list',
     }),
     ('location', {
         'queryset': Location.objects.add_related_count(

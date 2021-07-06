@@ -293,19 +293,24 @@ class FrontPortTemplate(ComponentTemplateModel):
     def clean(self):
         super().clean()
 
-        # Validate rear port assignment
-        if self.rear_port.device_type != self.device_type:
-            raise ValidationError(
-                "Rear port ({}) must belong to the same device type".format(self.rear_port)
-            )
+        try:
 
-        # Validate rear port position assignment
-        if self.rear_port_position > self.rear_port.positions:
-            raise ValidationError(
-                "Invalid rear port position ({}); rear port {} has only {} positions".format(
-                    self.rear_port_position, self.rear_port.name, self.rear_port.positions
+            # Validate rear port assignment
+            if self.rear_port.device_type != self.device_type:
+                raise ValidationError(
+                    "Rear port ({}) must belong to the same device type".format(self.rear_port)
                 )
-            )
+
+            # Validate rear port position assignment
+            if self.rear_port_position > self.rear_port.positions:
+                raise ValidationError(
+                    "Invalid rear port position ({}); rear port {} has only {} positions".format(
+                        self.rear_port_position, self.rear_port.name, self.rear_port.positions
+                    )
+                )
+
+        except RearPortTemplate.DoesNotExist:
+            pass
 
     def instantiate(self, device):
         if self.rear_port:

@@ -1,4 +1,5 @@
 {% extends 'base/layout.html' %}
+{% load helpers %}
 {% load form_helpers %}
 
 {% block title %}Create {{ component_type }}{% endblock %}
@@ -12,7 +13,37 @@
         <div class="col col-md-8">
             <div class="field-group">
                 <h4>{{ component_type|title }}</h4>
-                {% render_form form %}
+                {% if form.non_field_errors %}
+                    <div class="panel panel-danger">
+                        <div class="panel-heading"><strong>Errors</strong></div>
+                        <div class="panel-body">
+                            {{ form.non_field_errors }}
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>{{ component_type|bettertitle }}</strong>
+                    </div>
+                    <div class="panel-body">
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        {% for field in form.visible_fields %}
+                            {% if field.name not in form.custom_fields %}
+                                {% render_field field %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if form.custom_fields %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><strong>Custom Fields</strong></div>
+                        <div class="panel-body">
+                            {% render_custom_fields form %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

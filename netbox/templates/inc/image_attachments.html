@@ -1,3 +1,4 @@
+{% load helpers %}
 
 {% if images %}
     <table class="table table-hover">
@@ -14,7 +15,7 @@
                     <a class="image-preview" href="{{ attachment.image.url }}" target="_blank">{{ attachment }}</a>
                 </td>
                 <td>{{ attachment.size|filesizeformat }}</td>
-                <td>{{ attachment.created }}</td>
+                <td>{{ attachment.created|annotated_date }}</td>
                 <td class="text-end noprint">
                     {% if perms.extras.change_imageattachment %}
                         <a href="{% url 'extras:imageattachment_edit' pk=attachment.pk %}" class="btn btn-warning btn-sm lh-1" title="Edit Image">

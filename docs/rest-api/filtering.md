@@ -61,25 +61,30 @@ These lookup expressions can be applied by adding a suffix to the desired field'
 
 Numeric based fields (ASN, VLAN ID, etc) support these lookup expressions:
 
-- `n` - not equal to (negation)
-- `lt` - less than
-- `lte` - less than or equal
-- `gt` - greater than
-- `gte` - greater than or equal
+| Filter | Description |
+|--------|-------------|
+| `n` | Not equal to |
+| `lt` | Less than |
+| `lte` | Less than or equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal to |
 
 ### String Fields
 
 String based (char) fields (Name, Address, etc) support these lookup expressions:
 
-- `n` - not equal to (negation)
-- `ic` - case insensitive contains
-- `nic` - negated case insensitive contains
-- `isw` - case insensitive starts with
-- `nisw` - negated case insensitive starts with
-- `iew` - case insensitive ends with
-- `niew` - negated case insensitive ends with
-- `ie` - case insensitive exact match
-- `nie` - negated case insensitive exact match
+| Filter | Description |
+|--------|-------------|
+| `n` | Not equal to |
+| `ic` | Contains (case-insensitive) |
+| `nic` | Does not contain (case-insensitive) |
+| `isw` | Starts with (case-insensitive) |
+| `nisw` | Does not start with (case-insensitive) |
+| `iew` | Ends with (case-insensitive) |
+| `niew` | Does not end with (case-insensitive) |
+| `ie` | Exact match (case-insensitive) |
+| `nie` | Inverse exact match (case-insensitive) |
+| `empty` | Is empty (boolean) |
 
 ### Foreign Keys & Other Fields
 

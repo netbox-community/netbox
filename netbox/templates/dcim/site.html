@@ -68,7 +68,7 @@
                         <td>
                             {% if object.time_zone %}
                                 {{ object.time_zone }} (UTC {{ object.time_zone|tzoffset }})<br />
-                                <small class="text-muted">Site time: {% timezone object.time_zone %}{% now "SHORT_DATETIME_FORMAT" %}{% endtimezone %}</small>
+                                <small class="text-muted">Site time: {% timezone object.time_zone %}{% annotated_now %}{% endtimezone %}</small>
                             {% else %}
                                 <span class="text-muted">&mdash;</span>
                             {% endif %}

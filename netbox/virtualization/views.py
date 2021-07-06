@@ -33,6 +33,9 @@ class ClusterTypeView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         clusters = Cluster.objects.restrict(request.user, 'view').filter(
             type=instance
+        ).annotate(
+            device_count=count_related(Device, 'cluster'),
+            vm_count=count_related(VirtualMachine, 'cluster')
         )
 
         clusters_table = tables.ClusterTable(clusters)
@@ -92,6 +95,9 @@ class ClusterGroupView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         clusters = Cluster.objects.restrict(request.user, 'view').filter(
             group=instance
+        ).annotate(
+            device_count=count_related(Device, 'cluster'),
+            vm_count=count_related(VirtualMachine, 'cluster')
         )
 
         clusters_table = tables.ClusterTable(clusters)
@@ -450,7 +456,7 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceCreateForm
     model_form = forms.VMInterfaceForm
-    template_name = 'virtualization/virtualmachine_component_add.html'
+    template_name = 'dcim/device_component_add.html'
 
 
 class VMInterfaceEditView(generic.ObjectEditView):

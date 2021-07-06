@@ -35,7 +35,7 @@
                                             <td>{{ report.description|render_markdown|placeholder }}</td>
                                             <td class="text-end">
                                                 {% if report.result %}
-                                                    <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created }}</a>
+                                                    <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created|annotated_date }}</a>
                                                 {% else %}
                                                     <span class="text-muted">Never</span>
                                                 {% endif %}

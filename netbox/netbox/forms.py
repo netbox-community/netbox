@@ -11,12 +11,13 @@ OBJ_TYPE_CHOICES = (
     ('DCIM', (
         ('site', 'Sites'),
         ('rack', 'Racks'),
+        ('rackreservation', 'Rack reservations'),
         ('location', 'Locations'),
         ('devicetype', 'Device Types'),
         ('device', 'Devices'),
-        ('virtualchassis', 'Virtual Chassis'),
+        ('virtualchassis', 'Virtual chassis'),
         ('cable', 'Cables'),
-        ('powerfeed', 'Power Feeds'),
+        ('powerfeed', 'Power feeds'),
     )),
     ('IPAM', (
         ('vrf', 'VRFs'),

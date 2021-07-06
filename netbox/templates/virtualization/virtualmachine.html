@@ -142,7 +142,7 @@
                         <th scope="row"><i class="mdi mdi-chip"></i> Memory</th>
                         <td>
                             {% if object.memory %}
-                                {{ object.memory }} MB
+                                {{ object.memory|humanize_megabytes }} MB
                             {% else %}
                                 <span class="text-muted">&mdash;</span>
                             {% endif %}

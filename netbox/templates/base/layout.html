@@ -1,5 +1,6 @@
 {# Base layout for the core NetBox UI w/navbar and page content #}
 {% extends 'base/base.html' %}
+{% load helpers %}
 {% load nav %}
 {% load search_options %}
 {% load static %}
@@ -115,7 +116,7 @@
           <div class="row align-items-center justify-content-end mx-0">
           <div class="col-auto d-none d-md-block"></div>
             <div class="col text-center small text-muted">
-              <span class="fw-light d-block d-md-inline">{% now 'Y-m-d H:i:s T' %}</span>
+              <span class="fw-light d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
               <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
             </div>
           </div>

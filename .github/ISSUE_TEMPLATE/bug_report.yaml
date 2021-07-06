@@ -17,7 +17,7 @@ body:
         What version of NetBox are you currently running? (If you don't have access to the most
         recent NetBox release, consider testing on our [demo instance](https://demo.netbox.dev/)
         before opening a bug report to see if your issue has already been addressed.)
-      placeholder: v2.11.7
+      placeholder: v2.11.8
     validations:
       required: true
   - type: dropdown

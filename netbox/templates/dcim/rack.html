@@ -278,7 +278,7 @@
                             </td>
                             <td>
                                 {{ resv.description }}<br />
-                                <small>{{ resv.user }} &middot; {{ resv.created }}</small>
+                                <small>{{ resv.user }} &middot; {{ resv.created|annotated_date }}</small>
                             </td>
                             <td class="text-end noprint">
                                 {% if perms.dcim.change_rackreservation %}

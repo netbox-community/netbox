@@ -36,6 +36,15 @@
                             </td>
                         </tr>
                         <tr>
+                            <td colspan="2">
+                                {% if object.mgmt_only %}
+                                    <span class="badge bg-success">Management Only</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Not Management Only</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th scope="row">Device</th>
                             <td>
                                 <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>

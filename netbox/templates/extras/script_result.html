@@ -19,7 +19,7 @@
                 <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
-                <li class="breadcrumb-item">{{ result.created }}</li>
+                <li class="breadcrumb-item">{{ result.created|annotated_date }}</li>
             </ol>
         </nav>
     </div>
@@ -38,7 +38,7 @@
 </ul>
 <div class="tab-content my-3">
     <p>
-        Run: <strong>{{ result.created }}</strong>
+        Run: <strong>{{ result.created|annotated_date }}</strong>
         {% if result.completed %}
             Duration: <strong>{{ result.duration }}</strong>
         {% else %}

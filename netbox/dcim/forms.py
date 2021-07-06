@@ -1887,8 +1887,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     )
     rear_port = forms.ModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
-        to_field_name='name',
-        required=False
+        to_field_name='name'
     )
 
     class Meta:
@@ -2243,6 +2242,12 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         choices=DeviceStatusChoices,
         help_text='Operational status'
     )
+    virtual_chassis = CSVModelChoiceField(
+        queryset=VirtualChassis.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Virtual chassis'
+    )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
@@ -2253,6 +2258,10 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     class Meta:
         fields = []
         model = Device
+        help_texts = {
+            'vc_position': 'Virtual chassis position',
+            'vc_priority': 'Virtual chassis priority',
+        }
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -2291,7 +2300,8 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'location', 'rack', 'position', 'face', 'cluster', 'comments',
+            'site', 'location', 'rack', 'position', 'face', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster',
+            'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -2326,7 +2336,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'parent', 'device_bay', 'cluster', 'comments',
+            'parent', 'device_bay', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
