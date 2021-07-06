@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6138](https://github.com/netbox-community/netbox/issues/6138) - Add an `empty` filter modifier for character fields
+* [#6200](https://github.com/netbox-community/netbox/issues/6200) - Add rack reservations to global search
 * [#6368](https://github.com/netbox-community/netbox/issues/6368) - Enable virtual chassis assignment during bulk import of devices
 * [#6620](https://github.com/netbox-community/netbox/issues/6620) - Show assigned VMs count under device role view
 * [#6666](https://github.com/netbox-community/netbox/issues/6666) - Show management-only status under interface detail view
