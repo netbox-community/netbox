@@ -4,8 +4,8 @@ import re
 
 import yaml
 from django import template
-from django.template.defaultfilters import date
 from django.conf import settings
+from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.html import strip_tags

@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#5503](https://github.com/netbox-community/netbox/issues/5503) - Annotate short date & time fields with their longer form
 * [#6138](https://github.com/netbox-community/netbox/issues/6138) - Add an `empty` filter modifier for character fields
 * [#6200](https://github.com/netbox-community/netbox/issues/6200) - Add rack reservations to global search
 * [#6368](https://github.com/netbox-community/netbox/issues/6368) - Enable virtual chassis assignment during bulk import of devices
