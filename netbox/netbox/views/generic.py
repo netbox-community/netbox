@@ -18,7 +18,7 @@ from django_tables2.export import TableExport
 
 from extras.models import CustomField, ExportTemplate
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortTransaction
+from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, ImportForm, TableConfigForm, restrict_form_fields,
 )
@@ -290,7 +290,8 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     obj = form.save()
 
                     # Check that the new object conforms with any assigned object-level permissions
-                    self.queryset.get(pk=obj.pk)
+                    if not self.queryset.filter(pk=obj.pk).first():
+                        raise PermissionsViolation()
 
                 msg = '{} {}'.format(
                     'Created' if object_created else 'Modified',
@@ -318,7 +319,7 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 else:
                     return redirect(self.get_return_url(request, obj))
 
-            except ObjectDoesNotExist:
+            except PermissionsViolation:
                 msg = "Object save failed due to object-level permissions violation"
                 logger.debug(msg)
                 form.add_error(None, msg)
@@ -480,7 +481,7 @@ class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
                     # Enforce object-level permissions
                     if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
-                        raise ObjectDoesNotExist
+                        raise PermissionsViolation
 
                     # If we make it to this point, validation has succeeded on all new objects.
                     msg = "Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
@@ -494,7 +495,7 @@ class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             except IntegrityError:
                 pass
 
-            except ObjectDoesNotExist:
+            except PermissionsViolation:
                 msg = "Object creation failed due to object-level permissions violation"
                 logger.debug(msg)
                 form.add_error(None, msg)
@@ -565,7 +566,8 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                         obj = model_form.save()
 
                         # Enforce object-level permissions
-                        self.queryset.get(pk=obj.pk)
+                        if not self.queryset.filter(pk=obj.pk).first():
+                            raise PermissionsViolation()
 
                         logger.debug(f"Created {obj} (PK: {obj.pk})")
 
@@ -601,7 +603,7 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 except AbortTransaction:
                     pass
 
-                except ObjectDoesNotExist:
+                except PermissionsViolation:
                     msg = "Object creation failed due to object-level permissions violation"
                     logger.debug(msg)
                     form.add_error(None, msg)
@@ -712,7 +714,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
                     # Enforce object-level permissions
                     if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
-                        raise ObjectDoesNotExist
+                        raise PermissionsViolation
 
                 # Compile a table containing the imported objects
                 obj_table = self.table(new_objs)
@@ -730,7 +732,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             except ValidationError:
                 pass
 
-            except ObjectDoesNotExist:
+            except PermissionsViolation:
                 msg = "Object import failed due to object-level permissions violation"
                 logger.debug(msg)
                 form.add_error(None, msg)
@@ -845,7 +847,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
                         # Enforce object-level permissions
                         if self.queryset.filter(pk__in=[obj.pk for obj in updated_objects]).count() != len(updated_objects):
-                            raise ObjectDoesNotExist
+                            raise PermissionsViolation
 
                     if updated_objects:
                         msg = 'Updated {} {}'.format(len(updated_objects), model._meta.verbose_name_plural)
@@ -857,7 +859,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 except ValidationError as e:
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
-                except ObjectDoesNotExist:
+                except PermissionsViolation:
                     msg = "Object update failed due to object-level permissions violation"
                     logger.debug(msg)
                     form.add_error(None, msg)
@@ -952,7 +954,7 @@ class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
                             # Enforce constrained permissions
                             if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
-                                raise ObjectDoesNotExist
+                                raise PermissionsViolation
 
                             messages.success(request, "Renamed {} {}".format(
                                 len(selected_objects),
@@ -960,7 +962,7 @@ class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                             ))
                             return redirect(self.get_return_url(request))
 
-                except ObjectDoesNotExist:
+                except PermissionsViolation:
                     msg = "Object update failed due to object-level permissions violation"
                     logger.debug(msg)
                     form.add_error(None, msg)
@@ -1146,7 +1148,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
 
                         # Enforce object-level permissions
                         if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
-                            raise ObjectDoesNotExist
+                            raise PermissionsViolation
 
                     messages.success(request, "Added {} {}".format(
                         len(new_components), self.queryset.model._meta.verbose_name_plural
@@ -1156,7 +1158,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                     else:
                         return redirect(self.get_return_url(request))
 
-                except ObjectDoesNotExist:
+                except PermissionsViolation:
                     msg = "Component creation failed due to object-level permissions violation"
                     logger.debug(msg)
                     form.add_error(None, msg)
@@ -1229,7 +1231,7 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
                                 component_form = self.model_form(component_data)
                                 if component_form.is_valid():
                                     instance = component_form.save()
-                                    logger.debug(f"Created {instance} on {instance.parent}")
+                                    logger.debug(f"Created {instance} on {instance.parent_object}")
                                     new_components.append(instance)
                                 else:
                                     for field, errors in component_form.errors.as_data().items():
@@ -1238,12 +1240,12 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
 
                         # Enforce object-level permissions
                         if self.queryset.filter(pk__in=[obj.pk for obj in new_components]).count() != len(new_components):
-                            raise ObjectDoesNotExist
+                            raise PermissionsViolation
 
                 except IntegrityError:
                     pass
 
-                except ObjectDoesNotExist:
+                except PermissionsViolation:
                     msg = "Component creation failed due to object-level permissions violation"
                     logger.debug(msg)
                     form.add_error(None, msg)

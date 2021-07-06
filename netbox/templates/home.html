@@ -291,7 +291,7 @@
                     {% for result in report_results %}
                         <tr>
                             <td><a href="{% url 'extras:report_result' job_result_pk=result.pk %}">{{ result.name }}</a></td>
-                            <td class="text-right"><span title="{{ result.created }}">{% include 'extras/inc/job_label.html' %}</span></td>
+                            <td class="text-right"><span title="{{ result.created|date:'SHORT_DATETIME_FORMAT' }}">{% include 'extras/inc/job_label.html' %}</span></td>
                         </tr>
                     {% endfor %}
                 </table>

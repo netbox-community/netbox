@@ -1,4 +1,5 @@
 {% extends 'users/base.html' %}
+{% load helpers %}
 
 {% block title %}User Key{% endblock %}
 
@@ -19,7 +20,9 @@
             {% endif %}
         </h4>
         <p>
-            <small class="text-muted">Created {{ object.created }} &middot; Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago</small>
+            <small class="text-muted">
+              Created {{ object.created|annotated_date }} &middot;
+              Updated {{ object.last_updated|annotated_date }} ({{ object.last_updated|timesince }} ago)
         </p>
         {% if not object.is_active %}
             <div class="alert alert-warning" role="alert">
@@ -37,7 +40,7 @@
                 </a>
             </div>
             <h4>Session key: <span class="label label-success">Active</span></h4>
-            <small class="text-muted">Created {{ object.session_key.created }}</small>
+            <small class="text-muted">Created {{ object.session_key.created|annotated_date }}</small>
         {% else %}
             <h4>No active session key</h4>
         {% endif %}

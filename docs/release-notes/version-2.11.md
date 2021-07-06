@@ -1,5 +1,29 @@
 # NetBox v2.11
 
+## v2.11.8 (2021-07-06)
+
+### Enhancements
+
+* [#5503](https://github.com/netbox-community/netbox/issues/5503) - Annotate short date & time fields with their longer form
+* [#6138](https://github.com/netbox-community/netbox/issues/6138) - Add an `empty` filter modifier for character fields
+* [#6200](https://github.com/netbox-community/netbox/issues/6200) - Add rack reservations to global search
+* [#6368](https://github.com/netbox-community/netbox/issues/6368) - Enable virtual chassis assignment during bulk import of devices
+* [#6620](https://github.com/netbox-community/netbox/issues/6620) - Show assigned VMs count under device role view
+* [#6666](https://github.com/netbox-community/netbox/issues/6666) - Show management-only status under interface detail view
+* [#6667](https://github.com/netbox-community/netbox/issues/6667) - Display VM memory as GB/TB as appropriate
+
+### Bug Fixes
+
+* [#6626](https://github.com/netbox-community/netbox/issues/6626) - Fix site field on VM search form; add site group
+* [#6637](https://github.com/netbox-community/netbox/issues/6637) - Fix group assignment in "available VLANs" link under VLAN group view
+* [#6640](https://github.com/netbox-community/netbox/issues/6640) - Disallow numeric values in custom text fields
+* [#6652](https://github.com/netbox-community/netbox/issues/6652) - Fix exception when adding components in bulk to multiple devices
+* [#6676](https://github.com/netbox-community/netbox/issues/6676) - Fix device/VM counts per cluster under cluster type/group views
+* [#6680](https://github.com/netbox-community/netbox/issues/6680) - Allow setting custom field values for VM interfaces on initial creation
+* [#6695](https://github.com/netbox-community/netbox/issues/6695) - Fix exception when importing device type with invalid front port definition
+
+---
+
 ## v2.11.7 (2021-06-16)
 
 ### Enhancements

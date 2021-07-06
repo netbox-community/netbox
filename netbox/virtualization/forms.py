@@ -8,7 +8,8 @@ from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
+    CustomFieldFilterForm,
 )
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN
@@ -527,8 +528,8 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
 class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VirtualMachine
     field_order = [
-        'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_id',
-        'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
+        'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_group_id',
+        'site_id', 'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
     ]
     q = forms.CharField(
         required=False,
@@ -556,14 +557,20 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         label=_('Region')
     )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
         query_params={
-            'region_id': '$region_id'
+            'region_id': '$region_id',
+            'group_id': '$site_group_id',
         },
-        label=_('Cluster')
+        label=_('Site')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -653,7 +660,8 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
-class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
+class VMInterfaceCreateForm(BootstrapMixin, CustomFieldForm, InterfaceCommonForm):
+    model = VMInterface
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all()
     )
@@ -717,7 +725,7 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
         self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
-class VMInterfaceCSVForm(CSVModelForm):
+class VMInterfaceCSVForm(CustomFieldModelCSVForm):
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'
@@ -740,7 +748,7 @@ class VMInterfaceCSVForm(CSVModelForm):
             return self.cleaned_data['enabled']
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()

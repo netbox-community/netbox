@@ -42,8 +42,8 @@
   <h1 class="title">{% block title %}{{ object }}{% endblock %}</h1>
   <p>
     <small class="text-muted">
-      Created {{ object.created }} &middot;
-      Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
+      Created {{ object.created|annotated_date }} &middot;
+      Updated {{ object.last_updated|annotated_date }} ({{ object.last_updated|timesince }} ago)
     </small>
     <span class="label label-default">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
   </p>

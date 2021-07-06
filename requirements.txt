@@ -1,4 +1,4 @@
-Django==3.2.4
+Django==3.2.5
 django-cacheops==6.0
 django-cors-headers==3.7.0
 django-debug-toolbar==3.2.1
@@ -8,7 +8,7 @@ django-pglocks==1.0.4
 django-prometheus==2.1.0
 django-rq==2.4.1
 django-tables2==2.4.0
-django-taggit==1.4.0
+django-taggit==1.5.1
 django-timezone-field==4.1.2
 djangorestframework==3.12.4
 drf-yasg[validation]==1.20.0
@@ -16,8 +16,8 @@ gunicorn==20.1.0
 Jinja2==3.0.1
 Markdown==3.3.4
 netaddr==0.8.0
-Pillow==8.2.0
-psycopg2-binary==2.9
+Pillow==8.3.0
+psycopg2-binary==2.9.1
 pycryptodome==3.10.1
 PyYAML==5.4.1
 svgwrite==1.4.1

@@ -67,7 +67,7 @@
                     <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
                 </div>
                 <div class="col-xs-4 text-center">
-                    <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
+                    <p class="text-muted">{% annotated_now %} {% now 'T' %}</p>
                 </div>
                 <div class="col-xs-4 text-right noprint">
                     <p class="text-muted">

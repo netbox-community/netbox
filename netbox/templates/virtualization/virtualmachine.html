@@ -138,7 +138,7 @@
                     <td><i class="mdi mdi-chip"></i> Memory</td>
                     <td>
                         {% if object.memory %}
-                            {{ object.memory }} MB
+                            <span title="{{ object.memory }} MB">{{ object.memory|humanize_megabytes }}</span>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}
