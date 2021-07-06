@@ -13,7 +13,7 @@
                 <li><a href="{% url 'extras:script_list' %}">Scripts</a></li>
                 <li><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
                 <li><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
-                <li>{{ result.created }}</li>
+                <li>{{ result.created|annotated_date }}</li>
             </ol>
         </div>
     </div>
@@ -32,7 +32,7 @@
     </ul>
     <div class="tab-content">
         <p>
-            Run: <strong>{{ result.created }}</strong>
+            Run: <strong>{{ result.created|annotated_date }}</strong>
             {% if result.completed %}
                 Duration: <strong>{{ result.duration }}</strong>
             {% else %}

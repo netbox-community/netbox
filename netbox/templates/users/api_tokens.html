@@ -24,12 +24,12 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <small class="text-muted">Created</small><br />
-                                <span title="{{ token.created }}">{{ token.created|date }}</span>
+                                {{ token.created|annotated_date }}
                             </div>
                             <div class="col-md-4">
                                 <small class="text-muted">Expires</small><br />
                                 {% if token.expires %}
-                                    <span title="{{ token.expires }}">{{ token.expires|date }}</span>
+                                    {{ token.expires|annotated_date }}
                                 {% else %}
                                     <span>Never</span>
                                 {% endif %}

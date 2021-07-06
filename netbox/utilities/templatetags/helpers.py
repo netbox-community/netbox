@@ -4,8 +4,10 @@ import re
 
 import yaml
 from django import template
+from django.template.defaultfilters import date
 from django.conf import settings
 from django.urls import NoReverseMatch, reverse
+from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
@@ -149,6 +151,36 @@ def tzoffset(value):
     Returns the hour offset of a given time zone using the current time.
     """
     return datetime.datetime.now(value).strftime('%z')
+
+
+@register.filter(expects_localtime=True)
+def annotated_date(date_value):
+    """
+    Returns date as HTML span with short date format as the content and the
+    (long) date format as the title.
+    """
+    if not date_value:
+        return ''
+
+    if type(date_value) == datetime.date:
+        long_ts = date(date_value, 'DATE_FORMAT')
+        short_ts = date(date_value, 'SHORT_DATE_FORMAT')
+    else:
+        long_ts = date(date_value, 'DATETIME_FORMAT')
+        short_ts = date(date_value, 'SHORT_DATETIME_FORMAT')
+
+    span = f'<span title="{long_ts}">{short_ts}</span>'
+
+    return mark_safe(span)
+
+
+@register.simple_tag
+def annotated_now():
+    """
+    Returns the current date piped through the annotated_date filter.
+    """
+    tzinfo = timezone.get_current_timezone() if settings.USE_TZ else None
+    return annotated_date(datetime.datetime.now(tz=tzinfo))
 
 
 @register.filter()
