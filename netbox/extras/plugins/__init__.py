@@ -52,6 +52,9 @@ class PluginConfig(AppConfig):
         '*': {'ops': 'all'},
     }
 
+    # Django-rq queues dedicated to the plugin
+    queues = []
+
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
     template_extensions = 'template_content.template_extensions'
