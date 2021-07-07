@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#6710](https://github.com/netbox-community/netbox/issues/6710) - Fix assignment of VM interface parent via REST API
+* [#6714](https://github.com/netbox-community/netbox/issues/6714) - Fix rendering of device type component creation forms
 
 ---
 
