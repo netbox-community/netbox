@@ -113,7 +113,6 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `min_version` | Minimum version of NetBox with which the plugin is compatible |
 | `max_version` | Maximum version of NetBox with which the plugin is compatible |
 | `middleware` | A list of middleware classes to append after NetBox's build-in middleware |
-| `caching_config` | Plugin-specific cache configuration
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`) |
 | `menu_items` | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`) |
 
@@ -385,31 +384,3 @@ class SiteAnimalCount(PluginTemplateExtension):
 
 template_extensions = [SiteAnimalCount]
 ```
-
-## Caching Configuration
-
-By default, all query operations within a plugin are cached. To change this, define a caching configuration under the PluginConfig class' `caching_config` attribute. All configuration keys will be applied within the context of the plugin; there is no need to include the plugin name. An example configuration is below:
-
-```python
-class MyPluginConfig(PluginConfig):
-    ...
-    caching_config = {
-        'foo': {
-            'ops': 'get',
-            'timeout': 60 * 15,
-        },
-        '*': {
-            'ops': 'all',
-        }
-    }
-```
-
-To disable caching for your plugin entirely, set:
-
-```python
-caching_config = {
-    '*': None
-}
-```
-
-See the [django-cacheops](https://github.com/Suor/django-cacheops) documentation for more detail on configuring caching.

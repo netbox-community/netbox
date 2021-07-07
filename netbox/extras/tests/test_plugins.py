@@ -80,12 +80,6 @@ class PluginTest(TestCase):
         """
         self.assertIn('extras.tests.dummy_plugin.middleware.DummyMiddleware', settings.MIDDLEWARE)
 
-    def test_caching_config(self):
-        """
-        Check that plugin caching configuration is registered.
-        """
-        self.assertIn('extras.tests.dummy_plugin.*', settings.CACHEOPS)
-
     def test_min_version(self):
         """
         Check enforcement of minimum NetBox version.

@@ -632,12 +632,3 @@ for plugin_name in PLUGINS:
     plugin_middleware = plugin_config.middleware
     if plugin_middleware and type(plugin_middleware) in (list, tuple):
         MIDDLEWARE.extend(plugin_middleware)
-
-    # Apply cacheops config
-    if type(plugin_config.caching_config) is not dict:
-        raise ImproperlyConfigured(
-            "Plugin {} caching_config must be a dictionary.".format(plugin_name)
-        )
-    CACHEOPS.update({
-        "{}.{}".format(plugin_name, key): value for key, value in plugin_config.caching_config.items()
-    })
