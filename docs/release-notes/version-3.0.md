@@ -6,6 +6,7 @@
 
 * The default CSV export format for all objects now includes all available data. Additionally, the CSV headers now use human-friendly titles rather than the raw field names.
 * Support for queryset caching configuration (`caching_config`) has been removed from the plugins API (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
+* The `cacheops_*` metrics have been removed from the Prometheus exporter (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
 
 ### New Features
 

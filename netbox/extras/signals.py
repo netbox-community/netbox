@@ -1,4 +1,3 @@
-from cacheops.signals import cache_invalidated, cache_read
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import m2m_changed, post_save, pre_delete
@@ -138,27 +137,3 @@ def run_custom_validators(sender, instance, **kwargs):
     validators = settings.CUSTOM_VALIDATORS.get(model_name, [])
     for validator in validators:
         validator(instance)
-
-
-#
-# Caching
-#
-
-cacheops_cache_hit = Counter('cacheops_cache_hit', 'Number of cache hits')
-cacheops_cache_miss = Counter('cacheops_cache_miss', 'Number of cache misses')
-cacheops_cache_invalidated = Counter('cacheops_cache_invalidated', 'Number of cache invalidations')
-
-
-def cache_read_collector(sender, func, hit, **kwargs):
-    if hit:
-        cacheops_cache_hit.inc()
-    else:
-        cacheops_cache_miss.inc()
-
-
-def cache_invalidated_collector(sender, obj_dict, **kwargs):
-    cacheops_cache_invalidated.inc()
-
-
-cache_read.connect(cache_read_collector)
-cache_invalidated.connect(cache_invalidated_collector)
