@@ -4,7 +4,8 @@
   "main": "dist/netbox.js",
   "license": "Apache-2.0",
   "scripts": {
-    "bundle": "node bundle.js"
+    "bundle": "node bundle.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@mdi/font": "^5.9.55",

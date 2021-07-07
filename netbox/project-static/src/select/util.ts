@@ -1,5 +1,5 @@
 import { readableColor } from 'color2k';
-import { findFirstAdjacent, getElements } from '../util';
+import { findFirstAdjacent } from '../util';
 
 import type SlimSelect from 'slim-select';
 
