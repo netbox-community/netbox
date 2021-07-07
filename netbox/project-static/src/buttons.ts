@@ -11,47 +11,6 @@ import {
 } from './util';
 
 /**
- * Toggle the visibility of device images and update the toggle button style.
- */
-function handleRackImageToggle(event: Event) {
-  const target = event.target as HTMLButtonElement;
-  const selected = target.getAttribute('selected');
-
-  if (isTruthy(selected)) {
-    for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
-      const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
-      for (const image of images) {
-        if (image !== null && !image.classList.contains('hidden')) {
-          image.classList.add('hidden');
-        }
-      }
-    }
-    target.innerHTML = `<i class="mdi mdi-file-image-outline"></i>&nbsp;Show Images`;
-    target.setAttribute('selected', '');
-  } else {
-    for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
-      const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
-      for (const image of images) {
-        if (image !== null) {
-          image.classList.remove('hidden');
-        }
-      }
-    }
-    target.innerHTML = `<i class="mdi mdi-file-image-outline"></i>&nbsp;Hide Images`;
-    target.setAttribute('selected', 'selected');
-  }
-  return;
-}
-/**
- * Add onClick callback for toggling rack elevation images.
- */
-function initRackElevation() {
-  for (const button of getElements<HTMLButtonElement>('button.toggle-images')) {
-    button.addEventListener('click', handleRackImageToggle);
-  }
-}
-
-/**
  * When the toggle button is clicked, swap the connection status via the API and toggle CSS
  * classes to reflect the connection status.
  *
@@ -280,7 +239,6 @@ function initPerPage() {
 
 export function initButtons() {
   for (const func of [
-    initRackElevation,
     initConnectionToggle,
     initReslug,
     initSelectAll,
