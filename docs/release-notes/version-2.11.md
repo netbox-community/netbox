@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.9 (FUTURE)
+
+### Bug Fixes
+
+* [#6710](https://github.com/netbox-community/netbox/issues/6710) - Fix assignment of VM interface parent via REST API
+
+---
+
 ## v2.11.8 (2021-07-06)
 
 ### Enhancements
