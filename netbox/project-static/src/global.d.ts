@@ -6,6 +6,11 @@ type Dict<T extends unknown = unknown> = Record<string, T>;
 
 type Nullable<T> = T | null;
 
+/**
+ * Enforce string index type (not `number` or `symbol`).
+ */
+type Index<O extends Dict, K extends keyof O> = K extends string ? K : never;
+
 type APIAnswer<T> = {
   count: number;
   next: Nullable<string>;
