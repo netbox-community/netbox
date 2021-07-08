@@ -25,6 +25,7 @@ from .nested_serializers import *
 class CableTerminationSerializer(serializers.ModelSerializer):
     cable_peer_type = serializers.SerializerMethodField(read_only=True)
     cable_peer = serializers.SerializerMethodField(read_only=True)
+    _occupied = serializers.SerializerMethodField(read_only=True)
 
     def get_cable_peer_type(self, obj):
         if obj._cable_peer is not None:
@@ -41,6 +42,10 @@ class CableTerminationSerializer(serializers.ModelSerializer):
             context = {'request': self.context['request']}
             return serializer(obj._cable_peer, context=context).data
         return None
+
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
+    def get__occupied(self, obj):
+        return obj._occupied
 
 
 class ConnectedEndpointSerializer(serializers.ModelSerializer):
