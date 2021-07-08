@@ -3,6 +3,7 @@ import sys
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.db.models import F
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect, render
@@ -23,7 +24,6 @@ from extras.models import ObjectChange, JobResult
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from netbox.forms import SearchForm
-from netbox.releases import get_latest_release
 from tenancy.models import Tenant
 from virtualization.models import Cluster, VirtualMachine
 
@@ -119,10 +119,10 @@ class HomeView(View):
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None
         if request.user.is_staff or request.user.is_superuser:
-            latest_release, release_url = get_latest_release()
-            if isinstance(latest_release, version.Version):
-                current_version = version.parse(settings.VERSION)
-                if latest_release > current_version:
+            latest_release = cache.get('latest_release')
+            if latest_release:
+                release_version, release_url = latest_release
+                if release_version > version.parse(settings.VERSION):
                     new_release = {
                         'version': str(latest_release),
                         'url': release_url,
