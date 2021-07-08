@@ -68,10 +68,12 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 * [#6068](https://github.com/netbox-community/netbox/issues/6068) - Drop support for legacy static CSV export
 * [#6338](https://github.com/netbox-community/netbox/issues/6338) - Decimal fields are no longer coerced to strings in REST API
 * [#6639](https://github.com/netbox-community/netbox/issues/6639) - Drop support for queryset caching (django-cacheops)
+* [#6713](https://github.com/netbox-community/netbox/issues/6713) - Checking for new releases is now done as part of the housekeeping routine
 
 ### Configuration Changes
 
 * The `CACHE_TIMEOUT` configuration parameter has been removed.
+* The `RELEASE_CHECK_TIMEOUT` configuration parameter has been removed.
 
 ### REST API Changes
 

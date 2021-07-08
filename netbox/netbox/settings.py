@@ -47,7 +47,13 @@ except ModuleNotFoundError as e:
 
 # Warn on removed config parameters
 if hasattr(configuration, 'CACHE_TIMEOUT'):
-    warnings.warn("The CACHE_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect.")
+    warnings.warn(
+        "The CACHE_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
+    )
+if hasattr(configuration, 'RELEASE_CHECK_TIMEOUT'):
+    warnings.warn(
+        "The RELEASE_CHECK_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
+    )
 
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
@@ -114,7 +120,6 @@ REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PE
 REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
 REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
-RELEASE_CHECK_TIMEOUT = getattr(configuration, 'RELEASE_CHECK_TIMEOUT', 24 * 3600)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
@@ -140,10 +145,6 @@ if RELEASE_CHECK_URL:
         validator(RELEASE_CHECK_URL)
     except ValidationError as err:
         raise ImproperlyConfigured(str(err))
-
-# Enforce a minimum cache timeout for update checks
-if RELEASE_CHECK_TIMEOUT < 3600:
-    raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
 
 #
@@ -545,8 +546,7 @@ else:
     }
 
 RQ_QUEUES = {
-    'default': RQ_PARAMS,  # Webhooks
-    'check_releases': RQ_PARAMS,
+    'default': RQ_PARAMS,
 }
 
 
