@@ -546,8 +546,7 @@ else:
     }
 
 RQ_QUEUES = {
-    'default': RQ_PARAMS,  # Webhooks
-    'check_releases': RQ_PARAMS,
+    'default': RQ_PARAMS,
 }
 
 
