@@ -8,6 +8,7 @@
 * Support for queryset caching configuration (`caching_config`) has been removed from the plugins API (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
 * The `cacheops_*` metrics have been removed from the Prometheus exporter (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
 * The `invalidate` management command has been removed.
+* The redundant REST API endpoints for console, power, and interface connections have been removed. The same data can be retrieved using the respective model endpoints with the `?connected=True` filter applied.
 
 ### New Features
 
@@ -63,6 +64,7 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 
 ### Other Changes
 
+* [#5223](https://github.com/netbox-community/netbox/issues/5223) - Remove the console/power/interface connections REST API endpoints
 * [#5532](https://github.com/netbox-community/netbox/issues/5532) - Drop support for Python 3.6
 * [#5994](https://github.com/netbox-community/netbox/issues/5994) - Drop support for `display_field` argument on ObjectVar
 * [#6068](https://github.com/netbox-community/netbox/issues/6068) - Drop support for legacy static CSV export
@@ -79,6 +81,10 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 
 * Added the `/api/users/tokens/` endpoint
     * The `provision/` child endpoint can be used to provision new REST API tokens by supplying a valid username and password
+* Removed the following "connections" endpoints:
+    * `/api/dcim/console-connections`
+    * `/api/dcim/power-connections`
+    * `/api/dcim/interface-connections`
 * dcim.Cable
     * `length` is now a decimal value
 * dcim.Device

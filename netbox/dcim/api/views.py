@@ -571,38 +571,6 @@ class InventoryItemViewSet(ModelViewSet):
 
 
 #
-# Connections
-#
-
-class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = ConsolePort.objects.prefetch_related('device', '_path').filter(
-        _path__destination_id__isnull=False
-    )
-    serializer_class = serializers.ConsolePortSerializer
-    filterset_class = filtersets.ConsoleConnectionFilterSet
-
-
-class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = PowerPort.objects.prefetch_related('device', '_path').filter(
-        _path__destination_id__isnull=False
-    )
-    serializer_class = serializers.PowerPortSerializer
-    filterset_class = filtersets.PowerConnectionFilterSet
-
-
-class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = Interface.objects.prefetch_related('device', '_path').filter(
-        # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _path__destination_type__app_label='dcim',
-        _path__destination_type__model='interface',
-        _path__destination_id__isnull=False,
-        pk__lt=F('_path__destination_id')
-    )
-    serializer_class = serializers.InterfaceConnectionSerializer
-    filterset_class = filtersets.InterfaceConnectionFilterSet
-
-
-#
 # Cables
 #
 
