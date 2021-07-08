@@ -45,6 +45,10 @@ except ModuleNotFoundError as e:
         )
     raise
 
+# Warn on removed config parameters
+if hasattr(configuration, 'CACHE_TIMEOUT'):
+    warnings.warn("The CACHE_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect.")
+
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
     if not hasattr(configuration, parameter):
@@ -231,8 +235,7 @@ CACHING_REDIS_PASSWORD = REDIS['caching'].get('PASSWORD', '')
 CACHING_REDIS_SENTINELS = REDIS['caching'].get('SENTINELS', [])
 CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'default')
 CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
-# Unused?
-# CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
+CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
 
 CACHES = {
     'default': {
@@ -248,6 +251,8 @@ if CACHING_REDIS_SENTINELS:
     CACHES['default']['LOCATION'] = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_SENTINEL_SERVICE}/{CACHING_REDIS_DATABASE}'
     CACHES['default']['OPTIONS']['CLIENT_CLASS'] = 'django_redis.client.SentinelClient'
     CACHES['default']['OPTIONS']['SENTINELS'] = CACHING_REDIS_SENTINELS
+if CACHING_REDIS_SKIP_TLS_VERIFY:
+    CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_cert_reqs'] = False
 
 
 #
