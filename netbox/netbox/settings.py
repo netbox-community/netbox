@@ -45,6 +45,10 @@ except ModuleNotFoundError as e:
         )
     raise
 
+# Warn on removed config parameters
+if hasattr(configuration, 'CACHE_TIMEOUT'):
+    warnings.warn("The CACHE_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect.")
+
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
     if not hasattr(configuration, parameter):
@@ -69,7 +73,6 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
-CACHE_TIMEOUT = getattr(configuration, 'CACHE_TIMEOUT', 900)
 CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
@@ -225,19 +228,31 @@ if 'caching' not in REDIS:
     raise ImproperlyConfigured(
         "REDIS section in configuration.py is missing caching subsection."
     )
-CACHING_REDIS = REDIS['caching']
-CACHING_REDIS_HOST = CACHING_REDIS.get('HOST', 'localhost')
-CACHING_REDIS_PORT = CACHING_REDIS.get('PORT', 6379)
-CACHING_REDIS_SENTINELS = CACHING_REDIS.get('SENTINELS', [])
-CACHING_REDIS_USING_SENTINEL = all([
-    isinstance(CACHING_REDIS_SENTINELS, (list, tuple)),
-    len(CACHING_REDIS_SENTINELS) > 0
-])
-CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get('SENTINEL_SERVICE', 'default')
-CACHING_REDIS_PASSWORD = CACHING_REDIS.get('PASSWORD', '')
-CACHING_REDIS_DATABASE = CACHING_REDIS.get('DATABASE', 0)
-CACHING_REDIS_SSL = CACHING_REDIS.get('SSL', False)
-CACHING_REDIS_SKIP_TLS_VERIFY = CACHING_REDIS.get('INSECURE_SKIP_TLS_VERIFY', False)
+CACHING_REDIS_HOST = REDIS['caching'].get('HOST', 'localhost')
+CACHING_REDIS_PORT = REDIS['caching'].get('PORT', 6379)
+CACHING_REDIS_DATABASE = REDIS['caching'].get('DATABASE', 0)
+CACHING_REDIS_PASSWORD = REDIS['caching'].get('PASSWORD', '')
+CACHING_REDIS_SENTINELS = REDIS['caching'].get('SENTINELS', [])
+CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'default')
+CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
+CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'PASSWORD': CACHING_REDIS_PASSWORD,
+        }
+    }
+}
+if CACHING_REDIS_SENTINELS:
+    CACHES['default']['LOCATION'] = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_SENTINEL_SERVICE}/{CACHING_REDIS_DATABASE}'
+    CACHES['default']['OPTIONS']['CLIENT_CLASS'] = 'django_redis.client.SentinelClient'
+    CACHES['default']['OPTIONS']['SENTINELS'] = CACHING_REDIS_SENTINELS
+if CACHING_REDIS_SKIP_TLS_VERIFY:
+    CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_cert_reqs'] = False
 
 
 #
@@ -280,7 +295,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'cacheops',
     'corsheaders',
     'debug_toolbar',
     'graphiql_debug_toolbar',
@@ -395,53 +409,6 @@ EXEMPT_EXCLUDE_MODELS = (
     ('auth', 'user'),
     ('users', 'objectpermission'),
 )
-
-#
-# Caching
-#
-if CACHING_REDIS_USING_SENTINEL:
-    CACHEOPS_SENTINEL = {
-        'locations': CACHING_REDIS_SENTINELS,
-        'service_name': CACHING_REDIS_SENTINEL_SERVICE,
-        'db': CACHING_REDIS_DATABASE,
-        'password': CACHING_REDIS_PASSWORD,
-    }
-else:
-    CACHEOPS_REDIS = {
-        'host': CACHING_REDIS_HOST,
-        'port': CACHING_REDIS_PORT,
-        'db': CACHING_REDIS_DATABASE,
-        'password': CACHING_REDIS_PASSWORD,
-        'ssl': CACHING_REDIS_SSL,
-        'ssl_cert_reqs': None if CACHING_REDIS_SKIP_TLS_VERIFY else 'required',
-    }
-
-if not CACHE_TIMEOUT:
-    CACHEOPS_ENABLED = False
-else:
-    CACHEOPS_ENABLED = True
-
-
-CACHEOPS_DEFAULTS = {
-    'timeout': CACHE_TIMEOUT
-}
-CACHEOPS = {
-    'auth.user': {'ops': 'get', 'timeout': 60 * 15},
-    'auth.*': {'ops': ('fetch', 'get')},
-    'auth.permission': {'ops': 'all'},
-    'circuits.*': {'ops': 'all'},
-    'dcim.inventoryitem': None,  # MPTT models are exempt due to raw SQL
-    'dcim.region': None,  # MPTT models are exempt due to raw SQL
-    'dcim.location': None,  # MPTT models are exempt due to raw SQL
-    'dcim.*': {'ops': 'all'},
-    'ipam.*': {'ops': 'all'},
-    'extras.*': {'ops': 'all'},
-    'users.*': {'ops': 'all'},
-    'tenancy.tenantgroup': None,  # MPTT models are exempt due to raw SQL
-    'tenancy.*': {'ops': 'all'},
-    'virtualization.*': {'ops': 'all'},
-}
-CACHEOPS_DEGRADE_ON_FAILURE = True
 
 
 #
@@ -632,12 +599,3 @@ for plugin_name in PLUGINS:
     plugin_middleware = plugin_config.middleware
     if plugin_middleware and type(plugin_middleware) in (list, tuple):
         MIDDLEWARE.extend(plugin_middleware)
-
-    # Apply cacheops config
-    if type(plugin_config.caching_config) is not dict:
-        raise ImproperlyConfigured(
-            "Plugin {} caching_config must be a dictionary.".format(plugin_name)
-        )
-    CACHEOPS.update({
-        "{}.{}".format(plugin_name, key): value for key, value in plugin_config.caching_config.items()
-    })

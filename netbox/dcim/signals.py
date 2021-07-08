@@ -1,6 +1,5 @@
 import logging
 
-from cacheops import invalidate_obj
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.db import transaction
@@ -33,7 +32,6 @@ def rebuild_paths(obj):
         for cp in cable_paths:
             cp.delete()
             if cp.origin:
-                invalidate_obj(cp.origin)
                 create_cablepath(cp.origin)
 
 

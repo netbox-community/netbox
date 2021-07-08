@@ -2,10 +2,6 @@
 # https://github.com/django/django
 Django
 
-# Django caching using Redis
-# https://github.com/Suor/django-cacheops
-django-cacheops
-
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
 django-cors-headers
@@ -33,6 +29,10 @@ django-pglocks
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus
 django-prometheus
+
+# Django chaching backend using Redis
+# https://github.com/jazzband/django-redis
+django-redis
 
 # Django integration for RQ (Reqis queuing)
 # https://github.com/rq/django-rq

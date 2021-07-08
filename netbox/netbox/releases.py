@@ -1,7 +1,7 @@
 import logging
 
-from cacheops import CacheMiss, cache
 from django.conf import settings
+from django.core.cache import cache
 from django_rq import get_queue
 
 from utilities.background_tasks import get_releases
@@ -12,12 +12,11 @@ logger = logging.getLogger('netbox.releases')
 def get_latest_release(pre_releases=False):
     if settings.RELEASE_CHECK_URL:
         logger.debug("Checking for most recent release")
-        try:
-            latest_release = cache.get('latest_release')
-            if latest_release:
-                logger.debug("Found cached release: {}".format(latest_release))
-                return latest_release
-        except CacheMiss:
+        latest_release = cache.get('latest_release')
+        if latest_release:
+            logger.debug(f"Found cached release: {latest_release}")
+            return latest_release
+        else:
             # Check for an existing job. This can happen if the RQ worker process is not running.
             queue = get_queue('check_releases')
             if queue.jobs:

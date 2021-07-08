@@ -1,5 +1,4 @@
 Django==3.2.5
-django-cacheops==6.0
 django-cors-headers==3.7.0
 django-debug-toolbar==3.2.1
 django-filter==2.4.0
@@ -7,6 +6,7 @@ django-graphiql-debug-toolbar==0.1.4
 django-mptt==0.12.0
 django-pglocks==1.0.4
 django-prometheus==2.1.0
+django-redis==5.0.0
 django-rq==2.4.1
 django-tables2==2.4.0
 django-taggit==1.5.1

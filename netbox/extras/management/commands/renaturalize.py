@@ -1,4 +1,3 @@
-from cacheops import invalidate_model
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 
@@ -107,9 +106,6 @@ class Command(BaseCommand):
                     ))
                 elif options['verbosity']:
                     self.stdout.write(self.style.SUCCESS(str(count)))
-
-            # Invalidate cached queries
-            invalidate_model(model)
 
         if options['verbosity']:
             self.stdout.write(self.style.SUCCESS("Done."))

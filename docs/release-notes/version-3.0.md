@@ -5,6 +5,9 @@
 ### Breaking Changes
 
 * The default CSV export format for all objects now includes all available data. Additionally, the CSV headers now use human-friendly titles rather than the raw field names.
+* Support for queryset caching configuration (`caching_config`) has been removed from the plugins API (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
+* The `cacheops_*` metrics have been removed from the Prometheus exporter (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
+* The `invalidate` management command has been removed.
 
 ### New Features
 
@@ -64,6 +67,11 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 * [#5994](https://github.com/netbox-community/netbox/issues/5994) - Drop support for `display_field` argument on ObjectVar
 * [#6068](https://github.com/netbox-community/netbox/issues/6068) - Drop support for legacy static CSV export
 * [#6338](https://github.com/netbox-community/netbox/issues/6338) - Decimal fields are no longer coerced to strings in REST API
+* [#6639](https://github.com/netbox-community/netbox/issues/6639) - Drop support for queryset caching (django-cacheops)
+
+### Configuration Changes
+
+* The `CACHE_TIMEOUT` configuration parameter has been removed.
 
 ### REST API Changes
 

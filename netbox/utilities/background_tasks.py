@@ -1,8 +1,8 @@
 import logging
 
 import requests
-from cacheops.simple import cache, CacheMiss
 from django.conf import settings
+from django.core.cache import cache
 from django_rq import job
 from packaging import version
 
@@ -18,16 +18,8 @@ def get_releases(pre_releases=False):
     }
     releases = []
 
-    # Check whether this URL has failed recently and shouldn't be retried yet
     try:
-        if url == cache.get('latest_release_no_retry'):
-            logger.info("Skipping release check; URL failed recently: {}".format(url))
-            return []
-    except CacheMiss:
-        pass
-
-    try:
-        logger.debug("Fetching new releases from {}".format(url))
+        logger.info(f"Fetching new releases from {url}")
         response = requests.get(url, headers=headers, proxies=settings.HTTP_PROXIES)
         response.raise_for_status()
         total_releases = len(response.json())
@@ -38,12 +30,10 @@ def get_releases(pre_releases=False):
             if not pre_releases and (release.get('devrelease') or release.get('prerelease')):
                 continue
             releases.append((version.parse(release['tag_name']), release.get('html_url')))
-        logger.debug("Found {} releases; {} usable".format(total_releases, len(releases)))
+        logger.debug(f"Found {total_releases} releases; {len(releases)} usable")
 
-    except requests.exceptions.RequestException:
-        # The request failed. Set a flag in the cache to disable future checks to this URL for 15 minutes.
-        logger.exception("Error while fetching {}. Disabling checks for 15 minutes.".format(url))
-        cache.set('latest_release_no_retry', url, 900)
+    except requests.exceptions.RequestException as exc:
+        logger.exception(f"Error while fetching latest release from {url}: {exc}")
         return []
 
     # Cache the most recent release
