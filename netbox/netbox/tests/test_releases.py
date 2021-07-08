@@ -3,8 +3,8 @@ from logging import ERROR
 from unittest.mock import Mock, patch
 
 import requests
-from cacheops import CacheMiss, RedisCache
 from django.conf import settings
+from django.core.cache import cache
 from django.test import SimpleTestCase, override_settings
 from packaging.version import Version
 from requests import Response
@@ -60,10 +60,8 @@ def unsuccessful_github_response(url, *_args, **_kwargs):
 @override_settings(RELEASE_CHECK_URL='https://localhost/unittest/releases', RELEASE_CHECK_TIMEOUT=160876)
 class GetReleasesTestCase(SimpleTestCase):
     @patch.object(requests, 'get')
-    @patch.object(RedisCache, 'set')
-    @patch.object(RedisCache, 'get')
-    def test_pre_releases(self, dummy_cache_get: Mock, dummy_cache_set: Mock, dummy_request_get: Mock):
-        dummy_cache_get.side_effect = CacheMiss()
+    @patch.object(cache, 'set')
+    def test_pre_releases(self, dummy_cache_set: Mock, dummy_request_get: Mock):
         dummy_request_get.side_effect = successful_github_response
 
         releases = get_releases(pre_releases=True)
@@ -90,10 +88,8 @@ class GetReleasesTestCase(SimpleTestCase):
         )
 
     @patch.object(requests, 'get')
-    @patch.object(RedisCache, 'set')
-    @patch.object(RedisCache, 'get')
-    def test_no_pre_releases(self, dummy_cache_get: Mock, dummy_cache_set: Mock, dummy_request_get: Mock):
-        dummy_cache_get.side_effect = CacheMiss()
+    @patch.object(cache, 'set')
+    def test_no_pre_releases(self, dummy_cache_set: Mock, dummy_request_get: Mock):
         dummy_request_get.side_effect = successful_github_response
 
         releases = get_releases(pre_releases=False)
@@ -119,10 +115,7 @@ class GetReleasesTestCase(SimpleTestCase):
         )
 
     @patch.object(requests, 'get')
-    @patch.object(RedisCache, 'set')
-    @patch.object(RedisCache, 'get')
-    def test_failed_request(self, dummy_cache_get: Mock, dummy_cache_set: Mock, dummy_request_get: Mock):
-        dummy_cache_get.side_effect = CacheMiss()
+    def test_failed_request(self, dummy_request_get: Mock):
         dummy_request_get.side_effect = unsuccessful_github_response
 
         with self.assertLogs(level=ERROR) as cm:
@@ -143,28 +136,3 @@ class GetReleasesTestCase(SimpleTestCase):
             headers={'Accept': 'application/vnd.github.v3+json'},
             proxies=settings.HTTP_PROXIES
         )
-
-        # Check if failure is put in cache
-        dummy_cache_set.assert_called_once_with(
-            'latest_release_no_retry',
-            'https://localhost/unittest/releases',
-            900
-        )
-
-    @patch.object(requests, 'get')
-    @patch.object(RedisCache, 'set')
-    @patch.object(RedisCache, 'get')
-    def test_blocked_retry(self, dummy_cache_get: Mock, dummy_cache_set: Mock, dummy_request_get: Mock):
-        dummy_cache_get.return_value = 'https://localhost/unittest/releases'
-        dummy_request_get.side_effect = successful_github_response
-
-        releases = get_releases()
-
-        # Check result
-        self.assertListEqual(releases, [])
-
-        # Check if request is NOT made
-        dummy_request_get.assert_not_called()
-
-        # Check if cache is not updated
-        dummy_cache_set.assert_not_called()
