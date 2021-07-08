@@ -68,6 +68,10 @@ CustomValidator can also be subclassed to enforce more complex logic by overridi
 * [#6338](https://github.com/netbox-community/netbox/issues/6338) - Decimal fields are no longer coerced to strings in REST API
 * [#6639](https://github.com/netbox-community/netbox/issues/6639) - Drop support for queryset caching (django-cacheops)
 
+### Configuration Changes
+
+* The `CACHE_TIMEOUT` configuration parameter has been removed.
+
 ### REST API Changes
 
 * Added the `/api/users/tokens/` endpoint

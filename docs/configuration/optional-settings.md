@@ -52,14 +52,6 @@ BASE_PATH = 'netbox/'
 
 ---
 
-## CACHE_TIMEOUT
-
-Default: 900
-
-The number of seconds that cache entries will be retained before expiring.
-
----
-
 ## CHANGELOG_RETENTION
 
 Default: 90
