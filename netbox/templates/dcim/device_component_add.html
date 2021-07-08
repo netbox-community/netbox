@@ -30,7 +30,7 @@
                             {{ field }}
                         {% endfor %}
                         {% for field in form.visible_fields %}
-                            {% if field.name not in form.custom_fields %}
+                            {% if not form.custom_fields or field.name not in form.custom_fields %}
                                 {% render_field field %}
                             {% endif %}
                         {% endfor %}

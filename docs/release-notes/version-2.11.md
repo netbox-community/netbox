@@ -1,5 +1,15 @@
 # NetBox v2.11
 
+## v2.11.9 (2021-07-08)
+
+### Bug Fixes
+
+* [#6456](https://github.com/netbox-community/netbox/issues/6456) - API schema type should be boolean for `_occupied` on cable termination models
+* [#6710](https://github.com/netbox-community/netbox/issues/6710) - Fix assignment of VM interface parent via REST API
+* [#6714](https://github.com/netbox-community/netbox/issues/6714) - Fix rendering of device type component creation forms
+
+---
+
 ## v2.11.8 (2021-07-06)
 
 ### Enhancements
