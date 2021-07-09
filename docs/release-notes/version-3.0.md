@@ -52,6 +52,25 @@ CUSTOM_VALIDATORS = {
 
 CustomValidator can also be subclassed to enforce more complex logic by overriding its `validate()` method. See the [custom validation](../customization/custom-validation.md) documentation for more details.
 
+#### Custom Queue Support for Plugins ([#6651](https://github.com/netbox-community/netbox/issues/6651))
+
+NetBox uses Redis and Django-RQ for background task queuing. Whereas previous releases employed only a single default queue, NetBox now provides a high-, medium- (default), and low-priority queue for use by plugins. (These will also likely be used internally as new functionality is added in future releases.)
+
+Plugins can also now create their own custom queues by defining a `queues` list within their PluginConfig class:
+
+```python
+class MyPluginConfig(PluginConfig):
+    name = 'myplugin'
+    ...
+    queues = [
+        'queue1',
+        'queue2',
+        'queue-whatever-the-name'
+    ]
+```
+
+Note that NetBox's `rqworker` process will _not_ service custom queues by default, since it has not way to infer the priority of each queue. Plugin authors should be diligent in including instructions for proper queue setup in their plugin's documentation.
+
 ### Enhancements
 
 * [#2434](https://github.com/netbox-community/netbox/issues/2434) - Add option to assign IP address upon creating a new interface
