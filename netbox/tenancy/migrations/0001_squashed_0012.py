@@ -13,6 +13,21 @@ class Migration(migrations.Migration):
         ('extras', '0001_initial'),
     ]
 
+    replaces = [
+        ('tenancy', '0001_initial'),
+        ('tenancy', '0002_tenant_group_optional'),
+        ('tenancy', '0003_unicode_literals'),
+        ('tenancy', '0004_tags'),
+        ('tenancy', '0005_change_logging'),
+        ('tenancy', '0006_custom_tag_models'),
+        ('tenancy', '0007_nested_tenantgroups'),
+        ('tenancy', '0008_nested_tenantgroups_rebuild'),
+        ('tenancy', '0009_standardize_description'),
+        ('tenancy', '0010_custom_field_data'),
+        ('tenancy', '0011_standardize_name_length'),
+        ('tenancy', '0012_standardize_models'),
+    ]
+
     operations = [
         migrations.CreateModel(
             name='TenantGroup',

@@ -16,6 +16,20 @@ class Migration(migrations.Migration):
         ('auth', '0012_alter_user_first_name_max_length'),
     ]
 
+    replaces = [
+        ('users', '0001_api_tokens'),
+        ('users', '0002_unicode_literals'),
+        ('users', '0003_token_permissions'),
+        ('users', '0004_standardize_description'),
+        ('users', '0005_userconfig'),
+        ('users', '0006_create_userconfigs'),
+        ('users', '0007_proxy_group_user'),
+        ('users', '0008_objectpermission'),
+        ('users', '0009_replicate_permissions'),
+        ('users', '0010_update_jsonfield'),
+        ('users', '0011_standardize_models'),
+    ]
+
     operations = [
         migrations.CreateModel(
             name='AdminGroup',

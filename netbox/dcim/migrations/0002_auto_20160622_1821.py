@@ -7,8 +7,6 @@ import taggit.managers
 
 class Migration(migrations.Migration):
 
-    initial = True
-
     dependencies = [
         ('dcim', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

@@ -14,10 +14,35 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('dcim', '0002_initial'),
+        ('dcim', '0002_auto_20160622_1821'),
         ('ipam', '0001_initial'),
         ('extras', '0001_initial'),
         ('tenancy', '0001_initial'),
+    ]
+
+    replaces = [
+        ('virtualization', '0001_virtualization'),
+        ('virtualization', '0002_virtualmachine_add_status'),
+        ('virtualization', '0003_cluster_add_site'),
+        ('virtualization', '0004_virtualmachine_add_role'),
+        ('virtualization', '0005_django2'),
+        ('virtualization', '0006_tags'),
+        ('virtualization', '0007_change_logging'),
+        ('virtualization', '0008_virtualmachine_local_context_data'),
+        ('virtualization', '0009_custom_tag_models'),
+        ('virtualization', '0010_cluster_add_tenant'),
+        ('virtualization', '0011_3569_virtualmachine_fields'),
+        ('virtualization', '0012_vm_name_nonunique'),
+        ('virtualization', '0013_deterministic_ordering'),
+        ('virtualization', '0014_standardize_description'),
+        ('virtualization', '0015_vminterface'),
+        ('virtualization', '0016_replicate_interfaces'),
+        ('virtualization', '0017_update_jsonfield'),
+        ('virtualization', '0018_custom_field_data'),
+        ('virtualization', '0019_standardize_name_length'),
+        ('virtualization', '0020_standardize_models'),
+        ('virtualization', '0021_virtualmachine_vcpus_decimal'),
+        ('virtualization', '0022_vminterface_parent'),
     ]
 
     operations = [
