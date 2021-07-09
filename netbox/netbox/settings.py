@@ -546,7 +546,9 @@ else:
     }
 
 RQ_QUEUES = {
+    'high': RQ_PARAMS,
     'default': RQ_PARAMS,
+    'low': RQ_PARAMS,
 }
 
 
@@ -599,3 +601,14 @@ for plugin_name in PLUGINS:
     plugin_middleware = plugin_config.middleware
     if plugin_middleware and type(plugin_middleware) in (list, tuple):
         MIDDLEWARE.extend(plugin_middleware)
+
+    # Create RQ queues dedicated to the plugin
+    # we use the plugin name as a prefix for queue name's defined in the plugin config
+    # ex: mysuperplugin.mysuperqueue1
+    if type(plugin_config.queues) is not list:
+        raise ImproperlyConfigured(
+            "Plugin {} queues must be a list.".format(plugin_name)
+        )
+    RQ_QUEUES.update({
+        f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
+    })
