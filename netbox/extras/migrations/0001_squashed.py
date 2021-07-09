@@ -17,6 +17,10 @@ class Migration(migrations.Migration):
         ('contenttypes', '0002_remove_content_type_name'),
     ]
 
+    replaces = [
+        ('extras', '0001_initial'),
+    ]
+
     operations = [
         migrations.CreateModel(
             name='Report',

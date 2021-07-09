@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         ('tenancy', '0001_initial'),
     ]
 
+    replaces = [
+        ('dcim', '0002_auto_20160622_1821'),
+    ]
+
     operations = [
         migrations.AddField(
             model_name='virtualchassis',

@@ -18,6 +18,10 @@ class Migration(migrations.Migration):
     dependencies = [
     ]
 
+    replaces = [
+        ('dcim', '0001_initial'),
+    ]
+
     operations = [
         migrations.CreateModel(
             name='Cable',

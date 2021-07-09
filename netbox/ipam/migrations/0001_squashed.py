@@ -19,6 +19,10 @@ class Migration(migrations.Migration):
         ('tenancy', '0001_initial'),
     ]
 
+    replaces = [
+        ('ipam', '0001_initial'),
+    ]
+
     operations = [
         migrations.CreateModel(
             name='Aggregate',
