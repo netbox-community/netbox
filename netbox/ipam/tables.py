@@ -11,7 +11,7 @@ from utilities.tables import (
 from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
-AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>')
+AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 PREFIX_LINK = """
 {% load helpers %}
@@ -33,7 +33,7 @@ IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
 {% elif perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-xs btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-sm btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
 {% else %}
     {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
 {% endif %}
@@ -65,7 +65,7 @@ VLAN_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
 {% elif perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}{% if record.vlan_group %}&group={{ record.vlan_group.pk }}{% endif %}" class="btn btn-xs btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
+    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}{% if record.vlan_group %}&group={{ record.vlan_group.pk }}{% endif %}" class="btn btn-sm btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
 {% else %}
     {{ record.available }} VLAN{{ record.available|pluralize }} available
 {% endif %}
@@ -90,7 +90,7 @@ VLAN_ROLE_LINK = """
 VLANGROUP_ADD_VLAN = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
-        <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
+        <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-sm btn-success">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
         </a>
     {% endif %}
@@ -256,6 +256,21 @@ class RoleTable(BaseTable):
 # Prefixes
 #
 
+class PrefixUtilizationColumn(UtilizationColumn):
+    """
+    Extend UtilizationColumn to allow disabling the warning & danger thresholds for prefixes
+    marked as fully utilized.
+    """
+    template_code = """
+    {% load helpers %}
+    {% if record.pk and record.mark_utilized %}
+      {% utilization_graph value warning_threshold=0 danger_threshold=0 %}
+    {% elif record.pk %}
+      {% utilization_graph value %}
+    {% endif %}
+    """
+
+
 class PrefixTable(BaseTable):
     pk = ToggleColumn()
     prefix = tables.TemplateColumn(
@@ -301,12 +316,15 @@ class PrefixTable(BaseTable):
     is_pool = BooleanColumn(
         verbose_name='Pool'
     )
+    mark_utilized = BooleanColumn(
+        verbose_name='Marked Utilized'
+    )
 
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
             'pk', 'prefix', 'prefix_flat', 'status', 'depth', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role',
-            'is_pool', 'description',
+            'is_pool', 'mark_utilized', 'description',
         )
         default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
@@ -315,7 +333,7 @@ class PrefixTable(BaseTable):
 
 
 class PrefixDetailTable(PrefixTable):
-    utilization = UtilizationColumn(
+    utilization = PrefixUtilizationColumn(
         accessor='get_utilization',
         orderable=False
     )
@@ -326,7 +344,7 @@ class PrefixDetailTable(PrefixTable):
     class Meta(PrefixTable.Meta):
         fields = (
             'pk', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
-            'is_pool', 'description', 'tags',
+            'is_pool', 'mark_utilized', 'description', 'tags',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',

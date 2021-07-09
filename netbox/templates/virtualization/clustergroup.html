@@ -3,52 +3,56 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'virtualization:clustertype_list' %}">Cluster Groups</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'virtualization:clustertype_list' %}">Cluster Groups</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Cluster Group</strong>
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Cluster Group
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Clusters</th>
+            <td>
+              <a href="{% url 'virtualization:cluster_list' %}?group_id={{ object.pk }}">{{ clusters_table.rows|length }}</a>
+            </td>
+          </tr>
+        </table>
       </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td>{{ object.description|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>Clusters</td>
-          <td>
-            <a href="{% url 'virtualization:cluster_list' %}?group_id={{ object.pk }}">{{ clusters_table.rows|length }}</a>
-          </td>
-        </tr>
-      </table>
     </div>
     {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
     {% include 'inc/custom_fields_panel.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row">
-	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Clusters</strong>
+	<div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">
+        Clusters
+      </h5>
+      <div class="card-body">
+        {% include 'inc/table.html' with table=clusters_table %}
       </div>
-      {% include 'inc/table.html' with table=clusters_table %}
       {% if perms.virtualization.add_cluster %}
-        <div class="panel-footer text-right noprint">
-          <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add cluster
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Cluster
           </a>
         </div>
       {% endif %}

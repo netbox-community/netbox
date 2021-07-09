@@ -3,8 +3,16 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
 from netbox.api import ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
-from users.models import ObjectPermission
+from users.models import ObjectPermission, Token
 from .nested_serializers import *
+
+
+__all__ = (
+    'GroupSerializer',
+    'ObjectPermissionSerializer',
+    'TokenSerializer',
+    'UserSerializer',
+)
 
 
 class UserSerializer(ValidatedModelSerializer):
@@ -45,6 +53,26 @@ class GroupSerializer(ValidatedModelSerializer):
     class Meta:
         model = Group
         fields = ('id', 'url', 'display', 'name', 'user_count')
+
+
+class TokenSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
+    key = serializers.CharField(min_length=40, max_length=40, allow_blank=True, required=False)
+    user = NestedUserSerializer()
+
+    class Meta:
+        model = Token
+        fields = ('id', 'url', 'display', 'user', 'created', 'expires', 'key', 'write_enabled', 'description')
+
+    def to_internal_value(self, data):
+        if 'key' not in data:
+            data['key'] = Token.generate_key()
+        return super().to_internal_value(data)
+
+
+class TokenProvisionSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
 
 
 class ObjectPermissionSerializer(ValidatedModelSerializer):

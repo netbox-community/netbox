@@ -9,71 +9,56 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Tag</strong>
-      </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td>{{ object.description|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>Color</td>
-          <td>
-            <span class="label color-block" style="background-color: #{{ object.color }}">&nbsp;</span>
-          </td>
-        </tr>
-        <tr>
-          <td>Tagged Items</td>
-          <td>
-            {{ taggeditem_table.rows|length }}
-          </td>
-        </tr>
-      </table>
-    </div>
-    {% plugin_left_page object %}
-  </div>
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Tagged Item Types</strong>
-      </div>
-      <table class="table table-hover panel-body">
-        {% for object_type in object_types %}
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Tag
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover panel-body attr-table">
           <tr>
-            <td>{{ object_type.content_type.name|bettertitle }}</td>
+            <th scope="row">Name</th>
             <td>
-              {% with viewname=object_type.content_type.model_class|validated_viewname:"list" %}
-                {% if viewname %}
-                  <a href="{% url viewname %}?tag={{ object.slug }}">{{ object_type.item_count }}</a>
-                {% else %}
-                  {{ object_type.item_count }}
-                {% endif %}
-              {% endwith %}
+              {{ object.name }}
             </td>
           </tr>
-        {% endfor %}
-      </table>
-    </div>
-    {% plugin_right_page object %}
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Tagged Items</strong>
+          <tr>
+            <th scope="row">Slug</th>
+            <td>
+                {{ object.slug }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tagged Items</th>
+            <td>
+                {{ items_count }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Color</th>
+            <td>
+                <span class="color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>
+                {{ object.description|placeholder }}
+            </td>
+          </tr>
+        </table>
       </div>
-      {% include 'inc/table.html' with table=taggeditem_table %}
     </div>
-    {% include 'inc/paginator.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
-    {% plugin_full_width_page object %}
+  </div>
+  <div class="col col-md-6">
+    {% include 'inc/panel_table.html' with table=items_table heading='Tagged Objects' %}
+    {% include 'inc/paginator.html' with paginator=items_table.paginator page=items_table.page %}
   </div>
 </div>
+<div class="row">
+  <div class="col col-md-12">
+    {% include 'inc/paginator.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
+  </div>
+</div>
+{% plugin_full_width_page object %}
 {% endblock %}

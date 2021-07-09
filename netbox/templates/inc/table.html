@@ -1,6 +1,7 @@
 {% load django_tables2 %}
 
 <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
+    <caption class="text-center small mt-3"></caption>
     {% if table.show_header %}
         <thead>
             <tr>

@@ -6,43 +6,43 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Rendered Context</strong>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Rendered Context
                     {% include 'extras/inc/configcontext_format.html' %}
-                </div>
-                <div class="panel-body">
+                </h5>
+                <div class="card-body">
                     {% include 'extras/inc/configcontext_data.html' with data=rendered_context format=format %}
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Local Context</strong>
-                </div>
-                <div class="panel-body">
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Local Context
+                </h5>
+                <div class="card-body">
                     {% if object.local_context_data %}
                         {% include 'extras/inc/configcontext_data.html' with data=object.local_context_data format=format %}
                     {% else %}
                         <span class="text-muted">None</span>
                     {% endif %}
                 </div>
-                <div class="panel-footer">
+                <div class="card-footer">
                     <span class="help-block">
                         <i class="mdi mdi-information-outline"></i>
                         The local config context overwrites all source contexts.
                     </span>
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Source Contexts</strong>
-                </div>
+            <div class="card">
+                <h5 class="card-header">
+                    Source Contexts
+                </h5>
                 {% for context in source_contexts %}
-                    <div class="panel-body">
-                        <div class="pull-right">
+                    <div class="card-body">
+                        <div class="float-end">
                             <span class="text-muted">{{ context.weight }}</span>
                         </div>
                         <a href="{{ context.get_absolute_url }}"><strong>{{ context.name }}</strong></a>
@@ -52,7 +52,7 @@
                         {% include 'extras/inc/configcontext_data.html' with data=context.data format=format %}
                     </div>
                 {% empty %}
-                    <div class="panel-body">
+                    <div class="card-body">
                         <span class="text-muted">None found</span>
                     </div>
                 {% endfor %}

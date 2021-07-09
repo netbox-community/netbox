@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8]
     services:
       redis:
         image: redis
@@ -39,6 +39,9 @@ jobs:
         pip install -r requirements.txt
         pip install pycodestyle coverage
         ln -s configuration.testing.py netbox/netbox/configuration.py
+
+    - name: Collect static files
+      run: python netbox/manage.py collectstatic --no-input
 
     - name: Check PEP8 compliance
       run: pycodestyle --ignore=W504,E501 netbox/

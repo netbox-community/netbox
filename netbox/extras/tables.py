@@ -4,14 +4,14 @@ from django.conf import settings
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ToggleColumn,
 )
-from .models import ConfigContext, JournalEntry, ObjectChange, Tag, TaggedItem
+from .models import *
 
 CONFIGCONTEXT_ACTIONS = """
 {% if perms.extras.change_configcontext %}
-    <a href="{% url 'extras:configcontext_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="mdi mdi-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'extras:configcontext_edit' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil" aria-hidden="true"></i></a>
 {% endif %}
 {% if perms.extras.delete_configcontext %}
-    <a href="{% url 'extras:configcontext_delete' pk=record.pk %}" class="btn btn-xs btn-danger"><i class="mdi mdi-trash-can-outline" aria-hidden="true"></i></a>
+    <a href="{% url 'extras:configcontext_delete' pk=record.pk %}" class="btn btn-sm btn-danger"><i class="mdi mdi-trash-can-outline" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -27,6 +27,96 @@ OBJECTCHANGE_REQUEST_ID = """
 <a href="{% url 'extras:objectchange_list' %}?request_id={{ value }}">{{ value }}</a>
 """
 
+
+#
+# Custom fields
+#
+
+class CustomFieldTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    required = BooleanColumn()
+
+    class Meta(BaseTable.Meta):
+        model = CustomField
+        fields = (
+            'pk', 'name', 'label', 'type', 'required', 'weight', 'default', 'description', 'filter_logic', 'choices',
+        )
+        default_columns = ('pk', 'name', 'label', 'type', 'required', 'description')
+
+
+#
+# Custom links
+#
+
+class CustomLinkTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    content_type = ContentTypeColumn()
+    new_window = BooleanColumn()
+
+    class Meta(BaseTable.Meta):
+        model = CustomLink
+        fields = (
+            'pk', 'name', 'content_type', 'link_text', 'link_url', 'weight', 'group_name', 'button_class', 'new_window',
+        )
+        default_columns = ('pk', 'name', 'content_type', 'group_name', 'button_class', 'new_window')
+
+
+#
+# Export templates
+#
+
+class ExportTemplateTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    content_type = ContentTypeColumn()
+    as_attachment = BooleanColumn()
+
+    class Meta(BaseTable.Meta):
+        model = ExportTemplate
+        fields = (
+            'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+        )
+        default_columns = (
+            'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+        )
+
+
+#
+# Webhooks
+#
+
+class WebhookTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    enabled = BooleanColumn()
+    type_create = BooleanColumn()
+    type_update = BooleanColumn()
+    type_delete = BooleanColumn()
+
+    class Meta(BaseTable.Meta):
+        model = Webhook
+        fields = (
+            'pk', 'name', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method', 'payload_url',
+            'secret', 'ssl_validation', 'ca_file_path',
+        )
+        default_columns = (
+            'pk', 'name', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method', 'payload_url',
+        )
+
+
+#
+# Tags
+#
 
 class TagTable(BaseTable):
     pk = ToggleColumn()

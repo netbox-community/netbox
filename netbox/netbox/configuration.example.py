@@ -89,9 +89,6 @@ BANNER_LOGIN = ''
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
-# Cache timeout in seconds. Set to 0 to dissable caching. Defaults to 900 (15 minutes)
-CACHE_TIMEOUT = 900
-
 # Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
 CHANGELOG_RETENTION = 90
 
@@ -105,6 +102,20 @@ CORS_ORIGIN_WHITELIST = [
 CORS_ORIGIN_REGEX_WHITELIST = [
     # r'^(https?://)?(\w+\.)?example\.com$',
 ]
+
+# Specify any custom validators here, as a mapping of model to a list of validators classes. Validators should be
+# instances of or inherit from CustomValidator.
+# from extras.validators import CustomValidator
+CUSTOM_VALIDATORS = {
+    # 'dcim.site': [
+    #     CustomValidator({
+    #         'name': {
+    #             'min_length': 10,
+    #             'regex': r'\d{3}$',
+    #         }
+    #     })
+    # ],
+}
 
 # Set to True to enable server debugging. WARNING: Debugging introduces a substantial performance penalty and may reveal
 # sensitive information about your installation. Only enable debugging while performing testing. Never enable debugging
@@ -135,6 +146,9 @@ EXEMPT_VIEW_PERMISSIONS = [
     # 'ipam.prefix',
 ]
 
+# Enable the GraphQL API
+GRAPHQL_ENABLED = True
+
 # HTTP proxies NetBox should use when sending outbound HTTP requests (e.g. for webhooks).
 # HTTP_PROXIES = {
 #     'http': 'http://10.10.1.10:3128',
@@ -150,7 +164,7 @@ INTERNAL_IPS = ('127.0.0.1', '::1')
 LOGGING = {}
 
 # Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users
-# are permitted to access most data in NetBox (excluding secrets) but not make any changes.
+# are permitted to access most data in NetBox but not make any changes.
 LOGIN_REQUIRED = False
 
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
@@ -226,9 +240,6 @@ REMOTE_AUTH_HEADER = 'HTTP_REMOTE_USER'
 REMOTE_AUTH_AUTO_CREATE_USER = True
 REMOTE_AUTH_DEFAULT_GROUPS = []
 REMOTE_AUTH_DEFAULT_PERMISSIONS = {}
-
-# This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
-RELEASE_CHECK_TIMEOUT = 24 * 3600
 
 # This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
 # version check or use the URL below to check for release in the official NetBox repository.

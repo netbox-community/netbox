@@ -180,27 +180,16 @@ class ObjectVar(ScriptVariable):
     A single object within NetBox.
 
     :param model: The NetBox model being referenced
-    :param display_field: The attribute of the returned object to display in the selection list (DEPRECATED)
     :param query_params: A dictionary of additional query parameters to attach when making REST API requests (optional)
     :param null_option: The label to use as a "null" selection option (optional)
     """
     form_field = DynamicModelChoiceField
 
     def __init__(self, model, query_params=None, null_option=None, *args, **kwargs):
-
-        # TODO: Remove display_field in v3.0
-        if 'display_field' in kwargs:
-            warnings.warn(
-                "The 'display_field' parameter has been deprecated, and will be removed in NetBox v3.0. Object "
-                "variables will now reference the 'display' attribute available on all model serializers by default."
-            )
-        display_field = kwargs.pop('display_field', 'display')
-
         super().__init__(*args, **kwargs)
 
         self.field_attrs.update({
             'queryset': model.objects.all(),
-            'display_field': display_field,
             'query_params': query_params,
             'null_option': null_option,
         })

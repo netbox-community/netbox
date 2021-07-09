@@ -6,6 +6,7 @@ from dcim.filtersets import *
 from dcim.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
+from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterType
 
@@ -959,9 +960,9 @@ class FrontPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         RearPortTemplate.objects.bulk_create(rear_ports)
 
         FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PortTypeChoices.TYPE_8P8C),
-            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PortTypeChoices.TYPE_110_PUNCH),
-            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PortTypeChoices.TYPE_BNC),
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN),
+            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE),
         ))
 
     def test_name(self):
@@ -975,6 +976,10 @@ class FrontPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -995,9 +1000,9 @@ class RearPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         DeviceType.objects.bulk_create(device_types)
 
         RearPortTemplate.objects.bulk_create((
-            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1),
-            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2),
-            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3),
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, positions=1),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, positions=2),
+            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, positions=3),
         ))
 
     def test_name(self):
@@ -1011,6 +1016,10 @@ class RearPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_positions(self):
@@ -2153,9 +2162,9 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=devices[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
-            FrontPort(device=devices[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
-            FrontPort(device=devices[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
+            FrontPort(device=devices[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, rear_port=rear_ports[0], rear_port_position=1, description='First'),
+            FrontPort(device=devices[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
+            FrontPort(device=devices[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
             FrontPort(device=devices[3], name='Front Port 4', label='D', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
             FrontPort(device=devices[3], name='Front Port 5', label='E', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
             FrontPort(device=devices[3], name='Front Port 6', label='F', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
@@ -2177,6 +2186,10 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -2260,9 +2273,9 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         Device.objects.bulk_create(devices)
 
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, positions=1, description='First'),
-            RearPort(device=devices[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, positions=2, description='Second'),
-            RearPort(device=devices[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, positions=3, description='Third'),
+            RearPort(device=devices[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, positions=1, description='First'),
+            RearPort(device=devices[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, positions=2, description='Second'),
+            RearPort(device=devices[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, positions=3, description='Third'),
             RearPort(device=devices[3], name='Rear Port 4', label='D', type=PortTypeChoices.TYPE_FC, positions=4),
             RearPort(device=devices[3], name='Rear Port 5', label='E', type=PortTypeChoices.TYPE_FC, positions=5),
             RearPort(device=devices[3], name='Rear Port 6', label='F', type=PortTypeChoices.TYPE_FC, positions=6),
@@ -2284,6 +2297,10 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_positions(self):

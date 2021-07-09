@@ -6,10 +6,11 @@ from io import StringIO
 import django_filters
 from django import forms
 from django.conf import settings
-from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.forms import BoundField
+from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices
@@ -20,6 +21,7 @@ from .constants import *
 from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 __all__ = (
+    'ColorField',
     'CommentField',
     'ContentTypeChoiceField',
     'ContentTypeMultipleChoiceField',
@@ -27,6 +29,7 @@ __all__ = (
     'CSVContentTypeField',
     'CSVDataField',
     'CSVModelChoiceField',
+    'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
@@ -67,6 +70,13 @@ class SlugField(forms.SlugField):
         widget = kwargs.pop('widget', widgets.SlugWidget)
         super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
+
+
+class ColorField(forms.CharField):
+    """
+    A field which represents a color in hexadecimal RRGGBB format.
+    """
+    widget = widgets.ColorSelect
 
 
 class TagFilterField(forms.MultipleChoiceField):
@@ -273,6 +283,20 @@ class CSVContentTypeField(CSVModelChoiceField):
             raise forms.ValidationError(f'Invalid object type')
 
 
+class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
+    STATIC_CHOICES = True
+
+    # TODO: Improve validation of selected ContentTypes
+    def prepare_value(self, value):
+        if type(value) is str:
+            ct_filter = Q()
+            for name in value.split(','):
+                app_label, model = name.split('.')
+                ct_filter |= Q(app_label=app_label, model=model)
+            return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
+        return super().prepare_value(value)
+
+
 #
 # Expansion fields
 #
@@ -328,7 +352,6 @@ class ExpandableIPAddressField(forms.CharField):
 
 class DynamicModelChoiceMixin:
     """
-    :param display_field: The name of the attribute of an API response object to display in the selection list
     :param query_params: A dictionary of additional key/value pairs to attach to the API request
     :param initial_params: A dictionary of child field references to use for selecting a parent field's initial value
     :param null_option: The string used to represent a null selection (if any)
@@ -338,10 +361,8 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    # TODO: Remove display_field in v3.0
-    def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
-                 disabled_indicator=None, *args, **kwargs):
-        self.display_field = display_field
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, *args,
+                 **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
@@ -354,9 +375,7 @@ class DynamicModelChoiceMixin:
         super().__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
-        attrs = {
-            'display-field': self.display_field,
-        }
+        attrs = {}
 
         # Set value-field attribute if the field specifies to_field_name
         if self.to_field_name:

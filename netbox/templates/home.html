@@ -1,350 +1,100 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
+{% load get_status %}
 {% load helpers %}
 
-{% block header %}
-    {{ block.super }}
-    {% if new_release %}
-        {# new_release is set only if the current user is a superuser or staff member #}
-        <div class="alert alert-info text-center" role="alert">
-            <i class="mdi mdi-information-outline"></i>
-            A new release is available: <a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> |
-            <a href="https://netbox.readthedocs.io/en/stable/installation/upgrading/">Upgrade instructions</a>
-        </div>
-    {% endif %}
-{% endblock %}
-
+{% block header %}{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
-{% include 'search_form.html' %}
-<div class="row">
-    <div class="col-sm-6 col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Organization</strong>
-            </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.dcim.view_site %}
-                        <span class="badge pull-right">{{ stats.site_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:site_list' %}">Sites</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Sites</h4>
+
+  {# General stats #}
+  <div class="stats-container">
+    <div class="row masonry">
+      {% for section in stats %}
+      <div class="col col-sm-12 col-lg-6 col-xl-4 my-2 masonry-item">
+        <div class="card">
+          <h5 class="card-header text-primary">{{ section.label }}</h5>
+          <div class="card-body">
+            <div class="list-group list-group-flush">
+              {% for item in section.items %}
+              <a href="{% url item.url %}" class="list-group-item list-group-item-action{% if item.disabled %} disabled{% endif %}">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                  <div class="d-flex flex-column align-items-start">
+                    <h6 class="mb-1">{{ item.label }}</h6>
+                    {% if item.description %}
+                    <small class="mb-1 text-muted">{{ item.description }}</small>
                     {% endif %}
-                    <p class="list-group-item-text text-muted">Discrete points of presence</p>
+                  </div>
+                  <span class="badge stat-badge rounded-pill">
+                    {% if item.count == None %}
+                      <i class="mdi mdi-lock"></i>
+                    {% else %}
+                      {{ item.count }}
+                    {% endif %}
+                  </span>
                 </div>
-                <div class="list-group-item">
-                    {% if perms.dcim.view_location %}
-                        <span class="badge pull-right">{{ stats.location_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:location_list' %}">Locations</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Locations</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Locations within sites</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.tenancy.view_tenant %}
-                        <span class="badge pull-right">{{ stats.tenant_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Tenants</h4>
-                    {% endif %}
-                        <p class="list-group-item-text text-muted">Customers or departments</p>
-                    </div>
+              </a>
+              {% endfor %}
             </div>
+            <div class="display-4 font-weight-normal text-primary">
+              {{ item.count }}
+            </div>
+          </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>DCIM</strong>
-            </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.dcim.view_rack %}
-                        <span class="badge pull-right">{{ stats.rack_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:rack_list' %}">Racks</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Racks</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Equipment racks, optionally organized by group</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.dcim.view_devicetype %}
-                        <span class="badge pull-right">{{ stats.devicetype_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Device Types</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Physical hardware models by manufacturer</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.dcim.view_device %}
-                        <span class="badge pull-right">{{ stats.device_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:device_list' %}">Devices</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Devices</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Rack-mounted network equipment, servers, and other devices</p>
-                </div>
-                <div class="list-group-item">
-                    <h4 class="list-group-item-heading">Connections</h4>
-                    {% if perms.dcim.view_cable %}
-                        <span class="badge pull-right">{{ stats.cable_count }}</span>
-                        <p style="padding-left: 20px;"><a href="{% url 'dcim:cable_list' %}">Cables</a></p>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <p style="padding-left: 20px;">Cables</p>
-                    {% endif %}
-                    {% if perms.dcim.view_interface %}
-                        <span class="badge pull-right">{{ stats.interface_connections_count }}</span>
-                        <p style="padding-left: 20px;"><a href="{% url 'dcim:interface_connections_list' %}">Interfaces</a></p>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <p style="padding-left: 20px;">Interfaces</p>
-                    {% endif %}
-                    {% if perms.dcim.view_consoleport and perms.dcim.view_consoleserverport %}
-                        <span class="badge pull-right">{{ stats.console_connections_count }}</span>
-                        <p style="padding-left: 20px;"><a href="{% url 'dcim:console_connections_list' %}">Console</a></p>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <p style="padding-left: 20px;">Console</p>
-                    {% endif %}
-                    {% if perms.dcim.view_powerport and perms.dcim.view_poweroutlet %}
-                        <span class="badge pull-right">{{ stats.power_connections_count }}</span>
-                        <p class="list-group-item-text" style="padding-left: 20px;"><a href="{% url 'dcim:power_connections_list' %}">Power</a></p>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <p style="padding-left: 20px;">Power</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Power</strong>
-            </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.dcim.view_powerfeed %}
-                        <span class="badge pull-right">{{ stats.powerfeed_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Power Feeds</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Electrical circuits delivering power from panels</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.dcim.view_powerpanel %}
-                        <span class="badge pull-right">{{ stats.powerpanel_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Power Panels</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Electrical panels receiving utility power</p>
-                </div>
-            </div>
-        </div>
+      </div>
+      {% endfor %}
     </div>
-    <div class="col-sm-6 col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>IPAM</strong>
+  </div>
+
+  {# Changelog #}
+  <div class="row my-4 flex-grow-1 changelog-container">
+    <div class="col">
+      <div class="card">
+        <h4 class="card-header">Changelog</h4>
+        <div class="card-body">
+          {% if changelog and perms.extras.view_objectchange %}
+            {# TODO: Replace this with a django-tables2 Table #}
+            <table class="table align-middle table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">User</th>
+                  <th scope="col">Action</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Object</th>
+                  <th scope="col">Time</th>
+                  <th scope="col" align="right"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for change in changelog %}
+                  <tr class="{% get_status change.get_action_display %}">
+                    <th scope="row">{{ change.user|default:change.user_name }}</th>
+                    <td>{{ change.get_action_display|bettertitle }}</td>
+                    <td>{{ change.changed_object_type.name|bettertitle }}</td>
+                    <td>
+                      {% if change.changed_object.get_absolute_url %}
+                      <a class="text-body" href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
+                      {% else %} {{ change.changed_object|default:change.object_repr }} {% endif %}
+                    </td>
+
+                    <td>{{ change.time|date:'SHORT_DATETIME_FORMAT' }}</td>
+                    <td>
+                      <a role="button" class="text-body" href="{{ change.get_absolute_url }}">
+                        <i class="mdi mdi-dots-horizontal" data-bs-toggle="tooltip" data-bs-placement="left" title="View Change Details"></i>
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% elif perms.extras.view_objectchange %}
+            <div class="alert alert-secondary mt-4" role="alert">
+              No change history found.
             </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.ipam.view_vrf %}
-                        <span class="badge pull-right">{{ stats.vrf_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">VRFs</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Virtual routing and forwarding tables</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.ipam.view_aggregate %}
-                        <span class="badge pull-right">{{ stats.aggregate_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Aggregates</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Top-level IP allocations</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.ipam.view_prefix %}
-                        <span class="badge pull-right">{{ stats.prefix_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Prefixes</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">IPv4 and IPv6 network assignments</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.ipam.view_ipaddress %}
-                        <span class="badge pull-right">{{ stats.ipaddress_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">IP Addresses</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Individual IPv4 and IPv6 addresses</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.ipam.view_vlan %}
-                        <span class="badge pull-right">{{ stats.vlan_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:vlan_list' %}">VLANs</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">VLANs</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Layer two domains, identified by VLAN ID</p>
-                </div>
-            </div>
+          {% endif %}
+
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Circuits</strong>
-            </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.circuits.view_provider %}
-                        <span class="badge pull-right">{{ stats.provider_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'circuits:provider_list' %}">Providers</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Providers</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Organizations which provide circuit connectivity</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.circuits.view_circuit %}
-                        <span class="badge pull-right">{{ stats.circuit_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'circuits:circuit_list' %}">Circuits</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Circuits</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Communication links for Internet transit, peering, and other services</p>
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Virtualization</strong>
-            </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.virtualization.view_cluster %}
-                        <span class="badge pull-right">{{ stats.cluster_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:cluster_list' %}">Clusters</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Clusters</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Clusters of physical hosts in which VMs reside</p>
-                </div>
-                <div class="list-group-item">
-                    {% if perms.virtualization.view_virtualmachine %}
-                        <span class="badge pull-right">{{ stats.virtualmachine_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Virtual Machines</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Virtual compute instances running inside clusters</p>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-    <div class="col-sm-6 col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Secrets</strong>
-            </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.secrets.view_secret %}
-                        <span class="badge pull-right">{{ stats.secret_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="mdi mdi-lock"></i></span>
-                        <h4 class="list-group-item-heading">Secrets</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Cryptographically secured secret data</p>
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Reports</strong>
-            </div>
-            {% if report_results and perms.extras.view_report %}
-                <table class="table table-hover panel-body">
-                    {% for result in report_results %}
-                        <tr>
-                            <td><a href="{% url 'extras:report_result' job_result_pk=result.pk %}">{{ result.name }}</a></td>
-                            <td class="text-right"><span title="{{ result.created }}">{% include 'extras/inc/job_label.html' %}</span></td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% elif perms.extras.view_report %}
-                <div class="panel-body text-muted">
-                    None found
-                </div>
-            {% else %}
-                <div class="panel-body text-muted">
-                    <i class="mdi mdi-lock"></i> No permission
-                </div>
-            {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Change Log</strong>
-            </div>
-            {% if changelog and perms.extras.view_objectchange %}
-                <div class="list-group">
-                    {% for change in changelog %}
-                        {% with action=change.get_action_display|lower %}
-                            <div class="list-group-item">
-                                <span class="label label-{{ change.get_action_class }}">{{ change.get_action_display }}</span>
-                                {{ change.changed_object_type.name|bettertitle }}
-                                {% if change.changed_object.get_absolute_url %}
-                                    <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
-                                {% else %}
-                                    {{ change.changed_object|default:change.object_repr }}
-                                {% endif %}
-                                <br />
-                                <small>
-                                    <span class="text-muted">{{ change.user|default:change.user_name }} -</span>
-                                    <a href="{{ change.get_absolute_url }}" class="text-muted">{{ change.time|date:'SHORT_DATETIME_FORMAT' }}</a>
-                                </small>
-                            </div>
-                        {% endwith %}
-                        {% if forloop.last %}
-                            <div class="list-group-item text-right">
-                                <a href="{% url 'extras:objectchange_list' %}">View All Changes</a>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% elif perms.extras.view_objectchange %}
-                <div class="panel-body text-muted">
-                    No change history found
-                </div>
-            {% else %}
-                <div class="panel-body text-muted">
-                    <i class="mdi mdi-lock"></i> No permission
-                </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{% endblock %}
+  </div>
+{% endblock content %}

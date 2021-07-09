@@ -89,7 +89,6 @@ class Migration(migrations.Migration):
         ('dcim', '0117_custom_field_data'),
         ('extras', '0050_customfield_changes'),
         ('ipam', '0038_custom_field_data'),
-        ('secrets', '0010_custom_field_data'),
         ('tenancy', '0010_custom_field_data'),
         ('virtualization', '0018_custom_field_data'),
     ]

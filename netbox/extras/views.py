@@ -15,9 +15,181 @@ from utilities.utils import copy_safe_request, count_related, shallow_compare_di
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, JournalEntry, ObjectChange, JobResult, Tag, TaggedItem
+from .models import *
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
+
+
+#
+# Custom fields
+#
+
+class CustomFieldListView(generic.ObjectListView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    filterset_form = forms.CustomFieldFilterForm
+    table = tables.CustomFieldTable
+
+
+class CustomFieldView(generic.ObjectView):
+    queryset = CustomField.objects.all()
+
+
+class CustomFieldEditView(generic.ObjectEditView):
+    queryset = CustomField.objects.all()
+    model_form = forms.CustomFieldForm
+
+
+class CustomFieldDeleteView(generic.ObjectDeleteView):
+    queryset = CustomField.objects.all()
+
+
+class CustomFieldBulkImportView(generic.BulkImportView):
+    queryset = CustomField.objects.all()
+    model_form = forms.CustomFieldCSVForm
+    table = tables.CustomFieldTable
+
+
+class CustomFieldBulkEditView(generic.BulkEditView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    table = tables.CustomFieldTable
+    form = forms.CustomFieldBulkEditForm
+
+
+class CustomFieldBulkDeleteView(generic.BulkDeleteView):
+    queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
+    table = tables.CustomFieldTable
+
+
+#
+# Custom links
+#
+
+class CustomLinkListView(generic.ObjectListView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    filterset_form = forms.CustomLinkFilterForm
+    table = tables.CustomLinkTable
+
+
+class CustomLinkView(generic.ObjectView):
+    queryset = CustomLink.objects.all()
+
+
+class CustomLinkEditView(generic.ObjectEditView):
+    queryset = CustomLink.objects.all()
+    model_form = forms.CustomLinkForm
+
+
+class CustomLinkDeleteView(generic.ObjectDeleteView):
+    queryset = CustomLink.objects.all()
+
+
+class CustomLinkBulkImportView(generic.BulkImportView):
+    queryset = CustomLink.objects.all()
+    model_form = forms.CustomLinkCSVForm
+    table = tables.CustomLinkTable
+
+
+class CustomLinkBulkEditView(generic.BulkEditView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    table = tables.CustomLinkTable
+    form = forms.CustomLinkBulkEditForm
+
+
+class CustomLinkBulkDeleteView(generic.BulkDeleteView):
+    queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
+    table = tables.CustomLinkTable
+
+
+#
+# Export templates
+#
+
+class ExportTemplateListView(generic.ObjectListView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    filterset_form = forms.ExportTemplateFilterForm
+    table = tables.ExportTemplateTable
+
+
+class ExportTemplateView(generic.ObjectView):
+    queryset = ExportTemplate.objects.all()
+
+
+class ExportTemplateEditView(generic.ObjectEditView):
+    queryset = ExportTemplate.objects.all()
+    model_form = forms.ExportTemplateForm
+
+
+class ExportTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = ExportTemplate.objects.all()
+
+
+class ExportTemplateBulkImportView(generic.BulkImportView):
+    queryset = ExportTemplate.objects.all()
+    model_form = forms.ExportTemplateCSVForm
+    table = tables.ExportTemplateTable
+
+
+class ExportTemplateBulkEditView(generic.BulkEditView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    table = tables.ExportTemplateTable
+    form = forms.ExportTemplateBulkEditForm
+
+
+class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
+    table = tables.ExportTemplateTable
+
+
+#
+# Webhooks
+#
+
+class WebhookListView(generic.ObjectListView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    filterset_form = forms.WebhookFilterForm
+    table = tables.WebhookTable
+
+
+class WebhookView(generic.ObjectView):
+    queryset = Webhook.objects.all()
+
+
+class WebhookEditView(generic.ObjectEditView):
+    queryset = Webhook.objects.all()
+    model_form = forms.WebhookForm
+
+
+class WebhookDeleteView(generic.ObjectDeleteView):
+    queryset = Webhook.objects.all()
+
+
+class WebhookBulkImportView(generic.BulkImportView):
+    queryset = Webhook.objects.all()
+    model_form = forms.WebhookCSVForm
+    table = tables.WebhookTable
+
+
+class WebhookBulkEditView(generic.BulkEditView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    table = tables.WebhookTable
+    form = forms.WebhookBulkEditForm
+
+
+class WebhookBulkDeleteView(generic.BulkDeleteView):
+    queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
+    table = tables.WebhookTable
 
 
 #

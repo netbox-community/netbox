@@ -3,9 +3,10 @@ import sys
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.db.models import F
 from django.http import HttpResponseServerError
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
@@ -16,15 +17,13 @@ from packaging import version
 
 from circuits.models import Circuit, Provider
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, Location, PowerPanel, PowerFeed, PowerPort, Rack, Site,
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, Site,
 )
 from extras.choices import JobResultStatusChoices
 from extras.models import ObjectChange, JobResult
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from netbox.forms import SearchForm
-from netbox.releases import get_latest_release
-from secrets.models import Secret
 from tenancy.models import Tenant
 from virtualization.models import Cluster, VirtualMachine
 
@@ -33,6 +32,8 @@ class HomeView(View):
     template_name = 'home.html'
 
     def get(self, request):
+        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
+            return redirect("login")
 
         connected_consoleports = ConsolePort.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
             _path__destination_id__isnull=False
@@ -52,53 +53,76 @@ class HomeView(View):
             status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
         ).defer('data')[:10]
 
-        stats = {
+        def build_stats():
+            perms = request.user.get_all_permissions()
+            stats = []
+            org = (
+                ("dcim.view_site", "Sites", "Geographic locations", Site.objects.restrict(request.user, 'view').count),
+                ("tenancy.view_tenant", "Tenants", "Customers or departments", Tenant.objects.restrict(request.user, 'view').count),
+            )
+            dcim = (
+                ("dcim.view_rack", "Racks", "Equipment racks, optionally organized by group", Rack.objects.restrict(request.user, 'view').count),
+                ("dcim.view_devicetype", "Device Types", "Physical hardware models by manufacturer", DeviceType.objects.restrict(request.user, 'view').count),
+                ("dcim.view_device", "Devices", "Rack-mounted infrastructure", Device.objects.restrict(request.user, 'view').count),
+            )
+            ipam = (
+                ("ipam.view_vrf", "VRFs", "Virtual routing & forwarding tables", VRF.objects.restrict(request.user, 'view').count),
+                ("ipam.view_aggregate", "Aggregates", "Top-level IP allocations", Aggregate.objects.restrict(request.user, 'view').count),
+                ("ipam.view_prefix", "Prefixes", "IPv4 & IPv6 network assignments", Prefix.objects.restrict(request.user, 'view').count),
+                ("ipam.view_ipaddress", "IP Addresses", "Individual IPv4 & IPv6 addresses", IPAddress.objects.restrict(request.user, 'view').count),
+                ("ipam.view_vlan", "VLANs", "Layer 2 domains, by VLAN ID", VLAN.objects.restrict(request.user, 'view').count)
 
-            # Organization
-            'site_count': Site.objects.restrict(request.user, 'view').count(),
-            'location_count': Location.objects.restrict(request.user, 'view').count(),
-            'tenant_count': Tenant.objects.restrict(request.user, 'view').count(),
+            )
+            circuits = (
+                ("circuits.view_provider", "Providers", "Organizations that provide circuits", Provider.objects.restrict(request.user, 'view').count),
+                ("circuits.view_circuit", "Circuits", "Communication links for transit, transport, & other services", Circuit.objects.restrict(request.user, 'view').count),
+            )
+            virtualization = (
+                ("virtualization.view_cluster", "Clusters", "Clusters of physical virtual machine hosts", Cluster.objects.restrict(request.user, 'view').count),
+                ("virtualization.view_virtualmachine", "Virtual Machines", "Virtual compute instances running inside clusters", VirtualMachine.objects.restrict(request.user, 'view').count),
 
-            # DCIM
-            'rack_count': Rack.objects.restrict(request.user, 'view').count(),
-            'devicetype_count': DeviceType.objects.restrict(request.user, 'view').count(),
-            'device_count': Device.objects.restrict(request.user, 'view').count(),
-            'interface_connections_count': connected_interfaces.count(),
-            'cable_count': Cable.objects.restrict(request.user, 'view').count(),
-            'console_connections_count': connected_consoleports.count(),
-            'power_connections_count': connected_powerports.count(),
-            'powerpanel_count': PowerPanel.objects.restrict(request.user, 'view').count(),
-            'powerfeed_count': PowerFeed.objects.restrict(request.user, 'view').count(),
-
-            # IPAM
-            'vrf_count': VRF.objects.restrict(request.user, 'view').count(),
-            'aggregate_count': Aggregate.objects.restrict(request.user, 'view').count(),
-            'prefix_count': Prefix.objects.restrict(request.user, 'view').count(),
-            'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').count(),
-            'vlan_count': VLAN.objects.restrict(request.user, 'view').count(),
-
-            # Circuits
-            'provider_count': Provider.objects.restrict(request.user, 'view').count(),
-            'circuit_count': Circuit.objects.restrict(request.user, 'view').count(),
-
-            # Secrets
-            'secret_count': Secret.objects.restrict(request.user, 'view').count(),
-
-            # Virtualization
-            'cluster_count': Cluster.objects.restrict(request.user, 'view').count(),
-            'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').count(),
-
-        }
+            )
+            connections = (
+                ("dcim.view_cable", "Cables", None, Cable.objects.restrict(request.user, 'view').count),
+                ("dcim.view_consoleport", "Console", None, connected_consoleports.count),
+                ("dcim.view_interface", "Interfaces", None, connected_interfaces.count),
+                ("dcim.view_powerport", "Power Connections", None, connected_powerports.count),
+            )
+            power = (
+                ("dcim.view_powerpanel", "Power Panels", "Electrical panels receiving utility power", PowerPanel.objects.restrict(request.user, 'view').count),
+                ("dcim.view_powerfeed", "Power Feeds", "Electrical circuits delivering power from panels", PowerFeed.objects.restrict(request.user, 'view').count),
+            )
+            sections = (
+                ("Organization", org),
+                ("IPAM", ipam),
+                ("Virtualization", virtualization),
+                ("Inventory", dcim),
+                ("Connections", connections),
+                ("Circuits", circuits),
+                ("Power", power),
+            )
+            for section_label, section_items in sections:
+                stat = {"label": section_label, "items": []}
+                for perm, item_label, description, get_count in section_items:
+                    app, scope = perm.split(".")
+                    url = ":".join((app, scope.replace("view_", "") + "_list"))
+                    item = {"label": item_label, "description": description, "count": None, "url": url, "disabled": True}
+                    if perm in perms:
+                        item["count"] = get_count()
+                        item["disabled"] = False
+                    stat["items"].append(item)
+                stats.append(stat)
+            return stats
 
         changelog = ObjectChange.objects.restrict(request.user, 'view').prefetch_related('user', 'changed_object_type')
 
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None
         if request.user.is_staff or request.user.is_superuser:
-            latest_release, release_url = get_latest_release()
-            if isinstance(latest_release, version.Version):
-                current_version = version.parse(settings.VERSION)
-                if latest_release > current_version:
+            latest_release = cache.get('latest_release')
+            if latest_release:
+                release_version, release_url = latest_release
+                if release_version > version.parse(settings.VERSION):
                     new_release = {
                         'version': str(latest_release),
                         'url': release_url,
@@ -106,7 +130,7 @@ class HomeView(View):
 
         return render(request, self.template_name, {
             'search_form': SearchForm(),
-            'stats': stats,
+            'stats': build_stats(),
             'report_results': report_results,
             'changelog': changelog[:15],
             'new_release': new_release,
@@ -164,6 +188,7 @@ class StaticMediaFailureView(View):
     """
     Display a user-friendly error message with troubleshooting tips when a static media file fails to load.
     """
+
     def get(self, request):
         return render(request, 'media_failure.html', {
             'filename': request.GET.get('filename')

@@ -58,8 +58,6 @@ class RackRole(OrganizationalModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'slug', 'color', 'description']
-
     class Meta:
         ordering = ['name']
 
@@ -68,14 +66,6 @@ class RackRole(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('dcim:rackrole', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.slug,
-            self.color,
-            self.description,
-        )
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -191,10 +181,6 @@ class Rack(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = [
-        'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
-        'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
-    ]
     clone_fields = [
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit',
@@ -209,7 +195,9 @@ class Rack(PrimaryModel):
         )
 
     def __str__(self):
-        return self.display_name or super().__str__()
+        if self.facility_id:
+            return f'{self.name} ({self.facility_id})'
+        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -249,39 +237,12 @@ class Rack(PrimaryModel):
                         'location': f"Location must be from the same site, {self.site}."
                     })
 
-    def to_csv(self):
-        return (
-            self.site.name,
-            self.location.name if self.location else None,
-            self.name,
-            self.facility_id,
-            self.tenant.name if self.tenant else None,
-            self.get_status_display(),
-            self.role.name if self.role else None,
-            self.get_type_display() if self.type else None,
-            self.serial,
-            self.asset_tag,
-            self.width,
-            self.u_height,
-            self.desc_units,
-            self.outer_width,
-            self.outer_depth,
-            self.outer_unit,
-            self.comments,
-        )
-
     @property
     def units(self):
         if self.desc_units:
             return range(1, self.u_height + 1)
         else:
             return reversed(range(1, self.u_height + 1))
-
-    @property
-    def display_name(self):
-        if self.facility_id:
-            return f'{self.name} ({self.facility_id})'
-        return self.name
 
     def get_status_class(self):
         return RackStatusChoices.CSS_CLASSES.get(self.status)
@@ -497,8 +458,6 @@ class RackReservation(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['site', 'location', 'rack', 'units', 'tenant', 'user', 'description']
-
     class Meta:
         ordering = ['created', 'pk']
 
@@ -534,17 +493,6 @@ class RackReservation(PrimaryModel):
                         ', '.join([str(u) for u in conflicting_units]),
                     )
                 })
-
-    def to_csv(self):
-        return (
-            self.rack.site.name,
-            self.rack.location if self.rack.location else None,
-            self.rack.name,
-            ','.join([str(u) for u in self.units]),
-            self.tenant.name if self.tenant else None,
-            self.user.username,
-            self.description
-        )
 
     @property
     def unit_list(self):

@@ -5,72 +5,80 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:service_list' %}">Services</a></li>
-  <li><a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'ipam:service_list' %}">Services</a></li>
+  <li class="breadcrumb-item"><a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
-{% block buttons %}
+{% block controls %}
+{% plugin_buttons object %}
+<div class="container mb-2 mx-0">
+  <div class="d-flex flex-wrap justify-content-end">
+  {% block extra_controls %}{% endblock %}
   {% if request.user|can_change:object %}
     {% edit_button object %}
   {% endif %}
   {% if request.user|can_delete:object %}
     {% delete_button object %}
   {% endif %}
+  </div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Service</strong>
+<div class="row mb-3">
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Service
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Parent</th>
+                        <td>
+                            <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Protocol</th>
+                        <td>{{ object.get_protocol_display }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Ports</th>
+                        <td>{{ object.port_list }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IP Addresses</th>
+                        <td>
+                            {% for ipaddress in object.ipaddresses.all %}
+                                <a href="{{ ipaddress.get_absolute_url }}">{{ ipaddress }}</a><br />
+                            {% empty %}
+                                <span class="text-muted">None</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Name</td>
-                    <td>{{ object.name }}</td>
-                </tr>
-                <tr>
-                    <td>Parent</td>
-                    <td>
-                        <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Protocol</td>
-                    <td>{{ object.get_protocol_display }}</td>
-                </tr>
-                <tr>
-                    <td>Ports</td>
-                    <td>{{ object.port_list }}</td>
-                </tr>
-                <tr>
-                    <td>IP Addresses</td>
-                    <td>
-                        {% for ipaddress in object.ipaddresses.all %}
-                            <a href="{{ ipaddress.get_absolute_url }}">{{ ipaddress }}</a><br />
-                        {% empty %}
-                            <span class="text-muted">None</span>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-		    </table>
         </div>
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:service_list' %}
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-6">
+    <div class="col col-md-6">
         {% plugin_right_page object %}
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
+<div class="row mb-3">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

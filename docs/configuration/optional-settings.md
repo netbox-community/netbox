@@ -52,14 +52,6 @@ BASE_PATH = 'netbox/'
 
 ---
 
-## CACHE_TIMEOUT
-
-Default: 900
-
-The number of seconds that cache entries will be retained before expiring.
-
----
-
 ## CHANGELOG_RETENTION
 
 Default: 90
@@ -93,6 +85,12 @@ CORS_ORIGIN_WHITELIST = [
     'https://example.com',
 ]
 ```
+
+---
+
+## CUSTOM_VALIDATORS
+
+This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic.
 
 ---
 
@@ -144,7 +142,7 @@ In order to send email, NetBox needs an email server configured. The following i
 !!! note
     The `USE_SSL` and `USE_TLS` parameters are mutually exclusive.
 
-Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) fuction accessible within the NetBox shell:
+Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) function accessible within the NetBox shell:
 
 ```no-highlight
 # python ./manage.py nbshell
@@ -192,6 +190,14 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 !!! note
     Using a wildcard will not affect certain potentially sensitive models, such as user permissions. If there is a need to exempt these models, they must be specified individually.
+
+---
+
+## GRAPHQL_ENABLED
+
+Default: True
+
+Setting this to False will disable the GraphQL API.
 
 ---
 
@@ -261,7 +267,7 @@ LOGGING = {
 
 Default: False
 
-Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users are permitted to access most data in NetBox (excluding secrets) but not make any changes.
+Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users are permitted to access most data in NetBox but not make any changes.
 
 ---
 
@@ -472,19 +478,11 @@ When remote user authentication is in use, this is the name of the HTTP header w
 
 ---
 
-## RELEASE_CHECK_TIMEOUT
-
-Default: 86,400 (24 hours)
-
-The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. This must be set to at least one hour (3600 seconds).
-
----
-
 ## RELEASE_CHECK_URL
 
 Default: None (disabled)
 
-This parameter defines the URL of the repository that will be checked periodically for new NetBox releases. When a new release is detected, a message will be displayed to administrative users on the home page. This can be set to the official repository (`'https://api.github.com/repos/netbox-community/netbox/releases'`) or a custom fork. Set this to `None` to disable automatic update checks.
+This parameter defines the URL of the repository that will be checked for new NetBox releases. When a new release is detected, a message will be displayed to administrative users on the home page. This can be set to the official repository (`'https://api.github.com/repos/netbox-community/netbox/releases'`) or a custom fork. Set this to `None` to disable automatic update checks.
 
 !!! note
     The URL provided **must** be compatible with the [GitHub REST API](https://docs.github.com/en/rest).
@@ -495,7 +493,7 @@ This parameter defines the URL of the repository that will be checked periodical
 
 Default: `$INSTALL_ROOT/netbox/reports/`
 
-The file path to the location where custom reports will be kept. By default, this is the `netbox/reports/` directory within the base NetBox installation path.
+The file path to the location where [custom reports](../customization/reports.md) will be kept. By default, this is the `netbox/reports/` directory within the base NetBox installation path.
 
 ---
 
@@ -511,7 +509,7 @@ The maximum execution time of a background task (such as running a custom script
 
 Default: `$INSTALL_ROOT/netbox/scripts/`
 
-The file path to the location where custom scripts will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
+The file path to the location where [custom scripts](../customization/custom-scripts.md) will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
 
 ---
 

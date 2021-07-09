@@ -22,7 +22,7 @@ class AppTest(APITestCase):
 
 class VRFTest(APIViewTestCases.APIViewTestCase):
     model = VRF
-    brief_fields = ['display', 'display_name', 'id', 'name', 'prefix_count', 'rd', 'url']
+    brief_fields = ['display', 'id', 'name', 'prefix_count', 'rd', 'url']
     create_data = [
         {
             'name': 'VRF 4',
@@ -421,7 +421,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
 
 class VLANTest(APIViewTestCases.APIViewTestCase):
     model = VLAN
-    brief_fields = ['display', 'display_name', 'id', 'name', 'url', 'vid']
+    brief_fields = ['display', 'id', 'name', 'url', 'vid']
     bulk_update_data = {
         'description': 'New description',
     }

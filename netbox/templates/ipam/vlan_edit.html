@@ -4,54 +4,48 @@
 {% load helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>VLAN</strong></div>
-        <div class="panel-body">
-            {% render_field form.vid %}
-            {% render_field form.name %}
-            {% render_field form.status %}
-            {% render_field form.role %}
-            {% render_field form.description %}
-            {% render_field form.tags %}
-        </div>
+    <div class="field-group mb-3">
+        <h4>VLAN</h4>
+        {% render_field form.vid %}
+        {% render_field form.name %}
+        {% render_field form.status %}
+        {% render_field form.role %}
+        {% render_field form.description %}
+        {% render_field form.tags %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tenancy</strong></div>
-        <div class="panel-body">
-            {% render_field form.tenant_group %}
-            {% render_field form.tenant %}
-        </div>
+    <div class="field-group mb-3">
+        <h4>Tenancy</h4>
+        {% render_field form.tenant_group %}
+        {% render_field form.tenant %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>Assignment</strong>
-        </div>
-        <div class="panel-body">
-            {% with site_tab_active=form.initial.site %}
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation"{% if not site_tab_active %} class="active"{% endif %}><a href="#group" role="tab" data-toggle="tab">VLAN Group</a></li>
-                    <li role="presentation"{% if site_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
-                        {% render_field form.scope_type %}
-                        {% render_field form.group %}
-                    </div>
-                    <div class="tab-pane{% if site_tab_active %} active{% endif %}" id="site">
-                        {% render_field form.region %}
-                        {% render_field form.sitegroup %}
-                        {% render_field form.site %}
-                    </div>
+    <div class="field-group mb-3">
+        <h4>Assignment</h4>
+        {% with site_tab_active=form.initial.site %}
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link{% if not site_tab_active %} active{% endif %}" href="#group" role="tab" data-bs-toggle="tab">VLAN Group</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link{% if site_tab_active %} active{% endif %}" href="#site" role="tab" data-bs-toggle="tab">Site</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
+                    {% render_field form.scope_type %}
+                    {% render_field form.group %}
                 </div>
-            {% endwith %}
-        </div>
+                <div class="tab-pane{% if site_tab_active %} active{% endif %}" id="site">
+                    {% render_field form.region %}
+                    {% render_field form.sitegroup %}
+                    {% render_field form.site %}
+                </div>
+            </div>
+        {% endwith %}
     </div>
     {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
-                {% render_custom_fields form %}
-            </div>
+        <div class="field-group">
+            <h4>Custom Fields</h4>
+            {% render_custom_fields form %}
         </div>
     {% endif %}
 {% endblock %}

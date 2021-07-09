@@ -1,0 +1,146 @@
+// SlimSelect Style Overrides.
+
+$height: $input-height;
+$white: $white;
+$font-color: $input-color;
+$font-placeholder-color: $input-placeholder-color;
+$font-disabled-color: $form-select-disabled-color;
+$primary-color: $primary;
+$border-color: $form-select-border-color;
+$search-highlight-color: $yellow;
+$border-radius: $form-select-border-radius;
+$spacing-l: $input-padding-x;
+$spacing-m: $input-padding-x;
+$spacing-s: $input-padding-x;
+
+:root {
+  --nbx-select-content-bg: #{$form-select-bg};
+  --nbx-select-option-selected-bg: #{$gray-300};
+  --nbx-select-option-hover-bg: #{$blue};
+  --nbx-select-option-hover-color: #{$white};
+  --nbx-select-placeholder-color: #{$gray-500};
+  --nbx-select-value-color: #{$white};
+  & body[data-netbox-color-mode='dark'] {
+    --nbx-select-content-bg: #{$gray-900};
+    --nbx-select-option-selected-bg: #{$gray-500};
+    --nbx-select-option-hover-bg: #{$blue-200};
+    --nbx-select-option-hover-color: #{color-contrast($blue-200)};
+    --nbx-select-placeholder-color: #{$gray-500};
+    --nbx-select-value-color: #{$black};
+  }
+}
+
+div.form-floating div.ss-main div.ss-single-selected,
+div.form-floating div.ss-main div.ss-multi-selected {
+  min-height: $form-floating-height;
+}
+
+@import './node_modules/slim-select/src/slim-select/slimselect.scss';
+
+.ss-main {
+  color: $form-select-color;
+
+  &.is-invalid .ss-single-selected,
+  &.is-invalid .ss-multi-selected {
+    border-color: $form-feedback-icon-invalid-color;
+  }
+
+  &.is-valid .ss-single-selected,
+  &.is-valid .ss-multi-selected {
+    border-color: $form-feedback-icon-valid-color;
+  }
+
+  .ss-single-selected,
+  .ss-multi-selected {
+    &[disabled] {
+      color: $form-select-disabled-color;
+      background-color: $form-select-disabled-bg;
+      border-color: $form-select-disabled-border-color;
+    }
+  }
+
+  div.ss-multi-selected .ss-values .ss-disabled,
+  div.ss-single-selected span.placeholder .ss-disabled {
+    color: var(--nbx-select-placeholder-color);
+    font-size: $font-size-xs;
+  }
+
+  .ss-single-selected {
+    background-color: $form-select-bg;
+    span.ss-arrow {
+      // Inherit the arrow color from the parent (see color selector).
+      span.arrow-down,
+      span.arrow-up {
+        border-color: currentColor;
+      }
+    }
+    span.placeholder > *,
+    span.placeholder {
+      line-height: $input-line-height;
+    }
+  }
+
+  .ss-multi-selected {
+    align-items: center;
+    padding-left: $input-padding-x;
+    padding-right: $input-padding-x;
+    background-color: $form-select-bg;
+
+    .ss-values {
+      padding-top: $spacer * 2 !important;
+      .ss-disabled {
+        padding: 4px 0px;
+      }
+      .ss-value {
+        border-radius: $badge-border-radius;
+        color: var(--nbx-select-value-color);
+      }
+    }
+    .ss-add {
+      margin: 0 0.75rem;
+    }
+  }
+
+  .ss-content {
+    background-color: var(--nbx-select-content-bg);
+    .ss-list {
+      .ss-option.ss-option-selected {
+        background-color: var(--nbx-select-option-selected-bg);
+        color: $body-color;
+      }
+      .ss-option:hover {
+        background-color: var(--nbx-select-option-hover-bg);
+        color: var(--nbx-select-option-hover-color);
+      }
+      .ss-option:last-child {
+        border-bottom-left-radius: $form-select-border-radius;
+        border-bottom-right-radius: $form-select-border-radius;
+      }
+      .ss-option.ss-disabled {
+        background-color: transparent;
+      }
+      .ss-option.ss-disabled:hover {
+        color: unset;
+      }
+    }
+    border-bottom-left-radius: $form-select-border-radius;
+    border-bottom-right-radius: $form-select-border-radius;
+    .ss-search {
+      input[type='search'] {
+        background-color: $form-select-bg;
+        color: $input-color;
+        border: $form-select-border-width solid $form-select-border-color;
+        &:focus {
+          border-color: $form-select-focus-border-color;
+          outline: 0;
+          @if $enable-shadows {
+            @include box-shadow($form-select-box-shadow, $form-select-focus-box-shadow);
+          } @else {
+            // Avoid using mixin so we can pass custom focus shadow properly
+            box-shadow: $form-select-focus-box-shadow;
+          }
+        }
+      }
+    }
+  }
+}

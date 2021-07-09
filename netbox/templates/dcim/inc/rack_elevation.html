@@ -1,8 +1,8 @@
 <div style="margin-left: -30px">
     <object data="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg" class="rack_elevation"></object>
 </div>
-<div class="text-center text-small">
-    <a href="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg">
-        <i class="mdi mdi-content-save-outline"></i> Save SVG
+<div class="text-center mt-3">
+    <a class="btn btn-outline-primary btn-sm" href="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg">
+        <i class="mdi mdi-file-download"></i> Download SVG
     </a>
 </div>

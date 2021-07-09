@@ -247,6 +247,18 @@ Password (again):
 Superuser created successfully.
 ```
 
+## Schedule the Housekeeping Task
+
+NetBox includes a `housekeeping` management command that handles some recurring cleanup tasks, such as clearing out old sessions and expired change records. Although this command may be run manually, it is recommended to configure a scheduled job using the system's `cron` daemon or a similar utility.
+
+A shell script which invokes this command is included at `contrib/netbox-housekeeping.sh`. It can be copied to your system's daily cron task directory, or included within the crontab directly. (If installing NetBox into a nonstandard path, be sure to update the system paths within this script first.)
+
+```shell
+cp /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/
+```
+
+See the [housekeeping documentation](../administration/housekeeping.md) for further details.
+
 ## Test the Application
 
 At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance:

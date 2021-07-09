@@ -3,50 +3,61 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:routetarget_list' %}">Route Targets</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'ipam:routetarget_list' %}">Route Targets</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Route Target</strong>
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Route Target
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td><code>{{ object.name }}</code></td>
+                    </tr>
+                    <tr>
+                        <th  scope="row">Tenant</th>
+                        <td>
+                            {% if object.tenant %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Name</td>
-                    <td>{{ object.name }}</td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if object.tenant %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-		    </table>
         </div>
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:routetarget_list' %}
-        {% include 'inc/custom_fields_panel.html' %}
+        
         {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
-        {% include 'panel_table.html' with table=importing_vrfs_table heading="Importing VRFs" %}
-        {% include 'panel_table.html' with table=exporting_vrfs_table heading="Exporting VRFs" %}
+	<div class="col col-md-6">
+        <div class="mb-4">
+        {% include 'inc/panel_table.html' with table=importing_vrfs_table heading="Importing VRFs" %}
+        </div>
+        {% include 'inc/panel_table.html' with table=exporting_vrfs_table heading="Exporting VRFs" %}
         {% plugin_right_page object %}
     </div>
 </div>
+<div class="row my-3">
+    <div class="col col-md-6">
+    {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:routetarget_list' %}
+    </div>
+    <div class="col col-md-6">
+    {% include 'inc/custom_fields_panel.html' %}
+    </div>
+</div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

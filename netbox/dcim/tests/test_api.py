@@ -251,7 +251,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTest(APIViewTestCases.APIViewTestCase):
     model = Rack
-    brief_fields = ['device_count', 'display', 'display_name', 'id', 'name', 'url']
+    brief_fields = ['device_count', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -418,7 +418,7 @@ class ManufacturerTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
     model = DeviceType
-    brief_fields = ['device_count', 'display', 'display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
+    brief_fields = ['device_count', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
     }
@@ -866,7 +866,7 @@ class PlatformTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceTest(APIViewTestCases.APIViewTestCase):
     model = Device
-    brief_fields = ['display', 'display_name', 'id', 'name', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'failed',
     }
@@ -1211,8 +1211,9 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
             {
                 'device': device.pk,
                 'name': 'Interface 6',
-                'type': '1000base-t',
+                'type': 'virtual',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
+                'parent': interfaces[0].pk,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
             },

@@ -1,0 +1,819 @@
+// Netbox-specific Styles and Overrides.
+
+@use 'sass:map';
+
+:root {
+  --nbx-logo-color-1: #9cc8f8;
+  --nbx-logo-color-2: #1685fc;
+  --nbx-sidebar-bg: #{$gray-100};
+  --nbx-sidebar-link-color: #{$gray-800};
+  --nbx-sidebar-link-hover-bg: #{$blue-100};
+  --nbx-sidebar-title-color: #{$text-muted};
+  --nbx-breadcrumb-bg: #{$light};
+  --nbx-body-bg: #{$white};
+  --nbx-body-color: #{$gray-800};
+  --nbx-pre-bg: #{$gray-100};
+  --nbx-pre-border-color: #{$gray-600};
+  --nbx-change-added: #{rgba($green, 0.4)};
+  --nbx-change-removed: #{rgba($red, 0.4)};
+  --nbx-cable-node-bg: #{$gray-100};
+  --nbx-cable-node-border-color: #{$gray-200};
+  --nbx-cable-termination-bg: #{$gray-200};
+  --nbx-cable-termination-border-color: #{$gray-300};
+  --nbx-search-filter-border-left-color: #{$gray-300};
+  --nbx-color-mode-toggle-color: #{$primary};
+  --nbx-stat-badge-bg: #{$gray-600};
+
+  body[data-netbox-color-mode='dark'] {
+    --nbx-logo-color-1: #{$white};
+    --nbx-logo-color-2: #{$gray-200};
+    --nbx-sidebar-bg: #{$gray-800};
+    --nbx-sidebar-link-color: #{$gray-200};
+    --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
+    --nbx-sidebar-title-color: #{$gray-300};
+    --nbx-breadcrumb-bg: #{$gray-800};
+    --nbx-body-bg: #{$gray-900};
+    --nbx-body-color: #{$gray-50};
+    --nbx-pre-bg: #{$gray-700};
+    --nbx-pre-border-color: #{$gray-600};
+    --nbx-change-added: #{rgba($green-300, 0.4)};
+    --nbx-change-removed: #{rgba($red-300, 0.4)};
+    --nbx-cable-node-bg: #{$gray-700};
+    --nbx-cable-node-border-color: #{$gray-600};
+    --nbx-cable-termination-bg: #{$gray-800};
+    --nbx-cable-termination-border-color: #{$gray-700};
+    --nbx-search-filter-border-left-color: #{$gray-600};
+    --nbx-color-mode-toggle-color: #{$yellow-300};
+    --nbx-stat-badge-bg: #{$gray-600};
+  }
+}
+
+* {
+  transition: background-color, color 0.15s ease-in-out;
+}
+
+.mw-25 {
+  max-width: 25% !important;
+}
+
+.mw-33 {
+  max-width: 33.33% !important;
+}
+
+.mw-50 {
+  max-width: 50% !important;
+}
+
+.mw-66 {
+  max-width: 66.66% !important;
+}
+
+.mw-75 {
+  max-width: 75% !important;
+}
+
+.text-xs {
+  font-size: $font-size-xs;
+  line-height: $line-height-sm;
+}
+
+.opacity-0 {
+  opacity: 0 !important;
+}
+.opacity-25 {
+  opacity: 0.25 !important;
+}
+.opacity-50 {
+  opacity: 0.5 !important;
+}
+.opacity-75 {
+  opacity: 0.75 !important;
+}
+.opacity-100 {
+  opacity: 1 !important;
+}
+
+// Automatically space out adjacent columns.
+.col:not(:last-child):not(:only-child) {
+  margin-bottom: $spacer;
+}
+
+// Use proper contrasting color for badge & progress-bar foreground color.
+@each $color, $value in $theme-colors {
+  .badge,
+  .toast,
+  .progress-bar {
+    &.bg-#{$color} {
+      color: color-contrast($value);
+    }
+  }
+}
+
+// Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
+table td > .progress {
+  min-width: 6rem;
+}
+
+span.profile-button .dropdown-menu {
+  transition: opacity 0.2s ease-in-out;
+  display: block !important;
+  right: 0;
+  left: auto;
+  margin-top: 0.5rem;
+  box-shadow: $box-shadow;
+  &:not(.show) {
+    opacity: 0;
+    pointer-events: none;
+  }
+  &.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+div#advanced-search-content div.card div.card-body div.col:not(:last-child) {
+  margin-right: 1rem;
+}
+
+body {
+  background-color: var(--nbx-body-bg);
+  color: var(--nbx-body-color);
+  g#netbox-logo-1 {
+    fill: #9cc8f8;
+    stroke: #9cc8f8;
+  }
+
+  g#netbox-logo-2 {
+    fill: #1685fc;
+    stroke: #1685fc;
+  }
+  span.badge.stat-badge {
+    margin-left: map.get($spacers, 2);
+    background-color: var(--nbx-stat-badge-bg);
+  }
+
+  &[data-netbox-color-mode='light'] {
+    .btn.btn-primary,
+    .progress-bar.bg-primary,
+    .badge.bg-primary,
+    .nav.nav-pills .nav-item.nav-link.active,
+    .nav.nav-pills .nav-item .nav-link.active,
+    .nav.nav-pills .nav-item .show > .nav-link {
+      color: $gray-50;
+    }
+  }
+  &[data-netbox-color-mode='dark'] {
+    & {
+      .btn.btn-primary,
+      .progress-bar.bg-primary,
+      .badge.bg-primary,
+      .nav.nav-pills .nav-item.nav-link.active,
+      .nav.nav-pills .nav-item .nav-link.active,
+      .nav.nav-pills .nav-item .show > .nav-link {
+        color: $black;
+      }
+    }
+    .card table caption {
+      color: $gray-300;
+    }
+    a:not(.btn) {
+      color: $blue-300;
+    }
+    .breadcrumb .breadcrumb-item > a {
+      color: $blue-300;
+    }
+    .badge {
+      color: $black;
+    }
+    .card,
+    .sidebar {
+      .text-muted {
+        color: $gray-400 !important;
+      }
+    }
+    .text-body[class] {
+      color: var(--nbx-body-color) !important;
+    }
+    g#netbox-logo-1 {
+      fill: $white;
+      stroke: $white;
+    }
+
+    g#netbox-logo-2 {
+      fill: $gray-200;
+      stroke: $gray-200;
+    }
+  }
+  & table,
+  &[data-netbox-color-mode] table {
+    a {
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    &.table > :not(caption) > * > * {
+      padding-left: $table-cell-padding-x-sm !important;
+      padding-right: $table-cell-padding-x-sm !important;
+    }
+    td,
+    th {
+      font-size: $font-size-xs;
+      line-height: $line-height-sm;
+      vertical-align: middle;
+      & input.form-check-input {
+        // Ensure checkboxes aren't too small inside object tables.
+        font-size: $font-size-base;
+      }
+      & .btn-sm {
+        line-height: $line-height-xs;
+      }
+    }
+    &.attr-table {
+      td,
+      th {
+        font-size: $font-size-sm;
+        line-height: $line-height-sm;
+      }
+    }
+  }
+}
+
+div.title-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+
+  div#content-title {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    padding-bottom: map.get($spacers, 2);
+  }
+}
+
+nav.search {
+  background-color: var(--nbx-body-bg);
+  form button.dropdown-toggle {
+    border-color: $input-border-color;
+    font-weight: $input-group-addon-font-weight;
+    line-height: $input-line-height;
+    color: $input-group-addon-color;
+    background-color: $input-group-addon-bg;
+    border: $input-border-width solid $input-group-addon-border-color;
+    @include border-radius($input-border-radius);
+    border-left: 1px solid var(--nbx-search-filter-border-left-color);
+    &:focus {
+      box-shadow: unset !important;
+    }
+  }
+}
+
+main.login-container {
+  display: flex;
+  height: calc(100vh - 4rem);
+  width: 100%;
+  max-width: 100vw;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  & + footer.footer button.color-mode-toggle {
+    color: var(--nbx-color-mode-toggle-color);
+  }
+}
+
+footer.login-footer {
+  height: 4rem;
+  margin-top: auto;
+
+  .container-fluid {
+    display: flex;
+    justify-content: flex-end;
+    padding: $container-padding-x $grid-gutter-width;
+  }
+}
+
+h1 {
+  font-weight: $font-weight-bolder;
+}
+
+h2 {
+  font-weight: $font-weight-bold;
+}
+
+h3,
+h4 {
+  font-weight: $font-weight-medium;
+}
+
+h5,
+h6 {
+  font-weight: $font-weight-medium;
+}
+
+h1.accordion-item-title,
+h2.accordion-item-title,
+h3.accordion-item-title,
+h4.accordion-item-title,
+h5.accordion-item-title,
+h6.accordion-item-title {
+  // padding: 0 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  color: var(--nbx-sidebar-title-color);
+  font-size: $font-size-sm;
+}
+
+.form-login {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  & input:focus {
+    z-index: 1;
+  }
+}
+
+.form-login input[type='text'] {
+  margin-bottom: -1px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.form-login input[type='password'] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form-login .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+li.dropdown-item.dropdown-item-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.navbar-brand {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+nav.nav.nav-pills {
+  .nav-item.nav-link {
+    padding: 0.25rem 0.5rem;
+    font-size: $font-size-sm;
+    border-radius: $border-radius;
+    &:hover {
+      background-color: $accordion-button-active-bg;
+      color: $accordion-button-active-color;
+    }
+  }
+}
+
+// Ensure the content container is full-height, and that the content block is also full height so
+// that the footer is always at the bottom.
+div.content-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @include media-breakpoint-up(md) {
+    margin-left: $sidebar-width;
+  }
+
+  div.content {
+    flex: 1;
+  }
+}
+
+// Prevent scrolling of body content when nav menu is open on mobile.
+.sidebar.collapse.show ~ .content-container > .content {
+  @media (max-width: map.get($grid-breakpoints, 'md')) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: hidden;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  border-right: 1px solid $border-color;
+  background-color: var(--nbx-sidebar-bg);
+  max-height: 100%;
+  width: 100%;
+
+  @include media-breakpoint-up(md) {
+    width: 100%;
+    max-width: $sidebar-width;
+  }
+
+  @include media-breakpoint-down(md) {
+    top: 8.125rem;
+    background-color: var(--nbx-body-bg);
+  }
+
+  div.accordion-item {
+    border: unset;
+
+    & > a.accordion-button {
+      &:not(.collapsed) {
+        box-shadow: unset;
+      }
+      &.nav-link {
+        border-radius: $border-radius;
+        &:hover {
+          color: $accordion-button-active-color;
+          background-color: $accordion-button-active-bg;
+        }
+        &:focus {
+          border-color: unset;
+          box-shadow: unset;
+        }
+      }
+    }
+  }
+
+  .accordion-body {
+    max-height: calc(100vh - 24rem);
+    overflow-y: auto;
+    .nav-item {
+      .nav-link {
+        padding: 0.25rem 0.6rem;
+        font-size: $font-size-sm;
+        border-radius: $border-radius;
+        &:hover {
+          color: $accordion-button-active-color;
+          background-color: $accordion-button-active-bg;
+        }
+      }
+    }
+  }
+  // Ensure navigation accounts for the height of the header on mobile when nav is expanded.
+  &.collapse.show div.position-sticky {
+    @media (max-width: map.get($grid-breakpoints, 'md')) {
+      height: calc(100vh - 16.125rem);
+      overflow-y: auto;
+    }
+  }
+  div.position-sticky {
+    height: calc(100vh - 8rem);
+  }
+  div.sidebar-bottom {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    position: sticky;
+    height: 8rem;
+    background-color: var(--nbx-sidebar-bg);
+
+    @include media-breakpoint-down(md) {
+      background-color: var(--nbx-body-bg);
+    }
+
+    .nav-link {
+      padding: 0.5rem 0.25rem;
+    }
+  }
+  a.sidebar-logo {
+    display: flex;
+    flex-shrink: 1;
+    width: 100%;
+    height: 4rem;
+  }
+}
+
+.tooltip {
+  pointer-events: none;
+}
+
+.ws-nowrap {
+  white-space: nowrap !important;
+}
+
+#object-type-selector {
+  button.dropdown-item,
+  h6.dropdown-header {
+    font-size: $font-size-sm;
+  }
+}
+
+.stats-container {
+  min-height: 50vh;
+}
+
+span.color-label {
+  width: 5rem;
+  height: 1rem;
+  display: block;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius;
+  padding: $badge-padding-y $badge-padding-x;
+}
+
+pre {
+  border-radius: $border-radius;
+  border: 1px solid var(--nbx-pre-border-color);
+  background-color: var(--nbx-pre-bg);
+  padding: $spacer;
+  white-space: pre;
+}
+
+.btn {
+  white-space: nowrap;
+}
+
+.card {
+  box-shadow: $box-shadow-sm;
+  .card-header {
+    color: $body-color;
+    border-bottom: none;
+    padding: $card-cap-padding-x;
+  }
+  .card-header + .card-body {
+    padding-top: 0;
+  }
+  .card-body {
+    overflow-x: auto;
+  }
+}
+
+.form-floating {
+  position: relative;
+
+  > .input-group > .form-control,
+  > .input-group > .form-select {
+    height: $form-floating-height;
+    padding: $form-floating-padding-y $form-floating-padding-x;
+  }
+
+  > .input-group > label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%; // allow textareas
+    padding: $form-floating-padding-y $form-floating-padding-x;
+    pointer-events: none;
+    border: $input-border-width solid transparent; // Required for aligning label's text with the input as it affects inner box model
+    transform-origin: 0 0;
+    @include transition($form-floating-transition);
+  }
+
+  > .input-group > .form-control {
+    &::placeholder {
+      color: transparent;
+    }
+
+    &:focus,
+    &:not(:placeholder-shown) {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+    // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+    &:-webkit-autofill {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+  }
+
+  > .input-group > .form-select,
+  > .choices > .choices__inner,
+  > .ss-main span.placeholder, // SlimSelect Single
+  > .ss-main div.ss-values // SlimSelect Multiple
+  {
+    padding-top: $form-floating-input-padding-t;
+    padding-bottom: $form-floating-input-padding-b;
+  }
+
+  > .input-group > .form-control:focus,
+  > .input-group > .form-control:not(:placeholder-shown),
+  > .input-group > .form-select,
+  > .choices,
+  > .ss-main {
+    ~ label {
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+      z-index: 4;
+    }
+  }
+  // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+  > .input-group > .form-control:-webkit-autofill {
+    ~ label {
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+      z-index: 4;
+    }
+  }
+}
+
+textarea.form-control[rows='10'] {
+  height: 18rem;
+}
+
+textarea#id_local_context_data,
+textarea.markdown,
+textarea#id_public_key,
+textarea.form-control[name='csv'],
+textarea.form-control[name='data'] {
+  font-family: $font-family-monospace;
+}
+
+table tr.vertical-align {
+  vertical-align: middle;
+}
+
+.card:not(:only-of-type) {
+  margin-bottom: $spacer;
+}
+
+.stat-btn {
+  min-width: $spacer * 3;
+}
+
+nav.breadcrumb-container {
+  padding: $badge-padding-y $badge-padding-x;
+  font-size: $font-size-sm;
+  width: fit-content;
+
+  ol.breadcrumb {
+    margin-bottom: 0;
+    li.breadcrumb-item > a {
+      text-decoration: none;
+    }
+    li.breadcrumb-item > a:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+div.paginator > form > div.input-group {
+  width: fit-content;
+}
+
+div.field-group:not(:first-of-type) {
+  margin-top: $spacer * 3;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: $spacer;
+  }
+}
+
+label.required {
+  font-weight: $font-weight-bold;
+  &::after {
+    font-family: 'Material Design Icons';
+    content: '\f06C4';
+    font-weight: normal;
+    font-size: 8px;
+    font-style: normal;
+    margin: 0 0 0 2px;
+    text-decoration: none;
+    display: inline-block;
+    position: absolute;
+  }
+}
+
+div.bulk-buttons {
+  display: flex;
+  & > * {
+    margin: $spacer / 4;
+  }
+}
+
+i.bi-plus:before,
+span.bi-plus:before {
+  font-weight: $font-weight-bold !important;
+}
+
+table tbody {
+  @each $color, $value in $theme-colors {
+    tr.#{$color} {
+      background-color: rgba($value, 0.15);
+      border-color: $gray-500;
+    }
+  }
+}
+
+// Cable Tracing
+.cable-trace {
+  max-width: 38rem;
+  margin: 1rem auto;
+  text-align: center;
+}
+.cable-trace .node {
+  background-color: var(--nbx-cable-node-bg);
+  border: $border-width solid var(--nbx-cable-node-border-color);
+  border-radius: $border-radius;
+  padding: 1.5rem 1rem;
+  position: relative;
+  z-index: 1;
+}
+.cable-trace .termination {
+  background-color: var(--nbx-cable-termination-bg);
+  border: $border-width solid var(--nbx-cable-termination-border-color);
+  box-shadow: $box-shadow;
+  border-radius: $border-radius;
+  margin: -1rem auto;
+  padding: 0.5rem;
+  position: relative;
+  width: 60%;
+  z-index: 2;
+}
+.cable-trace .active {
+  border: 0.25rem solid $success;
+}
+.cable-trace .cable {
+  border-left-style: solid;
+  border-left-width: 0.25rem;
+  margin: 1rem 0 1rem 50%;
+  padding: 1.5rem;
+  text-align: left;
+  width: 50%;
+}
+.cable-trace .trace-end {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+pre.change-data {
+  padding-left: 0;
+  padding-right: 0;
+  & > span {
+    display: block;
+    padding-left: $spacer;
+    padding-right: $spacer;
+    &.added {
+      background-color: var(--nbx-change-added);
+    }
+    &.removed {
+      background-color: var(--nbx-change-removed);
+    }
+  }
+}
+
+pre.change-diff {
+  border-color: transparent;
+  &.change-removed {
+    background-color: var(--nbx-change-removed);
+  }
+  &.change-added {
+    background-color: var(--nbx-change-added);
+  }
+}
+
+div.card-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($white, 0.75);
+  border-radius: $border-radius;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & > div.spinner-border {
+    width: 6rem;
+    height: 6rem;
+    color: $secondary;
+  }
+}
+
+div.card > div.card-header > div.table-controls {
+  max-width: 25%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  & .form-switch.form-check-inline {
+    flex: 1 0 auto;
+    font-size: $font-size-sm;
+  }
+}

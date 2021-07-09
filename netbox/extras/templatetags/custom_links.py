@@ -10,14 +10,24 @@ from utilities.utils import render_jinja2
 
 register = template.Library()
 
-LINK_BUTTON = '<a href="{}"{} class="btn btn-sm btn-{}">{}</a>\n'
-GROUP_BUTTON = '<div class="btn-group">\n' \
-               '<button type="button" class="btn btn-sm btn-{} dropdown-toggle" data-toggle="dropdown">\n' \
-               '{} <span class="caret"></span>\n' \
-               '</button>\n' \
-               '<ul class="dropdown-menu pull-right">\n' \
-               '{}</ul></div>\n'
-GROUP_LINK = '<li><a href="{}"{}>{}</a></li>\n'
+LINK_BUTTON = '<a href="{}"{} class="btn btn-sm btn-{} m-1">{}</a>\n'
+
+GROUP_BUTTON = """
+<div class="dropdown m-1">
+    <button
+        class="btn btn-sm btn-{} dropdown-toggle"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false">
+        {}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        {}
+    </ul>
+</div>
+"""
+
+GROUP_LINK = '<li><a class="dropdown-item" href="{}"{}>{}</a></li>\n'
 
 
 @register.simple_tag(takes_context=True)
@@ -60,7 +70,7 @@ def custom_links(context, obj):
                         link_rendered, link_target, cl.button_class, text_rendered
                     )
             except Exception as e:
-                template_code += '<a class="btn btn-sm btn-default" disabled="disabled" title="{}">' \
+                template_code += '<a class="btn btn-sm btn-outline-dark" disabled="disabled" title="{}">' \
                                  '<i class="mdi mdi-alert"></i> {}</a>\n'.format(e, cl.name)
 
     # Add grouped links to template
@@ -79,7 +89,7 @@ def custom_links(context, obj):
                     )
             except Exception as e:
                 links_rendered.append(
-                    '<li><a disabled="disabled" title="{}"><span class="text-muted">'
+                    '<li><a class="dropdown-item" disabled="disabled" title="{}"><span class="text-muted">'
                     '<i class="mdi mdi-alert"></i> {}</span></a></li>'.format(e, cl.name)
                 )
 

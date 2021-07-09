@@ -3,73 +3,75 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
-  <li><a href="{% url 'circuits:circuit_list' %}?provider_id={{ object.provider.pk }}">{{ object.provider }}</a></li>
-  <li>{{ object.cid }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'circuits:circuit_list' %}?provider={{ object.provider.pk }}">{{ object.provider }}</a></li>
+  <li class="breadcrumb-item">{{ object.cid }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Circuit</strong>
-            </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Provider</td>
-                    <td>
-                        <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Circuit ID</td>
-                    <td>{{ object.cid }}</td>
-                </tr>
-                <tr>
-                    <td>Type</td>
-                    <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if object.tenant %}
-                            {% if object.tenant.group %}
-                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Circuit
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Provider</th>
+                        <td>
+                            <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Circuit ID</th>
+                        <td><code>{{ object.cid }}</code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Type</th>
+                        <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Tenant</th>
+                        <td>
+                            {% if object.tenant %}
+                                {% if object.tenant.group %}
+                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                                {% endif %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
                             {% endif %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Install Date</td>
-                    <td>{{ object.install_date|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>Commit Rate</td>
-                    <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Install Date</th>
+                        <td>{{ object.install_date|annotated_date|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Commit Rate</th>
+                        <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:circuit_list' %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body rendered-markdown">
+        <div class="card">
+            <h5 class="card-header">
+                Comments
+            </h5>
+            <div class="card-body rendered-markdown">
                 {% if object.comments %}
                     {{ object.comments|render_markdown }}
                 {% else %}
@@ -79,14 +81,14 @@
         </div>
         {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
         {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_a side='A' %}
         {% include 'circuits/inc/circuit_termination.html' with termination=object.termination_z side='Z' %}
         {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

@@ -2,8 +2,8 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-md-12">
-      {% include 'utilities/obj_table.html' with table=members_table table_template='panel_table.html' heading='Device Interfaces' parent=vlan %}
+    <div class="col col-md-12">
+      {% include 'utilities/obj_table.html' with table=members_table table_template='inc/panel_table.html' heading='Device Interfaces' parent=vlan %}
     </div>
   </div>
 {% endblock %}

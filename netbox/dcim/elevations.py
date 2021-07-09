@@ -34,10 +34,11 @@ class RackElevationSVG:
 
     @staticmethod
     def _get_device_description(device):
-        return '{} ({}) — {} ({}U) {} {}'.format(
+        return '{} ({}) — {} {} ({}U) {} {}'.format(
             device.name,
             device.device_role,
-            device.device_type.display_name,
+            device.device_type.manufacturer.name,
+            device.device_type.model,
             device.device_type.u_height,
             device.asset_tag or '',
             device.serial or ''
@@ -64,7 +65,7 @@ class RackElevationSVG:
         drawing = svgwrite.Drawing(size=(width, height))
 
         # add the stylesheet
-        with open('{}/css/rack_elevation.css'.format(settings.STATICFILES_DIRS[0])) as css_file:
+        with open('{}/rack_elevation.css'.format(settings.STATIC_ROOT)) as css_file:
             drawing.defs.add(drawing.style(css_file.read()))
 
         # add gradients

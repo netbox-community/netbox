@@ -12,8 +12,5 @@ urlpatterns = [
     path('api-tokens/add/', views.TokenEditView.as_view(), name='token_add'),
     path('api-tokens/<int:pk>/edit/', views.TokenEditView.as_view(), name='token_edit'),
     path('api-tokens/<int:pk>/delete/', views.TokenDeleteView.as_view(), name='token_delete'),
-    path('user-key/', views.UserKeyView.as_view(), name='userkey'),
-    path('user-key/edit/', views.UserKeyEditView.as_view(), name='userkey_edit'),
-    path('session-key/delete/', views.SessionKeyDeleteView.as_view(), name='sessionkey_delete'),
 
 ]

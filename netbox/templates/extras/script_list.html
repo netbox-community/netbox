@@ -1,10 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 
+{% block title %}Scripts{% endblock %}
+
 {% block content %}
-    <h1>{% block title %}Scripts{% endblock %}</h1>
     <div class="row">
-        <div class="col-md-9">
+        <div class="col col-md-9">
             {% if scripts %}
                 {% for module, module_scripts in scripts.items %}
                     <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
@@ -14,7 +15,7 @@
                                 <th>Name</th>
                                 <th>Status</th>
                                 <th>Description</th>
-                                <th class="text-right">Last Run</th>
+                                <th class="text-end">Last Run</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -28,11 +29,11 @@
                                     </td>
                                     <td>{{ script.Meta.description|render_markdown }}</td>
                                     {% if script.result %}
-                                        <td class="text-right">
-                                            <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created }}</a>
+                                        <td class="text-end">
+                                            <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created|annotated_date }}</a>
                                         </td>
                                     {% else %}
-                                        <td class="text-right text-muted">Never</td>
+                                        <td class="text-end text-muted">Never</td>
                                     {% endif %}
                                 </tr>
                             {% endfor %}
@@ -41,29 +42,33 @@
                 {% endfor %}
             {% else %}
                 <div class="alert alert-info">
-                    <p><strong>No scripts found.</strong></p>
-                    <p>Scripts should be saved to <code>{{ settings.SCRIPTS_ROOT }}</code>. (This path can be changed by setting <code>SCRIPTS_ROOT</code> in NetBox's configuration.)</p>
+                    <h4 class="alert-heading">No Scripts Found</h4>
+                    Scripts should be saved to <code>{{ settings.SCRIPTS_ROOT }}</code>.
+                    <hr/>
+                    This path can be changed by setting <code>SCRIPTS_ROOT</code> in NetBox's configuration.
                 </div>
             {% endif %}
         </div>
-        <div class="col-md-3">
+        <div class="col col-md-3">
             {% if scripts %}
-                <div class="panel panel-default">
-                    {% for module, module_scripts in scripts.items %}
-                        <div class="panel-heading">
-                            <strong>{{ module|bettertitle }}</strong>
+                <div class="card">
+                    <div class="card-body">
+                        {% for module, module_scripts in scripts.items %}
+                        <h5>{{ module|bettertitle }}</h5>
+                        <div class="small mb-2">
+                            <ul class="list-group list-group-flush">
+                                {% for class_name, script in module_scripts.items %}
+                                    <a href="#script.{{ class_name }}" class="list-group-item">
+                                        <i class="mdi mdi-file-chart-outline"></i> {{ script.name }}
+                                        <div class="float-end">
+                                            {% include 'extras/inc/job_label.html' with result=script.result %}
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                            </ul>
                         </div>
-                        <ul class="list-group">
-                            {% for class_name, script in module_scripts.items %}
-                                <a href="#script.{{ class_name }}" class="list-group-item">
-                                    <i class="mdi mdi-file-chart-outline"></i> {{ script.name }}
-                                    <div class="pull-right">
-                                        {% include 'extras/inc/job_label.html' with result=script.result %}
-                                    </div>
-                                </a>
-                            {% endfor %}
-                        </ul>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
             {% endif %}
         </div>

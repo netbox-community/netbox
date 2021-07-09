@@ -2,10 +2,6 @@
 # https://github.com/django/django
 Django
 
-# Django caching using Redis
-# https://github.com/Suor/django-cacheops
-django-cacheops
-
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
 django-cors-headers
@@ -18,6 +14,10 @@ django-debug-toolbar
 # https://github.com/carltongibson/django-filter
 django-filter
 
+# Django debug toolbar extension with support for GraphiQL
+# https://github.com/flavors/django-graphiql-debug-toolbar/
+django-graphiql-debug-toolbar
+
 # Modified Preorder Tree Traversal (recursive nesting of objects)
 # https://github.com/django-mptt/django-mptt
 django-mptt
@@ -29,6 +29,10 @@ django-pglocks
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus
 django-prometheus
+
+# Django chaching backend using Redis
+# https://github.com/jazzband/django-redis
+django-redis
 
 # Django integration for RQ (Reqis queuing)
 # https://github.com/rq/django-rq
@@ -53,6 +57,10 @@ djangorestframework
 # Swagger/OpenAPI schema generation for REST APIs
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
+
+# Django wrapper for Graphene (GraphQL support)
+# https://github.com/graphql-python/graphene-django
+graphene_django
 
 # WSGI HTTP server
 # https://gunicorn.org/

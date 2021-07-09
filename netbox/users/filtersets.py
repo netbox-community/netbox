@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, User
 from django.db.models import Q
 
 from netbox.filtersets import BaseFilterSet
-from users.models import ObjectPermission
+from users.models import ObjectPermission, Token
 
 __all__ = (
     'GroupFilterSet',
@@ -58,6 +58,17 @@ class UserFilterSet(BaseFilterSet):
             Q(last_name__icontains=value) |
             Q(email__icontains=value)
         )
+
+
+class TokenFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    class Meta:
+        model = Token
+        fields = ['id', 'user', 'created', 'expires', 'key', 'write_enabled']
 
 
 class ObjectPermissionFilterSet(BaseFilterSet):

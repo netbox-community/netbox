@@ -1,34 +1,30 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load log_levels %}
 
 {% block title %}{{ script }}{% endblock %}
 
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
+  <li class="breadcrumb-item">{{ script }}</li>
+{% endblock %}
+
 {% block content %}
-    <div class="row noprint">
-        <div class="col-md-12">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'extras:script_list' %}">Scripts</a></li>
-                <li><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
-                <li>{{ script }}</li>
-            </ol>
-        </div>
-    </div>
-    <h1 class="title">{{ script }}</h1>
-    <p>{{ script.Meta.description|render_markdown }}</p>
+    <div class="text-muted">{{ script.Meta.description|render_markdown }}</div>
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active">
-            <a href="#run" role="tab" data-toggle="tab" class="active">Run</a>
+        <li class="nav-item" role="presentation">
+            <a href="#run" role="tab" data-bs-toggle="tab" class="nav-link active">Run</a>
         </li>
-        <li role="presentation">
-            <a href="#source" role="tab" data-toggle="tab">Source</a>
+        <li class="nav-item" role="presentation">
+            <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">Source</a>
         </li>
     </ul>
-    <div class="tab-content">
+    <div class="tab-content py-3">
         <div role="tabpanel" class="tab-pane active" id="run">
             <div class="row">
-                <div class="col-md-6 col-md-offset-3">
+                <div class="col col-md-6">
                     {% if not perms.extras.run_script %}
                         <div class="alert alert-warning">
                             <i class="mdi mdi-alert"></i>
@@ -37,32 +33,27 @@
                     {% endif %}
                     <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
                         {% csrf_token %}
+                        <div class="field-group mb-3">
                         {% if form.requires_input %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <strong>Script Data</strong>
-                                </div>
-                                <div class="panel-body">
-                                    {% render_form form %}
-                                </div>
-                            </div>
+                            <h4>Script Data</h4>
                         {% else %}
-                             <div class="alert alert-info">
+                            <div class="alert alert-info">
                                 <i class="mdi mdi-information"></i>
                                 This script does not require any input to run.
                             </div>
-                            {% render_form form %}
                         {% endif %}
-                        <div class="pull-right">
+                        {% render_form form %}
+                        </div>
+                        <div class="float-end">
+                            <a href="{% url 'extras:script_list' %}" class="btn btn-outline-danger">Cancel</a>
                             <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
-                            <a href="{% url 'extras:script_list' %}" class="btn btn-default">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="source">
-            <p><code>{{ script.filename }}</code></p>
+            <code class="h6 my-3 d-block">{{ script.filename }}</code>
             <pre>{{ script.source }}</pre>
         </div>
     </div>

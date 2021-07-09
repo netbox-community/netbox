@@ -1,0 +1,69 @@
+<div id="sidenav-accordion" class="accordion accordion-flush nav-item">
+  {% for menu in nav_items %}
+
+    {# Main Collapsible Menu #}
+    <div class="accordion-item">
+      <a
+        href="#"
+        role="button"
+        aria-expanded="true"
+        data-bs-toggle="collapse"
+        data-bs-target="#{{ menu.label|lower }}"
+        class="d-flex justify-content-between align-items-center accordion-button nav-link collapsed">
+          <span class="fw-bold sidebar-nav-link">
+            <i class="mdi mdi-{{ menu.icon }} me-1 opacity-50"></i>
+            {{ menu.label }}
+          </span>
+        </a>
+
+      <div id="{{ menu.label|lower }}" class="accordion-collapse collapse" data-bs-parent="#sidenav-accordion">
+        <div class="multi-level accordion-body px-0">
+          
+          {% for group in menu.groups %}
+            {# Within each main menu, there are groups of menu items #}
+            <div class="flex-column nav px-2">
+              
+              {% if menu.groups|length > 1 %}
+                <h6 class="accordion-item-title">{{ group.label }}</h6>
+              {% endif %}
+              
+              {% for item in group.items %}
+                {# Each Menu Item #}
+                <div class="nav-item d-flex justify-content-between align-items-center">
+                  
+                  {# Menu Link with Text #}
+                  <a class="nav-link flex-grow-1 me-1" href="{% url item.url %}">
+                    {{ item.label }}
+                  </a>
+                  
+                  {# Add & Import Buttons #}
+                  <div class="btn-group">
+                    {% if item.has_add %}
+                        <a class="btn btn-sm btn-success lh-1" href="{% url item.add_url %}" title="Add {{ item.label }}">
+                          <i class="mdi mdi-plus-thick"></i>
+                        </a>
+                    {% endif %}
+                    {% if item.has_import %}
+                        <a class="btn btn-sm btn-outline-success lh-1" href="{% url item.import_url %}" title="Import {{ item.label }}">
+                          <i class="mdi mdi-upload"></i>
+                        </a>
+                    {% endif %}
+                  </div>
+
+                </div>
+              {% endfor %}
+
+            </div>
+
+            {# Show a divider if not the last group #}
+            {% if forloop.counter != menu.groups|length %}
+              <hr class="dropdown-divider my-2" />
+            {% endif %}
+
+          {% endfor %}
+
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>

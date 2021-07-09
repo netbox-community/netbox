@@ -1,0 +1,129 @@
+{# Base layout for the core NetBox UI w/navbar and page content #}
+{% extends 'base/base.html' %}
+{% load helpers %}
+{% load nav %}
+{% load search_options %}
+{% load static %}
+
+{% block layout %}
+  <div class="container-fluid">
+    <main class="ms-sm-auto px-0">
+    {# Sidebar #}
+      <nav id="sidebar-menu" class="d-md-block sidebar collapse px-0" data-simplebar>
+
+        {# Sidebar content #}
+        <div class="position-sticky pt-3">
+
+          {# Logo #}
+          <a class="p-1 sidebar-logo d-none d-md-flex justify-content-center" href="{% url 'home' %}">
+            <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" />
+          </a>
+
+          {# Search bar #}
+          <ul class="nav flex-column px-4">
+            <div class="d-block d-md-none mx-1 my-3 search-container">
+              {% search_options %}
+            </div>
+            <div class="d-flex d-md-none mx-1 my-3 justify-content-center justify-content-md-end order-last order-md-0">
+              {% include 'inc/profile_button.html' %}
+            </div>
+            {% nav %}
+          </ul>
+
+        </div>
+
+        {# Sidebar footer #}
+        <div class="d-flex flex-column container-fluid mt-auto justify-content-end sidebar-bottom">
+          <nav class="nav justify-content-between mb-2 mt-4 px-2">
+
+            {# Documentation #}
+            <a type="button" class="nav-link" href="https://netbox.readthedocs.io/" target="_blank">
+              <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+            </a>
+
+            {# API docs #}
+            <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
+              <i title="API" class="mdi mdi-code-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+            </a>
+
+            {# GitHub #}
+            <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
+              <i title="Source Code" class="mdi mdi-code-tags text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+            </a>
+
+            {# GitHub wiki #}
+            <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox/wiki" target="_blank">
+              <i title="Get Help" class="mdi mdi-lifebuoy text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+            </a>
+          </nav>
+        </div>
+
+      </nav>
+
+      {# Body #}
+      <div class="content-container">
+
+        {# Top bar #}
+        <nav class="navbar navbar-light sticky-top flex-md-nowrap p-3 search container-fluid">
+          <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
+              <a class="p-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
+                <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" width="100%" />
+              </a>
+              <button
+                type="button"
+                aria-expanded="false"
+                data-bs-toggle="collapse"
+                aria-controls="sidebar-menu"
+                data-bs-target="#sidebar-menu"
+                aria-label="Toggle Navigation"
+                class="navbar-toggler position-relative collapsed"
+              >
+                <span class="navbar-toggler-icon"></span>
+              </button>
+            </div>
+            <div class="d-none d-md-flex w-100 search-container">
+              {% search_options %}
+              {% include 'inc/profile_button.html' %}
+            </div>
+        </nav>
+
+        {# Page header #}
+        {% block header %}
+          <div class="title-container px-3 py-3">
+
+            {# Title #}
+            <div id="content-title">
+              {# Center-align title in object-edit views #}
+              <h1 class="h2 w-100{% if form or vc_form %} text-center{% endif %}">{% block title %}{% endblock title %}</h1>
+            </div>
+
+            {# Controls #}
+            {% block controls %}{% endblock controls %}
+
+          </div>
+        {% endblock header %}
+
+        {# Page content #}
+        <div id="content" class="container-fluid content px-0 m-0">
+          {% block tabs %}{% endblock %}
+          <div class="px-3">
+            {% block content %}{% endblock %}
+          </div>
+        </div>
+
+        {# Page footer #}
+        <footer class="footer container-fluid pb-3 pt-4 px-0">
+          <div class="row align-items-center justify-content-end mx-0">
+          <div class="col-auto d-none d-md-block"></div>
+            <div class="col text-center small text-muted">
+              <span class="fw-light d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
+              <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+
+    </main>
+  </div>
+{% endblock layout %}

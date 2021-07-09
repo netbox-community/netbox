@@ -6,11 +6,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from extras.choices import *
-from extras.utils import FeatureQuery
-from netbox.models import BigIDModel
+from extras.utils import FeatureQuery, extras_features
+from netbox.models import ChangeLoggedModel
 from utilities.forms import (
     CSVChoiceField, DatePicker, LaxURLField, StaticSelect2Multiple, StaticSelect2, add_blank_choice,
 )
@@ -29,7 +30,8 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(BigIDModel):
+@extras_features('webhooks')
+class CustomField(ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
@@ -113,6 +115,9 @@ class CustomField(BigIDModel):
 
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
+
+    def get_absolute_url(self):
+        return reverse('extras:customfield', args=[self.pk])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

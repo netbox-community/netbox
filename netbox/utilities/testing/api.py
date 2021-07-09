@@ -1,14 +1,18 @@
+import json
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
+from graphene.types.dynamic import Dynamic
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from users.models import ObjectPermission, Token
+from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
 from .utils import disable_warnings
 
@@ -20,7 +24,7 @@ __all__ = (
 
 
 #
-# REST API Tests
+# REST/GraphQL API Tests
 #
 
 class APITestCase(ModelTestCase):
@@ -421,11 +425,99 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertEqual(self._get_queryset().count(), initial_count - 3)
 
+    class GraphQLTestCase(APITestCase):
+
+        def _get_graphql_base_name(self):
+            """
+            Return graphql_base_name, if set. Otherwise, construct the base name for the query
+            field from the model's verbose name.
+            """
+            base_name = self.model._meta.verbose_name.lower().replace(' ', '_')
+            return getattr(self, 'graphql_base_name', base_name)
+
+        def _build_query(self, name, **filters):
+            type_class = get_graphql_type_for_model(self.model)
+            if filters:
+                filter_string = ', '.join(f'{k}:{v}' for k, v in filters.items())
+                filter_string = f'({filter_string})'
+            else:
+                filter_string = ''
+
+            # Compile list of fields to include
+            fields_string = ''
+            for field_name, field in type_class._meta.fields.items():
+                if type(field) is Dynamic:
+                    # Dynamic fields must specify a subselection
+                    fields_string += f'{field_name} {{ id }}\n'
+                else:
+                    fields_string += f'{field_name}\n'
+
+            query = f"""
+            {{
+                {name}{filter_string} {{
+                    {fields_string}
+                }}
+            }}
+            """
+
+            return query
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_graphql_get_object(self):
+            url = reverse('graphql')
+            field_name = self._get_graphql_base_name()
+            object_id = self._get_queryset().first().pk
+            query = self._build_query(field_name, id=object_id)
+
+            # Non-authenticated requests should fail
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['view']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+            response = self.client.post(url, data={'query': query}, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+
+        @override_settings(LOGIN_REQUIRED=True)
+        def test_graphql_list_objects(self):
+            url = reverse('graphql')
+            field_name = f'{self._get_graphql_base_name()}_list'
+            query = self._build_query(field_name)
+
+            # Non-authenticated requests should fail
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['view']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+            response = self.client.post(url, data={'query': query}, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            self.assertGreater(len(data['data'][field_name]), 0)
+
     class APIViewTestCase(
         GetObjectViewTestCase,
         ListObjectsViewTestCase,
         CreateObjectViewTestCase,
         UpdateObjectViewTestCase,
-        DeleteObjectViewTestCase
+        DeleteObjectViewTestCase,
+        GraphQLTestCase
     ):
         pass

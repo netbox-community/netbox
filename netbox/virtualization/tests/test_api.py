@@ -211,6 +211,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    graphql_base_name = 'vm_interface'
 
     @classmethod
     def setUpTestData(cls):
@@ -251,6 +252,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
             {
                 'virtual_machine': virtualmachine.pk,
                 'name': 'Interface 6',
+                'parent': interfaces[0].pk,
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,

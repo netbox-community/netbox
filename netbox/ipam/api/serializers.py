@@ -44,8 +44,7 @@ class VRFSerializer(PrimaryModelSerializer):
         model = VRF
         fields = [
             'id', 'url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets',
-            'export_targets', 'tags', 'display_name', 'custom_fields', 'created', 'last_updated', 'ipaddress_count',
-            'prefix_count',
+            'export_targets', 'tags', 'custom_fields', 'created', 'last_updated', 'ipaddress_count', 'prefix_count',
         ]
 
 
@@ -166,7 +165,7 @@ class VLANSerializer(PrimaryModelSerializer):
         model = VLAN
         fields = [
             'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags',
-            'display_name', 'custom_fields', 'created', 'last_updated', 'prefix_count',
+            'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
         validators = []
 
@@ -204,7 +203,7 @@ class PrefixSerializer(PrimaryModelSerializer):
         model = Prefix
         fields = [
             'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'mark_utilized', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
         ]
         read_only_fields = ['family']
 

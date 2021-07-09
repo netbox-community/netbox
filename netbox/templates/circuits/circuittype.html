@@ -3,52 +3,56 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'circuits:circuittype_list' %}">Circuit Types</a></li>
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'circuits:circuittype_list' %}">Circuit Types</a></li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Circuit Type</strong>
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Circuit Type
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Circuits</th>
+            <td>
+              <a href="{% url 'circuits:circuit_list' %}?type_id={{ object.pk }}">{{ circuits_table.rows|length }}</a>
+            </td>
+          </tr>
+        </table>
       </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td>{{ object.description|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>Circuits</td>
-          <td>
-            <a href="{% url 'circuits:circuit_list' %}?type_id={{ object.pk }}">{{ circuits_table.rows|length }}</a>
-          </td>
-        </tr>
-      </table>
     </div>
     {% plugin_left_page object %}
   </div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
     {% include 'inc/custom_fields_panel.html' %}
     {% plugin_right_page object %}
 	</div>
 </div>
-<div class="row">
-	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Circuits</strong>
+<div class="row mb-3">
+	<div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">
+        Circuits
+      </h5>
+      <div class="card-body">
+        {% include 'inc/table.html' with table=circuits_table %}
       </div>
-      {% include 'inc/table.html' with table=circuits_table %}
       {% if perms.circuits.add_circuit %}
-        <div class="panel-footer text-right noprint">
-          <a href="{% url 'circuits:circuit_add' %}?type={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add circuit
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'circuits:circuit_add' %}?type={{ object.pk }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Circuit
           </a>
         </div>
       {% endif %}

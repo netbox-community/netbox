@@ -1,7 +1,10 @@
+import logging
+from copy import deepcopy
 from collections import OrderedDict
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import F, Prefetch
@@ -16,7 +19,6 @@ from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJou
 from ipam.models import IPAddress, Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
-from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
@@ -1292,9 +1294,6 @@ class DeviceView(generic.ObjectView):
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=instance)
 
-        # Secrets
-        secrets = Secret.objects.restrict(request.user, 'view').filter(device=instance)
-
         # Find up to ten devices in the same site with the same functional role for quick reference.
         related_devices = Device.objects.restrict(request.user, 'view').filter(
             site=instance.site, device_role=instance.device_role
@@ -1306,7 +1305,6 @@ class DeviceView(generic.ObjectView):
 
         return {
             'services': services,
-            'secrets': secrets,
             'vc_members': vc_members,
             'related_devices': related_devices,
             'active_tab': 'device',
@@ -1912,6 +1910,30 @@ class InterfaceCreateView(generic.ComponentCreateView):
     model_form = forms.InterfaceForm
     template_name = 'dcim/device_component_add.html'
 
+    def post(self, request):
+        """
+        Override inherited post() method to handle request to assign newly created
+        interface objects (first object) to an IP Address object.
+        """
+        logger = logging.getLogger('netbox.dcim.views.InterfaceCreateView')
+        form = self.form(request.POST, initial=request.GET)
+        new_objs = self.validate_form(request, form)
+
+        if form.is_valid() and not form.errors:
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+            elif new_objs is not None and '_assignip' in request.POST and len(new_objs) >= 1 and request.user.has_perm('ipam.add_ipaddress'):
+                first_obj = new_objs[0].pk
+                return redirect(f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}')
+            else:
+                return redirect(self.get_return_url(request))
+
+        return render(request, self.template_name, {
+            'component_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request),
+        })
+
 
 class InterfaceEditView(generic.ObjectEditView):
     queryset = Interface.objects.all()
@@ -2510,23 +2532,6 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/connections_list.html'
 
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join(['console_server', 'port', 'device', 'console_port', 'reachable'])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
-
     def extra_context(self):
         return {
             'title': 'Console Connections'
@@ -2539,23 +2544,6 @@ class PowerConnectionsListView(generic.ObjectListView):
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/connections_list.html'
-
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join(['pdu', 'outlet', 'device', 'power_port', 'reachable'])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
 
     def extra_context(self):
         return {
@@ -2573,25 +2561,6 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/connections_list.html'
-
-    def queryset_to_csv(self):
-        csv_data = [
-            # Headers
-            ','.join([
-                'device_a', 'interface_a', 'device_b', 'interface_b', 'reachable'
-            ])
-        ]
-        for obj in self.queryset:
-            csv = csv_format([
-                obj._path.destination.device.identifier if obj._path.destination else None,
-                obj._path.destination.name if obj._path.destination else None,
-                obj.device.identifier,
-                obj.name,
-                obj._path.is_active
-            ])
-            csv_data.append(csv)
-
-        return '\n'.join(csv_data)
 
     def extra_context(self):
         return {

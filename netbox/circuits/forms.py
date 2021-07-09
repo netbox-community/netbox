@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
 from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
@@ -60,10 +60,12 @@ class ProviderCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Provider
-        fields = Provider.csv_headers
+        fields = (
+            'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+        )
 
 
-class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -102,12 +104,12 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdi
         ]
 
 
-class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Provider
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['region_id', 'site_id'],
+        ['asn', 'tag'],
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -166,7 +168,7 @@ class ProviderNetworkCSVForm(CustomFieldModelCSVForm):
         ]
 
 
-class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -190,13 +192,9 @@ class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         ]
 
 
-class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = ProviderNetwork
-    field_order = ['q', 'provider_id']
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_order = ['provider_id']
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
@@ -219,7 +217,7 @@ class CircuitTypeForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class CircuitTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class CircuitTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -238,7 +236,7 @@ class CircuitTypeCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = CircuitType
-        fields = CircuitType.csv_headers
+        fields = ('name', 'slug', 'description')
         help_texts = {
             'name': 'Name of circuit type',
         }
@@ -312,7 +310,7 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
         ]
 
 
-class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Circuit.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -354,16 +352,19 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Circuit
     field_order = [
-        'q', 'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',
+        'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',
         'commit_rate',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['type_id', 'status', 'commit_rate'],
+        ['provider_id', 'provider_network_id'],
+        ['region_id', 'site_id'],
+        ['tenant_group_id', 'tenant_id'],
+        ['tag']
+    ]
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,

@@ -1,34 +1,20 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
+
+{% block title %}{% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="col-sm-12 col-md-10 col-md-offset-1">
-        <h1>{% block title %}{% endblock %}</h1>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-3 col-md-2 col-md-offset-1">
-        <ul class="nav nav-pills nav-stacked">
-            <li{% if active_tab == "profile" %} class="active"{% endif %}>
-                <a href="{% url 'user:profile' %}">Profile</a>
-            </li>
-            <li{% if active_tab == "preferences" %} class="active"{% endif %}>
-                <a href="{% url 'user:preferences' %}">Preferences</a>
-            </li>
+    <div class="col-sm-3 col-md-2 col-md-offset-1 border-end">
+        <nav class="nav nav-pills nav-justified flex-column">
+            <a class="nav-item nav-link text-start{% if active_tab == 'profile' %} active{% endif %}" href="{% url 'user:profile' %}">Profile</a>
+            <a class="nav-link nav-item text-start{% if active_tab == 'preferences' %} active{% endif %}" href="{% url 'user:preferences' %}">Preferences</a>
             {% if not request.user.ldap_username %}
-                <li{% if active_tab == "change_password" %} class="active"{% endif %}>
-                    <a href="{% url 'user:change_password' %}">Change Password</a>
-                </li>
+            <a class="nav-link nav-item text-start{% if active_tab == 'change-password' %} active{% endif %}" href="{% url 'user:change_password' %}">Change Password</a>
             {% endif %}
-            <li{% if active_tab == "api_tokens" %} class="active"{% endif %}>
-                <a href="{% url 'user:token_list' %}">API Tokens</a>
-            </li>
-            <li{% if active_tab == "userkey" %} class="active"{% endif %}>
-                <a href="{% url 'user:userkey' %}">User Key</a>
-            </li>
-        </ul>
+            <a class="nav-link nav-item text-start{% if active_tab == 'api-tokens' %} active{% endif %}" href="{% url 'user:token_list' %}">API Tokens</a>
+        </nav>
     </div>
-	<div class="col-sm-9 col-md-8">
+	<div class="col-sm-9 col-md-8 px-4">
         {% block usercontent %}{% endblock %}
 	</div>
 </div>

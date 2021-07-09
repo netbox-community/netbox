@@ -8,17 +8,18 @@ from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
+    CustomFieldModelFilterForm, CustomFieldsMixin,
 )
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, BulkRenameForm, CommentField,
-    ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, SlugField, SmallTextarea,
-    StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, ConfirmationForm,
+    CSVChoiceField, CSVModelChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField,
+    form_from_model, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -43,10 +44,10 @@ class ClusterTypeCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ClusterType
-        fields = ClusterType.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
-class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -79,10 +80,10 @@ class ClusterGroupCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ClusterGroup.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
-class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -174,10 +175,10 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Cluster
-        fields = Cluster.csv_headers
+        fields = ('name', 'type', 'group', 'site', 'comments')
 
 
-class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -221,15 +222,17 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cluster
     field_order = [
-        'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
+        'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['type_id'],
+        ['region_id', 'site_id'],
+        ['tenant_group_id', 'tenant_id'],
+        ['tag'],
+    ]
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
@@ -466,10 +469,12 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VirtualMachine
-        fields = VirtualMachine.csv_headers
+        fields = (
+            'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        )
 
 
-class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -524,16 +529,20 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         ]
 
 
-class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
     field_order = [
         'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_group_id',
         'site_id', 'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['status', 'role_id'],
+        ['platform_id', 'mac_address'],
+        ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
+        ['region_id', 'site_id'],
+        ['tenant_group_id', 'tenant_id'],
+
+    ]
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -659,7 +668,8 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
-class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
+class VMInterfaceCreateForm(BootstrapMixin, CustomFieldsMixin, InterfaceCommonForm):
+    model = VMInterface
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all()
     )
@@ -673,7 +683,6 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        display_field='display_name',
         query_params={
             'virtual_machine_id': '$virtual_machine',
         }
@@ -723,7 +732,7 @@ class VMInterfaceCreateForm(BootstrapMixin, InterfaceCommonForm):
         self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
-class VMInterfaceCSVForm(CSVModelForm):
+class VMInterfaceCSVForm(CustomFieldModelCSVForm):
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'
@@ -736,7 +745,9 @@ class VMInterfaceCSVForm(CSVModelForm):
 
     class Meta:
         model = VMInterface
-        fields = VMInterface.csv_headers
+        fields = (
+            'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+        )
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
@@ -746,7 +757,7 @@ class VMInterfaceCSVForm(CSVModelForm):
             return self.cleaned_data['enabled']
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -759,8 +770,7 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
-        required=False,
-        display_field='display_name'
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
@@ -838,6 +848,11 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 
 class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
+    field_groups = [
+        ['cluster_id', 'virtual_machine_id'],
+        ['enabled', 'mac_address'],
+        ['tag']
+    ]
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,

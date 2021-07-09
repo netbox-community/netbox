@@ -60,7 +60,6 @@ class VRF(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
     clone_fields = [
         'tenant', 'enforce_unique', 'description',
     ]
@@ -71,25 +70,12 @@ class VRF(PrimaryModel):
         verbose_name_plural = 'VRFs'
 
     def __str__(self):
-        return self.display_name or super().__str__()
-
-    def get_absolute_url(self):
-        return reverse('ipam:vrf', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.rd,
-            self.tenant.name if self.tenant else None,
-            self.enforce_unique,
-            self.description,
-        )
-
-    @property
-    def display_name(self):
         if self.rd:
             return f'{self.name} ({self.rd})'
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('ipam:vrf', args=[self.pk])
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -116,8 +102,6 @@ class RouteTarget(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['name', 'description', 'tenant']
-
     class Meta:
         ordering = ['name']
 
@@ -126,10 +110,3 @@ class RouteTarget(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('ipam:routetarget', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.name,
-            self.description,
-            self.tenant.name if self.tenant else None,
-        )

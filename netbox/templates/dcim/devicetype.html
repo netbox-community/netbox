@@ -6,41 +6,41 @@
 {% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
-  <li><a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
-  <li>{{ object.model }}</li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
+  <li class="breadcrumb-item">{{ object.model }}</li>
 {% endblock %}
 
-{% block buttons %}
+{% block controls %}
   {% if perms.dcim.change_devicetype %}
-    <div class="btn-group">
-      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
+    <div class="dropdown m-1">
+      <button type="button" class="btn btn-primary btn-sm dropdown-toggle"data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Components
       </button>
       <ul class="dropdown-menu">
         {% if perms.dcim.add_consoleporttemplate %}
-          <li><a href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_consoleserverporttemplate %}
-          <li><a href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_powerporttemplate %}
-          <li><a href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_poweroutlettemplate %}
-          <li><a href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
         {% endif %}
         {% if perms.dcim.add_interfacetemplate %}
-          <li><a href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
         {% endif %}
         {% if perms.dcim.add_frontporttemplate %}
-          <li><a href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_rearporttemplate %}
-          <li><a href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_devicebaytemplate %}
-          <li><a href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
         {% endif %}
       </ul>
     </div>
@@ -58,87 +58,89 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Chassis</strong>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Chassis
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <td>Manufacturer</td>
+                            <td><a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a></td>
+                        </tr>
+                        <tr>
+                            <td>Model Name</td>
+                            <td>
+                                {{ object.model }}<br/>
+                                <small class="text-muted">{{ object.slug }}</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Part Number</td>
+                            <td>{{ object.part_number|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <td>Height (U)</td>
+                            <td>{{ object.u_height }}</td>
+                        </tr>
+                        <tr>
+                            <td>Full Depth</td>
+                            <td>
+                                {% if object.is_full_depth %}
+                                    <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+                                {% else %}
+                                    <i class="mdi mdi-close-thick text-danger" title="No"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Parent/Child</td>
+                            <td>
+                                {{ object.get_subdevice_role_display|placeholder }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Front Image</td>
+                            <td>
+                                {% if object.front_image %}
+                                    <a href="{{ object.front_image.url }}">
+                                        <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-responsive" />
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Rear Image</td>
+                            <td>
+                                {% if object.rear_image %}
+                                    <a href="{{ object.rear_image.url }}">
+                                        <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-responsive" />
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Instances</td>
+                            <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ object.pk }}">{{ instance_count }}</a></td>
+                        </tr>
+                    </table>
                 </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Manufacturer</td>
-                        <td><a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a></td>
-                    </tr>
-                    <tr>
-                        <td>Model Name</td>
-                        <td>
-                            {{ object.model }}<br/>
-                            <small class="text-muted">{{ object.slug }}</small>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Part Number</td>
-                        <td>{{ object.part_number|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <td>Height (U)</td>
-                        <td>{{ object.u_height }}</td>
-                    </tr>
-                    <tr>
-                        <td>Full Depth</td>
-                        <td>
-                            {% if object.is_full_depth %}
-                                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-                            {% else %}
-                                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Parent/Child</td>
-                        <td>
-                            {{ object.get_subdevice_role_display|placeholder }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Front Image</td>
-                        <td>
-                            {% if object.front_image %}
-                                <a href="{{ object.front_image.url }}">
-                                    <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-responsive" />
-                                </a>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Rear Image</td>
-                        <td>
-                            {% if object.rear_image %}
-                                <a href="{{ object.rear_image.url }}">
-                                    <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-responsive" />
-                                </a>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Instances</td>
-                        <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ object.pk }}">{{ instance_count }}</a></td>
-                    </tr>
-                </table>
             </div>
             {% plugin_left_page object %}
         </div>
-        <div class="col-md-6">
+        <div class="col col-md-6">
             {% include 'inc/custom_fields_panel.html' %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:devicetype_list' %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Comments</strong>
-                </div>
-                <div class="panel-body rendered-markdown">
+            <div class="card">
+                <h5 class="card-header">
+                    Comments
+                </h5>
+                <div class="card-body rendered-markdown">
                     {% if object.comments %}
                         {{ object.comments|render_markdown }}
                     {% else %}
@@ -150,39 +152,55 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col col-md-12">
             {% plugin_full_width_page object %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row my-3">
+        <div class="col col-md-12">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active">
-                    <a href="#interfaces" role="tab" data-toggle="tab">Interfaces {% badge interface_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-target="#interfaces" role="tab" data-bs-toggle="tab">
+                        Interfaces {% badge interface_table.rows|length %}
+                    </button>
                 </li>
-                <li role="presentation">
-                    <a href="#frontports" role="tab" data-toggle="tab">Front Ports {% badge front_port_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-target="#frontports" role="tab" data-bs-toggle="tab">
+                        Front Ports {% badge front_port_table.rows|length %}
+                    </button>
                 </li>
-                <li role="presentation">
-                    <a href="#rearports" role="tab" data-toggle="tab">Rear Ports {% badge rear_port_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-target="#rearports" role="tab" data-bs-toggle="tab">
+                        Rear Ports {% badge rear_port_table.rows|length %}
+                    </button>
                 </li>
-                <li role="presentation">
-                    <a href="#consoleports" role="tab" data-toggle="tab">Console Ports {% badge consoleport_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-target="#consoleports" role="tab" data-bs-toggle="tab">
+                        Console Ports {% badge consoleport_table.rows|length %}
+                    </button>
                 </li>
-                <li role="presentation">
-                    <a href="#consoleserverports" role="tab" data-toggle="tab">Console Server Ports {% badge consoleserverport_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-target="#consoleserverports" role="tab" data-bs-toggle="tab">
+                        Console Server Ports {% badge consoleserverport_table.rows|length %}
+                    </button>
                 </li>
-                <li role="presentation">
-                    <a href="#powerports" role="tab" data-toggle="tab">Power Ports {% badge powerport_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-target="#powerports" role="tab" data-bs-toggle="tab">
+                        Power Ports {% badge powerport_table.rows|length %}
+                    </button>
                 </li>
-                <li role="presentation">
-                    <a href="#poweroutlets" role="tab" data-toggle="tab">Power Outlets {% badge poweroutlet_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-target="#poweroutlets" role="tab" data-bs-toggle="tab">
+                        Power Outlets {% badge poweroutlet_table.rows|length %}
+                    </button>
                 </li>
-                <li role="presentation">
-                    <a href="#devicebays" role="tab" data-toggle="tab">Device Bays {% badge devicebay_table.rows|length %}</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-target="#devicebays" role="tab" data-bs-toggle="tab">
+                        Device Bays {% badge devicebay_table.rows|length %}
+                    </button>
                 </li>
             </ul>
-            <div class="tab-content">
+            <div class="tab-content my-3">
                 <div role="tabpanel" class="tab-pane active" id="interfaces">
                     {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' tab='interfaces' %}
                 </div>
@@ -210,18 +228,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block javascript %}
-<script type="text/javascript">
-// Redirect user to appropriate components tab if specified
-var hash = document.location.hash;
-var prefix = "tab_";
-if (hash) {
-    $('.nav-tabs a[href="'+hash.replace(prefix,"")+'"]').tab('show');
-}
-$('.nav-tabs a').on('shown.bs.tab', function (e) {
-    window.location.hash = e.target.hash.replace("#", "#" + prefix);
-});
-</script>
 {% endblock %}

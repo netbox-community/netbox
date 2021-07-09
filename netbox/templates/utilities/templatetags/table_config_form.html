@@ -1,33 +1,37 @@
 {% load form_helpers %}
 <div class="modal fade" tabindex="-1" id="{{ table_name }}_config">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Table Configuration</h4>
+                <h5 class="modal-title">Table Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form class="form-horizontal userconfigform" data-config-root="tables.{{ table_config_form.table_name }}">
+            <form class="form-horizontal userconfigform" data-config-root="tables.{{ table_config_form.table_name }}">
+                <div class="modal-body">
                     {% render_field table_config_form.available_columns %}
-                    <div class="form-group">
-                        <div class="col-md-9 col-md-offset-3">
-                            <a class="btn btn-success btn-xs" id="add_columns"><i class="mdi mdi-arrow-down-bold"></i> Add columns</a>
-                            <a class="btn btn-danger btn-xs" id="remove_columns"><i class="mdi mdi-arrow-up-bold"></i> Remove columns</a>
+                    <div class="row my-3">
+                        <div class="col col-md-9 offset-md-3">
+                            <a class="btn btn-success btn-sm" id="add_columns"><i class="mdi mdi-arrow-down-bold"></i> Add Columns</a>
+                            <a class="btn btn-danger btn-sm" id="remove_columns"><i class="mdi mdi-arrow-up-bold"></i> Remove Columns</a>
                         </div>
                     </div>
                     {% render_field table_config_form.columns %}
-                    <div class="form-group">
-                        <div class="col-md-9 col-md-offset-3">
-                            <a class="btn btn-primary btn-xs" id="move-option-up" data-target="id_columns"><i class="mdi mdi-arrow-up-bold"></i> Move up</a>
-                            <a class="btn btn-primary btn-xs" id="move-option-down" data-target="id_columns"><i class="mdi mdi-arrow-down-bold"></i> Move down</a>
+                    <div class="row my-3">
+                        <div class="col col-md-9 offset-md-3">
+                            <a class="btn btn-primary btn-sm" id="move-option-up" data-target="id_columns">
+                                <i class="mdi mdi-arrow-up-bold"></i> Move Up
+                            </a>
+                            <a class="btn btn-primary btn-sm" id="move-option-down" data-target="id_columns">
+                                <i class="mdi mdi-arrow-down-bold"></i> Move Down
+                            </a>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <input type="submit" class="btn btn-primary" id="save_tableconfig" value="Save" />
-                        <input type="submit" class="btn btn-danger" id="reset_tableconfig" value="Reset" />
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-danger" id="reset_tableconfig" value="Reset">Reset</button>
+                    <button type="submit" class="btn btn-primary" id="save_tableconfig" value="Save">Save</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

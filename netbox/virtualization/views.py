@@ -10,7 +10,6 @@ from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress, Service
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
-from secrets.models import Secret
 from utilities.tables import paginate_table
 from utilities.utils import count_related
 from . import filtersets, forms, tables
@@ -34,6 +33,9 @@ class ClusterTypeView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         clusters = Cluster.objects.restrict(request.user, 'view').filter(
             type=instance
+        ).annotate(
+            device_count=count_related(Device, 'cluster'),
+            vm_count=count_related(VirtualMachine, 'cluster')
         )
 
         clusters_table = tables.ClusterTable(clusters)
@@ -93,6 +95,9 @@ class ClusterGroupView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         clusters = Cluster.objects.restrict(request.user, 'view').filter(
             group=instance
+        ).annotate(
+            device_count=count_related(Device, 'cluster'),
+            vm_count=count_related(VirtualMachine, 'cluster')
         )
 
         clusters_table = tables.ClusterTable(clusters)
@@ -332,13 +337,9 @@ class VirtualMachineView(generic.ObjectView):
             Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user))
         )
 
-        # Secrets
-        secrets = Secret.objects.restrict(request.user, 'view').filter(virtual_machine=instance)
-
         return {
             'vminterface_table': vminterface_table,
             'services': services,
-            'secrets': secrets,
         }
 
 
@@ -455,7 +456,7 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceCreateForm
     model_form = forms.VMInterfaceForm
-    template_name = 'virtualization/virtualmachine_component_add.html'
+    template_name = 'dcim/device_component_add.html'
 
 
 class VMInterfaceEditView(generic.ObjectEditView):

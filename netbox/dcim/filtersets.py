@@ -538,7 +538,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
     class Meta:
         model = FrontPortTemplate
-        fields = ['id', 'name', 'type']
+        fields = ['id', 'name', 'type', 'color']
 
 
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
@@ -549,7 +549,7 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentF
 
     class Meta:
         model = RearPortTemplate
-        fields = ['id', 'name', 'type', 'positions']
+        fields = ['id', 'name', 'type', 'color', 'positions']
 
 
 class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
@@ -1027,7 +1027,7 @@ class FrontPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
 
     class Meta:
         model = FrontPort
-        fields = ['id', 'name', 'label', 'type', 'description']
+        fields = ['id', 'name', 'label', 'type', 'color', 'description']
 
 
 class RearPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
@@ -1038,7 +1038,7 @@ class RearPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTe
 
     class Meta:
         model = RearPort
-        fields = ['id', 'name', 'label', 'type', 'positions', 'description']
+        fields = ['id', 'name', 'label', 'type', 'color', 'positions', 'description']
 
 
 class DeviceBayFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):

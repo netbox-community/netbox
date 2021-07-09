@@ -1,101 +1,110 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 
+{% block title %}Reports{% endblock %}
+
 {% block content %}
-    <h1>{% block title %}Reports{% endblock %}</h1>
     <div class="row">
-        <div class="col-md-9">
+        <div class="col col-md-9">
             {% if reports %}
                 {% for module, module_reports in reports %}
-                    <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
-                    <table class="table table-hover table-headings reports">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Description</th>
-                                <th class="text-right">Last Run</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for report in module_reports %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">
-                                            <strong>{{ report.name }}</strong>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {% include 'extras/inc/job_label.html' with result=report.result %}
-                                    </td>
-                                    <td class="rendered-markdown">{{ report.description|render_markdown|placeholder }}</td>
-                                    <td class="text-right">
-                                        {% if report.result %}
-                                            <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created }}</a>
-                                        {% else %}
-                                            <span class="text-muted">Never</span>
-                                        {% endif %}
-                                    </td>
-                                <td>
-                                    {% if perms.extras.run_report %}
-                                        <div class="pull-right noprint">
-                                            <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
-                                                {% csrf_token %}
-                                                <button type="submit" name="_run" class="btn btn-primary btn-xs">
-                                                    {% if report.result %}
-                                                        <i class="mdi mdi-replay"></i> Run Again
-                                                    {% else %}
-                                                        <i class="mdi mdi-play"></i> Run Report
-                                                    {% endif %}
-                                                </button>
-                                            </form>
-                                        </div>
-                                    {% endif %}
-                                </td>
-                                </tr>
-                                {% for method, stats in report.result.data.items %}
+                    <div class="card">
+                        <h5 class="card-header"><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h5>
+                        <div class="card-body">
+                            <table class="table table-hover table-headings reports">
+                                <thead>
                                     <tr>
-                                        <td colspan="4" class="method">
-                                            {{ method }}
-                                        </td>
-                                        <td class="text-right text-nowrap report-stats">
-                                            <label class="label label-success">{{ stats.success }}</label>
-                                            <label class="label label-info">{{ stats.info }}</label>
-                                            <label class="label label-warning">{{ stats.warning }}</label>
-                                            <label class="label label-danger">{{ stats.failure }}</label>
-                                        </td>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Description</th>
+                                        <th class="text-end">Last Run</th>
+                                        <th></th>
                                     </tr>
-                                {% endfor %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody>
+                                    {% for report in module_reports %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">
+                                                    <strong>{{ report.name }}</strong>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {% include 'extras/inc/job_label.html' with result=report.result %}
+                                            </td>
+                                            <td>{{ report.description|render_markdown|placeholder }}</td>
+                                            <td class="text-end">
+                                                {% if report.result %}
+                                                    <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">{{ report.result.created|annotated_date }}</a>
+                                                {% else %}
+                                                    <span class="text-muted">Never</span>
+                                                {% endif %}
+                                            </td>
+                                        <td>
+                                            {% if perms.extras.run_report %}
+                                                <div class="float-end noprint">
+                                                    <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+                                                        {% csrf_token %}
+                                                        <button type="submit" name="_run" class="btn btn-primary btn-sm">
+                                                            {% if report.result %}
+                                                                <i class="mdi mdi-replay"></i> Run Again
+                                                            {% else %}
+                                                                <i class="mdi mdi-play"></i> Run Report
+                                                            {% endif %}
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        </tr>
+                                        {% for method, stats in report.result.data.items %}
+                                            <tr>
+                                                <td colspan="4" class="method">
+                                                    {{ method }}
+                                                </td>
+                                                <td class="text-end text-nowrap report-stats">
+                                                    <span class="badge bg-success">{{ stats.success }}</span>
+                                                    <span class="badge bg-info">{{ stats.info }}</span>
+                                                    <span class="badge bg-warning">{{ stats.warning }}</span>
+                                                    <span class="badge bg-danger">{{ stats.failure }}</span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 {% endfor %}
             {% else %}
-                <div class="alert alert-info">
-                    <p><strong>No reports found.</strong></p>
-                    <p>Reports should be saved to <code>{{ settings.REPORTS_ROOT }}</code>. (This path can be changed by setting <code>REPORTS_ROOT</code> in NetBox's configuration.)</p>
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">No Reports Found</h4>
+                    Reports should be saved to <code>{{ settings.REPORTS_ROOT }}</code>.
+                    <hr/>
+                    <small>This path can be changed by setting <code>REPORTS_ROOT</code> in NetBox's configuration.</small>
                 </div>
             {% endif %}
         </div>
-        <div class="col-md-3">
+        <div class="col col-md-3">
             {% if reports %}
-                <div class="panel panel-default">
-                    {% for module, module_reports in reports %}
-                        <div class="panel-heading">
-                            <strong>{{ module|bettertitle }}</strong>
-                        </div>
-                        <ul class="list-group">
-                            {% for report in module_reports %}
+                <div class="card">
+                    <div class="card-body">
+                        {% for module, module_reports in reports %}
+                        <h5>{{ module|bettertitle }}</h5>
+                        <div class="small mb-2">
+                            <ul class="list-group list-group-flush">
+                                {% for report in module_reports %}
                                 <a href="#{{ report.module }}.{{ report.class_name }}" class="list-group-item">
                                     <i class="mdi mdi-file-chart-outline"></i> {{ report.name }}
-                                    <div class="pull-right">
+                                    <div class="float-end">
                                         {% include 'extras/inc/job_label.html' with result=report.result %}
                                     </div>
                                 </a>
-                            {% endfor %}
-                        </ul>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     {% endfor %}
+                    </div>
                 </div>
             {% endif %}
         </div>

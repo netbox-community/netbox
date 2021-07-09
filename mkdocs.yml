@@ -6,6 +6,21 @@ python:
         - requirements: docs/requirements.txt
 theme:
   name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to Dark Mode
+    - scheme: slate
+      toggle:
+        icon: material/lightbulb
+        name: Switch to Light Mode
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/netbox-community/netbox
+    - icon: fontawesome/brands/slack
+      link: https://slack.netbox.dev
 extra_css:
     - extra.css
 markdown_extensions:
@@ -43,20 +58,21 @@ nav:
         - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
         - Power Tracking: 'core-functionality/power.md'
-        - Secrets: 'core-functionality/secrets.md'
         - Tenancy: 'core-functionality/tenancy.md'
+    - Customization:
+        - Custom Fields: 'customization/custom-fields.md'
+        - Custom Validation: 'customization/custom-validation.md'
+        - Custom Links: 'customization/custom-links.md'
+        - Export Templates: 'customization/export-templates.md'
+        - Custom Scripts: 'customization/custom-scripts.md'
+        - Reports: 'customization/reports.md'
     - Additional Features:
         - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'
         - Context Data: 'models/extras/configcontext.md'
-        - Custom Fields: 'additional-features/custom-fields.md'
-        - Custom Links: 'additional-features/custom-links.md'
-        - Custom Scripts: 'additional-features/custom-scripts.md'
-        - Export Templates: 'additional-features/export-templates.md'
         - Journaling: 'additional-features/journaling.md'
         - NAPALM: 'additional-features/napalm.md'
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
-        - Reports: 'additional-features/reports.md'
         - Tags: 'models/extras/tag.md'
         - Webhooks: 'additional-features/webhooks.md'
     - Plugins:
@@ -64,23 +80,27 @@ nav:
         - Developing Plugins: 'plugins/development.md'
     - Administration:
         - Permissions: 'administration/permissions.md'
+        - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
     - REST API:
         - Overview: 'rest-api/overview.md'
         - Filtering: 'rest-api/filtering.md'
         - Authentication: 'rest-api/authentication.md'
-        - Working with Secrets: 'rest-api/working-with-secrets.md'
+    - GraphQL API:
+        - Overview: 'graphql-api/overview.md'
     - Development:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'
         - Style Guide: 'development/style-guide.md'
         - Models: 'development/models.md'
         - Extending Models: 'development/extending-models.md'
+        - Signals: 'development/signals.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
         - Release Checklist: 'development/release-checklist.md'
     - Release Notes:
+        - Version 3.0: 'release-notes/version-3.0.md'
         - Version 2.11: 'release-notes/version-2.11.md'
         - Version 2.10: 'release-notes/version-2.10.md'
         - Version 2.9: 'release-notes/version-2.9.md'
@@ -93,3 +113,4 @@ nav:
         - Version 2.2: 'release-notes/version-2.2.md'
         - Version 2.1: 'release-notes/version-2.1.md'
         - Version 2.0: 'release-notes/version-2.0.md'
+    - Screenshots: 'screenshots/index.md'

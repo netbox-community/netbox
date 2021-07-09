@@ -1,183 +1,193 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
 {% load static %}
-{% load custom_links %}
 {% load helpers %}
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
-  <li><a href="{% url 'dcim:powerfeed_list' %}?site_id={{ object.power_panel.site.pk }}">{{ object.power_panel.site }}</a></li>
-  <li><a href="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ object.power_panel.pk }}">{{ object.power_panel }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}?site_id={{ object.power_panel.site.pk }}">{{ object.power_panel.site }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ object.power_panel.pk }}">{{ object.power_panel }}</a></li>
   {% if object.rack %}
-    <li><a href="{% url 'dcim:powerfeed_list' %}?rack_id={{ object.rack.pk }}">{{ object.rack }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}?rack_id={{ object.rack.pk }}">{{ object.rack }}</a></li>
   {% endif %}
-  <li>{{ object }}</li>
+  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Power Feed</strong>
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Power Feed
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Power Panel</th>
+                        <td>
+                            <a href="{{ object.power_panel.get_absolute_url }}">{{ object.power_panel }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Rack</th>
+                        <td>
+                            {% if object.rack %}
+                                <a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Type</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_type_class }}">{{ object.get_type_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Connected Device</th>
+                        <td>
+                            {% if object.connected_endpoint %}
+                                <a href="{{ object.connected_endpoint.device.get_absolute_url }}">{{ object.connected_endpoint.device }}</a> ({{ object.connected_endpoint }})
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Utilization (Allocated)</th>
+                        {% with utilization=object.connected_endpoint.get_power_draw %}
+                            {% if utilization %}
+                                <td>
+                                    {{ utilization.allocated }}VA / {{ object.available_power }}VA
+                                    {% if object.available_power > 0 %}
+                                        {% utilization_graph utilization.allocated|percentage:object.available_power %}
+                                    {% endif %}
+                                </td>
+                            {% else %}
+                                <td class="text-muted">N/A</td>
+                            {% endif %}
+                        {% endwith %}
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Power Panel</td>
-                    <td>
-                        <a href="{{ object.power_panel.get_absolute_url }}">{{ object.power_panel }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Rack</td>
-                    <td>
-                        {% if object.rack %}
-                            <a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Type</td>
-                    <td>
-                        <span class="label label-{{ object.get_type_class }}">{{ object.get_type_display }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Connected Device</td>
-                    <td>
-                        {% if object.connected_endpoint %}
-                            <a href="{{ object.connected_endpoint.device.get_absolute_url }}">{{ object.connected_endpoint.device }}</a> ({{ object.connected_endpoint }})
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Utilization (Allocated)</td>
-                    {% with utilization=object.connected_endpoint.get_power_draw %}
-                        {% if utilization %}
-                            <td>
-                                {{ utilization.allocated }}VA / {{ object.available_power }}VA
-                                {% if object.available_power > 0 %}
-                                    {% utilization_graph utilization.allocated|percentage:object.available_power %}
-                                {% endif %}
-                            </td>
-                        {% else %}
-                            <td class="text-muted">N/A</td>
-                        {% endif %}
-                    {% endwith %}
-                </tr>
-            </table>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Electrical Characteristics</strong>
+        <div class="card">
+            <h5 class="card-header">
+                Electrical Characteristics
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Supply</th>
+                        <td>{{ object.get_supply_display }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Voltage</th>
+                        <td>{{ object.voltage }}V</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Amperage</th>
+                        <td>{{ object.amperage }}A</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Phase</th>
+                        <td>{{ object.get_phase_display }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Max Utilization</th>
+                        <td>{{ object.max_utilization }}%</td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Supply</td>
-                    <td>{{ object.get_supply_display }}</td>
-                </tr>
-                <tr>
-                    <td>Voltage</td>
-                    <td>{{ object.voltage }}V</td>
-                </tr>
-                <tr>
-                    <td>Amperage</td>
-                    <td>{{ object.amperage }}A</td>
-                </tr>
-                <tr>
-                    <td>Phase</td>
-                    <td>{{ object.get_phase_display }}</td>
-                </tr>
-                <tr>
-                    <td>Max Utilization</td>
-                    <td>{{ object.max_utilization }}%</td>
-                </tr>
-            </table>
         </div>
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:powerfeed_list' %}
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Connection</strong>
-            </div>
+    <div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Connection
+            </h5>
+            <div class="card-body">
             {% if object.mark_connected %}
-                <div class="panel-body text-muted">
+                <div class="text-muted">
                   <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
                 </div>
             {% elif object.cable %}
-                <table class="table table-hover panel-body attr-table">
+                <table class="table table-hover attr-table">
                     <tr>
-                        <td>Cable</td>
+                        <th scope="row">Cable</th>
                         <td>
                             <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
-                            <a href="{% url 'dcim:powerfeed_trace' pk=object.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                            <a href="{% url 'dcim:powerfeed_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                                 <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                             </a>
                         </td>
                     </tr>
                     {% if object.connected_endpoint %}
                         <tr>
-                            <td>Device</td>
+                            <th scope="row">Device</th>
                             <td>
                                 <a href="{{ object.connected_endpoint.device.get_absolute_url }}">{{ object.connected_endpoint.device }}</a>
                             </td>
                         </tr>
                         <tr>
-                            <td>Name</td>
+                            <th scope="row">Name</th>
                             <td>
                                 <a href="{{ object.connected_endpoint.get_absolute_url }}">{{ object.connected_endpoint.name }}</a>
                             </td>
                         </tr>
                         <tr>
-                            <td>Type</td>
+                            <th scope="row">Type</th>
                             <td>{{ object.connected_endpoint.get_type_display|placeholder }}</td>
                         </tr>
                         <tr>
-                            <td>Description</td>
+                            <th scope="row">Description</th>
                             <td>{{ object.connected_endpoint.description|placeholder }}</td>
                         </tr>
                         <tr>
-                            <td>Path Status</td>
+                            <th scope="row">Path Status</th>
                             <td>
                                 {% if object.path.is_active %}
-                                    <span class="label label-success">Reachable</span>
+                                    <span class="badge bg-success">Reachable</span>
                                 {% else %}
-                                    <span class="label label-danger">Not Reachable</span>
+                                    <span class="badge bg-danger">Not Reachable</span>
                                 {% endif %}
                             </td>
                         </tr>
                     {% endif %}
                 </table>
             {% else %}
-                <div class="panel-body text-muted">
-                    {% if perms.dcim.add_cable %}
-                        <a href="{% url 'dcim:powerfeed_connect' termination_a_id=object.pk termination_b_type='power-port' %}?return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm pull-right">
-                            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
-                        </a>
-                    {% endif %}
+                <div class="text-muted">
                     Not connected
                 </div>
             {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
             </div>
-            <div class="panel-body rendered-markdown">
+            {% if not object.mark_connected and not object.cable %}
+            <div class="card-footer">
+            {% if perms.dcim.add_cable %}
+                <a href="{% url 'dcim:powerfeed_connect' termination_a_id=object.pk termination_b_type='power-port' %}?return_url={{ object.get_absolute_url }}"
+                class="btn btn-primary btn-sm float-end">
+                    <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
+                </a>
+                    {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="card">
+            <h5 class="card-header">
+                Comments
+            </h5>
+            <div class="card-body rendered-markdown">
                 {% if object.comments %}
                     {{ object.comments|render_markdown }}
                 {% else %}
@@ -189,7 +199,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

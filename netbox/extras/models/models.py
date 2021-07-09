@@ -36,7 +36,8 @@ __all__ = (
 # Webhooks
 #
 
-class Webhook(BigIDModel):
+@extras_features('webhooks')
+class Webhook(ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -129,6 +130,9 @@ class Webhook(BigIDModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('extras:webhook', args=[self.pk])
+
     def clean(self):
         super().clean()
 
@@ -171,7 +175,8 @@ class Webhook(BigIDModel):
 # Custom links
 #
 
-class CustomLink(BigIDModel):
+@extras_features('webhooks')
+class CustomLink(ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -221,12 +226,16 @@ class CustomLink(BigIDModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('extras:customlink', args=[self.pk])
+
 
 #
 # Export templates
 #
 
-class ExportTemplate(BigIDModel):
+@extras_features('webhooks')
+class ExportTemplate(ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
@@ -269,6 +278,9 @@ class ExportTemplate(BigIDModel):
     def __str__(self):
         return f"{self.content_type}: {self.name}"
 
+    def get_absolute_url(self):
+        return reverse('extras:exporttemplate', args=[self.pk])
+
     def clean(self):
         super().clean()
 
@@ -300,13 +312,12 @@ class ExportTemplate(BigIDModel):
 
         # Build the response
         response = HttpResponse(output, content_type=mime_type)
-        filename = 'netbox_{}{}'.format(
-            queryset.model._meta.verbose_name_plural,
-            '.{}'.format(self.file_extension) if self.file_extension else ''
-        )
 
         if self.as_attachment:
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            basename = queryset.model._meta.verbose_name_plural.replace(' ', '_')
+            extension = f'.{self.file_extension}' if self.file_extension else ''
+            filename = f'netbox_{basename}{extension}'
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         return response
 
@@ -431,9 +442,8 @@ class JournalEntry(ChangeLoggedModel):
         verbose_name_plural = 'journal entries'
 
     def __str__(self):
-        created_date = timezone.localdate(self.created)
-        created_time = timezone.localtime(self.created)
-        return f"{date_format(created_date)} - {time_format(created_time)} ({self.get_kind_display()})"
+        created = timezone.localtime(self.created)
+        return f"{date_format(created, format='SHORT_DATETIME_FORMAT')} ({self.get_kind_display()})"
 
     def get_absolute_url(self):
         return reverse('extras:journalentry', args=[self.pk])

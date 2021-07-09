@@ -1,0 +1,67 @@
+{# Base template for (almost) all NetBox pages #}
+{% load static %}
+{% load static %}
+{% load helpers %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width"
+    />
+
+    {# Page title #}
+    <title>{% block title %}Home{% endblock %} | NetBox</title>
+
+    {# Static resources #}
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-external.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-external.css'"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-light.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-light.css'"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-dark.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-dark.css'"
+    />
+    <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
+
+    {# Javascript #}
+    <script
+      type="text/javascript"
+      src="{% static 'netbox.js' %}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'">
+    </script>
+
+    {# Additional <head> content #}
+    {% block head %}{% endblock %}
+  </head>
+  
+  <body
+    {% if preferences|get_key:'ui.colormode' == 'dark'%} data-netbox-color-mode="dark"
+    {% else %} data-netbox-color-mode="light"
+    {% endif %}
+  >
+
+    {# Page layout #}
+    {% block layout %}{% endblock %}
+
+    {# Additional Javascript #}
+    {% block javascript %}{% endblock %}
+
+    {# User messages #}
+    {% include 'inc/messages.html' %}
+
+    {# Data container #}
+    <div id="netbox-data" style="display: none!important; visibility: hidden!important">
+      {% block data %}{% endblock %}
+    </div>
+
+  </body>
+</html>

@@ -270,7 +270,8 @@ class TagTest(APIViewTestCases.APIViewTestCase):
 class ImageAttachmentTest(
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
-    APIViewTestCases.DeleteObjectViewTestCase
+    APIViewTestCases.DeleteObjectViewTestCase,
+    APIViewTestCases.GraphQLTestCase
 ):
     model = ImageAttachment
     brief_fields = ['display', 'id', 'image', 'name', 'url']

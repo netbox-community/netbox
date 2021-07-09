@@ -6,7 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel
-from utilities.fields import NaturalOrderingField
+from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
 from .device_components import (
@@ -267,6 +267,9 @@ class FrontPortTemplate(ComponentTemplateModel):
         max_length=50,
         choices=PortTypeChoices
     )
+    color = ColorField(
+        blank=True
+    )
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
         on_delete=models.CASCADE,
@@ -290,19 +293,24 @@ class FrontPortTemplate(ComponentTemplateModel):
     def clean(self):
         super().clean()
 
-        # Validate rear port assignment
-        if self.rear_port.device_type != self.device_type:
-            raise ValidationError(
-                "Rear port ({}) must belong to the same device type".format(self.rear_port)
-            )
+        try:
 
-        # Validate rear port position assignment
-        if self.rear_port_position > self.rear_port.positions:
-            raise ValidationError(
-                "Invalid rear port position ({}); rear port {} has only {} positions".format(
-                    self.rear_port_position, self.rear_port.name, self.rear_port.positions
+            # Validate rear port assignment
+            if self.rear_port.device_type != self.device_type:
+                raise ValidationError(
+                    "Rear port ({}) must belong to the same device type".format(self.rear_port)
                 )
-            )
+
+            # Validate rear port position assignment
+            if self.rear_port_position > self.rear_port.positions:
+                raise ValidationError(
+                    "Invalid rear port position ({}); rear port {} has only {} positions".format(
+                        self.rear_port_position, self.rear_port.name, self.rear_port.positions
+                    )
+                )
+
+        except RearPortTemplate.DoesNotExist:
+            pass
 
     def instantiate(self, device):
         if self.rear_port:
@@ -314,6 +322,7 @@ class FrontPortTemplate(ComponentTemplateModel):
             name=self.name,
             label=self.label,
             type=self.type,
+            color=self.color,
             rear_port=rear_port,
             rear_port_position=self.rear_port_position
         )
@@ -327,6 +336,9 @@ class RearPortTemplate(ComponentTemplateModel):
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
+    )
+    color = ColorField(
+        blank=True
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
@@ -346,6 +358,7 @@ class RearPortTemplate(ComponentTemplateModel):
             name=self.name,
             label=self.label,
             type=self.type,
+            color=self.color,
             positions=self.positions
         )
 

@@ -264,7 +264,7 @@ class CircuitSwapTerminations(generic.ObjectEditView):
             'termination_a': circuit.termination_a,
             'termination_z': circuit.termination_z,
             'form': form,
-            'panel_class': 'default',
+            'panel_class': 'light',
             'button_class': 'primary',
             'return_url': circuit.get_absolute_url(),
         })

@@ -1,17 +1,41 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load buttons %}
 
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_controls %}{% export_button content_type %}{% endblock %}
+
 {% block content %}
-<div class="pull-right noprint">
-    {% export_button content_type %}
-</div>
-<h1>{% block title %}{{ title }}{% endblock %}</h1>
-<div class="row">
-	  <div class="col-md-12">
-        <div class="col-md-3 pull-right right-side-panel noprint">
-            {% include 'inc/search_panel.html' %}
+{% if filter_form %}
+    <div class="col col-md-12 noprint">
+        {% include 'inc/advanced_search.html' %}
+    </div>
+{% endif %}
+<div class="row mb-3">
+    <div class="col col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col col-md-4 offset-md-8 d-flex noprint table-controls">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control object-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
+                            {% if filter_form %}
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-dark"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#advanced-search-content">
+                                    Advanced Search
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% include 'inc/responsive_table.html' %}
+            </div>
         </div>
-        {% include 'responsive_table.html' %}
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
 </div>

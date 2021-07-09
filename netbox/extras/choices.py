@@ -45,7 +45,7 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
 
 class CustomLinkButtonClassChoices(ChoiceSet):
 
-    CLASS_DEFAULT = 'default'
+    CLASS_DEFAULT = 'outline-dark'
     CLASS_PRIMARY = 'primary'
     CLASS_SUCCESS = 'success'
     CLASS_INFO = 'info'
@@ -106,7 +106,7 @@ class JournalEntryKindChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        KIND_INFO: 'default',
+        KIND_INFO: 'info',
         KIND_SUCCESS: 'success',
         KIND_WARNING: 'warning',
         KIND_DANGER: 'danger',
@@ -134,7 +134,7 @@ class LogLevelChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        LOG_DEFAULT: 'default',
+        LOG_DEFAULT: 'secondary',
         LOG_SUCCESS: 'success',
         LOG_INFO: 'info',
         LOG_WARNING: 'warning',

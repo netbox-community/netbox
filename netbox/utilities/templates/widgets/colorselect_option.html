@@ -1,2 +1,2 @@
 {% load helpers %}
-<option value="{{ widget.value }}"{% include "django/forms/widgets/attrs.html" %} {% if widget.value %}style="color: {{ widget.value|fgcolor }}; background-color: #{{ widget.value }}"{% endif %}>{{ widget.label }}</option>
+<option value="{{ widget.value }}"{% include "django/forms/widgets/attrs.html" %}>{{ widget.label }}</option>

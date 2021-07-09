@@ -13,8 +13,8 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, CircuitTermination, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldModelCSVForm, CustomFieldFilterForm,
-    CustomFieldModelForm, LocalConfigContextFilterForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelFilterForm, CustomFieldModelForm,
+    CustomFieldsMixin, LocalConfigContextFilterForm,
 )
 from extras.models import Tag
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
@@ -23,7 +23,7 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField,
+    ColorField, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
     NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
@@ -54,14 +54,14 @@ def get_device_by_name_or_pk(name):
     return device
 
 
-class DeviceComponentFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class DeviceComponentFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     field_order = [
-        'q', 'name', 'label', 'region_id', 'site_group_id', 'site_id',
+        'name', 'label', 'region_id', 'site_group_id', 'site_id',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['name', 'label'],
+        ['region_id', 'site_group_id', 'site_id'],
+    ]
     name = forms.CharField(
         required=False
     )
@@ -209,10 +209,10 @@ class RegionCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Region
-        fields = Region.csv_headers
+        fields = ('name', 'slug', 'parent', 'description')
 
 
-class RegionBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class RegionBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Region.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -230,12 +230,8 @@ class RegionBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class RegionFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Site
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
 
 
 #
@@ -266,10 +262,10 @@ class SiteGroupCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = SiteGroup
-        fields = SiteGroup.csv_headers
+        fields = ('name', 'slug', 'parent', 'description')
 
 
-class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -287,12 +283,8 @@ class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class SiteGroupFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = SiteGroup
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
 
 
 #
@@ -391,7 +383,11 @@ class SiteCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Site
-        fields = Site.csv_headers
+        fields = (
+            'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+            'contact_email', 'comments',
+        )
         help_texts = {
             'time_zone': mark_safe(
                 'Time zone (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">available options</a>)'
@@ -399,7 +395,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         }
 
 
-class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Site.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -444,13 +440,14 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         ]
 
 
-class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Site
-    field_order = ['q', 'status', 'region_id', 'tenant_group_id', 'tenant_id']
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_order = ['status', 'region_id', 'tenant_group_id', 'tenant_id']
+    field_groups = [
+        ['status', 'region_id'],
+        ['tenant_group_id', 'tenant_id'],
+        ['tag']
+    ]
     status = forms.MultipleChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -529,10 +526,10 @@ class LocationCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Location
-        fields = Location.csv_headers
+        fields = ('site', 'parent', 'name', 'slug', 'description')
 
 
-class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class LocationBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Location.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -557,12 +554,8 @@ class LocationBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class LocationFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class LocationFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Location
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -606,21 +599,19 @@ class RackRoleCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RackRole
-        fields = RackRole.csv_headers
+        fields = ('name', 'slug', 'color', 'description')
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
 
 
-class RackRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class RackRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     description = forms.CharField(
         max_length=200,
@@ -739,7 +730,10 @@ class RackCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Rack
-        fields = Rack.csv_headers
+        fields = (
+            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
+            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -751,7 +745,7 @@ class RackCSVForm(CustomFieldModelCSVForm):
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
-class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -851,13 +845,14 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         ]
 
 
-class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Rack
-    field_order = ['q', 'region_id', 'site_id', 'location_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_order = ['region_id', 'site_id', 'location_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
+    field_groups = [
+        ['status', 'role_id'],
+        ['region_id', 'site_id', 'location_id'],
+        ['tenant_group_id', 'tenant_id'],
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -913,7 +908,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 class RackElevationFilterForm(RackFilterForm):
     field_order = [
-        'q', 'region_id', 'site_id', 'location_id', 'id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
+        'region_id', 'site_id', 'location_id', 'id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
     ]
     id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
@@ -1044,7 +1039,7 @@ class RackReservationCSVForm(CustomFieldModelCSVForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1069,13 +1064,13 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         nullable_fields = []
 
 
-class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = RackReservation
-    field_order = ['q', 'region_id', 'site_id', 'location_id', 'user_id', 'tenant_group_id', 'tenant_id']
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_order = ['region_id', 'site_id', 'location_id', 'user_id', 'tenant_group_id', 'tenant_id']
+    field_groups = [
+        ['region_id', 'site_id', 'location_id'],
+        ['user_id', 'tenant_group_id', 'tenant_id'],
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1124,10 +1119,10 @@ class ManufacturerCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Manufacturer
-        fields = Manufacturer.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
-class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -1195,7 +1190,7 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1218,12 +1213,15 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkE
         nullable_fields = []
 
 
-class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = DeviceType
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['manufacturer_id', 'subdevice_role'],
+        ['console_ports', 'console_server_ports'],
+        ['power_ports', 'power_outlets'],
+        ['interfaces', 'pass_through_ports'],
+        ['tag']
+    ]
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
@@ -1609,7 +1607,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description',
+            'device_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1638,7 +1636,7 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         help_text='Select one rear port assignment for each front port being created.',
     )
     field_order = (
-        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'description',
+        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'color', 'rear_port_set', 'description',
     )
 
     def __init__(self, *args, **kwargs):
@@ -1702,6 +1700,9 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
+    color = ColorField(
+        required=False
+    )
     description = forms.CharField(
         required=False
     )
@@ -1715,7 +1716,7 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'positions', 'description',
+            'device_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1728,13 +1729,18 @@ class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
+    color = ColorField(
+        required=False
+    )
     positions = forms.IntegerField(
         min_value=REARPORT_POSITIONS_MIN,
         max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
-    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'positions', 'description')
+    field_order = (
+        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'color', 'positions', 'description',
+    )
 
 
 class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1750,6 +1756,9 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         choices=add_blank_choice(PortTypeChoices),
         required=False,
         widget=StaticSelect2()
+    )
+    color = ColorField(
+        required=False
     )
     description = forms.CharField(
         required=False
@@ -1878,8 +1887,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     )
     rear_port = forms.ModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
-        to_field_name='name',
-        required=False
+        to_field_name='name'
     )
 
     class Meta:
@@ -1929,21 +1937,19 @@ class DeviceRoleCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = DeviceRole
-        fields = DeviceRole.csv_headers
+        fields = ('name', 'slug', 'color', 'vm_role', 'description')
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
 
 
-class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     vm_role = forms.NullBooleanField(
         required=False,
@@ -1993,10 +1999,10 @@ class PlatformCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Platform
-        fields = Platform.csv_headers
+        fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description')
 
 
-class PlatformBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class PlatformBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -2236,6 +2242,12 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         choices=DeviceStatusChoices,
         help_text='Operational status'
     )
+    virtual_chassis = CSVModelChoiceField(
+        queryset=VirtualChassis.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Virtual chassis'
+    )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
@@ -2246,6 +2258,10 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     class Meta:
         fields = []
         model = Device
+        help_texts = {
+            'vc_position': 'Virtual chassis position',
+            'vc_priority': 'Virtual chassis priority',
+        }
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -2284,7 +2300,8 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'location', 'rack', 'position', 'face', 'cluster', 'comments',
+            'site', 'location', 'rack', 'position', 'face', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster',
+            'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -2319,7 +2336,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'parent', 'device_bay', 'cluster', 'comments',
+            'parent', 'device_bay', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -2346,7 +2363,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
             self.instance.rack = parent.rack
 
 
-class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -2402,16 +2419,19 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         ]
 
 
-class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
+class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Device
     field_order = [
-        'q', 'region_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
+        'region_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
         'manufacturer_id', 'device_type_id', 'asset_tag', 'mac_address', 'has_primary_ip',
     ]
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['region_id', 'site_id', 'location_id', 'rack_id'],
+        ['status', 'role_id', 'asset_tag'],
+        ['tenant_group_id', 'tenant_id'],
+        ['manufacturer_id', 'device_type_id'],
+        ['mac_address', 'has_primary_ip'],
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -2543,7 +2563,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
 # Device components
 #
 
-class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
+class ComponentCreateForm(BootstrapMixin, CustomFieldsMixin, ComponentForm):
     """
     Base form for the creation of device components (models subclassed from ComponentModel).
     """
@@ -2560,7 +2580,7 @@ class ComponentCreateForm(BootstrapMixin, CustomFieldForm, ComponentForm):
     )
 
 
-class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldForm, ComponentForm):
+class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldsMixin, ComponentForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -2582,6 +2602,12 @@ class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldForm, ComponentForm)
 
 class ConsolePortFilterForm(DeviceComponentFilterForm):
     model = ConsolePort
+    field_groups = [
+        ['name', 'label'],
+        ['type', 'speed'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag']
+    ]
     type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
         required=False,
@@ -2638,7 +2664,7 @@ class ConsolePortBulkEditForm(
     form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsolePort.objects.all(),
@@ -2673,7 +2699,7 @@ class ConsolePortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ConsolePort
-        fields = ConsolePort.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description')
 
 
 #
@@ -2683,6 +2709,12 @@ class ConsolePortCSVForm(CustomFieldModelCSVForm):
 
 class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     model = ConsoleServerPort
+    field_groups = [
+        ['name', 'label'],
+        ['type', 'speed'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag']
+    ]
     type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
         required=False,
@@ -2739,7 +2771,7 @@ class ConsoleServerPortBulkEditForm(
     form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
@@ -2774,7 +2806,7 @@ class ConsoleServerPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ConsoleServerPort.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description')
 
 
 #
@@ -2784,6 +2816,11 @@ class ConsoleServerPortCSVForm(CustomFieldModelCSVForm):
 
 class PowerPortFilterForm(DeviceComponentFilterForm):
     model = PowerPort
+    field_groups = [
+        ['name', 'label', 'type'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag'],
+    ]
     type = forms.MultipleChoiceField(
         choices=PowerPortTypeChoices,
         required=False,
@@ -2844,7 +2881,7 @@ class PowerPortBulkEditForm(
     form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPort.objects.all(),
@@ -2872,7 +2909,9 @@ class PowerPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerPort
-        fields = PowerPort.csv_headers
+        fields = (
+            'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description',
+        )
 
 
 #
@@ -2882,6 +2921,11 @@ class PowerPortCSVForm(CustomFieldModelCSVForm):
 
 class PowerOutletFilterForm(DeviceComponentFilterForm):
     model = PowerOutlet
+    field_groups = [
+        ['name', 'label', 'type'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag'],
+    ]
     type = forms.MultipleChoiceField(
         choices=PowerOutletTypeChoices,
         required=False,
@@ -2961,7 +3005,7 @@ class PowerOutletBulkEditForm(
     form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerOutlet.objects.all(),
@@ -3017,7 +3061,7 @@ class PowerOutletCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerOutlet
-        fields = PowerOutlet.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3049,6 +3093,12 @@ class PowerOutletCSVForm(CustomFieldModelCSVForm):
 
 class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
+    field_groups = [
+        ['name', 'label', 'type', 'enabled'],
+        ['mgmt_only', 'mac_address'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag'],
+    ]
     type = forms.MultipleChoiceField(
         choices=InterfaceTypeChoices,
         required=False,
@@ -3221,7 +3271,7 @@ class InterfaceBulkEditForm(
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
@@ -3351,7 +3401,10 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Interface
-        fields = Interface.csv_headers
+        fields = (
+            'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
+            'mgmt_only', 'description', 'mode',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3389,11 +3442,19 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
 #
 
 class FrontPortFilterForm(DeviceComponentFilterForm):
+    field_groups = [
+        ['name', 'label', 'type', 'color'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag']
+    ]
     model = FrontPort
     type = forms.MultipleChoiceField(
         choices=PortTypeChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    color = ColorField(
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -3407,8 +3468,8 @@ class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = FrontPort
         fields = [
-            'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'mark_connected', 'description',
-            'tags',
+            'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
+            'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -3433,13 +3494,17 @@ class FrontPortCreateForm(ComponentCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
+    color = ColorField(
+        required=False
+    )
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'mark_connected', 'description', 'tags',
+        'device', 'name_pattern', 'label_pattern', 'type', 'color', 'rear_port_set', 'mark_connected', 'description',
+        'tags',
     )
 
     def __init__(self, *args, **kwargs):
@@ -3498,10 +3563,10 @@ class FrontPortCreateForm(ComponentCreateForm):
 
 
 class FrontPortBulkEditForm(
-    form_from_model(FrontPort, ['label', 'type', 'mark_connected', 'description']),
+    form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
@@ -3529,7 +3594,10 @@ class FrontPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = FrontPort
-        fields = FrontPort.csv_headers
+        fields = (
+            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'rear_port', 'rear_port_position',
+            'description',
+        )
         help_texts = {
             'rear_port_position': 'Mapped position on corresponding rear port',
         }
@@ -3563,10 +3631,18 @@ class FrontPortCSVForm(CustomFieldModelCSVForm):
 
 class RearPortFilterForm(DeviceComponentFilterForm):
     model = RearPort
+    field_groups = [
+        ['name', 'label', 'type', 'color'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag']
+    ]
     type = forms.MultipleChoiceField(
         choices=PortTypeChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    color = ColorField(
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -3580,7 +3656,7 @@ class RearPortForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = RearPort
         fields = [
-            'device', 'name', 'label', 'type', 'positions', 'mark_connected', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -3594,6 +3670,9 @@ class RearPortCreateForm(ComponentCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
+    color = ColorField(
+        required=False
+    )
     positions = forms.IntegerField(
         min_value=REARPORT_POSITIONS_MIN,
         max_value=REARPORT_POSITIONS_MAX,
@@ -3601,12 +3680,13 @@ class RearPortCreateForm(ComponentCreateForm):
         help_text='The number of front ports which may be mapped to each rear port'
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'type', 'positions', 'mark_connected', 'description', 'tags',
+        'device', 'name_pattern', 'label_pattern', 'type', 'color', 'positions', 'mark_connected', 'description',
+        'tags',
     )
 
 
 class RearPortBulkCreateForm(
-    form_from_model(RearPort, ['type', 'positions', 'mark_connected']),
+    form_from_model(RearPort, ['type', 'color', 'positions', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = RearPort
@@ -3614,10 +3694,10 @@ class RearPortBulkCreateForm(
 
 
 class RearPortBulkEditForm(
-    form_from_model(RearPort, ['label', 'type', 'mark_connected', 'description']),
+    form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
@@ -3640,7 +3720,7 @@ class RearPortCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = RearPort
-        fields = RearPort.csv_headers
+        fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description')
         help_texts = {
             'positions': 'Number of front ports which may be mapped'
         }
@@ -3652,6 +3732,11 @@ class RearPortCSVForm(CustomFieldModelCSVForm):
 
 class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
+    field_groups = [
+        ['name', 'label'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag']
+    ]
     tag = TagFilterField(model)
 
 
@@ -3706,7 +3791,7 @@ class DeviceBayBulkEditForm(
     form_from_model(DeviceBay, ['label', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBay.objects.all(),
@@ -3734,7 +3819,7 @@ class DeviceBayCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = DeviceBay
-        fields = DeviceBay.csv_headers
+        fields = ('device', 'name', 'label', 'installed_device', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3840,7 +3925,9 @@ class InventoryItemCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = InventoryItem
-        fields = InventoryItem.csv_headers
+        fields = (
+            'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
+        )
 
 
 class InventoryItemBulkCreateForm(
@@ -3858,7 +3945,7 @@ class InventoryItemBulkEditForm(
     form_from_model(InventoryItem, ['label', 'manufacturer', 'part_id', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
-    CustomFieldBulkEditForm
+    CustomFieldModelBulkEditForm
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=InventoryItem.objects.all(),
@@ -3875,6 +3962,12 @@ class InventoryItemBulkEditForm(
 
 class InventoryItemFilterForm(DeviceComponentFilterForm):
     model = InventoryItem
+    field_groups = [
+        ['name', 'label', 'manufacturer_id'],
+        ['serial', 'asset_tag', 'discovered'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tag']
+    ]
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
@@ -4289,7 +4382,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
         return length_unit if length_unit is not None else ''
 
 
-class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cable.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -4310,10 +4403,8 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFo
         max_length=100,
         required=False
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     length = forms.IntegerField(
         min_value=1,
@@ -4343,12 +4434,14 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFo
             })
 
 
-class CableFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class CableFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Cable
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['type', 'status', 'color'],
+        ['device_id', 'rack_id'],
+        ['region_id', 'site_id', 'tenant_id'],
+        ['tag']
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -4386,10 +4479,8 @@ class CableFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=add_blank_choice(CableStatusChoices),
         widget=StaticSelect2()
     )
-    color = forms.CharField(
-        max_length=6,  # RGB color code
-        required=False,
-        widget=ColorSelect()
+    color = ColorField(
+        required=False
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -4619,6 +4710,10 @@ class DeviceVCMembershipForm(forms.ModelForm):
         # Require VC position (only required when the Device is a VirtualChassis member)
         self.fields['vc_position'].required = True
 
+        # Add bootstrap classes to form elements.
+        self.fields['vc_position'].widget.attrs = {'class': 'form-control'}
+        self.fields['vc_priority'].widget.attrs = {'class': 'form-control'}
+
         # Validation of vc_position is optional. This is only required when adding a new member to an existing
         # VirtualChassis. Otherwise, vc_position validation is handled by BaseVCMemberFormSet.
         self.validate_vc_position = validate_vc_position
@@ -4688,7 +4783,7 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         return device
 
 
-class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualChassis.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -4712,16 +4807,17 @@ class VirtualChassisCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VirtualChassis
-        fields = VirtualChassis.csv_headers
+        fields = ('name', 'domain', 'master')
 
 
-class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualChassis
-    field_order = ['q', 'region_id', 'site_group_id', 'site_id', 'tenant_group_id', 'tenant_id']
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_order = ['region_id', 'site_group_id', 'site_id', 'tenant_group_id', 'tenant_id']
+    field_groups = [
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tenant_group_id', 'tenant_id'],
+        ['tag']
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -4805,7 +4901,7 @@ class PowerPanelCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerPanel
-        fields = PowerPanel.csv_headers
+        fields = ('site', 'location', 'name')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -4817,7 +4913,7 @@ class PowerPanelCSVForm(CustomFieldModelCSVForm):
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
-class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -4856,12 +4952,8 @@ class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkE
         nullable_fields = ['location']
 
 
-class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class PowerPanelFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = PowerPanel
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -5006,7 +5098,10 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = PowerFeed
-        fields = PowerFeed.csv_headers
+        fields = (
+            'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
+            'voltage', 'amperage', 'max_utilization', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -5029,7 +5124,7 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerFeed.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -5090,12 +5185,15 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         ]
 
 
-class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class PowerFeedFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = PowerFeed
-    q = forms.CharField(
-        required=False,
-        label=_('Search')
-    )
+    field_groups = [
+        ['region_id', 'site_group_id', 'site_id'],
+        ['power_panel_id', 'rack_id'],
+        ['type', 'supply', 'max_utilization'],
+        ['phase', 'voltage', 'amperage'],
+        ['status', 'tag']
+    ]
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
