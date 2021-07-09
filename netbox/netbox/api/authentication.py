@@ -26,8 +26,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("User inactive")
 
         # When LDAP authentication is active try to load user data from LDAP directory
-        if (settings.REMOTE_AUTH_ENABLED and
-                settings.REMOTE_AUTH_BACKEND == 'netbox.authentication.LDAPBackend'):
+        if settings.REMOTE_AUTH_BACKEND == 'netbox.authentication.LDAPBackend':
             from netbox.authentication import LDAPBackend
             ldap_backend = LDAPBackend()
             user = ldap_backend.populate_user(token.user.username)
