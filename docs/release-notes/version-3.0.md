@@ -4,15 +4,62 @@
 
 ### Breaking Changes
 
+* Python 3.6 is no longer supported.
+* The `invalidate` management command has been removed.
 * The default CSV export format for all objects now includes all available data. Additionally, the CSV headers now use human-friendly titles rather than the raw field names.
 * Support for queryset caching configuration (`caching_config`) has been removed from the plugins API (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
 * The `cacheops_*` metrics have been removed from the Prometheus exporter (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
-* The `invalidate` management command has been removed.
+* The `displa_field` keyword argument has been removed from custom script ObjectVar and MultiObjectVar fields. These widgets will use the `display` value provided by the REST API.
+* The deprecated `display_name` field has been removed from all REST API serializers. (Clients should reference the `display` field instead.)
 * The redundant REST API endpoints for console, power, and interface connections have been removed. The same data can be retrieved using the respective model endpoints with the `?connected=True` filter applied.
 
 ### New Features
 
-### REST API Token Provisioning ([#5264](https://github.com/netbox-community/netbox/issues/5264))
+#### GraphQL API ([#2007](https://github.com/netbox-community/netbox/issues/2007))
+
+A new [GraphQL API](https://graphql.org/) has been added to complement NetBox's REST API. GraphQL allows the client to specify which fields of the available data to return in each request. NetBox's implementation, which employs [Graphene](https://graphene-python.org/), also includes a user-friendly query interface known as GraphIQL.
+
+Here's an example GraphQL request:
+
+```
+{
+  circuit_list {
+    cid
+    provider {
+      name
+    }
+    termination_a {
+      id
+    }
+    termination_z {
+      id
+    }
+  }
+}
+```
+
+And the response:
+
+```
+{
+  "data": {
+    "circuit_list": [
+      {
+        "cid": "1002840283",
+        "provider": {
+          "name": "CenturyLink"
+        },
+        "termination_a": null,
+        "termination_z": {
+          "id": "23"
+        }
+      },
+...
+```
+
+All GraphQL requests are made at the `/graphql` URL (which also serves the GraphiQL UI). The API is currently read-only. For more detail on NetBox's GraphQL implementation, see [the GraphQL API documentation](../graphql-api/overview.md).
+
+#### REST API Token Provisioning ([#5264](https://github.com/netbox-community/netbox/issues/5264))
 
 This release introduces the `/api/users/tokens/` REST API endpoint, which includes a child endpoint that can be employed by a user to provision a new REST API token. This allows a user to gain REST API access without needing to first create a token via the web UI.
 
@@ -28,6 +75,12 @@ https://netbox/api/users/tokens/provision/
 ```
 
 If the supplied credentials are valid, NetBox will create and return a new token for the user.
+
+#### Updated User Interface ([#5893](https://github.com/netbox-community/netbox/issues/5893))
+
+The NetBox user interface has been completely overhauled with a fresh new look! Beyond the cosmetic improvements, this initiative has allowed us to modernize the entire front end, upgrading from Bootstrap 3 to Bootstrap 5, and eliminating dependencies on outdated libraries such as jQuery and jQuery-UI.
+
+A huge thank you to NetBox maintainer [Matt Love](https://github.com/thatmattlove) for his tremendous work on this!
 
 #### Custom Model Validation ([#5963](https://github.com/netbox-community/netbox/issues/5963))
 
@@ -51,6 +104,27 @@ CUSTOM_VALIDATORS = {
 ```
 
 CustomValidator can also be subclassed to enforce more complex logic by overriding its `validate()` method. See the [custom validation](../customization/custom-validation.md) documentation for more details.
+
+#### New Views for Models Previously Under the Admin UI ([#6466](https://github.com/netbox-community/netbox/issues/6466))
+
+New UI views have been introduced to manage the following models:
+
+* Custom fields
+* Custom links
+* Export templates
+* Webhooks
+
+These models were previously managed under the admin section of the UI. Moving them to dedicated views ensures a more consistent and convenient user experience.
+
+#### New Housekeeping Command ([#6590](https://github.com/netbox-community/netbox/issues/6590))
+
+A new management command has been added: `manage.py housekeeping`. This command is intended to be run nightly via a system cron job. It performs the following tasks:
+
+* Clear expired authentication sessions from the database
+* Delete change log records which have surpassed the configured retention period (if set)
+* Check for new NetBox releases (if configured)
+
+A convenience script for calling this command via an automated scheduler has been included at `/contrib/netbox-housekeeping.sh`. Please see the [housekeeping documentation](../administration/housekeeping.md) for further details.
 
 #### Custom Queue Support for Plugins ([#6651](https://github.com/netbox-community/netbox/issues/6651))
 
@@ -77,9 +151,9 @@ Note that NetBox's `rqworker` process will _not_ service custom queues by defaul
 * [#3665](https://github.com/netbox-community/netbox/issues/3665) - Enable rendering export templates via REST API
 * [#3682](https://github.com/netbox-community/netbox/issues/3682) - Add `color` field to front and rear ports
 * [#4609](https://github.com/netbox-community/netbox/issues/4609) - Allow marking prefixes as fully utilized
+* [#5203](https://github.com/netbox-community/netbox/issues/5203) - Remember user preference when toggling display of device images in rack elevations
 * [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
-* [#6590](https://github.com/netbox-community/netbox/issues/6590) - Introduce a nightly housekeeping command to clear expired sessions and change records
 
 ### Other Changes
 
