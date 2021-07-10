@@ -1,5 +1,11 @@
-from django.conf import settings
+import logging
+
 from django_rq.management.commands.rqworker import Command as _Command
+
+
+DEFAULT_QUEUES = ('high', 'default', 'low')
+
+logger = logging.getLogger('netbox.rqworker')
 
 
 class Command(_Command):
@@ -11,6 +17,10 @@ class Command(_Command):
 
         # If no queues have been specified on the command line, listen on all configured queues.
         if len(args) < 1:
-            args = settings.RQ_QUEUES
+            queues = ', '.join(DEFAULT_QUEUES)
+            logger.warning(
+                f"No queues have been specified. This process will service the following queues by default: {queues}"
+            )
+            args = DEFAULT_QUEUES
 
         super().handle(*args, **options)
