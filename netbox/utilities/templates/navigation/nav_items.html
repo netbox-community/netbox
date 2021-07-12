@@ -21,7 +21,7 @@
           
           {% for group in menu.groups %}
             {# Within each main menu, there are groups of menu items #}
-            <div class="flex-column nav px-2">
+            <div class="flex-column nav">
               
               {% if menu.groups|length > 1 %}
                 <h6 class="accordion-item-title">{{ group.label }}</h6>
@@ -32,23 +32,25 @@
                 <div class="nav-item d-flex justify-content-between align-items-center">
                   
                   {# Menu Link with Text #}
-                  <a class="nav-link flex-grow-1 me-1" href="{% url item.url %}">
+                  <a class="nav-link flex-grow-1" href="{% url item.url %}">
                     {{ item.label }}
                   </a>
                   
                   {# Add & Import Buttons #}
-                  <div class="btn-group">
-                    {% if item.has_add %}
-                        <a class="btn btn-sm btn-success lh-1" href="{% url item.add_url %}" title="Add {{ item.label }}">
-                          <i class="mdi mdi-plus-thick"></i>
-                        </a>
-                    {% endif %}
-                    {% if item.has_import %}
-                        <a class="btn btn-sm btn-outline-success lh-1" href="{% url item.import_url %}" title="Import {{ item.label }}">
-                          <i class="mdi mdi-upload"></i>
-                        </a>
-                    {% endif %}
-                  </div>
+                  {% if item.has_add or item.has_import %}
+                    <div class="btn-group ps-1">
+                      {% if item.has_add %}
+                          <a class="btn btn-sm btn-success lh-1" href="{% url item.add_url %}" title="Add {{ item.label }}">
+                            <i class="mdi mdi-plus-thick"></i>
+                          </a>
+                      {% endif %}
+                      {% if item.has_import %}
+                          <a class="btn btn-sm btn-outline-success lh-1" href="{% url item.import_url %}" title="Import {{ item.label }}">
+                            <i class="mdi mdi-upload"></i>
+                          </a>
+                      {% endif %}
+                    </div>
+                  {% endif %}
 
                 </div>
               {% endfor %}

@@ -25,98 +25,96 @@
 
 {% block content %}
 {% if filter_form %}
-    <div class="col col-md-12 noprint">
-        {% include 'inc/advanced_search.html' %}
-    </div>
+  {% include 'inc/advanced_search.html' %}
 {% endif %}
 {% if table.paginator.num_pages > 1 %}
 {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
-<div class="row mb-3">
-    <form method="post" class="form col-md-12">
+  <div id="select-all-box" class="d-none card noprint">
+    <div class="row mb-3">
+      <form method="post" class="form col-md-12">
         {% csrf_token %}
-        <div id="select-all-box" class="d-none card noprint">
-            <div class="card-body d-inline-flex justify-content-between align-items-center">
-                <div class="form-check">
-                    <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
-                    <label for="select-all" class="form-check-label">
-                        Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> Matching Query
-                    </label>
-                </div>
-                <div class="float-end">
-                    {% if bulk_edit_url and permissions.change %}
-                        <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled>
-                            <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit All
-                        </button>
-                    {% endif %}
-                    {% if bulk_delete_url and permissions.delete %}
-                        <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled>
-                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="card-body d-inline-flex justify-content-between align-items-center">
+          <div class="form-check">
+            <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+            <label for="select-all" class="form-check-label">
+              Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> Matching Query
+            </label>
+          </div>
+          <div class="float-end">
+            {% if bulk_edit_url and permissions.change %}
+              <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled>
+                <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit All
+              </button>
+            {% endif %}
+            {% if bulk_delete_url and permissions.delete %}
+              <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm" disabled>
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
+              </button>
+            {% endif %}
+          </div>
         </div>
-    </form>
-</div>
+      </form>
+    </div>
+  </div>
 {% endwith %}
 {% endif %}
+
+{# Object list filter, table config #}
 <div class="row mb-3">
-    <div class="col col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="row">
-                    <div class="col col-md-4 offset-md-8 d-flex noprint table-controls">
-                        <div class="input-group input-group-sm">
-                            <input type="text" class="form-control object-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
-                            {% if request.user.is_authenticated and table_config_form %}
-                                <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ObjectTable_config" title="Configure Table">
-                                    <i class="mdi mdi-table-eye"></i>
-                                </button>
-                            {% endif %}
-                            {% if filter_form %}
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-outline-dark"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#advanced-search-content">
-                                Advanced Search
-                            </button>
-                        {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
-                {% if permissions.change or permissions.delete %}
-                <form method="post" class="form form-horizontal">
-                    {% csrf_token %}
-                    <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
-                    {% include table_template|default:'inc/responsive_table.html' %}
-                    <div class="float-start noprint bulk-buttons">
-                        {% block bulk_buttons %}{% endblock %}
-                        {% if bulk_edit_url and permissions.change %}
-                        <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
-                            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
-                        </button>
-                        {% endif %}
-                        {% if bulk_delete_url and permissions.delete %}
-                        <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
-                            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
-                        </button>
-                        {% endif %}
-                    </div>
-                </form>
-                {% else %}
-                    <div class="table-responsive">
-                        {% render_table table 'inc/table.html' %}
-                    </div>
-                {% endif %}
-                {% endwith %}
-                {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
-            </div>
-        </div>
+  <div class="col col-md-4 offset-md-8 d-flex noprint table-controls">
+    <div class="input-group input-group-sm">
+      <input type="text" class="form-control object-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
+      {% if request.user.is_authenticated and table_config_form %}
+        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ObjectTable_config" title="Configure Table">
+          <i class="mdi mdi-table-eye"></i>
+        </button>
+      {% endif %}
+      {% if filter_form %}
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-dark"
+        data-bs-toggle="collapse"
+        data-bs-target="#advanced-search-content">
+        Advanced Search
+      </button>
+    {% endif %}
     </div>
+  </div>
+</div>
+
+{# Object table #}
+<div class="row">
+  <div class="col col-md-12">
+    {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
+      {% if permissions.change or permissions.delete %}
+        <form method="post" class="form form-horizontal">
+          {% csrf_token %}
+          <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+          <div class="table-responsive">
+            {% render_table table 'inc/table.html' %}
+          </div>
+          <div class="float-start noprint bulk-buttons">
+            {% block bulk_buttons %}{% endblock %}
+            {% if bulk_edit_url and permissions.change %}
+            <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
+              <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
+            </button>
+            {% endif %}
+            {% if bulk_delete_url and permissions.delete %}
+            <button type="submit" name="_delete" formaction="{% url bulk_delete_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-danger btn-sm">
+              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
+            </button>
+            {% endif %}
+          </div>
+        </form>
+      {% else %}
+        <div class="table-responsive">
+          {% render_table table 'inc/table.html' %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+  </div>
 </div>
 {% table_config_form table table_name="ObjectTable" %}
 {% endblock content %}

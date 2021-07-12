@@ -4,37 +4,25 @@
 {% block title %}Remove {{ table.rows|length }} {{ obj_type_plural|bettertitle }}?{% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-    <div class="col col-md-6 offset-md-3">
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading">Confirm Bulk Removal</h4>
-            <p><strong>Warning:</strong> The following operation will remove {{ table.rows|length }} {{ obj_type_plural }} from {{ parent_obj }}.</p>
-            <hr />
-            <p class="mb-0">Please carefully review the {{ obj_type_plural }} to be removed and confirm below.</p>
-        </div>
-    </div>
+<div class="container-md px-0">
+  <div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Confirm Bulk Removal</h4>
+    <p><strong>Warning:</strong> The following operation will remove {{ table.rows|length }} {{ obj_type_plural }} from {{ parent_obj }}.</p>
+    <hr />
+    <p class="mb-0">Please carefully review the {{ obj_type_plural }} to be removed and confirm below.</p>
+  </div>
 </div>
-<div class="row mb-3">
-    <div class="col col-md-12">
-        <div class="card">
-            <div class="card-body">
-                {% include 'inc/table.html' %}
-            </div>
-        </div>
+<div class="container-xl px-0">
+  {% include 'inc/table.html' %}
+  <form action="." method="post" class="form">
+    {% csrf_token %}
+    {% for field in form.hidden_fields %}
+      {{ field }}
+    {% endfor %}
+    <div class="text-center">
+      <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
+      <button type="submit" name="_confirm" class="btn btn-danger">Delete these {{ table.rows|length }} {{ obj_type_plural }}</button>
     </div>
-</div>
-<div class="row mb-3">
-    <div class="col col-md-6 offset-md-3">
-        <form action="." method="post" class="form">
-            {% csrf_token %}
-            {% for field in form.hidden_fields %}
-                {{ field }}
-            {% endfor %}
-            <div class="text-center">
-                <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
-                <button type="submit" name="_confirm" class="btn btn-danger">Delete these {{ table.rows|length }} {{ obj_type_plural }}</button>
-            </div>
-        </form>
-    </div>
+  </form>
 </div>
 {% endblock content %}

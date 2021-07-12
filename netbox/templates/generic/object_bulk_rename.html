@@ -7,26 +7,22 @@
 {% block content %}
 <div class="row mb-3">
     <div class="col col-md-7">
-        <div class="card">
-            <div class="card-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Current Name</th>
-                            <th>New Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obj in selected_objects %}
-                            <tr{% if obj.new_name and obj.name != obj.new_name %} class="success"{% endif %}>
-                                <td>{{ obj.name }}</td>
-                                <td>{{ obj.new_name }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Current Name</th>
+                    <th>New Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in selected_objects %}
+                    <tr{% if obj.new_name and obj.name != obj.new_name %} class="success"{% endif %}>
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.new_name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     <div class="col col-md-5">
         <form action="" method="post" class="form form-horizontal">
