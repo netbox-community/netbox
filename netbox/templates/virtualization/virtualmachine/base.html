@@ -17,32 +17,20 @@
   {% endif %}
 {% endblock %}
 
-{% block tabs %}
-  <ul class="nav nav-tabs">
+{% block tab_items %}
+  <li class="nav-item" role="presentation">
+    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">Virtual Machine</a>
+  </li>
+  {% with interface_count=object.interfaces.count %}
+      {% if interface_count %}
+          <li class="nav-item" role="presentation">
+              <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>
+          </li>
+      {% endif %}
+  {% endwith %}
+  {% if perms.extras.view_configcontext %}
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">Virtual Machine</a>
+      <a class="nav-link{% if active_tab == 'config-context' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
     </li>
-    {% with interface_count=object.interfaces.count %}
-        {% if interface_count %}
-            <li class="nav-item" role="presentation">
-                <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>
-            </li>
-        {% endif %}
-    {% endwith %}
-    {% if perms.extras.view_configcontext %}
-      <li class="nav-item" role="presentation">
-        <a class="nav-link{% if active_tab == 'config-context' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_configcontext' pk=object.pk %}">Config Context</a>
-      </li>
-    {% endif %}
-    {% if perms.extras.view_journalentry %}
-      <li class="nav-item" role="presentation">
-        <a class="nav-link{% if active_tab == 'journal' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_journal' pk=object.pk %}">Journal</a>
-      </li>
-    {% endif %}
-    {% if perms.extras.view_objectchange %}
-      <li class="nav-item" role="presentation">
-        <a class="nav-link{% if active_tab == 'changelog' %} active{% endif %}" href="{% url 'virtualization:virtualmachine_changelog' pk=object.pk %}">Change Log</a>
-      </li>
-    {% endif %}
-  </ul>
+  {% endif %}
 {% endblock %}

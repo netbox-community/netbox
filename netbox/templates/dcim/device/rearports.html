@@ -4,48 +4,41 @@
 {% load helpers %}
 
 {% block content %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="card">
-            <div class="card-header">
-                <h5>Rear Ports</h5>
-                <div class="float-end noprint">
-                {% if request.user.is_authenticated %}
-                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceRearPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
-                {% endif %}
-                </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="float-end noprint">
+      {% if request.user.is_authenticated %}
+        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceRearPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
+      {% endif %}
+    </div>
+    {% render_table rearport_table 'inc/table.html' %}
+    <div class="noprint">
+        {% if perms.dcim.change_rearport %}
+            <button type="submit" name="_rename" formaction="{% url 'dcim:rearport_bulk_rename' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
+                <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+            </button>
+            <button type="submit" name="_edit" formaction="{% url 'dcim:rearport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-warning btn-sm">
+                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+            </button>
+            <button type="submit" name="_disconnect" formaction="{% url 'dcim:rearport_bulk_disconnect' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
+                <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+            </button>
+        {% endif %}
+        {% if perms.dcim.delete_rearport %}
+            <button type="submit" formaction="{% url 'dcim:rearport_bulk_delete' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-danger btn-sm">
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+            </button>
+        {% endif %}
+        {% if perms.dcim.add_rearport %}
+            <div class="float-end">
+                <a href="{% url 'dcim:rearport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-primary btn-sm">
+                    <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add rear ports
+                </a>
             </div>
-            <div class="card-body">
-                {% render_table rearport_table 'inc/table.html' %}
-            </div>
-            <div class="card-footer noprint">
-                {% if perms.dcim.change_rearport %}
-                    <button type="submit" name="_rename" formaction="{% url 'dcim:rearport_bulk_rename' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
-                        <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
-                    </button>
-                    <button type="submit" name="_edit" formaction="{% url 'dcim:rearport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-warning btn-sm">
-                        <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
-                    </button>
-                    <button type="submit" name="_disconnect" formaction="{% url 'dcim:rearport_bulk_disconnect' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
-                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
-                    </button>
-                {% endif %}
-                {% if perms.dcim.delete_rearport %}
-                    <button type="submit" formaction="{% url 'dcim:rearport_bulk_delete' %}?return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-danger btn-sm">
-                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
-                    </button>
-                {% endif %}
-                {% if perms.dcim.add_rearport %}
-                    <div class="float-end">
-                        <a href="{% url 'dcim:rearport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-primary btn-sm">
-                            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add rear ports
-                        </a>
-                    </div>
-                {% endif %}
-                <div class="clearfix"></div>
-            </div>
-        </div>
-    </form>
-    {% include 'inc/paginator.html' with paginator=rearport_table.paginator page=rearport_table.page %}
-    {% table_config_form rearport_table %}
+        {% endif %}
+        <div class="clearfix"></div>
+    </div>
+  </form>
+  {% include 'inc/paginator.html' with paginator=rearport_table.paginator page=rearport_table.page %}
+  {% table_config_form rearport_table %}
 {% endblock %}
