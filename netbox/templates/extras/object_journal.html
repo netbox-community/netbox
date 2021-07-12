@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load form_helpers %}
+{% load render_table from django_tables2 %}
 
 {% render_errors form %}
 
@@ -23,8 +24,6 @@
         </div>
     </form>
     {% endif %}
-    <div class="col col-md-9 mb-3">
-        {% include 'inc/panel_table.html' %}
-    </div>
+    {% render_table table 'inc/table.html' %}
     {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
 {% endblock %}
