@@ -8,42 +8,28 @@
 {% block content %}
 
   {# General stats #}
-  <div class="stats-container">
-    <div class="row masonry">
-      {% for section in stats %}
+  <div class="row masonry">
+    {% for section, items in stats %}
       <div class="col col-sm-12 col-lg-6 col-xl-4 my-2 masonry-item">
         <div class="card">
-          <h5 class="card-header text-primary">{{ section.label }}</h5>
+          <h6 class="card-header text-primary text-center">{{ section }}</h6>
           <div class="card-body">
             <div class="list-group list-group-flush">
-              {% for item in section.items %}
-              <a href="{% url item.url %}" class="list-group-item list-group-item-action{% if item.disabled %} disabled{% endif %}">
-                <div class="d-flex w-100 justify-content-between align-items-center">
-                  <div class="d-flex flex-column align-items-start">
-                    <h6 class="mb-1">{{ item.label }}</h6>
-                    {% if item.description %}
-                    <small class="mb-1 text-muted">{{ item.description }}</small>
-                    {% endif %}
-                  </div>
-                  <span class="badge stat-badge rounded-pill">
-                    {% if item.count == None %}
-                      <i class="mdi mdi-lock"></i>
-                    {% else %}
-                      {{ item.count }}
-                    {% endif %}
-                  </span>
-                </div>
-              </a>
+              {% for item in items %}
+                {% if item.count %}
+                  <a href="{% url item.url %}" class="list-group-item list-group-item-action{% if item.disabled %} disabled{% endif %}">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                      {{ item.label }}
+                      <h4 class="mb-1">{{ item.count }}</h4>
+                    </div>
+                  </a>
+                {% endif %}
               {% endfor %}
-            </div>
-            <div class="display-4 font-weight-normal text-primary">
-              {{ item.count }}
             </div>
           </div>
         </div>
       </div>
-      {% endfor %}
-    </div>
+    {% endfor %}
   </div>
 
   {# Changelog #}

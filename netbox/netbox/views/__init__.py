@@ -55,42 +55,41 @@ class HomeView(View):
 
         def build_stats():
             perms = request.user.get_all_permissions()
-            stats = []
             org = (
-                ("dcim.view_site", "Sites", "Geographic locations", Site.objects.restrict(request.user, 'view').count),
-                ("tenancy.view_tenant", "Tenants", "Customers or departments", Tenant.objects.restrict(request.user, 'view').count),
+                ("dcim.view_site", "Sites", Site.objects.restrict(request.user, 'view').count),
+                ("tenancy.view_tenant", "Tenants", Tenant.objects.restrict(request.user, 'view').count),
             )
             dcim = (
-                ("dcim.view_rack", "Racks", "Equipment racks, optionally organized by group", Rack.objects.restrict(request.user, 'view').count),
-                ("dcim.view_devicetype", "Device Types", "Physical hardware models by manufacturer", DeviceType.objects.restrict(request.user, 'view').count),
-                ("dcim.view_device", "Devices", "Rack-mounted infrastructure", Device.objects.restrict(request.user, 'view').count),
+                ("dcim.view_rack", "Racks", Rack.objects.restrict(request.user, 'view').count),
+                ("dcim.view_devicetype", "Device Types", DeviceType.objects.restrict(request.user, 'view').count),
+                ("dcim.view_device", "Devices", Device.objects.restrict(request.user, 'view').count),
             )
             ipam = (
-                ("ipam.view_vrf", "VRFs", "Virtual routing & forwarding tables", VRF.objects.restrict(request.user, 'view').count),
-                ("ipam.view_aggregate", "Aggregates", "Top-level IP allocations", Aggregate.objects.restrict(request.user, 'view').count),
-                ("ipam.view_prefix", "Prefixes", "IPv4 & IPv6 network assignments", Prefix.objects.restrict(request.user, 'view').count),
-                ("ipam.view_ipaddress", "IP Addresses", "Individual IPv4 & IPv6 addresses", IPAddress.objects.restrict(request.user, 'view').count),
-                ("ipam.view_vlan", "VLANs", "Layer 2 domains, by VLAN ID", VLAN.objects.restrict(request.user, 'view').count)
+                ("ipam.view_vrf", "VRFs", VRF.objects.restrict(request.user, 'view').count),
+                ("ipam.view_aggregate", "Aggregates", Aggregate.objects.restrict(request.user, 'view').count),
+                ("ipam.view_prefix", "Prefixes", Prefix.objects.restrict(request.user, 'view').count),
+                ("ipam.view_ipaddress", "IP Addresses", IPAddress.objects.restrict(request.user, 'view').count),
+                ("ipam.view_vlan", "VLANs", VLAN.objects.restrict(request.user, 'view').count)
 
             )
             circuits = (
-                ("circuits.view_provider", "Providers", "Organizations that provide circuits", Provider.objects.restrict(request.user, 'view').count),
-                ("circuits.view_circuit", "Circuits", "Communication links for transit, transport, & other services", Circuit.objects.restrict(request.user, 'view').count),
+                ("circuits.view_provider", "Providers", Provider.objects.restrict(request.user, 'view').count),
+                ("circuits.view_circuit", "Circuits", Circuit.objects.restrict(request.user, 'view').count),
             )
             virtualization = (
-                ("virtualization.view_cluster", "Clusters", "Clusters of physical virtual machine hosts", Cluster.objects.restrict(request.user, 'view').count),
-                ("virtualization.view_virtualmachine", "Virtual Machines", "Virtual compute instances running inside clusters", VirtualMachine.objects.restrict(request.user, 'view').count),
+                ("virtualization.view_cluster", "Clusters", Cluster.objects.restrict(request.user, 'view').count),
+                ("virtualization.view_virtualmachine", "Virtual Machines", VirtualMachine.objects.restrict(request.user, 'view').count),
 
             )
             connections = (
-                ("dcim.view_cable", "Cables", None, Cable.objects.restrict(request.user, 'view').count),
-                ("dcim.view_consoleport", "Console", None, connected_consoleports.count),
-                ("dcim.view_interface", "Interfaces", None, connected_interfaces.count),
-                ("dcim.view_powerport", "Power Connections", None, connected_powerports.count),
+                ("dcim.view_cable", "Cables", Cable.objects.restrict(request.user, 'view').count),
+                ("dcim.view_consoleport", "Console", connected_consoleports.count),
+                ("dcim.view_interface", "Interfaces", connected_interfaces.count),
+                ("dcim.view_powerport", "Power Connections", connected_powerports.count),
             )
             power = (
-                ("dcim.view_powerpanel", "Power Panels", "Electrical panels receiving utility power", PowerPanel.objects.restrict(request.user, 'view').count),
-                ("dcim.view_powerfeed", "Power Feeds", "Electrical circuits delivering power from panels", PowerFeed.objects.restrict(request.user, 'view').count),
+                ("dcim.view_powerpanel", "Power Panels", PowerPanel.objects.restrict(request.user, 'view').count),
+                ("dcim.view_powerfeed", "Power Feeds", PowerFeed.objects.restrict(request.user, 'view').count),
             )
             sections = (
                 ("Organization", org),
@@ -101,17 +100,25 @@ class HomeView(View):
                 ("Circuits", circuits),
                 ("Power", power),
             )
+
+            stats = []
             for section_label, section_items in sections:
-                stat = {"label": section_label, "items": []}
-                for perm, item_label, description, get_count in section_items:
+                items = []
+                for perm, item_label, get_count in section_items:
                     app, scope = perm.split(".")
                     url = ":".join((app, scope.replace("view_", "") + "_list"))
-                    item = {"label": item_label, "description": description, "count": None, "url": url, "disabled": True}
+                    item = {
+                        "label": item_label,
+                        "count": None,
+                        "url": url,
+                        "disabled": True
+                    }
                     if perm in perms:
                         item["count"] = get_count()
                         item["disabled"] = False
-                    stat["items"].append(item)
-                stats.append(stat)
+                    items.append(item)
+                stats.append((section_label, items))
+
             return stats
 
         changelog = ObjectChange.objects.restrict(request.user, 'view').prefetch_related('user', 'changed_object_type')
