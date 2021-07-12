@@ -1,7 +1,5 @@
 {% extends base_template %}
 
-{% block title %}{{ object }} - Change Log{% endblock %}
-
 {% block content %}
     {% include 'inc/panel_table.html' %}
     {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
