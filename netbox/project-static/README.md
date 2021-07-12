@@ -27,7 +27,7 @@ For JavaScript, every `.ts` file in `netbox/project-static/src` is:
 2. Minified
 3. Combined into a single output file at `netbox/project-static/dist/netbox.js` (this includes any dependant libraries imported in a file)
 
-Likewise, with Sass, each `*.scss` file is:
+Likewise, with Sass, every `.scss` file in  `netbox/project-static/styles` is:
 
 1. Transpiled from Sass to CSS
 2. Minified
