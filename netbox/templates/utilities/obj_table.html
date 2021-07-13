@@ -4,14 +4,8 @@
         {% csrf_token %}
         <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
         {% if table.paginator.num_pages > 1 %}
-            <div id="select_all_box" class="hidden card noprint">
+            <div id="select-all-box" class="d-none card noprint">
                 <div class="card-body">
-                    <div class="checkbox-inline">
-                        <label for="select_all">
-                            <input type="checkbox" id="select_all" name="_all" />
-                            Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
-                        </label>
-                    </div>
                     <div class="float-end">
                         {% if bulk_edit_url and permissions.change %}
                             <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled="disabled">
@@ -23,6 +17,12 @@
                                 <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete All
                             </button>
                         {% endif %}
+                    </div>
+                    <div class="form-check">
+                      <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+                      <label for="select-all" class="form-check-label">
+                        Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
+                      </label>
                     </div>
                 </div>
             </div>
