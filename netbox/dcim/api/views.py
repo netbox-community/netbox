@@ -53,6 +53,13 @@ class PathEndpointMixin(object):
         # Initialize the path array
         path = []
 
+        if request.GET.get('render', None) == 'svg':
+            # Render SVG
+            drawing = obj.get_trace_svg(
+                base_url=request.build_absolute_uri('/')
+            )
+            return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
+
         for near_end, cable, far_end in obj.trace():
             if near_end is None:
                 # Split paths

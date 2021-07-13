@@ -10,6 +10,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
+from dcim.svg import CableTraceSVG
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -192,6 +193,10 @@ class PathEndpoint(models.Model):
 
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))
+
+    def get_trace_svg(self, base_url=None):
+        trace = CableTraceSVG(self, base_url=base_url)
+        return trace.render()
 
     @property
     def path(self):

@@ -1,4 +1,7 @@
 import svgwrite
+from svgwrite.container import Group, Hyperlink
+from svgwrite.shapes import Line, Rect
+from svgwrite.text import Text
 
 from django.conf import settings
 from django.urls import reverse
@@ -7,6 +10,12 @@ from django.utils.http import urlencode
 from utilities.utils import foreground_color
 from .choices import DeviceFaceChoices
 from .constants import RACK_ELEVATION_BORDER_WIDTH
+
+
+__all__ = (
+    'CableTraceSVG',
+    'RackElevationSVG',
+)
 
 
 class RackElevationSVG:
@@ -231,3 +240,218 @@ class RackElevationSVG:
         drawing.add(frame)
 
         return drawing
+
+
+OFFSET = 0.5
+PADDING = 10
+LINE_HEIGHT = 15
+
+
+class CableTraceSVG:
+    """
+    Generate a graphical representation of a CablePath in SVG format.
+
+    :param origin: The originating termination
+    :param width: Width of the generated image (in pixels)
+    :param base_url: Base URL for links within the SVG document. If none, links will be relative.
+    """
+    PARENT_OBJECT_DEFAULT_COLOR = 'd0d0d0'
+    TERMINATION_DEFAULT_COLOR = 'c0c0c0'
+
+    def __init__(self, origin, width=400, base_url=None):
+        self.origin = origin
+        self.width = width
+        self.base_url = base_url.rstrip('/') if base_url is not None else ''
+
+        # Establish a cursor to track position on the y axis
+        # Center edges on pixels to render sharp borders
+        self.cursor = OFFSET
+
+    @property
+    def center(self):
+        return self.width / 2
+
+    @classmethod
+    def _get_labels(cls, instance):
+        """
+        Return a list of text labels for the given instance based on model type.
+        """
+        labels = [str(instance)]
+        if hasattr(instance, 'device_type'):
+            labels.append(str(instance.device_type))
+        elif hasattr(instance, 'provider'):
+            labels.append(instance.provider)
+
+        return labels
+
+    @classmethod
+    def _get_color(cls, instance):
+        """
+        Return the appropriate fill color for an object within a cable path.
+        """
+        if hasattr(instance, 'parent_object'):
+            # Termination
+            return cls.TERMINATION_DEFAULT_COLOR
+        if hasattr(instance, 'device_role'):
+            # Device
+            return instance.device_role.color
+        else:
+            # Other parent object
+            return cls.PARENT_OBJECT_DEFAULT_COLOR
+
+    def _draw_box(self, width, color, url, labels, y_indent=0, padding_multiplier=1, radius=10):
+        """
+        Return an SVG Link element containing a Rect and one or more text labels representing a
+        parent object or cable termination point.
+
+        :param width: Box width
+        :param color: Box fill color
+        :param url: Hyperlink URL
+        :param labels: Iterable of text labels
+        :param y_indent: Vertical indent (for overlapping other boxes) (default: 0)
+        :param padding_multiplier: Add extra vertical padding (default: 1)
+        :param radius: Box corner radius (default: 10)
+        """
+        self.cursor -= y_indent
+
+        # Create a hyperlink
+        link = Hyperlink(href=f'{self.base_url}{url}', target='_blank')
+
+        # Add the box
+        position = (
+            OFFSET + (self.width - width) / 2,
+            self.cursor
+        )
+        height = PADDING * padding_multiplier \
+            + LINE_HEIGHT * len(labels) \
+            + PADDING * padding_multiplier
+        box = Rect(position, (width - 2, height), rx=radius, class_='parent-object', style=f'fill: #{color}')
+        link.add(box)
+        self.cursor += PADDING * padding_multiplier
+
+        # Add text label(s)
+        for i, label in enumerate(labels):
+            self.cursor += LINE_HEIGHT
+            text_coords = (self.center, self.cursor - LINE_HEIGHT / 2)
+            text_color = f'#{foreground_color(color)}'
+            text = Text(label, insert=text_coords, fill=text_color)
+            link.add(text)
+
+        self.cursor += PADDING * padding_multiplier
+
+        return link
+
+    def _draw_cable(self, color, url, labels):
+        """
+        Return an SVG group containing a line element and text labels representing a Cable.
+
+        :param color: Cable (line) color
+        :param url: Hyperlink URL
+        :param labels: Iterable of text labels
+        """
+        group = Group()
+
+        # Draw cable (line)
+        start = (OFFSET + self.center, self.cursor)
+        height = PADDING * 2 + LINE_HEIGHT * len(labels) + PADDING * 2
+        end = (start[0], start[1] + height)
+        line = Line(start=start, end=end, style=f'stroke: #{color}')
+        group.add(line)
+        self.cursor += PADDING * 2
+
+        # Add link
+        link = Hyperlink(href=f'{self.base_url}{url}', target='_blank')
+
+        # Add text label(s)
+        for i, label in enumerate(labels):
+            self.cursor += LINE_HEIGHT
+            text_coords = (self.center + PADDING * 2, self.cursor - LINE_HEIGHT / 2)
+            text = Text(label, insert=text_coords, class_='cable')
+            link.add(text)
+
+        group.add(link)
+        self.cursor += PADDING * 2
+
+        return group
+
+    def render(self):
+        """
+        Return an SVG document representing a cable trace.
+        """
+        traced_path = self.origin.trace()
+
+        # Prep elements list
+        parent_objects = []
+        terminations = []
+        cables = []
+
+        # Iterate through each (term, cable, term) segment in the path
+        for i, segment in enumerate(traced_path):
+            near_end, cable, far_end = segment
+
+            # Near end parent
+            if i == 0:
+                # If this is the first segment, draw the originating termination's parent object
+                parent_object = self._draw_box(
+                    width=self.width,
+                    color=self._get_color(near_end.parent_object),
+                    url=near_end.parent_object.get_absolute_url(),
+                    labels=self._get_labels(near_end.parent_object),
+                    padding_multiplier=2
+                )
+                parent_objects.append(parent_object)
+
+            # Near end termination
+            termination = self._draw_box(
+                width=self.width * .8,
+                color=self._get_color(near_end),
+                url=near_end.get_absolute_url(),
+                labels=[str(near_end)],
+                y_indent=PADDING,
+                radius=5
+            )
+            terminations.append(termination)
+
+            # Cable
+            cable = self._draw_cable(
+                color=cable.color or '000000',
+                url=cable.get_absolute_url(),
+                labels=[f'Cable {cable}', cable.get_status_display()]
+            )
+            cables.append(cable)
+
+            # Far end termination
+            termination = self._draw_box(
+                width=self.width * .8,
+                color=self._get_color(far_end),
+                url=far_end.get_absolute_url(),
+                labels=[str(far_end)],
+                radius=5
+            )
+            terminations.append(termination)
+
+            # Far end parent
+            parent_object = self._draw_box(
+                width=self.width,
+                color=self._get_color(far_end.parent_object),
+                url=far_end.parent_object.get_absolute_url(),
+                labels=self._get_labels(far_end.parent_object),
+                y_indent=PADDING,
+                padding_multiplier=2
+            )
+            parent_objects.append(parent_object)
+
+        # Determine drawing size
+        self.drawing = svgwrite.Drawing(
+            size=(self.width, self.cursor)
+        )
+
+        # Attach CSS stylesheet
+        with open(f'{settings.STATIC_ROOT}/cable_trace.css') as css_file:
+            self.drawing.defs.add(self.drawing.style(css_file.read()))
+
+        # Add elements to the drawing in order of depth (Z axis)
+        for element in parent_objects + terminations + cables:
+            self.drawing.add(element)
+
+        return self.drawing

@@ -31,6 +31,7 @@ const styles = [
   ['_light.scss', 'netbox-light.css'],
   ['_dark.scss', 'netbox-dark.css'],
   ['_elevations.scss', 'rack_elevation.css'],
+  ['_cable_trace.scss', 'cable_trace.css'],
 ];
 
 // Script (JavaScript) bundle jobs. Generally, everything should be bundled into netbox.js from

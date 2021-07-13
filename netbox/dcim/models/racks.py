@@ -13,7 +13,7 @@ from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.elevations import RackElevationSVG
+from dcim.svg import RackElevationSVG
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices

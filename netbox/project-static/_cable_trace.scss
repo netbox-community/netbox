@@ -1,0 +1,25 @@
+* {
+    font-family: sans-serif;
+    font-size: 13px;
+}
+text {
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+svg {
+  /* Boxes */
+  rect {
+    stroke: #303030;
+    stroke-width: 1;
+  }
+
+  /* Cables */
+  line {
+    stroke-width: 3;
+  }
+
+  text.cable {
+    text-anchor: start;
+  }
+}
