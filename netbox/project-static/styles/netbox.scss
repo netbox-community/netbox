@@ -98,6 +98,10 @@
   margin-bottom: $spacer;
 }
 
+*[data-href] {
+  cursor: pointer;
+}
+
 // Use proper contrasting color for badge & progress-bar foreground color.
 @each $color, $value in $theme-colors {
   .badge,
@@ -112,6 +116,37 @@
 // Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
 table td > .progress {
   min-width: 6rem;
+}
+
+.card > .table.table-flush {
+  margin-bottom: 0;
+  overflow: hidden;
+  border-bottom-right-radius: $card-border-radius;
+  border-bottom-left-radius: $card-border-radius;
+  thead th[scope='col'] {
+    background-color: $table-flush-header-bg;
+    vertical-align: middle;
+    text-transform: uppercase;
+    padding-top: map.get($spacers, 3);
+    padding-bottom: map.get($spacers, 3);
+    border-bottom-color: $card-border-color;
+    border-top: 1px solid $card-border-color;
+  }
+  th,
+  td {
+    border-left: 0;
+    border-right: 0;
+    padding-left: map.get($spacers, 4) !important;
+    padding-right: map.get($spacers, 4) !important;
+  }
+  tr[class] {
+    border-color: $card-border-color !important;
+    &:last-of-type {
+      border-bottom-color: transparent !important;
+      border-bottom-right-radius: $card-border-radius;
+      border-bottom-left-radius: $card-border-radius;
+    }
+  }
 }
 
 span.profile-button .dropdown-menu {
