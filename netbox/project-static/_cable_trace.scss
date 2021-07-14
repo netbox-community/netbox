@@ -14,12 +14,15 @@ svg {
     stroke-width: 1;
   }
 
-  /* Cables */
+  /* Connectors */
+  .connector text {
+    text-anchor: start;
+  }
   line {
     stroke-width: 3;
   }
-
-  text.cable {
-    text-anchor: start;
+  line.attachment {
+    stroke: #c0c0c0;
+    stroke-dasharray: 5px,5px;
   }
 }

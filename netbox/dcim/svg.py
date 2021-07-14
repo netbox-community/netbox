@@ -349,7 +349,7 @@ class CableTraceSVG:
         :param url: Hyperlink URL
         :param labels: Iterable of text labels
         """
-        group = Group()
+        group = Group(class_='connector')
 
         # Draw cable (line)
         start = (OFFSET + self.center, self.cursor)
@@ -374,6 +374,29 @@ class CableTraceSVG:
 
         return group
 
+    def _draw_attachment(self):
+        """
+        Return an SVG group containing a line element and "Attachment" label.
+        """
+        group = Group(class_='connector')
+
+        # Draw attachment (line)
+        start = (OFFSET + self.center, self.cursor)
+        height = PADDING * 2 + LINE_HEIGHT + PADDING * 2
+        end = (start[0], start[1] + height)
+        line = Line(start=start, end=end, class_='attachment')
+        group.add(line)
+        self.cursor += PADDING * 2
+
+        # Add label
+        self.cursor += LINE_HEIGHT
+        text_coords = (self.center + PADDING * 2, self.cursor - LINE_HEIGHT / 2)
+        text = Text('Attachment', insert=text_coords)
+        group.add(text)
+        self.cursor += PADDING * 2
+
+        return group
+
     def render(self):
         """
         Return an SVG document representing a cable trace.
@@ -383,11 +406,11 @@ class CableTraceSVG:
         # Prep elements list
         parent_objects = []
         terminations = []
-        cables = []
+        connectors = []
 
         # Iterate through each (term, cable, term) segment in the path
         for i, segment in enumerate(traced_path):
-            near_end, cable, far_end = segment
+            near_end, connector, far_end = segment
 
             # Near end parent
             if i == 0:
@@ -412,38 +435,57 @@ class CableTraceSVG:
             )
             terminations.append(termination)
 
-            # Cable
-            cable = self._draw_cable(
-                color=cable.color or '000000',
-                url=cable.get_absolute_url(),
-                labels=[f'Cable {cable}', cable.get_status_display()]
-            )
-            cables.append(cable)
+            # Connector (either a Cable or attachment to a ProviderNetwork)
+            if connector is not None:
 
-            # Far end termination
-            termination = self._draw_box(
-                width=self.width * .8,
-                color=self._get_color(far_end),
-                url=far_end.get_absolute_url(),
-                labels=[str(far_end)],
-                radius=5
-            )
-            terminations.append(termination)
+                # Cable
+                cable = self._draw_cable(
+                    color=connector.color or '000000',
+                    url=connector.get_absolute_url(),
+                    labels=[f'Cable {connector}', connector.get_status_display()]
+                )
+                connectors.append(cable)
 
-            # Far end parent
-            parent_object = self._draw_box(
-                width=self.width,
-                color=self._get_color(far_end.parent_object),
-                url=far_end.parent_object.get_absolute_url(),
-                labels=self._get_labels(far_end.parent_object),
-                y_indent=PADDING,
-                padding_multiplier=2
-            )
-            parent_objects.append(parent_object)
+                # Far end termination
+                termination = self._draw_box(
+                    width=self.width * .8,
+                    color=self._get_color(far_end),
+                    url=far_end.get_absolute_url(),
+                    labels=[str(far_end)],
+                    radius=5
+                )
+                terminations.append(termination)
+
+                # Far end parent
+                parent_object = self._draw_box(
+                    width=self.width,
+                    color=self._get_color(far_end.parent_object),
+                    url=far_end.parent_object.get_absolute_url(),
+                    labels=self._get_labels(far_end.parent_object),
+                    y_indent=PADDING,
+                    padding_multiplier=2
+                )
+                parent_objects.append(parent_object)
+
+            else:
+
+                # Attachment
+                attachment = self._draw_attachment()
+                connectors.append(attachment)
+
+                # ProviderNetwork
+                parent_object = self._draw_box(
+                    width=self.width,
+                    color=self._get_color(far_end),
+                    url=far_end.get_absolute_url(),
+                    labels=self._get_labels(far_end),
+                    padding_multiplier=2
+                )
+                parent_objects.append(parent_object)
 
         # Determine drawing size
         self.drawing = svgwrite.Drawing(
-            size=(self.width, self.cursor)
+            size=(self.width, self.cursor + 2)
         )
 
         # Attach CSS stylesheet
@@ -451,7 +493,7 @@ class CableTraceSVG:
             self.drawing.defs.add(self.drawing.style(css_file.read()))
 
         # Add elements to the drawing in order of depth (Z axis)
-        for element in parent_objects + terminations + cables:
+        for element in connectors + parent_objects + terminations:
             self.drawing.add(element)
 
         return self.drawing
