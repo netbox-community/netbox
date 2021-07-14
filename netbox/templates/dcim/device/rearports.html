@@ -6,11 +6,7 @@
 {% block content %}
   <form method="post">
     {% csrf_token %}
-    <div class="float-end noprint">
-      {% if request.user.is_authenticated %}
-        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#DeviceRearPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
-      {% endif %}
-    </div>
+    {% include 'inc/table_controls.html' with table_modal="DeviceRearPortTable_config" %}
     {% render_table rearport_table 'inc/table.html' %}
     <div class="noprint">
         {% if perms.dcim.change_rearport %}

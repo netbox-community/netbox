@@ -58,27 +58,7 @@
 {% endif %}
 
 {# Object list filter, table config #}
-<div class="row mb-3">
-  <div class="col col-md-4 offset-md-8 d-flex noprint table-controls">
-    <div class="input-group input-group-sm">
-      <input type="text" class="form-control object-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
-      {% if request.user.is_authenticated and table_config_form %}
-        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ObjectTable_config" title="Configure Table">
-          <i class="mdi mdi-table-eye"></i>
-        </button>
-      {% endif %}
-      {% if filter_form %}
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-dark"
-        data-bs-toggle="collapse"
-        data-bs-target="#advanced-search-content">
-        Advanced Search
-      </button>
-    {% endif %}
-    </div>
-  </div>
-</div>
+{% include 'inc/table_controls.html' with table_modal="ObjectTable_config" %}
 
 {# Object table #}
 <div class="row">
