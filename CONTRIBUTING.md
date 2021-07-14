@@ -160,17 +160,20 @@ accumulating a large backlog of work.
 The core maintainers group has chosen to make use of GitHub's [Stale bot](https://github.com/apps/stale)
 to aid in issue management.
 
-* Issues will be marked as stale after 45 days of no activity.
-* Then after 15 more days of inactivity, the issue will be closed.
+* Issues will be marked as stale after 60 days of no activity.
+* If the stable label is not removed in the following 30 days, the issue will
+  be closed automatically.
 * Any issue bearing one of the following labels will be exempt from all Stale
   bot actions:
   * `status: accepted`
   * `status: blocked`
   * `status: needs milestone`
 
-It is natural that some new issues get more attention than others. Stale bot
-helps bring renewed attention to potentially valuable issues that may have been
-overlooked.
+It is natural that some new issues get more attention than others. The stale
+bot helps bring renewed attention to potentially valuable issues that may have
+been overlooked. **Do not** comment on an issue that has been marked stale in
+an effort to circumvent the bot: Doing so will not remove the stale label.
+(Stale labels can be removed only by maintainers.)
 
 ## Maintainer Guidance
 
