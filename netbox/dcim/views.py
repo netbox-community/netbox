@@ -1,15 +1,14 @@
 import logging
-from copy import deepcopy
 from collections import OrderedDict
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import F, Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
@@ -23,7 +22,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
-from utilities.utils import csv_format, count_related
+from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
@@ -2423,11 +2422,16 @@ class PathTraceView(generic.ObjectView):
         # Get the total length of the cable and whether the length is definitive (fully defined)
         total_length, is_definitive = path.get_total_length() if path else (None, False)
 
+        # Determine the path to the SVG trace image
+        api_viewname = f"{path.origin._meta.app_label}-api:{path.origin._meta.model_name}-trace"
+        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origin.pk})}?render=svg"
+
         return {
             'path': path,
             'related_paths': related_paths,
             'total_length': total_length,
-            'is_definitive': is_definitive
+            'is_definitive': is_definitive,
+            'svg_url': svg_url,
         }
 
 

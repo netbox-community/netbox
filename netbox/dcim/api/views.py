@@ -2,18 +2,15 @@ import socket
 from collections import OrderedDict
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import F
 from django.http import HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import GenericViewSet, ViewSet
+from rest_framework.viewsets import ViewSet
 
 from circuits.models import Circuit
 from dcim import filtersets
