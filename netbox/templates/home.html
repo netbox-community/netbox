@@ -2,7 +2,25 @@
 {% load get_status %}
 {% load helpers %}
 
-{% block header %}{% endblock %}
+{% block header %}
+    {{ block.super }}
+    {% if new_release %}
+        {# new_release is set only if the current user is a superuser or staff member #}
+        <div class="header-alert-container">
+          <div class="alert alert-info text-center mw-md-50" role="alert">
+            <h6 class="alert-heading">
+              <i class="mdi mdi-information-outline"></i><br/>New Release Available
+            </h6>
+            <small><a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> is available.</small>
+            <hr class="my-2" />
+            <small class="mb-0">
+              <a href="https://netbox.readthedocs.io/en/stable/installation/upgrading/">Upgrade Instructions</a>
+            </small>
+          </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block title %}Home{% endblock %}
 
 {% block content %}

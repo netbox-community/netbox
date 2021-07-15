@@ -102,12 +102,22 @@
   cursor: pointer;
 }
 
-// Use proper contrasting color for badge & progress-bar foreground color.
+// Use proper contrasting color foreground color for special components.
 @each $color, $value in $theme-colors {
   .badge,
   .toast,
   .progress-bar {
     &.bg-#{$color} {
+      color: color-contrast($value);
+    }
+  }
+  // Use proper foreground color in the alert body. Note: this is applied to a, p, & small because
+  // we *don't* want to override the h1-h6 colors for alerts, since those are set to a color
+  // similar to the alert color.
+  .alert.alert-#{$color} {
+    a,
+    p,
+    small {
       color: color-contrast($value);
     }
   }
@@ -145,6 +155,31 @@ table td > .progress {
       border-bottom-color: transparent !important;
       border-bottom-right-radius: $card-border-radius;
       border-bottom-left-radius: $card-border-radius;
+    }
+  }
+}
+
+// Primarily used for the new release notification, but could be used for other alerts as needed.
+// Wrap any alerts in .header-alert-container to ensure the layout is consistent.
+.header-alert-container {
+  // Center-align the alert(s).
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // Apply the same spacing that's applied to the #content div's first child (.px-3).
+  padding: 0 $spacer;
+
+  // By default, alerts inside .header-alert-container should take up the full width.
+  .alert {
+    width: 100%;
+
+    // Adjust the max-width for larger screens so there's not a big ugly blue blob taking up the
+    // entire screen.
+    @include media-breakpoint-up(md) {
+      max-width: 75%;
+    }
+    @include media-breakpoint-up(lg) {
+      max-width: 50%;
     }
   }
 }
