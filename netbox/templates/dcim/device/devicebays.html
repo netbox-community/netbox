@@ -8,28 +8,29 @@
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="DeviceDeviceBayTable_config" %}
     {% render_table devicebay_table 'inc/table.html' %}
-    <div class="noprint">
-        {% if perms.dcim.change_devicebay %}
-            <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-outline-warning btn-sm">
-                <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
-            </button>
-            <button type="submit" name="_edit" formaction="{% url 'dcim:devicebay_bulk_edit' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-warning btn-sm">
-                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
-            </button>
-        {% endif %}
-        {% if perms.dcim.delete_devicebay %}
-            <button type="submit" formaction="{% url 'dcim:devicebay_bulk_delete' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-outline-danger btn-sm">
-                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete selected
-            </button>
-        {% endif %}
+    <div class="noprint bulk-buttons">
+        <div class="bulk-button-group">
+            {% if perms.dcim.change_devicebay %}
+                <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-outline-warning btn-sm">
+                    <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+                </button>
+                <button type="submit" name="_edit" formaction="{% url 'dcim:devicebay_bulk_edit' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-warning btn-sm">
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+                </button>
+            {% endif %}
+            {% if perms.dcim.delete_devicebay %}
+                <button type="submit" formaction="{% url 'dcim:devicebay_bulk_delete' %}?return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-outline-danger btn-sm">
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete selected
+                </button>
+            {% endif %}
+        </div>
         {% if perms.dcim.add_devicebay %}
-            <div class="float-end">
+            <div class="bulk-button-group">
                 <a href="{% url 'dcim:devicebay_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays" class="btn btn-primary btn-sm">
                     <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Device Bays
                 </a>
             </div>
         {% endif %}
-        <div class="clearfix"></div>
     </div>
   </form>
   {% include 'inc/paginator.html' with paginator=devicebay_table.paginator page=devicebay_table.page %}

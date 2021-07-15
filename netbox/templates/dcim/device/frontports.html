@@ -8,31 +8,32 @@
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="DeviceFrontPortTable_config" %}
     {% render_table frontport_table 'inc/table.html' %}
-    <div class="noprint">
-        {% if perms.dcim.change_frontport %}
-            <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
-                <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
-            </button>
-            <button type="submit" name="_edit" formaction="{% url 'dcim:frontport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-warning btn-sm">
-                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
-            </button>
-            <button type="submit" name="_disconnect" formaction="{% url 'dcim:frontport_bulk_disconnect' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
-                <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
-            </button>
-        {% endif %}
-        {% if perms.dcim.delete_frontport %}
-            <button type="submit" formaction="{% url 'dcim:frontport_bulk_delete' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-danger btn-sm">
-                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
-            </button>
-        {% endif %}
+    <div class="noprint bulk-buttons">
+        <div class="bulk-button-group">
+            {% if perms.dcim.change_frontport %}
+                <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
+                    <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+                </button>
+                <button type="submit" name="_edit" formaction="{% url 'dcim:frontport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-warning btn-sm">
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+                </button>
+                <button type="submit" name="_disconnect" formaction="{% url 'dcim:frontport_bulk_disconnect' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
+                    <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+                </button>
+            {% endif %}
+            {% if perms.dcim.delete_frontport %}
+                <button type="submit" formaction="{% url 'dcim:frontport_bulk_delete' %}?return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-danger btn-sm">
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                </button>
+            {% endif %}
+        </div>
         {% if perms.dcim.add_frontport %}
-            <div class="float-end">
+            <div class="bulk-button-group">
                 <a href="{% url 'dcim:frontport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-primary btn-sm">
                     <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add front ports
                 </a>
             </div>
         {% endif %}
-        <div class="clearfix"></div>
     </div>
   </form>
   {% include 'inc/paginator.html' with paginator=frontport_table.paginator page=frontport_table.page %}
