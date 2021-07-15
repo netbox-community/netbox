@@ -118,12 +118,40 @@ function initTabs() {
 }
 
 /**
+ * When accordion buttons are clicked, add a class to the parent accordion item. This is used
+ * for the side navigation to apply a box-shadow when the section is open.
+ */
+function initSidebarAccordions(): void {
+  const items = document.querySelectorAll<HTMLDivElement>('.sidebar .accordion-item');
+
+  function handleToggle(thisItem: HTMLDivElement) {
+    for (const item of items) {
+      if (item !== thisItem) {
+        // Remove the is-open class from all other accordion items, so that if one is clicked while
+        // another is open, the shadow is removed.
+        item.classList.remove('is-open');
+      } else {
+        item.classList.toggle('is-open');
+      }
+    }
+  }
+
+  for (const item of items) {
+    for (const button of item.querySelectorAll<HTMLButtonElement>('.accordion-button')) {
+      button.addEventListener('click', () => {
+        handleToggle(item);
+      });
+    }
+  }
+}
+
+/**
  * Enable any defined Bootstrap Tooltips.
  *
  * @see https://getbootstrap.com/docs/5.0/components/tooltips
  */
 export function initBootstrap(): void {
-  for (const func of [initTooltips, initModals, initMasonry, initTabs]) {
+  for (const func of [initTooltips, initModals, initMasonry, initTabs, initSidebarAccordions]) {
     func();
   }
 }

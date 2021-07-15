@@ -511,6 +511,12 @@ div.content-container {
 
   div.accordion-item {
     border: unset;
+    padding: 0 $spacer / 2;
+
+    // When an sidenav section is open, apply a shadow to provide a visual border.
+    &.is-open {
+      box-shadow: inset 0px -25px 20px -25px rgba($black, 0.25);
+    }
 
     & > a.accordion-button {
       &:not(.collapsed) {
@@ -553,13 +559,13 @@ div.content-container {
     }
   }
   div.position-sticky {
-    height: calc(100vh - 8rem);
+    height: calc(100vh - #{$sidebar-bottom-height});
   }
   div.sidebar-bottom {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
     position: sticky;
-    height: 8rem;
+    height: $sidebar-bottom-height;
     background-color: var(--nbx-sidebar-bg);
 
     @include media-breakpoint-down(md) {
