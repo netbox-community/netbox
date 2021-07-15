@@ -342,7 +342,7 @@ class CableTraceSVG:
         for i, label in enumerate(labels):
             self.cursor += LINE_HEIGHT
             text_coords = (self.center, self.cursor - LINE_HEIGHT / 2)
-            text_color = f'#{foreground_color(color)}'
+            text_color = f'#{foreground_color(color, dark="303030")}'
             text = Text(label, insert=text_coords, fill=text_color, class_='bold' if not i else [])
             link.add(text)
 
