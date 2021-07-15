@@ -1,2 +1,2 @@
-*{font-family:sans-serif;font-size:13px}text{text-anchor:middle;dominant-baseline:middle}svg rect{stroke:#303030;stroke-width:1}svg .connector text{text-anchor:start}svg line{stroke-width:3}svg line.attachment{stroke:silver;stroke-dasharray:5px,5px}
+*{font-family:sans-serif;font-size:14px}text{text-anchor:middle;dominant-baseline:middle}text.bold{font-weight:700}svg rect{fill:#e0e0e0;stroke:#606060;stroke-width:1}svg rect .termination{fill:#f0f0f0}svg .connector text{text-anchor:start}svg line{stroke-width:5px}svg line.cable-shadow{stroke:#303030;stroke-width:7px}svg line.attachment{stroke:silver;stroke-dasharray:5px,5px}
 /*# sourceMappingURL=/static/cable_trace.css.map */

@@ -244,7 +244,7 @@ class RackElevationSVG:
 
 OFFSET = 0.5
 PADDING = 10
-LINE_HEIGHT = 15
+LINE_HEIGHT = 20
 
 
 class CableTraceSVG:
@@ -255,9 +255,6 @@ class CableTraceSVG:
     :param width: Width of the generated image (in pixels)
     :param base_url: Base URL for links within the SVG document. If none, links will be relative.
     """
-    PARENT_OBJECT_DEFAULT_COLOR = 'd0d0d0'
-    TERMINATION_DEFAULT_COLOR = 'c0c0c0'
-
     def __init__(self, origin, width=400, base_url=None):
         self.origin = origin
         self.width = width
@@ -277,9 +274,21 @@ class CableTraceSVG:
         Return a list of text labels for the given instance based on model type.
         """
         labels = [str(instance)]
-        if hasattr(instance, 'device_type'):
-            labels.append(str(instance.device_type))
-        elif hasattr(instance, 'provider'):
+        if instance._meta.model_name == 'device':
+            labels.append(f'{instance.device_type.manufacturer} {instance.device_type}')
+            location_label = f'{instance.site}'
+            if instance.location:
+                location_label += f' / {instance.location}'
+            if instance.rack:
+                location_label += f' / {instance.rack}'
+            labels.append(location_label)
+        elif instance._meta.model_name == 'circuit':
+            labels[0] = f'Circuit {instance}'
+            labels.append(instance.provider)
+        elif instance._meta.model_name == 'circuittermination':
+            if instance.xconnect_id:
+                labels.append(f'{instance.xconnect_id}')
+        elif instance._meta.model_name == 'providernetwork':
             labels.append(instance.provider)
 
         return labels
@@ -291,13 +300,13 @@ class CableTraceSVG:
         """
         if hasattr(instance, 'parent_object'):
             # Termination
-            return cls.TERMINATION_DEFAULT_COLOR
+            return 'f0f0f0'
         if hasattr(instance, 'device_role'):
             # Device
             return instance.device_role.color
         else:
             # Other parent object
-            return cls.PARENT_OBJECT_DEFAULT_COLOR
+            return 'e0e0e0'
 
     def _draw_box(self, width, color, url, labels, y_indent=0, padding_multiplier=1, radius=10):
         """
@@ -334,7 +343,7 @@ class CableTraceSVG:
             self.cursor += LINE_HEIGHT
             text_coords = (self.center, self.cursor - LINE_HEIGHT / 2)
             text_color = f'#{foreground_color(color)}'
-            text = Text(label, insert=text_coords, fill=text_color)
+            text = Text(label, insert=text_coords, fill=text_color, class_='bold' if not i else [])
             link.add(text)
 
         self.cursor += PADDING * padding_multiplier
@@ -351,12 +360,17 @@ class CableTraceSVG:
         """
         group = Group(class_='connector')
 
-        # Draw cable (line)
+        # Draw a "shadow" line to give the cable a border
         start = (OFFSET + self.center, self.cursor)
         height = PADDING * 2 + LINE_HEIGHT * len(labels) + PADDING * 2
         end = (start[0], start[1] + height)
-        line = Line(start=start, end=end, style=f'stroke: #{color}')
-        group.add(line)
+        cable_shadow = Line(start=start, end=end, class_='cable-shadow')
+        group.add(cable_shadow)
+
+        # Draw the cable
+        cable = Line(start=start, end=end, style=f'stroke: #{color}')
+        group.add(cable)
+
         self.cursor += PADDING * 2
 
         # Add link
@@ -366,7 +380,7 @@ class CableTraceSVG:
         for i, label in enumerate(labels):
             self.cursor += LINE_HEIGHT
             text_coords = (self.center + PADDING * 2, self.cursor - LINE_HEIGHT / 2)
-            text = Text(label, insert=text_coords, class_='cable')
+            text = Text(label, insert=text_coords, class_='bold' if not i else [])
             link.add(text)
 
         group.add(link)
@@ -381,19 +395,12 @@ class CableTraceSVG:
         group = Group(class_='connector')
 
         # Draw attachment (line)
-        start = (OFFSET + self.center, self.cursor)
+        start = (OFFSET + self.center, OFFSET + self.cursor)
         height = PADDING * 2 + LINE_HEIGHT + PADDING * 2
         end = (start[0], start[1] + height)
         line = Line(start=start, end=end, class_='attachment')
         group.add(line)
-        self.cursor += PADDING * 2
-
-        # Add label
-        self.cursor += LINE_HEIGHT
-        text_coords = (self.center + PADDING * 2, self.cursor - LINE_HEIGHT / 2)
-        text = Text('Attachment', insert=text_coords)
-        group.add(text)
-        self.cursor += PADDING * 2
+        self.cursor += PADDING * 4
 
         return group
 
@@ -429,7 +436,7 @@ class CableTraceSVG:
                 width=self.width * .8,
                 color=self._get_color(near_end),
                 url=near_end.get_absolute_url(),
-                labels=[str(near_end)],
+                labels=self._get_labels(near_end),
                 y_indent=PADDING,
                 radius=5
             )
@@ -451,7 +458,7 @@ class CableTraceSVG:
                     width=self.width * .8,
                     color=self._get_color(far_end),
                     url=far_end.get_absolute_url(),
-                    labels=[str(far_end)],
+                    labels=self._get_labels(far_end),
                     radius=5
                 )
                 terminations.append(termination)
