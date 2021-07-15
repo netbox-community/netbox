@@ -35,7 +35,8 @@
         </div>
     </div>
     {% render_table interface_table 'inc/table.html' %}
-    <div class="noprint">
+    <div class="noprint bulk-buttons">
+        <div class="bulk-button-group">
         {% if perms.dcim.change_interface %}
             <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
                 <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
@@ -52,14 +53,14 @@
                 <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
             </button>
         {% endif %}
+        </div>
         {% if perms.dcim.add_interface %}
-            <div class="float-end">
+            <div class="bulk-button-group">
                 <a href="{% url 'dcim:interface_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}" class="btn btn-primary btn-sm">
                     <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Interfaces
                 </a>
             </div>
         {% endif %}
-        <div class="clearfix"></div>
     </div>
   </form>
   {% include 'inc/paginator.html' with paginator=interface_table.paginator page=interface_table.page %}

@@ -734,10 +734,38 @@ label.required {
   }
 }
 
+// Applied to containing element around table bulk-action buttons (bulk-edit, bulk-disconnect
+// bulk-delete, etc). Each usage of .bulk-buttons needs to have groups of buttons wrapped with
+// .bulk-button-group so that proper spacing is applied (even if there is only one group).
 div.bulk-buttons {
   display: flex;
-  & > * {
-    margin: $spacer / 4;
+  justify-content: space-between;
+  margin: $spacer / 2 0;
+  // Each group of buttons needs to be contained separately for alignment purposes. This way, you
+  // can put some buttons in a group that aligns left, and other buttons in a group that aligns
+  // right.
+  & > div.bulk-button-group {
+    display: flex;
+    &:first-of-type:not(:last-of-type) {
+      // If there are multiple bulk button groups and this is the first, the first button in the
+      // group should *not* have left spacing applied, so the button group aligns with the rest
+      // of the page elements.
+      & > *:first-child {
+        margin-left: 0;
+      }
+    }
+    &:last-of-type:not(:first-of-type) {
+      // If there are multiple bulk button groups and this is the last, the last button in the
+      // group should *not* have right spacing applied, so the button group aligns with the rest
+      // of the page elements.
+      & > *:last-child {
+        margin-right: 0;
+      }
+    }
+    // However, the rest of the buttons should have spacing applied in all directions.
+    & > * {
+      margin: $spacer / 4;
+    }
   }
 }
 
