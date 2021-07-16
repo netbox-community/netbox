@@ -54,7 +54,7 @@ class PathEndpointMixin(object):
             # Render SVG
             try:
                 width = min(int(request.GET.get('width')), 1600)
-            except ValueError:
+            except (ValueError, TypeError):
                 width = None
             drawing = obj.get_trace_svg(
                 base_url=request.build_absolute_uri('/'),
