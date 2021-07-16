@@ -305,6 +305,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Retrieve all available IPs
         response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 8)  # 8 because prefix.is_pool = True
 
         # Change the prefix to not be a pool and try again

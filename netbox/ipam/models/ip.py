@@ -335,9 +335,11 @@ class Prefix(PrimaryModel):
 
     @property
     def family(self):
-        if self.prefix:
-            return self.prefix.version
-        return None
+        return self.prefix.version if self.prefix else None
+
+    @property
+    def mask_length(self):
+        return self.prefix.prefixlen if self.prefix else None
 
     @property
     def depth(self):
@@ -585,9 +587,11 @@ class IPRange(PrimaryModel):
 
     @property
     def family(self):
-        if self.start_address:
-            return self.start_address.version
-        return None
+        return self.start_address.version if self.start_address else None
+
+    @property
+    def mask_length(self):
+        return self.start_address.prefixlen if self.start_address else None
 
     @cached_property
     def name(self):
