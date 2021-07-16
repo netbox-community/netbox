@@ -52,8 +52,13 @@ class PathEndpointMixin(object):
 
         if request.GET.get('render', None) == 'svg':
             # Render SVG
+            try:
+                width = min(int(request.GET.get('width')), 1600)
+            except ValueError:
+                width = None
             drawing = obj.get_trace_svg(
-                base_url=request.build_absolute_uri('/')
+                base_url=request.build_absolute_uri('/'),
+                width=width
             )
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 

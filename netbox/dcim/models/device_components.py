@@ -194,8 +194,11 @@ class PathEndpoint(models.Model):
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))
 
-    def get_trace_svg(self, base_url=None):
-        trace = CableTraceSVG(self, base_url=base_url)
+    def get_trace_svg(self, base_url=None, width=None):
+        if width is not None:
+            trace = CableTraceSVG(self, base_url=base_url, width=width)
+        else:
+            trace = CableTraceSVG(self, base_url=base_url)
         return trace.render()
 
     @property
