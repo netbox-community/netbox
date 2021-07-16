@@ -105,6 +105,16 @@ CUSTOM_VALIDATORS = {
 
 CustomValidator can also be subclassed to enforce more complex logic by overriding its `validate()` method. See the [custom validation](../customization/custom-validation.md) documentation for more details.
 
+#### SVG Cable Traces ([#6000](https://github.com/netbox-community/netbox/issues/6000))
+
+Cable trace diagrams are now rendered as atomic SVG images, similar to rack elevations. These images are embedded in the UI and can be easily downloaded for use outside NetBox. SVG images can also be generated directly through the REST API, by specifying SVG as the render format for the `trace` endpoint on a cable termination:
+
+```no-highlight
+GET /api/dcim/interfaces/<ID>>/trace/?render=svg
+```
+
+The width of the rendered image in pixels may optionally be specified by appending the `&width=<width>` parameter to the request. The default width is 400px.
+
 #### New Views for Models Previously Under the Admin UI ([#6466](https://github.com/netbox-community/netbox/issues/6466))
 
 New UI views have been introduced to manage the following models:
