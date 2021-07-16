@@ -2,18 +2,15 @@ import socket
 from collections import OrderedDict
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import F
 from django.http import HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import GenericViewSet, ViewSet
+from rest_framework.viewsets import ViewSet
 
 from circuits.models import Circuit
 from dcim import filtersets
@@ -52,6 +49,13 @@ class PathEndpointMixin(object):
 
         # Initialize the path array
         path = []
+
+        if request.GET.get('render', None) == 'svg':
+            # Render SVG
+            drawing = obj.get_trace_svg(
+                base_url=request.build_absolute_uri('/')
+            )
+            return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
         for near_end, cable, far_end in obj.trace():
             if near_end is None:
