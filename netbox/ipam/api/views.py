@@ -11,7 +11,7 @@ from rest_framework.routers import APIRootView
 
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filtersets
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from ipam.models import *
 from netbox.api.views import ModelViewSet
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import count_related
@@ -264,6 +264,16 @@ class PrefixViewSet(CustomFieldModelViewSet):
             })
 
             return Response(serializer.data)
+
+
+#
+# IP ranges
+#
+
+class IPRangeViewSet(CustomFieldModelViewSet):
+    queryset = IPRange.objects.prefetch_related('vrf', 'role', 'tenant', 'tags')
+    serializer_class = serializers.IPRangeSerializer
+    filterset_class = filtersets.IPRangeFilterSet
 
 
 #

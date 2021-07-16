@@ -9,7 +9,7 @@ from utilities.tables import (
     ToggleColumn, UtilizationColumn,
 )
 from virtualization.models import VMInterface
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from .models import *
 
 AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
@@ -349,6 +349,39 @@ class PrefixDetailTable(PrefixTable):
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
         )
+
+
+#
+# IP ranges
+#
+class IPRangeTable(BaseTable):
+    pk = ToggleColumn()
+    start_address = tables.Column(
+        linkify=True
+    )
+    vrf = tables.TemplateColumn(
+        template_code=VRF_LINK,
+        verbose_name='VRF'
+    )
+    status = ChoiceFieldColumn(
+        default=AVAILABLE_LABEL
+    )
+    role = tables.TemplateColumn(
+        template_code=PREFIX_ROLE_LINK
+    )
+    tenant = TenantColumn()
+
+    class Meta(BaseTable.Meta):
+        model = IPRange
+        fields = (
+            'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
+        )
+        default_columns = (
+            'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
+        )
+        row_attrs = {
+            'class': lambda record: 'success' if not record.pk else '',
+        }
 
 
 #

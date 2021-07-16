@@ -6,7 +6,7 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from ipam.models import *
 from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
 
 
@@ -356,6 +356,38 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 8)
+
+
+class IPRangeTest(APIViewTestCases.APIViewTestCase):
+    model = IPRange
+    brief_fields = ['display', 'end_address', 'family', 'id', 'start_address', 'url']
+    create_data = [
+        {
+            'start_address': '192.168.4.10/24',
+            'end_address': '192.168.4.50/24',
+        },
+        {
+            'start_address': '192.168.5.10/24',
+            'end_address': '192.168.5.50/24',
+        },
+        {
+            'start_address': '192.168.6.10/24',
+            'end_address': '192.168.6.50/24',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        ip_ranges = (
+            IPRange(start_address=IPNetwork('192.168.1.10/24'), end_address=IPNetwork('192.168.1.50/24'), size=51),
+            IPRange(start_address=IPNetwork('192.168.2.10/24'), end_address=IPNetwork('192.168.2.50/24'), size=51),
+            IPRange(start_address=IPNetwork('192.168.3.10/24'), end_address=IPNetwork('192.168.3.50/24'), size=51),
+        )
+        IPRange.objects.bulk_create(ip_ranges)
 
 
 class IPAddressTest(APIViewTestCases.APIViewTestCase):

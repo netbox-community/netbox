@@ -18,7 +18,7 @@ from utilities.forms import (
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from .models import *
 
 PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([
     (i, i) for i in range(PREFIX_LENGTH_MIN, PREFIX_LENGTH_MAX + 1)
@@ -692,6 +692,144 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    tag = TagFilterField(model)
+
+
+#
+# IP ranges
+#
+
+class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
+    role = DynamicModelChoiceField(
+        queryset=Role.objects.all(),
+        required=False
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = IPRange
+        fields = [
+            'vrf', 'start_address', 'end_address', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
+        ]
+        fieldsets = (
+            ('IP Range', ('vrf', 'start_address', 'end_address', 'role', 'status', 'description', 'tags')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
+        widgets = {
+            'status': StaticSelect2(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['vrf'].empty_label = 'Global'
+
+
+class IPRangeCSVForm(CustomFieldModelCSVForm):
+    vrf = CSVModelChoiceField(
+        queryset=VRF.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Assigned VRF'
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
+    status = CSVChoiceField(
+        choices=IPRangeStatusChoices,
+        help_text='Operational status'
+    )
+    role = CSVModelChoiceField(
+        queryset=Role.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Functional role'
+    )
+
+    class Meta:
+        model = IPRange
+        fields = (
+            'start_address', 'end_address', 'vrf', 'tenant', 'status', 'role', 'description',
+        )
+
+
+class IPRangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=IPRange.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(IPRangeStatusChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    role = DynamicModelChoiceField(
+        queryset=Role.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'vrf', 'tenant', 'role', 'description',
+        ]
+
+
+class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+    model = IPRange
+    field_order = [
+        'family', 'vrf_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
+    ]
+    field_groups = [
+        ['family', 'vrf_id', 'status', 'role_id'],
+        ['tenant_group_id', 'tenant_id', 'tag'],
+    ]
+    family = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(IPAddressFamilyChoices),
+        label=_('Address family'),
+        widget=StaticSelect2()
+    )
+    vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label=_('Assigned VRF'),
+        null_option='Global'
+    )
+    status = forms.MultipleChoiceField(
+        choices=PrefixStatusChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=Role.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Role')
     )
     tag = TagFilterField(model)
 

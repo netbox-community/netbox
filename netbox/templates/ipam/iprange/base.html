@@ -1,0 +1,32 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item">
+    <a href="{% url 'ipam:iprange_list' %}">IP Ranges</a>
+  </li>
+  {% if object.vrf %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
+    </li>
+  {% endif %}
+  <li class="breadcrumb-item">
+    {{ object }}
+  </li>
+{% endblock %}
+
+{% block tab_items %}
+  <li role="presentation" class="nav-item">
+    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{{ object.get_absolute_url }}">
+      IP Range
+    </a>
+  </li>
+  {% if perms.ipam.view_ipaddress %}
+    <li role="presentation" class="nav-item">
+      <a class="nav-link{% if active_tab == 'ip-addresses' %} active{% endif %}" href="{% url 'ipam:iprange_ipaddresses' pk=object.pk %}">
+        IP Addresses <span class="badge bg-primary">{{ object.get_child_ips.count }}</span>
+      </a>
+    </li>
+  {% endif %}
+{% endblock %}
