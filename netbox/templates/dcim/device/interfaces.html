@@ -6,30 +6,37 @@
 {% block content %}
   <form method="post">
     {% csrf_token %}
-    <div class="float-end col-md-4 noprint table-controls mw-33">
-        <div class="input-group input-group-sm">
-            <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
-            <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="mdi mdi-table-cog"></i>
-            </button>
-            <ul class="dropdown-menu">
+    <div class="row mb-3 justify-content-between">
+        <div class="col col-md-2 float-end noprint table-controls mb-0 mw-33">
+            <div class="input-group input-group-sm">
                 {% if request.user.is_authenticated %}
                     <button
                         type="button"
-                        class="dropdown-item"
+                        class="btn btn-sm btn-outline-dark"
                         data-bs-toggle="modal"
                         data-bs-target="#DeviceInterfaceTable_config"
                         title="Configure Table">
-                        Configure Table
+                        <i class="mdi mdi-cog"></i> Configure Table
                     </button>
-                {% endif %}
-                <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
-                <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
-            </ul>
+                    {% endif %}
+                <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="mdi mdi-eye"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
+                    <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
+                </ul>
+            </div>
+        </div>
+        <div class="col col-md-4 float-end noprint table-controls mw-33">
+            <div class="input-group input-group-sm">
+                <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
+            </div>
         </div>
     </div>
     {% render_table interface_table 'inc/table.html' %}
-    <div class="noprint">
+    <div class="noprint bulk-buttons">
+        <div class="bulk-button-group">
         {% if perms.dcim.change_interface %}
             <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
                 <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
@@ -46,14 +53,14 @@
                 <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
             </button>
         {% endif %}
+        </div>
         {% if perms.dcim.add_interface %}
-            <div class="float-end">
+            <div class="bulk-button-group">
                 <a href="{% url 'dcim:interface_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}" class="btn btn-primary btn-sm">
                     <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Interfaces
                 </a>
             </div>
         {% endif %}
-        <div class="clearfix"></div>
     </div>
   </form>
   {% include 'inc/paginator.html' with paginator=interface_table.paginator page=interface_table.page %}

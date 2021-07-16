@@ -1,0 +1,37 @@
+<div class="row mb-3 justify-content-between">
+    <div class="col col-md-2 mb-0 d-flex noprint table-controls">
+        {% if request.user.is_authenticated %}
+            <div class="input-group input-group-sm">
+                <button
+                    type="button"
+                    data-bs-toggle="modal"
+                    title="Configure Table"
+                    data-bs-target="#{{ table_modal }}"
+                    class="btn btn-sm btn-outline-dark"
+                    >
+                    <i class="mdi mdi-cog"></i> Configure Table
+                </button>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col col-md-4 d-flex noprint table-controls">
+        <div class="input-group input-group-sm">
+            <input
+                type="text"
+                class="form-control object-filter"
+                placeholder="Filter"
+                title="Filter text (regular expressions supported)"
+            />
+            {% if filter_form %}
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dark"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#advanced-search-content"
+                >
+                    Advanced Search
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

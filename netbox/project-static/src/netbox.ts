@@ -11,6 +11,7 @@ import { initTableConfig } from './tableConfig';
 import { initInterfaceTable } from './tables';
 import { initSideNav } from './sidenav';
 import { initRackElevation } from './racks';
+import { initLinks } from './links';
 
 function init() {
   for (const init of [
@@ -27,6 +28,7 @@ function init() {
     initInterfaceTable,
     initSideNav,
     initRackElevation,
+    initLinks,
   ]) {
     init();
   }

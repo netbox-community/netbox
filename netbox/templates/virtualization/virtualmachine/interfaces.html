@@ -6,14 +6,7 @@
 {% block content %}
   <form method="post">
     {% csrf_token %}
-    <div class="float-end col-md-4 noprint table-controls mw-33">
-        <div class="input-group input-group-sm">
-            <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
-            {% if request.user.is_authenticated %}
-                <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#VirtualMachineVMInterfaceTable_config" title="Configure Table"><i class="mdi mdi-table-eye"></i></button>
-            {% endif %}
-        </div>
-    </div>
+    {% include 'inc/table_controls.html' with table_modal="VirtualMachineVMInterfaceTable_config" %}
     {% render_table interface_table 'inc/table.html' %}
     <div class="noprint">
         {% if perms.virtualization.change_vminterface %}
