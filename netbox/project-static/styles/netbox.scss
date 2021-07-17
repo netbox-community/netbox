@@ -561,9 +561,14 @@ div.content-container {
     @include media-breakpoint-down(md) {
       background-color: var(--nbx-body-bg);
     }
+    .nav {
+      padding: 0 1.25rem;
+      justify-content: space-between;
+      margin: $spacer/2 0;
 
-    .nav-link {
-      padding: 0.5rem 0.25rem;
+      .nav-link {
+        padding: 0.5rem 0.25rem;
+      }
     }
   }
   a.sidebar-logo {
