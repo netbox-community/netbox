@@ -4,13 +4,13 @@
 @import './theme-base.scss';
 
 $primary: $blue-300;
-$secondary: $gray-400;
+$secondary: $gray-500;
 $success: $green-300;
 $info: $cyan-300;
 $warning: $yellow-300;
 $danger: $red-300;
 $light: $gray-300;
-$dark: $gray-400;
+$dark: $gray-500;
 
 $theme-colors: (
   'primary': $primary,
@@ -23,24 +23,13 @@ $theme-colors: (
   'dark': $dark,
 );
 
-$theme-color-addons-dark: (
-  'alt': #13293d,
-  'darker': #010101,
-);
-
 $theme-colors: map-merge($theme-colors, $theme-color-addons);
-$theme-color-addons: map-merge($theme-color-addons, $theme-color-addons-dark);
-
-// On import, any variables marked `!default` will be overridden by the above.
-@import 'bootstrap/scss/variables';
-
-// Customize the light and dark text colors for use in our color contrast function.
 
 // Gradient
 $gradient: linear-gradient(180deg, rgba($white, 0.15), rgba($white, 0));
 
 // Body
-$body-bg: $gray-900;
+$body-bg: #1b1f22;
 $body-color: $white;
 $body-text-align: null;
 $border-color: $gray-700;
@@ -51,8 +40,8 @@ $box-shadow-inset: inset 0 1px 2px rgba($black, 0.075);
 $text-muted: $gray-400;
 $blockquote-footer-color: $gray-600;
 $mark-bg: #fcf8e3;
-$link-color: $primary;
-$link-hover-color: $blue-200;
+$link-color: $blue-200;
+$link-hover-color: $blue-100;
 
 // Tables
 $table-color: $gray-100;
@@ -126,7 +115,7 @@ $nav-link-hover-color: null;
 $nav-link-disabled-color: $gray-800;
 $nav-tabs-border-color: $border-color;
 $nav-tabs-link-hover-border-color: rgba($gray-800, 0.5) rgba($gray-800, 0.5) $nav-tabs-border-color;
-$nav-tabs-link-active-color: $gray-50;
+$nav-tabs-link-active-color: $gray-100;
 $nav-tabs-link-active-bg: $body-bg;
 $nav-tabs-link-active-border-color: $gray-800 $gray-800 $nav-tabs-link-active-bg;
 $nav-pills-link-active-color: $component-active-color;
@@ -141,8 +130,8 @@ $dropdown-color: $body-color;
 $dropdown-bg: $gray-900;
 $dropdown-border-color: rgba($white, 0.15);
 $dropdown-link-color: $gray-100;
-$dropdown-link-hover-color: shade-color($gray-50, 10%);
-$dropdown-link-hover-bg: $gray-500;
+$dropdown-link-hover-color: $white;
+$dropdown-link-hover-bg: $gray-600;
 $dropdown-link-disabled-color: $gray-800;
 $dropdown-header-color: $gray-300;
 
@@ -169,7 +158,7 @@ $card-inner-border-radius: subtract($card-border-radius, $card-border-width);
 $card-cap-color: null;
 $card-height: null;
 $card-color: null;
-$card-bg: $gray-800;
+$card-bg: $gray-900;
 
 // Accordion
 $accordion-color: $body-color;
@@ -177,8 +166,8 @@ $accordion-bg: transparent;
 $accordion-border-color: $border-color;
 $accordion-button-color: $accordion-color;
 $accordion-button-bg: $accordion-bg;
-$accordion-body-active-bg: rgba($blue-300, 0.1);
-$accordion-button-active-bg: rgba($blue-300, 0.15);
+$accordion-body-active-bg: rgba($blue-300, 0.2);
+$accordion-button-active-bg: rgba($blue-300, 0.25);
 $accordion-button-active-color: $gray-300;
 $accordion-button-focus-border-color: $input-focus-border-color;
 $accordion-icon-color: $accordion-color;
@@ -227,10 +216,10 @@ $progress-bar-color: $white;
 $progress-bar-bg: $primary;
 
 // List group
-$list-group-color: null;
+$list-group-color: $body-color;
 $list-group-bg: $card-bg;
 $list-group-border-color: rgba($white, 0.125);
-$list-group-hover-bg: rgba($gray-50, 0.15);
+$list-group-hover-bg: rgba($gray-100, 0.15);
 $list-group-active-color: $component-active-color;
 $list-group-active-bg: $component-active-bg;
 $list-group-active-border-color: $list-group-active-bg;

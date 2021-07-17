@@ -30,7 +30,7 @@ const styles = [
   ['styles/_external.scss', 'netbox-external.css'],
   ['styles/_light.scss', 'netbox-light.css'],
   ['styles/_dark.scss', 'netbox-dark.css'],
-  ['styles/_elevations.scss', 'rack_elevation.css'],
+  ['styles/_rack_elevations.scss', 'rack_elevation.css'],
   ['styles/_cable_trace.scss', 'cable_trace.css'],
 ];
 

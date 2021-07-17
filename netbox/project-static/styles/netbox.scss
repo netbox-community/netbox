@@ -3,12 +3,11 @@
 @use 'sass:map';
 
 :root {
-  --nbx-logo-color-1: #9cc8f8;
-  --nbx-logo-color-2: #1685fc;
   --nbx-sidebar-bg: #{$gray-100};
   --nbx-sidebar-link-color: #{$gray-800};
   --nbx-sidebar-link-hover-bg: #{$blue-100};
   --nbx-sidebar-title-color: #{$text-muted};
+  --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(#{$black}, 0.25);
   --nbx-breadcrumb-bg: #{$light};
   --nbx-body-bg: #{$white};
   --nbx-body-color: #{$gray-800};
@@ -22,18 +21,16 @@
   --nbx-cable-termination-border-color: #{$gray-300};
   --nbx-search-filter-border-left-color: #{$gray-300};
   --nbx-color-mode-toggle-color: #{$primary};
-  --nbx-stat-badge-bg: #{$gray-600};
 
   body[data-netbox-color-mode='dark'] {
-    --nbx-logo-color-1: #{$white};
-    --nbx-logo-color-2: #{$gray-200};
-    --nbx-sidebar-bg: #{$gray-800};
+    --nbx-sidebar-bg: #{$gray-900};
     --nbx-sidebar-link-color: #{$gray-200};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
-    --nbx-sidebar-title-color: #{$gray-300};
+    --nbx-sidebar-title-color: #{$gray-600};
+    --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(#{$white}, 0.05);
     --nbx-breadcrumb-bg: #{$gray-800};
-    --nbx-body-bg: #{$gray-900};
-    --nbx-body-color: #{$gray-50};
+    --nbx-body-bg: #1b1f22;
+    --nbx-body-color: #{$gray-100};
     --nbx-pre-bg: #{$gray-700};
     --nbx-pre-border-color: #{$gray-600};
     --nbx-change-added: #{rgba($green-300, 0.4)};
@@ -44,7 +41,6 @@
     --nbx-cable-termination-border-color: #{$gray-700};
     --nbx-search-filter-border-left-color: #{$gray-600};
     --nbx-color-mode-toggle-color: #{$yellow-300};
-    --nbx-stat-badge-bg: #{$gray-600};
   }
 }
 
@@ -217,10 +213,6 @@ body {
     fill: #1685fc;
     stroke: #1685fc;
   }
-  span.badge.stat-badge {
-    margin-left: map.get($spacers, 2);
-    background-color: var(--nbx-stat-badge-bg);
-  }
 
   &[data-netbox-color-mode='light'] {
     .btn.btn-primary,
@@ -229,7 +221,7 @@ body {
     .nav.nav-pills .nav-item.nav-link.active,
     .nav.nav-pills .nav-item .nav-link.active,
     .nav.nav-pills .nav-item .show > .nav-link {
-      color: $gray-50;
+      color: $gray-100;
     }
   }
   &[data-netbox-color-mode='dark'] {
@@ -246,15 +238,13 @@ body {
     .card table caption {
       color: $gray-300;
     }
-    a:not(.btn) {
-      color: $blue-300;
-    }
     .breadcrumb .breadcrumb-item > a {
-      color: $blue-300;
+      color: $blue-200;
+      &:hover {
+        color: $blue-100;
+      }
     }
-    .badge {
-      color: $black;
-    }
+
     .card,
     .sidebar {
       .text-muted {
@@ -515,7 +505,7 @@ div.content-container {
 
     // When an sidenav section is open, apply a shadow to provide a visual border.
     &.is-open {
-      box-shadow: inset 0px -25px 20px -25px rgba($black, 0.25);
+      box-shadow: var(--nbx-sidebar-shadow);
     }
 
     & > a.accordion-button {

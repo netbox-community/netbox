@@ -1,0 +1,57 @@
+// Cable Trace Styles.
+
+:root {
+  // Light Mode Variables.
+  --nbx-trace-node-bg: #{$gray-200};
+  --nbx-trace-termination-bg: #{$gray-100};
+  --nbx-trace-cable-shadow: #{$gray-800};
+  --nbx-trace-attachment: #{$gray-400};
+  &[data-netbox-color-mode='dark'] {
+    // Dark Mode Variables.
+    // Note: only the `theme-light.scss` file is in-scope for simplicity.
+    --nbx-trace-node-bg: #{$gray-900};
+    --nbx-trace-termination-bg: #{$gray-800};
+    --nbx-trace-cable-shadow: #{$gray-200};
+    --nbx-trace-attachment: #{$gray-600};
+  }
+}
+
+* {
+  font-family: $font-family-sans-serif;
+  font-size: $font-size-sm;
+}
+text {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+text.bold {
+  font-weight: bold;
+}
+
+svg {
+  /* Boxes */
+  rect {
+    fill: var(--nbx-trace-node-bg);
+    stroke: var(--nbx-trace-node-bg);
+    stroke-width: 1;
+    .termination {
+      fill: var(--nbx-trace-termination-bg);
+    }
+  }
+
+  /* Connectors */
+  .connector text {
+    text-anchor: start;
+  }
+  line {
+    stroke-width: 5px;
+  }
+  line.cable-shadow {
+    stroke: var(--nbx-trace-cable-shadow);
+    stroke-width: 7px;
+  }
+  line.attachment {
+    stroke: var(--nbx-trace-attachment);
+    stroke-dasharray: 5px, 5px;
+  }
+}

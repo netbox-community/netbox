@@ -1,0 +1,111 @@
+// Rack Elevation Styles.
+
+svg {
+  // Light Mode Variables.
+  --nbx-rack-bg: #{$gray-200};
+  --nbx-rack-border: #{$black};
+  --nbx-rack-slot-bg: #{$gray-200};
+  --nbx-rack-slot-border: #{$gray-500};
+  --nbx-rack-slot-hover-bg: #{$gray-400};
+  --nbx-rack-link-color: #{$blue};
+  --nbx-rack-unit-color: #{$text-muted};
+
+  &[data-netbox-color-mode='dark'] {
+    // Dark Mode Variables.
+    // Note: only the `theme-light.scss` file is in-scope for simplicity.
+    --nbx-rack-bg: #{$gray-800};
+    --nbx-rack-border: #{$gray-600};
+    --nbx-rack-slot-bg: #{$gray-800};
+    --nbx-rack-slot-border: #{$gray-700};
+    --nbx-rack-slot-hover-bg: #{$gray-900};
+    --nbx-rack-link-color: #{$blue-200};
+    --nbx-rack-unit-color: #{$text-muted};
+  }
+}
+
+* {
+  font-family: $font-family-sans-serif;
+  font-size: $font-size-sm;
+}
+rect {
+  box-sizing: border-box;
+}
+text {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+svg {
+  // Rack unit numbers along left side of rack elevation.
+  .unit {
+    margin: 0;
+    padding: 5px 0px;
+    // Rack unit text color.
+    fill: var(--nbx-rack-unit-color);
+  }
+
+  .hidden {
+    visibility: hidden;
+  }
+
+  // Rack elevation container.
+  .rack {
+    fill: none;
+    stroke-width: 2px;
+    stroke: var(--nbx-rack-border);
+    background-color: var(--nbx-rack-bg);
+  }
+
+  // Rack unit slot.
+  .slot {
+    fill: var(--nbx-rack-slot-bg);
+    stroke: var(--nbx-rack-slot-border);
+
+    // Change the background color to indicate hover status.
+    &:hover {
+      fill: var(--nbx-rack-slot-hover-bg);
+    }
+
+    // 'Add Device' text.
+    & + .add-device {
+      fill: var(--nbx-rack-link-color);
+      // Hide the text by default.
+      opacity: 0;
+      // The text should not have pointer-events so that the hover state of the slot is not
+      // overridden by the hover state of the text.
+      pointer-events: none;
+    }
+
+    &:hover + .add-device {
+      // When the slot is hovered, show the 'Add Device' text.
+      opacity: 1;
+    }
+
+    // When a reserved slot is hovered, use a more readable color for the 'Add Device' text.
+    &.reserved:hover[class] + .add-device {
+      fill: $black;
+    }
+
+    // Reserved rack unit background color.
+    &.reserved[class],
+    &.reserved:hover[class] {
+      fill: url(#reserved);
+    }
+
+    // Occupied rack unit background color.
+    &.occupied[class],
+    &.occupied:hover[class] {
+      fill: url(#occupied);
+    }
+
+    // Blocked rack unit background color.
+    &.blocked[class],
+    &.blocked:hover[class] {
+      fill: url(#blocked);
+    }
+    // Hide 'Add Device' text when a slot is blocked.
+    &.blocked:hover + .add-device {
+      opacity: 0;
+    }
+  }
+}
