@@ -7,7 +7,7 @@
   --nbx-sidebar-link-color: #{$gray-800};
   --nbx-sidebar-link-hover-bg: #{$blue-100};
   --nbx-sidebar-title-color: #{$text-muted};
-  --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(#{$black}, 0.25);
+  --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(0, 0, 0, 0.25);
   --nbx-breadcrumb-bg: #{$light};
   --nbx-body-bg: #{$white};
   --nbx-body-color: #{$gray-800};
@@ -27,7 +27,7 @@
     --nbx-sidebar-link-color: #{$gray-200};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
     --nbx-sidebar-title-color: #{$gray-600};
-    --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(#{$white}, 0.05);
+    --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(255, 255, 255, 0.05);
     --nbx-breadcrumb-bg: #{$gray-800};
     --nbx-body-bg: #1b1f22;
     --nbx-body-color: #{$gray-100};
