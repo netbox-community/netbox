@@ -11,7 +11,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField, DatePicker,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, SelectSpeedWidget, SmallTextarea, SlugField,
-    StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    StaticSelect, StaticSelectMultiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
 from .models import *
@@ -274,7 +274,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'commit_rate': "Committed rate",
         }
         widgets = {
-            'status': StaticSelect2(),
+            'status': StaticSelect(),
             'install_date': DatePicker(),
             'commit_rate': SelectSpeedWidget(),
         }
@@ -327,7 +327,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
         choices=add_blank_choice(CircuitStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -386,7 +386,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),

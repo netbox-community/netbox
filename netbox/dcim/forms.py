@@ -25,7 +25,7 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ColorField, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
-    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect, StaticSelectMultiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
@@ -304,7 +304,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -340,8 +340,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                     'rows': 3,
                 }
             ),
-            'status': StaticSelect2(),
-            'time_zone': StaticSelect2(),
+            'status': StaticSelect(),
+            'time_zone': StaticSelect(),
         }
         help_texts = {
             'name': "Full name of the site",
@@ -404,7 +404,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         choices=add_blank_choice(SiteStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
@@ -431,7 +431,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
 
     class Meta:
@@ -451,7 +451,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     status = forms.MultipleChoiceField(
         choices=SiteStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -679,10 +679,10 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'u_height': "Height in rack units",
         }
         widgets = {
-            'status': StaticSelect2(),
-            'type': StaticSelect2(),
-            'width': StaticSelect2(),
-            'outer_unit': StaticSelect2(),
+            'status': StaticSelect(),
+            'type': StaticSelect(),
+            'width': StaticSelect(),
+            'outer_unit': StaticSelect(),
         }
 
 
@@ -787,7 +787,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         choices=add_blank_choice(RackStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     role = DynamicModelChoiceField(
         queryset=RackRole.objects.all(),
@@ -805,12 +805,12 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
     type = forms.ChoiceField(
         choices=add_blank_choice(RackTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     width = forms.ChoiceField(
         choices=add_blank_choice(RackWidthChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     u_height = forms.IntegerField(
         required=False,
@@ -832,7 +832,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
     outer_unit = forms.ChoiceField(
         choices=add_blank_choice(RackDimensionUnitChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     comments = CommentField(
         widget=SmallTextarea,
@@ -878,17 +878,17 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     status = forms.MultipleChoiceField(
         choices=RackStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     type = forms.MultipleChoiceField(
         choices=RackTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     width = forms.MultipleChoiceField(
         choices=RackWidthChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
@@ -970,7 +970,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=User.objects.order_by(
             'username'
         ),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -1049,7 +1049,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
             'username'
         ),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -1166,7 +1166,7 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
             ('Images', ('front_image', 'rear_image')),
         )
         widgets = {
-            'subdevice_role': StaticSelect2(),
+            'subdevice_role': StaticSelect(),
             'front_image': forms.ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
             }),
@@ -1230,47 +1230,47 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     console_ports = forms.NullBooleanField(
         required=False,
         label='Has console ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
         label='Has console server ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
         label='Has power ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
         label='Has power outlets',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
         label='Has interfaces',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -1318,7 +1318,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
 class ConsolePortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'description')
 
@@ -1335,7 +1335,7 @@ class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
 
     class Meta:
@@ -1357,7 +1357,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 class ConsoleServerPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'description')
 
@@ -1374,7 +1374,7 @@ class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     description = forms.CharField(
         required=False
@@ -1429,7 +1429,7 @@ class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -1483,7 +1483,7 @@ class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     field_order = (
         'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'power_port', 'feed_leg',
@@ -1520,7 +1520,7 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
@@ -1529,7 +1529,7 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     description = forms.CharField(
         required=False
@@ -1559,14 +1559,14 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
-            'type': StaticSelect2(),
+            'type': StaticSelect(),
         }
 
 
 class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     mgmt_only = forms.BooleanField(
         required=False,
@@ -1587,7 +1587,7 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(InterfaceTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     mgmt_only = forms.NullBooleanField(
         required=False,
@@ -1611,7 +1611,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
-            'rear_port': StaticSelect2(),
+            'rear_port': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1628,7 +1628,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
 class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
@@ -1698,7 +1698,7 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     color = ColorField(
         required=False
@@ -1720,14 +1720,14 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
-            'type': StaticSelect2(),
+            'type': StaticSelect(),
         }
 
 
 class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     color = ColorField(
         required=False
@@ -1755,7 +1755,7 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     color = ColorField(
         required=False
@@ -2142,10 +2142,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                                   "config context",
         }
         widgets = {
-            'face': StaticSelect2(),
-            'status': StaticSelect2(),
-            'primary_ip4': StaticSelect2(),
-            'primary_ip6': StaticSelect2(),
+            'face': StaticSelect(),
+            'status': StaticSelect(),
+            'primary_ip4': StaticSelect(),
+            'primary_ip6': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -2405,7 +2405,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
     status = forms.ChoiceField(
         choices=add_blank_choice(DeviceStatusChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     serial = forms.CharField(
         max_length=50,
@@ -2491,7 +2491,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     status = forms.MultipleChoiceField(
         choices=DeviceStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     asset_tag = forms.CharField(
         required=False
@@ -2503,56 +2503,56 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     virtual_chassis_member = forms.NullBooleanField(
         required=False,
         label='Virtual chassis member',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_ports = forms.NullBooleanField(
         required=False,
         label='Has console ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
         label='Has console server ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
         label='Has power ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
         label='Has power outlets',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
         label='Has interfaces',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -2611,12 +2611,12 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     speed = forms.MultipleChoiceField(
         choices=ConsolePortSpeedChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     tag = TagFilterField(model)
 
@@ -2642,12 +2642,12 @@ class ConsolePortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     speed = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortSpeedChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
@@ -2718,12 +2718,12 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     speed = forms.MultipleChoiceField(
         choices=ConsolePortSpeedChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     tag = TagFilterField(model)
 
@@ -2749,12 +2749,12 @@ class ConsoleServerPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     speed = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortSpeedChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'speed', 'mark_connected', 'description', 'tags')
 
@@ -2824,7 +2824,7 @@ class PowerPortFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=PowerPortTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     tag = TagFilterField(model)
 
@@ -2851,7 +2851,7 @@ class PowerPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -2929,7 +2929,7 @@ class PowerOutletFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=PowerOutletTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     tag = TagFilterField(model)
 
@@ -2968,7 +2968,7 @@ class PowerOutletCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPort.objects.all(),
@@ -3102,17 +3102,17 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=InterfaceTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     enabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     mgmt_only = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -3160,8 +3160,8 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         ]
         widgets = {
             'device': forms.HiddenInput(),
-            'type': StaticSelect2(),
-            'mode': StaticSelect2(),
+            'type': StaticSelect(),
+            'mode': StaticSelect(),
         }
         labels = {
             'mode': '802.1Q Mode',
@@ -3192,7 +3192,7 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     model = Interface
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     enabled = forms.BooleanField(
         required=False,
@@ -3231,7 +3231,7 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -3451,7 +3451,7 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=PortTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     color = ColorField(
         required=False
@@ -3473,8 +3473,8 @@ class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
         ]
         widgets = {
             'device': forms.HiddenInput(),
-            'type': StaticSelect2(),
-            'rear_port': StaticSelect2(),
+            'type': StaticSelect(),
+            'rear_port': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -3492,7 +3492,7 @@ class FrontPortCreateForm(ComponentCreateForm):
     model = FrontPort
     type = forms.ChoiceField(
         choices=PortTypeChoices,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     color = ColorField(
         required=False
@@ -3639,7 +3639,7 @@ class RearPortFilterForm(DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         choices=PortTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     color = ColorField(
         required=False
@@ -3660,7 +3660,7 @@ class RearPortForm(BootstrapMixin, CustomFieldModelForm):
         ]
         widgets = {
             'device': forms.HiddenInput(),
-            'type': StaticSelect2(),
+            'type': StaticSelect(),
         }
 
 
@@ -3668,7 +3668,7 @@ class RearPortCreateForm(ComponentCreateForm):
     model = RearPort
     type = forms.ChoiceField(
         choices=PortTypeChoices,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     color = ColorField(
         required=False
@@ -3766,7 +3766,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
         queryset=Device.objects.all(),
         label='Child Device',
         help_text="Child devices must first be created and assigned to the site/rack of the parent device.",
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
 
     def __init__(self, device_bay, *args, **kwargs):
@@ -3981,7 +3981,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     )
     discovered = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -4056,9 +4056,9 @@ class ConnectCableToDeviceForm(BootstrapMixin, CustomFieldModelForm):
             'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
-            'status': StaticSelect2,
-            'type': StaticSelect2,
-            'length_unit': StaticSelect2,
+            'status': StaticSelect,
+            'type': StaticSelect,
+            'length_unit': StaticSelect,
         }
 
     def clean_termination_b_id(self):
@@ -4276,9 +4276,9 @@ class CableForm(BootstrapMixin, CustomFieldModelForm):
             'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
-            'status': StaticSelect2,
-            'type': StaticSelect2,
-            'length_unit': StaticSelect2,
+            'status': StaticSelect,
+            'type': StaticSelect,
+            'length_unit': StaticSelect,
         }
         error_messages = {
             'length': {
@@ -4391,12 +4391,12 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
         choices=add_blank_choice(CableTypeChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(CableStatusChoices),
         required=False,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
         initial=''
     )
     label = forms.CharField(
@@ -4414,7 +4414,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
         choices=add_blank_choice(CableLengthUnitChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
 
     class Meta:
@@ -4472,12 +4472,12 @@ class CableFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     type = forms.MultipleChoiceField(
         choices=add_blank_choice(CableTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     status = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(CableStatusChoices),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     color = ColorField(
         required=False
@@ -5045,10 +5045,10 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
             ('Characteristics', ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
         )
         widgets = {
-            'status': StaticSelect2(),
-            'type': StaticSelect2(),
-            'supply': StaticSelect2(),
-            'phase': StaticSelect2(),
+            'status': StaticSelect(),
+            'type': StaticSelect(),
+            'supply': StaticSelect(),
+            'phase': StaticSelect(),
         }
 
 
@@ -5141,25 +5141,25 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         choices=add_blank_choice(PowerFeedStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedTypeChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     supply = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedSupplyChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     phase = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedPhaseChoices),
         required=False,
         initial='',
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     voltage = forms.IntegerField(
         required=False
@@ -5233,22 +5233,22 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     status = forms.MultipleChoiceField(
         choices=PowerFeedStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedTypeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     supply = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedSupplyChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     phase = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedPhaseChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     voltage = forms.IntegerField(
         required=False

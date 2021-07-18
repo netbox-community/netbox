@@ -21,8 +21,8 @@ __all__ = (
     'SelectWithPK',
     'SlugWidget',
     'SmallTextarea',
-    'StaticSelect2',
-    'StaticSelect2Multiple',
+    'StaticSelect',
+    'StaticSelectMultiple',
     'TimePicker',
 )
 
@@ -50,7 +50,7 @@ class ColorSelect(forms.Select):
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = add_blank_choice(ColorChoices)
         super().__init__(*args, **kwargs)
-        self.attrs['class'] = 'netbox-select2-color-picker'
+        self.attrs['class'] = 'netbox-color-select'
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
@@ -67,7 +67,7 @@ class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
             ('2', 'Yes'),
             ('3', 'No'),
         )
-        self.attrs['class'] = 'netbox-select2-static'
+        self.attrs['class'] = 'netbox-static-select'
 
 
 class SelectWithDisabled(forms.Select):
@@ -78,17 +78,17 @@ class SelectWithDisabled(forms.Select):
     option_template_name = 'widgets/selectwithdisabled_option.html'
 
 
-class StaticSelect2(SelectWithDisabled):
+class StaticSelect(SelectWithDisabled):
     """
-    A static <select> form widget using the Select2 library.
+    A static <select/> form widget which is client-side rendered.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.attrs['class'] = 'netbox-select2-static'
+        self.attrs['class'] = 'netbox-static-select'
 
 
-class StaticSelect2Multiple(StaticSelect2, forms.SelectMultiple):
+class StaticSelectMultiple(StaticSelect, forms.SelectMultiple):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -96,14 +96,14 @@ class StaticSelect2Multiple(StaticSelect2, forms.SelectMultiple):
         self.attrs['data-multiple'] = 1
 
 
-class SelectWithPK(StaticSelect2):
+class SelectWithPK(StaticSelect):
     """
     Include the primary key of each option in the option label (e.g. "Router7 (4721)").
     """
     option_template_name = 'widgets/select_option_with_pk.html'
 
 
-class ContentTypeSelect(StaticSelect2):
+class ContentTypeSelect(StaticSelect):
     """
     Appends an `api-value` attribute equal to the slugified model name for each ContentType. For example:
         <option value="37" api-value="console-server-port">console server port</option>
@@ -138,7 +138,7 @@ class APISelect(SelectWithDisabled):
     def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.attrs['class'] = 'netbox-select2-api'
+        self.attrs['class'] = 'netbox-api-select'
         if api_url:
             self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
 

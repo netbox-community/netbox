@@ -4,7 +4,7 @@ import re
 import yaml
 from django import forms
 
-from .widgets import APISelect, APISelectMultiple, StaticSelect2
+from .widgets import APISelect, APISelectMultiple, StaticSelect
 
 
 __all__ = (
@@ -35,7 +35,7 @@ class BootstrapMixin(forms.BaseForm):
             forms.Select,
             APISelect,
             APISelectMultiple,
-            StaticSelect2,
+            StaticSelect,
         ]
 
         for field_name, field in self.fields.items():

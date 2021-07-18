@@ -85,7 +85,7 @@ class TagFilterField(forms.MultipleChoiceField):
 
     :param model: The model of the filter
     """
-    widget = widgets.StaticSelect2Multiple
+    widget = widgets.StaticSelectMultiple
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():

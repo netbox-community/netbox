@@ -9,8 +9,8 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField,
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, CSVContentTypeField, CSVModelForm,
-    CSVMultipleContentTypeField, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect2,
-    StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
+    CSVMultipleContentTypeField, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect,
+    StaticSelectMultiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -87,14 +87,14 @@ class CustomFieldFilterForm(BootstrapMixin, forms.Form):
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     weight = forms.IntegerField(
         required=False
     )
     required = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -153,7 +153,7 @@ class CustomLinkBulkEditForm(BootstrapMixin, BulkEditForm):
     button_class = forms.ChoiceField(
         choices=CustomLinkButtonClassChoices,
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
 
     class Meta:
@@ -174,7 +174,7 @@ class CustomLinkFilterForm(BootstrapMixin, forms.Form):
     )
     new_window = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -262,7 +262,7 @@ class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
     )
     as_attachment = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -363,29 +363,29 @@ class WebhookFilterForm(BootstrapMixin, forms.Form):
     http_method = forms.MultipleChoiceField(
         choices=WebhookHttpMethodChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     enabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     type_create = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     type_update = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     type_delete = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -734,7 +734,7 @@ class LocalConfigContextFilterForm(forms.Form):
     local_context_data = forms.NullBooleanField(
         required=False,
         label=_('Has local config context data'),
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -763,7 +763,7 @@ class JournalEntryForm(BootstrapMixin, forms.ModelForm):
     kind = forms.ChoiceField(
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
 
     class Meta:
@@ -828,7 +828,7 @@ class JournalEntryFilterForm(BootstrapMixin, forms.Form):
     kind = forms.ChoiceField(
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
 
 
@@ -855,7 +855,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     action = forms.ChoiceField(
         choices=add_blank_choice(ObjectChangeActionChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),

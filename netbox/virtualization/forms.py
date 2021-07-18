@@ -18,7 +18,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, ConfirmationForm,
     CSVChoiceField, CSVModelChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField,
-    form_from_model, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    form_from_model, JSONField, SlugField, SmallTextarea, StaticSelect, StaticSelectMultiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
@@ -389,9 +389,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                                   "config context",
         }
         widgets = {
-            "status": StaticSelect2(),
-            'primary_ip4': StaticSelect2(),
-            'primary_ip6': StaticSelect2(),
+            "status": StaticSelect(),
+            'primary_ip4': StaticSelect(),
+            'primary_ip6': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -483,7 +483,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
@@ -592,7 +592,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
     status = forms.MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
@@ -607,7 +607,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -647,7 +647,7 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
-            'mode': StaticSelect2()
+            'mode': StaticSelect()
         }
         labels = {
             'mode': '802.1Q Mode',
@@ -704,7 +704,7 @@ class VMInterfaceCreateForm(BootstrapMixin, CustomFieldsMixin, InterfaceCommonFo
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -789,7 +789,7 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -868,7 +868,7 @@ class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     )
     enabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )

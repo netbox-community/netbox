@@ -185,7 +185,7 @@ function getDisplayName(result: APIObjectBase, select: HTMLSelectElement): strin
  * Initialize select elements that rely on the NetBox API to build their options.
  */
 export function initApiSelect() {
-  for (const select of getElements<HTMLSelectElement>('.netbox-select2-api')) {
+  for (const select of getElements<HTMLSelectElement>('.netbox-api-select')) {
     const dependencies = getDependencyIds(select);
     // Initialize an event, so other elements relying on this element can subscribe to this
     // element's value.

@@ -16,7 +16,7 @@ function canChangeColor(option: Option | HTMLOptionElement): boolean {
  * the selected option.
  */
 export function initColorSelect(): void {
-  for (const select of getElements<HTMLSelectElement>('select.netbox-select2-color-picker')) {
+  for (const select of getElements<HTMLSelectElement>('select.netbox-color-select')) {
     for (const option of select.options) {
       if (canChangeColor(option)) {
         // Get the background color from the option's value.

@@ -12,7 +12,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, ContentTypeChoiceField, CSVChoiceField,
     CSVModelChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField,
-    NumericArrayField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    NumericArrayField, ReturnURLForm, SlugField, StaticSelect, StaticSelectMultiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
@@ -242,7 +242,7 @@ class RIRFilterForm(BootstrapMixin, forms.Form):
     is_private = forms.NullBooleanField(
         required=False,
         label=_('Private'),
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -340,7 +340,7 @@ class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
         label=_('Address family'),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     rir_id = DynamicModelMultipleChoiceField(
         queryset=RIR.objects.all(),
@@ -464,7 +464,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             ('Tenancy', ('tenant_group', 'tenant')),
         )
         widgets = {
-            'status': StaticSelect2(),
+            'status': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -575,7 +575,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
     status = forms.ChoiceField(
         choices=add_blank_choice(PrefixStatusChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -630,13 +630,13 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
         label=_('Address family'),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     mask_length = forms.ChoiceField(
         required=False,
         choices=PREFIX_MASK_LENGTH_CHOICES,
         label=_('Mask length'),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -652,7 +652,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -682,14 +682,14 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
     is_pool = forms.NullBooleanField(
         required=False,
         label=_('Is a pool'),
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     mark_utilized = forms.NullBooleanField(
         required=False,
         label=_('Marked as 100% utilized'),
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -961,8 +961,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             'tags',
         ]
         widgets = {
-            'status': StaticSelect2(),
-            'role': StaticSelect2(),
+            'status': StaticSelect(),
+            'role': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1061,8 +1061,8 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant', 'tags',
         ]
         widgets = {
-            'status': StaticSelect2(),
-            'role': StaticSelect2(),
+            'status': StaticSelect(),
+            'role': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1193,12 +1193,12 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
     status = forms.ChoiceField(
         choices=add_blank_choice(IPAddressStatusChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     role = forms.ChoiceField(
         choices=add_blank_choice(IPAddressRoleChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     dns_name = forms.CharField(
         max_length=255,
@@ -1253,13 +1253,13 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
         label=_('Address family'),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     mask_length = forms.ChoiceField(
         required=False,
         choices=IPADDRESS_MASK_LENGTH_CHOICES,
         label=_('Mask length'),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -1275,17 +1275,17 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
     status = forms.MultipleChoiceField(
         choices=IPAddressStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     role = forms.MultipleChoiceField(
         choices=IPAddressRoleChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     assigned_to_interface = forms.NullBooleanField(
         required=False,
         label=_('Assigned to an interface'),
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -1300,7 +1300,7 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
-        widget=StaticSelect2
+        widget=StaticSelect
     )
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
@@ -1370,7 +1370,7 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             'clustergroup', 'cluster',
         ]
         widgets = {
-            'scope_type': StaticSelect2,
+            'scope_type': StaticSelect,
         }
 
     def __init__(self, *args, **kwargs):
@@ -1481,7 +1481,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             ('virtualization.cluster', 'Cluster'),
         ),
         required=False,
-        widget=StaticSelect2,
+        widget=StaticSelect,
         label='Group scope'
     )
     group = DynamicModelChoiceField(
@@ -1544,7 +1544,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'role': "The primary function of this VLAN",
         }
         widgets = {
-            'status': StaticSelect2(),
+            'status': StaticSelect(),
         }
 
 
@@ -1622,7 +1622,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
     status = forms.ChoiceField(
         choices=add_blank_choice(VLANStatusChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -1680,7 +1680,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     status = forms.MultipleChoiceField(
         choices=VLANStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
@@ -1718,8 +1718,8 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
                            "reachable via all IPs assigned to the device.",
         }
         widgets = {
-            'protocol': StaticSelect2(),
-            'ipaddresses': StaticSelect2Multiple(),
+            'protocol': StaticSelect(),
+            'ipaddresses': StaticSelectMultiple(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1743,7 +1743,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     port = forms.IntegerField(
         required=False,
@@ -1782,7 +1782,7 @@ class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     ports = NumericArrayField(
         base_field=forms.IntegerField(
