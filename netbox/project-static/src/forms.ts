@@ -1,9 +1,36 @@
-import { getElements, scrollTo } from './util';
+import { getElements, scrollTo, findFirstAdjacent, isTruthy } from './util';
 
 type ShowHideMap = {
   default: { hide: string[]; show: string[] };
   [k: string]: { hide: string[]; show: string[] };
 };
+
+/**
+ * Handle bulk add/edit/rename form actions.
+ *
+ * @param event Click Event
+ */
+function handleFormActionClick(event: Event): void {
+  event.preventDefault();
+  const element = event.currentTarget as HTMLElement;
+  if (element !== null) {
+    const form = findFirstAdjacent<HTMLFormElement>(element, 'form');
+    const href = element.getAttribute('href');
+    if (form !== null && isTruthy(href)) {
+      form.setAttribute('action', href);
+      form.submit();
+    }
+  }
+}
+
+/**
+ * Initialize bulk form action links.
+ */
+function initFormActions() {
+  for (const element of getElements<HTMLAnchorElement>('a.formaction')) {
+    element.addEventListener('click', handleFormActionClick);
+  }
+}
 
 /**
  * Get form data from a form element and transform it into a body usable by fetch.
@@ -264,7 +291,13 @@ function initScopeSelector() {
 }
 
 export function initForms() {
-  for (const func of [initFormElements, initMoveButtons, initSpeedSelector, initScopeSelector]) {
+  for (const func of [
+    initFormElements,
+    initFormActions,
+    initMoveButtons,
+    initSpeedSelector,
+    initScopeSelector,
+  ]) {
     func();
   }
 }
