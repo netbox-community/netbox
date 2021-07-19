@@ -68,7 +68,6 @@ nav:
         - Custom Scripts: 'customization/custom-scripts.md'
         - Reports: 'customization/reports.md'
     - Additional Features:
-        - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'
         - Context Data: 'models/extras/configcontext.md'
         - Journaling: 'additional-features/journaling.md'
