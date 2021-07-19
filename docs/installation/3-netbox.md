@@ -214,8 +214,9 @@ sudo sh -c "echo 'django-storages' >> /opt/netbox/local_requirements.txt"
 Once NetBox has been configured, we're ready to proceed with the actual installation. We'll run the packaged upgrade script (`upgrade.sh`) to perform the following actions:
 
 * Create a Python virtual environment
-* Install all required Python packages
+* Installs all required Python packages
 * Run database schema migrations
+* Builds the documentation locally (for offline use)
 * Aggregate static resource files on disk
 
 ```no-highlight

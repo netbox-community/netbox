@@ -1,4 +1,5 @@
 site_name: NetBox Documentation
+site_dir: netbox/project-static/docs
 site_url: https://netbox.readthedocs.io/
 repo_url: https://github.com/netbox-community/netbox
 python:
@@ -67,7 +68,6 @@ nav:
         - Custom Scripts: 'customization/custom-scripts.md'
         - Reports: 'customization/reports.md'
     - Additional Features:
-        - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'
         - Context Data: 'models/extras/configcontext.md'
         - Journaling: 'additional-features/journaling.md'

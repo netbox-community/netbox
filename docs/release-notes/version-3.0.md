@@ -181,6 +181,7 @@ Note that NetBox's `rqworker` process will _not_ service custom queues by defaul
 * [#5532](https://github.com/netbox-community/netbox/issues/5532) - Drop support for Python 3.6
 * [#5994](https://github.com/netbox-community/netbox/issues/5994) - Drop support for `display_field` argument on ObjectVar
 * [#6068](https://github.com/netbox-community/netbox/issues/6068) - Drop support for legacy static CSV export
+* [#6328](https://github.com/netbox-community/netbox/issues/6328) - Build and serve documentation locally
 * [#6338](https://github.com/netbox-community/netbox/issues/6338) - Decimal fields are no longer coerced to strings in REST API
 * [#6639](https://github.com/netbox-community/netbox/issues/6639) - Drop support for queryset caching (django-cacheops)
 * [#6713](https://github.com/netbox-community/netbox/issues/6713) - Checking for new releases is now done as part of the housekeeping routine

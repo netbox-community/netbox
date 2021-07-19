@@ -82,6 +82,11 @@ COMMAND="python3 netbox/manage.py trace_paths --no-input"
 echo "Checking for missing cable paths ($COMMAND)..."
 eval $COMMAND || exit 1
 
+# Build the local documentation
+COMMAND="mkdocs build"
+echo "Building documentation ($COMMAND)..."
+eval $COMMAND || exit 1
+
 # Collect static files
 COMMAND="python3 netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."

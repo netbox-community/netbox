@@ -74,6 +74,14 @@ Jinja2
 # https://github.com/Python-Markdown/markdown
 Markdown
 
+# File inclusion plugin for Python-Markdown
+# https://github.com/cmacmackin/markdown-include
+markdown-include
+
+# MkDocs Material theme (for documentation build)
+# https://github.com/squidfunk/mkdocs-material
+mkdocs-material
+
 # Library for manipulating IP prefixes and addresses
 # https://github.com/drkjam/netaddr
 netaddr
