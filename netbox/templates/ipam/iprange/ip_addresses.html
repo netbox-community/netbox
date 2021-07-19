@@ -1,0 +1,18 @@
+{% extends 'ipam/iprange/base.html' %}
+
+{% block extra_controls %}
+  {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and object.first_available_ip %}
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ object.first_available_ip }}&vrf={{ object.vrf.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-sm btn-outline-success m-1">
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+        Add an IP Address
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      {% include 'utilities/obj_table.html' with table=ip_table heading='IP Addresses' bulk_edit_url='ipam:ipaddress_bulk_edit' bulk_delete_url='ipam:ipaddress_bulk_delete' %}
+    </div>
+  </div>
+{% endblock %}

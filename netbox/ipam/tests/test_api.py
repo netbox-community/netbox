@@ -6,7 +6,7 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from ipam.models import *
 from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
 
 
@@ -305,6 +305,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Retrieve all available IPs
         response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 8)  # 8 because prefix.is_pool = True
 
         # Change the prefix to not be a pool and try again
@@ -353,6 +354,105 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Create all eight available IPs in a single request
         data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 9)]  # 8 IPs
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 8)
+
+
+class IPRangeTest(APIViewTestCases.APIViewTestCase):
+    model = IPRange
+    brief_fields = ['display', 'end_address', 'family', 'id', 'start_address', 'url']
+    create_data = [
+        {
+            'start_address': '192.168.4.10/24',
+            'end_address': '192.168.4.50/24',
+        },
+        {
+            'start_address': '192.168.5.10/24',
+            'end_address': '192.168.5.50/24',
+        },
+        {
+            'start_address': '192.168.6.10/24',
+            'end_address': '192.168.6.50/24',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        ip_ranges = (
+            IPRange(start_address=IPNetwork('192.168.1.10/24'), end_address=IPNetwork('192.168.1.50/24'), size=51),
+            IPRange(start_address=IPNetwork('192.168.2.10/24'), end_address=IPNetwork('192.168.2.50/24'), size=51),
+            IPRange(start_address=IPNetwork('192.168.3.10/24'), end_address=IPNetwork('192.168.3.50/24'), size=51),
+        )
+        IPRange.objects.bulk_create(ip_ranges)
+
+    def test_list_available_ips(self):
+        """
+        Test retrieval of all available IP addresses within a parent IP range.
+        """
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.19/24')
+        )
+        url = reverse('ipam-api:iprange-available-ips', kwargs={'pk': iprange.pk})
+        self.add_permissions('ipam.view_iprange', 'ipam.view_ipaddress')
+
+        # Retrieve all available IPs
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 10)
+
+    def test_create_single_available_ip(self):
+        """
+        Test retrieval of the first available IP address within a parent IP range.
+        """
+        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.3/24'),
+            vrf=vrf
+        )
+        url = reverse('ipam-api:iprange-available-ips', kwargs={'pk': iprange.pk})
+        self.add_permissions('ipam.view_iprange', 'ipam.add_ipaddress')
+
+        # Create all three available IPs with individual requests
+        for i in range(1, 4):
+            data = {
+                'description': f'Test IP #{i}'
+            }
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(response.data['vrf']['id'], vrf.pk)
+            self.assertEqual(response.data['description'], data['description'])
+
+        # Try to create one more IP
+        response = self.client.post(url, {}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertIn('detail', response.data)
+
+    def test_create_multiple_available_ips(self):
+        """
+        Test the creation of available IP addresses within a parent IP range.
+        """
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.8/24')
+        )
+        url = reverse('ipam-api:iprange-available-ips', kwargs={'pk': iprange.pk})
+        self.add_permissions('ipam.view_iprange', 'ipam.add_ipaddress')
+
+        # Try to create nine IPs (only eight are available)
+        data = [{'description': f'Test IP #{i}'} for i in range(1, 10)]  # 9 IPs
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertIn('detail', response.data)
+
+        # Create all eight available IPs in a single request
+        data = [{'description': f'Test IP #{i}'} for i in range(1, 9)]  # 8 IPs
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 8)

@@ -21,7 +21,7 @@ from dcim.models import (
 )
 from extras.choices import JobResultStatusChoices
 from extras.models import ObjectChange, JobResult
-from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
+from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from netbox.forms import SearchForm
 from tenancy.models import Tenant
@@ -68,6 +68,7 @@ class HomeView(View):
                 ("ipam.view_vrf", "VRFs", VRF.objects.restrict(request.user, 'view').count),
                 ("ipam.view_aggregate", "Aggregates", Aggregate.objects.restrict(request.user, 'view').count),
                 ("ipam.view_prefix", "Prefixes", Prefix.objects.restrict(request.user, 'view').count),
+                ("ipam.view_iprange", "IP Ranges", IPRange.objects.restrict(request.user, 'view').count),
                 ("ipam.view_ipaddress", "IP Addresses", IPAddress.objects.restrict(request.user, 'view').count),
                 ("ipam.view_vlan", "VLANs", VLAN.objects.restrict(request.user, 'view').count)
 

@@ -8,7 +8,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from ipam.models import *
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import OrganizationalModelSerializer
 from netbox.api.serializers import PrimaryModelSerializer
@@ -256,6 +256,28 @@ class AvailablePrefixSerializer(serializers.Serializer):
 
 
 #
+# IP ranges
+#
+
+class IPRangeSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
+    vrf = NestedVRFSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=IPRangeStatusChoices, required=False)
+    role = NestedRoleSerializer(required=False, allow_null=True)
+    children = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = IPRange
+        fields = [
+            'id', 'url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant', 'status', 'role',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
+        ]
+        read_only_fields = ['family']
+
+
+#
 # IP addresses
 #
 
@@ -307,9 +329,9 @@ class AvailableIPSerializer(serializers.Serializer):
         else:
             vrf = None
         return OrderedDict([
-            ('family', self.context['prefix'].version),
-            ('address', '{}/{}'.format(instance, self.context['prefix'].prefixlen)),
-            ('vrf', vrf),
+            ('family', self.context['parent'].family),
+            ('address', f"{instance}/{self.context['parent'].mask_length}"),
+            ('vrf', self.context['parent'].vrf),
         ])
 
 

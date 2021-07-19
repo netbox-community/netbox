@@ -9,7 +9,7 @@ from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .constants import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from .models import *
 from .utils import add_available_ipaddresses, add_available_prefixes, add_available_vlans
 
 
@@ -501,6 +501,83 @@ class PrefixBulkDeleteView(generic.BulkDeleteView):
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filterset = filtersets.PrefixFilterSet
     table = tables.PrefixTable
+
+
+#
+# IP Ranges
+#
+
+class IPRangeListView(generic.ObjectListView):
+    queryset = IPRange.objects.all()
+    filterset = filtersets.IPRangeFilterSet
+    filterset_form = forms.IPRangeFilterForm
+    table = tables.IPRangeTable
+
+
+class IPRangeView(generic.ObjectView):
+    queryset = IPRange.objects.all()
+
+
+class IPRangeIPAddressesView(generic.ObjectView):
+    queryset = IPRange.objects.all()
+    template_name = 'ipam/iprange/ip_addresses.html'
+
+    def get_extra_context(self, request, instance):
+        # Find all IPAddresses within this range
+        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related(
+            'vrf', 'primary_ip4_for', 'primary_ip6_for'
+        )
+
+        # Add available IP addresses to the table if requested
+        # if request.GET.get('show_available', 'true') == 'true':
+        #     ipaddresses = add_available_ipaddresses(instance.prefix, ipaddresses, instance.is_pool)
+
+        ip_table = tables.IPAddressTable(ipaddresses)
+        if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
+            ip_table.columns.show('pk')
+        paginate_table(ip_table, request)
+
+        # Compile permissions list for rendering the object table
+        permissions = {
+            'add': request.user.has_perm('ipam.add_ipaddress'),
+            'change': request.user.has_perm('ipam.change_ipaddress'),
+            'delete': request.user.has_perm('ipam.delete_ipaddress'),
+        }
+
+        return {
+            'ip_table': ip_table,
+            'permissions': permissions,
+            'active_tab': 'ip-addresses',
+            'show_available': request.GET.get('show_available', 'true') == 'true',
+        }
+
+
+class IPRangeEditView(generic.ObjectEditView):
+    queryset = IPRange.objects.all()
+    model_form = forms.IPRangeForm
+
+
+class IPRangeDeleteView(generic.ObjectDeleteView):
+    queryset = IPRange.objects.all()
+
+
+class IPRangeBulkImportView(generic.BulkImportView):
+    queryset = IPRange.objects.all()
+    model_form = forms.IPRangeCSVForm
+    table = tables.IPRangeTable
+
+
+class IPRangeBulkEditView(generic.BulkEditView):
+    queryset = IPRange.objects.prefetch_related('vrf', 'tenant')
+    filterset = filtersets.IPRangeFilterSet
+    table = tables.IPRangeTable
+    form = forms.IPRangeBulkEditForm
+
+
+class IPRangeBulkDeleteView(generic.BulkDeleteView):
+    queryset = IPRange.objects.prefetch_related('vrf', 'tenant')
+    filterset = filtersets.IPRangeFilterSet
+    table = tables.IPRangeTable
 
 
 #

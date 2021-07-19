@@ -11,6 +11,9 @@ class IPAMQuery(graphene.ObjectType):
     ip_address = ObjectField(IPAddressType)
     ip_address_list = ObjectListField(IPAddressType)
 
+    ip_range = ObjectField(IPRangeType)
+    ip_range_list = ObjectListField(IPRangeType)
+
     prefix = ObjectField(PrefixType)
     prefix_list = ObjectListField(PrefixType)
 

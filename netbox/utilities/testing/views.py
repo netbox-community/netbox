@@ -440,12 +440,8 @@ class ViewTestCases:
             response = self.client.get(self._get_url('list'))
             self.assertHttpStatus(response, 200)
             content = str(response.content)
-            if hasattr(self.model, 'name'):
-                self.assertIn(instance1.name, content)
-                self.assertNotIn(instance2.name, content)
-            elif hasattr(self.model, 'get_absolute_url'):
-                self.assertIn(instance1.get_absolute_url(), content)
-                self.assertNotIn(instance2.get_absolute_url(), content)
+            self.assertIn(instance1.get_absolute_url(), content)
+            self.assertNotIn(instance2.get_absolute_url(), content)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_export_objects(self):
@@ -641,7 +637,7 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_edit_objects_with_permission(self):
-            pk_list = self._get_queryset().values_list('pk', flat=True)[:3]
+            pk_list = list(self._get_queryset().values_list('pk', flat=True)[:3])
             data = {
                 'pk': pk_list,
                 '_apply': True,  # Form button

@@ -14,12 +14,13 @@ from utilities.filters import (
 )
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from .models import *
 
 
 __all__ = (
     'AggregateFilterSet',
     'IPAddressFilterSet',
+    'IPRangeFilterSet',
     'PrefixFilterSet',
     'RIRFilterSet',
     'RoleFilterSet',
@@ -373,6 +374,73 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
         )
+
+
+class IPRangeFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    family = django_filters.NumberFilter(
+        field_name='start_address',
+        lookup_expr='family'
+    )
+    contains = django_filters.CharFilter(
+        method='search_contains',
+        label='Ranges which contain this prefix or IP',
+    )
+    vrf_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VRF.objects.all(),
+        label='VRF',
+    )
+    vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='vrf__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='VRF (RD)',
+    )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Role.objects.all(),
+        label='Role (ID)',
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=Role.objects.all(),
+        to_field_name='slug',
+        label='Role (slug)',
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=IPRangeStatusChoices,
+        null_value=None
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = IPRange
+        fields = ['id']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(description__icontains=value)
+        try:
+            ipaddress = str(netaddr.IPNetwork(value.strip()).cidr)
+            qs_filter |= Q(start_address=ipaddress)
+            qs_filter |= Q(end_address=ipaddress)
+        except (AddrFormatError, ValueError):
+            pass
+        return queryset.filter(qs_filter)
+
+    def search_contains(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            # Strip mask
+            ipaddress = netaddr.IPNetwork(value)
+            return queryset.filter(start_address__lte=ipaddress, end_address__gte=ipaddress)
+        except (AddrFormatError, ValueError):
+            return queryset.none()
 
 
 class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):

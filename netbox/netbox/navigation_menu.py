@@ -153,6 +153,8 @@ IPAM_MENU = Menu(
         MenuGroup(
             label="IP Addresses",
             items=(
+                MenuItem(label="IP Ranges", url="ipam:iprange_list",
+                         add_url="ipam:iprange_add", import_url="ipam:iprange_import"),
                 MenuItem(label="IP Addresses", url="ipam:ipaddress_list",
                          add_url="ipam:ipaddress_add", import_url="ipam:ipaddress_import"),
             ),

@@ -4,6 +4,7 @@ from netbox.graphql.types import ObjectType, TaggedObjectType
 __all__ = (
     'AggregateType',
     'IPAddressType',
+    'IPRangeType',
     'PrefixType',
     'RIRType',
     'RoleType',
@@ -29,6 +30,17 @@ class IPAddressType(TaggedObjectType):
         model = models.IPAddress
         fields = '__all__'
         filterset_class = filtersets.IPAddressFilterSet
+
+    def resolve_role(self, info):
+        return self.role or None
+
+
+class IPRangeType(TaggedObjectType):
+
+    class Meta:
+        model = models.IPRange
+        fields = '__all__'
+        filterset_class = filtersets.IPRangeFilterSet
 
     def resolve_role(self, info):
         return self.role or None
