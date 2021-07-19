@@ -18,7 +18,7 @@ $spacing-s: $input-padding-x;
   --nbx-select-option-selected-bg: #{$gray-300};
   --nbx-select-option-hover-bg: #{$blue};
   --nbx-select-option-hover-color: #{$white};
-  --nbx-select-placeholder-color: #{$gray-500};
+  --nbx-select-placeholder-color: #{$gray-600};
   --nbx-select-value-color: #{$white};
   & body[data-netbox-color-mode='dark'] {
     --nbx-select-content-bg: #{$gray-900};
@@ -120,7 +120,7 @@ div.form-floating div.ss-main div.ss-multi-selected {
         background-color: transparent;
       }
       .ss-option.ss-disabled:hover {
-        color: unset;
+        color: $form-select-disabled-color;
       }
     }
     border-bottom-left-radius: $form-select-border-radius;

@@ -60,8 +60,9 @@ $btn-active-box-shadow: inset 0 3px 5px rgba($white, 0.125);
 $btn-link-disabled-color: $gray-300;
 
 // Forms
+$component-active-bg: $primary;
 $form-text-color: $text-muted;
-$input-bg: $gray-800;
+$input-bg: $gray-900;
 $input-disabled-bg: $gray-700;
 $input-color: $gray-100;
 $input-border-color: $gray-700;
@@ -90,7 +91,7 @@ $input-group-addon-bg: $gray-700;
 $input-group-addon-border-color: $input-border-color;
 
 $form-select-color: $input-color;
-$form-select-disabled-color: $gray-400;
+$form-select-disabled-color: $gray-700;
 $form-select-bg: $input-bg;
 $form-select-disabled-bg: $input-disabled-bg;
 $form-select-indicator-color: $form-select-color;
@@ -108,6 +109,9 @@ $form-range-thumb-disabled-bg: $gray-500;
 $form-file-button-color: $input-color;
 $form-file-button-bg: $input-group-addon-bg;
 $form-file-button-hover-bg: shade-color($form-file-button-bg, 5%);
+
+$form-feedback-valid-color: $success;
+$form-feedback-invalid-color: $danger;
 
 // Navs
 $nav-link-color: $body-color;
