@@ -2,6 +2,9 @@
 
 ## v3.0-beta1 (FUTURE)
 
+!!! warning "Existing Deployments Must Upgrade from v2.11"
+    Upgrading an existing NetBox deployment to version 3.0 **must** be done from version 2.11.0 or later. If attempting to upgrade a deployment of NetBox v2.10 or earlier, first upgrade to a NetBox v2.11 release, and then upgrade from v2.11 to v3.0. This will avoid any problems with the schema migration optimizations implemented in version 3.0.
+
 ### Breaking Changes
 
 * Python 3.6 is no longer supported.
