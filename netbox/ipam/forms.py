@@ -725,7 +725,7 @@ class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             ('Tenancy', ('tenant_group', 'tenant')),
         )
         widgets = {
-            'status': StaticSelect2(),
+            'status': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -782,7 +782,7 @@ class IPRangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
     status = forms.ChoiceField(
         choices=add_blank_choice(IPRangeStatusChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -812,7 +812,7 @@ class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
         label=_('Address family'),
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -823,7 +823,7 @@ class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
