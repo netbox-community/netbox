@@ -56,7 +56,6 @@ class HomeView(View):
         ).defer('data')[:10]
 
         def build_stats():
-            perms = request.user.get_all_permissions()
             org = (
                 ("dcim.view_site", "Sites", Site.objects.restrict(request.user, 'view').count),
                 ("tenancy.view_tenant", "Tenants", Tenant.objects.restrict(request.user, 'view').count),
@@ -116,7 +115,7 @@ class HomeView(View):
                         "url": url,
                         "disabled": True
                     }
-                    if perm in perms:
+                    if request.user.has_perm(perm):
                         item["count"] = get_count()
                         item["disabled"] = False
                     items.append(item)

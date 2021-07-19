@@ -4,7 +4,6 @@
 {% load render_table from django_tables2 %}
 
 {% block header %}
-    {{ block.super }}
     {% if new_release %}
         {# new_release is set only if the current user is a superuser or staff member #}
         <div class="header-alert-container">
@@ -35,13 +34,22 @@
           <div class="card-body">
             <div class="list-group list-group-flush">
               {% for item in items %}
-                {% if item.count %}
-                  <a href="{% url item.url %}" class="list-group-item list-group-item-action{% if item.disabled %} disabled{% endif %}">
+                {% if not item.disabled %}
+                  <a href="{% url item.url %}" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between align-items-center">
                       {{ item.label }}
                       <h4 class="mb-1">{{ item.count }}</h4>
                     </div>
                   </a>
+                {% else %}
+                  <li class="list-group-item list-group-item-action disabled">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                      {{ item.label }}
+                      <h4 class="mb-1">
+                        <i title="No permission" class="mdi mdi-lock"></i>
+                      </h4>
+                    </div>
+                  </li>
                 {% endif %}
               {% endfor %}
             </div>
