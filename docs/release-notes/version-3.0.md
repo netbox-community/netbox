@@ -5,15 +5,33 @@
 ### Breaking Changes
 
 * Python 3.6 is no longer supported.
-* The `invalidate` management command has been removed.
+* The secrets functionality present in prior releases of NetBox has been removed. The NetBox maintainers strongly recommend the adoption of [Hashicorp Vault](https://github.com/hashicorp/vault) in place of this feature. Development of a NetBox plugin to replace the legacy secrets functionality is also underway.
+* The `invalidate` management command (which clears cached database queries) has been removed.
 * The default CSV export format for all objects now includes all available data. Additionally, the CSV headers now use human-friendly titles rather than the raw field names.
 * Support for queryset caching configuration (`caching_config`) has been removed from the plugins API (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
 * The `cacheops_*` metrics have been removed from the Prometheus exporter (see [#6639](https://github.com/netbox-community/netbox/issues/6639)).
-* The `displa_field` keyword argument has been removed from custom script ObjectVar and MultiObjectVar fields. These widgets will use the `display` value provided by the REST API.
-* The deprecated `display_name` field has been removed from all REST API serializers. (Clients should reference the `display` field instead.)
-* The redundant REST API endpoints for console, power, and interface connections have been removed. The same data can be retrieved using the respective model endpoints with the `?connected=True` filter applied.
+* The `display_field` keyword argument has been removed from custom script ObjectVar and MultiObjectVar fields. These widgets will use the `display` value provided by the REST API.
+* The deprecated `display_name` field has been removed from all REST API serializers. (API clients should reference the `display` field instead.)
+* The redundant REST API endpoints for console, power, and interface connections have been removed. The same data can be retrieved by querying the respective model endpoints with the `?connected=True` filter applied.
 
 ### New Features
+
+#### Updated User Interface ([#5893](https://github.com/netbox-community/netbox/issues/5893))
+
+The NetBox user interface has been completely overhauled with a fresh new look! Beyond the cosmetic improvements, this initiative has allowed us to modernize the entire front end, upgrading from Bootstrap 3 to Bootstrap 5, and eliminating dependencies on outdated libraries such as jQuery and jQuery-UI.
+
+A huge thank you to NetBox maintainer [Matt Love](https://github.com/thatmattlove) for his tremendous work on this!
+
+#### New Views for Models Previously Under the Admin UI ([#6466](https://github.com/netbox-community/netbox/issues/6466))
+
+New UI views have been introduced to manage the following models:
+
+* Custom fields
+* Custom links
+* Export templates
+* Webhooks
+
+These models were previously managed under the admin section of the UI. Moving them to dedicated views ensures a more consistent and convenient user experience.
 
 #### GraphQL API ([#2007](https://github.com/netbox-community/netbox/issues/2007))
 
@@ -59,6 +77,12 @@ And the response:
 
 All GraphQL requests are made at the `/graphql` URL (which also serves the GraphiQL UI). The API is currently read-only. For more detail on NetBox's GraphQL implementation, see [the GraphQL API documentation](../graphql-api/overview.md).
 
+#### IP Ranges ([#834](https://github.com/netbox-community/netbox/issues/834))
+
+NetBox now supports arbitrary IP ranges, which are defined by specifying a starting and ending IP address. Similar to prefixes, each IP range may optionally be assigned to a VRF and/or tenant, and can be assigned a functional role. An IP range must be assigned a status of active, reserved, or deprecated. The REST API implementation for this model also includes an "available IPs" endpoint which functions similarly to the endpoint for prefixes.
+
+More information about IP ranges is available [in the documentation](../models/ipam/iprange.md).
+
 #### REST API Token Provisioning ([#5264](https://github.com/netbox-community/netbox/issues/5264))
 
 This release introduces the `/api/users/tokens/` REST API endpoint, which includes a child endpoint that can be employed by a user to provision a new REST API token. This allows a user to gain REST API access without needing to first create a token via the web UI.
@@ -75,12 +99,6 @@ https://netbox/api/users/tokens/provision/
 ```
 
 If the supplied credentials are valid, NetBox will create and return a new token for the user.
-
-#### Updated User Interface ([#5893](https://github.com/netbox-community/netbox/issues/5893))
-
-The NetBox user interface has been completely overhauled with a fresh new look! Beyond the cosmetic improvements, this initiative has allowed us to modernize the entire front end, upgrading from Bootstrap 3 to Bootstrap 5, and eliminating dependencies on outdated libraries such as jQuery and jQuery-UI.
-
-A huge thank you to NetBox maintainer [Matt Love](https://github.com/thatmattlove) for his tremendous work on this!
 
 #### Custom Model Validation ([#5963](https://github.com/netbox-community/netbox/issues/5963))
 
@@ -114,17 +132,6 @@ GET /api/dcim/interfaces/<ID>>/trace/?render=svg
 ```
 
 The width of the rendered image in pixels may optionally be specified by appending the `&width=<width>` parameter to the request. The default width is 400px.
-
-#### New Views for Models Previously Under the Admin UI ([#6466](https://github.com/netbox-community/netbox/issues/6466))
-
-New UI views have been introduced to manage the following models:
-
-* Custom fields
-* Custom links
-* Export templates
-* Webhooks
-
-These models were previously managed under the admin section of the UI. Moving them to dedicated views ensures a more consistent and convenient user experience.
 
 #### New Housekeeping Command ([#6590](https://github.com/netbox-community/netbox/issues/6590))
 
@@ -182,12 +189,17 @@ Note that NetBox's `rqworker` process will _not_ service custom queues by defaul
 
 ### REST API Changes
 
-* Added the `/api/users/tokens/` endpoint
-    * The `provision/` child endpoint can be used to provision new REST API tokens by supplying a valid username and password
+* Removed all endpoints related to the secrets functionality:
+    * `/api/secrets/generate-rsa-key-pair/`
+    * `/api/secrets/get-session-key/`
+    * `/api/secrets/secrets/`
+    * `/api/secrets/secret-roles/`
 * Removed the following "connections" endpoints:
     * `/api/dcim/console-connections`
     * `/api/dcim/power-connections`
     * `/api/dcim/interface-connections`
+* Added the `/api/users/tokens/` endpoint
+    * The `provision/` child endpoint can be used to provision new REST API tokens by supplying a valid username and password
 * dcim.Cable
     * `length` is now a decimal value
 * dcim.Device
