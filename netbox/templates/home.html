@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load get_status %}
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 {% block header %}
     {{ block.super }}
@@ -51,44 +52,16 @@
   </div>
 
   {# Changelog #}
-  <div class="row my-4 flex-grow-1 changelog-container">
-    <div class="col">
-      <div class="card">
-        <h6 class="card-header text-primary text-center">Changelog</h6>
-          {% if changelog and perms.extras.view_objectchange %}
-            {# TODO: Replace this with a django-tables2 Table #}
-            <table class="table table-flush align-middle table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">User</th>
-                  <th scope="col">Action</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Object</th>
-                  <th scope="col">Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for change in changelog %}
-                  <tr class="{% get_status change.get_action_display %}" data-href="{{ change.get_absolute_url }}">
-                    <th scope="row">{{ change.user|default:change.user_name }}</th>
-                    <td>{{ change.get_action_display|bettertitle }}</td>
-                    <td>{{ change.changed_object_type.name|bettertitle }}</td>
-                    <td>
-                      {% if change.changed_object.get_absolute_url %}
-                      <a class="text-body" href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
-                      {% else %} {{ change.changed_object|default:change.object_repr }} {% endif %}
-                    </td>
-                    <td>{{ change.time|date:'SHORT_DATETIME_FORMAT' }}</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          {% elif perms.extras.view_objectchange %}
-            <div class="alert alert-secondary mt-4" role="alert">
-              No change history found.
-            </div>
-          {% endif %}
+  {% if perms.extras.view_objectchange %}
+    <div class="row my-4 flex-grow-1 changelog-container">
+      <div class="col">
+        <div class="card">
+          <h6 class="card-header text-primary text-center">Change Log</h6>
+          <div class="card-body">
+            {% include 'inc/responsive_table.html' with table=changelog_table %}
+          </div>
         </div>
+      </div>
     </div>
-  </div>
+  {% endif %}
 {% endblock content %}

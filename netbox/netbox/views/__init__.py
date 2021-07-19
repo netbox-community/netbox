@@ -21,10 +21,12 @@ from dcim.models import (
 )
 from extras.choices import JobResultStatusChoices
 from extras.models import ObjectChange, JobResult
+from extras.tables import ObjectChangeTable
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from netbox.forms import SearchForm
 from tenancy.models import Tenant
+from utilities.tables import paginate_table
 from virtualization.models import Cluster, VirtualMachine
 
 
@@ -122,7 +124,11 @@ class HomeView(View):
 
             return stats
 
-        changelog = ObjectChange.objects.restrict(request.user, 'view').prefetch_related('user', 'changed_object_type')
+        # Compile changelog table
+        changelog = ObjectChange.objects.restrict(request.user, 'view').prefetch_related(
+            'user', 'changed_object_type'
+        )[:10]
+        changelog_table = ObjectChangeTable(changelog)
 
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None
@@ -140,7 +146,7 @@ class HomeView(View):
             'search_form': SearchForm(),
             'stats': build_stats(),
             'report_results': report_results,
-            'changelog': changelog[:15],
+            'changelog_table': changelog_table,
             'new_release': new_release,
         })
 
