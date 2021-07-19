@@ -75,6 +75,13 @@ Once the new code is in place, verify that any optional Python packages required
 sudo ./upgrade.sh
 ```
 
+!!! warning
+    If the default version of Python is not at least 3.7, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
+
+    ```no-highlight
+    sudo PYTHON=/usr/bin/python3.7 ./upgrade.sh
+    ```
+
 This script performs the following actions:
 
 * Destroys and rebuilds the Python virtual environment

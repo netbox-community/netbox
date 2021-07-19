@@ -223,6 +223,12 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 sudo /opt/netbox/upgrade.sh
 ```
 
+Note that Python 3.7 or later is required for NetBox v3.0 and later releases. If the default Python installation on your server does not meet this requirement, you'll need to install Python 3.7 or later separately, and pass the path to the support installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+
+```no-highlight
+sudo PYTHON=/usr/bin/python3.7 /opt/netbox/upgrade.sh
+```
+
 !!! note
     Upon completion, the upgrade script may warn that no existing virtual environment was detected. As this is a new installation, this warning can be safely ignored.
 
