@@ -1,4 +1,5 @@
 site_name: NetBox Documentation
+site_dir: netbox/project-static/docs
 site_url: https://netbox.readthedocs.io/
 repo_url: https://github.com/netbox-community/netbox
 python:

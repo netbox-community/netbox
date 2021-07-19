@@ -81,10 +81,10 @@ This script performs the following actions:
 * Installs all required Python packages (listed in `requirements.txt`)
 * Installs any additional packages from `local_requirements.txt`
 * Applies any database migrations that were included in the release
+* Builds the documentation locally (for offline use)
 * Collects all static files to be served by the HTTP service
 * Deletes stale content types from the database
 * Deletes all expired user sessions from the database
-* Clears all cached data to prevent conflicts with the new release
 
 !!! note
     If the upgrade script prompts a warning about unreflected database migrations, this indicates that some change has
