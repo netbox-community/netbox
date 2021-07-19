@@ -19,12 +19,9 @@ The video below demonstrates the installation of NetBox v2.10.3 on Ubuntu 20.04 
 
 | Dependency | Minimum Version |
 |------------|-----------------|
-| Python     | 3.6             |
+| Python     | 3.7             |
 | PostgreSQL | 9.6             |
 | Redis      | 4.0             |
-
-!!! note
-    Python 3.7 or later will be required in NetBox v3.0. Users are strongly encouraged to install NetBox using Python 3.7 or later for new deployments.
 
 Below is a simplified overview of the NetBox application stack for reference:
 

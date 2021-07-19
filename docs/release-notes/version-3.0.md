@@ -181,6 +181,7 @@ Note that NetBox's `rqworker` process will _not_ service custom queues by defaul
 * [#6338](https://github.com/netbox-community/netbox/issues/6338) - Decimal fields are no longer coerced to strings in REST API
 * [#6639](https://github.com/netbox-community/netbox/issues/6639) - Drop support for queryset caching (django-cacheops)
 * [#6713](https://github.com/netbox-community/netbox/issues/6713) - Checking for new releases is now done as part of the housekeeping routine
+* [#6767](https://github.com/netbox-community/netbox/issues/6767) - Add support for Python 3.9
 
 ### Configuration Changes
 

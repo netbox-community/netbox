@@ -48,7 +48,7 @@ The plugin source directory contains all of the actual Python code and other res
 
 ### Create setup.py
 
-`setup.py` is the [setup script](https://docs.python.org/3.6/distutils/setupscript.html) we'll use to install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to inform the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
+`setup.py` is the [setup script](https://docs.python.org/3.7/distutils/setupscript.html) we'll use to install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to inform the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
 
 ```python
 from setuptools import find_packages, setup

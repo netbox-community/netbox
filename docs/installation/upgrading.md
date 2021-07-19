@@ -6,11 +6,11 @@ Prior to upgrading your NetBox instance, be sure to carefully review all [releas
 
 ## Update Dependencies to Required Versions
 
-NetBox v2.9.0 and later requires the following:
+NetBox v3.0 and later requires the following:
 
 | Dependency | Minimum Version |
 |------------|-----------------|
-| Python     | 3.6             |
+| Python     | 3.7             |
 | PostgreSQL | 9.6             |
 | Redis      | 4.0             |
 
