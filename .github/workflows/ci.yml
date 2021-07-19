@@ -40,6 +40,9 @@ jobs:
         pip install pycodestyle coverage
         ln -s configuration.testing.py netbox/netbox/configuration.py
 
+    - name: Build documentation
+      run: mkdocs build
+
     - name: Collect static files
       run: python netbox/manage.py collectstatic --no-input
 
