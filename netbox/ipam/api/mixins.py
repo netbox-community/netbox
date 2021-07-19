@@ -98,6 +98,7 @@ class AvailablePrefixesMixin:
 
 
 class AvailableIPsMixin:
+    parent_model = Prefix
 
     @swagger_auto_schema(method='get', responses={200: serializers.AvailableIPSerializer(many=True)})
     @swagger_auto_schema(method='post', responses={201: serializers.AvailableIPSerializer(many=True)},
@@ -113,7 +114,7 @@ class AvailableIPsMixin:
         The advisory lock decorator uses a PostgreSQL advisory lock to prevent this API from being
         invoked in parallel, which results in a race condition where multiple insertions can occur.
         """
-        parent = get_object_or_404(Prefix.objects.restrict(request.user), pk=pk)
+        parent = get_object_or_404(self.parent_model.objects.restrict(request.user), pk=pk)
 
         # Create the next available IP
         if request.method == 'POST':
@@ -174,8 +175,7 @@ class AvailableIPsMixin:
                     break
             serializer = serializers.AvailableIPSerializer(ip_list, many=True, context={
                 'request': request,
-                'prefix': parent.prefix,
-                'vrf': parent.vrf,
+                'parent': parent,
             })
 
             return Response(serializer.data)

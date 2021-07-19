@@ -87,6 +87,8 @@ class PrefixViewSet(mixins.AvailableIPsMixin, mixins.AvailablePrefixesMixin, Cus
     serializer_class = serializers.PrefixSerializer
     filterset_class = filtersets.PrefixFilterSet
 
+    parent_model = Prefix  # AvailableIPsMixin
+
     def get_serializer_class(self):
         if self.action == "available_prefixes" and self.request.method == "POST":
             return serializers.PrefixLengthSerializer
@@ -97,10 +99,12 @@ class PrefixViewSet(mixins.AvailableIPsMixin, mixins.AvailablePrefixesMixin, Cus
 # IP ranges
 #
 
-class IPRangeViewSet(CustomFieldModelViewSet):
+class IPRangeViewSet(mixins.AvailableIPsMixin, CustomFieldModelViewSet):
     queryset = IPRange.objects.prefetch_related('vrf', 'role', 'tenant', 'tags')
     serializer_class = serializers.IPRangeSerializer
     filterset_class = filtersets.IPRangeFilterSet
+
+    parent_model = IPRange  # AvailableIPsMixin
 
 
 #
