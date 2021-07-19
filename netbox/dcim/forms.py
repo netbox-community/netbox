@@ -2077,6 +2077,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             attrs={
                 'disabled-indicator': 'device',
                 'data-query-param-face': "[\"$face\"]",
+                # The UI will not sort this element's options.
+                'pre-sorted': ''
             }
         )
     )
