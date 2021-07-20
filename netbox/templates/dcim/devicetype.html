@@ -10,7 +10,7 @@
   <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
 {% endblock %}
 
-{% block controls %}
+{% block extra_controls %}
   {% if perms.dcim.change_devicetype %}
     <div class="dropdown m-1">
       <button type="button" class="btn btn-primary btn-sm dropdown-toggle"data-bs-toggle="dropdown" aria-expanded="false">
@@ -43,15 +43,6 @@
         {% endif %}
       </ul>
     </div>
-  {% endif %}
-  {% if perms.dcim.add_devicetype %}
-    {% clone_button object %}
-  {% endif %}
-  {% if perms.dcim.change_devicetype %}
-    {% edit_button object %}
-  {% endif %}
-  {% if perms.dcim.delete_devicetype %}
-    {% delete_button object %}
   {% endif %}
 {% endblock %}
 
