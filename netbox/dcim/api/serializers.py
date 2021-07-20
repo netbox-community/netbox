@@ -209,6 +209,10 @@ class RackUnitSerializer(serializers.Serializer):
     face = ChoiceField(choices=DeviceFaceChoices, read_only=True)
     device = NestedDeviceSerializer(read_only=True)
     occupied = serializers.BooleanField(read_only=True)
+    display = serializers.SerializerMethodField(read_only=True)
+
+    def get_display(self, obj):
+        return obj['name']
 
 
 class RackReservationSerializer(PrimaryModelSerializer):

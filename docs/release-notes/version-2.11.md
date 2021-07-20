@@ -1,5 +1,14 @@
 # NetBox v2.11
 
+## v2.11.10 (FUTURE)
+
+### Bug Fixes
+
+* [#5442](https://github.com/netbox-community/netbox/issues/5442) - Fix assignment of permissions based on LDAP groups
+* [#6773](https://github.com/netbox-community/netbox/issues/6773) - Add missing `display` field to rack unit serializer
+
+---
+
 ## v2.11.9 (2021-07-08)
 
 ### Bug Fixes
