@@ -56,6 +56,8 @@ ORGANIZATION_MENU = Menu(
                          add_url="dcim:rack_add", import_url="dcim:rack_import"),
                 MenuItem(label="Rack Roles", url="dcim:rackrole_list",
                          add_url="dcim:rackrole_add", import_url="dcim:rackrole_import"),
+                MenuItem(label="Reservations", url="dcim:rackreservation_list",
+                         add_url="dcim:rackreservation_add", import_url=None),
                 MenuItem(label="Elevations", url="dcim:rack_elevation_list",
                          add_url=None, import_url=None),
             ),
