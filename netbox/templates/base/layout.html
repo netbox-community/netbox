@@ -105,6 +105,19 @@
             </div>
         </nav>
 
+        {% if settings.BANNER_TOP %}
+          <div class="alert alert-info text-center mx-3" role="alert">
+            {{ settings.BANNER_TOP|safe }}
+          </div>
+        {% endif %}
+
+        {% if settings.MAINTENANCE_MODE %}
+          <div class="alert alert-warning text-center mx-3" role="alert">
+            <h4><i class="mdi mdi-alert"></i> Maintenance Mode</h4>
+            <span>NetBox is currently in maintenance mode. Functionality may be limited.</span>
+          </div>
+        {% endif %}
+
         {# Page header #}
         {% block header %}
           <div class="title-container px-3 pb-3">
@@ -128,6 +141,12 @@
             {% block content %}{% endblock %}
           </div>
         </div>
+
+        {% if settings.BANNER_BOTTOM %}
+          <div class="alert alert-info text-center mx-3" role="alert">
+            {{ settings.BANNER_BOTTOM|safe }}
+          </div>
+        {% endif %}
 
         {# Page footer #}
         <footer class="footer container-fluid pb-3 pt-4 px-0">
