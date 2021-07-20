@@ -13,12 +13,12 @@
 
 {% block extra_controls %}
   {% if perms.virtualization.change_cluster and perms.virtualization.add_virtualmachine %}
-    <a href="{% url 'virtualization:virtualmachine_add' %}?cluster_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary m-1">
+    <a href="{% url 'virtualization:virtualmachine_add' %}?cluster_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-blue-500 m-1">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Virtual Machine
     </a>
   {% endif %}
   {% if perms.virtualization.change_cluster %}
-    <a href="{% url 'virtualization:cluster_add_devices' pk=object.pk %}?site_id={{ object.site.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm m-1">
+    <a href="{% url 'virtualization:cluster_add_devices' pk=object.pk %}?site_id={{ object.site.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-blue-500 btn-sm m-1">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Device
     </a>
   {% endif %}

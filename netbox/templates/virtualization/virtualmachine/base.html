@@ -10,7 +10,7 @@
 
 {% block extra_controls %}
   {% if perms.virtualization.add_vminterface %}
-    <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-sm btn-primary m-1">
+    <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-sm btn-blue-500 m-1">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Interfaces
     </a>
   {% endif %}

@@ -37,15 +37,15 @@
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
-        {% if request.user|can_add:object %}
-          {% clone_button object %}
-        {% endif %}
-        {% if request.user|can_change:object %}
-          {% edit_button object %}
-        {% endif %}
-        {% if request.user|can_delete:object %}
-          {% delete_button object %}
-        {% endif %}
+      {% if object.clone_fields and request.user|can_add:object %}
+        {% clone_button object %}
+      {% endif %}
+      {% if request.user|can_change:object %}
+        {% edit_button object %}
+      {% endif %}
+      {% if request.user|can_delete:object %}
+        {% delete_button object %}
+      {% endif %}
 
     </div>
   </div>

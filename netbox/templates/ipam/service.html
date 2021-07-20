@@ -13,21 +13,6 @@
   {% endif %}
 {% endblock %}
 
-{% block controls %}
-{% plugin_buttons object %}
-<div class="container mb-2 mx-0">
-  <div class="d-flex flex-wrap justify-content-end">
-  {% block extra_controls %}{% endblock %}
-  {% if request.user|can_change:object %}
-    {% edit_button object %}
-  {% endif %}
-  {% if request.user|can_delete:object %}
-    {% delete_button object %}
-  {% endif %}
-  </div>
-</div>
-{% endblock %}
-
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
