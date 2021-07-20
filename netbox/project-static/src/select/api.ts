@@ -314,7 +314,7 @@ class APISelect {
     const options = [PLACEHOLDER] as Option[];
 
     for (const result of results) {
-      const text = this.getDisplayName(result);
+      const text = result.display;
       const data = {} as Record<string, string>;
       const value = result.id.toString();
       let style, selected, disabled;
@@ -512,29 +512,6 @@ class APISelect {
       }
     }
     return placeholder;
-  }
-
-  /**
-   * Find this element's display name.
-   */
-  private getDisplayName(result: APIObjectBase): string {
-    let displayName = result.display;
-
-    const legacyDisplayProperty = this.base.getAttribute('display-field');
-
-    if (
-      typeof displayName === 'undefined' &&
-      legacyDisplayProperty !== null &&
-      legacyDisplayProperty in result
-    ) {
-      displayName = result[legacyDisplayProperty] as string;
-    }
-
-    if (!displayName && typeof result.name === 'string') {
-      displayName = result.name;
-    }
-
-    return displayName;
   }
 
   /**
