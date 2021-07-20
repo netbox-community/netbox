@@ -175,7 +175,7 @@ class APISelect {
     this.addEventListeners();
 
     // Determine if this element is part of collapsible element.
-    const collapse = findFirstAdjacent(this.base, '.collapse', '.content-container');
+    const collapse = this.base.closest('.content-container .collapse');
     if (collapse !== null) {
       // If this element is part of a collapsible element, only load the data when the
       // collapsible element is shown.
