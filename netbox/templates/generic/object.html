@@ -19,6 +19,14 @@
 
 {% block title %}{{ object }}{% endblock %}
 
+{% block subtitle %}
+  <small class="text-muted">
+    Created {{ object.created|annotated_date }} &middot;
+    Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
+    <span class="badge bg-secondary">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
+  </small>
+{% endblock %}
+
 {% block controls %}
   {# Clone/Edit/Delete Buttons #}
   <div class="controls pb-2 mx-0">
@@ -70,14 +78,3 @@
   {% endif %}
 </ul>
 {% endblock tabs %}
-
-{% block content %}
-<p>
-  <small class="text-muted">
-    Created {{ object.created|annotated_date }} &middot;
-    Updated <span title="{{ object.last_updated|annotated_date }}">{{ object.last_updated|timesince }}</span> ago
-  </small>
-  <span class="badge bg-primary">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
-</p>
-{% endblock content %}
-{% block components %}{% endblock %}
