@@ -27,10 +27,13 @@
 
   {# General stats #}
   <div class="row masonry">
-    {% for section, items in stats %}
+    {% for section, items, icon in stats %}
       <div class="col col-sm-12 col-lg-6 col-xl-4 my-2 masonry-item">
         <div class="card">
-          <h6 class="card-header text-primary text-center">{{ section }}</h6>
+          <h6 class="card-header text-primary text-center">
+            <i class="mdi mdi-{{ icon }}"></i>
+            <span class="ms-1">{{ section }}</span>
+          </h6>
           <div class="card-body">
             <div class="list-group list-group-flush">
               {% for item in items %}
@@ -64,7 +67,10 @@
     <div class="row my-4 flex-grow-1 changelog-container">
       <div class="col">
         <div class="card">
-          <h6 class="card-header text-primary text-center">Change Log</h6>
+          <h6 class="card-header text-primary text-center">
+            <i class="mdi mdi-clipboard-clock"></i>
+            <span class="ms-1">Change Log</span>
+          </h6>
           <div class="card-body">
             {% include 'inc/responsive_table.html' with table=changelog_table %}
           </div>

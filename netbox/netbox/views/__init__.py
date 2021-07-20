@@ -94,17 +94,17 @@ class HomeView(View):
                 ("dcim.view_powerfeed", "Power Feeds", PowerFeed.objects.restrict(request.user, 'view').count),
             )
             sections = (
-                ("Organization", org),
-                ("IPAM", ipam),
-                ("Virtualization", virtualization),
-                ("Inventory", dcim),
-                ("Connections", connections),
-                ("Circuits", circuits),
-                ("Power", power),
+                ("Organization", org, "domain"),
+                ("IPAM", ipam, "counter"),
+                ("Virtualization", virtualization, "monitor"),
+                ("Inventory", dcim, "server"),
+                ("Connections", connections, "cable-data"),
+                ("Circuits", circuits, "transit-connection-variant"),
+                ("Power", power, "flash"),
             )
 
             stats = []
-            for section_label, section_items in sections:
+            for section_label, section_items, icon_class in sections:
                 items = []
                 for perm, item_label, get_count in section_items:
                     app, scope = perm.split(".")
@@ -113,13 +113,14 @@ class HomeView(View):
                         "label": item_label,
                         "count": None,
                         "url": url,
-                        "disabled": True
+                        "disabled": True,
+                        "icon": icon_class,
                     }
                     if request.user.has_perm(perm):
                         item["count"] = get_count()
                         item["disabled"] = False
                     items.append(item)
-                stats.append((section_label, items))
+                stats.append((section_label, items, icon_class))
 
             return stats
 
