@@ -117,6 +117,11 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
             ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window')),
             ('Templates', ('link_text', 'link_url')),
         )
+        help_texts = {
+            'link_text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. '
+                         'Links which render as empty text will not be displayed.',
+            'link_url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.',
+        }
 
 
 class CustomLinkCSVForm(CSVModelForm):
