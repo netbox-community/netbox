@@ -587,10 +587,13 @@ div.content-container {
   white-space: nowrap !important;
 }
 
-#object-type-selector {
-  button.dropdown-item,
-  h6.dropdown-header {
+.search-obj-selector {
+  .dropdown-item,
+  .dropdown-header {
     font-size: $font-size-sm;
+  }
+  .dropdown-header {
+    text-transform: uppercase;
   }
 }
 
