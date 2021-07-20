@@ -47,19 +47,31 @@
               <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
             </a>
 
+            {# REST API #}
+            <a type="button" class="nav-link" href="{% url 'api-root' %}" target="_blank">
+              <i title="REST API" class="mdi mdi-code-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+            </a>
+
             {# API docs #}
             <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
-              <i title="API" class="mdi mdi-code-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+              <i title="REST API documentation" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
             </a>
+
+            {# GraphQL API #}
+            {% if settings.GRAPHQL_ENABLED %}
+              <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
+                <i title="GraphQL API" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+              </a>
+            {% endif %}
 
             {# GitHub #}
             <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
-              <i title="Source Code" class="mdi mdi-code-tags text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+              <i title="Source Code" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
             </a>
 
-            {# GitHub wiki #}
-            <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox/wiki" target="_blank">
-              <i title="Get Help" class="mdi mdi-lifebuoy text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+            {# NetDev Slack #}
+            <a type="button" class="nav-link" href="https://netdev.chat/" target="_blank">
+              <i title="Community" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
             </a>
           </nav>
         </div>
