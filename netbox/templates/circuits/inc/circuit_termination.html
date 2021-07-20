@@ -4,20 +4,20 @@
     <div class="card-header">
         <div class="float-end">
             {% if not termination and perms.circuits.add_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_add' circuit=object.pk %}?term_side={{ side }}" class="btn btn-sm btn-success">
+                <a href="{% url 'circuits:circuittermination_add' circuit=object.pk %}?term_side={{ side }}" class="btn btn-sm btn-green-500 lh-1">
                     <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add
                 </a>
             {% endif %}
             {% if termination and perms.circuits.change_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-warning">
+                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-yellow-500 lh-1">
                     <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                 </a>
-                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-sm btn-primary">
+                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-sm btn-blue-500 lh-1">
                     <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> Swap
                 </a>
             {% endif %}
             {% if termination and perms.circuits.delete_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-danger">
+                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-red-500 lh-1">
                     <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                 </a>
             {% endif %}
@@ -40,30 +40,29 @@
                 <td>Termination</td>
                 <td>
                     {% if termination.mark_connected %}
-                    <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                    <span class="text-muted">Marked as connected</span>
+                      <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                      <span class="text-muted">Marked as connected</span>
                     {% elif termination.cable %}
-                        
                         <div class="float-end">
-                        <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
+                          <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
                             <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
-                        </a>
-                        {% if perms.dcim.delete_cable %}
+                          </a>
+                          {% if perms.dcim.delete_cable %}
                             <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-sm lh-1">
                                 <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> Disconnect
                             </a>
-                            {% endif %}
+                          {% endif %}
                         </div>
-                        
+
                         <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
                         {% with peer=termination.get_cable_peer %}
                             to
                             {% if peer.device %}
-                                <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a>
+                                <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a><br/>
                             {% elif peer.circuit %}
-                                <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a>
+                                <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a><br/>
                             {% endif %}
-                            <span class="text-muted">{{ peer }}</span>
+                            <a href="{{ peer.get_absolute_url }}">{{ peer }}</a>
                         {% endwith %}
                     {% else %}
                         {% if perms.dcim.add_cable %}
