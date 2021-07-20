@@ -33,40 +33,43 @@
     </div>
 
 {% elif field|widget_type == 'slugwidget' %}
-    <div class="form-floating mb-3">
-        <div class="input-group">
-            {{ field }}
-            <label  class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
-                {{ field.label }}
-            </label>
-            <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark">
-                <i class="mdi mdi-undo-variant"></i>
-            </button>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+            {{ field.label }}
+        </label>
+        <div class="col">
+            <div class="input-group">
+                {{ field }}
+                <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark">
+                    <i class="mdi mdi-undo-variant"></i>
+                </button>
+            </div>
         </div>
     </div>
 
 {% elif field|widget_type == 'selectspeedwidget' %}
     {# This is outside the widget because bootstrap requires a specific order for border-radius purposes. #}
-    <div class="form-floating mb-3">
-        <div class="input-group">
-            {{ field }}
-            <label class="{% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">
-                {{ field.label }}
-            </label>
-            <button type="button" class="btn btn-outline-gray dropdown-toggle" data-bs-toggle="dropdown">
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a href="#" target="{{ field.id_for_label }}" data="10000" class="set_speed dropdown-item">10 Mbps</a></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="100000" class="set_speed dropdown-item">100 Mbps</a></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="1000000" class="set_speed dropdown-item">1 Gbps</a></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="10000000" class="set_speed dropdown-item">10 Gbps</a></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="25000000" class="set_speed dropdown-item">25 Gbps</a></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="40000000" class="set_speed dropdown-item">40 Gbps</a></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="100000000" class="set_speed dropdown-item">100 Gbps</a></li>
-                <li><hr class="dropdown-divider"/></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="1544" class="set_speed dropdown-item">T1 (1.544 Mbps)</a></li>
-                <li><a href="#" target="{{ field.id_for_label }}" data="2048" class="set_speed dropdown-item">E1 (2.048 Mbps)</a></li>
-            </ul>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+            {{ field.label }}
+        </label>
+        <div class="col">
+            <div class="input-group">
+                {{ field }}
+                <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown"></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a href="#" target="{{ field.id_for_label }}" data="10000" class="set_speed dropdown-item">10 Mbps</a></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="100000" class="set_speed dropdown-item">100 Mbps</a></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="1000000" class="set_speed dropdown-item">1 Gbps</a></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="10000000" class="set_speed dropdown-item">10 Gbps</a></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="25000000" class="set_speed dropdown-item">25 Gbps</a></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="40000000" class="set_speed dropdown-item">40 Gbps</a></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="100000000" class="set_speed dropdown-item">100 Gbps</a></li>
+                    <li><hr class="dropdown-divider"/></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="1544" class="set_speed dropdown-item">T1 (1.544 Mbps)</a></li>
+                    <li><a href="#" target="{{ field.id_for_label }}" data="2048" class="set_speed dropdown-item">E1 (2.048 Mbps)</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -95,17 +98,21 @@
     </div>
 
 {% else %}
-    <div class="form-floating mb-3">
-        {{ field }}
-        <label for="{{ field.id_for_label }}" {% if field.field.required %}class="required"{% endif %}>
+    <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label{% if field.field.required %} required{% endif %}">
             {{ field.label }}
         </label>
-        
-        {% if field.help_text %}
-            <span class="form-text">{{ field.help_text|safe }}</span>
-        {% endif %}
-        
-        <div class="invalid-feedback">{% if field.field.required %}<strong>{{ field.label }}</strong> field is required.{% endif %}</div>
+        <div class="col">
+            {{ field }}
+            {% if field.help_text %}
+                <span class="form-text">{{ field.help_text|safe }}</span>
+            {% endif %}
+            <div class="invalid-feedback">
+                {% if field.field.required %}
+                    <strong>{{ field.label }}</strong> field is required.
+                {% endif %}
+            </div>
+        </div>
     </div>
     
 {% endif %}

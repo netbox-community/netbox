@@ -9,15 +9,19 @@
     <div class="row mb-3">
         <div class="col col-md-6 offset-md-3">
             <div class="card">
-                <div class="card-header">{% block title %}Populate {{ device_bay }}{% endblock %}</div>
+                <h5 class="card-header">{% block title %}Populate {{ device_bay }}{% endblock %}</h5>
                 <div class="card-body">
-                    <div class="form-floating mb-3">
-                        <input class="form-control" value="{{ device_bay.device }}" disabled />
-                        <label>Parent Device</label>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Parent Device</label>
+                        <div class="col">
+                            <input class="form-control" value="{{ device_bay.device }}" disabled />
+                        </div>
                     </div>
-                    <div class="form-floating mb-3">
-                        <input class="form-control" value="{{ device_bay }}" disabled />
-                        <label>Bay</label>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Bay</label>
+                        <div class="col">
+                            <input class="form-control" value="{{ device_bay }}" disabled />
+                        </div>
                     </div>
                     {% render_form form %}
                 </div>
@@ -25,7 +29,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col col-md-6 text-end">
+        <div class="col col-md-6 offset-md-3 text-end">
             <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
             <button type="submit" name="_update" class="btn btn-primary">Save</button>
         </div>

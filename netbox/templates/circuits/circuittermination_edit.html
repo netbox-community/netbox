@@ -7,17 +7,23 @@
 {% block form %}
   <div class="field-group">
     <h4 class="mb-3">Termination</h4>
-        <div class="form-floating mb-3">
-            <input class="form-control" value="{{ obj.circuit.provider }}" disabled />
-            <label>Provider</label>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Provider</label>
+            <div class="col">
+                <input class="form-control" value="{{ obj.circuit.provider }}" disabled />
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input class="form-control" value="{{ obj.circuit.cid }}" disabled />
-            <label>Circuit</label>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Circuit</label>
+            <div class="col">
+                <input class="form-control" value="{{ obj.circuit.cid }}" disabled />
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input class="form-control" value="{{ form.term_side.value }}" disabled />
-            <label>Termination</label>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Termination</label>
+            <div class="col">
+                <input class="form-control" value="{{ form.term_side.value }}" disabled />
+            </div>
         </div>
         {% render_field form.mark_connected %}
         {% with providernetwork_tab_active=form.initial.provider_network %}

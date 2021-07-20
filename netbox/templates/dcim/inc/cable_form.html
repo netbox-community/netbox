@@ -6,13 +6,15 @@
         {% render_field form.type %}
         {% render_field form.label %}
         {% render_field form.color %}
-        <div class="row">
-            <div class="col">
-                {% render_field form.length %}
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">{{ form.length.label }}</label>
+            <div class="col-md-5">
+                {{ form.length }}
             </div>
-            <div class="col">
-                {% render_field form.length_unit %}
+            <div class="col-md-4">
+                {{ form.length_unit }}
             </div>
+            <div class="invalid-feedback"></div>
         </div>
         {% render_field form.tags %}
         {% if form.custom_fields %}

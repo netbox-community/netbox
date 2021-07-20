@@ -28,18 +28,22 @@
         {% render_field form.rack %}
         
         {% if obj.device_type.is_child_device and obj.parent_bay %}
-            <div class="form-floating mb-3">
-                <input class="form-control" value="{{ obj.parent_bay.device }}" disabled />
-                <label>Parent Device</label>
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Parent Device</label>
+                <div class="col">
+                    <input class="form-control" value="{{ obj.parent_bay.device }}" disabled />
+                </div>
             </div>
-            <div class="form-floating mb-3">
-                <div class="input-group">
-                    <input class="form-control" value="{{ obj.parent_bay.name }}" disabled />
-                    <label>Parent Bay</label>
-                    <a href="{% url 'dcim:devicebay_depopulate' pk=obj.parent_bay.pk %}" title="Regenerate Slug" class="btn btn-danger d-inline-flex align-items-center">
-                        <i class="mdi mdi-close-thick"></i>&nbsp;Remove
-                    </a>
-                </div>  
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Parent Bay</label>
+                <div class="col">
+                    <div class="input-group">
+                        <input class="form-control" value="{{ obj.parent_bay.name }}" disabled />
+                        <a href="{% url 'dcim:devicebay_depopulate' pk=obj.parent_bay.pk %}" title="Regenerate Slug" class="btn btn-danger d-inline-flex align-items-center">
+                            <i class="mdi mdi-close-thick"></i>&nbsp;Remove
+                        </a>
+                    </div>
+                </div>
             </div>
         {% else %}
             {% render_field form.face %}

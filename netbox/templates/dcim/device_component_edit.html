@@ -3,9 +3,11 @@
 
 {% block form_fields %}
     {% if form.instance.device %}
-        <div class="form-floating mb-3">
-            <input class="form-control" value="{{ form.instance.device }}" disabled />
-            <label>Device</label>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label">Device</label>
+            <div class="col">
+                <input class="form-control" value="{{ form.instance.device }}" disabled />
+            </div>
         </div>
     {% endif %}
     {% render_form form %}

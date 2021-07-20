@@ -5,14 +5,18 @@
     <div class="field-group">
         <h4>Service</h4>
         {% if obj.device %}
-            <div class="form-floating mb-3">
-                <input class="form-control" value="{{ obj.device }}" disabled />
-                <label class="form-label">Device</label>
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Device</label>
+                <div class="col">
+                    <input class="form-control" value="{{ obj.device }}" disabled />
+                </div>
             </div>
         {% else %}
-            <div class="form-floating mb-3">
-                <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
-                <label class="form-label">Virtual Machine</label>
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Virtual Machine</label>
+                <div class="col">
+                    <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
+                </div>
             </div>
         {% endif %}
         {% render_field form.name %}

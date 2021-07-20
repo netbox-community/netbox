@@ -5,9 +5,11 @@
     <div class="field-group">
         <h4 class="mb-3">Interface</h4>
             {% if form.instance.device %}
-                <div class="form-floating mb-3">
-                    <input class="form-control" value="{{ form.instance.device }}" disabled />
-                    <label class="form-label required" for="id_device">Device</label>
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label required" for="id_device">Device</label>
+                    <div class="col">
+                        <input class="form-control" value="{{ form.instance.device }}" disabled />
+                    </div>
                 </div>
             {% endif %}
         {% render_field form.name %}

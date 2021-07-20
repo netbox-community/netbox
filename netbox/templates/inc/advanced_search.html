@@ -23,9 +23,9 @@
                                                   {{ field }}
                                               </div>
                                           {% else %}
-                                              <div class="form-floating mb-3 mx-3">
+                                              <div class="mb-3 mx-3">
+                                                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                                   {{ field }}
-                                                  {{ field.label_tag }}
                                               </div>
                                           {% endif %}
                                       {% endwith %}
@@ -41,9 +41,9 @@
                                           {{ field }}
                                       </div>
                                   {% else %}
-                                      <div class="form-floating mb-3">
-                                          {{ field }}
-                                          {{ field.label_tag }}
+                                      <div class="mb-3">
+                                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
                                       </div>
                                   {% endif %}
                               </div>

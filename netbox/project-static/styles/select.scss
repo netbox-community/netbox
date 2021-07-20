@@ -14,6 +14,7 @@ $spacing-m: $input-padding-x;
 $spacing-s: $input-padding-x;
 
 :root {
+  // Light Mode Variables.
   --nbx-select-content-bg: #{$form-select-bg};
   --nbx-select-option-selected-bg: #{$gray-300};
   --nbx-select-option-hover-bg: #{$blue};
@@ -21,6 +22,7 @@ $spacing-s: $input-padding-x;
   --nbx-select-placeholder-color: #{$gray-600};
   --nbx-select-value-color: #{$white};
   & body[data-netbox-color-mode='dark'] {
+    // Dark Mode Variables.
     --nbx-select-content-bg: #{$gray-900};
     --nbx-select-option-selected-bg: #{$gray-500};
     --nbx-select-option-hover-bg: #{$blue-200};
@@ -28,11 +30,6 @@ $spacing-s: $input-padding-x;
     --nbx-select-placeholder-color: #{$gray-500};
     --nbx-select-value-color: #{$black};
   }
-}
-
-div.form-floating div.ss-main div.ss-single-selected,
-div.form-floating div.ss-main div.ss-multi-selected {
-  min-height: $form-floating-height;
 }
 
 @import './node_modules/slim-select/src/slim-select/slimselect.scss';
@@ -52,6 +49,7 @@ div.form-floating div.ss-main div.ss-multi-selected {
 
   .ss-single-selected,
   .ss-multi-selected {
+    padding: $form-select-padding-y $input-padding-x $form-select-padding-y $form-select-padding-x;
     &[disabled] {
       color: $form-select-disabled-color;
       background-color: $form-select-disabled-bg;
@@ -62,7 +60,7 @@ div.form-floating div.ss-main div.ss-multi-selected {
   div.ss-multi-selected .ss-values .ss-disabled,
   div.ss-single-selected span.placeholder .ss-disabled {
     color: var(--nbx-select-placeholder-color);
-    font-size: $font-size-xs;
+    font-size: $form-select-font-size;
   }
 
   .ss-single-selected {
@@ -87,7 +85,6 @@ div.form-floating div.ss-main div.ss-multi-selected {
     background-color: $form-select-bg;
 
     .ss-values {
-      padding-top: $spacer * 2 !important;
       .ss-disabled {
         padding: 4px 0px;
       }

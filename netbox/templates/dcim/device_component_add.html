@@ -10,60 +10,47 @@
 <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row">
-        <div class="col col-md-8">
+        <div class="col col-md-8 offset-md-2 col-lg-6 offset-lg-3">
             <div class="field-group">
                 <h4>{{ component_type|title }}</h4>
-                {% if form.non_field_errors %}
-                    <div class="panel panel-danger">
-                        <div class="panel-heading"><strong>Errors</strong></div>
-                        <div class="panel-body">
-                            {{ form.non_field_errors }}
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <strong>{{ component_type|bettertitle }}</strong>
-                    </div>
-                    <div class="panel-body">
-                        {% for field in form.hidden_fields %}
-                            {{ field }}
-                        {% endfor %}
-                        {% for field in form.visible_fields %}
-                            {% if not form.custom_fields or field.name not in form.custom_fields %}
-                                {% render_field field %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    {% for field in form.visible_fields %}
+                        {% if not form.custom_fields or field.name not in form.custom_fields %}
+                            {% render_field field %}
+                        {% endif %}
+                    {% endfor %}
                 {% if form.custom_fields %}
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><strong>Custom Fields</strong></div>
-                        <div class="panel-body">
-                            {% render_custom_fields form %}
-                        </div>
+                    <div class="field-group">
+                        <h4>Custom Fields</h4>
+                        {% render_custom_fields form %}
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
     <div class="row my-3">
-        <div class="col col-md-8 text-end">
-        {% block buttons %}
-        <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
-        {% if component_type == 'interface' and perms.ipam.add_ipaddress %}
-        <button type="submit" name="_assignip" class="btn btn-outline-success">
-            Create & Assign IP Address
-        </button>
-        {% endif %}
-        <button type="submit" name="_addanother" class="btn btn-outline-primary">
-            Create & Add Another
-        </button>
-        <button type="submit" name="_create" class="btn btn-primary">
-            Create
-        </button>
-        {% endblock %}
+        <div class="col col-md-8 offset-md-2 col-lg-6 offset-lg-3 text-end">
+            {% block buttons %}
+                <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+                
+                {% if component_type == 'interface' and perms.ipam.add_ipaddress %}
+                    <button type="submit" name="_assignip" class="btn btn-outline-success">
+                        Create & Assign IP Address
+                    </button>
+                {% endif %}
+                
+                <button type="submit" name="_addanother" class="btn btn-outline-primary">
+                    Create & Add Another
+                </button>
+                
+                <button type="submit" name="_create" class="btn btn-primary">
+                    Create
+                </button>
+            
+            {% endblock %}
+        </div>
     </div>
-  </div>
 </form>
 {% endblock %}
