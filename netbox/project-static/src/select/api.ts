@@ -15,7 +15,7 @@ import {
 
 import type { Option } from 'slim-select/dist/data';
 
-type QueryFilter = Map<string, string | number>;
+type QueryFilter = Map<string, string | number | boolean>;
 
 // Various one-off patterns to replace in query param keys.
 const REPLACE_PATTERNS = [
@@ -161,6 +161,7 @@ class APISelect {
       this.updatePathValues(filter);
     }
 
+    this.queryParams.set('brief', true);
     this.queryParams.set('limit', 0);
     this.updateQueryUrl();
 
@@ -414,7 +415,7 @@ class APISelect {
   private updateQueryUrl(): void {
     // Create new URL query parameters based on the current state of `queryParams` and create an
     // updated API query URL.
-    const query = {} as Record<string, string | number>;
+    const query = {} as Dict<string | number | boolean>;
     for (const [key, value] of this.queryParams.entries()) {
       query[key] = value;
     }
@@ -529,7 +530,7 @@ class APISelect {
       displayName = result[legacyDisplayProperty] as string;
     }
 
-    if (!displayName) {
+    if (!displayName && typeof result.name === 'string') {
       displayName = result.name;
     }
 

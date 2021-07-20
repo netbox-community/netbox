@@ -30,8 +30,8 @@ type APIError = {
 
 type APIObjectBase = {
   id: number;
-  display?: string;
-  name: string;
+  display: string;
+  name?: Nullable<string>;
   url: string;
   [k: string]: JSONAble;
 };
