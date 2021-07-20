@@ -268,7 +268,7 @@ Quit the server with CONTROL-C.
 ```
 
 !!! note
-    By default RHEL based distros will likely block your testing attempts with firewalld. The development server port can be opened with `firewalld-cmd` (add `--permanent` if you want the rule to survive server restarts):
+    By default RHEL based distros will likely block your testing attempts with firewalld. The development server port can be opened with `firewall-cmd` (add `--permanent` if you want the rule to survive server restarts):
 
 ```no-highlight
 firewall-cmd --zone=public --add-port=8000/tcp
