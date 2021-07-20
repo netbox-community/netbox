@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
 
 {% block title %}{{ object }}{% endblock %}
@@ -13,6 +13,10 @@
     <li class="breadcrumb-item">{{ object.changed_object }}</li>
   {% endif %}
 {% endblock %}
+
+{# ObjectChange does not support the default add/edit/delete controls #}
+{% block controls %}{% endblock %}
+{% block subtitle %}{% endblock %}
 
 {% block content %}
 <div class="row mb-3">
