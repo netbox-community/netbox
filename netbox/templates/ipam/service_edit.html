@@ -6,30 +6,33 @@
         <h4>Service</h4>
         {% if obj.device %}
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label">Device</label>
+                <label class="col-sm-3 col-form-label text-end">Device</label>
                 <div class="col">
                     <input class="form-control" value="{{ obj.device }}" disabled />
                 </div>
             </div>
         {% else %}
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label">Virtual Machine</label>
+                <label class="col-sm-3 col-form-label text-end">Virtual Machine</label>
                 <div class="col">
                     <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
                 </div>
             </div>
         {% endif %}
         {% render_field form.name %}
-        <div class="mb-3">
-            <label class="form-label">Port(s)</label>
-            <div class="row">
-                <div class="col-3">
-                    {{ form.protocol }}
-                </div>
-                <div class="col-9 font-monospace">
-                    {{ form.ports }}
-                </div>
-                <div class="form-text">{{ form.ports.help_text }}</div>
+        <div class="row">
+            <label class="col-sm-3 col-form-label text-end">Port(s)</label>
+            <div class="col-2">
+                {{ form.protocol }}
+            </div>
+            <div class="col-7">
+                {{ form.ports }}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-3"></div>
+            <div class="col-9">
+                <span class="form-text">{{ form.ports.help_text }}</span>
             </div>
         </div>
         
