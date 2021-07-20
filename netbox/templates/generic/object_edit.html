@@ -18,37 +18,34 @@
     {% for field in form.hidden_fields %}{{ field }}{% endfor %}
 
     <div class="row">
-      <div class="col col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+      <div class="col col-md-12 col-lg-10 offset-lg-1">
         {% block tabs %}{% endblock %}
         {% block form %}
           {% if form.Meta.fieldsets %}
 
-          {# Render grouped fields according to Form #} 
-          {% for group, fields in form.Meta.fieldsets %}
-            <div class="field-group">
+            {# Render grouped fields according to Form #}
+            {% for group, fields in form.Meta.fieldsets %}
+              <div class="field-group">
+                <h4>{{ group }}</h4>
+                {% for name in fields %}
+                    {% render_field form|getfield:name %}
+                {% endfor %}
+              </div>
+            {% endfor %}
 
-              <h4>{{ group }}</h4>
+            {% if form.custom_fields %}
+              <div class="field-group">
+                <h4>Custom Fields</h4>
+                {% render_custom_fields form %}
+              </div>
+            {% endif %}
 
-              {% for name in fields %}
-                  {% render_field form|getfield:name %}
-              {% endfor %}
-
-            </div>
-          {% endfor %}
-
-          {% if form.custom_fields %}
-            <div class="field-group">
-              <h4>Custom Fields</h4>
-              {% render_custom_fields form %}
-            </div>
-          {% endif %}
-
-          {% if form.comments %}
-            <div class="field-group">
-              <h4>Comments</h4>
-              {% render_field form.comments %}
-            </div>
-          {% endif %}
+            {% if form.comments %}
+              <div class="field-group">
+                <h4>Comments</h4>
+                {% render_field form.comments %}
+              </div>
+            {% endif %}
 
           {% else %} 
             {# Render all fields in a single group #}
