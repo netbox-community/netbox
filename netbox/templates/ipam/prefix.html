@@ -12,16 +12,6 @@
             <div class="card-body">
               <table class="table table-hover attr-table">
                 <tr>
-                    <td colspan="2">
-                    <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                    {% if object.is_pool %}
-                        <span class="badge bg-success">Is a Pool</span>
-                    {% else %}
-                        <span class="badge bg-info">Not a Pool</span>
-                    {% endif %}
-                    </td>
-                </tr>
-                <tr>
                     <th scope="row">Family</th>
                     <td>IPv{{ object.family }}</td>
                 </tr>
@@ -91,6 +81,22 @@
                             <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Status</th>
+                    <td>
+                      <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Is a pool</th>
+                    <td>
+                        {% if object.is_pool %}
+                            <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+                        {% else %}
+                            <i class="mdi mdi-close-thick text-danger" title="No"></i>
                         {% endif %}
                     </td>
                 </tr>

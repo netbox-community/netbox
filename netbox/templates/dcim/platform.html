@@ -41,10 +41,6 @@
             <td>{{ object.napalm_driver|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">NAPALM Arguments</th>
-            <td><pre>{{ object.napalm_args }}</pre></td>
-          </tr>
-          <tr>
             <th scope="row">Devices</th>
             <td>
               <a href="{% url 'dcim:device_list' %}?platform_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
@@ -56,6 +52,14 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        NAPALM Arguments
+      </h5>
+      <div class="card-body">
+        <pre>{{ object.napalm_args }}</pre>
+      </div>
+    </div>
     {% include 'inc/custom_fields_panel.html' %}
     {% plugin_right_page object %}
   </div>

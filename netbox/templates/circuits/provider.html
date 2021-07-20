@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col col-md-4">
+	  <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
                 Provider
@@ -14,7 +14,7 @@
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">ASN</th>
-                        <td><code>{{ object.asn|placeholder }}</code></td>
+                        <td>{{ object.asn|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Account</th>
@@ -65,8 +65,8 @@
             </div>
         </div>
         {% plugin_right_page object %}
-	</div>
-	<div class="col col-md-8">
+    </div>
+    <div class="col col-md-12">
         <div class="card">
             <h5 class="card-header">
                 Circuits
