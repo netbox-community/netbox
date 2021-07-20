@@ -3,8 +3,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:exporttemplate_list' %}">Export Templates</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'extras:exporttemplate_list' %}?content_type={{ object.content_type.pk }}">{{ object.content_type }}</a></li>
 {% endblock %}
 
 {% block content %}

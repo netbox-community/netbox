@@ -4,14 +4,18 @@
 {% load tz %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:site_list' %}">Sites</a></li>
+  {{ block.super }}
   {% if object.region %}
     {% for region in object.region.get_ancestors %}
-      <li class="breadcrumb-item"><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'dcim:site_list' %}?region_id={{ region.pk }}">{{ region }}</a></li>
     {% endfor %}
-    <li class="breadcrumb-item"><a href="{{ object.region.get_absolute_url }}">{{ object.region }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dcim:site_list' %}?region_id={{ object.region.pk }}">{{ object.region }}</a></li>
+  {% elif object.group %}
+    {% for group in object.group.get_ancestors %}
+      <li class="breadcrumb-item"><a href="{% url 'dcim:site_list' %}?group_id={{ group.pk }}">{{ group }}</a></li>
+    {% endfor %}
+    <li class="breadcrumb-item"><a href="{% url 'dcim:site_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a></li>
   {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

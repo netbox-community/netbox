@@ -4,12 +4,11 @@
 {% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
   {% if object.location %}
     <li class="breadcrumb-item"><a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a></li>
   {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

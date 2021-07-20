@@ -2,11 +2,6 @@
 {% load helpers %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:rackrole_list' %}">Rack Roles</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">

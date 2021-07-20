@@ -4,17 +4,11 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-<li class="breadcrumb-item">
-  <a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a>
-</li>
-{% if object.group %}
-<li class="breadcrumb-item">
-  <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
-</li>
-{% endif %}
-<li class="breadcrumb-item">
-  {{ object }}
-</li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'virtualization:cluster_list' %}?type_id={{ object.type.pk }}">{{ object.type }}</a></li>
+  {% if object.group %}
+    <li class="breadcrumb-item"><a href="{% url 'virtualization:cluster_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block extra_controls %}

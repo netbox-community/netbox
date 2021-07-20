@@ -3,17 +3,10 @@
 {% load helpers %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item">
-    <a href="{% url 'ipam:prefix_list' %}">Prefixes</a>
-  </li>
+  {{ block.super }}
   {% if object.vrf %}
-  <li class="breadcrumb-item">
-    <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
-  </li>
+    <li class="breadcrumb-item"><a href="{% url 'ipam:prefix_list' %}?vrf_id={{ object.vrf.pk }}">{{ object.vrf }}</a></li>
   {% endif %}
-  <li class="breadcrumb-item">
-    {{ object }}
-  </li>
 {% endblock %}
 
 {% block tab_items %}

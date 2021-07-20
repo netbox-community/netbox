@@ -3,11 +3,10 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></li>
+  {{ block.super }}
   {% if object.group %}
-  <li class="breadcrumb-item"><a href="{% url 'tenancy:tenant_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'tenancy:tenant_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a></li>
   {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock breadcrumbs %}
 
 {% block content %}

@@ -3,11 +3,11 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a></li>
+  {{ block.super }}
   {% if object.scope %}
+    {# TODO: This should link to a filtered list of VLANGroups #}
     <li class="breadcrumb-item"><a href="{{ object.scope.get_absolute_url }}">{{ object.scope }}</a></li>
   {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block buttons %}

@@ -4,9 +4,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block extra_controls %}

@@ -5,13 +5,12 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:device_list' %}">Devices</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'dcim:device_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
   {% if object.parent_bay %}
     <li class="breadcrumb-item"><a href="{% url 'dcim:device' pk=object.parent_bay.device.pk %}">{{ object.parent_bay.device }}</a></li>
     <li class="breadcrumb-item">{{ object.parent_bay }}</li>
   {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block extra_controls %}

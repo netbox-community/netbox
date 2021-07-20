@@ -4,11 +4,6 @@
 {% load perms %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:cable_list' %}">Cables</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
 {% block controls %}
 {% plugin_buttons object %}
 <div class="container mb-2 mx-0">

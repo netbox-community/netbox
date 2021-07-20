@@ -2,11 +2,6 @@
 {% load helpers %}
 {% load static %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:configcontext_list' %}">Config Contexts</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
 {% block content %}
     <div class="row">
         <div class="col col-md-5">

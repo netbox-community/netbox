@@ -5,13 +5,12 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}?site_id={{ object.power_panel.site.pk }}">{{ object.power_panel.site }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ object.power_panel.pk }}">{{ object.power_panel }}</a></li>
   {% if object.rack %}
     <li class="breadcrumb-item"><a href="{% url 'dcim:powerfeed_list' %}?rack_id={{ object.rack.pk }}">{{ object.rack }}</a></li>
   {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

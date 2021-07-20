@@ -3,9 +3,8 @@
 {% load static %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:journalentry_list' %}">Journal Entries</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url object.assigned_object|viewname:'journal' pk=object.assigned_object.pk %}">{{ object.assigned_object }}</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

@@ -5,11 +5,6 @@
 
 {% block title %}VRF {{ object }}{% endblock %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
 {% block content %}
 <div class="row">
 	<div class="col col-md-6">

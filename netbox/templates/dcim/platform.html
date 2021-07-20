@@ -3,8 +3,10 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:platform_list' %}">Platforms</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
+  {{ block.super }}
+  {% if object.manufacturer %}
+    <li class="breadcrumb-item"><a href="{% url 'dcim:platform_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block content %}

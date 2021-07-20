@@ -9,7 +9,9 @@
   {# Breadcrumbs #}
   <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
     <ol class="breadcrumb">
-      {% block breadcrumbs %}{% endblock %}
+      {% block breadcrumbs %}
+        <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a></li>
+      {% endblock %}
     </ol>
   </nav>
   {{ block.super }}

@@ -2,11 +2,6 @@
 {% load helpers %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:tag_list' %}">Tags</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
 {% block content %}
 <div class="row">
   <div class="col col-md-6">

@@ -3,11 +3,10 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'tenancy:tenantgroup_list' %}">Tenant Groups</a></li>
+  {{ block.super }}
   {% for tenantgroup in object.get_ancestors %}
-    <li class="breadcrumb-item"><a href="{{ tenantgroup.get_absolute_url }}">{{ tenantgroup }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'tenancy:tenantgroup_list' %}?parent={{ tenantgroup.slug }}">{{ tenantgroup }}</a></li>
   {% endfor %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

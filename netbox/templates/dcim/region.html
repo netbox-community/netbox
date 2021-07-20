@@ -3,11 +3,10 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:region_list' %}">Region</a></li>
+  {{ block.super }}
   {% for region in object.get_ancestors %}
-    <li class="breadcrumb-item"><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dcim:region_list' %}?parent_id={{ region.pk }}">{{ region }}</a></li>
   {% endfor %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

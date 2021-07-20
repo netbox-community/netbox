@@ -6,9 +6,8 @@
 {% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
-  <li class="breadcrumb-item">{{ object.model }}</li>
 {% endblock %}
 
 {% block controls %}

@@ -5,9 +5,12 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:service_list' %}">Services</a></li>
-  <li class="breadcrumb-item"><a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
+  {{ block.super }}
+  {% if object.device %}
+    <li class="breadcrumb-item"><a href="{% url 'ipam:service_list' %}?device_id={{ object.device.pk }}">{{ object.device }}</a></li>
+  {% elif object.virtual_machine %}
+    <li class="breadcrumb-item"><a href="{% url 'ipam:service_list' %}?virtual_machine_id={{ object.virtual_machine.pk }}">{{ object.virtual_machine }}</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block controls %}

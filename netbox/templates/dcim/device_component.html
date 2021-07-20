@@ -3,13 +3,7 @@
 {% load perms %}
 {% load plugins %}
 
-{% block title %}{{ object.device }} / {{ object }}{% endblock %}
-
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:device_list' %}">Devices</a></li>
-  <li class="breadcrumb-item"><a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a></li>
-  {% if breadcrumb_url %}
-    <li class="breadcrumb-item"><a href="{% url breadcrumb_url pk=object.device.pk %}">{{ object|meta:"verbose_name_plural"|bettertitle }}</a></li>
-  {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}?device_id={{ object.device.pk }}">{{ object.device }}</a></li>
 {% endblock %}

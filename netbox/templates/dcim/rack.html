@@ -7,15 +7,14 @@
 {% block title %}Rack {{ object }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
-  {% if object.group %}
-    {% for group in object.group.get_ancestors %}
-      <li class="breadcrumb-item"><a href="{{ group.get_absolute_url }}">{{ group }}</a></li>
+  {% if object.location %}
+    {% for location in object.location.get_ancestors %}
+      <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ location.pk }}">{{ location }}</a></li>
     {% endfor %}
-    <li class="breadcrumb-item"><a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ object.location.pk }}">{{ object.location }}</a></li>
   {% endif %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block extra_controls %}

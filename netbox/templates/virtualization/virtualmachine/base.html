@@ -4,9 +4,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ object.cluster.pk }}">{{ object.cluster }}</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block extra_controls %}

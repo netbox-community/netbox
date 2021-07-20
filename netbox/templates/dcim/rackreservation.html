@@ -5,8 +5,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:rackreservation_list' %}">Rack Reservations</a></li>
-  <li class="breadcrumb-item"><a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a></li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'dcim:rackreservation_list' %}?rack_id={{ object.rack.pk }}">{{ object.rack }}</a></li>
   <li class="breadcrumb-item">Units {{ object.unit_list }}</li>
 {% endblock %}
 

@@ -3,11 +3,10 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:sitegroup_list' %}">Site Groups</a></li>
+  {{ block.super }}
   {% for sitegroup in object.get_ancestors %}
-    <li class="breadcrumb-item"><a href="{{ sitegroup.get_absolute_url }}">{{ sitegroup }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dcim:sitegroup_list' %}?parent_id={{ sitegroup.pk }}">{{ sitegroup }}</a></li>
   {% endfor %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

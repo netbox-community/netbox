@@ -3,12 +3,9 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
-{% block title %}{{ object.virtual_machine }} / {{ object.name }}{% endblock %}
-
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></li>
-  <li class="breadcrumb-item"><a href="{{ object.virtual_machine.get_absolute_url }}">{{ object.virtual_machine }}</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'virtualization:vminterface_list' %}?virtual_machine_id={{ object.virtual_machine.pk }}">{{ object.virtual_machine }}</a></li>
 {% endblock %}
 
 {% block content %}

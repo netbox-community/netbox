@@ -2,11 +2,6 @@
 {% load helpers %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:device_consoleserverports' pk=object.device.pk %}">Console Server Ports</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
 {% block content %}
     <div class="row">
         <div class="col col-md-6">

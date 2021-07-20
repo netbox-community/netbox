@@ -6,7 +6,6 @@
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">Reports</a></li>
   <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
-  <li class="breadcrumb-item">{{ report.name }}</li>
 {% endblock %}
 
 {% block content %}

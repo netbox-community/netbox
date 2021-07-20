@@ -3,11 +3,6 @@
 {% load helpers %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
-{% endblock %}
-
 {% block content %}
 <div class="row">
 	<div class="col col-md-4">

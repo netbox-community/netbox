@@ -4,9 +4,8 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'circuits:providernetwork_list' %}">Provider Networks</a></li>
+  {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'circuits:providernetwork_list' %}?provider_id={{ object.provider_id }}">{{ object.provider }}</a></li>
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}

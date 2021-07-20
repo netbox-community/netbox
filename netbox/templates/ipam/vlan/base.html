@@ -5,22 +5,13 @@
 {% block title %}VLAN {{ object }}{% endblock %}
 
 {% block breadcrumbs %}
-<li class="breadcrumb-item">
-  <a href="{% url 'ipam:vlan_list' %}">VLANs</a>
-</li>
-{% if object.site %}
-<li class="breadcrumb-item">
-  <a href="{% url 'ipam:vlan_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a>
-</li>
-{% endif %}
-{% if object.group %}
-<li class="breadcrumb-item">
-  <a href="{% url 'ipam:vlan_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a>
-</li>
-{% endif %}
-<li class="breadcrumb-item">
-  {{ object }}
-</li>
+  {{ block.super }}
+  {% if object.site %}
+    <li class="breadcrumb-item"><a href="{% url 'ipam:vlan_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
+  {% endif %}
+  {% if object.group %}
+    <li class="breadcrumb-item"><a href="{% url 'ipam:vlan_list' %}?group_id={{ object.group.pk }}">{{ object.group }}</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block tabs %}

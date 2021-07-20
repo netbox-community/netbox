@@ -3,11 +3,10 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:location_list' %}">Locations</a></li>
+  {{ block.super }}
   {% for location in object.get_ancestors %}
     <li class="breadcrumb-item"><a href="{{ location.get_absolute_url }}">{{ location }}</a></li>
   {% endfor %}
-  <li class="breadcrumb-item">{{ object }}</li>
 {% endblock %}
 
 {% block content %}
