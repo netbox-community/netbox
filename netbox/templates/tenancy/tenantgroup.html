@@ -5,7 +5,7 @@
 {% block breadcrumbs %}
   {{ block.super }}
   {% for tenantgroup in object.get_ancestors %}
-    <li class="breadcrumb-item"><a href="{% url 'tenancy:tenantgroup_list' %}?parent={{ tenantgroup.slug }}">{{ tenantgroup }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'tenancy:tenantgroup_list' %}?parent_id={{ tenantgroup.pk }}">{{ tenantgroup }}</a></li>
   {% endfor %}
 {% endblock %}
 

@@ -5,7 +5,7 @@
 {% block breadcrumbs %}
   {{ block.super }}
   {% if object.manufacturer %}
-    <li class="breadcrumb-item"><a href="{% url 'dcim:platform_list' %}?manufacturer={{ object.manufacturer.slug }}">{{ object.manufacturer }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dcim:platform_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
   {% endif %}
 {% endblock %}
 

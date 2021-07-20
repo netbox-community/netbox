@@ -2025,6 +2025,15 @@ class PlatformBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['manufacturer', 'napalm_driver', 'description']
 
 
+class PlatformFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = Platform
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+
+
 #
 # Devices
 #

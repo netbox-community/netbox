@@ -1218,6 +1218,8 @@ class PlatformListView(generic.ObjectListView):
         vm_count=count_related(VirtualMachine, 'platform')
     )
     table = tables.PlatformTable
+    filterset = filtersets.PlatformFilterSet
+    filterset_form = forms.PlatformFilterForm
 
 
 class PlatformView(generic.ObjectView):

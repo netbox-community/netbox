@@ -62,6 +62,15 @@ class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
+class TenantGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = TenantGroup
+    parent_id = DynamicModelMultipleChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        label=_('Parent group')
+    )
+
+
 #
 # Tenants
 #
