@@ -2,34 +2,40 @@
 {% load helpers %}
 
 {% if field|widget_type == 'checkboxinput' %}
-    <div class="mb-3">
-        <div class="form-check{% if field.errors %} has-error{% endif %}">
-            {{ field }}
-            <label for="{{ field.id_for_label }}" class="form-check-label">
-                {{ field.label }}
-            </label>
+    <div class="row mb-3">
+        <div class="col">
+            <div class="form-check{% if field.errors %} has-error{% endif %}">
+                {{ field }}
+                <label for="{{ field.id_for_label }}" class="form-check-label">
+                    {{ field.label }}
+                </label>
+            </div>
+            {% if field.help_text %}
+                <span class="form-text">{{ field.help_text|safe }}</span>
+            {% endif %}
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
         </div>
-        {% if field.help_text %}
-        <span class="form-text">{{ field.help_text|safe }}</span>
-        {% endif %}
-        {% if bulk_nullable %}
-        <label class="form-check-label">
-            <input class="form-check-input" type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
-        </label>
-        {% endif %}
     </div>
 
 {% elif field|widget_type == 'textarea' and not field.label %}
-    <div class="mb-3">
-        {{ field }}
-        {% if bulk_nullable %}
-        <label class="checkbox-inline">
-            <input type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
-        </label>
-        {% endif %}
-        {% if field.help_text %}
-        <span class="form-text">{{ field.help_text|safe }}</span>
-        {% endif %}
+    <div class="row mb-3">
+        <div class="col">
+            {{ field }}
+            {% if field.help_text %}
+                <span class="form-text">{{ field.help_text|safe }}</span>
+            {% endif %}
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
 {% elif field|widget_type == 'slugwidget' %}
@@ -94,6 +100,12 @@
         </label>
         <div class="col col-md-9">
             {{ field }}
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -112,18 +124,13 @@
                     <strong>{{ field.label }}</strong> field is required.
                 {% endif %}
             </div>
+            {% if bulk_nullable %}
+                <div class="form-check my-1">
+                    <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
+                    <label class="form-check-label">Set Null</label>
+                </div>
+            {% endif %}
         </div>
     </div>
-    
 {% endif %}
 
-{% if bulk_nullable %}
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" />
-        <label class="form-check-label">Set Null</label>
-    </div>
-
-    {% if field.help_text %}
-        <span class="form-text">{{ field.help_text|safe }}</span>
-    {% endif %}
-{% endif %}

@@ -7,12 +7,15 @@
 {% block content %}
 <form action="" method="post" class="form form-horizontal">
     {% csrf_token %}
+
     {% if request.POST.return_url %}
         <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
     {% endif %}
+
     {% for field in form.hidden_fields %}
         {{ field }}
     {% endfor %}
+
     <div class="row mb-3">
         <div class="col col-md-8">
           {% include 'inc/table.html' %}
@@ -20,7 +23,7 @@
         <div class="col col-md-4">
             <div class="card">
                 <h5 class="card-header">{% block form_title %}Attributes{% endblock %}</h5>
-                <div class="card-body">
+                <div class="card-body small">
                     {% for field in form.visible_fields %}
                         {% if field.name in form.nullable_fields %}
                             {% render_field field bulk_nullable=True %}
@@ -30,12 +33,12 @@
                     {% endfor %}
                 </div>
                 <div class="card-footer text-end">
-                    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                    <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
+                    <a href="{{ return_url }}" class="btn btn-sm btn-outline-danger">Cancel</a>
+                    <button type="submit" name="_apply" class="btn btn-sm btn-primary">Apply</button>
                 </div>
             </div>
-		    
         </div>
     </div>
+
 </form>
 {% endblock content %}

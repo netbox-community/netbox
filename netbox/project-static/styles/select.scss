@@ -60,7 +60,6 @@ $spacing-s: $input-padding-x;
   div.ss-multi-selected .ss-values .ss-disabled,
   div.ss-single-selected span.placeholder .ss-disabled {
     color: var(--nbx-select-placeholder-color);
-    font-size: $form-select-font-size;
   }
 
   .ss-single-selected {
