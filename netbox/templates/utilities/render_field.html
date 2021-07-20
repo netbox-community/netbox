@@ -3,6 +3,7 @@
 
 {% if field|widget_type == 'checkboxinput' %}
     <div class="row mb-3">
+        <div class="col-sm-3"></div>
         <div class="col">
             <div class="form-check{% if field.errors %} has-error{% endif %}">
                 {{ field }}
@@ -40,7 +41,7 @@
 
 {% elif field|widget_type == 'slugwidget' %}
     <div class="row mb-3">
-        <label class="col-sm-3 col-form-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+        <label class="col-sm-3 col-form-label text-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
             {{ field.label }}
         </label>
         <div class="col">
@@ -56,7 +57,7 @@
 {% elif field|widget_type == 'selectspeedwidget' %}
     {# This is outside the widget because bootstrap requires a specific order for border-radius purposes. #}
     <div class="row mb-3">
-        <label class="col-sm-3 col-form-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+        <label class="col-sm-3 col-form-label text-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
             {{ field.label }}
         </label>
         <div class="col">
@@ -95,7 +96,7 @@
 
 {% elif field|widget_type == 'selectmultiple' %}
     <div class="row">
-        <label for="{{ field.id_for_label }}" class="form-label col col-md-3{% if field.field.required %} required{% endif %}">
+        <label for="{{ field.id_for_label }}" class="form-label col col-md-3 text-end{% if field.field.required %} required{% endif %}">
             {{ field.label }}
         </label>
         <div class="col col-md-9">
@@ -111,7 +112,7 @@
 
 {% else %}
     <div class="row mb-3">
-        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label{% if field.field.required %} required{% endif %}">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-end{% if field.field.required %} required{% endif %}">
             {{ field.label }}
         </label>
         <div class="col">
