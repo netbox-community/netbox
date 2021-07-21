@@ -46,7 +46,7 @@
             </td>
           </tr>
           <tr>
-            <td>Virtual Machines</td>
+            <th>Virtual Machines</th>
             <td>
               {% if object.vm_role %}
                 <a href="{% url 'virtualization:virtualmachine_list' %}?role_id={{ object.pk }}">{{ virtualmachine_count }}</a>
