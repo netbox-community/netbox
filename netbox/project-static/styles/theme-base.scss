@@ -28,11 +28,16 @@ $line-height-xs: 1;
 $line-height-sm: 1.25;
 $line-height-lg: 1.75;
 
+$darker: #1b1f22;
+$darkest: #171b1d;
+
 @import 'bootstrap/scss/variables';
 
 // Make color palette colors available as theme colors.
 // For example, you could use `.bg-red-100`, if needed.
 $theme-color-addons: (
+  'darker': $darker,
+  'darkest': $darkest,
   'gray': $gray-400,
   'gray-100': $gray-100,
   'gray-200': $gray-200,

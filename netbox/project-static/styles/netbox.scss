@@ -23,13 +23,13 @@
   --nbx-color-mode-toggle-color: #{$primary};
 
   body[data-netbox-color-mode='dark'] {
-    --nbx-sidebar-bg: #{$gray-800};
-    --nbx-sidebar-link-color: #{$gray-200};
+    --nbx-sidebar-bg: #{$gray-900};
+    --nbx-sidebar-link-color: #{$gray-100};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
     --nbx-sidebar-title-color: #{$gray-600};
     --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(255, 255, 255, 0.05);
     --nbx-breadcrumb-bg: #{$gray-800};
-    --nbx-body-bg: #1b1f22;
+    --nbx-body-bg: #{$darker};
     --nbx-body-color: #{$gray-100};
     --nbx-pre-bg: #{$gray-700};
     --nbx-pre-border-color: #{$gray-600};
@@ -886,14 +886,37 @@ div.card > div.card-header > div.table-controls {
   }
 }
 
+// Right-align the paginator element.
+.paginator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: $spacer 0;
+}
+
 // Tabbed content
 .nav-tabs {
-  .nav-link.active {
-  background-color: $tab-content-bg;
-  border-bottom-color: $tab-content-bg;
+  .nav-link {
+    &:hover {
+      // Don't show a bottom-border on a hovered nav link because it overlaps with the .nav-tab border.
+      border-bottom-color: transparent;
+    }
+    &.active {
+      // Set the background-color of an active tab to the same color as the .tab-content
+      // background-color so it visually indicates which tab is open.
+      background-color: $tab-content-bg;
+      border-bottom-color: $tab-content-bg;
+      // Move the active tab down 1px to overtake the .nav-tabs element's border, but only for that
+      // tab. This is an ugly hack, but it works.
+      transform: translateY(1px);
+    }
   }
 }
+
 .tab-content {
-  background-color: $tab-content-bg;
+  display: flex;
+  flex-direction: column;
   padding: $spacer;
+  background-color: $tab-content-bg;
+  border-bottom: 1px solid $nav-tabs-border-color;
 }

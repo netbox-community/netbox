@@ -2,6 +2,7 @@
 
 :root {
   // Light Mode Variables.
+  --nbx-trace-color: #{$black};
   --nbx-trace-node-bg: #{$gray-200};
   --nbx-trace-termination-bg: #{$gray-100};
   --nbx-trace-cable-shadow: #{$gray-800};
@@ -9,6 +10,7 @@
   &[data-netbox-color-mode='dark'] {
     // Dark Mode Variables.
     // Note: only the `theme-light.scss` file is in-scope for simplicity.
+    --nbx-trace-color: #{$white};
     --nbx-trace-node-bg: #{$gray-900};
     --nbx-trace-termination-bg: #{$gray-800};
     --nbx-trace-cable-shadow: #{$gray-200};
@@ -20,12 +22,19 @@
   font-family: $font-family-sans-serif;
   font-size: $font-size-sm;
 }
+
 text {
   text-anchor: middle;
   dominant-baseline: middle;
-}
-text.bold {
-  font-weight: bold;
+
+  &:not([fill]) {
+    // Fill text with body color when a fill attribute is not set via element attributes.
+    fill: var(--nbx-trace-color);
+  }
+
+  &.bold {
+    font-weight: $font-weight-bold;
+  }
 }
 
 svg {

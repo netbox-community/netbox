@@ -29,7 +29,7 @@ $theme-colors: map-merge($theme-colors, $theme-color-addons);
 $gradient: linear-gradient(180deg, rgba($white, 0.15), rgba($white, 0));
 
 // Body
-$body-bg: #1b1f22;
+$body-bg: $darker;
 $body-color: $white;
 $body-text-align: null;
 $border-color: $gray-700;
@@ -273,4 +273,4 @@ $kbd-bg: $gray-300;
 $pre-color: null;
 
 // Tabbed content
-$tab-content-bg: $gray-900;
+$tab-content-bg: $darkest;
