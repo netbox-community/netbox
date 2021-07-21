@@ -5,7 +5,7 @@
 {% block title %}Editing {{ table.rows|length }} {{ obj_type_plural|bettertitle }}{% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs mb-3 px-3">
+  <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="edit-form-tab" data-bs-toggle="tab" data-bs-target="#edit-form" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
         Bulk Edit
@@ -20,46 +20,48 @@
   </ul>
 {% endblock %}
 
-{% block content %}
+{% block content-wrapper %}
   <div class="tab-content">
+    {% block content %}
 
-    {# Edit form #}
-    <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="edit-form-tab">
-      <form action="" method="post" class="form form-horizontal">
+      {# Edit form #}
+      <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="edit-form-tab">
+        <form action="" method="post" class="form form-horizontal">
 
-        {% csrf_token %}
-        {% if request.POST.return_url %}
-          <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
-        {% endif %}
-        {% for field in form.hidden_fields %}
-          {{ field }}
-        {% endfor %}
+          {% csrf_token %}
+          {% if request.POST.return_url %}
+            <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
+          {% endif %}
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
 
-        <div class="row">
-          <div class="col col-md-12 col-lg-10 offset-lg-1">
-            {% for field in form.visible_fields %}
-                {% if field.name in form.nullable_fields %}
-                    {% render_field field bulk_nullable=True %}
-                {% else %}
-                    {% render_field field %}
-                {% endif %}
-            {% endfor %}
+          <div class="row">
+            <div class="col col-md-12 col-lg-10 offset-lg-1">
+              {% for field in form.visible_fields %}
+                  {% if field.name in form.nullable_fields %}
+                      {% render_field field bulk_nullable=True %}
+                  {% else %}
+                      {% render_field field %}
+                  {% endif %}
+              {% endfor %}
 
 
-            <div class="text-end">
-              <a href="{{ return_url }}" class="btn btn-sm btn-outline-danger">Cancel</a>
-              <button type="submit" name="_apply" class="btn btn-sm btn-primary">Apply</button>
+              <div class="text-end">
+                <a href="{{ return_url }}" class="btn btn-sm btn-outline-danger">Cancel</a>
+                <button type="submit" name="_apply" class="btn btn-sm btn-primary">Apply</button>
+              </div>
             </div>
           </div>
-        </div>
 
-      </form>
-    </div>
+        </form>
+      </div>
 
-    {# Selected objects list #}
-    <div class="tab-pane" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
-      {% include 'inc/table.html' %}
-    </div>
+      {# Selected objects list #}
+      <div class="tab-pane" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+        {% include 'inc/table.html' %}
+      </div>
 
+    {% endblock %}
   </div>
 {% endblock %}

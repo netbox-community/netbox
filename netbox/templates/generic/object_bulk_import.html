@@ -4,127 +4,130 @@
 
 {% block title %}{{ obj_type|bettertitle }} Bulk Import{% endblock %}
 
-{% block content %}
-    <div class="row">
-        <div class="col col-md-12 col-lg-10 offset-lg-1">
-            <ul class="nav nav-tabs mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a href="#csv" class="nav-link active" role="tab" data-bs-toggle="tab">CSV</a>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="csv">
-                    <form action="" method="post" class="form">
-                        {% csrf_token %}
-                        {% render_form form %}
-                        <div class="form-group">
-                            <div class="col col-md-12 text-end">
-                                {% if return_url %}
-                                    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                                {% endif %}
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a class ="nav-link active" href="#">Bulk Import</a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    {% block content %}
+        <div class="row">
+            <div class="col col-md-12 col-lg-10 offset-lg-1">
+                <form action="" method="post" class="form">
+                    {% csrf_token %}
+                    {% render_form form %}
+                    <div class="form-group">
+                        <div class="col col-md-12 text-end">
+                            {% if return_url %}
+                                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">Submit</button>
                         </div>
-                    </form>
-                    {% if fields %}
-                    <div class="row my-3">
-                        <div class="col col-md-12">
-                            <div class="card">
-                                <h5 class="card-header">
-                                    CSV Field Options
-                                </h5>
-                                <div class="card-body">
-                                    <table class="table">
+                    </div>
+                </form>
+                {% if fields %}
+                <div class="row my-3">
+                    <div class="col col-md-12">
+                        <div class="card">
+                            <h5 class="card-header">
+                                CSV Field Options
+                            </h5>
+                            <div class="card-body">
+                                <table class="table">
+                                    <tr>
+                                        <th>Field</th>
+                                        <th>Required</th>
+                                        <th>Accessor</th>
+                                        <th>Description</th>
+                                    </tr>
+                                    {% for name, field in fields.items %}
                                         <tr>
-                                            <th>Field</th>
-                                            <th>Required</th>
-                                            <th>Accessor</th>
-                                            <th>Description</th>
-                                        </tr>
-                                        {% for name, field in fields.items %}
-                                            <tr>
-                                                <td>
-                                                    <code>{{ name }}</code>
-                                                </td>
-                                                <td>
-                                                    {% if field.required %}
-                                                        <i class="mdi mdi-check-bold text-success" title="Required"></i>
-                                                    {% else %}
-                                                        <span class="text-muted">&mdash;</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if field.to_field_name %}
-                                                        <code>{{ field.to_field_name }}</code>
-                                                    {% else %}
-                                                        <span class="text-muted">&mdash;</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if field.STATIC_CHOICES %}
-                                                        <button type="button" class="btn btn-link btn-sm float-end" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices">
-                                                            <i class="mdi mdi-help-circle"></i>
-                                                        </button>
-                                                        <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title"><code>{{ name }}</code> Choices</h5>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        <table class="table table-striped">
-                                                                            <tr>
-                                                                                <th>Import Value</th>
-                                                                                <th>Label</th>
-                                                                            </tr>
-                                                                            {% for value, label in field.choices %}
-                                                                            {% if value %}
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <samp>{{ value }}</samp>
-                                                                                </td>
-                                                                                <td>
-                                                                                    {{ label }}
-                                                                                </td>
-                                                                            </tr>
-                                                                            {% endif %}
-                                                                            {% endfor %}
-                                                                        </table>
-                                                                    </div>
+                                            <td>
+                                                <code>{{ name }}</code>
+                                            </td>
+                                            <td>
+                                                {% if field.required %}
+                                                    <i class="mdi mdi-check-bold text-success" title="Required"></i>
+                                                {% else %}
+                                                    <span class="text-muted">&mdash;</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if field.to_field_name %}
+                                                    <code>{{ field.to_field_name }}</code>
+                                                {% else %}
+                                                    <span class="text-muted">&mdash;</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if field.STATIC_CHOICES %}
+                                                    <button type="button" class="btn btn-link btn-sm float-end" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices">
+                                                        <i class="mdi mdi-help-circle"></i>
+                                                    </button>
+                                                    <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title"><code>{{ name }}</code> Choices</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <table class="table table-striped">
+                                                                        <tr>
+                                                                            <th>Import Value</th>
+                                                                            <th>Label</th>
+                                                                        </tr>
+                                                                        {% for value, label in field.choices %}
+                                                                        {% if value %}
+                                                                        <tr>
+                                                                            <td>
+                                                                                <samp>{{ value }}</samp>
+                                                                            </td>
+                                                                            <td>
+                                                                                {{ label }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        {% endif %}
+                                                                        {% endfor %}
+                                                                    </table>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    {% endif %}
-                                                    {% if field.help_text %}
-                                                        {{ field.help_text }}<br />
-                                                    {% elif field.label %}
-                                                        {{ field.label }}<br />
-                                                    {% endif %}
-                                                    {% if field|widget_type == 'dateinput' %}
-                                                        <small class="text-muted">Format: YYYY-MM-DD</small>
-                                                    {% elif field|widget_type == 'checkboxinput' %}
-                                                        <small class="text-muted">Specify "true" or "false"</small>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
-                                </div>
+                                                    </div>
+                                                {% endif %}
+                                                {% if field.help_text %}
+                                                    {{ field.help_text }}<br />
+                                                {% elif field.label %}
+                                                    {{ field.label }}<br />
+                                                {% endif %}
+                                                {% if field|widget_type == 'dateinput' %}
+                                                    <small class="text-muted">Format: YYYY-MM-DD</small>
+                                                {% elif field|widget_type == 'checkboxinput' %}
+                                                    <small class="text-muted">Specify "true" or "false"</small>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <p class="small text-muted">
-                        <i class="mdi mdi-check-bold text-success"></i> Required fields <strong>must</strong> be specified for all
-                        objects.
-                    </p>
-                    <p class="small text-muted">
-                        <i class="mdi mdi-information-outline"></i> Related objects may be referenced by any unique attribute.
-                        For example, <code>vrf.rd</code> would identify a VRF by its route distinguisher.
-                    </p>
-                {% endif %}
                 </div>
+                <p class="small text-muted">
+                    <i class="mdi mdi-check-bold text-success"></i> Required fields <strong>must</strong> be specified for all
+                    objects.
+                </p>
+                <p class="small text-muted">
+                    <i class="mdi mdi-information-outline"></i> Related objects may be referenced by any unique attribute.
+                    For example, <code>vrf.rd</code> would identify a VRF by its route distinguisher.
+                </p>
+                {% endif %}
             </div>
         </div>
-    </div>
-{% endblock content %}
+    {% endblock content %}
+  </div>
+{% endblock %}

@@ -879,3 +879,15 @@ div.card > div.card-header > div.table-controls {
     font-size: $font-size-sm;
   }
 }
+
+// Tabbed content
+.nav-tabs {
+  .nav-link.active {
+  background-color: $tab-content-bg;
+  border-bottom-color: $tab-content-bg;
+  }
+}
+.tab-content {
+  background-color: $tab-content-bg;
+  padding: $spacer;
+}

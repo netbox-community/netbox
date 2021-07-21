@@ -138,9 +138,11 @@
         {# Page content #}
         <div id="content" class="container-fluid content px-0 m-0">
           {% block tabs %}{% endblock %}
-          <div class="px-3">
-            {% block content %}{% endblock %}
-          </div>
+          {% block content-wrapper %}
+            <div class="px-3">
+              {% block content %}{% endblock %}
+            </div>
+          {% endblock %}
         </div>
 
         {% if settings.BANNER_BOTTOM %}

@@ -25,7 +25,7 @@
     <div class="field-group">
         <h4 class="mb-3">Interface Assignment</h4>
         {% with vm_tab_active=form.initial.vminterface %}
-            <ul class="nav nav-tabs mb-3" role="tablist">
+            <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="nav-item">
                     <button
                         role="tab"
@@ -52,7 +52,6 @@
                         Virtual Machine
                     </button>
                 </li>
-                
             </ul>
             <div class="tab-content">
                 <div class="tab-pane {% if not vm_tab_active %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
@@ -69,7 +68,7 @@
     </div>
     <div class="field-group">
         <h4 class="mb-3">NAT IP (Inside)</h4>
-        <ul class="nav nav-tabs mb-3" role="tablist">
+        <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button
                     role="tab"
@@ -125,8 +124,8 @@
             <div class="tab-pane" id="by_vrf" aria-labelledby="vrf_tab" role="tabpanel">
                 {% render_field form.nat_vrf %}
             </div>
+            {% render_field form.nat_inside %}
         </div>
-        {% render_field form.nat_inside %}
     </div>
     {% if form.custom_fields %}
         <div class="field-group">

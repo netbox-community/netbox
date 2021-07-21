@@ -27,7 +27,7 @@
         </div>
         {% render_field form.mark_connected %}
         {% with providernetwork_tab_active=form.initial.provider_network %}
-            <ul class="nav nav-tabs mb-3" role="tablist">
+            <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">Site</button>
             </li>

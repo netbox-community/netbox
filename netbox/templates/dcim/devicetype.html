@@ -148,7 +148,7 @@
     </div>
     <div class="row my-3">
         <div class="col col-md-12">
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-pills" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" data-bs-target="#interfaces" role="tab" data-bs-toggle="tab">
                         Interfaces {% badge interface_table.rows|length %}
@@ -190,7 +190,7 @@
                     </button>
                 </li>
             </ul>
-            <div class="tab-content my-3">
+            <div class="tab-content p-0">
                 <div role="tabpanel" class="tab-pane active" id="interfaces">
                     {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' tab='interfaces' %}
                 </div>

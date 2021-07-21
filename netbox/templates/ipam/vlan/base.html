@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs" style="margin-bottom: 20px">
+  <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:vlan' pk=object.pk %}">VLAN</a>
     </li>
@@ -36,4 +36,10 @@
       </li>
     {% endif %}
   </ul>
+{% endblock %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    {% block content %}{% endblock %}
+  </div>
 {% endblock %}
