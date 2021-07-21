@@ -31,8 +31,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col col-12 col-xl-6">
+  <div class="row">
+	  <div class="col col-12 col-xl-5">
         <div class="card">
             <h5 class="card-header">
                 Rack
@@ -47,28 +47,15 @@
                             {% endif %}
                             <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
                         </td>
-                </tr>
-                <tr>
-                    <th scope="row">Location</th>
-                    <td>
-                        {% if object.location %}
-                            {% for location in object.location.get_ancestors %}
-                                <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
-                            {% endfor %}
-                            <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                    </tr>
                     <tr>
-                        <th scope="row">Group</th>
+                        <th scope="row">Location</th>
                         <td>
-                            {% if object.group %}
-                                {% for group in object.group.get_ancestors %}
-                                    <a href="{{ group.get_absolute_url }}">{{ group }}</a> /
+                            {% if object.location %}
+                                {% for location in object.location.get_ancestors %}
+                                    <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
                                 {% endfor %}
-                                <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -109,7 +96,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Serial Number</th>
-                        <td><code>{{ object.serial|placeholder }}</code></td>
+                        <td>{{ object.serial|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Asset Tag</th>
@@ -308,8 +295,8 @@
             {% endif %}
         </div>
         {% plugin_left_page object %}
-	</div>
-    <div class="col col-12 col-xl-6">
+	  </div>
+    <div class="col col-12 col-xl-7">
         <div class="row" style="margin-bottom: 20px">
             <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">
@@ -370,10 +357,10 @@
         </div>
         {% plugin_right_page object %}
     </div>
-</div>
-<div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
-    </div>
-</div>
+  </div>
+  <div class="row">
+      <div class="col col-md-12">
+          {% plugin_full_width_page object %}
+      </div>
+  </div>
 {% endblock %}

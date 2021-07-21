@@ -4,18 +4,13 @@
 
 {% block content %}
     <div class="row">
-        <div class="col col-md-4">
+        <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
                     VLAN
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
-                        <tr>
-                            <td colspan="2">
-                                <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                            </td>
-                        </tr>
                         <tr>
                             <th scope="row">Site</th>
                             <td>
@@ -61,6 +56,12 @@
                             </td>
                         </tr>
                         <tr>
+                            <th scope="row">Status</th>
+                            <td>
+                              <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        <tr>
                             <th scope="row">Role</th>
                             <td>
                                 {% if object.role %}
@@ -77,11 +78,16 @@
                     </table>
                 </div>
             </div>
-            {% include 'inc/custom_fields_panel.html' %}
-            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:vlan_list' %}
             {% plugin_left_page object %}
         </div>
-        <div class="col col-md-8">
+        <div class="col col-md-6">
+            {% include 'inc/custom_fields_panel.html' %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:vlan_list' %}
+            {% plugin_right_page object %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-md-12">
             <div class="card">
                 <h5 class="card-header">
                     Prefixes
@@ -98,11 +104,6 @@
                 </div>
                 {% endif %}
             </div>
-            {% plugin_right_page object %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col col-md-12">
             {% plugin_full_width_page object %}
         </div>
     </div>

@@ -31,6 +31,12 @@
                         <td><a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a></td>
                     </tr>
                     <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Tenant</th>
                         <td>
                             {% if object.tenant %}
@@ -41,12 +47,6 @@
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Status</th>
-                        <td>
-                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
                         </td>
                     </tr>
                     <tr>

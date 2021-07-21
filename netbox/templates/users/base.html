@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-sm-3 col-md-2 col-md-offset-1 border-end">
+    <div class="col-sm-3 col-md-2 border-end">
         <nav class="nav nav-pills nav-justified flex-column">
             <a class="nav-item nav-link text-start{% if active_tab == 'profile' %} active{% endif %}" href="{% url 'user:profile' %}">Profile</a>
             <a class="nav-link nav-item text-start{% if active_tab == 'preferences' %} active{% endif %}" href="{% url 'user:preferences' %}">Preferences</a>
@@ -14,7 +14,7 @@
             <a class="nav-link nav-item text-start{% if active_tab == 'api-tokens' %} active{% endif %}" href="{% url 'user:token_list' %}">API Tokens</a>
         </nav>
     </div>
-	<div class="col-sm-9 col-md-8 px-4">
+	<div class="col-sm-9 col-md-10 px-4">
         {% block usercontent %}{% endblock %}
 	</div>
 </div>

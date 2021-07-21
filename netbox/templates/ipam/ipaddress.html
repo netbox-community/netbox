@@ -116,11 +116,11 @@
         {% include 'inc/panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}
         {% if duplicate_ips_table.rows %}
             {# Custom version of panel_table.html #}
-            <div class="card bg-danger">
+            <div class="card border-danger">
                 <h5 class="card-header">
-                    Duplicate IP Addresses
+                  <span class="text-danger">Duplicate IP Addresses</span>
                     {% if more_duplicate_ips %}
-                    <div class="float-end">
+                      <div class="float-end">
                         <a type="button" class="btn btn-primary btn-sm"
                         {% if object.vrf %}
                         href="{% url 'ipam:ipaddress_list' %}?address={{ object.address.ip }}&vrf_id={{ object.vrf.pk }}"
@@ -128,7 +128,7 @@
                         href="{% url 'ipam:ipaddress_list' %}?address={{ object.address.ip }}&vrf_id=null"
                         {% endif %}
                         >Show all</a>
-                    </div>
+                      </div>
                     {% endif %}
                 </h5>
                 <div class="card-body">
@@ -137,7 +137,7 @@
             </div>
         {% endif %}
         <div class="my-3">
-        {% include 'utilities/obj_table.html' with table=related_ips_table heading='Related IP Addresses' %}
+        {% include 'inc/panel_table.html' with table=related_ips_table heading='Related IP Addresses' %}
         </div>
         {% plugin_right_page object %}
 	</div>

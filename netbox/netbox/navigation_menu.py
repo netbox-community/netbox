@@ -304,8 +304,8 @@ OTHER_MENU = Menu(
         MenuGroup(
             label="Miscellaneous",
             items=(
-                MenuItem(label="Config Contexts",
-                         url="extras:configcontext_list", add_url=None, import_url=None),
+                MenuItem(label="Config Contexts", url="extras:configcontext_list",
+                         add_url="extras:configcontext_add", import_url=None),
                 MenuItem(label="Reports", url="extras:report_list",
                          add_url=None, import_url=None),
                 MenuItem(label="Scripts", url="extras:script_list",

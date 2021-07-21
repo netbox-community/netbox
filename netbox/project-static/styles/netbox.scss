@@ -3,7 +3,7 @@
 @use 'sass:map';
 
 :root {
-  --nbx-sidebar-bg: #{$gray-100};
+  --nbx-sidebar-bg: #{$gray-200};
   --nbx-sidebar-link-color: #{$gray-800};
   --nbx-sidebar-link-hover-bg: #{$blue-100};
   --nbx-sidebar-title-color: #{$text-muted};
@@ -23,7 +23,7 @@
   --nbx-color-mode-toggle-color: #{$primary};
 
   body[data-netbox-color-mode='dark'] {
-    --nbx-sidebar-bg: #{$gray-900};
+    --nbx-sidebar-bg: #{$gray-800};
     --nbx-sidebar-link-color: #{$gray-200};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
     --nbx-sidebar-title-color: #{$gray-600};
@@ -298,6 +298,11 @@ body {
         font-size: $font-size-xs;
         line-height: $line-height-xs;
         vertical-align: bottom;
+      }
+    }
+    &.attr-table {
+      th {
+        width: 25%;
       }
     }
   }
@@ -605,6 +610,7 @@ span.color-label {
   height: 1rem;
   display: block;
   box-shadow: $box-shadow-sm;
+  border: 1px solid #303030;
   border-radius: $border-radius;
   padding: $badge-padding-y $badge-padding-x;
 }

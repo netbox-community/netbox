@@ -22,24 +22,6 @@
                 <div class="card-body">
                     <table class="table table-hover">
                         <tr>
-                            <td colspan="2">
-                                {% if object.enabled %}
-                                    <span class="badge bg-success">Enabled</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Disabled</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                {% if object.mgmt_only %}
-                                    <span class="badge bg-success">Management Only</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Not Management Only</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
                             <th scope="row">Device</th>
                             <td>
                                 <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
@@ -56,6 +38,36 @@
                         <tr>
                             <th scope="row">Type</th>
                             <td>{{ object.get_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Enabled</th>
+                            <td>
+                                {% if object.enabled %}
+                                    <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+                                {% else %}
+                                    <i class="mdi mdi-close-thick text-danger" title="No"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Management Only</th>
+                            <td>
+                                {% if object.mgmt_only %}
+                                    <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+                                {% else %}
+                                    <i class="mdi mdi-close-thick text-danger" title="No"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Parent</th>
+                            <td>
+                                {% if object.parent %}
+                                    <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row">LAG</th>
@@ -81,7 +93,7 @@
                         </tr>
                         <tr>
                             <th scope="row">802.1Q Mode</th>
-                            <td>{{ object.get_mode_display }}</td>
+                            <td>{{ object.get_mode_display|placeholder }}</td>
                         </tr>
                     </table>
                 </div>

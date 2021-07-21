@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="row mb-3">
-	<div class="col col-md-6">
+	<div class="col col-12 col-xl-5">
         <div class="card">
             <h5 class="card-header">
                 Rack
@@ -30,10 +30,10 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Group</th>
+                            <th scope="row">Location</th>
                             <td>
-                                {% if rack.group %}
-                                    <a href="{{ rack.group.get_absolute_url }}">{{ rack.group }}</a>
+                                {% if rack.location %}
+                                    <a href="{{ rack.location.get_absolute_url }}">{{ rack.location }}</a>
                                 {% else %}
                                     <span class="text-muted">None</span>
                                 {% endif %}
@@ -87,7 +87,7 @@
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:rackreservation_list' %}
         {% plugin_left_page object %}
 	</div>
-    <div class="col col-md-6">
+    <div class="col col-12 col-xl-7">
         <div class="row" style="margin-bottom: 20px">
             <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
                 <div style="margin-left: 30px">

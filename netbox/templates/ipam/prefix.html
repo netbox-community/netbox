@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col col-md-5">
+    <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
               Prefix
@@ -75,6 +75,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <th scope="row">Status</th>
+                    <td>
+                      <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row">Role</th>
                     <td>
                         {% if object.role %}
@@ -85,10 +91,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">Status</th>
-                    <td>
-                      <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                    </td>
+                    <th scope="row">Description</th>
+                    <td>{{ object.description|placeholder }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Is a pool</th>
@@ -99,10 +103,6 @@
                             <i class="mdi mdi-close-thick text-danger" title="No"></i>
                         {% endif %}
                     </td>
-                </tr>
-                <tr>
-                    <th scope="row">Description</th>
-                    <td>{{ object.description|placeholder }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Utilization</th>
@@ -118,24 +118,20 @@
               </table>
             </div>
         </div>
-        {% include 'inc/custom_fields_panel.html' %}
         {% plugin_left_page object %}
     </div>
-    <div class="col col-md-7">
-        {% if duplicate_prefix_table.rows %}
-            {% include 'inc/panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' %}
-        {% endif %}
-        {% include 'inc/panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' %}
+    <div class="col col-md-6">
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:prefix_list' %}
         {% plugin_right_page object %}
-    </div>
-</div>
-<div class="row my-3">
-    <div class="col col-md-5">
-    {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:prefix_list' %}
     </div>
 </div>
 <div class="row">
     <div class="col col-md-12">
+        {% if duplicate_prefix_table.rows %}
+            {% include 'inc/panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' %}
+        {% endif %}
+        {% include 'inc/panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' %}
         {% plugin_full_width_page object %}
     </div>
 </div>
