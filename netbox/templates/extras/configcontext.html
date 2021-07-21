@@ -50,132 +50,20 @@
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
+                      {% for title, objects in assigned_objects %}
                         <tr>
-                            <th scope="row">Regions</th>
-                            <td>
-                                {% if object.regions.all %}
-                                    <ul>
-                                        {% for region in object.regions.all %}
-                                            <li><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
+                          <th scope="row">{{ title }}</th>
+                          <td>
+                            <ul class="list-unstyled mb-0">
+                              {% for object in objects %}
+                                <li><a href="{{ object.get_absolute_url }}">{{ object }}</a></li>
+                              {% empty %}
+                                <li class="text-muted">None</li>
+                              {% endfor %}
+                            </ul>
+                          </td>
                         </tr>
-                        <tr>
-                            <th scope="row">Sites</th>
-                            <td>
-                                {% if object.sites.all %}
-                                    <ul>
-                                        {% for site in object.sites.all %}
-                                            <li><a href="{{ site.get_absolute_url }}">{{ site }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Roles</th>
-                            <td>
-                                {% if object.roles.all %}
-                                    <ul>
-                                        {% for role in object.roles.all %}
-                                            <li><a href="{% url 'dcim:device_list' %}?role={{ role.slug }}">{{ role }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Platforms</th>
-                            <td>
-                                {% if object.platforms.all %}
-                                    <ul>
-                                        {% for platform in object.platforms.all %}
-                                            <li><a href="{{ platform.get_absolute_url }}">{{ platform }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Cluster Groups</th>
-                            <td>
-                                {% if object.cluster_groups.all %}
-                                    <ul>
-                                        {% for cluster_group in object.cluster_groups.all %}
-                                            <li><a href="{{ cluster_group.get_absolute_url }}">{{ cluster_group }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Clusters</th>
-                            <td>
-                                {% if object.clusters.all %}
-                                    <ul>
-                                        {% for cluster in object.clusters.all %}
-                                            <li><a href="{{ cluster.get_absolute_url }}">{{ cluster }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Tenant Groups</th>
-                            <td>
-                                {% if object.tenant_groups.all %}
-                                    <ul>
-                                        {% for tenant_group in object.tenant_groups.all %}
-                                            <li><a href="{{ tenant_group.get_absolute_url }}">{{ tenant_group }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Tenants</th>
-                            <td>
-                                {% if object.tenants.all %}
-                                    <ul>
-                                        {% for tenant in object.tenants.all %}
-                                            <li><a href="{{ tenant.get_absolute_url }}">{{ tenant }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Tags</th>
-                            <td>
-                                {% if object.tags.all %}
-                                    <ul>
-                                        {% for tag in object.tags.all %}
-                                            <li><a href="{{ tag.get_absolute_url }}">{{ tag }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
+                      {% endfor %}
                     </table>
                 </div>
             </div>
