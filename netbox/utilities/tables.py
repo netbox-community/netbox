@@ -24,7 +24,7 @@ class BaseTable(tables.Table):
 
     class Meta:
         attrs = {
-            'class': 'table table-hover table-headings',
+            'class': 'table table-hover object-list',
         }
 
     def __init__(self, *args, user=None, **kwargs):

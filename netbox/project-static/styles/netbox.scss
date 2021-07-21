@@ -278,22 +278,26 @@ body {
     }
     td,
     th {
-      font-size: $font-size-xs;
+      font-size: $font-size-sm;
       line-height: $line-height-sm;
       vertical-align: middle;
+      &.min-width {
+        width: 1%;
+      }
       & input.form-check-input {
         // Ensure checkboxes aren't too small inside object tables.
         font-size: $font-size-base;
+        margin-top: 0.125em;
       }
       & .btn-sm {
         line-height: $line-height-xs;
       }
     }
-    &.attr-table {
-      td,
+    &.object-list {
       th {
-        font-size: $font-size-sm;
-        line-height: $line-height-sm;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
+        vertical-align: bottom;
       }
     }
   }
