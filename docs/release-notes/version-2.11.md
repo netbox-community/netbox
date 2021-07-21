@@ -6,6 +6,7 @@
 
 * [#5442](https://github.com/netbox-community/netbox/issues/5442) - Fix assignment of permissions based on LDAP groups
 * [#6773](https://github.com/netbox-community/netbox/issues/6773) - Add missing `display` field to rack unit serializer
+* [#6778](https://github.com/netbox-community/netbox/issues/6778) - Rack reservation should display rack's location
 
 ---
 

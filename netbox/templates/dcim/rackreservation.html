@@ -39,10 +39,10 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Group</td>
+                        <td>Location</td>
                         <td>
-                            {% if rack.group %}
-                                <a href="{{ rack.group.get_absolute_url }}">{{ rack.group }}</a>
+                            {% if rack.location %}
+                                <a href="{{ rack.location.get_absolute_url }}">{{ rack.location }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
