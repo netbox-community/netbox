@@ -38,7 +38,7 @@ class ExportTemplateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_type(self):
-        params = {'content_type': ContentType.objects.get(model='site').pk}
+        params = {'content_type': ContentType.objects.get(model='rack').pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 

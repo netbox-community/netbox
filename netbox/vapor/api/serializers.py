@@ -8,9 +8,8 @@ from dcim.api.nested_serializers import (
     NestedInterfaceSerializer,
     NestedCableSerializer,
 )
-from dcim.api.serializers import InterfaceConnectionSerializer
 from dcim.choices import InterfaceTypeChoices, InterfaceModeChoices
-from dcim.models import Interface
+from dcim.models import Interface, Cable
 from ipam.api.nested_serializers import NestedPrefixSerializer
 from ipam.models import VLAN, Prefix
 from tenancy.api.nested_serializers import NestedTenantGroupSerializer
@@ -98,6 +97,14 @@ class NestedVLANInterfaceSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'device', 'name', 'cable', 'type', 'untagged_vlan', 'tagged_vlans']
 
 
+class NestedVaporCableSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
+
+    class Meta:
+        model = Cable
+        fields = ['id', 'url', 'label', 'status']
+
+
 class CableTerminationSerializer(serializers.ModelSerializer):
     cable_peer_type = serializers.SerializerMethodField(read_only=True)
     cable_peer = serializers.SerializerMethodField(read_only=True)
@@ -172,15 +179,15 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         required=False,
         many=True
     )
-    cable = NestedCableSerializer(read_only=True)
+    cable = NestedVaporCableSerializer(read_only=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Interface
         fields = [
             'id', 'url', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-            'description', 'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable', 'mode',
-            'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
+            'description', 'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable',
+            'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
         ref_name = 'VaporInterfaceSerializer'
 

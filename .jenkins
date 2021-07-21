@@ -78,7 +78,7 @@ spec:
             """
           }
           // finally, kick off tox to run the entire test suite
-          sh 'tox'
+          sh 'tox -v'
         }
       }
     }

@@ -49,10 +49,14 @@ services:
     environment:
       POSTGRES_PASSWORD: "12345"
       POSTGRES_DB: netbox
+    ports:
+    - 5432:5432
     volumes:
     - netbox-postgres-data:/var/lib/postgresql/data
   redis:
     image: redis:5-alpine
+    ports:
+    - 6379:6379
     volumes:
     - netbox-redis-data:/data
   redis-cache:

@@ -25,8 +25,8 @@ __all__ = (
 # Regions
 #
 
-@extras_features('export_templates', 'webhooks')
-class Region(MPTTModel, ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class Region(MPTTModel, ChangeLoggedModel, CustomFieldModel):
     """
     Sites can be grouped within geographic Regions.
     """
