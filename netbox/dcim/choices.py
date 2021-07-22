@@ -337,6 +337,8 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_B = 'usb-micro-b'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Alternating current (AC)
+    TYPE_AC = 'ac-hardwire'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -440,6 +442,9 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_MICRO_B, 'USB Micro B'),
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
+        )),
+        ('AC', (
+            (TYPE_AC, 'AC Hardwire'),
         )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
