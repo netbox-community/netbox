@@ -23,59 +23,60 @@
 
 {% block title %}Home{% endblock %}
 
-{% block content %}
+{% block content-wrapper %}
+  <div class="tab-content">
+    {# General stats #}
+    <div class="row masonry">
+      {% for section, items, icon in stats %}
+        <div class="col col-sm-12 col-lg-6 col-xl-4 my-2 masonry-item">
+          <div class="card">
+            <h6 class="card-header text-primary text-center">
+              <i class="mdi mdi-{{ icon }}"></i>
+              <span class="ms-1">{{ section }}</span>
+            </h6>
+            <div class="card-body">
+              <div class="list-group list-group-flush">
+                {% for item in items %}
+                  {% if not item.disabled %}
+                    <a href="{% url item.url %}" class="list-group-item list-group-item-action">
+                      <div class="d-flex w-100 justify-content-between align-items-center">
+                        {{ item.label }}
+                        <h4 class="mb-1">{{ item.count }}</h4>
+                      </div>
+                    </a>
+                  {% else %}
+                    <li class="list-group-item list-group-item-action disabled">
+                      <div class="d-flex w-100 justify-content-between align-items-center">
+                        {{ item.label }}
+                        <h4 class="mb-1">
+                          <i title="No permission" class="mdi mdi-lock"></i>
+                        </h4>
+                      </div>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
 
-  {# General stats #}
-  <div class="row masonry">
-    {% for section, items, icon in stats %}
-      <div class="col col-sm-12 col-lg-6 col-xl-4 my-2 masonry-item">
-        <div class="card">
-          <h6 class="card-header text-primary text-center">
-            <i class="mdi mdi-{{ icon }}"></i>
-            <span class="ms-1">{{ section }}</span>
-          </h6>
-          <div class="card-body">
-            <div class="list-group list-group-flush">
-              {% for item in items %}
-                {% if not item.disabled %}
-                  <a href="{% url item.url %}" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between align-items-center">
-                      {{ item.label }}
-                      <h4 class="mb-1">{{ item.count }}</h4>
-                    </div>
-                  </a>
-                {% else %}
-                  <li class="list-group-item list-group-item-action disabled">
-                    <div class="d-flex w-100 justify-content-between align-items-center">
-                      {{ item.label }}
-                      <h4 class="mb-1">
-                        <i title="No permission" class="mdi mdi-lock"></i>
-                      </h4>
-                    </div>
-                  </li>
-                {% endif %}
-              {% endfor %}
+    {# Changelog #}
+    {% if perms.extras.view_objectchange %}
+      <div class="row my-4 flex-grow-1 changelog-container">
+        <div class="col">
+          <div class="card">
+            <h6 class="card-header text-primary text-center">
+              <i class="mdi mdi-clipboard-clock"></i>
+              <span class="ms-1">Change Log</span>
+            </h6>
+            <div class="card-body">
+              {% include 'inc/responsive_table.html' with table=changelog_table %}
             </div>
           </div>
         </div>
       </div>
-    {% endfor %}
+    {% endif %}
   </div>
-
-  {# Changelog #}
-  {% if perms.extras.view_objectchange %}
-    <div class="row my-4 flex-grow-1 changelog-container">
-      <div class="col">
-        <div class="card">
-          <h6 class="card-header text-primary text-center">
-            <i class="mdi mdi-clipboard-clock"></i>
-            <span class="ms-1">Change Log</span>
-          </h6>
-          <div class="card-body">
-            {% include 'inc/responsive_table.html' with table=changelog_table %}
-          </div>
-        </div>
-      </div>
-    </div>
-  {% endif %}
-{% endblock content %}
+{% endblock content-wrapper %}
