@@ -7,7 +7,7 @@
 <form method="post" action="" id="preferences-update">
     {% csrf_token %}
     <div class="field-group mb-3">
-        <h4>Color Mode</h4>
+        <h5 class="text-center">Color Mode</h5>
         <p class="lead text-muted">Set preferred UI color mode</p>
         {% with color_mode=preferences|get_key:'ui.colormode'%}
         <div class="form-check form-check-inline">
@@ -29,7 +29,7 @@
     </div>
 {% if preferences %}
 <div class="field-group mb-3">
-    <h4>Other Preferences</h4>
+    <h5 class="text-center">Other Preferences</h5>
     <table class="table table-striped">
         <thead>
             <tr>

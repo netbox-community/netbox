@@ -3,7 +3,7 @@
 
 {% block form %}
     <div class="field-group">
-        <h4>Rack</h4>
+        <h5 class="text-center">Rack</h5>
         {% render_field form.region %}
         {% render_field form.site_group %}
         {% render_field form.site %}
@@ -14,18 +14,18 @@
         {% render_field form.tags %}
     </div>
     <div class="field-group">
-        <h4>Inventory Control</h4>
+        <h5 class="text-center">Inventory Control</h5>
         {% render_field form.facility_id %}
         {% render_field form.serial %}
         {% render_field form.asset_tag %}
     </div>
     <div class="field-group">
-        <h4>Tenancy</h4>
+        <h5 class="text-center">Tenancy</h5>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
     <div class="field-group">
-        <h4>Dimensions</h4>
+        <h5 class="text-center">Dimensions</h5>
         {% render_field form.type %}
         {% render_field form.width %}
         {% render_field form.u_height %}
@@ -48,12 +48,12 @@
     </div>
     {% if form.custom_fields %}
         <div class="field-group">
-            <h4>Custom Fields</h4>
+            <h5 class="text-center">Custom Fields</h5>
             {% render_custom_fields form %}
         </div>
     {% endif %}
     <div class="field-group">
-        <h4>Comments</h4>
+        <h5 class="text-center">Comments</h5>
         {% render_field form.comments %}
     </div>
 {% endblock %}

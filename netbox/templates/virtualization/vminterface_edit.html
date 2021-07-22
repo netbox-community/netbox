@@ -3,7 +3,7 @@
 
 {% block form %}
     <div class="field-group">
-        <h4>Interface</h4>
+        <h5 class="text-center">Interface</h5>
         {% if form.instance.virtual_machine %}
             <div class="row mb-3">
                 <label class="col-sm-3 col-form-label required" for="id_device">Virtual Machine</label>
@@ -22,14 +22,14 @@
         
     </div>
     <div class="field-group">
-        <h4>802.1Q Switching</h4>
+        <h5 class="text-center">802.1Q Switching</h5>
         {% render_field form.mode %}
         {% render_field form.untagged_vlan %}
         {% render_field form.tagged_vlans %}
     </div>
     {% if form.custom_fields %}
       <div class="field-group">
-        <h4>Custom Fields</h4>
+        <h5 class="text-center">Custom Fields</h5>
         {% render_custom_fields form %}
       </div>
     {% endif %}

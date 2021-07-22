@@ -7,7 +7,7 @@
 {% block form %}
 {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='bulk_add' %}
     <div class="field-group">
-        <h4>IP Addresses</h4>
+        <h5 class="text-center">IP Addresses</h5>
         {% render_field form.pattern %}
         {% render_field model_form.status %}
         {% render_field model_form.role %}
@@ -16,13 +16,13 @@
         {% render_field model_form.tags %}
     </div>
     <div class="field-group">
-        <h4>Tenancy</h4>
+        <h5 class="text-center">Tenancy</h5>
         {% render_field model_form.tenant_group %}
         {% render_field model_form.tenant %}
     </div>
     {% if model_form.custom_fields %}
         <div class="field-group">
-            <h4>Custom Fields</h4>
+            <h5 class="text-center">Custom Fields</h5>
             {% render_custom_fields model_form %}
         </div>
     {% endif %}

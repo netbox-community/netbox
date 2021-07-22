@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col col-md-8 offset-md-2 col-lg-6 offset-lg-3">
             <div class="field-group">
-                <h4>{{ component_type|title }}</h4>
+                <h5 class="text-center">{{ component_type|title }}</h5>
                     {% for field in form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
@@ -23,7 +23,7 @@
                     {% endfor %}
                 {% if form.custom_fields %}
                     <div class="field-group">
-                        <h4>Custom Fields</h4>
+                        <h5 class="text-center">Custom Fields</h5>
                         {% render_custom_fields form %}
                     </div>
                 {% endif %}

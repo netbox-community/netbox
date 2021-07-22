@@ -5,14 +5,14 @@
     {% render_errors form %}
     
     <div class="field-group">
-        <h4>Device</h4>
+        <h5 class="text-center">Device</h5>
         {% render_field form.name %}
         {% render_field form.device_role %}
         {% render_field form.tags %}
     </div>
     
     <div class="field-group">
-        <h4>Hardware</h4>
+        <h5 class="text-center">Hardware</h5>
         {% render_field form.manufacturer %}
         {% render_field form.device_type %}
         {% render_field form.serial %}
@@ -20,7 +20,7 @@
     </div>
     
     <div class="field-group">
-        <h4>Location</h4>
+        <h5 class="text-center">Location</h5>
         {% render_field form.region %}
         {% render_field form.site_group %}
         {% render_field form.site %}
@@ -52,7 +52,7 @@
     </div>
     
     <div class="field-group">
-        <h4>Management</h4>
+        <h5 class="text-center">Management</h5>
         {% render_field form.status %}
         {% render_field form.platform %}
         {% if obj.pk %}
@@ -62,31 +62,31 @@
     </div>
     
     <div class="field-group">
-        <h4>Virtualization</h4>
+        <h5 class="text-center">Virtualization</h5>
         {% render_field form.cluster_group %}
         {% render_field form.cluster %}
     </div>
     
     <div class="field-group">
-        <h4>Tenancy</h4>
+        <h5 class="text-center">Tenancy</h5>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
 
 {% if form.custom_fields %}
     <div class="field-group">
-        <h4>Custom Fields</h4>
+        <h5 class="text-center">Custom Fields</h5>
         {% render_custom_fields form %}
     </div>
 
 {% endif %}
     <div class="field-group">
-        <h4>Local Config Context Data</h4>
+        <h5 class="text-center">Local Config Context Data</h5>
         {% render_field form.local_context_data %}
     </div>
 
     <div class="field-group">
-        <h4>Comments</h4>
+        <h5 class="text-center">Comments</h5>
         {% render_field form.comments %}
     </div>
 

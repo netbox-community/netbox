@@ -5,7 +5,7 @@
 
 {% block form %}
     <div class="field-group mb-3">
-        <h4>VLAN</h4>
+        <h5 class="text-center">VLAN</h5>
         {% render_field form.vid %}
         {% render_field form.name %}
         {% render_field form.status %}
@@ -14,12 +14,12 @@
         {% render_field form.tags %}
     </div>
     <div class="field-group mb-3">
-        <h4>Tenancy</h4>
+        <h5 class="text-center">Tenancy</h5>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
     <div class="field-group mb-3">
-        <h4>Assignment</h4>
+        <h5 class="text-center">Assignment</h5>
         {% with site_tab_active=form.initial.site %}
             <ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -44,7 +44,7 @@
     </div>
     {% if form.custom_fields %}
         <div class="field-group">
-            <h4>Custom Fields</h4>
+            <h5 class="text-center">Custom Fields</h5>
             {% render_custom_fields form %}
         </div>
     {% endif %}
