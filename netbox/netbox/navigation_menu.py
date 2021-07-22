@@ -95,8 +95,8 @@ ORGANIZATION_MENU = Menu(
             label='Sites',
             items=(
                 get_model_item('dcim', 'site', 'Sites'),
-                get_model_item('dcim', 'sitegroup', 'Site Groups'),
                 get_model_item('dcim', 'region', 'Regions'),
+                get_model_item('dcim', 'sitegroup', 'Site Groups'),
                 get_model_item('dcim', 'location', 'Locations'),
             ),
         ),
@@ -195,14 +195,14 @@ IPAM_MENU = Menu(
         MenuGroup(
             label='IP Addresses',
             items=(
+                get_model_item('ipam', 'ipaddress', 'IP Addresses'),
                 get_model_item('ipam', 'iprange', 'IP Ranges'),
-                get_model_item('ipam', 'ipaddress', 'IP Address'),
             ),
         ),
         MenuGroup(
             label='Prefixes',
             items=(
-                get_model_item('ipam', 'prefix', 'Prefix'),
+                get_model_item('ipam', 'prefix', 'Prefixes'),
                 get_model_item('ipam', 'role', 'Prefix & VLAN Roles'),
             ),
         ),
@@ -300,8 +300,8 @@ OTHER_MENU = Menu(
         MenuGroup(
             label='Logging',
             items=(
-                get_model_item('extras', 'objectchange', 'Change Log', actions=[]),
                 get_model_item('extras', 'journalentry', 'Journal Entries', actions=[]),
+                get_model_item('extras', 'objectchange', 'Change Log', actions=[]),
             ),
         ),
         MenuGroup(
