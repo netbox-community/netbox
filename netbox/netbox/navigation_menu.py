@@ -1,23 +1,35 @@
 from dataclasses import dataclass
 from typing import Sequence, Optional
 
+from extras.registry import registry
+from utilities.choices import ButtonColorChoices
+
+
+#
+# Nav menu data classes
+#
+
+@dataclass
+class MenuItemButton:
+
+    link: str
+    title: str
+    icon_class: str
+    permissions: Optional[list] = None
+    color: Optional[str] = None
+
 
 @dataclass
 class MenuItem:
-    """A navigation menu item link. Example: Sites, Platforms, RIRs, etc."""
 
-    label: str
-    url: str
-    disabled: bool = True
-    add_url: Optional[str] = None
-    import_url: Optional[str] = None
-    has_add: bool = False
-    has_import: bool = False
+    link: str
+    link_text: str
+    permissions: Optional[list] = None
+    buttons: Optional[Sequence[MenuItemButton]] = None
 
 
 @dataclass
 class MenuGroup:
-    """A group of menu items within a menu."""
 
     label: str
     items: Sequence[MenuItem]
@@ -25,302 +37,338 @@ class MenuGroup:
 
 @dataclass
 class Menu:
-    """A top level menu group. Example: Organization, Devices, IPAM."""
 
     label: str
-    icon: str
+    icon_class: str
     groups: Sequence[MenuGroup]
 
 
+#
+# Utility functions
+#
+
+def get_model_item(app_label, model_name, label, actions=('add', 'import')):
+    return MenuItem(
+        link=f'{app_label}:{model_name}_list',
+        link_text=label,
+        permissions=[f'{app_label}.view_{model_name}'],
+        buttons=get_model_buttons(app_label, model_name, actions)
+    )
+
+
+def get_model_buttons(app_label, model_name, actions=('add', 'import')):
+    buttons = []
+
+    if 'add' in actions:
+        buttons.append(
+            MenuItemButton(
+                link=f'{app_label}:{model_name}_add',
+                title='Add',
+                icon_class='mdi mdi-plus-thick',
+                permissions=[f'{app_label}.add_{model_name}'],
+                color=ButtonColorChoices.GREEN
+            )
+        )
+    if 'import' in actions:
+        buttons.append(
+            MenuItemButton(
+                link=f'{app_label}:{model_name}_import',
+                title='Import',
+                icon_class='mdi mdi-upload',
+                permissions=[f'{app_label}.add_{model_name}'],
+                color=ButtonColorChoices.CYAN
+            )
+        )
+
+    return buttons
+
+
+#
+# Nav menus
+#
+
 ORGANIZATION_MENU = Menu(
-    label="Organization",
-    icon="domain",
+    label='Organization',
+    icon_class='mdi mdi-domain',
     groups=(
         MenuGroup(
-            label="Sites",
+            label='Sites',
             items=(
-                MenuItem(label="Sites", url="dcim:site_list",
-                         add_url="dcim:site_add", import_url="dcim:site_import"),
-                MenuItem(label="Site Groups", url="dcim:sitegroup_list",
-                         add_url="dcim:sitegroup_add", import_url="dcim:sitegroup_import"),
-                MenuItem(label="Regions", url="dcim:region_list",
-                         add_url="dcim:region_add", import_url="dcim:region_import"),
-                MenuItem(label="Locations", url="dcim:location_list",
-                         add_url="dcim:location_add", import_url="dcim:location_import"),
+                get_model_item('dcim', 'site', 'Sites'),
+                get_model_item('dcim', 'sitegroup', 'Site Groups'),
+                get_model_item('dcim', 'region', 'Regions'),
+                get_model_item('dcim', 'location', 'Locations'),
             ),
         ),
         MenuGroup(
-            label="Racks",
+            label='Racks',
             items=(
-                MenuItem(label="Racks", url="dcim:rack_list",
-                         add_url="dcim:rack_add", import_url="dcim:rack_import"),
-                MenuItem(label="Rack Roles", url="dcim:rackrole_list",
-                         add_url="dcim:rackrole_add", import_url="dcim:rackrole_import"),
-                MenuItem(label="Reservations", url="dcim:rackreservation_list",
-                         add_url="dcim:rackreservation_add", import_url=None),
-                MenuItem(label="Elevations", url="dcim:rack_elevation_list",
-                         add_url=None, import_url=None),
+                get_model_item('dcim', 'rack', 'Racks'),
+                get_model_item('dcim', 'rackrole', 'Rack Roles'),
+                get_model_item('dcim', 'rackreservation', 'Reservations'),
+                MenuItem(
+                    link='dcim:rack_elevation_list',
+                    link_text='Elevations',
+                    permissions=['dcim.view_rack']
+                ),
             ),
         ),
         MenuGroup(
-            label="Tenancy",
+            label='Tenancy',
             items=(
-                MenuItem(label="Tenants", url="tenancy:tenant_list",
-                         add_url="tenancy:tenant_add", import_url="tenancy:tenant_import"),
-                MenuItem(label="Tenant Groups",
-                         url="tenancy:tenantgroup_list", add_url="tenancy:tenantgroup_add",
-                         import_url="tenancy:tenantgroup_import"),
+                get_model_item('tenancy', 'tenant', 'Tenants'),
+                get_model_item('tenancy', 'tenantgroup', 'Tenant Groups'),
             ),
-        ),
-        MenuGroup(
-            label="Tags",
-            items=(MenuItem(label="Tags", url="extras:tag_list",
-                   add_url="extras:tag_add", import_url="extras:tag_import"),),
         ),
     ),
 )
 
 DEVICES_MENU = Menu(
-    label="Devices",
-    icon="server",
+    label='Devices',
+    icon_class='mdi mdi-server',
     groups=(
         MenuGroup(
-            label="Devices",
+            label='Devices',
             items=(
-                MenuItem(label="Devices", url="dcim:device_list",
-                         add_url="dcim:device_add", import_url="dcim:device_import"),
-                MenuItem(label="Device Roles", url="dcim:devicerole_list",
-                         add_url="dcim:devicerole_add", import_url="dcim:devicerole_import"),
-                MenuItem(label="Platforms", url="dcim:platform_list",
-                         add_url="dcim:platform_add", import_url="dcim:platform_import"),
-                MenuItem(label="Virtual Chassis",
-                         url="dcim:virtualchassis_list", add_url="dcim:virtualchassis_add",
-                         import_url="dcim:virtualchassis_import"),
+                get_model_item('dcim', 'device', 'Devices'),
+                get_model_item('dcim', 'devicerole', 'Device Roles'),
+                get_model_item('dcim', 'platform', 'Platforms'),
+                get_model_item('dcim', 'virtualchassis', 'Virtual Chassis'),
             ),
         ),
         MenuGroup(
-            label="Device Types",
+            label='Device Types',
             items=(
-                MenuItem(label="Device Types", url="dcim:devicetype_list",
-                         add_url="dcim:devicetype_add", import_url="dcim:devicetype_import"),
-                MenuItem(label="Manufacturers", url="dcim:manufacturer_list",
-                         add_url="dcim:manufacturer_add", import_url="dcim:manufacturer_import"),
+                get_model_item('dcim', 'devicetype', 'Device Types'),
+                get_model_item('dcim', 'manufacturer', 'Manufacturers'),
             ),
         ),
         MenuGroup(
-            label="Connections",
+            label='Device Components',
             items=(
-                MenuItem(label="Cables", url="dcim:cable_list",
-                         add_url=None, import_url="dcim:cable_import"),
+                get_model_item('dcim', 'interface', 'Interfaces', actions=['import']),
+                get_model_item('dcim', 'frontport', 'Front Ports', actions=['import']),
+                get_model_item('dcim', 'rearport', 'Rear Ports', actions=['import']),
+                get_model_item('dcim', 'consoleport', 'Console Ports', actions=['import']),
+                get_model_item('dcim', 'consoleserverport', 'Console Server Ports', actions=['import']),
+                get_model_item('dcim', 'powerport', 'Power Ports', actions=['import']),
+                get_model_item('dcim', 'poweroutlet', 'Power Outlets', actions=['import']),
+                get_model_item('dcim', 'devicebay', 'Device Bays', actions=['import']),
+                get_model_item('dcim', 'inventoryitem', 'Inventory Items', actions=['import']),
+            ),
+        ),
+    ),
+)
+
+CONNECTIONS_MENU = Menu(
+    label='Connections',
+    icon_class='mdi mdi-ethernet',
+    groups=(
+        MenuGroup(
+            label='Connections',
+            items=(
+                get_model_item('dcim', 'cable', 'Cables', actions=['import']),
                 MenuItem(
-                    label="Console Connections", url="dcim:console_connections_list", add_url=None, import_url=None,
+                    link='dcim:interface_connections_list',
+                    link_text='Interface Connections',
+                    permissions=['dcim.view_interface']
                 ),
                 MenuItem(
-                    label="Interface Connections", url="dcim:interface_connections_list", add_url=None, import_url=None,
+                    link='dcim:console_connections_list',
+                    link_text='Console Connections',
+                    permissions=['dcim.view_consoleport']
                 ),
-                MenuItem(label="Power Connections",
-                         url="dcim:power_connections_list", add_url=None, import_url=None,),
-            ),
-        ),
-        MenuGroup(
-            label="Device Components",
-            items=(
-                MenuItem(label="Interfaces", url="dcim:interface_list",
-                         add_url=None, import_url="dcim:interface_import"),
-                MenuItem(label="Front Ports", url="dcim:frontport_list",
-                         add_url=None, import_url="dcim:frontport_import"),
-                MenuItem(label="Rear Ports", url="dcim:rearport_list",
-                         add_url=None, import_url="dcim:rearport_import"),
-                MenuItem(label="Console Ports", url="dcim:consoleport_list",
-                         add_url=None, import_url="dcim:consoleport_import"),
-                MenuItem(label="Console Server Ports", url="dcim:consoleserverport_list",
-                         add_url=None, import_url="dcim:consoleserverport_import"),
-                MenuItem(label="Power Ports", url="dcim:powerport_list",
-                         add_url=None, import_url="dcim:powerport_import"),
-                MenuItem(label="Power Outlets", url="dcim:poweroutlet_list",
-                         add_url=None, import_url="dcim:poweroutlet_import"),
-                MenuItem(label="Device Bays", url="dcim:devicebay_list",
-                         add_url=None, import_url="dcim:devicebay_import"),
-                MenuItem(label="Inventory Items",
-                         url="dcim:inventoryitem_list", add_url=None, import_url="dcim:inventoryitem_import"),
+                MenuItem(
+                    link='dcim:power_connections_list',
+                    link_text='Power Connections',
+                    permissions=['dcim.view_powerport']
+                ),
             ),
         ),
     ),
 )
 
 IPAM_MENU = Menu(
-    label="IPAM",
-    icon="counter",
+    label='IPAM',
+    icon_class='mdi mdi-counter',
     groups=(
         MenuGroup(
-            label="IP Addresses",
+            label='IP Addresses',
             items=(
-                MenuItem(label="IP Ranges", url="ipam:iprange_list",
-                         add_url="ipam:iprange_add", import_url="ipam:iprange_import"),
-                MenuItem(label="IP Addresses", url="ipam:ipaddress_list",
-                         add_url="ipam:ipaddress_add", import_url="ipam:ipaddress_import"),
+                get_model_item('ipam', 'iprange', 'IP Ranges'),
+                get_model_item('ipam', 'ipaddress', 'IP Address'),
             ),
         ),
         MenuGroup(
-            label="Prefixes",
+            label='Prefixes',
             items=(
-                MenuItem(label="Prefixes", url="ipam:prefix_list",
-                         add_url="ipam:prefix_add", import_url="ipam:prefix_import"),
-                MenuItem(label="Prefix & VLAN Roles", url="ipam:role_list",
-                         add_url="ipam:role_add", import_url="ipam:role_import"),
+                get_model_item('ipam', 'prefix', 'Prefix'),
+                get_model_item('ipam', 'role', 'Prefix & VLAN Roles'),
             ),
         ),
         MenuGroup(
-            label="Aggregates",
+            label='Aggregates',
             items=(
-                MenuItem(label="Aggregates", url="ipam:aggregate_list",
-                         add_url="ipam:aggregate_add", import_url="ipam:aggregate_import"),
-                MenuItem(label="RIRs", url="ipam:rir_list",
-                         add_url="ipam:rir_add", import_url="ipam:rir_import"),
+                get_model_item('ipam', 'aggregate', 'Aggregates'),
+                get_model_item('ipam', 'rir', 'RIRs'),
             ),
         ),
         MenuGroup(
-            label="VRFs",
+            label='VRFs',
             items=(
-                MenuItem(label="VRFs", url="ipam:vrf_list",
-                         add_url="ipam:vrf_add", import_url="ipam:vrf_import"),
-                MenuItem(label="Route Targets", url="ipam:routetarget_list",
-                         add_url="ipam:routetarget_add", import_url="ipam:routetarget_import"),
+                get_model_item('ipam', 'vrf', 'VRFs'),
+                get_model_item('ipam', 'routetarget', 'Route Targets'),
             ),
         ),
         MenuGroup(
-            label="VLANs",
+            label='VLANs',
             items=(
-                MenuItem(label="VLANs", url="ipam:vlan_list",
-                         add_url="ipam:vlan_add", import_url="ipam:vlan_import"),
-                MenuItem(label="VLAN Groups", url="ipam:vlangroup_list",
-                         add_url="ipam:vlangroup_add", import_url="ipam:vlangroup_import"),
+                get_model_item('ipam', 'vlan', 'VLANs'),
+                get_model_item('ipam', 'vlangroup', 'VLAN Groups'),
             ),
         ),
         MenuGroup(
-            label="Services",
-            items=(MenuItem(label="Services", url="ipam:service_list",
-                   add_url=None, import_url="ipam:service_import"),),
+            label='Services',
+            items=(
+                get_model_item('ipam', 'service', 'Services', actions=['import']),
+            ),
         ),
     ),
 )
 
-VIRTUALIZATION_MENU = Menu(
-    label="Virtualization",
-    icon="monitor",
+VIRUTALIZATION_MENU = Menu(
+    label='Virtualization',
+    icon_class='mdi mdi-monitor',
     groups=(
         MenuGroup(
-            label="Virtual Machines",
+            label='Virtual Machines',
             items=(
-                MenuItem(
-                    label="Virtual Machines",
-                    url="virtualization:virtualmachine_list", add_url="virtualization:virtualmachine_add", import_url="virtualization:virtualmachine_import"),
-                MenuItem(label="Interfaces",
-                         url="virtualization:vminterface_list", add_url="virtualization:vminterface_add", import_url="virtualization:vminterface_import"),
+                get_model_item('virtualization', 'virtualmachine', 'Virtual Machines'),
+                get_model_item('virtualization', 'vminterface', 'Interfaces', actions=['import']),
             ),
         ),
         MenuGroup(
-            label="Clusters",
+            label='Clusters',
             items=(
-                MenuItem(label="Clusters", url="virtualization:cluster_list",
-                         add_url="virtualization:cluster_add", import_url="virtualization:cluster_import"),
-                MenuItem(label="Cluster Types",
-                         url="virtualization:clustertype_list", add_url="virtualization:clustertype_add", import_url="virtualization:clustertype_import"),
-                MenuItem(
-                    label="Cluster Groups", url="virtualization:clustergroup_list", add_url="virtualization:clustergroup_add", import_url="virtualization:clustergroup_import"),
+                get_model_item('virtualization', 'cluster', 'Clusters'),
+                get_model_item('virtualization', 'clustertype', 'Cluster Types'),
+                get_model_item('virtualization', 'clustergroup', 'Cluster Groups'),
             ),
         ),
     ),
 )
 
 CIRCUITS_MENU = Menu(
-    label="Circuits",
-    icon="transit-connection-variant",
+    label='Circuits',
+    icon_class='mdi mdi-transit-connection-variant',
     groups=(
         MenuGroup(
-            label="Circuits",
+            label='Circuits',
             items=(
-                MenuItem(label="Circuits", url="circuits:circuit_list",
-                         add_url="circuits:circuit_add", import_url="circuits:circuit_import"),
-                MenuItem(label="Circuit Types",
-                         url="circuits:circuittype_list", add_url="circuits:circuittype_add", import_url="circuits:circuittype_import"),
+                get_model_item('circuits', 'circuit', 'Circuits'),
+                get_model_item('circuits', 'circuittype', 'Circuit Types'),
             ),
         ),
         MenuGroup(
-            label="Providers",
+            label='Providers',
             items=(
-                MenuItem(label="Providers", url="circuits:provider_list",
-                         add_url="circuits:provider_add", import_url="circuits:provider_import"),
-                MenuItem(
-                    label="Provider Networks", url="circuits:providernetwork_list", add_url="circuits:providernetwork_add", import_url="circuits:providernetwork_import"
-                ),
+                get_model_item('circuits', 'provider', 'Providers'),
+                get_model_item('circuits', 'providernetwork', 'Provider Networks'),
             ),
         ),
     ),
 )
 
 POWER_MENU = Menu(
-    label="Power",
-    icon="flash",
+    label='Power',
+    icon_class='mdi mdi-flash',
     groups=(
         MenuGroup(
-            label="Power",
+            label='Power',
             items=(
-                MenuItem(label="Power Feeds", url="dcim:powerfeed_list",
-                         add_url="dcim:powerfeed_add", import_url="dcim:powerfeed_import"),
-                MenuItem(label="Power Panels", url="dcim:powerpanel_list",
-                         add_url="dcim:powerpanel_add", import_url="dcim:powerpanel_import"),
+                get_model_item('dcim', 'powerfeed', 'Power Feeds'),
+                get_model_item('dcim', 'powerpanel', 'Power Panels'),
             ),
         ),
     ),
 )
 
 OTHER_MENU = Menu(
-    label="Other",
-    icon="notification-clear-all",
+    label='Other',
+    icon_class='mdi mdi-notification-clear-all',
     groups=(
         MenuGroup(
-            label="Logging",
+            label='Logging',
             items=(
-                MenuItem(label="Change Log", url="extras:objectchange_list",
-                         add_url=None, import_url=None),
-                MenuItem(label="Journal Entries",
-                         url="extras:journalentry_list", add_url=None, import_url=None),
-                MenuItem(label="Webhooks", url="extras:webhook_list",
-                         add_url="extras:webhook_add", import_url="extras:webhook_import"),
+                get_model_item('extras', 'objectchange', 'Change Log', actions=[]),
+                get_model_item('extras', 'journalentry', 'Journal Entries', actions=[]),
             ),
         ),
         MenuGroup(
-            label="Customization",
+            label='Customization',
             items=(
-                MenuItem(label="Custom Fields", url="extras:customfield_list",
-                         add_url="extras:customfield_add", import_url="extras:customfield_import"),
-                MenuItem(label="Custom Links", url="extras:customlink_list",
-                         add_url="extras:customlink_add", import_url="extras:customlink_import"),
-                MenuItem(label="Export Templates", url="extras:exporttemplate_list",
-                         add_url="extras:exporttemplate_add", import_url="extras:exporttemplate_import"),
+                get_model_item('extras', 'customfield', 'Custom Fields'),
+                get_model_item('extras', 'customlink', 'Custom Links'),
+                get_model_item('extras', 'exporttemplate', 'Export Templates'),
             ),
         ),
         MenuGroup(
-            label="Miscellaneous",
+            label='Integrations',
             items=(
-                MenuItem(label="Config Contexts", url="extras:configcontext_list",
-                         add_url="extras:configcontext_add", import_url=None),
-                MenuItem(label="Reports", url="extras:report_list",
-                         add_url=None, import_url=None),
-                MenuItem(label="Scripts", url="extras:script_list",
-                         add_url=None, import_url=None),
+                get_model_item('extras', 'webhook', 'Webhooks'),
+                MenuItem(
+                    link='extras:report_list',
+                    link_text='Reports',
+                    permissions=['extras.view_report']
+                ),
+                MenuItem(
+                    link='extras:script_list',
+                    link_text='Scripts',
+                    permissions=['extras.view_script']
+                ),
+            ),
+        ),
+        MenuGroup(
+            label='Other',
+            items=(
+                get_model_item('extras', 'tag', 'Tags'),
+                get_model_item('extras', 'configcontext', 'Config Contexts', actions=['add']),
             ),
         ),
     ),
 )
 
-MENUS = (
+
+MENUS = [
     ORGANIZATION_MENU,
     DEVICES_MENU,
+    CONNECTIONS_MENU,
     IPAM_MENU,
-    VIRTUALIZATION_MENU,
+    VIRUTALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,
     OTHER_MENU,
-)
+]
+
+#
+# Add plugin menus
+#
+
+if registry['plugin_menu_items']:
+    plugin_menu_groups = []
+
+    for plugin_name, items in registry['plugin_menu_items'].items():
+        plugin_menu_groups.append(
+            MenuGroup(
+                label=plugin_name,
+                items=items
+            )
+        )
+
+    PLUGIN_MENU = Menu(
+        label="Plugins",
+        icon_class="mdi mdi-puzzle",
+        groups=plugin_menu_groups
+    )
+
+    MENUS.append(PLUGIN_MENU)
