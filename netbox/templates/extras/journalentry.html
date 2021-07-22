@@ -45,14 +45,7 @@
             </div>
         </div>
         <div class="col col-md-8">
-            <div class="card">
-                <h5 class="card-header">
-                    Comments
-                </h5>
-                <div class="card-body">
-                    {{ object.comments|render_markdown }}
-                </div>
-            </div>
+            {% include 'inc/comments_panel.html' %}
         </div>
     </div>
 {% endblock %}

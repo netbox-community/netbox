@@ -276,6 +276,21 @@ class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
 
     def get_extra_context(self, request, instance):
+        # Gather assigned objects for parsing in the template
+        assigned_objects = (
+            ('Regions', instance.regions.all),
+            ('Site Groups', instance.site_groups.all),
+            ('Sites', instance.sites.all),
+            ('Device Types', instance.device_types.all),
+            ('Roles', instance.roles.all),
+            ('Platforms', instance.platforms.all),
+            ('Cluster Groups', instance.cluster_groups.all),
+            ('Clusters', instance.clusters.all),
+            ('Tenant Groups', instance.tenant_groups.all),
+            ('Tenants', instance.tenants.all),
+            ('Tags', instance.tags.all),
+        )
+
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
@@ -287,6 +302,7 @@ class ConfigContextView(generic.ObjectView):
             format = 'json'
 
         return {
+            'assigned_objects': assigned_objects,
             'format': format,
         }
 

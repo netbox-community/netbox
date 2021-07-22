@@ -1,0 +1,14 @@
+{% load helpers %}
+
+<div class="card">
+  <h5 class="card-header">
+    Comments
+  </h5>
+  <div class="card-body rendered-markdown">
+    {% if object.comments %}
+      {{ object.comments|render_markdown }}
+    {% else %}
+      <span class="text-muted">None</span>
+    {% endif %}
+  </div>
+</div>

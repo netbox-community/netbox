@@ -167,18 +167,7 @@
         </div>
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:site_list' %}
-        <div class="card">
-            <h5 class="card-header">
-                Comments
-            </h5>
-            <div class="card-body rendered-markdown">
-                {% if object.comments %}
-                    {{ object.comments|render_markdown }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
-        </div>
+        {% include 'inc/comments_panel.html' %}
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-5">
