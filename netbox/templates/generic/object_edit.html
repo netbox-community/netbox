@@ -1,4 +1,6 @@
-{% extends 'base/layout.html' %} {% load form_helpers %} {% load helpers %}
+{% extends 'base/layout.html' %}
+{% load form_helpers %}
+{% load helpers %}
 
 {% block title %}
   {% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}
@@ -6,9 +8,11 @@
 
 {% block controls %}
   {% if settings.DOCS_ROOT %}
-    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
-      <i class="mdi mdi-help-circle"></i>
-    </button>
+    <div class="controls pt-1">
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
+        <i class="mdi mdi-help-circle"></i> Help
+      </button>
+    </div>
   {% endif %}
 {% endblock controls %}
 
