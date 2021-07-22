@@ -72,7 +72,7 @@ If `git` is not already installed, install it:
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
 
 ```no-highlight
-$ sudo git clone -b master https://github.com/netbox-community/netbox.git .
+sudo git clone -b master https://github.com/netbox-community/netbox.git .
 ```
 
 The screen below should be the result:
@@ -228,7 +228,7 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 sudo /opt/netbox/upgrade.sh
 ```
 
-Note that Python 3.7 or later is required for NetBox v3.0 and later releases. If the default Python installation on your server does not meet this requirement, you'll need to install Python 3.7 or later separately, and pass the path to the support installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+Note that **Python 3.7 or later is required** for NetBox v3.0 and later releases. If the default Python installation on your server does not meet this requirement, you'll need to install Python 3.7 or later separately, and pass the path to the support installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
 
 ```no-highlight
 sudo PYTHON=/usr/bin/python3.7 /opt/netbox/upgrade.sh
@@ -286,20 +286,12 @@ Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
 
-Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
+Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Try logging in using the username and password specified when creating a superuser.
 
 !!! danger
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
-
-Note that the initial user interface will be locked down for non-authenticated users.
-
-![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_ui_guest.png)
-
-Try logging in using the superuser account we just created. Once authenticated, you'll be able to access all areas of the UI:
-
-![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)
 
 Type `Ctrl+c` to stop the development server.
