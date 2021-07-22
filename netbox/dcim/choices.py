@@ -341,6 +341,8 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_SAF_D_GRID = 'saf-d-grid'
+    # Other
+    TYPE_OTHER = 'other'
 
     CHOICES = (
         ('IEC 60320', (
@@ -446,6 +448,9 @@ class PowerPortTypeChoices(ChoiceSet):
         )),
         ('Proprietary', (
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+        )),
+        ('Other', (
+            (TYPE_OTHER, 'Other'),
         )),
     )
 
