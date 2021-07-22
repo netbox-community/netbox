@@ -236,7 +236,7 @@ IPAM_MENU = Menu(
     ),
 )
 
-VIRUTALIZATION_MENU = Menu(
+VIRTUALIZATION_MENU = Menu(
     label='Virtualization',
     icon_class='mdi mdi-monitor',
     groups=(
@@ -344,7 +344,7 @@ MENUS = [
     DEVICES_MENU,
     CONNECTIONS_MENU,
     IPAM_MENU,
-    VIRUTALIZATION_MENU,
+    VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,
     OTHER_MENU,
