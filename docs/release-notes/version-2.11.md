@@ -6,6 +6,7 @@
 
 * [#5442](https://github.com/netbox-community/netbox/issues/5442) - Fix assignment of permissions based on LDAP groups
 * [#6773](https://github.com/netbox-community/netbox/issues/6773) - Add missing `display` field to rack unit serializer
+* [#6774](https://github.com/netbox-community/netbox/issues/6774) - Fix A/Z assignment when swapping circuit terminations
 * [#6777](https://github.com/netbox-community/netbox/issues/6777) - Fix default value validation for custom text fields
 * [#6778](https://github.com/netbox-community/netbox/issues/6778) - Rack reservation should display rack's location
 * [#6780](https://github.com/netbox-community/netbox/issues/6780) - Include rack location in navigation breadcrumbs
