@@ -10,6 +10,7 @@
 * [#6777](https://github.com/netbox-community/netbox/issues/6777) - Fix default value validation for custom text fields
 * [#6778](https://github.com/netbox-community/netbox/issues/6778) - Rack reservation should display rack's location
 * [#6780](https://github.com/netbox-community/netbox/issues/6780) - Include rack location in navigation breadcrumbs
+* [#6794](https://github.com/netbox-community/netbox/issues/6794) - Fix device name display on device status view
 
 ---
 
