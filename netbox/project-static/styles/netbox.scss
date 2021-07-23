@@ -535,8 +535,7 @@ div.content-container {
   }
 
   .accordion-body {
-    max-height: calc(100vh - 24rem);
-    overflow-y: auto;
+    overflow-y: visible;
     .nav-item {
       .nav-link {
         padding: 0.25rem 0.6rem;
