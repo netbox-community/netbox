@@ -1,134 +1,70 @@
-def getSafeBranchName() {
-    return "${env.BRANCH_NAME}".replace('/', '-')
-}
+#!/usr/bin/env groovy
 
-def getTagName() {
-    def branchName = getSafeBranchName()
-    return "${branchName}.${env.BUILD_NUMBER}"
-}
+// Include this shared CI repository to load script helpers and libraries.
+library identifier: 'vapor@1.15.7', retriever: modernSCM([
+  $class: 'GitSCMSource',
+  remote: 'https://github.com/vapor-ware/ci-shared.git',
+  credentialsId: 'vio-bot-gh',
+])
 
 
-pipeline {
-  // disallow unconfigured stages
-  // each stage will have to declare an agent block and direct the pipeline
-  // how to execute. This skips the implicit agent scheduling.
-  agent none
-  environment {
-    TAG = getTagName()
-    IMAGE = 'vaporio/netbox'
-  }
-  stages {
-    stage('Test') {
-
-      /*
-      # Setup an agent dynamically using the following podspec. Netbox requires
-      # redis and postgres by default (they've disabled all the other backend drivers
-      # so we'll tack those on to the pods with some sane defaults.
-      # Note: this targets units on the vapor-build cluster (implicit) This may not be
-      # desireable in the case of building docker images.
-      */
-      agent {
-        kubernetes {
-          defaultContainer 'jnlp'
-          yaml """
+pythonPipeline([
+  'image': 'vaporio/netbox',
+  'pythonVersion': '3.7',
+  'skipDocs': true,
+  'skipLint': true,
+  'skipIntegrationTest': true,
+  'skipPrivateRepo': true,
+  'podTemplate': """
 apiVersion: v1
 kind: Pod
-metadata:
-  labels:
-    jenkins/job: netbox
 spec:
+  imagePullSecrets:
+  - name: dockerhub-vaporvecrobot
   containers:
   - name: python
-    image: vaporio/jenkins-agent-python36:latest
+    image: vaporio/jenkins-agent-python37:master
+    imagePullPolicy: Always
     command:
     - cat
     tty: true
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 500m
+  - name: deploy
+    image: vaporio/deployment-tools:latest
+    imagePullPolicy: Always
+    command:
+    - cat
+    tty: true
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
   - name: postgres
-    image: postgres:10
+    image: postgres:11
     env:
     - name: POSTGRES_USER
-      value: netbox
+      value: postgres
     - name: POSTGRES_PASSWORD
-      value: netbox
+      value: 12345
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
   - name: redis
     image: redis:5
     command:
     - redis-server
     args:
     - --appendonly yes
-    - --requirepass netbox
-"""
-        }
-      }
-      steps {
-        container('python') {
-          /*
-          # in the netbox/netbox path there is an example configuration file
-          # clone this file and set up a permissive configuration for CI
-          # using the values we declared in the podspec
-          */
-          dir('netbox/netbox') {
-            sh """
-              cp configuration.example.py configuration.py
-              sed -i -e "s/ALLOWED_HOSTS = .*/ALLOWED_HOSTS = ['*']/g" configuration.py
-              sed -i -e "s/SECRET_KEY = .*/SECRET_KEY = 'netboxci'/g" configuration.py
-              sed -i -e "s/USER': .*/USER': 'netbox',/g" configuration.py
-              sed -i -e "s/PASSWORD': .*/PASSWORD': 'netbox',/g" configuration.py
-              sed -i -e "s/PLUGINS = .*/PLUGINS = ['netbox_virtual_circuit_plugin']/g" configuration.py
-            """
-          }
-          // finally, kick off tox to run the entire test suite
-          sh 'tox -v'
-        }
-      }
-    }
-    stage('The Great British Baking Show') {
-      /* the docker-build agent is statically enlisted in jenkins. it runs
-      on the micro-k8s unit in vaporio/foundation:latest and has a uid1000
-      accessible docker */
-      when {
-        not {
-          changeRequest()
-        }
-      }
-      environment {
-        BASE_TAG = getSafeBranchName()
-      }
-      agent {
-        label 'docker-build'
-      }
-      steps {
-        container('docker') {
-          // embed tags from build env to do image tracing later
-          sh '''
-            docker build . \
-              -f Dockerfile \
-              --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%T 2> /dev/null) \
-              --build-arg VCS_REF=${GIT_COMMIT} \
-              --build-arg BUILD_VERSION=${BUILD_TAG} \
-              --build-arg BRANCH=${BRANCH_NAME} \
-              -t ${IMAGE}:${TAG}
-          '''
-          sh 'docker tag ${IMAGE}:${TAG} ${IMAGE}:${BASE_TAG}'
-          withDockerRegistry(registry: [credentialsId: 'vio-docker-hub']) {
-            sh "docker push ${env.IMAGE}:${env.TAG}"
-            sh "docker push ${env.IMAGE}:${env.BASE_TAG}"
-          }
-        }
-      }
-    }
-/* Muting this until Helm 3 chart is updated and tested
-    stage('Deployment'){
-      when {
-        branch 'develop'
-      }
-      steps {
-        build(
-          job: '/vapor-xyz/netbox-deploy-dev',
-          wait: true,
-          parameters: [string(name: 'IMAGE_TAG', value: "${env.TAG}")]
-        )
-      }
-    } */
-  }
-}
+    - --requirepass 12345
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 250m
+  imagePullSecrets:
+    - name: dockerhub-vaporvecrobot
+""".stripIndent(),
+])

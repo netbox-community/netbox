@@ -65,6 +65,9 @@ def migrate_customfieldvalues(apps, schema_editor):
         # Read and update custom field value for each instance
         # TODO: This can be done more efficiently once .update() is supported for JSON fields
         cf_data = model.objects.filter(pk=cfv.obj_id).values('custom_field_data').first()
+        if cf_data is None:
+            print(f'{cfv.field.name} ({cfv.field.type}): {cfv.serialized_value} ({cfv.pk}): references non-existent {model.__name__} {cfv.obj_id}')
+            continue
         try:
             cf_data['custom_field_data'][cfv.field.name] = deserialize_value(cfv.field, cfv.serialized_value)
         except Exception as e:

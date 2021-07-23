@@ -55,6 +55,10 @@ services:
     - netbox-postgres-data:/var/lib/postgresql/data
   redis:
     image: redis:5-alpine
+    command:
+    - redis-server
+    - --appendonly yes
+    - --requirepass 12345
     ports:
     - 6379:6379
     volumes:
