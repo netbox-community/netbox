@@ -76,6 +76,7 @@ nav:
         - Getting Started: 'development/getting-started.md'
         - Style Guide: 'development/style-guide.md'
         - Models: 'development/models.md'
+        - Adding Models: 'development/adding-models.md'
         - Extending Models: 'development/extending-models.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
