@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#5442](https://github.com/netbox-community/netbox/issues/5442) - Fix assignment of permissions based on LDAP groups
+* [#6759](https://github.com/netbox-community/netbox/issues/6759) - Fix assignment of parent interfaces for bulk import
 * [#6773](https://github.com/netbox-community/netbox/issues/6773) - Add missing `display` field to rack unit serializer
 * [#6774](https://github.com/netbox-community/netbox/issues/6774) - Fix A/Z assignment when swapping circuit terminations
 * [#6777](https://github.com/netbox-community/netbox/issues/6777) - Fix default value validation for custom text fields
