@@ -13,6 +13,10 @@
 * [#6780](https://github.com/netbox-community/netbox/issues/6780) - Include rack location in navigation breadcrumbs
 * [#6794](https://github.com/netbox-community/netbox/issues/6794) - Fix device name display on device status view
 
+### Other Changes
+
+* [#6781](https://github.com/netbox-community/netbox/issues/6781) - Database query caching is now disabled by default
+
 ---
 
 ## v2.11.9 (2021-07-08)

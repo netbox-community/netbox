@@ -75,7 +75,7 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
-CACHE_TIMEOUT = getattr(configuration, 'CACHE_TIMEOUT', 900)
+CACHE_TIMEOUT = getattr(configuration, 'CACHE_TIMEOUT', 0)
 CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
@@ -417,13 +417,7 @@ else:
         'ssl': CACHING_REDIS_SSL,
         'ssl_cert_reqs': None if CACHING_REDIS_SKIP_TLS_VERIFY else 'required',
     }
-
-if not CACHE_TIMEOUT:
-    CACHEOPS_ENABLED = False
-else:
-    CACHEOPS_ENABLED = True
-
-
+CACHEOPS_ENABLED = bool(CACHE_TIMEOUT)
 CACHEOPS_DEFAULTS = {
     'timeout': CACHE_TIMEOUT
 }
