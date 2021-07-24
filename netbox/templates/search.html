@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load render_table from django_tables2 %}
 
 {% block title %}Search{% endblock %}
 
@@ -10,20 +11,25 @@
             <div class="row">
                 <div class="col col-md-9">
                     {% for obj_type in results %}
-                        <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
-                        {% include 'inc/panel_table.html' with table=obj_type.table %}
-                        <a href="{{ obj_type.url }}" class="btn btn-primary float-end my-3">
-                            <i class="mdi mdi-arrow-right-bold" aria-hidden="true"></i>
-                            {% if obj_type.table.page.has_next %}
-                                See All {{ obj_type.table.page.paginator.count }} Results
-                            {% else %}
-                                Refine Search
-                            {% endif %}
-                        </a>
+                        <div class="card">
+                            <h5 class="card-header">{{ obj_type.name|bettertitle }}</h5>
+                            <div class="card-body">
+                                {% render_table obj_type.table 'inc/table.html' %}
+                            </div>
+                            <div class="card-footer text-end">
+                                <a href="{{ obj_type.url }}" class="btn btn-sm btn-primary my-1">
+                                    <i class="mdi mdi-arrow-right-bold" aria-hidden="true"></i>
+                                    {% if obj_type.table.page.has_next %}
+                                        See All {{ obj_type.table.page.paginator.count }} Results
+                                    {% else %}
+                                        Refine Search
+                                    {% endif %}
+                                </a>    
+                            </div>
+                        </div>
                     {% endfor %}
                 </div>
                 <div class="col col-md-3">
-                    <h3 class="invisible">&nbsp;</h3>
                     <div class="card">
                         <h5 class="card-header">
                             Search Results
