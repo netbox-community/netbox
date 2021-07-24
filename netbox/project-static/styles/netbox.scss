@@ -920,3 +920,19 @@ div.card > div.card-header > div.table-controls {
   background-color: $tab-content-bg;
   border-bottom: 1px solid $nav-tabs-border-color;
 }
+
+// Shade the home page content background-color.
+body {
+  &[data-netbox-path='/'] {
+    .content-container,
+    .search {
+      background-color: $gray-100;
+    }
+    &[data-netbox-color-mode='dark'] {
+      .content-container,
+      .search {
+        background-color: $darkest;
+      }
+    }
+  }
+}

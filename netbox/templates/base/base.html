@@ -1,6 +1,5 @@
 {# Base template for (almost) all NetBox pages #}
 {% load static %}
-{% load static %}
 {% load helpers %}
 <!DOCTYPE html>
 <html lang="en">
@@ -47,6 +46,7 @@
     {% if preferences|get_key:'ui.colormode' == 'dark'%} data-netbox-color-mode="dark"
     {% else %} data-netbox-color-mode="light"
     {% endif %}
+    data-netbox-path="{{ request.path }}"
   >
 
     {# Page layout #}
