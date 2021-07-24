@@ -1,66 +1,84 @@
-/**
- * ParcelJS Bundle Configuration.
- *
- * @see https://parceljs.org/api.html
- */
-
-const Bundler = require('parcel-bundler');
+const esbuild = require('esbuild');
+const { sassPlugin } = require('esbuild-sass-plugin');
 
 // Bundler options common to all bundle jobs.
 const options = {
-  logLevel: 2,
-  cache: true,
-  watch: false,
+  outdir: './dist',
+  bundle: true,
   minify: true,
-  outDir: './dist',
-  publicUrl: '/static',
+  sourcemap: true,
+  logLevel: 'error',
+  publicPath: '/static',
 };
 
 // Get CLI arguments for optional overrides.
-const args = process.argv.slice(2);
-
-// Allow cache disabling.
-if (args.includes('--no-cache')) {
-  options.cache = false;
-}
-
-// Style (SCSS) bundle jobs. Generally, everything should be bundled into netbox.css from main.scss
-// unless there is a specific reason to do otherwise.
-const styles = [
-  ['styles/_external.scss', 'netbox-external.css'],
-  ['styles/_light.scss', 'netbox-light.css'],
-  ['styles/_dark.scss', 'netbox-dark.css'],
-  ['styles/_rack_elevations.scss', 'rack_elevation.css'],
-  ['styles/_cable_trace.scss', 'cable_trace.css'],
-];
-
-// Script (JavaScript) bundle jobs. Generally, everything should be bundled into netbox.js from
-// index.ts unless there is a specific reason to do otherwise.
-const scripts = [
-  ['src/index.ts', 'netbox.js'],
-  ['src/jobs.ts', 'jobs.js'],
-  ['src/device/lldp.ts', 'lldp.js'],
-  ['src/device/config.ts', 'config.js'],
-  ['src/device/status.ts', 'status.js'],
-];
-
-/**
- * Run style bundle jobs.
- */
-async function bundleStyles() {
-  for (const [input, outFile] of styles) {
-    const instance = new Bundler(input, { outFile, ...options });
-    await instance.bundle();
-  }
-}
+const ARGS = process.argv.slice(2);
 
 /**
  * Run script bundle jobs.
  */
 async function bundleScripts() {
-  for (const [input, outFile] of scripts) {
-    const instance = new Bundler(input, { outFile, ...options });
-    await instance.bundle();
+  const entryPoints = {
+    netbox: 'src/index.ts',
+    jobs: 'src/jobs.ts',
+    lldp: 'src/device/lldp.ts',
+    config: 'src/device/config.ts',
+    status: 'src/device/status.ts',
+  };
+  try {
+    let result = await esbuild.build({
+      ...options,
+      entryPoints,
+      target: 'es2016',
+    });
+    if (result.errors.length === 0) {
+      for (const [targetName, sourceName] of Object.entries(entryPoints)) {
+        const source = sourceName.split('/')[1];
+        console.log(`✅ Bundled source file '${source}' to '${targetName}.js'`);
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * Run style bundle jobs.
+ */
+async function bundleStyles() {
+  try {
+    const entryPoints = {
+      'netbox-external': 'styles/_external.scss',
+      'netbox-light': 'styles/_light.scss',
+      'netbox-dark': 'styles/_dark.scss',
+      rack_elevations: 'styles/_rack_elevations.scss',
+      cable_trace: 'styles/_cable_trace.scss',
+    };
+    const pluginOptions = { outputStyle: 'compressed' };
+    // Allow cache disabling.
+    if (ARGS.includes('--no-cache')) {
+      pluginOptions.cache = false;
+    }
+    let result = await esbuild.build({
+      ...options,
+      entryPoints,
+      plugins: [sassPlugin(pluginOptions)],
+      loader: {
+        '.eot': 'file',
+        '.woff': 'file',
+        '.woff2': 'file',
+        '.svg': 'file',
+        '.ttf': 'file',
+      },
+    });
+    if (result.errors.length === 0) {
+      for (const [targetName, sourceName] of Object.entries(entryPoints)) {
+        const source = sourceName.split('/')[1];
+        console.log(`✅ Bundled source file '${source}' to '${targetName}.css'`);
+      }
+    }
+  } catch (err) {
+    console.error(err);
   }
 }
 
@@ -68,10 +86,10 @@ async function bundleScripts() {
  * Run all bundle jobs.
  */
 async function bundleAll() {
-  if (args.includes('--styles')) {
+  if (ARGS.includes('--styles')) {
     // Only run style jobs.
     return await bundleStyles();
-  } else if (args.includes('--scripts')) {
+  } else if (ARGS.includes('--scripts')) {
     // Only run script jobs.
     return await bundleScripts();
   }

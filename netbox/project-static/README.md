@@ -17,9 +17,9 @@ TypeScript is a strict static-typed superset of JavaScript. In development, it's
 
 ### Tools
 
-#### [ParcelJS](https://parceljs.org/)
+#### [esbuild](https://esbuild.github.io/)
 
-Parcel is a bundling tool that takes given input files of most front-end languages (Sass and TypeScript, in our case), follows each of their dependencies (via import statements), and bundles them into a single minified file.
+esbuild is a bundling tool that takes given input files of most front-end languages (Sass and TypeScript, in our case), follows each of their dependencies (via import statements), and bundles them into a single minified file.
 
 For JavaScript, every `.ts` file in `netbox/project-static/src` is:
 
@@ -33,7 +33,7 @@ Likewise, with Sass, every `.scss` file in  `netbox/project-static/styles` is:
 2. Minified
 3. Combined into a single output file at `netbox/project-static/dist/netbox.css` (this includes any dependant libraries imported in file)
 
-For pre v3 releases, this process will be run in development, and the files in `netbox/project-static/dist` checked into change control. This is because running Parcel (and installing dependencies via NPM/Yarn, as described below) requires other system dependencies like NodeJS and Yarn, which aren't part of the current v2 dependency list.
+For pre v4 releases, this process will be run in development, and the files in `netbox/project-static/dist` checked into change control. This is because running Parcel (and installing dependencies via NPM/Yarn, as described below) requires other system dependencies like NodeJS and Yarn, which aren't part of the current v2 dependency list.
 
 #### [Yarn](https://yarnpkg.com/)
 
@@ -65,14 +65,14 @@ To bundle only CSS files, run:
 
 ```bash
 # netbox/project-static
-yarn bundle --styles
+yarn bundle:styles
 ```
 
 To bundle only JS files, run:
 
 ```bash
 # netbox/project-static
-yarn bundle --scripts
+yarn bundle:scripts
 ```
 
 Or, to bundle both, run:

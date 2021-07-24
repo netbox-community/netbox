@@ -1,6 +1,6 @@
 // Base NetBox Theme Overrides and Settings - color mode agnostic.
 
-@import 'bootstrap/scss/functions';
+@import '../node_modules/bootstrap/scss/functions';
 
 $card-cap-bg: 'unset';
 
@@ -31,7 +31,7 @@ $line-height-lg: 1.75;
 $darker: #1b1f22;
 $darkest: #171b1d;
 
-@import 'bootstrap/scss/variables';
+@import '../node_modules/bootstrap/scss/variables';
 
 // Make color palette colors available as theme colors.
 // For example, you could use `.bg-red-100`, if needed.
