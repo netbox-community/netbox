@@ -51,7 +51,7 @@ async function bundleStyles() {
       'netbox-external': 'styles/_external.scss',
       'netbox-light': 'styles/_light.scss',
       'netbox-dark': 'styles/_dark.scss',
-      rack_elevations: 'styles/_rack_elevations.scss',
+      rack_elevation: 'styles/_rack_elevation.scss',
       cable_trace: 'styles/_cable_trace.scss',
     };
     const pluginOptions = { outputStyle: 'compressed' };
