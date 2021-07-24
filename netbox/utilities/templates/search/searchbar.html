@@ -1,13 +1,11 @@
 <form class="input-group w-100" action="{% url 'search' %}" method="get">
   <input
     name="q"
-    id="id_q"
     type="text"
     aria-label="Search"
     placeholder="Search"
     class="form-control"
     value="{{ request.GET.q }}"
-    aria-describedby="search-button"
   />
   <input name="obj_type" hidden type="text" class="search-obj-type" />
   <span class="input-group-text search-obj-selected">All Objects</span>
@@ -46,7 +44,7 @@
     <li><hr class="dropdown-divider" /></li>
     {% endif %} {% endfor %}
   </ul>
-  <button class="btn btn-primary" type="submit" id="search-button">
+  <button class="btn btn-primary" type="submit">
     <i class="mdi mdi-magnify"></i>
   </button>
   
