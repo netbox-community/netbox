@@ -22,7 +22,7 @@
   --nbx-search-filter-border-left-color: #{$gray-300};
   --nbx-color-mode-toggle-color: #{$primary};
 
-  body[data-netbox-color-mode='dark'] {
+  &[data-netbox-color-mode='dark'] {
     --nbx-sidebar-bg: #{$gray-900};
     --nbx-sidebar-link-color: #{$gray-100};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};

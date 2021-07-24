@@ -13,7 +13,7 @@ import { initSideNav } from './sidenav';
 import { initRackElevation } from './racks';
 import { initLinks } from './links';
 
-function init() {
+function initAll() {
   for (const init of [
     initBootstrap,
     initColorMode,
@@ -35,7 +35,7 @@ function init() {
 }
 
 if (document.readyState !== 'loading') {
-  init();
+  initAll();
 } else {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', initAll);
 }

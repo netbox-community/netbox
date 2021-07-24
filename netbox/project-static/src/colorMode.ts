@@ -21,7 +21,7 @@ function storeColorMode(mode: ColorMode): void {
 }
 
 function updateElements(targetMode: ColorMode): void {
-  document.body.setAttribute(`data-${COLOR_MODE_KEY}`, targetMode);
+  document.documentElement.setAttribute(`data-${COLOR_MODE_KEY}`, targetMode);
 
   for (const text of getElements<HTMLSpanElement>('span.color-mode-text')) {
     if (targetMode === 'light') {
@@ -79,9 +79,9 @@ function handleColorModeToggle(): void {
 function defaultColorMode(): void {
   // Get the current color mode value from local storage.
   const currentValue = localStorage.getItem(COLOR_MODE_KEY) as Nullable<ColorMode>;
-  const bodyValue = document.body.getAttribute(`data-${COLOR_MODE_KEY}`);
+  const serverValue = document.documentElement.getAttribute(`data-${COLOR_MODE_KEY}`);
 
-  if (isTruthy(bodyValue) && isTruthy(currentValue)) {
+  if (isTruthy(serverValue) && isTruthy(currentValue)) {
     return setColorMode(currentValue);
   }
 
@@ -95,7 +95,7 @@ function defaultColorMode(): void {
     }
   }
 
-  if (isTruthy(currentValue) && !isTruthy(bodyValue) && isColorMode(currentValue)) {
+  if (isTruthy(currentValue) && !isTruthy(serverValue) && isColorMode(currentValue)) {
     return setColorMode(currentValue);
   }
 
