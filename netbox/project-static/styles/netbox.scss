@@ -119,6 +119,11 @@
   }
 }
 
+// Fix the hideous way Safari shows button anchor elements.
+a[type='button'] {
+  -webkit-appearance: unset !important;
+}
+
 // Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
 table td > .progress {
   min-width: 6rem;
