@@ -61,14 +61,6 @@ export function initColorSelect(): void {
           // Set the container's style attributes.
           instance.slim.singleSelected.container.style.backgroundColor = bg;
           instance.slim.singleSelected.container.style.color = fg;
-
-          // Find this element's label.
-          const label = document.querySelector<HTMLLabelElement>(`label[for=${select.id}]`);
-
-          if (label !== null) {
-            // Set the field's label color to match (Bootstrap sets the opacity to 0.65 as well).
-            label.style.color = fg;
-          }
         } else {
           // If the color cannot be set (i.e., the placeholder), remove any inline styles.
           instance.slim.singleSelected.container.removeAttribute('style');
