@@ -89,6 +89,11 @@
   opacity: 1 !important;
 }
 
+// Force <small/> elements to make text smaller.
+small {
+  font-size: smaller !important;
+}
+
 // Automatically space out adjacent columns.
 .col:not(:last-child):not(:only-child) {
   margin-bottom: $spacer;
