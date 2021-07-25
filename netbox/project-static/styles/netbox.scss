@@ -94,12 +94,37 @@
   margin-bottom: $spacer;
 }
 
+// Ensure elements with data-href set show the correct cursor.
+// data-href is set on non non-anchor elements that need to redirect the user to a URL when
+// clicked, but where an anchor element does not suffice or is not supported.
 *[data-href] {
   cursor: pointer;
 }
 
-// Use proper contrasting color foreground color for special components.
 @each $color, $value in $theme-colors {
+  // Override CSS values on each theme color.
+
+  // Use Bootstrap's method of coloring alert links to appropriately color close buttons within
+  // another colored element.
+  // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_alert.scss#L50-L52
+  // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_close.scss#L12
+  $shaded-color: shade-color(mix($value, color-contrast($value), abs($alert-color-scale)), 5%);
+  $btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$shaded-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
+  .bg-#{$color} button.btn-close {
+    background: transparent escape-svg($btn-close-bg) center / $btn-close-width auto no-repeat;
+  }
+
+  // Use Bootstrap's method of coloring the .alert-link class automatically.
+  // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_alert.scss#L50-L52
+  .toast.bg-#{$color},
+  .alert.alert-#{$color} {
+    a {
+      color: $shaded-color;
+      font-weight: $font-weight-bold;
+    }
+  }
+
+  // Use proper contrasting color foreground color for special components.
   .badge,
   .toast,
   .progress-bar {
@@ -107,11 +132,11 @@
       color: color-contrast($value);
     }
   }
-  // Use proper foreground color in the alert body. Note: this is applied to a, p, & small because
+
+  // Use proper foreground color in the alert body. Note: this is applied to p, & small because
   // we *don't* want to override the h1-h6 colors for alerts, since those are set to a color
   // similar to the alert color.
   .alert.alert-#{$color} {
-    a,
     p,
     small {
       color: color-contrast($value);
@@ -926,8 +951,9 @@ div.card > div.card-header > div.table-controls {
   border-bottom: 1px solid $nav-tabs-border-color;
 }
 
-// Shade the home page content background-color.
-body {
+// Page-specific styles.
+html {
+  // Shade the home page content background-color.
   &[data-netbox-path='/'] {
     .content-container,
     .search {
@@ -938,6 +964,13 @@ body {
       .search {
         background-color: $darkest;
       }
+    }
+  }
+
+  // Don't show the django-messages toasts on the login screen in favor of the alert component.
+  &[data-netbox-path*='/login'] {
+    #django-messages {
+      display: none;
     }
   }
 }

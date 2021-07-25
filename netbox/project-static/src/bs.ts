@@ -34,16 +34,16 @@ export function createToast(
   message: string,
   extra?: string,
 ): Toast {
-  let iconName = 'bi-exclamation-triangle-fill';
+  let iconName = 'mdi-alert';
   switch (level) {
     case 'warning':
-      iconName = 'bi-exclamation-triangle-fill';
+      iconName = 'mdi-alert';
     case 'success':
-      iconName = 'bi-check-circle-fill';
+      iconName = 'mdi-check-circle';
     case 'info':
-      iconName = 'bi-info-circle-fill';
+      iconName = 'mdi-information';
     case 'danger':
-      iconName = 'bi-exclamation-triangle-fill';
+      iconName = 'mdi-alert';
   }
 
   const container = document.createElement('div');
@@ -59,7 +59,7 @@ export function createToast(
   header.setAttribute('class', `toast-header bg-${level} text-body`);
 
   const icon = document.createElement('i');
-  icon.setAttribute('class', `bi ${iconName}`);
+  icon.setAttribute('class', `mdi ${iconName}`);
 
   const titleElement = document.createElement('strong');
   titleElement.setAttribute('class', 'me-auto ms-1');

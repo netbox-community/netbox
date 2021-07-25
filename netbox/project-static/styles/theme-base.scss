@@ -128,6 +128,10 @@ $font-family-sans-serif: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMa
 $font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
   'Courier New', monospace;
 
+// This is the same value as the default from Bootstrap, but it needs to be in scope prior to
+// importing _variables.scss from Bootstrap.
+$btn-close-width: 1em;
+
 $accordion-padding-y: 0.8125rem;
 $accordion-padding-x: 0.8125rem;
 

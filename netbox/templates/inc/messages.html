@@ -1,39 +1,59 @@
+{% load helpers %}
+
 <div id="django-messages" class="toast-container position-fixed bottom-0 end-0 m-3">
+  {# Django Messages #}
+
   {% if messages %}
     {% for message in messages %}
-    <div class="django-message toast align-items-center border-0 bg-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
-      <div class="d-flex">
-        <div class="toast-body">
-          {{ message }}
+      {% with message.level_tag|status_from_tag as status %}
+      {% with status|icon_from_status as icon %}
+        <div class="django-message toast align-items-center border-0 bg-{{ status }}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="mdi mdi-{{ icon }} me-1"></i>
+              {{ message }}
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
         </div>
-        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-    </div>
+      {% endwith %}
+      {% endwith %}
     {% endfor %}
+
   {% elif form and form.non_field_errors %}
+    {# Non-Field Form Errors #}
+
     {% for error in form.non_field_errors.get_json_data %}
-    <div class="django-message toast align-items-center border-0 bg-danger" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
-      <div class="d-flex">
-        <div class="toast-body">
-          {{ error.message }}
-        </div>
-        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-    </div>
-    {% endfor %}
-  {% elif form and form.errors %}
-    {% for field in form %}
-      {% for error in field.errors %}
-      <div class="django-message toast align-items-center border-0 bg-danger" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="60000">
-        <div class="toast-header bg-danger">
-          <strong class="me-auto">{{ field.label }}</strong>
+      <div class="django-message toast align-items-center border-0 bg-danger" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="mdi mdi-{{ "danger"|icon_from_status }} me-1"></i>
+            {{ error.message }}
+          </div>
           <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">
-          {{ error|escape }}
-        </div>
       </div>
+    {% endfor %}
+  
+  {% elif form and form.errors %}
+    {# Form Field Errors #}
+
+    {% for field in form %}
+      {% for error in field.errors %}
+        <div class="django-message toast align-items-center border-0 bg-danger" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="60000">
+          <div class="toast-header bg-danger">
+            <strong class="me-auto">
+              <i class="mdi mdi-{{ "danger"|icon_from_status }} me-1"></i>
+              {{ field.label }}
+            </strong>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            {{ error|escape }}
+          </div>
+        </div>
       {% endfor %}
     {% endfor %}
+
   {% endif %}
 </div>

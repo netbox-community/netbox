@@ -326,6 +326,35 @@ def querystring(request, **kwargs):
         return ''
 
 
+@register.filter
+def status_from_tag(tag: str = "info") -> str:
+    """
+    Determine Bootstrap theme status/level from Django's Message.level_tag.
+    """
+    status_map = {
+        'warning': 'warning',
+        'success': 'success',
+        'error': 'danger',
+        'debug': 'info',
+        'info': 'info',
+    }
+    return status_map.get(tag.lower(), 'info')
+
+
+@register.filter
+def icon_from_status(status: str = "info") -> str:
+    """
+    Determine icon class name from Bootstrap theme status/level.
+    """
+    icon_map = {
+        'warning': 'alert',
+        'success': 'check-circle',
+        'danger': 'alert',
+        'info': 'information',
+    }
+    return icon_map.get(status.lower(), 'information')
+
+
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
 def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     """
@@ -338,7 +367,7 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     elif warning_threshold or danger_threshold:
         bar_class = 'bg-success'
     else:
-        bar_class = 'bg-default'
+        bar_class = 'bg-gray'
     return {
         'utilization': utilization,
         'bar_class': bar_class,
