@@ -21,7 +21,7 @@ $spacing-s: $input-padding-x;
   --nbx-select-option-hover-color: #{$white};
   --nbx-select-placeholder-color: #{$gray-600};
   --nbx-select-value-color: #{$white};
-  & body[data-netbox-color-mode='dark'] {
+  &[data-netbox-color-mode='dark'] {
     // Dark Mode Variables.
     --nbx-select-content-bg: #{$gray-900};
     --nbx-select-option-selected-bg: #{$gray-500};
@@ -100,23 +100,34 @@ $spacing-s: $input-padding-x;
   .ss-content {
     background-color: var(--nbx-select-content-bg);
     .ss-list {
-      .ss-option.ss-option-selected {
-        background-color: var(--nbx-select-option-selected-bg);
-        color: $body-color;
-      }
-      .ss-option:hover {
-        background-color: var(--nbx-select-option-hover-bg);
-        color: var(--nbx-select-option-hover-color);
-      }
-      .ss-option:last-child {
-        border-bottom-left-radius: $form-select-border-radius;
-        border-bottom-right-radius: $form-select-border-radius;
-      }
-      .ss-option.ss-disabled {
-        background-color: transparent;
-      }
-      .ss-option.ss-disabled:hover {
-        color: $form-select-disabled-color;
+      .ss-option {
+        &.ss-option-selected {
+          background-color: var(--nbx-select-option-selected-bg);
+          color: $body-color;
+        }
+
+        &:hover {
+          background-color: var(--nbx-select-option-hover-bg);
+          color: var(--nbx-select-option-hover-color);
+        }
+
+        &:last-child {
+          border-bottom-left-radius: $form-select-border-radius;
+          border-bottom-right-radius: $form-select-border-radius;
+        }
+
+        &.ss-disabled {
+          background-color: transparent;
+
+          &:hover {
+            color: $form-select-disabled-color;
+          }
+        }
+
+        .depth {
+          // Lighten the dash prefix on nested options.
+          opacity: 0.3;
+        }
       }
     }
     border-bottom-left-radius: $form-select-border-radius;

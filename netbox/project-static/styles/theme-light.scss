@@ -6,7 +6,7 @@ $input-border-color: $gray-200;
 
 $theme-colors: map-merge($theme-colors, $theme-color-addons);
 
-$light: $gray-100;
+$light: $gray-200;
 
 $card-cap-color: $gray-800;
 
@@ -25,6 +25,8 @@ $list-group-color: $gray-700;
 $list-group-disabled-color: $gray-500;
 
 $table-flush-header-bg: $gray-100;
+
+$form-select-disabled-color: $gray-600;
 
 // Tabbed content
 $tab-content-bg: $gray-100;

@@ -58,12 +58,6 @@ class APISelect {
   public readonly placeholder: string;
 
   /**
-   * This element's options come from the server pre-sorted and should not be sorted client-side.
-   * Determined by the existence of the `pre-sorted` attribute on the base `<select/>` element.
-   */
-  private readonly preSorted: boolean = false;
-
-  /**
    * Event to be dispatched when dependent fields' values change.
    */
   private readonly loadEvent: InstanceType<typeof Event>;
@@ -111,6 +105,13 @@ class APISelect {
    * API query URL. This will be updated dynamically to include any query parameters in `queryParameters`.
    */
   private queryUrl: string = '';
+
+  /**
+   * This element's options come from the server pre-sorted and should not be sorted client-side.
+   * Determined by the existence of the `pre-sorted` attribute on the base `<select/>` element, or
+   * by existence of specific fields such as `_depth`.
+   */
+  private preSorted: boolean = false;
 
   /**
    * This instance's available options.
@@ -161,7 +162,8 @@ class APISelect {
       this.updatePathValues(filter);
     }
 
-    this.queryParams.set('brief', true);
+    // TODO: Re-enable this. Disabled because `_depth` field is missing from brief responses.
+    // this.queryParams.set('brief', true);
     this.queryParams.set('limit', 0);
     this.updateQueryUrl();
 
@@ -314,7 +316,15 @@ class APISelect {
     const options = [PLACEHOLDER] as Option[];
 
     for (const result of results) {
-      const text = result.display;
+      let text = result.display;
+
+      if (typeof result._depth === 'number') {
+        // If the object has a `_depth` property, indent its display text.
+        if (!this.preSorted) {
+          this.preSorted = true;
+        }
+        text = `<span class="depth">${'─'.repeat(result._depth)}</span> ${text}`;
+      }
       const data = {} as Record<string, string>;
       const value = result.id.toString();
       let style, selected, disabled;

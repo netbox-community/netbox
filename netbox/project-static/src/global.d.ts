@@ -33,6 +33,7 @@ type APIObjectBase = {
   display: string;
   name?: Nullable<string>;
   url: string;
+  _depth?: number;
   [k: string]: JSONAble;
 };
 
