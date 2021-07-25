@@ -132,6 +132,7 @@ small {
   // Use proper contrasting color foreground color for special components.
   .badge,
   .toast,
+  .toast-header,
   .progress-bar {
     &.bg-#{$color} {
       color: color-contrast($value);
