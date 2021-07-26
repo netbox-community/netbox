@@ -1,5 +1,13 @@
 # NetBox v3.0
 
+## v3.0-beta2 (FUTURE)
+
+### Bug Fixes
+
+* [#6811](https://github.com/netbox-community/netbox/issues/6811) - Fix exception when editing users
+
+---
+
 ## v3.0-beta1 (2021-07-23)
 
 !!! warning "Existing Deployments Must Upgrade from v2.11"
