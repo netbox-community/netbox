@@ -1,0 +1,24 @@
+{% load nav %}
+{% load static %}
+
+<div class="d-flex flex-column flex-shrink-0 sidenav">
+
+    {# Logo Container #}
+    <div class="sidenav-logo">
+
+        {# Full logo, hidden until icon is hovered. #}
+        <a class="sidenav-logo-reveal" href="{% url 'home' %}">
+            <img src="{% static 'netbox_logo.svg' %}" alt="NetBox Logo" height="39px" />
+        </a>
+
+        {# Logo Icon #}
+        <a href="/" class="sidenav-logo-icon d-block p-3 link-dark text-decoration-none">
+            <img src="{% static 'netbox_icon.svg' %}" />
+        </a>
+
+    </div>
+
+    {# Navigation Items #}
+    {% nav %}
+
+</div>

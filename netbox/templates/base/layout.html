@@ -6,84 +6,20 @@
 {% load static %}
 
 {% block layout %}
+  
   <div class="container-fluid px-0">
-    <main class="ms-sm-auto">
+    <main class="layout">
     {# Sidebar #}
-      <nav id="sidebar-menu" class="d-md-block sidebar collapse px-0" data-simplebar>
-
-        {# Sidebar content #}
-        <div class="position-sticky">
-
-          {# Logo #}
-          <div class="py-2">
-            <a class="sidebar-logo d-none d-md-flex justify-content-center" href="{% url 'home' %}">
-              <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" />
-            </a>
-          </div>
-
-          <ul class="nav flex-column">
-
-            {# Search bar for collapsed menu #}
-            <div class="d-block d-md-none mx-1 my-3 search-container">
-              {% search_options %}
-            </div>
-            <div class="d-flex d-md-none mx-1 my-3 justify-content-center justify-content-md-end order-last order-md-0">
-              {% include 'inc/profile_button.html' %}
-            </div>
-
-            {# Navigation menu #}
-            {% nav %}
-
-          </ul>
-
-        </div>
-
-        {# Sidebar footer #}
-        <div class="d-flex flex-column container-fluid mt-auto justify-content-end sidebar-bottom">
-          <nav class="nav">
-
-            {# Documentation #}
-            <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
-              <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-            </a>
-
-            {# REST API #}
-            <a type="button" class="nav-link" href="{% url 'api-root' %}" target="_blank">
-              <i title="REST API" class="mdi mdi-code-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-            </a>
-
-            {# API docs #}
-            <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
-              <i title="REST API documentation" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-            </a>
-
-            {# GraphQL API #}
-            {% if settings.GRAPHQL_ENABLED %}
-              <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
-                <i title="GraphQL API" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-              </a>
-            {% endif %}
-
-            {# GitHub #}
-            <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
-              <i title="Source Code" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-            </a>
-
-            {# NetDev Slack #}
-            <a type="button" class="nav-link" href="https://netdev.chat/" target="_blank">
-              <i title="Community" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-            </a>
-          </nav>
-        </div>
-
-      </nav>
+    {% include 'base/sidebar.html' %}    
 
       {# Body #}
       <div class="content-container">
 
         {# Top bar #}
-        <nav class="navbar navbar-light sticky-top flex-md-nowrap p-3 search container-fluid">
-          <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
+        <nav class="navbar navbar-light sticky-top flex-md-nowrap ps-6 p-3 search container-fluid">
+          
+            {# Mobile Navigation #}
+            <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
               <a class="p-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
                 <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" width="100%" />
               </a>
@@ -99,10 +35,25 @@
                 <span class="navbar-toggler-icon"></span>
               </button>
             </div>
-            <div class="d-none d-md-flex w-100 search-container">
-              {% search_options %}
-              {% include 'inc/profile_button.html' %}
+
+            {# Desktop Navigation #}
+            <div class="d-none d-md-flex w-100 row search-container">
+
+              {# Empty spacer column to ensure search is centered. #}
+              <div class="col-3 d-flex flex-grow-1 ps-0"></div>
+
+              {# Search bar #}
+              <div class="col-6 d-flex flex-grow-1 justify-content-center">
+                {% search_options %}
+              </div>
+
+              {# Proflie/login button #}
+              <div class="col-3 d-flex flex-grow-1 pe-0 justify-content-end">
+                {% include 'inc/profile_button.html' %}
+              </div>
+
             </div>
+        
         </nav>
 
         {% if settings.BANNER_TOP %}

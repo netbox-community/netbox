@@ -1,43 +1,39 @@
 {% load helpers %}
 
-<div id="sidenav-accordion" class="accordion accordion-flush nav-item">
+<ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+  {% comment %} <li class="nav-item">
+    <a href="/" class="nav-link active py-3" aria-current="page" title="Home" data-bs-toggle="tooltip" data-bs-placement="right">
+      <i class="mdi mdi-home"></i>
+    </a>
+  </li> {% endcomment %}
+
   {% for menu in nav_items %}
+    <li class="nav-item sidenav-dropdown">
+      <div class="nav-label">
+          {{ menu.label }}
+      </div>
+      <div class="dropdown dropend" title="{{ menu.label }}">
+          <a href="#" class="nav-link py-3 dropdown-toggle" id="menu{{ menu.label }}" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="{{ menu.icon_class }}"></i>
+          </a>
 
-    {# Main Collapsible Menu #}
-    <div class="accordion-item">
-      <a
-        href="#"
-        role="button"
-        aria-expanded="true"
-        data-bs-toggle="collapse"
-        data-bs-target="#{{ menu.label|lower }}"
-        class="d-flex justify-content-between align-items-center accordion-button nav-link collapsed">
-          <span class="fw-bold sidebar-nav-link">
-            <i class="{{ menu.icon_class }} me-1 opacity-50"></i>
-            {{ menu.label }}
-          </span>
-        </a>
-
-      <div id="{{ menu.label|lower }}" class="accordion-collapse collapse" data-bs-parent="#sidenav-accordion">
-        <div class="multi-level accordion-body px-0">
+        <ul class="dropdown-menu shadow" aria-labelledby="menu{{ menu.label }}">
+          <li><h4 class="dropdown-header text-dark">{{ menu.label }}</h4>{{ menu.has_link }}</li>
+          <hr class="dropdown-divider" />
           
           {% for group in menu.groups %}
             {# Within each main menu, there are groups of menu items #}
-            <div class="flex-column nav">
-              
-              <h6 class="accordion-item-title">{{ group.label }}</h6>
-              
-              {% for item in group.items %}
-                {# Each Menu Item #}
-                <div class="nav-item d-flex justify-content-between align-items-center">
-                  
-                  {# Menu Link with Text #}
-                  {% if request.user|has_perms:item.permissions %}
+            
+            {% if group.label != menu.label %}
+              <li><h6 class="dropdown-header">{{ group.label }}</h6></li>
+            {% endif %}
+            
+            {% for item in group.items %}
+              {# Each Menu Item #}
+              {% if request.user|has_perms:item.permissions %}
+              <li class="dropdown-item-group">
 
-                    <a class="nav-link flex-grow-1" href="{% url item.link %}">
-                      {{ item.link_text }}
-                    </a>
-
+                  <a class="dropdown-item" href="{% url item.link %}">{{ item.link_text }}</a>
                     {# Menu item buttons (if any) #}
                     {% if item.buttons %}
                       <div class="btn-group ps-1">
@@ -50,30 +46,25 @@
                         {% endfor %}
                       </div>
                     {% endif %}
-
-                  {% else %}
-
-                    {# Display a disabled link (no permission) #}
-                    <a class="nav-link flex-grow-1 disabled">
+              </li>
+              {% else %}
+                  {# Display a disabled link (no permission) #}
+                  <li class="dropdown-item-group disabled">
+                    <a class="dropdown-item disabled" href="#" aria-disabled="true" disabled>
                       {{ item.link_text }}
                     </a>
-
-                  {% endif %}
-
-                </div>
-              {% endfor %}
-
-            </div>
-
+                  </li>
+              {% endif %}
+            {% endfor %}
             {# Show a divider if not the last group #}
             {% if forloop.counter != menu.groups|length %}
               <hr class="dropdown-divider my-2" />
             {% endif %}
-
           {% endfor %}
+        </ul>
 
-        </div>
       </div>
-    </div>
+    </li>
   {% endfor %}
-</div>
+
+</ul>

@@ -1,0 +1,93 @@
+<div class="dropdown border-top dropend">
+    <a href="#" class="nav-link dropdown-toggle py-3" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="mdi mdi-account"></i>
+        {% comment %} <span>{{ request.user|truncatechars:"30" }}</span> {% endcomment %}
+    </a>
+    <ul class="dropdown-menu shadow">
+        <li>
+            <button type="button" class="dropdown-item color-mode-toggle">
+                <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+                <span class="color-mode-text">Dark Mode</span>
+            </button>
+        </li>
+        <li>
+            {% if request.user.is_staff %}
+                <a class="dropdown-item" href="{% url 'admin:index' %}">
+                    <i class="mdi mdi-cog"></i> Admin
+                </a>
+            {% endif %}
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'user:profile' %}">
+                <i class="mdi mdi-account"></i> Profile & Settings
+            </a>
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                <i class="mdi mdi-logout-variant"></i> Log Out
+            </a>
+        </li>
+    </ul>
+</div>
+
+{% comment %} {% if request.user.is_authenticated %}
+<span class="dropdown ms-0 ms-md-3 profile-button">
+  <button
+    type="button"
+    aria-expanded="false"
+    data-bs-toggle="dropdown"
+    class="btn btn-outline-secondary dropdown-toggle"
+  >
+    <i class="mdi mdi-account"></i>
+    <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li>
+      <button type="button" class="dropdown-item color-mode-toggle">
+        <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        <span class="color-mode-text">Dark Mode</span>
+      </button>
+    </li>
+    <li>
+      {% if request.user.is_staff %}
+      <a class="dropdown-item" href="{% url 'admin:index' %}">
+        <i class="mdi mdi-cog"></i> Admin
+      </a>
+      {% endif %}
+    </li>
+    <li>
+      <a class="dropdown-item" href="{% url 'user:profile' %}">
+        <i class="mdi mdi-account"></i> Profile & Settings
+      </a>
+    </li>
+    <li><hr class="dropdown-divider" /></li>
+    <li>
+      <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+        <i class="mdi mdi-logout-variant"></i> Log Out
+      </a>
+    </li>
+  </ul>
+</span>
+{% else %}
+<div class="btn-group ms-0 ms-md-3">
+  <a
+    class="btn btn-primary ws-nowrap"
+    type="button"
+    href="{% url 'login' %}"
+  >
+    <i class="mdi mdi-login-variant"></i> Log In
+  </a>
+  <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+    <span class="visually-hidden">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li>
+      <button class="dropdown-item color-mode-toggle">
+        <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
+        <span class="color-mode-text">Dark Mode</span>
+      </button>
+    </li>
+  </ul>
+</div>
+{% endif %} {% endcomment %}
