@@ -102,6 +102,12 @@ class InterfaceCommonForm(forms.Form):
         required=False,
         label='MAC address'
     )
+    mtu = forms.IntegerField(
+        required=False,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
+        label='MTU'
+    )
 
     def clean(self):
         super().clean()
@@ -3172,12 +3178,6 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
             'device_id': '$device',
             'type': 'lag',
         }
-    )
-    mtu = forms.IntegerField(
-        required=False,
-        min_value=INTERFACE_MTU_MIN,
-        max_value=INTERFACE_MTU_MAX,
-        label='MTU'
     )
     mac_address = forms.CharField(
         required=False,
