@@ -2,6 +2,10 @@
 
 ## v2.11.10 (FUTURE)
 
+### Enhancements
+
+* [#6785](https://github.com/netbox-community/netbox/issues/6785) - Add "hardwired" type for power port types
+
 ### Bug Fixes
 
 * [#5442](https://github.com/netbox-community/netbox/issues/5442) - Fix assignment of permissions based on LDAP groups
