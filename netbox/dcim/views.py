@@ -2564,11 +2564,7 @@ class PowerConnectionsListView(generic.ObjectListView):
 
 
 class InterfaceConnectionsListView(generic.ObjectListView):
-    queryset = Interface.objects.filter(
-        # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _path__isnull=False,
-        pk__lt=F('_path__destination_id')
-    ).order_by('device')
+    queryset = Interface.objects.filter(_path__isnull=False).order_by('device')
     filterset = filtersets.InterfaceConnectionFilterSet
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
