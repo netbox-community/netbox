@@ -22,6 +22,7 @@
 
 ### Other Changes
 
+* [#6771](https://github.com/netbox-community/netbox/issues/6771) - Add count of inventory items to manufacturer view
 * [#6781](https://github.com/netbox-community/netbox/issues/6781) - Database query caching is now disabled by default
 
 ---
