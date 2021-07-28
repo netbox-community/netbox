@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6560](https://github.com/netbox-community/netbox/issues/6560) - Enable CSV import via uploaded file
+* [#6644](https://github.com/netbox-community/netbox/issues/6644) - Add 6P/4P pass-through port types
 * [#6771](https://github.com/netbox-community/netbox/issues/6771) - Add count of inventory items to manufacturer view
 * [#6785](https://github.com/netbox-community/netbox/issues/6785) - Add "hardwired" type for power port types
 

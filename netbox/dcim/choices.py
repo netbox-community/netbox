@@ -922,6 +922,11 @@ class PortTypeChoices(ChoiceSet):
     TYPE_8P6C = '8p6c'
     TYPE_8P4C = '8p4c'
     TYPE_8P2C = '8p2c'
+    TYPE_6P6C = '6p6c'
+    TYPE_6P4C = '6p4c'
+    TYPE_6P2C = '6p2c'
+    TYPE_4P4C = '4p4c'
+    TYPE_4P2C = '4p2c'
     TYPE_GG45 = 'gg45'
     TYPE_TERA4P = 'tera-4p'
     TYPE_TERA2P = 'tera-2p'
@@ -953,6 +958,11 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_8P6C, '8P6C'),
                 (TYPE_8P4C, '8P4C'),
                 (TYPE_8P2C, '8P2C'),
+                (TYPE_6P6C, '6P6C'),
+                (TYPE_6P4C, '6P4C'),
+                (TYPE_6P2C, '6P2C'),
+                (TYPE_4P4C, '4P4C'),
+                (TYPE_4P2C, '4P2C'),
                 (TYPE_GG45, 'GG45'),
                 (TYPE_TERA4P, 'TERA 4P'),
                 (TYPE_TERA2P, 'TERA 2P'),
