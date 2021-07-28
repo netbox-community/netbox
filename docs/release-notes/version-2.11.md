@@ -1,6 +1,6 @@
 # NetBox v2.11
 
-## v2.11.10 (FUTURE)
+## v2.11.10 (2021-07-28)
 
 ### Enhancements
 
