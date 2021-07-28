@@ -20,7 +20,7 @@ from extras.models import CustomField, ExportTemplate
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import (
-    BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, ImportForm, TableConfigForm, restrict_form_fields,
+    BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, ImportForm, TableConfigForm, restrict_form_fields, CSVFileField
 )
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
@@ -667,6 +667,14 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 from_form=self.model_form,
                 widget=Textarea(attrs=self.widget_attrs)
             )
+            csv_file = CSVFileField(
+                label="CSV file",
+                from_form=self.model_form,
+                required=False
+            )
+
+            def used_both_csv_fields(self):
+                return self.cleaned_data['csv_file'][1] and self.cleaned_data['csv'][1]
 
         return ImportForm(*args, **kwargs)
 
@@ -691,15 +699,21 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkImportView')
         new_objs = []
-        form = self._import_form(request.POST)
+        form = self._import_form(request.POST, request.FILES)
 
         if form.is_valid():
             logger.debug("Form validation was successful")
 
             try:
+                if form.used_both_csv_fields():
+                    form.add_error('csv_file', "Choose one of two import methods")
+                    raise ValidationError("")
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
-                    headers, records = form.cleaned_data['csv']
+                    if request.FILES:
+                        headers, records = form.cleaned_data['csv_file']
+                    else:
+                        headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):
                         obj_form = self.model_form(data, headers=headers)
                         restrict_form_fields(obj_form, request.user)

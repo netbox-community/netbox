@@ -20,7 +20,7 @@
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="csv">
-                    <form action="" method="post" class="form">
+                    <form action="" method="post" class="form" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% render_form form %}
                         <div class="form-group">

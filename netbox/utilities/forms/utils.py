@@ -14,6 +14,8 @@ __all__ = (
     'parse_alphanumeric_range',
     'parse_numeric_range',
     'restrict_form_fields',
+    'parse_csv',
+    'validate_csv',
 )
 
 
@@ -134,3 +136,54 @@ def restrict_form_fields(form, user, action='view'):
     for field in form.fields.values():
         if hasattr(field, 'queryset') and issubclass(field.queryset.__class__, RestrictedQuerySet):
             field.queryset = field.queryset.restrict(user, action)
+
+
+def parse_csv(reader):
+    """
+    Parse a csv_reader object into a headers dictionary and a list of records dictionaries. Raise an error
+    if the records are formatted incorrectly. Return headers and records as a tuple.
+    """
+    records = []
+    headers = {}
+
+    # Consume the first line of CSV data as column headers. Create a dictionary mapping each header to an optional
+    # "to" field specifying how the related object is being referenced. For example, importing a Device might use a
+    # `site.slug` header, to indicate the related site is being referenced by its slug.
+
+    for header in next(reader):
+        if '.' in header:
+            field, to_field = header.split('.', 1)
+            headers[field] = to_field
+        else:
+            headers[header] = None
+
+    # Parse CSV rows into a list of dictionaries mapped from the column headers.
+    for i, row in enumerate(reader, start=1):
+        if len(row) != len(headers):
+            raise forms.ValidationError(
+                f"Row {i}: Expected {len(headers)} columns but found {len(row)}"
+            )
+        row = [col.strip() for col in row]
+        record = dict(zip(headers.keys(), row))
+        records.append(record)
+    return headers, records
+
+
+def validate_csv(headers, fields, required_fields):
+    """
+    Validate that parsed csv data conforms to the object's available fields. Raise validation errors
+    if parsed csv data contains invalid headers or does not contain required headers.
+    """
+    # Validate provided column headers
+    for field, to_field in headers.items():
+        if field not in fields:
+            raise forms.ValidationError(f'Unexpected column header "{field}" found.')
+        if to_field and not hasattr(fields[field], 'to_field_name'):
+            raise forms.ValidationError(f'Column "{field}" is not a related object; cannot use dots')
+        if to_field and not hasattr(fields[field].queryset.model, to_field):
+            raise forms.ValidationError(f'Invalid related object attribute for column "{field}": {to_field}')
+
+    # Validate required fields
+    for f in required_fields:
+        if f not in headers:
+            raise forms.ValidationError(f'Required column header "{f}" not found.')
