@@ -1,11 +1,14 @@
 site_name: NetBox Documentation
 site_url: https://netbox.readthedocs.io/
+repo_name: netbox-community/netbox
 repo_url: https://github.com/netbox-community/netbox
 python:
     install:
         - requirements: docs/requirements.txt
 theme:
-  name: material
+    name: material
+    icon:
+        repo: fontawesome/brands/github
 extra_css:
     - extra.css
 markdown_extensions:
