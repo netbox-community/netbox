@@ -287,6 +287,10 @@ class CircuitSwapTerminations(generic.ObjectEditView):
                     termination_z.save()
                     termination_a.term_side = 'Z'
                     termination_a.save()
+                    circuit.refresh_from_db()
+                    circuit.termination_a = termination_z
+                    circuit.termination_z = termination_a
+                    circuit.save()
             elif termination_a:
                 termination_a.term_side = 'Z'
                 termination_a.save()
@@ -299,9 +303,6 @@ class CircuitSwapTerminations(generic.ObjectEditView):
                 circuit.refresh_from_db()
                 circuit.termination_z = None
                 circuit.save()
-
-            print(f'term A: {circuit.termination_a}')
-            print(f'term Z: {circuit.termination_z}')
 
             messages.success(request, f"Swapped terminations for circuit {circuit}.")
             return redirect('circuits:circuit', pk=circuit.pk)

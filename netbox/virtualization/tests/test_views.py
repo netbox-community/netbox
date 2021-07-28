@@ -263,7 +263,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Interface X',
             'enabled': False,
             'mac_address': EUI('01-02-03-04-05-06'),
-            'mtu': 2000,
+            'mtu': 65000,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,

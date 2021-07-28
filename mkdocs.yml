@@ -1,12 +1,15 @@
 site_name: NetBox Documentation
 site_dir: netbox/project-static/docs
 site_url: https://netbox.readthedocs.io/
+repo_name: netbox-community/netbox
 repo_url: https://github.com/netbox-community/netbox
 python:
     install:
         - requirements: docs/requirements.txt
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/github
   palette:
     - scheme: default
       toggle:
@@ -26,6 +29,7 @@ extra_css:
     - extra.css
 markdown_extensions:
     - admonition
+    - attr_list
     - markdown_include.include:
         headingOffset: 1
     - pymdownx.emoji:
@@ -94,6 +98,7 @@ nav:
         - Getting Started: 'development/getting-started.md'
         - Style Guide: 'development/style-guide.md'
         - Models: 'development/models.md'
+        - Adding Models: 'development/adding-models.md'
         - Extending Models: 'development/extending-models.md'
         - Signals: 'development/signals.md'
         - Application Registry: 'development/application-registry.md'

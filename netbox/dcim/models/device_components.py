@@ -435,7 +435,10 @@ class BaseInterface(models.Model):
     mtu = models.PositiveIntegerField(
         blank=True,
         null=True,
-        validators=[MinValueValidator(1), MaxValueValidator(65536)],
+        validators=[
+            MinValueValidator(INTERFACE_MTU_MIN),
+            MaxValueValidator(INTERFACE_MTU_MAX)
+        ],
         verbose_name='MTU'
     )
     mode = models.CharField(

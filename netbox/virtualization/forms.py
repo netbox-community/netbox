@@ -687,12 +687,6 @@ class VMInterfaceCreateForm(BootstrapMixin, CustomFieldsMixin, InterfaceCommonFo
             'virtual_machine_id': '$virtual_machine',
         }
     )
-    mtu = forms.IntegerField(
-        required=False,
-        min_value=INTERFACE_MTU_MIN,
-        max_value=INTERFACE_MTU_MAX,
-        label='MTU'
-    )
     mac_address = forms.CharField(
         required=False,
         label='MAC Address'

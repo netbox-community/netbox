@@ -288,6 +288,13 @@ Quit the server with CONTROL-C.
 
 Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Try logging in using the username and password specified when creating a superuser.
 
+!!! note
+    By default RHEL based distros will likely block your testing attempts with firewalld. The development server port can be opened with `firewall-cmd` (add `--permanent` if you want the rule to survive server restarts):
+
+    ```no-highlight
+    firewall-cmd --zone=public --add-port=8000/tcp
+    ```
+
 !!! danger
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 

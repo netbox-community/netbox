@@ -696,6 +696,9 @@ class ManufacturerView(generic.ObjectView):
         ).annotate(
             instance_count=count_related(Device, 'device_type')
         )
+        inventory_items = InventoryItem.objects.restrict(request.user, 'view').filter(
+            manufacturer=instance
+        )
 
         devicetypes_table = tables.DeviceTypeTable(devicetypes)
         devicetypes_table.columns.hide('manufacturer')
@@ -703,6 +706,7 @@ class ManufacturerView(generic.ObjectView):
 
         return {
             'devicetypes_table': devicetypes_table,
+            'inventory_item_count': inventory_items.count(),
         }
 
 
@@ -2558,11 +2562,7 @@ class PowerConnectionsListView(generic.ObjectListView):
 
 
 class InterfaceConnectionsListView(generic.ObjectListView):
-    queryset = Interface.objects.filter(
-        # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _path__isnull=False,
-        pk__lt=F('_path__destination_id')
-    ).order_by('device')
+    queryset = Interface.objects.filter(_path__isnull=False).order_by('device')
     filterset = filtersets.InterfaceConnectionFilterSet
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable

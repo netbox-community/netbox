@@ -25,6 +25,12 @@
               <a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.pk }}">{{ devicetypes_table.rows|length }}</a>
             </td>
           </tr>
+          <tr>
+            <td>Inventory Items</td>
+            <td>
+              <a href="{% url 'dcim:inventoryitem_list' %}?manufacturer_id={{ object.pk }}">{{ inventory_item_count }}</a>
+            </td>
+          </tr>
         </table>
       </div>
     </div>

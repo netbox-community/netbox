@@ -1,14 +1,31 @@
 # NetBox v2.11
 
-## v2.11.10 (FUTURE)
+## v2.11.10 (2021-07-28)
+
+### Enhancements
+
+* [#6560](https://github.com/netbox-community/netbox/issues/6560) - Enable CSV import via uploaded file
+* [#6644](https://github.com/netbox-community/netbox/issues/6644) - Add 6P/4P pass-through port types
+* [#6771](https://github.com/netbox-community/netbox/issues/6771) - Add count of inventory items to manufacturer view
+* [#6785](https://github.com/netbox-community/netbox/issues/6785) - Add "hardwired" type for power port types
 
 ### Bug Fixes
 
 * [#5442](https://github.com/netbox-community/netbox/issues/5442) - Fix assignment of permissions based on LDAP groups
+* [#5627](https://github.com/netbox-community/netbox/issues/5627) - Fix filtering of interface connections list
+* [#6759](https://github.com/netbox-community/netbox/issues/6759) - Fix assignment of parent interfaces for bulk import
 * [#6773](https://github.com/netbox-community/netbox/issues/6773) - Add missing `display` field to rack unit serializer
+* [#6774](https://github.com/netbox-community/netbox/issues/6774) - Fix A/Z assignment when swapping circuit terminations
 * [#6777](https://github.com/netbox-community/netbox/issues/6777) - Fix default value validation for custom text fields
 * [#6778](https://github.com/netbox-community/netbox/issues/6778) - Rack reservation should display rack's location
 * [#6780](https://github.com/netbox-community/netbox/issues/6780) - Include rack location in navigation breadcrumbs
+* [#6794](https://github.com/netbox-community/netbox/issues/6794) - Fix device name display on device status view
+* [#6812](https://github.com/netbox-community/netbox/issues/6812) - Limit reported prefix utilization to 100%
+* [#6822](https://github.com/netbox-community/netbox/issues/6822) - Use consistent maximum value for interface MTU
+
+### Other Changes
+
+* [#6781](https://github.com/netbox-community/netbox/issues/6781) - Database query caching is now disabled by default
 
 ---
 
