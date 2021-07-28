@@ -2,6 +2,8 @@
 *.swp
 /netbox/netbox/configuration.py
 /netbox/netbox/ldap_config.py
+/netbox/project-static/.cache
+/netbox/project-static/node_modules
 /netbox/reports/*
 !/netbox/reports/__init__.py
 /netbox/scripts/*

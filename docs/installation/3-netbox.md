@@ -73,6 +73,11 @@ Next, clone the **master** branch of the NetBox GitHub repository into the curre
 
 ```no-highlight
 $ sudo git clone -b master https://github.com/netbox-community/netbox.git .
+```
+
+The screen below should be the result:
+
+```
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
@@ -261,6 +266,13 @@ Django version 3.1.3, using settings 'netbox.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
+
+!!! note
+    By default RHEL based distros will likely block your testing attempts with firewalld. The development server port can be opened with `firewall-cmd` (add `--permanent` if you want the rule to survive server restarts):
+
+    ```no-highlight
+    firewall-cmd --zone=public --add-port=8000/tcp
+    ```
 
 Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
 

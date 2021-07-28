@@ -54,9 +54,9 @@ BASE_PATH = 'netbox/'
 
 ## CACHE_TIMEOUT
 
-Default: 900
+Default: 0 (disabled)
 
-The number of seconds that cache entries will be retained before expiring.
+The number of seconds that cached database queries will be retained before expiring.
 
 ---
 

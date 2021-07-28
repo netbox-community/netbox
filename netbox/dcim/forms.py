@@ -102,6 +102,12 @@ class InterfaceCommonForm(forms.Form):
         required=False,
         label='MAC address'
     )
+    mtu = forms.IntegerField(
+        required=False,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
+        label='MTU'
+    )
 
     def clean(self):
         super().clean()
@@ -3173,12 +3179,6 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
             'type': 'lag',
         }
     )
-    mtu = forms.IntegerField(
-        required=False,
-        min_value=INTERFACE_MTU_MIN,
-        max_value=INTERFACE_MTU_MAX,
-        label='MTU'
-    )
     mac_address = forms.CharField(
         required=False,
         label='MAC Address'
@@ -3378,13 +3378,18 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
                 Q(device=device) | Q(device__virtual_chassis=device.virtual_chassis),
                 type=InterfaceTypeChoices.TYPE_LAG
             )
+            self.fields['parent'].queryset = Interface.objects.filter(
+                Q(device=device) | Q(device__virtual_chassis=device.virtual_chassis)
+            )
         elif device:
             self.fields['lag'].queryset = Interface.objects.filter(
                 device=device,
                 type=InterfaceTypeChoices.TYPE_LAG
             )
+            self.fields['parent'].queryset = Interface.objects.filter(device=device)
         else:
             self.fields['lag'].queryset = Interface.objects.none()
+            self.fields['parent'].queryset = Interface.objects.none()
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data

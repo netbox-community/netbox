@@ -149,7 +149,8 @@ class CustomField(BigIDModel):
         # Validate the field's default value (if any)
         if self.default is not None:
             try:
-                self.validate(self.default)
+                default_value = str(self.default) if self.type == CustomFieldTypeChoices.TYPE_TEXT else self.default
+                self.validate(default_value)
             except ValidationError as err:
                 raise ValidationError({
                     'default': f'Invalid default value "{self.default}": {err.message}'

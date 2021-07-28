@@ -1464,7 +1464,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'enabled': False,
             'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
-            'mtu': 2000,
+            'mtu': 65000,
             'mgmt_only': True,
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,

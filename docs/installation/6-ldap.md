@@ -74,7 +74,7 @@ STARTTLS can be configured by setting `AUTH_LDAP_START_TLS = True` and using the
 ### User Authentication
 
 !!! info
-    When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
+    When using Windows Server 2012+, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
 
 ```python
 from django_auth_ldap.config import LDAPSearch
