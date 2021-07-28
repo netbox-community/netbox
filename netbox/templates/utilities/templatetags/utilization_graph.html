@@ -10,9 +10,12 @@
       aria-valuemax="100"
       aria-valuenow="{{ utilization }}"
       class="progress-bar {{ bar_class }}"
-      style="min-width: 8%; width: {{ utilization }}%;"
+      style="width: {{ utilization }}%;"
     >
-      {{ utilization }}%
+      {% if utilization >= 25 %}{{ utilization }}%{% endif %}
     </div>
+    {% if utilization < 25 %}
+      <span class="ps-1">{{ utilization }}%</span>
+    {% endif %}
   </div>
 {% endif %}
