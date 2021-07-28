@@ -208,22 +208,20 @@ class CSVFileField(forms.FileField):
         super().__init__(*args, **kwargs)
 
     def to_python(self, file):
-        if file:
-            csv_str = file.read().decode('utf-8')
-            reader = csv.reader(csv_str.splitlines())
+        if file is None:
+            return None
 
-        headers = {}
-        records = []
-        if file:
-            headers, records = parse_csv(reader)
+        csv_str = file.read().decode('utf-8').strip()
+        reader = csv.reader(csv_str.splitlines())
+        headers, records = parse_csv(reader)
 
         return headers, records
 
     def validate(self, value):
-        headers, records = value
-        if not headers and not records:
-            return value
+        if value is None:
+            return None
 
+        headers, records = value
         validate_csv(headers, self.fields, self.required_fields)
 
         return value

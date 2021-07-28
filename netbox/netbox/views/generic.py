@@ -20,7 +20,8 @@ from extras.models import CustomField, ExportTemplate
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import (
-    BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, ImportForm, TableConfigForm, restrict_form_fields, CSVFileField
+    BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, ImportForm, TableConfigForm,
+    restrict_form_fields,
 )
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
@@ -673,8 +674,16 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 required=False
             )
 
-            def used_both_csv_fields(self):
-                return self.cleaned_data['csv_file'][1] and self.cleaned_data['csv'][1]
+            def clean(self):
+                csv_rows = self.cleaned_data['csv'][1]
+                csv_file = self.files.get('csv_file')
+
+                # Check that the user has not submitted both text data and a file
+                if csv_rows and csv_file:
+                    raise ValidationError(
+                        "Cannot process CSV text and file attachment simultaneously. Please choose only one import "
+                        "method."
+                    )
 
         return ImportForm(*args, **kwargs)
 
@@ -705,9 +714,6 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             logger.debug("Form validation was successful")
 
             try:
-                if form.used_both_csv_fields():
-                    form.add_error('csv_file', "Choose one of two import methods")
-                    raise ValidationError("")
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
                     if request.FILES:

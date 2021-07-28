@@ -4,6 +4,8 @@
 
 ### Enhancements
 
+* [#6560](https://github.com/netbox-community/netbox/issues/6560) - Enable CSV import via uploaded file
+* [#6771](https://github.com/netbox-community/netbox/issues/6771) - Add count of inventory items to manufacturer view
 * [#6785](https://github.com/netbox-community/netbox/issues/6785) - Add "hardwired" type for power port types
 
 ### Bug Fixes
@@ -22,7 +24,6 @@
 
 ### Other Changes
 
-* [#6771](https://github.com/netbox-community/netbox/issues/6771) - Add count of inventory items to manufacturer view
 * [#6781](https://github.com/netbox-community/netbox/issues/6781) - Database query caching is now disabled by default
 
 ---

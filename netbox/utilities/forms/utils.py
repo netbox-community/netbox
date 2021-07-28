@@ -166,6 +166,7 @@ def parse_csv(reader):
         row = [col.strip() for col in row]
         record = dict(zip(headers.keys(), row))
         records.append(record)
+
     return headers, records
 
 
