@@ -13,6 +13,7 @@ extra_css:
     - extra.css
 markdown_extensions:
     - admonition
+    - attr_list
     - markdown_include.include:
         headingOffset: 1
     - pymdownx.emoji:
