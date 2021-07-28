@@ -17,6 +17,7 @@
 * [#6778](https://github.com/netbox-community/netbox/issues/6778) - Rack reservation should display rack's location
 * [#6780](https://github.com/netbox-community/netbox/issues/6780) - Include rack location in navigation breadcrumbs
 * [#6794](https://github.com/netbox-community/netbox/issues/6794) - Fix device name display on device status view
+* [#6812](https://github.com/netbox-community/netbox/issues/6812) - Limit reported prefix utilization to 100%
 * [#6822](https://github.com/netbox-community/netbox/issues/6822) - Use consistent maximum value for interface MTU
 
 ### Other Changes
