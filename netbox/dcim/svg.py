@@ -446,10 +446,18 @@ class CableTraceSVG:
             if connector is not None:
 
                 # Cable
+                cable_labels = [
+                    f'Cable {connector}',
+                    connector.get_status_display()
+                ]
+                if connector.type:
+                    cable_labels.append(connector.get_type_display())
+                if connector.length and connector.length_unit:
+                    cable_labels.append(f'{connector.length} {connector.get_length_unit_display()}')
                 cable = self._draw_cable(
                     color=connector.color or '000000',
                     url=connector.get_absolute_url(),
-                    labels=[f'Cable {connector}', connector.get_status_display()]
+                    labels=cable_labels
                 )
                 connectors.append(cable)
 
