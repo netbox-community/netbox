@@ -162,8 +162,7 @@ class APISelect {
       this.updatePathValues(filter);
     }
 
-    // TODO: Re-enable this. Disabled because `_depth` field is missing from brief responses.
-    // this.queryParams.set('brief', true);
+    this.queryParams.set('brief', true);
     this.queryParams.set('limit', 0);
     this.updateQueryUrl();
 
