@@ -41,7 +41,7 @@ svg {
   /* Boxes */
   rect {
     fill: var(--nbx-trace-node-bg);
-    stroke: var(--nbx-trace-node-bg);
+    stroke: #606060;
     stroke-width: 1;
     .termination {
       fill: var(--nbx-trace-termination-bg);
