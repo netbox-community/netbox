@@ -328,7 +328,7 @@ class APISelect {
         if (!this.preSorted) {
           this.preSorted = true;
         }
-        text = `<span class="depth">${'─'.repeat(result._depth)}</span> ${text}`;
+        text = `<span class="depth">${'─'.repeat(result._depth)}&nbsp;</span>${text}`;
       }
       const data = {} as Record<string, string>;
       const value = result.id.toString();
