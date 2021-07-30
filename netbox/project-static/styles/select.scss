@@ -71,6 +71,10 @@ $spacing-s: $input-padding-x;
         border-color: currentColor;
       }
     }
+    .placeholder .depth {
+      // Don't show the depth indicator outside of the menu.
+      display: none;
+    }
     span.placeholder > *,
     span.placeholder {
       line-height: $input-line-height;

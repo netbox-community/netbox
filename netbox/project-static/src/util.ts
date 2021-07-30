@@ -57,6 +57,13 @@ export function isTruthy<V extends string | number | boolean | null | undefined>
 }
 
 /**
+ * Type guard to determine if a value is an `Element`.
+ */
+export function isElement(obj: Element | null | undefined): obj is Element {
+  return typeof obj !== null && typeof obj !== 'undefined';
+}
+
+/**
  * Retrieve the CSRF token from cookie storage.
  */
 export function getCsrfToken(): string {
@@ -150,6 +157,22 @@ export function* getElements(
 
 export function getElement<E extends HTMLElement>(id: string): Nullable<E> {
   return document.getElementById(id) as Nullable<E>;
+}
+
+export function removeElements(...selectors: string[]): void {
+  for (const element of getElements(...selectors)) {
+    element.remove();
+  }
+}
+
+export function elementWidth<E extends HTMLElement>(element: Nullable<E>): number {
+  let width = 0;
+  if (element !== null) {
+    const style = getComputedStyle(element);
+    const pre = style.width.replace('px', '');
+    width = parseFloat(pre);
+  }
+  return width;
 }
 
 /**

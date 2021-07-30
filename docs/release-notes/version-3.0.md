@@ -5,6 +5,8 @@
 ### Bug Fixes
 
 * [#6811](https://github.com/netbox-community/netbox/issues/6811) - Fix exception when editing users
+* [#6827](https://github.com/netbox-community/netbox/issues/6827) - Fix circuit termination connection dropdown
+* [#6846](https://github.com/netbox-community/netbox/issues/6846) - Form-driven REST API calls should use brief mode
 
 ---
 

@@ -32,9 +32,7 @@ function handleSearchDropdownClick(event: Event, button: HTMLButtonElement) {
  * Initialize Search Bar Elements.
  */
 function initSearchBar() {
-  for (const dropdown of getElements<HTMLUListElement>(
-    'div.search-container ul.search-obj-selector',
-  )) {
+  for (const dropdown of getElements<HTMLUListElement>('.search-obj-selector')) {
     for (const button of dropdown.querySelectorAll<HTMLButtonElement>(
       'li > button.dropdown-item',
     )) {

@@ -1,79 +1,58 @@
 {% load helpers %}
 
-<div id="sidenav-accordion" class="accordion accordion-flush nav-item">
-  {% for menu in nav_items %}
+<ul class="navbar-nav">
+    {% for menu in nav_items %}
+        <li class="nav-item">
+            <a class="nav-link" href="#menu{{ menu.label }}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="menu{{ menu.label }}">
+               <i class="{{ menu.icon_class }}"></i>
+               <span class="nav-link-text">{{ menu.label }}</span>
+             </a>
+            <div class="collapse" id="menu{{ menu.label }}">
+                <ul class="nav nav-sm flex-column">
 
-    {# Main Collapsible Menu #}
-    <div class="accordion-item">
-      <a
-        href="#"
-        role="button"
-        aria-expanded="true"
-        data-bs-toggle="collapse"
-        data-bs-target="#{{ menu.label|lower }}"
-        class="d-flex justify-content-between align-items-center accordion-button nav-link collapsed">
-          <span class="fw-bold sidebar-nav-link">
-            <i class="{{ menu.icon_class }} me-1 opacity-50"></i>
-            {{ menu.label }}
-          </span>
-        </a>
-
-      <div id="{{ menu.label|lower }}" class="accordion-collapse collapse" data-bs-parent="#sidenav-accordion">
-        <div class="multi-level accordion-body px-0">
-          
-          {% for group in menu.groups %}
-            {# Within each main menu, there are groups of menu items #}
-            <div class="flex-column nav">
-              
-              <h6 class="accordion-item-title">{{ group.label }}</h6>
-              
-              {% for item in group.items %}
-                {# Each Menu Item #}
-                <div class="nav-item d-flex justify-content-between align-items-center">
-                  
-                  {# Menu Link with Text #}
-                  {% if request.user|has_perms:item.permissions %}
-
-                    <a class="nav-link flex-grow-1" href="{% url item.link %}">
-                      {{ item.link_text }}
-                    </a>
-
-                    {# Menu item buttons (if any) #}
-                    {% if item.buttons %}
-                      <div class="btn-group ps-1">
-                        {% for button in item.buttons %}
-                          {% if request.user|has_perms:button.permissions %}
-                            <a class="btn btn-sm btn-{{ button.color }} lh-1" href="{% url button.link %}" title="{{ button.title }}">
-                              <i class="{{ button.icon_class }}"></i>
-                            </a>
-                          {% endif %}
+                    {% for group in menu.groups %}
+                        {# Within each main menu, there are groups of menu items #}
+                            <li class="nav-item">
+                                <div class="nav-link">
+                                    {# Group Label #}
+                                    <span class="nav-group-label">{{ group.label }}</span>
+                                </div>
+                            </li>
+                        
+                        {% for item in group.items %}
+                            {# Each Item #}
+                            {% if request.user|has_perms:item.permissions %}
+                            <li class="nav-item">
+                                <a href="{% url item.link %}" class="nav-link">
+                                    <span class="sidenav-normal">{{ item.link_text }}</span>
+                                </a>
+                                
+                                {# Menu item buttons (if any) #}
+                                {% if item.buttons %}
+                                    <div class="btn-group px-2">
+                                        {% for button in item.buttons %}
+                                            {% if request.user|has_perms:button.permissions %}
+                                                    <a class="btn btn-sm btn-{{ button.color }} lh-1" href="{% url button.link %}" title="{{ button.title }}">
+                                                        <i class="{{ button.icon_class }}"></i>
+                                                    </a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </li>
+                            {% else %}
+                                {# Display a disabled link (no permission) #}
+                                <li class="nav-item disabled">
+                                    <a href="#" class="nav-link disabled" aria-disabled="true" disabled>
+                                        <i class='mdi mdi-lock small'></i>
+                                        <span class="sidenav-normal">{{ item.link_text }}</span>
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% endfor %}
-                      </div>
-                    {% endif %}
-
-                  {% else %}
-
-                    {# Display a disabled link (no permission) #}
-                    <a class="nav-link flex-grow-1 disabled">
-                      {{ item.link_text }}
-                    </a>
-
-                  {% endif %}
-
-                </div>
-              {% endfor %}
-
+                    {% endfor %}
+                </ul>
             </div>
-
-            {# Show a divider if not the last group #}
-            {% if forloop.counter != menu.groups|length %}
-              <hr class="dropdown-divider my-2" />
-            {% endif %}
-
-          {% endfor %}
-
-        </div>
-      </div>
-    </div>
-  {% endfor %}
-</div>
+        </li>
+    {% endfor %}
+</ul>

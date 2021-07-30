@@ -95,7 +95,7 @@
                             <td>
                                 {% if object.front_image %}
                                     <a href="{{ object.front_image.url }}">
-                                        <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-responsive" />
+                                        <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-fluid" />
                                     </a>
                                 {% else %}
                                     <span class="text-muted">&mdash;</span>
@@ -107,7 +107,7 @@
                             <td>
                                 {% if object.rear_image %}
                                     <a href="{{ object.rear_image.url }}">
-                                        <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-responsive" />
+                                        <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-fluid" />
                                     </a>
                                 {% else %}
                                     <span class="text-muted">&mdash;</span>

@@ -123,6 +123,11 @@ class APISelect {
    */
   private disabledOptions: Array<string> = [];
 
+  /**
+   * Array of properties which if truthy on an API object should be considered disabled.
+   */
+  private disabledAttributes: Array<string> = DISABLED_ATTRIBUTES;
+
   constructor(base: HTMLSelectElement) {
     // Initialize readonly properties.
     this.base = base;
@@ -141,6 +146,7 @@ class APISelect {
     this.loadEvent = new Event(`netbox.select.onload.${base.name}`);
     this.placeholder = this.getPlaceholder();
     this.disabledOptions = this.getDisabledOptions();
+    this.disabledAttributes = this.getDisabledAttributes();
 
     this.slim = new SlimSelect({
       select: this.base,
@@ -158,12 +164,18 @@ class APISelect {
       this.updateQueryParams(filter);
     }
 
+    // Add any already-resolved key/value pairs to the API query parameters.
+    for (const [key, value] of this.filterParams.entries()) {
+      if (isTruthy(value)) {
+        this.queryParams.set(key, value);
+      }
+    }
+
     for (const filter of this.pathValues.keys()) {
       this.updatePathValues(filter);
     }
 
-    // TODO: Re-enable this. Disabled because `_depth` field is missing from brief responses.
-    // this.queryParams.set('brief', true);
+    this.queryParams.set('brief', true);
     this.queryParams.set('limit', 0);
     this.updateQueryUrl();
 
@@ -323,7 +335,7 @@ class APISelect {
         if (!this.preSorted) {
           this.preSorted = true;
         }
-        text = `<span class="depth">${'─'.repeat(result._depth)}</span> ${text}`;
+        text = `<span class="depth">${'─'.repeat(result._depth)}&nbsp;</span>${text}`;
       }
       const data = {} as Record<string, string>;
       const value = result.id.toString();
@@ -336,7 +348,7 @@ class APISelect {
           data[key] = String(v);
         }
         // Set option to disabled if the result contains a matching key and is truthy.
-        if (DISABLED_ATTRIBUTES.some(key => key.toLowerCase() === k.toLowerCase())) {
+        if (this.disabledAttributes.some(key => key.toLowerCase() === k.toLowerCase())) {
           if (typeof v === 'string' && v.toLowerCase() !== 'false') {
             disabled = true;
           } else if (typeof v === 'boolean' && v === true) {
@@ -545,6 +557,19 @@ class APISelect {
       }
     }
     return disabledOptions;
+  }
+
+  /**
+   * Get this element's disabled attribute keys. For example, if `disabled-indicator` is set to
+   * `'_occupied'` and an API object contains `{ _occupied: true }`, the option will be disabled.
+   */
+  private getDisabledAttributes(): string[] {
+    let disabled = [...DISABLED_ATTRIBUTES] as string[];
+    const attr = this.base.getAttribute('disabled-indicator');
+    if (isTruthy(attr)) {
+      disabled = [...disabled, attr];
+    }
+    return disabled;
   }
 
   /**

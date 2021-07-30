@@ -1,9 +1,11 @@
 // Netbox-specific Styles and Overrides.
 
 @use 'sass:map';
+@import './sidenav.scss';
 
 :root {
   --nbx-sidebar-bg: #{$gray-200};
+  --nbx-sidebar-scroll: #{$gray-500};
   --nbx-sidebar-link-color: #{$gray-800};
   --nbx-sidebar-link-hover-bg: #{$blue-100};
   --nbx-sidebar-title-color: #{$text-muted};
@@ -21,9 +23,11 @@
   --nbx-cable-termination-border-color: #{$gray-300};
   --nbx-search-filter-border-left-color: #{$gray-300};
   --nbx-color-mode-toggle-color: #{$primary};
+  --nbx-sidenav-pin-color: #{$orange};
 
   &[data-netbox-color-mode='dark'] {
     --nbx-sidebar-bg: #{$gray-900};
+    --nbx-sidebar-scroll: #{$gray-700};
     --nbx-sidebar-link-color: #{$gray-100};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
     --nbx-sidebar-title-color: #{$gray-600};
@@ -41,6 +45,7 @@
     --nbx-cable-termination-border-color: #{$gray-700};
     --nbx-search-filter-border-left-color: #{$gray-600};
     --nbx-color-mode-toggle-color: #{$yellow-300};
+    --nbx-sidenav-pin-color: #{$yellow};
   }
 }
 
@@ -119,6 +124,13 @@ small {
     background: transparent escape-svg($btn-close-bg) center / $btn-close-width auto no-repeat;
   }
 
+  .btn.btn-ghost-#{$color} {
+    color: $value;
+    &:hover {
+      background-color: rgba($value, 0.12);
+    }
+  }
+
   // Use Bootstrap's method of coloring the .alert-link class automatically.
   // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_alert.scss#L50-L52
   .toast.bg-#{$color},
@@ -158,6 +170,34 @@ a[type='button'] {
 // Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
 table td > .progress {
   min-width: 6rem;
+}
+
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  @include media-breakpoint-down(lg) {
+    display: flex;
+  }
+
+  .nav-mobile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
+.search-container {
+  display: flex;
+  width: 100%;
+
+  @include media-breakpoint-down(lg) {
+    display: none;
+  }
 }
 
 .card > .table.table-flush {
@@ -359,6 +399,8 @@ div.title-container {
 
 nav.search {
   background-color: var(--nbx-body-bg);
+  // Don't overtake dropdowns
+  z-index: 999;
   form button.dropdown-toggle {
     border-color: $input-border-color;
     font-weight: $input-group-addon-font-weight;
@@ -374,6 +416,16 @@ nav.search {
   }
 }
 
+main.layout {
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100vh;
+  height: -webkit-fill-available;
+  max-height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 main.login-container {
   display: flex;
   height: calc(100vh - 4rem);
@@ -387,6 +439,18 @@ main.login-container {
 
   & + footer.footer button.color-mode-toggle {
     color: var(--nbx-color-mode-toggle-color);
+  }
+}
+
+.footer {
+  padding-top: map.get($spacers, 4);
+  padding-right: 0;
+  padding-bottom: map.get($spacers, 3);
+  padding-left: 0;
+
+  @include media-breakpoint-down(md) {
+    // Pad the bottom of the footer on mobile devices to account for mobile browser controls.
+    margin-bottom: 8rem;
   }
 }
 
@@ -425,7 +489,6 @@ h3.accordion-item-title,
 h4.accordion-item-title,
 h5.accordion-item-title,
 h6.accordion-item-title {
-  // padding: 0 0.5rem;
   padding: 0.25rem 0.5rem;
   font-weight: $font-weight-bold;
   text-transform: uppercase;
@@ -474,7 +537,7 @@ li.dropdown-item.dropdown-item-btns {
   height: calc(100vh - 48px);
   padding-top: 0.5rem;
   overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  overflow-y: auto; // Scrollable contents if viewport is shorter than content.
 }
 
 .navbar-brand {
@@ -498,13 +561,16 @@ nav.nav.nav-pills {
 // Ensure the content container is full-height, and that the content block is also full height so
 // that the footer is always at the bottom.
 div.content-container {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  width: calc(100% - 4.5rem);
+  overflow-x: hidden;
+  overflow-y: auto;
 
-  @include media-breakpoint-up(md) {
-    margin-left: $sidebar-width;
+  @include media-breakpoint-down(lg) {
+    width: 100%;
   }
 
   div.content {
@@ -527,7 +593,7 @@ div.content-container {
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: 100; /* Behind the navbar */
+  z-index: 100; // Behind the navbar
   border-right: 1px solid $border-color;
   background-color: var(--nbx-sidebar-bg);
   max-height: 100%;
@@ -632,6 +698,11 @@ div.content-container {
 }
 
 .search-obj-selector {
+  @include media-breakpoint-down(lg) {
+    // Limit the height and enable scrolling on mobile devices.
+    max-height: 75vh;
+    overflow-y: auto;
+  }
   .dropdown-item,
   .dropdown-header {
     font-size: $font-size-sm;
@@ -807,7 +878,7 @@ div.field-group:not(:first-of-type) {
 
 label.required {
   font-weight: $font-weight-bold;
-  &::after {
+  &:after {
     font-family: 'Material Design Icons';
     content: '\f06C4';
     font-weight: normal;
@@ -827,29 +898,34 @@ div.bulk-buttons {
   display: flex;
   justify-content: space-between;
   margin: $spacer / 2 0;
+
   // Each group of buttons needs to be contained separately for alignment purposes. This way, you
   // can put some buttons in a group that aligns left, and other buttons in a group that aligns
   // right.
-  & > div.bulk-button-group {
+  > div.bulk-button-group {
     display: flex;
+    flex-wrap: wrap;
+
     &:first-of-type:not(:last-of-type) {
       // If there are multiple bulk button groups and this is the first, the first button in the
       // group should *not* have left spacing applied, so the button group aligns with the rest
       // of the page elements.
-      & > *:first-child {
+      > *:first-child {
         margin-left: 0;
       }
     }
+
     &:last-of-type:not(:first-of-type) {
       // If there are multiple bulk button groups and this is the last, the last button in the
       // group should *not* have right spacing applied, so the button group aligns with the rest
       // of the page elements.
-      & > *:last-child {
+      > *:last-child {
         margin-right: 0;
       }
     }
+
     // However, the rest of the buttons should have spacing applied in all directions.
-    & > * {
+    > * {
       margin: $spacer / 4;
     }
   }
@@ -963,12 +1039,12 @@ html {
   &[data-netbox-path='/'] {
     .content-container,
     .search {
-      background-color: $gray-100;
+      background-color: $gray-100 !important;
     }
     &[data-netbox-color-mode='dark'] {
       .content-container,
       .search {
-        background-color: $darkest;
+        background-color: $darkest !important;
       }
     }
   }

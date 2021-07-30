@@ -1,0 +1,420 @@
+@use 'sass:map';
+
+@mixin parent-link {
+  .navbar-nav .nav-item .nav-link[data-bs-toggle] {
+    @content;
+  }
+}
+
+@mixin child-link {
+  .collapse .nav .nav-item .nav-link {
+    @content;
+  }
+}
+
+@mixin sidenav-open {
+  body[data-sidenav-show],
+  body[data-sidenav-pinned] {
+    .sidenav {
+      @content;
+    }
+  }
+}
+
+@mixin sidenav-closed {
+  body[data-sidenav-hide],
+  body[data-sidenav-hidden] {
+    .sidenav {
+      @content;
+    }
+  }
+}
+
+@mixin sidenav-pinned {
+  body[data-sidenav-pinned] {
+    .sidenav {
+      @content;
+    }
+  }
+}
+
+@mixin sidenav-show {
+  body[data-sidenav-show] {
+    .sidenav {
+      @content;
+    }
+  }
+}
+
+@mixin sidenav-hide {
+  body[data-sidenav-hide] {
+    .sidenav {
+      @content;
+    }
+  }
+}
+
+@mixin sidenav-peek {
+  .g-sidenav-show:not(.g-sidenav-pinned) {
+    .sidenav {
+      @content;
+    }
+  }
+}
+
+$transition-100ms-ease-in-out: all 0.1s ease-in-out;
+
+.sidenav {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  display: block;
+  width: 100%;
+  max-width: $sidenav-width-closed;
+  padding-top: 0;
+  padding-right: 0;
+  padding-left: 0;
+  background-color: var(--nbx-sidebar-bg);
+  border-right: 1px solid $border-color;
+  transition: $transition-100ms-ease-in-out;
+
+  // Media fixes for mobile resolutions.
+  @include media-breakpoint-down(lg) {
+    transform: translateX(-$sidenav-width-closed);
+
+    + .content-container[class] {
+      margin-left: 0;
+    }
+
+    .profile-button-container[class] {
+      display: block;
+    }
+  }
+
+  .profile-button-container {
+    display: none;
+    padding: $sidenav-link-spacing-y $sidenav-link-spacing-x;
+  }
+
+  + .content-container {
+    margin-left: $sidenav-width-closed;
+    transition: $transition-100ms-ease-in-out;
+  }
+
+  // Navbar brand
+  .sidenav-brand {
+    margin-right: 0;
+  }
+
+  .sidenav-inner {
+    padding-right: $sidenav-spacing-x;
+    padding-left: $sidenav-spacing-x;
+    @include media-breakpoint-up(md) {
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+
+  .sidenav-brand-img,
+  .sidenav-brand > img {
+    max-width: 100%;
+    max-height: calc(#{$sidenav-width-open} - 1rem);
+  }
+
+  .navbar-heading {
+    padding-top: $nav-link-padding-y;
+    padding-bottom: $nav-link-padding-y;
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .sidenav-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 78px;
+    padding: $spacer;
+    transition: $transition-100ms-ease-in-out;
+  }
+
+  .sidenav-toggle {
+    display: none;
+  }
+
+  .sidenav-collapse {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: stretch;
+    padding-right: $sidenav-spacing-x;
+    padding-left: $sidenav-spacing-x;
+    margin-right: -$sidenav-spacing-x;
+    margin-left: -$sidenav-spacing-x;
+
+    > * {
+      min-width: 100%;
+    }
+
+    @include media-breakpoint-up(md) {
+      margin-right: 0;
+      margin-left: 0;
+    }
+  }
+
+  // Child Link nav-item
+  .nav .nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  @include child-link() {
+    width: 100%;
+    padding-top: $sidenav-link-spacing-y / 2.675;
+    padding-right: map.get($spacers, 1);
+    padding-bottom: $sidenav-link-spacing-y / 2.675;
+    /* stylelint-disable */
+    padding-left: $sidenav-link-spacing-x + $sidenav-icon-width + $sidenav-link-spacing-x / 4;
+    /* stylelint-enable */
+    margin-top: $sidenav-link-spacing-y / 3.3;
+    margin-bottom: $sidenav-link-spacing-y / 3.3;
+    font-size: $font-size-xs;
+    border-top-right-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
+
+    .sidenav-normal {
+      color: $text-muted;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .sidenav-mini-icon {
+      width: $sidenav-link-spacing-x;
+      text-align: center;
+      transition: $transition-100ms-ease-in-out;
+    }
+  }
+
+  @include parent-link() {
+    width: unset;
+    height: 100%;
+    font-weight: $font-weight-bold;
+
+    &.active {
+      color: $accordion-button-active-color;
+      background: $accordion-button-active-bg;
+    }
+
+    &:after {
+      display: inline-block;
+      margin-left: auto;
+      /* stylelint-disable */
+      font-family: 'Material Design Icons';
+      /* stylelint-enable */
+      font-style: normal;
+      font-weight: 700;
+      font-variant: normal;
+      color: $text-muted;
+      text-rendering: auto;
+      -webkit-font-smoothing: antialiased;
+      content: '\f0142';
+      transition: $transition-100ms-ease-in-out;
+    }
+
+    // Expanded
+    &[aria-expanded='true'] {
+      &.active:after {
+        color: $accordion-button-active-color;
+      }
+      &:after {
+        color: $primary;
+        transform: rotate(90deg);
+      }
+    }
+
+    .nav-link-text {
+      padding-left: 0.25rem;
+      transition: $transition-100ms-ease-in-out;
+    }
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    margin-right: -$sidenav-spacing-x;
+    margin-left: -$sidenav-spacing-x;
+
+    .nav-item {
+      margin-top: 2px;
+
+      &.disabled {
+        cursor: not-allowed;
+        opacity: 0.8;
+      }
+
+      // All Links
+      .nav-link {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: $sidenav-link-spacing-y $sidenav-link-spacing-x;
+        font-size: $font-size-sm;
+        white-space: nowrap;
+        transition: $transition-100ms-ease-in-out;
+
+        // &.disabled {
+        //   opacity: 0.8;
+        // }
+
+        &.active {
+          position: relative;
+          color: var(--nbx-sidebar-link-hover-bg);
+          background-color: var(--nbx-sidebar-link-hover-bg);
+        }
+
+        // Icon
+        > i {
+          min-width: $sidenav-icon-width;
+          font-size: calc(45px / 2);
+          text-align: center;
+        }
+      }
+    }
+
+    .nav-group-label {
+      display: block;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-bold;
+      color: $primary;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+  }
+}
+
+@include sidenav-pinned() {
+  .sidenav-toggle-icon {
+    color: var(--nbx-sidenav-pin-color);
+    transform: rotate(90deg);
+  }
+  @include media-breakpoint-up(xl) {
+    + .content-container {
+      margin-left: $sidenav-width-open;
+    }
+  }
+}
+
+@include sidenav-peek() {
+  .sidenav-toggle-icon {
+    transform: rotate(0deg);
+  }
+}
+
+@include sidenav-open() {
+  max-width: $sidenav-width-open;
+
+  .sidenav-brand,
+  .navbar-heading {
+    display: block;
+  }
+
+  .sidenav-brand {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .sidenav-brand-icon {
+    position: absolute;
+    opacity: 0;
+  }
+
+  @include media-breakpoint-down(lg) {
+    transform: translateX(0);
+  }
+}
+
+@include sidenav-closed() {
+  .sidenav-header {
+    padding: $spacer * 0.5;
+  }
+
+  .sidenav-brand {
+    position: absolute;
+    opacity: 0;
+    transform: translateX(-150%);
+  }
+
+  .sidenav-brand-icon {
+    opacity: 1;
+  }
+
+  .navbar-nav > .nav-item {
+    > .nav-link {
+      &:after {
+        content: '';
+      }
+    }
+  }
+
+  .nav-item .collapse {
+    display: none;
+  }
+
+  .nav-link-text {
+    opacity: 0;
+  }
+
+  @include parent-link() {
+    &.active {
+      margin-right: 0;
+      margin-left: 0;
+      border-radius: unset;
+    }
+  }
+}
+
+@include sidenav-show() {
+  .sidenav-brand {
+    display: block;
+  }
+
+  .nav-item .collapse {
+    height: auto;
+    transition: $transition-100ms-ease-in-out;
+  }
+
+  .nav-item .nav-link .nav-link-text {
+    opacity: 1;
+  }
+
+  .nav-item .sidenav-mini-icon {
+    opacity: 0;
+  }
+
+  @include media-breakpoint-up(lg) {
+    .sidenav-toggle {
+      display: inline-block;
+    }
+  }
+}
+
+.simplebar-track.simplebar-vertical {
+  right: 0;
+  width: 6px;
+  background-color: transparent;
+
+  .simplebar-scrollbar:before {
+    right: 0;
+    width: 3px;
+    background: var(--nbx-sidebar-scroll);
+    border-radius: $border-radius;
+  }
+  &.simplebar-hover .simplebar-scrollbar:before {
+    width: 5px;
+  }
+}

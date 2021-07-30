@@ -13,7 +13,7 @@
                     {% for obj_type in results %}
                         <div class="card">
                             <h5 class="card-header">{{ obj_type.name|bettertitle }}</h5>
-                            <div class="card-body">
+                            <div class="card-body table-responsive">
                                 {% render_table obj_type.table 'inc/table.html' %}
                             </div>
                             <div class="card-footer text-end">
