@@ -5,7 +5,7 @@
   <div class="sidenav-header">
 
   {# Brand #}
-    
+
     {# Full Logo #}
     <a class="sidenav-brand" href="/">
       <img src="{% static 'netbox_logo.svg' %}" height="48" class="sidenav-brand-img" alt="NetBox Logo">
@@ -26,13 +26,16 @@
   </div>
 
   <div class="sidenav-inner h-100 mb-auto">
-    
+
     {# Collapse #}
     <div class="collapse sidenav-collapse">
-    
+
       {# Nav Items #}
       {% nav %}
 
     </div>
+  </div>
+  <div class="profile-button-container">
+    {% include 'inc/profile_button.html' %}
   </div>
 </nav>

@@ -80,12 +80,22 @@ $transition-100ms-ease-in-out: all 0.1s ease-in-out;
   border-right: 1px solid $border-color;
   transition: $transition-100ms-ease-in-out;
 
-  // Media fixes for iPhone 5 like resolutions
+  // Media fixes for mobile resolutions.
   @include media-breakpoint-down(lg) {
     transform: translateX(-$sidenav-width-closed);
+
     + .content-container[class] {
       margin-left: 0;
     }
+
+    .profile-button-container[class] {
+      display: block;
+    }
+  }
+
+  .profile-button-container {
+    display: none;
+    padding: $sidenav-link-spacing-y $sidenav-link-spacing-x;
   }
 
   + .content-container {
@@ -322,6 +332,7 @@ $transition-100ms-ease-in-out: all 0.1s ease-in-out;
     position: absolute;
     opacity: 0;
   }
+
   @include media-breakpoint-down(lg) {
     transform: translateX(0);
   }
@@ -331,14 +342,17 @@ $transition-100ms-ease-in-out: all 0.1s ease-in-out;
   .sidenav-header {
     padding: $spacer * 0.5;
   }
+
   .sidenav-brand {
     position: absolute;
     opacity: 0;
     transform: translateX(-150%);
   }
+
   .sidenav-brand-icon {
     opacity: 1;
   }
+
   .navbar-nav > .nav-item {
     > .nav-link {
       &:after {
@@ -354,6 +368,7 @@ $transition-100ms-ease-in-out: all 0.1s ease-in-out;
   .nav-link-text {
     opacity: 0;
   }
+
   @include parent-link() {
     &.active {
       margin-right: 0;

@@ -19,17 +19,22 @@
         <nav class="navbar navbar-light sticky-top flex-md-nowrap ps-6 p-3 search container-fluid">
 
             {# Mobile Navigation #}
-            <div class="d-md-none w-100 d-flex justify-content-between align-items-center my-3">
-              <a class="p-2 sidebar-logo d-block d-md-none" href="{% url 'home' %}">
-                <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" width="100%" />
-              </a>
-              <button type="button" aria-label="Toggle Navigation" class="navbar-toggler sidenav-toggle-mobile">
-                <span class="navbar-toggler-icon"></span>
-              </button>
+            <div class="nav-mobile">
+              <div class="nav-mobile-top">
+                <a class="sidebar-logo p-2 d-block" href="{% url 'home' %}">
+                  <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" width="75%" />
+                </a>
+                <button type="button" aria-label="Toggle Navigation" class="navbar-toggler sidenav-toggle-mobile">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+              </div>
+              <div class="d-flex my-1 flex-grow-1 justify-content-center">
+                {% search_options %}
+              </div>
             </div>
 
             {# Desktop Navigation #}
-            <div class="d-none d-md-flex w-100 row search-container">
+            <div class="row search-container">
 
               {# Empty spacer column to ensure search is centered. #}
               <div class="col-3 d-flex flex-grow-1 ps-0"></div>
@@ -95,12 +100,13 @@
         {% endif %}
 
         {# Page footer #}
-        <footer class="footer container-fluid pb-3 pt-4 px-0">
+        <footer class="footer container-fluid">
           <div class="row align-items-center justify-content-between mx-0">
             
             {# Docs & Community Links #}
-            <div class="col">
-              <nav class="nav justify-content-start">
+            <div class="col-sm-12 col-md-auto">
+              <nav class="nav justify-content-center justify-content-lg-start">
+
                 {# Documentation #}
                 <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
                   <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
@@ -136,7 +142,7 @@
             </div>
             
             {# System Info #}
-            <div class="col text-end small text-muted">
+            <div class="col-sm-12 col-md-auto text-center text-lg-end small text-muted">
               <span class="fw-light d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
               <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
             </div>

@@ -172,6 +172,34 @@ table td > .progress {
   min-width: 6rem;
 }
 
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  @include media-breakpoint-down(lg) {
+    display: flex;
+  }
+
+  .nav-mobile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
+.search-container {
+  display: flex;
+  width: 100%;
+
+  @include media-breakpoint-down(lg) {
+    display: none;
+  }
+}
+
 .card > .table.table-flush {
   margin-bottom: 0;
   overflow: hidden;
@@ -411,6 +439,18 @@ main.login-container {
 
   & + footer.footer button.color-mode-toggle {
     color: var(--nbx-color-mode-toggle-color);
+  }
+}
+
+.footer {
+  padding-top: map.get($spacers, 4);
+  padding-right: 0;
+  padding-bottom: map.get($spacers, 3);
+  padding-left: 0;
+
+  @include media-breakpoint-down(md) {
+    // Pad the bottom of the footer on mobile devices to account for mobile browser controls.
+    margin-bottom: 8rem;
   }
 }
 
@@ -658,6 +698,11 @@ div.content-container {
 }
 
 .search-obj-selector {
+  @include media-breakpoint-down(lg) {
+    // Limit the height and enable scrolling on mobile devices.
+    max-height: 75vh;
+    overflow-y: auto;
+  }
   .dropdown-item,
   .dropdown-header {
     font-size: $font-size-sm;
@@ -833,7 +878,7 @@ div.field-group:not(:first-of-type) {
 
 label.required {
   font-weight: $font-weight-bold;
-  &::after {
+  &:after {
     font-family: 'Material Design Icons';
     content: '\f06C4';
     font-weight: normal;
@@ -853,29 +898,34 @@ div.bulk-buttons {
   display: flex;
   justify-content: space-between;
   margin: $spacer / 2 0;
+
   // Each group of buttons needs to be contained separately for alignment purposes. This way, you
   // can put some buttons in a group that aligns left, and other buttons in a group that aligns
   // right.
-  & > div.bulk-button-group {
+  > div.bulk-button-group {
     display: flex;
+    flex-wrap: wrap;
+
     &:first-of-type:not(:last-of-type) {
       // If there are multiple bulk button groups and this is the first, the first button in the
       // group should *not* have left spacing applied, so the button group aligns with the rest
       // of the page elements.
-      & > *:first-child {
+      > *:first-child {
         margin-left: 0;
       }
     }
+
     &:last-of-type:not(:first-of-type) {
       // If there are multiple bulk button groups and this is the last, the last button in the
       // group should *not* have right spacing applied, so the button group aligns with the rest
       // of the page elements.
-      & > *:last-child {
+      > *:last-child {
         margin-right: 0;
       }
     }
+
     // However, the rest of the buttons should have spacing applied in all directions.
-    & > * {
+    > * {
       margin: $spacer / 4;
     }
   }
