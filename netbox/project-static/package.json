@@ -41,6 +41,32 @@
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "^2.2.1",
     "prettier-eslint": "^12.0.0",
+    "stylelint": "^13.13.1",
+    "stylelint-config-twbs-bootstrap": "^2.2.3",
     "typescript": "^4.2.3"
+  },
+  "stylelint": {
+    "extends": "stylelint-config-twbs-bootstrap/scss",
+    "rules": {
+      "selector-max-class": 16,
+      "selector-max-compound-selectors": 16,
+      "selector-no-qualifying-type": [
+        true,
+        {
+          "ignore": [
+            "attribute",
+            "class"
+          ]
+        }
+      ],
+      "number-leading-zero": "always",
+      "string-quotes": "single",
+      "selector-pseudo-element-colon-notation": "single",
+      "declaration-property-value-disallowed-list": {
+        "border": "none",
+        "outline": "none"
+      },
+      "scss/selector-no-union-class-name": true
+    }
   }
 }

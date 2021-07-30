@@ -1,9 +1,11 @@
 // Netbox-specific Styles and Overrides.
 
 @use 'sass:map';
+@import './sidenav.scss';
 
 :root {
   --nbx-sidebar-bg: #{$gray-200};
+  --nbx-sidebar-scroll: #{$gray-500};
   --nbx-sidebar-link-color: #{$gray-800};
   --nbx-sidebar-link-hover-bg: #{$blue-100};
   --nbx-sidebar-title-color: #{$text-muted};
@@ -21,9 +23,11 @@
   --nbx-cable-termination-border-color: #{$gray-300};
   --nbx-search-filter-border-left-color: #{$gray-300};
   --nbx-color-mode-toggle-color: #{$primary};
+  --nbx-sidenav-pin-color: #{$orange};
 
   &[data-netbox-color-mode='dark'] {
     --nbx-sidebar-bg: #{$gray-900};
+    --nbx-sidebar-scroll: #{$gray-700};
     --nbx-sidebar-link-color: #{$gray-100};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
     --nbx-sidebar-title-color: #{$gray-600};
@@ -41,6 +45,7 @@
     --nbx-cable-termination-border-color: #{$gray-700};
     --nbx-search-filter-border-left-color: #{$gray-600};
     --nbx-color-mode-toggle-color: #{$yellow-300};
+    --nbx-sidenav-pin-color: #{$yellow};
   }
 }
 
@@ -117,6 +122,13 @@ small {
   $btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$shaded-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
   .bg-#{$color} button.btn-close {
     background: transparent escape-svg($btn-close-bg) center / $btn-close-width auto no-repeat;
+  }
+
+  .btn.btn-ghost-#{$color} {
+    color: $value;
+    &:hover {
+      background-color: rgba($value, 0.12);
+    }
   }
 
   // Use Bootstrap's method of coloring the .alert-link class automatically.
@@ -359,6 +371,8 @@ div.title-container {
 
 nav.search {
   background-color: var(--nbx-body-bg);
+  // Don't overtake dropdowns
+  z-index: 999;
   form button.dropdown-toggle {
     border-color: $input-border-color;
     font-weight: $input-group-addon-font-weight;
@@ -372,6 +386,16 @@ nav.search {
       box-shadow: unset !important;
     }
   }
+}
+
+main.layout {
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100vh;
+  height: -webkit-fill-available;
+  max-height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 main.login-container {
@@ -425,7 +449,6 @@ h3.accordion-item-title,
 h4.accordion-item-title,
 h5.accordion-item-title,
 h6.accordion-item-title {
-  // padding: 0 0.5rem;
   padding: 0.25rem 0.5rem;
   font-weight: $font-weight-bold;
   text-transform: uppercase;
@@ -474,7 +497,7 @@ li.dropdown-item.dropdown-item-btns {
   height: calc(100vh - 48px);
   padding-top: 0.5rem;
   overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  overflow-y: auto; // Scrollable contents if viewport is shorter than content.
 }
 
 .navbar-brand {
@@ -498,13 +521,16 @@ nav.nav.nav-pills {
 // Ensure the content container is full-height, and that the content block is also full height so
 // that the footer is always at the bottom.
 div.content-container {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  width: calc(100% - 4.5rem);
+  overflow-x: hidden;
+  overflow-y: auto;
 
-  @include media-breakpoint-up(md) {
-    margin-left: $sidebar-width;
+  @include media-breakpoint-down(lg) {
+    width: 100%;
   }
 
   div.content {
@@ -527,7 +553,7 @@ div.content-container {
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: 100; /* Behind the navbar */
+  z-index: 100; // Behind the navbar
   border-right: 1px solid $border-color;
   background-color: var(--nbx-sidebar-bg);
   max-height: 100%;
@@ -963,12 +989,12 @@ html {
   &[data-netbox-path='/'] {
     .content-container,
     .search {
-      background-color: $gray-100;
+      background-color: $gray-100 !important;
     }
     &[data-netbox-color-mode='dark'] {
       .content-container,
       .search {
-        background-color: $darkest;
+        background-color: $darkest !important;
       }
     }
   }
