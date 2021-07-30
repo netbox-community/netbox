@@ -123,6 +123,11 @@ class APISelect {
    */
   private disabledOptions: Array<string> = [];
 
+  /**
+   * Array of properties which if truthy on an API object should be considered disabled.
+   */
+  private disabledAttributes: Array<string> = DISABLED_ATTRIBUTES;
+
   constructor(base: HTMLSelectElement) {
     // Initialize readonly properties.
     this.base = base;
@@ -141,6 +146,7 @@ class APISelect {
     this.loadEvent = new Event(`netbox.select.onload.${base.name}`);
     this.placeholder = this.getPlaceholder();
     this.disabledOptions = this.getDisabledOptions();
+    this.disabledAttributes = this.getDisabledAttributes();
 
     this.slim = new SlimSelect({
       select: this.base,
@@ -335,7 +341,7 @@ class APISelect {
           data[key] = String(v);
         }
         // Set option to disabled if the result contains a matching key and is truthy.
-        if (DISABLED_ATTRIBUTES.some(key => key.toLowerCase() === k.toLowerCase())) {
+        if (this.disabledAttributes.some(key => key.toLowerCase() === k.toLowerCase())) {
           if (typeof v === 'string' && v.toLowerCase() !== 'false') {
             disabled = true;
           } else if (typeof v === 'boolean' && v === true) {
@@ -544,6 +550,19 @@ class APISelect {
       }
     }
     return disabledOptions;
+  }
+
+  /**
+   * Get this element's disabled attribute keys. For example, if `disabled-indicator` is set to
+   * `'_occupied'` and an API object contains `{ _occupied: true }`, the option will be disabled.
+   */
+  private getDisabledAttributes(): string[] {
+    let disabled = [...DISABLED_ATTRIBUTES] as string[];
+    const attr = this.base.getAttribute('disabled-indicator');
+    if (isTruthy(attr)) {
+      disabled = [...disabled, attr];
+    }
+    return disabled;
   }
 
   /**
