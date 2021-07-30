@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.11 (FUTURE)
+
+### Bug Fixes
+
+* [#6740](https://github.com/netbox-community/netbox/issues/6740) - Add import button to VM interfaces list
+
+---
+
 ## v2.11.10 (2021-07-28)
 
 ### Enhancements
