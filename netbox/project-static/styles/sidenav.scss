@@ -292,12 +292,16 @@ $transition-100ms-ease-in-out: all 0.1s ease-in-out;
     color: var(--nbx-sidenav-pin-color);
     transform: rotate(90deg);
   }
+  @include media-breakpoint-up(xl) {
+    + .content-container {
+      margin-left: $sidenav-width-open;
+    }
+  }
 }
 
 @include sidenav-peek() {
   .sidenav-toggle-icon {
     transform: rotate(0deg);
-    // transform: rotate(90deg);
   }
 }
 
@@ -320,12 +324,6 @@ $transition-100ms-ease-in-out: all 0.1s ease-in-out;
   }
   @include media-breakpoint-down(lg) {
     transform: translateX(0);
-  }
-
-  @include media-breakpoint-up(xl) {
-    + .content-container {
-      margin-left: $sidenav-width-open;
-    }
   }
 }
 
