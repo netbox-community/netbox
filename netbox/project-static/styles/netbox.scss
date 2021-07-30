@@ -1,9 +1,11 @@
 // Netbox-specific Styles and Overrides.
 
 @use 'sass:map';
+@import './sidenav.scss';
 
 :root {
   --nbx-sidebar-bg: #{$gray-200};
+  --nbx-sidebar-scroll: #{$gray-500};
   --nbx-sidebar-link-color: #{$gray-800};
   --nbx-sidebar-link-hover-bg: #{$blue-100};
   --nbx-sidebar-title-color: #{$text-muted};
@@ -21,9 +23,11 @@
   --nbx-cable-termination-border-color: #{$gray-300};
   --nbx-search-filter-border-left-color: #{$gray-300};
   --nbx-color-mode-toggle-color: #{$primary};
+  --nbx-sidenav-pin-color: #{$orange};
 
   &[data-netbox-color-mode='dark'] {
     --nbx-sidebar-bg: #{$gray-900};
+    --nbx-sidebar-scroll: #{$gray-700};
     --nbx-sidebar-link-color: #{$gray-100};
     --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
     --nbx-sidebar-title-color: #{$gray-600};
@@ -41,6 +45,7 @@
     --nbx-cable-termination-border-color: #{$gray-700};
     --nbx-search-filter-border-left-color: #{$gray-600};
     --nbx-color-mode-toggle-color: #{$yellow-300};
+    --nbx-sidenav-pin-color: #{$yellow};
   }
 }
 
@@ -117,6 +122,13 @@ small {
   $btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$shaded-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
   .bg-#{$color} button.btn-close {
     background: transparent escape-svg($btn-close-bg) center / $btn-close-width auto no-repeat;
+  }
+
+  .btn.btn-ghost-#{$color} {
+    color: $value;
+    &:hover {
+      background-color: rgba($value, 0.12);
+    }
   }
 
   // Use Bootstrap's method of coloring the .alert-link class automatically.
@@ -384,147 +396,6 @@ main.layout {
   max-height: 100vh;
   overflow-x: auto;
   overflow-y: hidden;
-
-  .sidenav {
-    width: 4.5rem;
-    background-color: var(--nbx-sidebar-bg);
-    border-right: 1px solid $border-color;
-    // TODO: Figure out how to make the menu vertically scroll properly.
-    // overflow-x: hidden;
-    // overflow-y: auto;
-    padding-bottom: 1.5rem;
-    z-index: 5000;
-
-    & {
-      -ms-overflow-style: none; // Internet Explorer 10+
-      scrollbar-width: none; // Firefox
-    }
-
-    &::-webkit-scrollbar {
-      display: none; // Safari and Chrome
-    }
-
-    .nav-link {
-      font-size: $font-size-lg;
-      border-radius: unset;
-      transition: color 0s;
-
-      @include media-breakpoint-up(sm) {
-        font-size: $font-size-sm;
-      }
-
-      @include media-breakpoint-up(md) {
-        font-size: $font-size-base;
-      }
-
-      @include media-breakpoint-up(lg) {
-        font-size: $font-size-lg;
-      }
-
-      @include media-breakpoint-up(xl) {
-        font-size: $h4-font-size;
-      }
-
-      &:hover:not(.active) {
-        background-color: $accordion-button-active-bg;
-      }
-
-      &:after {
-        display: none;
-      }
-    }
-
-    .nav-item {
-      position: relative;
-      .nav-label {
-        opacity: 0;
-        z-index: 0;
-        height: 100%;
-        display: flex;
-        padding: $spacer;
-        position: absolute;
-        align-items: center;
-        margin-left: 4.5rem;
-        pointer-events: none;
-        justify-content: flex-start;
-        font-weight: $font-weight-bold;
-        transition: opacity 0.1s ease-in-out, transform 0.12s ease-in-out, z-index 0.12s ease-in-out;
-        transform: translateX(-50px);
-        background-color: $accordion-button-active-bg;
-        color: $nav-link-color;
-        border-top-right-radius: $border-radius;
-        border-bottom-right-radius: $border-radius;
-
-        [data-netbox-color-mode='dark'] &[class] {
-          color: shade-color($primary, 75%);
-        }
-      }
-      &:hover .nav-label {
-        transform: translateX(-1px);
-        z-index: 99;
-        opacity: 1;
-        box-shadow: 1rem 0 2rem rgba($black, 0.15);
-      }
-
-      &:hover .nav-link {
-        color: $nav-link-color;
-
-        [data-netbox-color-mode='dark'] &[class] {
-          color: shade-color($primary, 50%);
-        }
-      }
-    }
-
-    .sidenav-logo {
-      position: relative;
-
-      & .sidenav-logo-reveal {
-        opacity: 0;
-        z-index: 0;
-        height: 100%;
-        width: max-content;
-        display: flex;
-        padding: $spacer;
-        position: absolute;
-        align-items: center;
-        justify-content: flex-start;
-        font-weight: $font-weight-bold;
-        transition: opacity 0.1s ease-in-out, transform 0.12s ease-in-out, z-index 0.12s ease-in-out;
-        transform: translateX(-100%);
-        background-color: var(--nbx-sidebar-bg);
-        border-bottom-right-radius: $border-radius;
-      }
-      &:hover .sidenav-logo-reveal {
-        transform: translateX(-1px);
-        z-index: 2000;
-        opacity: 1;
-      }
-    }
-
-    .dropdown {
-      .dropdown-header {
-        font-weight: $font-weight-bold;
-        text-transform: uppercase;
-        color: var(--nbx-sidebar-title-color);
-        font-size: $font-size-sm;
-      }
-      .dropdown-item-group {
-        display: inline-flex;
-        width: 100%;
-        justify-content: space-between;
-        align-items: center;
-        padding-right: map.get($spacers, 3);
-        &.disabled {
-          cursor: not-allowed;
-        }
-      }
-      .dropdown-item {
-        padding-left: map.get($spacers, 4);
-        border-top-right-radius: $border-radius;
-        border-bottom-right-radius: $border-radius;
-      }
-    }
-  }
 }
 
 main.login-container {
@@ -650,12 +521,17 @@ nav.nav.nav-pills {
 // Ensure the content container is full-height, and that the content block is also full height so
 // that the footer is always at the bottom.
 div.content-container {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   width: calc(100% - 4.5rem);
   overflow-x: hidden;
   overflow-y: auto;
+
+  @include media-breakpoint-down(lg) {
+    width: 100%;
+  }
 
   div.content {
     flex: 1;
@@ -1112,16 +988,12 @@ html {
   // Shade the home page content background-color.
   &[data-netbox-path='/'] {
     .content-container,
-    .search
-    // ,.sidenav-logo-reveal
-    {
+    .search {
       background-color: $gray-100 !important;
     }
     &[data-netbox-color-mode='dark'] {
       .content-container,
-      .search
-      // ,.sidenav-logo-reveal
-      {
+      .search {
         background-color: $darkest !important;
       }
     }

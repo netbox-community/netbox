@@ -1,7 +1,7 @@
 // Dark Mode Theme Variables and Overrides.
 
 @use 'sass:map';
-@import './theme-base.scss';
+@import './theme-base';
 
 $primary: $blue-300;
 $secondary: $gray-500;
@@ -176,7 +176,7 @@ $accordion-border-color: $border-color;
 $accordion-button-color: $accordion-color;
 $accordion-button-bg: $accordion-bg;
 $accordion-button-active-bg: shade-color($blue-300, 10%);
-$accordion-button-active-color: shade-color($blue-500, 10%);
+$accordion-button-active-color: color-contrast($accordion-button-active-bg);
 $accordion-button-focus-border-color: $input-focus-border-color;
 $accordion-icon-color: $accordion-color;
 $accordion-icon-active-color: $accordion-button-active-color;
