@@ -39,9 +39,9 @@ $(document).ready(function() {
         url: "{% url 'dcim-api:device-napalm' pk=object.pk %}?method=get_config",
         dataType: 'json',
         success: function(json) {
-            $('#running_config').html($.trim(json['get_config']['running']));
-            $('#startup_config').html($.trim(json['get_config']['startup']));
-            $('#candidate_config').html($.trim(json['get_config']['candidate']));
+            $('#running_config').text($.trim(json['get_config']['running']));
+            $('#startup_config').text($.trim(json['get_config']['startup']));
+            $('#candidate_config').text($.trim(json['get_config']['candidate']));
         },
         error: function(xhr) {
             alert(xhr.responseText);
