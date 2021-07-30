@@ -12,6 +12,8 @@ class GraphQLView(GraphQLView_):
     """
     Extends graphene_django's GraphQLView to support DRF's token-based authentication.
     """
+    graphiql_template = 'graphiql.html'
+
     def dispatch(self, request, *args, **kwargs):
 
         # Enforce GRAPHQL_ENABLED
