@@ -164,6 +164,13 @@ class APISelect {
       this.updateQueryParams(filter);
     }
 
+    // Add any already-resolved key/value pairs to the API query parameters.
+    for (const [key, value] of this.filterParams.entries()) {
+      if (isTruthy(value)) {
+        this.queryParams.set(key, value);
+      }
+    }
+
     for (const filter of this.pathValues.keys()) {
       this.updatePathValues(filter);
     }
