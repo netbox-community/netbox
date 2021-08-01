@@ -8,6 +8,11 @@ interface StateOptions {
    * exists in localStorage, the value will be read and used as the initial value.
    */
   persist?: boolean;
+
+  /**
+   * Use a static localStorage key instead of automatically generating one.
+   */
+  key?: string;
 }
 
 /**
@@ -49,9 +54,14 @@ export class StateManager<T extends Dict, K extends keyof T = keyof T> {
   private key: string = '';
 
   constructor(raw: T, options: StateOptions) {
-    this.key = this.generateStateKey(raw);
-
     this.options = options;
+
+    // Use static key if defined.
+    if (typeof this.options.key === 'string') {
+      this.key = this.options.key;
+    } else {
+      this.key = this.generateStateKey(raw);
+    }
 
     if (this.options.persist) {
       const saved = this.retrieve();

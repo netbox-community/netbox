@@ -21,7 +21,7 @@
     {# Page title #}
     <title>{% block title %}Home{% endblock %} | NetBox</title>
 
-    <script>
+    <script type="text/javascript">
       /**
        * Determine the best initial color mode to use prior to rendering.
        */
@@ -82,6 +82,21 @@
   </head>
   
   <body>
+    <script type="text/javascript">
+      (function() {
+        // Check localStorage to see if the sidebar should be pinned.
+        var sideNavRaw = localStorage.getItem('netbox-sidenav');
+        if (typeof sideNavRaw === 'string') {
+          var sideNavState = JSON.parse(sideNavRaw);
+          if (sideNavState.pinned === true) {
+            // If the sidebar should be pinned, set the appropriate body attributes prior to the
+            // rest of the content rendering. This prevents jumpy/glitchy behavior on page reloads.
+            document.body.setAttribute('data-sidenav-pinned', '');
+            document.body.setAttribute('data-sidenav-show', '');
+          }
+        }
+      })();
+    </script>
 
     {# Page layout #}
     {% block layout %}{% endblock %}

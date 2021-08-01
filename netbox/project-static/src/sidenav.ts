@@ -17,7 +17,10 @@ class SideNav {
 
   constructor(base: HTMLDivElement) {
     this.base = base;
-    this.state = new StateManager<NavState>({ pinned: true }, { persist: true });
+    this.state = new StateManager<NavState>(
+      { pinned: true },
+      { persist: true, key: 'netbox-sidenav' },
+    );
 
     this.init();
     this.initLinks();
