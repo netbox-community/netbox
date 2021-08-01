@@ -15,7 +15,7 @@ class MenuItemButton:
     link: str
     title: str
     icon_class: str
-    permissions: Optional[list] = None
+    permissions: Optional[Sequence[str]] = ()
     color: Optional[str] = None
 
 
@@ -24,8 +24,8 @@ class MenuItem:
 
     link: str
     link_text: str
-    permissions: Optional[list] = None
-    buttons: Optional[Sequence[MenuItemButton]] = None
+    permissions: Optional[Sequence[str]] = ()
+    buttons: Optional[Sequence[MenuItemButton]] = ()
 
 
 @dataclass
