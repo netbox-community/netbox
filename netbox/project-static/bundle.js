@@ -14,10 +14,30 @@ const options = {
 // Get CLI arguments for optional overrides.
 const ARGS = process.argv.slice(2);
 
+async function bundleGraphIQL() {
+  try {
+    const result = await esbuild.build({
+      ...options,
+      entryPoints: {
+        graphiql: 'netbox-graphiql/index.ts',
+      },
+      target: 'es2016',
+      define: {
+        global: 'window',
+      },
+    });
+    if (result.errors.length === 0) {
+      console.log(`✅ Bundled source file 'netbox-graphiql/index.ts' to 'graphiql.js'`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 /**
- * Run script bundle jobs.
+ * Bundle Core NetBox JavaScript.
  */
-async function bundleScripts() {
+async function bundleNetBox() {
   const entryPoints = {
     netbox: 'src/index.ts',
     jobs: 'src/jobs.ts',
@@ -26,7 +46,7 @@ async function bundleScripts() {
     status: 'src/device/status.ts',
   };
   try {
-    let result = await esbuild.build({
+    const result = await esbuild.build({
       ...options,
       entryPoints,
       target: 'es2016',
@@ -43,6 +63,15 @@ async function bundleScripts() {
 }
 
 /**
+ * Run script bundle jobs.
+ */
+async function bundleScripts() {
+  for (const bundle of [bundleNetBox, bundleGraphIQL]) {
+    await bundle();
+  }
+}
+
+/**
  * Run style bundle jobs.
  */
 async function bundleStyles() {
@@ -53,6 +82,7 @@ async function bundleStyles() {
       'netbox-dark': 'styles/_dark.scss',
       rack_elevation: 'styles/_rack_elevation.scss',
       cable_trace: 'styles/_cable_trace.scss',
+      graphiql: 'netbox-graphiql/graphiql.scss',
     };
     const pluginOptions = { outputStyle: 'compressed' };
     // Allow cache disabling.

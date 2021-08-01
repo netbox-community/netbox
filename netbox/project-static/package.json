@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "main": "dist/netbox.js",
   "license": "Apache-2.0",
+  "private": true,
+  "workspaces": [
+    "netbox-graphiql"
+  ],
   "scripts": {
     "bundle": "node bundle.js",
     "bundle:styles": "node bundle.js --styles",

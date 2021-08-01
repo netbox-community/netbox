@@ -21,25 +21,7 @@ add "&raw" to the end of the URL within a browser.
         width: 100%;
       }
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/graphiql@{{graphiql_version}}/graphiql.min.css"
-          integrity="{{graphiql_css_sri}}"
-          rel="stylesheet"
-          crossorigin="anonymous" />
-    <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@{{whatwg_fetch_version}}/dist/fetch.umd.js"
-            integrity="{{whatwg_fetch_sri}}"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react@{{react_version}}/umd/react.production.min.js"
-            integrity="{{react_sri}}"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@{{react_version}}/umd/react-dom.production.min.js"
-            integrity="{{react_dom_sri}}"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/graphiql@{{graphiql_version}}/graphiql.min.js"
-            integrity="{{graphiql_sri}}"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/subscriptions-transport-ws@{{subscriptions_transport_ws_version}}/browser/client.js"
-            integrity="{{subscriptions_transport_ws_sri}}"
-            crossorigin="anonymous"></script>
+    <link href="{% static 'graphiql.css'%}" rel="stylesheet" />
     <link rel="icon" type="image/png" href="{% static 'graphql.ico' %}" />
     <title>GraphiQL | NetBox</title>
   </head>
@@ -53,6 +35,11 @@ add "&raw" to the end of the URL within a browser.
       {% endif %}
         graphiqlHeaderEditorEnabled: {{ graphiql_header_editor_enabled|yesno:"true,false" }},
       };
+    </script>
+    <script
+      type="text/javascript"
+      src="{% static 'graphiql.js' %}"
+      onerror="window.location='{% url 'media_failure' %}?filename=graphiql.js'">
     </script>
     <script src="{% static 'graphene_django/graphiql.js' %}"></script>
   </body>
