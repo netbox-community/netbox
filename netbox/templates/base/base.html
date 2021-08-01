@@ -93,6 +93,8 @@
             // rest of the content rendering. This prevents jumpy/glitchy behavior on page reloads.
             document.body.setAttribute('data-sidenav-pinned', '');
             document.body.setAttribute('data-sidenav-show', '');
+          } else if (sideNavState.pinned === false) {
+            document.body.setAttribute('data-sidenav-hidden', '');
           }
         }
       })();
