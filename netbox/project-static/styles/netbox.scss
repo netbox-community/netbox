@@ -52,7 +52,7 @@
 }
 
 * {
-  transition: background-color, color 0.15s ease-in-out;
+  transition: $transition-100ms-ease-in-out;
 }
 
 .mw-25 {
