@@ -24,6 +24,7 @@
   --nbx-search-filter-border-left-color: #{$gray-300};
   --nbx-color-mode-toggle-color: #{$primary};
   --nbx-sidenav-pin-color: #{$orange};
+  --nbx-sidenav-parent-color: #{$gray-900};
 
   &[data-netbox-color-mode='dark'] {
     --nbx-sidebar-bg: #{$gray-900};
@@ -46,6 +47,7 @@
     --nbx-search-filter-border-left-color: #{$gray-600};
     --nbx-color-mode-toggle-color: #{$yellow-300};
     --nbx-sidenav-pin-color: #{$yellow};
+    --nbx-sidenav-parent-color: #{$gray-100};
   }
 }
 

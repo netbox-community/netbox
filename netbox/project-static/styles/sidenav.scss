@@ -205,6 +205,7 @@ $transition-100ms-ease-in-out: all 0.1s ease-in-out;
     width: unset;
     height: 100%;
     font-weight: $font-weight-bold;
+    color: var(--nbx-sidenav-parent-color);
 
     &.active {
       color: $accordion-button-active-color;
