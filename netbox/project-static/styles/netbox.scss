@@ -1062,6 +1062,13 @@ div.card > div.card-header > div.table-controls {
   border-bottom: 1px solid $nav-tabs-border-color;
 }
 
+#django-messages {
+  position: fixed;
+  right: $spacer;
+  bottom: 0;
+  margin: $spacer;
+}
+
 // Page-specific styles.
 html {
   // Shade the home page content background-color.

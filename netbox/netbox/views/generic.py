@@ -854,7 +854,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     return redirect(self.get_return_url(request))
 
                 except ValidationError as e:
-                    messages.error(self.request, "{} failed validation: {}".format(obj, e))
+                    messages.error(self.request, "{} failed validation: {}".format(obj, ", ".join(e.messages)))
 
                 except PermissionsViolation:
                     msg = "Object update failed due to object-level permissions violation"
