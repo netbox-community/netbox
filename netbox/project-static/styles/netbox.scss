@@ -120,8 +120,14 @@ small {
   // another colored element.
   // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_alert.scss#L50-L52
   // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_close.scss#L12
-  $shaded-color: shade-color(mix($value, color-contrast($value), abs($alert-color-scale)), 5%);
-  $btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$shaded-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
+  $shifted-bg: shift-color($value, $alert-bg-scale);
+  $shifted-color: shift-color($value, $alert-color-scale);
+
+  @if (contrast-ratio($shifted-bg, $shifted-color) < $min-contrast-ratio) {
+    $shifted-color: mix($value, color-contrast($shifted-bg), abs($alert-color-scale));
+  }
+
+  $btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$shifted-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
   .bg-#{$color} button.btn-close {
     background: transparent escape-svg($btn-close-bg) center / $btn-close-width auto no-repeat;
   }
@@ -135,11 +141,32 @@ small {
 
   // Use Bootstrap's method of coloring the .alert-link class automatically.
   // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_alert.scss#L50-L52
-  .toast.bg-#{$color},
-  .alert.alert-#{$color} {
-    a {
-      color: $shaded-color;
+
+  .alert.alert-#{$color},
+  .table-#{$color} {
+    // Exclude buttons.
+    a:not(.btn) {
       font-weight: $font-weight-bold;
+      color: $shifted-color;
+    }
+    // Apply a border to buttons contained within colored elements, if they're not already a
+    // bordered button class.
+    .btn:not([class*='btn-outline']) {
+      border-color: $gray-700;
+    }
+  }
+
+  // Toasts required a slightly different approach because the background color isn't "shifted",
+  // it's the direct theme color.
+  .toast.bg-#{$color} {
+    $shifted-color: shift-color($value, $alert-color-scale);
+
+    @if (contrast-ratio($value, $shifted-color) < $min-contrast-ratio) {
+      $shifted-color: mix($value, color-contrast($value), abs($alert-color-scale));
+    }
+    a:not(.btn) {
+      font-weight: $font-weight-bold;
+      color: $shifted-color;
     }
   }
 
