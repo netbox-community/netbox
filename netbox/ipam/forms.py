@@ -115,12 +115,14 @@ class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFor
     import_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
-        label=_('Import targets')
+        label=_('Import targets'),
+        fetch_trigger='open'
     )
     export_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
-        label=_('Export targets')
+        label=_('Export targets'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 
@@ -185,12 +187,14 @@ class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelF
     importing_vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label=_('Imported by VRF')
+        label=_('Imported by VRF'),
+        fetch_trigger='open'
     )
     exporting_vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label=_('Exported by VRF')
+        label=_('Exported by VRF'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 
@@ -345,7 +349,8 @@ class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
     rir_id = DynamicModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         required=False,
-        label=_('RIR')
+        label=_('RIR'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 
@@ -642,12 +647,14 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         queryset=VRF.objects.all(),
         required=False,
         label=_('Assigned VRF'),
-        null_option='Global'
+        null_option='Global',
+        fetch_trigger='open'
     )
     present_in_vrf_id = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label=_('Present in VRF')
+        label=_('Present in VRF'),
+        fetch_trigger='open'
     )
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
@@ -657,12 +664,14 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region')
+        label=_('Region'),
+        fetch_trigger='open'
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site group'),
+        fetch_trigger='open'
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -671,13 +680,15 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site')
+        label=_('Site'),
+        fetch_trigger='open'
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
         required=False,
         null_option='None',
-        label=_('Role')
+        label=_('Role'),
+        fetch_trigger='open'
     )
     is_pool = forms.NullBooleanField(
         required=False,
@@ -818,7 +829,8 @@ class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         queryset=VRF.objects.all(),
         required=False,
         label=_('Assigned VRF'),
-        null_option='Global'
+        null_option='Global',
+        fetch_trigger='open'
     )
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
@@ -829,7 +841,8 @@ class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         queryset=Role.objects.all(),
         required=False,
         null_option='None',
-        label=_('Role')
+        label=_('Role'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 
@@ -1265,12 +1278,14 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
         queryset=VRF.objects.all(),
         required=False,
         label=_('Assigned VRF'),
-        null_option='Global'
+        null_option='Global',
+        fetch_trigger='open'
     )
     present_in_vrf_id = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label=_('Present in VRF')
+        label=_('Present in VRF'),
+        fetch_trigger='open'
     )
     status = forms.MultipleChoiceField(
         choices=IPAddressStatusChoices,
@@ -1439,27 +1454,32 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region')
+        label=_('Region'),
+        fetch_trigger='open'
     )
     sitegroup = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site group'),
+        fetch_trigger='open'
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label=_('Site')
+        label=_('Site'),
+        fetch_trigger='open'
     )
     location = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
         required=False,
-        label=_('Location')
+        label=_('Location'),
+        fetch_trigger='open'
     )
     rack = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
-        label=_('Rack')
+        label=_('Rack'),
+        fetch_trigger='open'
     )
 
 
@@ -1652,12 +1672,14 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region')
+        label=_('Region'),
+        fetch_trigger='open'
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site group'),
+        fetch_trigger='open'
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1666,7 +1688,8 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         query_params={
             'region': '$region'
         },
-        label=_('Site')
+        label=_('Site'),
+        fetch_trigger='open'
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -1675,7 +1698,8 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         query_params={
             'region': '$region'
         },
-        label=_('VLAN group')
+        label=_('VLAN group'),
+        fetch_trigger='open'
     )
     status = forms.MultipleChoiceField(
         choices=VLANStatusChoices,
@@ -1686,7 +1710,8 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         queryset=Role.objects.all(),
         required=False,
         null_option='None',
-        label=_('Role')
+        label=_('Role'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 

@@ -1,6 +1,6 @@
 <div class="row mb-3 justify-content-between">
     <div class="col col-md-2 mb-0 d-flex noprint table-controls">
-        {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated and table_modal %}
             <div class="input-group input-group-sm">
                 <button
                     type="button"
@@ -22,16 +22,6 @@
                 placeholder="Filter"
                 title="Filter text (regular expressions supported)"
             />
-            {% if filter_form %}
-                <button
-                    type="button"
-                    class="btn btn-sm btn-outline-dark"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#advanced-search-content"
-                >
-                    Advanced Search
-                </button>
-            {% endif %}
         </div>
     </div>
 </div>

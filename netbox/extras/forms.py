@@ -676,58 +676,69 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Regions')
+        label=_('Regions'),
+        fetch_trigger='open'
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site groups')
+        label=_('Site groups'),
+        fetch_trigger='open'
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label=_('Sites')
+        label=_('Sites'),
+        fetch_trigger='open'
     )
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         required=False,
-        label=_('Device types')
+        label=_('Device types'),
+        fetch_trigger='open'
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
-        label=_('Roles')
+        label=_('Roles'),
+        fetch_trigger='open'
     )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         required=False,
-        label=_('Platforms')
+        label=_('Platforms'),
+        fetch_trigger='open'
     )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        label=_('Cluster groups')
+        label=_('Cluster groups'),
+        fetch_trigger='open'
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label=_('Clusters')
+        label=_('Clusters'),
+        fetch_trigger='open'
     )
     tenant_group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        label=_('Tenant groups')
+        label=_('Tenant groups'),
+        fetch_trigger='open'
     )
     tenant_id = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
-        label=_('Tenant')
+        label=_('Tenant'),
+        fetch_trigger='open'
     )
     tag = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         to_field_name='slug',
         required=False,
-        label=_('Tags')
+        label=_('Tags'),
+        fetch_trigger='open'
     )
 
 
@@ -820,7 +831,8 @@ class JournalEntryFilterForm(BootstrapMixin, forms.Form):
         label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
-        )
+        ),
+        fetch_trigger='open'
     )
     assigned_object_type_id = DynamicModelMultipleChoiceField(
         queryset=ContentType.objects.all(),
@@ -828,7 +840,8 @@ class JournalEntryFilterForm(BootstrapMixin, forms.Form):
         label=_('Object Type'),
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
-        )
+        ),
+        fetch_trigger='open'
     )
     kind = forms.ChoiceField(
         choices=add_blank_choice(JournalEntryKindChoices),
@@ -868,7 +881,8 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
-        )
+        ),
+        fetch_trigger='open'
     )
     changed_object_type_id = DynamicModelMultipleChoiceField(
         queryset=ContentType.objects.all(),
@@ -876,7 +890,8 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         label=_('Object Type'),
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
-        )
+        ),
+        fetch_trigger='open'
     )
 
 

@@ -67,7 +67,8 @@ class TenantGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        label=_('Parent group')
+        label=_('Parent group'),
+        fetch_trigger='open'
     )
 
 
@@ -137,7 +138,8 @@ class TenantFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group')
+        label=_('Group'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 
@@ -169,7 +171,8 @@ class TenancyFilterForm(forms.Form):
         queryset=TenantGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Tenant group')
+        label=_('Tenant group'),
+        fetch_trigger='open'
     )
     tenant_id = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
@@ -178,5 +181,6 @@ class TenancyFilterForm(forms.Form):
         query_params={
             'group_id': '$tenant_group_id'
         },
-        label=_('Tenant')
+        label=_('Tenant'),
+        fetch_trigger='open'
     )

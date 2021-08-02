@@ -113,7 +113,8 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region')
+        label=_('Region'),
+        fetch_trigger='open'
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -121,7 +122,8 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site')
+        label=_('Site'),
+        fetch_trigger='open'
     )
     asn = forms.IntegerField(
         required=False,
@@ -198,7 +200,8 @@ class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
-        label=_('Provider')
+        label=_('Provider'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 
@@ -368,12 +371,14 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,
-        label=_('Type')
+        label=_('Type'),
+        fetch_trigger='open'
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
-        label=_('Provider')
+        label=_('Provider'),
+        fetch_trigger='open'
     )
     provider_network_id = DynamicModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
@@ -381,7 +386,8 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         query_params={
             'provider_id': '$provider_id'
         },
-        label=_('Provider network')
+        label=_('Provider network'),
+        fetch_trigger='open'
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
@@ -391,7 +397,8 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region')
+        label=_('Region'),
+        fetch_trigger='open'
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -399,7 +406,8 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site')
+        label=_('Site'),
+        fetch_trigger='open'
     )
     commit_rate = forms.IntegerField(
         required=False,

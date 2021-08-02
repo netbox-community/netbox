@@ -52,7 +52,7 @@
 }
 
 * {
-  transition: $transition-100ms-ease-in-out;
+  transition: background-color, color 0.1s ease-in-out;
 }
 
 .mw-25 {
@@ -302,8 +302,13 @@ span.profile-button .dropdown-menu {
   }
 }
 
-div#advanced-search-content div.card div.card-body div.col:not(:last-child) {
-  margin-right: 1rem;
+div#advanced-search-content {
+  &.collapsing {
+    transition: height 0.1s ease-in-out;
+  }
+  div.card div.card-body div.col:not(:last-child) {
+    margin-right: 1rem;
+  }
 }
 
 body {
@@ -430,6 +435,7 @@ nav.search {
   background-color: var(--nbx-body-bg);
   // Don't overtake dropdowns
   z-index: 999;
+  justify-content: center;
   form button.dropdown-toggle {
     border-color: $input-border-color;
     font-weight: $input-group-addon-font-weight;

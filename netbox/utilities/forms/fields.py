@@ -363,16 +363,19 @@ class DynamicModelChoiceMixin:
     :param null_option: The string used to represent a null selection (if any)
     :param disabled_indicator: The name of the field which, if populated, will disable selection of the
         choice (optional)
+    :param str fetch_trigger: The event type which will cause the select element to
+        fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, *args,
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None, *args,
                  **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
+        self.fetch_trigger = fetch_trigger
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -394,6 +397,10 @@ class DynamicModelChoiceMixin:
         # Set the disabled indicator, if any
         if self.disabled_indicator is not None:
             attrs['disabled-indicator'] = self.disabled_indicator
+        
+        # Set the fetch trigger, if any.
+        if self.fetch_trigger is not None:
+            attrs['data-fetch-trigger'] = self.fetch_trigger
 
         # Attach any static query parameters
         for key, value in self.query_params.items():
