@@ -18,15 +18,15 @@
                                     <span class="nav-group-label">{{ group.label }}</span>
                                 </div>
                             </li>
-                        
+
                         {% for item in group.items %}
                             {# Each Item #}
                             {% if request.user|has_perms:item.permissions %}
-                            <li class="nav-item">
+                            <li class="nav-item{% if not item.buttons %} no-buttons{% endif %}">
                                 <a href="{% url item.link %}" class="nav-link">
                                     <span class="sidenav-normal">{{ item.link_text }}</span>
                                 </a>
-                                
+
                                 {# Menu item buttons (if any) #}
                                 {% if item.buttons %}
                                     <div class="btn-group px-2">

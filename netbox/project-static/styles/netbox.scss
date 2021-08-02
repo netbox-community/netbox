@@ -1,117 +1,10 @@
 // Netbox-specific Styles and Overrides.
 
 @use 'sass:map';
-@import './sidenav.scss';
-
-:root {
-  --nbx-sidebar-bg: #{$gray-200};
-  --nbx-sidebar-scroll: #{$gray-500};
-  --nbx-sidebar-link-color: #{$gray-800};
-  --nbx-sidebar-link-hover-bg: #{$blue-100};
-  --nbx-sidebar-title-color: #{$text-muted};
-  --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(0, 0, 0, 0.25);
-  --nbx-breadcrumb-bg: #{$light};
-  --nbx-body-bg: #{$white};
-  --nbx-body-color: #{$gray-800};
-  --nbx-pre-bg: #{$gray-100};
-  --nbx-pre-border-color: #{$gray-600};
-  --nbx-change-added: #{rgba($green, 0.4)};
-  --nbx-change-removed: #{rgba($red, 0.4)};
-  --nbx-cable-node-bg: #{$gray-100};
-  --nbx-cable-node-border-color: #{$gray-200};
-  --nbx-cable-termination-bg: #{$gray-200};
-  --nbx-cable-termination-border-color: #{$gray-300};
-  --nbx-search-filter-border-left-color: #{$gray-300};
-  --nbx-color-mode-toggle-color: #{$primary};
-  --nbx-sidenav-pin-color: #{$orange};
-  --nbx-sidenav-parent-color: #{$gray-900};
-
-  &[data-netbox-color-mode='dark'] {
-    --nbx-sidebar-bg: #{$gray-900};
-    --nbx-sidebar-scroll: #{$gray-700};
-    --nbx-sidebar-link-color: #{$gray-100};
-    --nbx-sidebar-link-hover-bg: #{rgba($blue-300, 0.15)};
-    --nbx-sidebar-title-color: #{$gray-600};
-    --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(255, 255, 255, 0.05);
-    --nbx-breadcrumb-bg: #{$gray-800};
-    --nbx-body-bg: #{$darker};
-    --nbx-body-color: #{$gray-100};
-    --nbx-pre-bg: #{$gray-700};
-    --nbx-pre-border-color: #{$gray-600};
-    --nbx-change-added: #{rgba($green-300, 0.4)};
-    --nbx-change-removed: #{rgba($red-300, 0.4)};
-    --nbx-cable-node-bg: #{$gray-700};
-    --nbx-cable-node-border-color: #{$gray-600};
-    --nbx-cable-termination-bg: #{$gray-800};
-    --nbx-cable-termination-border-color: #{$gray-700};
-    --nbx-search-filter-border-left-color: #{$gray-600};
-    --nbx-color-mode-toggle-color: #{$yellow-300};
-    --nbx-sidenav-pin-color: #{$yellow};
-    --nbx-sidenav-parent-color: #{$gray-100};
-  }
-}
-
-* {
-  transition: $transition-100ms-ease-in-out;
-}
-
-.mw-25 {
-  max-width: 25% !important;
-}
-
-.mw-33 {
-  max-width: 33.33% !important;
-}
-
-.mw-50 {
-  max-width: 50% !important;
-}
-
-.mw-66 {
-  max-width: 66.66% !important;
-}
-
-.mw-75 {
-  max-width: 75% !important;
-}
-
-.text-xs {
-  font-size: $font-size-xs;
-  line-height: $line-height-sm;
-}
-
-.opacity-0 {
-  opacity: 0 !important;
-}
-.opacity-25 {
-  opacity: 0.25 !important;
-}
-.opacity-50 {
-  opacity: 0.5 !important;
-}
-.opacity-75 {
-  opacity: 0.75 !important;
-}
-.opacity-100 {
-  opacity: 1 !important;
-}
-
-// Force <small/> elements to make text smaller.
-small {
-  font-size: smaller !important;
-}
-
-// Automatically space out adjacent columns.
-.col:not(:last-child):not(:only-child) {
-  margin-bottom: $spacer;
-}
-
-// Ensure elements with data-href set show the correct cursor.
-// data-href is set on non non-anchor elements that need to redirect the user to a URL when
-// clicked, but where an anchor element does not suffice or is not supported.
-*[data-href] {
-  cursor: pointer;
-}
+@import './sidenav';
+@import './overrides';
+@import './utilities';
+@import './variables';
 
 @each $color, $value in $theme-colors {
   // Override CSS values on each theme color.
@@ -191,14 +84,14 @@ small {
   }
 }
 
-// Fix the hideous way Safari shows button anchor elements.
-a[type='button'] {
-  -webkit-appearance: unset !important;
-}
-
 // Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
 table td > .progress {
   min-width: 6rem;
+}
+
+// Automatically space out adjacent columns.
+.col:not(:last-child):not(:only-child) {
+  margin-bottom: $spacer;
 }
 
 .nav-mobile {
@@ -234,21 +127,23 @@ table td > .progress {
   overflow: hidden;
   border-bottom-right-radius: $card-border-radius;
   border-bottom-left-radius: $card-border-radius;
+
   thead th[scope='col'] {
-    background-color: $table-flush-header-bg;
-    vertical-align: middle;
-    text-transform: uppercase;
     padding-top: map.get($spacers, 3);
     padding-bottom: map.get($spacers, 3);
-    border-bottom-color: $card-border-color;
+    text-transform: uppercase;
+    vertical-align: middle;
+    background-color: $table-flush-header-bg;
     border-top: 1px solid $card-border-color;
+    border-bottom-color: $card-border-color;
   }
+
   th,
   td {
-    border-left: 0;
-    border-right: 0;
-    padding-left: map.get($spacers, 4) !important;
     padding-right: map.get($spacers, 4) !important;
+    padding-left: map.get($spacers, 4) !important;
+    border-right: 0;
+    border-left: 0;
   }
   tr[class] {
     border-color: $card-border-color !important;
@@ -265,8 +160,8 @@ table td > .progress {
 .header-alert-container {
   // Center-align the alert(s).
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   // Apply the same spacing that's applied to the #content div's first child (.px-3).
   padding: 0 $spacer;
 
@@ -286,19 +181,20 @@ table td > .progress {
 }
 
 span.profile-button .dropdown-menu {
-  transition: opacity 0.2s ease-in-out;
-  display: block !important;
   right: 0;
   left: auto;
+  display: block !important;
   margin-top: 0.5rem;
   box-shadow: $box-shadow;
+  transition: opacity 0.2s ease-in-out;
+
   &:not(.show) {
-    opacity: 0;
     pointer-events: none;
+    opacity: 0;
   }
   &.show {
-    opacity: 1;
     pointer-events: auto;
+    opacity: 1;
   }
 }
 
@@ -306,139 +202,84 @@ div#advanced-search-content div.card div.card-body div.col:not(:last-child) {
   margin-right: 1rem;
 }
 
-body {
-  background-color: var(--nbx-body-bg);
-  color: var(--nbx-body-color);
-  g#netbox-logo-1 {
-    fill: #9cc8f8;
-    stroke: #9cc8f8;
-  }
-
-  g#netbox-logo-2 {
-    fill: #1685fc;
-    stroke: #1685fc;
-  }
-
-  &[data-netbox-color-mode='light'] {
-    .btn.btn-primary,
-    .progress-bar.bg-primary,
-    .badge.bg-primary,
-    .nav.nav-pills .nav-item.nav-link.active,
-    .nav.nav-pills .nav-item .nav-link.active,
-    .nav.nav-pills .nav-item .show > .nav-link {
-      color: $gray-100;
+table {
+  a {
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
     }
   }
-  &[data-netbox-color-mode='dark'] {
-    & {
-      .btn.btn-primary,
-      .progress-bar.bg-primary,
-      .badge.bg-primary,
-      .nav.nav-pills .nav-item.nav-link.active,
-      .nav.nav-pills .nav-item .nav-link.active,
-      .nav.nav-pills .nav-item .show > .nav-link {
-        color: $black;
-      }
+  &.table > :not(caption) > * > * {
+    padding-right: $table-cell-padding-x-sm !important;
+    padding-left: $table-cell-padding-x-sm !important;
+  }
+  td,
+  th {
+    font-size: $font-size-sm;
+    line-height: $line-height-sm;
+    vertical-align: middle;
+    &.min-width {
+      width: 1%;
     }
-    .card table caption {
-      color: $gray-300;
-    }
-    .breadcrumb .breadcrumb-item > a {
-      color: $blue-200;
-      &:hover {
-        color: $blue-100;
-      }
+    .form-check-input {
+      // Ensure checkboxes aren't too small inside object tables.
+      margin-top: 0.125em;
+      font-size: $font-size-base;
     }
 
-    .card,
-    .sidebar {
-      .text-muted {
-        color: $gray-400 !important;
-      }
-    }
-    .text-body[class] {
-      color: var(--nbx-body-color) !important;
-    }
-    g#netbox-logo-1 {
-      fill: $white;
-      stroke: $white;
+    .btn-sm {
+      line-height: $line-height-xs;
     }
 
-    g#netbox-logo-2 {
-      fill: $gray-200;
-      stroke: $gray-200;
+    p {
+      // Remove spacing from paragraph elements within tables.
+      margin-bottom: 0;
     }
   }
-  & table,
-  &[data-netbox-color-mode] table {
-    a {
-      text-decoration: none;
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-    &.table > :not(caption) > * > * {
-      padding-left: $table-cell-padding-x-sm !important;
-      padding-right: $table-cell-padding-x-sm !important;
-    }
-    td,
+
+  &.object-list {
     th {
-      font-size: $font-size-sm;
-      line-height: $line-height-sm;
-      vertical-align: middle;
-      &.min-width {
-        width: 1%;
-      }
-      & input.form-check-input {
-        // Ensure checkboxes aren't too small inside object tables.
-        font-size: $font-size-base;
-        margin-top: 0.125em;
-      }
-      & .btn-sm {
-        line-height: $line-height-xs;
-      }
+      font-size: $font-size-xs;
+      line-height: $line-height-xs;
+      vertical-align: bottom;
     }
-    &.object-list {
-      th {
-        font-size: $font-size-xs;
-        line-height: $line-height-xs;
-        vertical-align: bottom;
-      }
-    }
-    &.attr-table {
-      th {
-        width: 25%;
-      }
+  }
+
+  &.attr-table {
+    th {
+      width: 25%;
     }
   }
 }
 
 div.title-container {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: space-between;
 
-  div#content-title {
+  #content-title {
     display: flex;
-    flex-direction: column;
     flex: 1 0 auto;
+    flex-direction: column;
     padding-bottom: map.get($spacers, 2);
   }
 }
 
 nav.search {
-  background-color: var(--nbx-body-bg);
   // Don't overtake dropdowns
   z-index: 999;
+  background-color: var(--nbx-body-bg);
+
   form button.dropdown-toggle {
-    border-color: $input-border-color;
     font-weight: $input-group-addon-font-weight;
     line-height: $input-line-height;
     color: $input-group-addon-color;
     background-color: $input-group-addon-bg;
     border: $input-border-width solid $input-group-addon-border-color;
+    border-color: $input-border-color;
     @include border-radius($input-border-radius);
     border-left: 1px solid var(--nbx-search-filter-border-left-color);
+
     &:focus {
       box-shadow: unset !important;
     }
@@ -457,16 +298,16 @@ main.layout {
 
 main.login-container {
   display: flex;
-  height: calc(100vh - 4rem);
-  width: 100%;
-  max-width: 100vw;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+  width: 100%;
+  max-width: 100vw;
+  height: calc(100vh - 4rem);
   padding-top: 40px;
   padding-bottom: 40px;
 
-  & + footer.footer button.color-mode-toggle {
+  + footer.footer button.color-mode-toggle {
     color: var(--nbx-color-mode-toggle-color);
   }
 }
@@ -494,24 +335,6 @@ footer.login-footer {
   }
 }
 
-h1 {
-  font-weight: $font-weight-bolder;
-}
-
-h2 {
-  font-weight: $font-weight-bold;
-}
-
-h3,
-h4 {
-  font-weight: $font-weight-medium;
-}
-
-h5,
-h6 {
-  font-weight: $font-weight-medium;
-}
-
 h1.accordion-item-title,
 h2.accordion-item-title,
 h3.accordion-item-title,
@@ -519,54 +342,39 @@ h4.accordion-item-title,
 h5.accordion-item-title,
 h6.accordion-item-title {
   padding: 0.25rem 0.5rem;
-  font-weight: $font-weight-bold;
-  text-transform: uppercase;
-  color: var(--nbx-sidebar-title-color);
   font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: var(--nbx-sidebar-title-color);
+  text-transform: uppercase;
 }
 
 .form-login {
   width: 100%;
   max-width: 330px;
   padding: 15px;
-  & input:focus {
+
+  input:focus {
     z-index: 1;
   }
-}
 
-.form-login input[type='text'] {
-  margin-bottom: -1px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
+  input[type='text'] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  input[type='password'] {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
 
-.form-login input[type='password'] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.form-login .form-control {
-  position: relative;
-  box-sizing: border-box;
-  height: auto;
-  padding: 10px;
-  font-size: 16px;
-}
-
-li.dropdown-item.dropdown-item-btns {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sidebar-sticky {
-  position: relative;
-  top: 0;
-  height: calc(100vh - 48px);
-  padding-top: 0.5rem;
-  overflow-x: hidden;
-  overflow-y: auto; // Scrollable contents if viewport is shorter than content.
+  .form-control {
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+  }
 }
 
 .navbar-brand {
@@ -580,9 +388,10 @@ nav.nav.nav-pills {
     padding: 0.25rem 0.5rem;
     font-size: $font-size-sm;
     border-radius: $border-radius;
+
     &:hover {
-      background-color: $accordion-button-active-bg;
       color: $accordion-button-active-color;
+      background-color: $accordion-button-active-bg;
     }
   }
 }
@@ -591,10 +400,10 @@ nav.nav.nav-pills {
 // that the footer is always at the bottom.
 div.content-container {
   position: relative;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   width: calc(100% - 4.5rem);
+  min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
 
@@ -617,113 +426,8 @@ div.content-container {
   }
 }
 
-.sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100; // Behind the navbar
-  border-right: 1px solid $border-color;
-  background-color: var(--nbx-sidebar-bg);
-  max-height: 100%;
-  width: 100%;
-
-  @include media-breakpoint-up(md) {
-    width: 100%;
-    max-width: $sidebar-width;
-  }
-
-  @include media-breakpoint-down(md) {
-    top: 8.125rem;
-    background-color: var(--nbx-body-bg);
-  }
-
-  div.accordion-item {
-    border: unset;
-    padding: 0 $spacer / 2;
-
-    // When an sidenav section is open, apply a shadow to provide a visual border.
-    &.is-open {
-      box-shadow: var(--nbx-sidebar-shadow);
-    }
-
-    & > a.accordion-button {
-      &:not(.collapsed) {
-        box-shadow: unset;
-      }
-      &.nav-link {
-        border-radius: $border-radius;
-        &:hover {
-          color: $accordion-button-active-color;
-          background-color: $accordion-button-active-bg;
-        }
-        &:focus {
-          border-color: unset;
-          box-shadow: unset;
-        }
-      }
-    }
-  }
-
-  .accordion-body {
-    max-height: calc(100vh - 24rem);
-    overflow-y: auto;
-    .nav-item {
-      .nav-link {
-        padding: 0.25rem 0.6rem;
-        font-size: $font-size-sm;
-        border-radius: $border-radius;
-        &:hover {
-          color: $accordion-button-active-color;
-          background-color: $accordion-button-active-bg;
-        }
-      }
-    }
-  }
-  // Ensure navigation accounts for the height of the header on mobile when nav is expanded.
-  &.collapse.show div.position-sticky {
-    @media (max-width: map.get($grid-breakpoints, 'md')) {
-      height: calc(100vh - 16.125rem);
-      overflow-y: auto;
-    }
-  }
-  div.position-sticky {
-    height: calc(100vh - #{$sidebar-bottom-height});
-  }
-  div.sidebar-bottom {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    position: sticky;
-    height: $sidebar-bottom-height;
-    background-color: var(--nbx-sidebar-bg);
-
-    @include media-breakpoint-down(md) {
-      background-color: var(--nbx-body-bg);
-    }
-    .nav {
-      padding: 0 0.5rem;
-      justify-content: space-between;
-      margin: $spacer/2 0;
-
-      .nav-link {
-        padding: 0.5rem 0.25rem;
-      }
-    }
-  }
-  a.sidebar-logo {
-    display: flex;
-    flex-shrink: 1;
-    width: 100%;
-    height: 3rem;
-  }
-}
-
 .tooltip {
   pointer-events: none;
-}
-
-.ws-nowrap {
-  white-space: nowrap !important;
 }
 
 .search-obj-selector {
@@ -732,31 +436,25 @@ div.content-container {
     max-height: 75vh;
     overflow-y: auto;
   }
+
   .dropdown-item,
   .dropdown-header {
     font-size: $font-size-sm;
   }
+
   .dropdown-header {
     text-transform: uppercase;
   }
 }
 
 span.color-label {
+  display: block;
   width: 5rem;
   height: 1rem;
-  display: block;
-  box-shadow: $box-shadow-sm;
+  padding: $badge-padding-y $badge-padding-x;
   border: 1px solid #303030;
   border-radius: $border-radius;
-  padding: $badge-padding-y $badge-padding-x;
-}
-
-pre {
-  border-radius: $border-radius;
-  border: 1px solid var(--nbx-pre-border-color);
-  background-color: var(--nbx-pre-bg);
-  padding: $spacer;
-  white-space: pre;
+  box-shadow: $box-shadow-sm;
 }
 
 .btn {
@@ -765,11 +463,13 @@ pre {
 
 .card {
   box-shadow: $box-shadow-sm;
+
   .card-header {
+    padding: $card-cap-padding-x;
     color: $body-color;
     border-bottom: none;
-    padding: $card-cap-padding-x;
   }
+
   .card-header + .card-body {
     padding-top: 0;
   }
@@ -841,9 +541,9 @@ pre {
   // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
   > .input-group > .form-control:-webkit-autofill {
     ~ label {
+      z-index: 4;
       opacity: $form-floating-label-opacity;
       transform: $form-floating-label-transform;
-      z-index: 4;
     }
   }
 }
@@ -860,10 +560,6 @@ textarea.form-control[name='data'] {
   font-family: $font-family-monospace;
 }
 
-table tr.vertical-align {
-  vertical-align: middle;
-}
-
 .card:not(:only-of-type) {
   margin-bottom: $spacer;
 }
@@ -873,9 +569,9 @@ table tr.vertical-align {
 }
 
 nav.breadcrumb-container {
+  width: fit-content;
   padding: $badge-padding-y $badge-padding-x;
   font-size: $font-size-sm;
-  width: fit-content;
 
   ol.breadcrumb {
     margin-bottom: 0;
@@ -907,16 +603,17 @@ div.field-group:not(:first-of-type) {
 
 label.required {
   font-weight: $font-weight-bold;
+
   &:after {
+    position: absolute;
+    display: inline-block;
+    margin: 0 0 0 2px;
     font-family: 'Material Design Icons';
-    content: '\f06C4';
-    font-weight: normal;
     font-size: 8px;
     font-style: normal;
-    margin: 0 0 0 2px;
+    font-weight: $font-weight-medium;
     text-decoration: none;
-    display: inline-block;
-    position: absolute;
+    content: '\f06C4';
   }
 }
 
@@ -960,11 +657,6 @@ div.bulk-buttons {
   }
 }
 
-i.bi-plus:before,
-span.bi-plus:before {
-  font-weight: $font-weight-bold !important;
-}
-
 table tbody {
   @each $color, $value in $theme-colors {
     tr.#{$color} {
@@ -975,15 +667,18 @@ table tbody {
 }
 
 pre.change-data {
-  padding-left: 0;
   padding-right: 0;
-  & > span {
+  padding-left: 0;
+
+  > span {
     display: block;
-    padding-left: $spacer;
     padding-right: $spacer;
+    padding-left: $spacer;
+
     &.added {
       background-color: var(--nbx-change-added);
     }
+
     &.removed {
       background-color: var(--nbx-change-removed);
     }
@@ -992,9 +687,11 @@ pre.change-data {
 
 pre.change-diff {
   border-color: transparent;
+
   &.change-removed {
     background-color: var(--nbx-change-removed);
   }
+
   &.change-added {
     background-color: var(--nbx-change-added);
   }
@@ -1002,14 +699,15 @@ pre.change-diff {
 
 div.card-overlay {
   position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
   background-color: rgba($white, 0.75);
   border-radius: $border-radius;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  & > div.spinner-border {
+
+  > div.spinner-border {
     width: 6rem;
     height: 6rem;
     color: $secondary;
@@ -1017,11 +715,12 @@ div.card-overlay {
 }
 
 div.card > div.card-header > div.table-controls {
-  max-width: 25%;
-  width: 100%;
   display: flex;
   align-items: center;
-  & .form-switch.form-check-inline {
+  width: 100%;
+  max-width: 25%;
+
+  .form-switch.form-check-inline {
     flex: 1 0 auto;
     font-size: $font-size-sm;
   }

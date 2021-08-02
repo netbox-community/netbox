@@ -169,6 +169,11 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
+
+    &.no-buttons {
+      // When there are no buttons, don't extend to the full width of the sidenav.
+      padding-right: $spacer * 5;
+    }
   }
 
   @include child-link() {
@@ -407,12 +412,17 @@
   width: 6px;
   background-color: transparent;
 
-  .simplebar-scrollbar:before {
-    right: 0;
-    width: 3px;
-    background: var(--nbx-sidebar-scroll);
-    border-radius: $border-radius;
+  .simplebar-scrollbar {
+    transition: none;
+
+    &:before {
+      right: 0;
+      width: 3px;
+      background: var(--nbx-sidebar-scroll);
+      border-radius: $border-radius;
+    }
   }
+
   &.simplebar-hover .simplebar-scrollbar:before {
     width: 5px;
   }
