@@ -65,6 +65,7 @@ class SlugField(forms.SlugField):
     """
     Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
     """
+
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
@@ -113,6 +114,7 @@ class JSONField(_JSONField):
     """
     Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -312,6 +314,7 @@ class ExpandableNameField(forms.CharField):
     A field which allows for numeric range expansion
       Example: 'Gi0/[1-3]' => ['Gi0/1', 'Gi0/2', 'Gi0/3']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -337,6 +340,7 @@ class ExpandableIPAddressField(forms.CharField):
     A field which allows for expansion of IP address ranges
       Example: '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -397,7 +401,7 @@ class DynamicModelChoiceMixin:
         # Set the disabled indicator, if any
         if self.disabled_indicator is not None:
             attrs['disabled-indicator'] = self.disabled_indicator
-        
+
         # Set the fetch trigger, if any.
         if self.fetch_trigger is not None:
             attrs['data-fetch-trigger'] = self.fetch_trigger
