@@ -72,8 +72,8 @@ $spacing-s: $input-padding-x;
         border-color: currentColor;
       }
     }
+    // Don't show the depth indicator outside of the menu.
     .placeholder .depth {
-      // Don't show the depth indicator outside of the menu.
       display: none;
     }
     span.placeholder > *,
@@ -94,6 +94,11 @@ $spacing-s: $input-padding-x;
       .ss-value {
         color: var(--nbx-select-value-color);
         border-radius: $badge-border-radius;
+
+        // Don't show the depth indicator outside of the menu.
+        .depth {
+          display: none;
+        }
       }
     }
     .ss-add {
@@ -133,10 +138,34 @@ $spacing-s: $input-padding-x;
           opacity: 0.3;
         }
       }
+
+      &::-webkit-scrollbar {
+        right: 0;
+        width: 4px;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        right: 0;
+        width: 2px;
+        background-color: var(--nbx-sidebar-scroll);
+      }
     }
     border-bottom-right-radius: $form-select-border-radius;
     border-bottom-left-radius: $form-select-border-radius;
     .ss-search {
+      padding-right: $spacer * 0.5;
+
+      button {
+        margin-left: $spacer * 0.75;
+      }
+
       input[type='search'] {
         color: $input-color;
         background-color: $form-select-bg;

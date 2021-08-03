@@ -2,7 +2,7 @@ import queryString from 'query-string';
 import { readableColor } from 'color2k';
 import SlimSelect from 'slim-select';
 import { createToast } from '../bs';
-import { hasUrl, hasExclusions } from './util';
+import { hasUrl, hasExclusions, isTrigger } from './util';
 import {
   isTruthy,
   hasError,
@@ -10,12 +10,27 @@ import {
   getApiData,
   isApiError,
   getElements,
+  createElement,
   findFirstAdjacent,
 } from '../util';
 
 import type { Option } from 'slim-select/dist/data';
 
 type QueryFilter = Map<string, string | number | boolean>;
+
+export type Trigger =
+  /**
+   * Load data when the select element is opened.
+   */
+  | 'open'
+  /**
+   * Load data when the element is loaded.
+   */
+  | 'load'
+  /**
+   * Load data when a parent element is uncollapsed.
+   */
+  | 'collapse';
 
 // Various one-off patterns to replace in query param keys.
 const REPLACE_PATTERNS = [
@@ -56,6 +71,17 @@ class APISelect {
    * Form field placeholder.
    */
   public readonly placeholder: string;
+
+  /**
+   * Event that will initiate the API call to NetBox to load option data. By default, the trigger
+   * is `'load'`, so data will be fetched when the element renders on the page.
+   */
+  private readonly trigger: Trigger;
+
+  /**
+   * If `true`, a refresh button will be added next to the search/filter `<input/>` element.
+   */
+  private readonly allowRefresh: boolean = true;
 
   /**
    * Event to be dispatched when dependent fields' values change.
@@ -153,6 +179,7 @@ class APISelect {
       allowDeselect: true,
       deselectLabel: `<i class="mdi mdi-close-circle" style="color:currentColor;"></i>`,
       placeholder: this.placeholder,
+      searchPlaceholder: 'Filter',
       onChange: () => this.handleSlimChange(),
     });
 
@@ -186,20 +213,44 @@ class APISelect {
     // Initialize controlling elements.
     this.initResetButton();
 
+    // Add the refresh button to the search element.
+    this.initRefreshButton();
+
     // Add dependency event listeners.
     this.addEventListeners();
 
+    // Determine if the fetch trigger has been set.
+    const triggerAttr = this.base.getAttribute('data-fetch-trigger');
+
     // Determine if this element is part of collapsible element.
     const collapse = this.base.closest('.content-container .collapse');
-    if (collapse !== null) {
-      // If this element is part of a collapsible element, only load the data when the
-      // collapsible element is shown.
-      // See: https://getbootstrap.com/docs/5.0/components/collapse/#events
-      collapse.addEventListener('show.bs.collapse', () => this.loadData());
-      collapse.addEventListener('hide.bs.collapse', () => this.resetOptions());
+
+    if (isTrigger(triggerAttr)) {
+      this.trigger = triggerAttr;
+    } else if (collapse !== null) {
+      this.trigger = 'collapse';
     } else {
-      // Otherwise, load the data on render.
-      Promise.all([this.loadData()]);
+      this.trigger = 'load';
+    }
+
+    switch (this.trigger) {
+      case 'collapse':
+        if (collapse !== null) {
+          // If this element is part of a collapsible element, only load the data when the
+          // collapsible element is shown.
+          // See: https://getbootstrap.com/docs/5.0/components/collapse/#events
+          collapse.addEventListener('show.bs.collapse', () => this.loadData());
+          collapse.addEventListener('hide.bs.collapse', () => this.resetOptions());
+        }
+        break;
+      case 'open':
+        // If the trigger is 'open', only load API data when the select element is opened.
+        this.slim.beforeOpen = () => this.loadData();
+        break;
+      case 'load':
+        // Otherwise, load the data immediately.
+        Promise.all([this.loadData()]);
+        break;
     }
   }
 
@@ -713,19 +764,35 @@ class APISelect {
   }
 
   /**
-   * Initialize any adjacent reset buttons so that when clicked, the instance's selected value is cleared.
+   * Initialize any adjacent reset buttons so that when clicked, the page is reloaded without
+   * query parameters.
    */
   private initResetButton(): void {
-    const resetButton = findFirstAdjacent<HTMLButtonElement>(this.base, 'button[data-reset-select');
+    const resetButton = findFirstAdjacent<HTMLButtonElement>(
+      this.base,
+      'button[data-reset-select]',
+    );
     if (resetButton !== null) {
       resetButton.addEventListener('click', () => {
-        this.base.value = '';
-        if (this.base.multiple) {
-          this.slim.setSelected([]);
-        } else {
-          this.slim.setSelected('');
-        }
+        window.location.assign(window.location.origin + window.location.pathname);
       });
+    }
+  }
+
+  /**
+   * Add a refresh button to the search container element. When clicked, the API data will be
+   * reloaded.
+   */
+  private initRefreshButton(): void {
+    if (this.allowRefresh) {
+      const refreshButton = createElement(
+        'button',
+        { type: 'button' },
+        ['btn', 'btn-sm', 'btn-ghost-dark'],
+        [createElement('i', {}, ['mdi', 'mdi-reload'])],
+      );
+      refreshButton.addEventListener('click', () => this.loadData());
+      this.slim.slim.search.container.appendChild(refreshButton);
     }
   }
 }

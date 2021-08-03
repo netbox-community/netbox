@@ -1,0 +1,62 @@
+{% load form_helpers %}
+{% load helpers %}
+
+<div class="col col-md-5 col-lg-4 col-xl-3 col-xxl-2 noprint">
+    <form action="." method="get">
+        <div class="card small">
+            <h5 class="card-header">
+                Field Filters
+            </h5>
+            <div class="card-body overflow-visible d-flex flex-wrap justify-content-between py-3">
+                    {% for field in filter_form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    {% if filter_form.field_groups %}
+                        {% for group in filter_form.field_groups %}
+                            <div class="col col-12">
+                                {% for name in group %}
+                                    {% with field=filter_form|get_item:name %}
+                                        {% if field|widget_type == 'checkboxinput' %}
+                                            <div class="form-check mb-3">
+                                                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% else %}
+                                            <div class="mb-3 mx-3">
+                                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for field in filter_form.visible_fields %}
+                            <div class="col">
+                                {% if field|widget_type == 'checkboxinput' %}
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
+                                    </div>
+                                {% else %}
+                                    <div class="mb-3">
+                                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+            </div>
+            <div class="card-footer text-end noprint border-0">
+                <button type="button" class="btn btn-sm btn-outline-danger m-1" data-reset-select>
+                    <i class="mdi mdi-backspace"></i> Reset
+                </button>
+                <button type="submit" class="btn btn-sm btn-primary m-1">
+                    <i class="mdi mdi-filter-variant"></i> Filter
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

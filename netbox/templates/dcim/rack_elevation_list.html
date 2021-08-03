@@ -5,63 +5,58 @@
 {% block title %}Rack Elevations{% endblock %}
 
 {% block controls %}
-<div class="container mb-2 mx-0">
-    <div class="d-flex flex-wrap justify-content-end">
-        <button type="button" class="btn btn-sm btn-outline-dark m-1" data-bs-toggle="collapse" data-bs-target="#advanced-search-content">
-            Advanced Search
-        </button>
-        <button class="btn btn-sm btn-outline-dark toggle-images m-1" selected="selected">
-            <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
-        </button>
-        <div class="btn-group btn-group-sm m-1" role="group">
-            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">Front</a>
-            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
-        </div>
-        <div class="btn-group btn-group-sm m-1" role="group">
-            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse=None %}" class="btn btn-outline-secondary{% if not reverse %} active{% endif %}">Normal</a>
-            <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse='true' %}" class="btn btn-outline-secondary{% if reverse %} active{% endif %}">Reversed</a>
+    <div class="container mb-2 mx-0">
+        <div class="d-flex flex-wrap justify-content-end">
+            <button class="btn btn-sm btn-outline-dark toggle-images m-1" selected="selected">
+                <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
+            </button>
+            <div class="btn-group btn-group-sm m-1" role="group">
+                <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">Front</a>
+                <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
+            </div>
+            <div class="btn-group btn-group-sm m-1" role="group">
+                <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse=None %}" class="btn btn-outline-secondary{% if not reverse %} active{% endif %}">Normal</a>
+                <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse='true' %}" class="btn btn-outline-secondary{% if reverse %} active{% endif %}">Reversed</a>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block content %}
-<div class="col col-md-12 noprint">
-    {% include 'inc/advanced_search.html' %}
-</div>
-<div class="row">
-    <div class="col col-md-12">
-        {% if page %}
-            <div style="white-space: nowrap; overflow-x: scroll;">
-                {% for rack in page %}
-                    <div style="display: inline-block; margin-right: 12px; width: 254px">
-                      <div style="margin-left: 30px">
-                        <div class="text-center">
-                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
-                            {% if rack.role %}
-                                <br /><span class="badge my-3" style="color: {{ rack.role.color|fgcolor }}; background-color: #{{ rack.role.color }}">{{ rack.role }}</span>
-                            {% endif %}
-                            {% if rack.facility_id %}
-                                <br /><small class="text-muted">{{ rack.facility_id }}</small>
-                            {% endif %}
+    <div class="row">
+        <div class="col col-md-7 col-lg-8 col-xl-9 col-xxl-10">
+            {% if page %}
+                <div style="white-space: nowrap; overflow-x: scroll;">
+                    {% for rack in page %}
+                        <div style="display: inline-block; margin-right: 12px; width: 254px">
+                        <div style="margin-left: 30px">
+                            <div class="text-center">
+                                <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
+                                {% if rack.role %}
+                                    <br /><span class="badge my-3" style="color: {{ rack.role.color|fgcolor }}; background-color: #{{ rack.role.color }}">{{ rack.role }}</span>
+                                {% endif %}
+                                {% if rack.facility_id %}
+                                    <br /><small class="text-muted">{{ rack.facility_id }}</small>
+                                {% endif %}
+                            </div>
+                            {% include 'dcim/inc/rack_elevation.html' with object=rack face=rack_face %}
+                            <div class="clearfix"></div>
+                            <div class="text-center">
+                                <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
+                                {% if rack.facility_id %}
+                                    <small class="text-muted">({{ rack.facility_id }})</small>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% include 'dcim/inc/rack_elevation.html' with object=rack face=rack_face %}
-                        <div class="clearfix"></div>
-                        <div class="text-center">
-                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
-                            {% if rack.facility_id %}
-                                <small class="text-muted">({{ rack.facility_id }})</small>
-                            {% endif %}
                         </div>
-                      </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <br />
-            {% include 'inc/paginator.html' %}
-        {% else %}
-            <p>No Racks Found</p>
-        {% endif %}
+                    {% endfor %}
+                </div>
+                <br />
+                {% include 'inc/paginator.html' %}
+            {% else %}
+                <p>No Racks Found</p>
+            {% endif %}
+        </div>
+        {% include 'inc/filter_list.html' %}
     </div>
-</div>
 {% endblock %}

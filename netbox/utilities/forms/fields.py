@@ -65,6 +65,7 @@ class SlugField(forms.SlugField):
     """
     Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
     """
+
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
@@ -113,6 +114,7 @@ class JSONField(_JSONField):
     """
     Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -312,6 +314,7 @@ class ExpandableNameField(forms.CharField):
     A field which allows for numeric range expansion
       Example: 'Gi0/[1-3]' => ['Gi0/1', 'Gi0/2', 'Gi0/3']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -337,6 +340,7 @@ class ExpandableIPAddressField(forms.CharField):
     A field which allows for expansion of IP address ranges
       Example: '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -363,16 +367,19 @@ class DynamicModelChoiceMixin:
     :param null_option: The string used to represent a null selection (if any)
     :param disabled_indicator: The name of the field which, if populated, will disable selection of the
         choice (optional)
+    :param str fetch_trigger: The event type which will cause the select element to
+        fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, *args,
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None, *args,
                  **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
+        self.fetch_trigger = fetch_trigger
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -394,6 +401,10 @@ class DynamicModelChoiceMixin:
         # Set the disabled indicator, if any
         if self.disabled_indicator is not None:
             attrs['disabled-indicator'] = self.disabled_indicator
+
+        # Set the fetch trigger, if any.
+        if self.fetch_trigger is not None:
+            attrs['data-fetch-trigger'] = self.fetch_trigger
 
         # Attach any static query parameters
         for key, value in self.query_params.items():
