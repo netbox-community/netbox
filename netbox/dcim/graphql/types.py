@@ -1,7 +1,7 @@
 from dcim import filtersets, models
 from extras.graphql.mixins import ImageAttachmentsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
-from netbox.graphql.types import BaseObjectType, ObjectType, TaggedObjectType
+from netbox.graphql.types import BaseObjectType, ObjectType, PrimaryObjectType, TaggedObjectType
 
 __all__ = (
     'CableType',
@@ -40,7 +40,7 @@ __all__ = (
 )
 
 
-class CableType(TaggedObjectType):
+class CableType(PrimaryObjectType):
 
     class Meta:
         model = models.Cable
@@ -98,7 +98,7 @@ class ConsoleServerPortTemplateType(BaseObjectType):
         return self.type or None
 
 
-class DeviceType(ImageAttachmentsMixin, TaggedObjectType):
+class DeviceType(ImageAttachmentsMixin, PrimaryObjectType):
 
     class Meta:
         model = models.Device
@@ -133,7 +133,7 @@ class DeviceRoleType(ObjectType):
         filterset_class = filtersets.DeviceRoleFilterSet
 
 
-class DeviceTypeType(TaggedObjectType):
+class DeviceTypeType(PrimaryObjectType):
 
     class Meta:
         model = models.DeviceType
@@ -211,7 +211,7 @@ class PlatformType(ObjectType):
         filterset_class = filtersets.PlatformFilterSet
 
 
-class PowerFeedType(TaggedObjectType):
+class PowerFeedType(PrimaryObjectType):
 
     class Meta:
         model = models.PowerFeed
@@ -247,7 +247,7 @@ class PowerOutletTemplateType(BaseObjectType):
         return self.type or None
 
 
-class PowerPanelType(TaggedObjectType):
+class PowerPanelType(PrimaryObjectType):
 
     class Meta:
         model = models.PowerPanel
@@ -277,7 +277,7 @@ class PowerPortTemplateType(BaseObjectType):
         return self.type or None
 
 
-class RackType(VLANGroupsMixin, ImageAttachmentsMixin, TaggedObjectType):
+class RackType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
 
     class Meta:
         model = models.Rack
@@ -291,7 +291,7 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, TaggedObjectType):
         return self.outer_unit or None
 
 
-class RackReservationType(TaggedObjectType):
+class RackReservationType(PrimaryObjectType):
 
     class Meta:
         model = models.RackReservation
@@ -331,7 +331,7 @@ class RegionType(VLANGroupsMixin, ObjectType):
         filterset_class = filtersets.RegionFilterSet
 
 
-class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, TaggedObjectType):
+class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
 
     class Meta:
         model = models.Site
@@ -347,7 +347,7 @@ class SiteGroupType(VLANGroupsMixin, ObjectType):
         filterset_class = filtersets.SiteGroupFilterSet
 
 
-class VirtualChassisType(TaggedObjectType):
+class VirtualChassisType(PrimaryObjectType):
 
     class Meta:
         model = models.VirtualChassis

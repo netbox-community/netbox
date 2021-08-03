@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from graphene_django import DjangoObjectType
 
-from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
+from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
 
 __all__ = (
     'BaseObjectType',
@@ -38,6 +38,14 @@ class ObjectType(CustomFieldsMixin, BaseObjectType):
 class TaggedObjectType(CustomFieldsMixin, TagsMixin, BaseObjectType):
     """
     Extends BaseObjectType with support for custom fields and tags
+    """
+    class Meta:
+        abstract = True
+
+
+class PrimaryObjectType(CustomFieldsMixin, JournalEntriesMixin, TagsMixin, BaseObjectType):
+    """
+    Extends BaseObjectType with support for custom fields, tags, and journal entries.
     """
     class Meta:
         abstract = True

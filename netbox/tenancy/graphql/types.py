@@ -1,5 +1,5 @@
 from tenancy import filtersets, models
-from netbox.graphql.types import ObjectType, TaggedObjectType
+from netbox.graphql.types import ObjectType, PrimaryObjectType
 
 __all__ = (
     'TenantType',
@@ -7,7 +7,7 @@ __all__ = (
 )
 
 
-class TenantType(TaggedObjectType):
+class TenantType(PrimaryObjectType):
 
     class Meta:
         model = models.Tenant
