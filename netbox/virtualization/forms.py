@@ -225,14 +225,20 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
 class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cluster
     field_order = [
-        'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
+        'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
     ]
     field_groups = [
+        ['q'],
         ['type_id'],
         ['region_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
         ['tag'],
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
@@ -540,6 +546,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
         'site_id', 'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
     ]
     field_groups = [
+        ['q'],
         ['status', 'role_id'],
         ['platform_id', 'mac_address'],
         ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
@@ -547,6 +554,11 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
         ['tenant_group_id', 'tenant_id'],
 
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -855,10 +867,16 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
     field_groups = [
+        ['q'],
         ['cluster_id', 'virtual_machine_id'],
         ['enabled', 'mac_address'],
         ['tag']
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,

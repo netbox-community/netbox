@@ -64,6 +64,11 @@ class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
 class TenantGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = TenantGroup
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -132,6 +137,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Tenant
     q = forms.CharField(
         required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
     group_id = DynamicModelMultipleChoiceField(

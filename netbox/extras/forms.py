@@ -77,9 +77,15 @@ class CustomFieldBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class CustomFieldFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
+        ['q'],
         ['type', 'content_types'],
         ['weight', 'required'],
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields')
@@ -167,9 +173,15 @@ class CustomLinkBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class CustomLinkFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
+        ['q'],
         ['content_type'],
         ['weight', 'new_window'],
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields')
@@ -252,9 +264,15 @@ class ExportTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
+        ['q'],
         ['content_type', 'mime_type'],
         ['file_extension', 'as_attachment'],
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields')
@@ -358,9 +376,15 @@ class WebhookBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class WebhookFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
+        ['q'],
         ['content_types', 'http_method'],
         ['enabled', 'type_create', 'type_update', 'type_delete'],
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields')
@@ -664,15 +688,21 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     field_order = [
-        'region_id', 'site_group_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id', 'cluster_id',
-        'tenant_group_id', 'tenant_id',
+        'q', 'region_id', 'site_group_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id',
+        'cluster_id', 'tenant_group_id', 'tenant_id',
     ]
     field_groups = [
+        ['q'],
         ['region_id', 'site_group_id', 'site_id'],
         ['device_type_id', 'role_id', 'platform_id'],
         ['cluster_group_id', 'cluster_id'],
         ['tenant_group_id', 'tenant_id', 'tag']
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -812,9 +842,15 @@ class JournalEntryBulkEditForm(BootstrapMixin, BulkEditForm):
 class JournalEntryFilterForm(BootstrapMixin, forms.Form):
     model = JournalEntry
     field_groups = [
+        ['q'],
         ['created_before', 'created_after', 'created_by_id'],
         ['assigned_object_type_id', 'kind']
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     created_after = forms.DateTimeField(
         required=False,
         label=_('After'),
@@ -857,9 +893,15 @@ class JournalEntryFilterForm(BootstrapMixin, forms.Form):
 class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     model = ObjectChange
     field_groups = [
+        ['q'],
         ['time_before', 'time_after', 'action'],
         ['user_id', 'changed_object_type_id'],
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     time_after = forms.DateTimeField(
         required=False,
         label=_('After'),
