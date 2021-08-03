@@ -1,10 +1,11 @@
 from dcim import filtersets, models
-from extras.graphql.mixins import ImageAttachmentsMixin
+from extras.graphql.mixins import CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
-from netbox.graphql.types import BaseObjectType, ObjectType, PrimaryObjectType, TaggedObjectType
+from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'CableType',
+    'ComponentObjectType',
     'ConsolePortType',
     'ConsolePortTemplateType',
     'ConsoleServerPortType',
@@ -40,6 +41,37 @@ __all__ = (
 )
 
 
+#
+# Base types
+#
+
+
+class ComponentObjectType(
+    CustomFieldsMixin,
+    TagsMixin,
+    BaseObjectType
+):
+    """
+    Base type for device/VM components
+    """
+    class Meta:
+        abstract = True
+
+
+class ComponentTemplateObjectType(
+    BaseObjectType
+):
+    """
+    Base type for device/VM components
+    """
+    class Meta:
+        abstract = True
+
+
+#
+# Model types
+#
+
 class CableType(PrimaryObjectType):
 
     class Meta:
@@ -54,7 +86,7 @@ class CableType(PrimaryObjectType):
         return self.length_unit or None
 
 
-class ConsolePortType(TaggedObjectType):
+class ConsolePortType(ComponentObjectType):
 
     class Meta:
         model = models.ConsolePort
@@ -65,7 +97,7 @@ class ConsolePortType(TaggedObjectType):
         return self.type or None
 
 
-class ConsolePortTemplateType(BaseObjectType):
+class ConsolePortTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.ConsolePortTemplate
@@ -76,7 +108,7 @@ class ConsolePortTemplateType(BaseObjectType):
         return self.type or None
 
 
-class ConsoleServerPortType(TaggedObjectType):
+class ConsoleServerPortType(ComponentObjectType):
 
     class Meta:
         model = models.ConsoleServerPort
@@ -87,7 +119,7 @@ class ConsoleServerPortType(TaggedObjectType):
         return self.type or None
 
 
-class ConsoleServerPortTemplateType(BaseObjectType):
+class ConsoleServerPortTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.ConsoleServerPortTemplate
@@ -109,7 +141,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryObjectType):
         return self.face or None
 
 
-class DeviceBayType(TaggedObjectType):
+class DeviceBayType(ComponentObjectType):
 
     class Meta:
         model = models.DeviceBay
@@ -117,7 +149,7 @@ class DeviceBayType(TaggedObjectType):
         filterset_class = filtersets.DeviceBayFilterSet
 
 
-class DeviceBayTemplateType(BaseObjectType):
+class DeviceBayTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.DeviceBayTemplate
@@ -125,7 +157,7 @@ class DeviceBayTemplateType(BaseObjectType):
         filterset_class = filtersets.DeviceBayTemplateFilterSet
 
 
-class DeviceRoleType(ObjectType):
+class DeviceRoleType(OrganizationalObjectType):
 
     class Meta:
         model = models.DeviceRole
@@ -144,7 +176,7 @@ class DeviceTypeType(PrimaryObjectType):
         return self.subdevice_role or None
 
 
-class FrontPortType(TaggedObjectType):
+class FrontPortType(ComponentObjectType):
 
     class Meta:
         model = models.FrontPort
@@ -152,7 +184,7 @@ class FrontPortType(TaggedObjectType):
         filterset_class = filtersets.FrontPortFilterSet
 
 
-class FrontPortTemplateType(BaseObjectType):
+class FrontPortTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.FrontPortTemplate
@@ -160,7 +192,7 @@ class FrontPortTemplateType(BaseObjectType):
         filterset_class = filtersets.FrontPortTemplateFilterSet
 
 
-class InterfaceType(IPAddressesMixin, TaggedObjectType):
+class InterfaceType(IPAddressesMixin, ComponentObjectType):
 
     class Meta:
         model = models.Interface
@@ -171,7 +203,7 @@ class InterfaceType(IPAddressesMixin, TaggedObjectType):
         return self.mode or None
 
 
-class InterfaceTemplateType(BaseObjectType):
+class InterfaceTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.InterfaceTemplate
@@ -179,7 +211,7 @@ class InterfaceTemplateType(BaseObjectType):
         filterset_class = filtersets.InterfaceTemplateFilterSet
 
 
-class InventoryItemType(TaggedObjectType):
+class InventoryItemType(ComponentObjectType):
 
     class Meta:
         model = models.InventoryItem
@@ -187,7 +219,7 @@ class InventoryItemType(TaggedObjectType):
         filterset_class = filtersets.InventoryItemFilterSet
 
 
-class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ObjectType):
+class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, OrganizationalObjectType):
 
     class Meta:
         model = models.Location
@@ -195,7 +227,7 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ObjectType):
         filterset_class = filtersets.LocationFilterSet
 
 
-class ManufacturerType(ObjectType):
+class ManufacturerType(OrganizationalObjectType):
 
     class Meta:
         model = models.Manufacturer
@@ -203,7 +235,7 @@ class ManufacturerType(ObjectType):
         filterset_class = filtersets.ManufacturerFilterSet
 
 
-class PlatformType(ObjectType):
+class PlatformType(OrganizationalObjectType):
 
     class Meta:
         model = models.Platform
@@ -219,7 +251,7 @@ class PowerFeedType(PrimaryObjectType):
         filterset_class = filtersets.PowerFeedFilterSet
 
 
-class PowerOutletType(TaggedObjectType):
+class PowerOutletType(ComponentObjectType):
 
     class Meta:
         model = models.PowerOutlet
@@ -233,7 +265,7 @@ class PowerOutletType(TaggedObjectType):
         return self.type or None
 
 
-class PowerOutletTemplateType(BaseObjectType):
+class PowerOutletTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.PowerOutletTemplate
@@ -255,7 +287,7 @@ class PowerPanelType(PrimaryObjectType):
         filterset_class = filtersets.PowerPanelFilterSet
 
 
-class PowerPortType(TaggedObjectType):
+class PowerPortType(ComponentObjectType):
 
     class Meta:
         model = models.PowerPort
@@ -266,7 +298,7 @@ class PowerPortType(TaggedObjectType):
         return self.type or None
 
 
-class PowerPortTemplateType(BaseObjectType):
+class PowerPortTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.PowerPortTemplate
@@ -299,7 +331,7 @@ class RackReservationType(PrimaryObjectType):
         filterset_class = filtersets.RackReservationFilterSet
 
 
-class RackRoleType(ObjectType):
+class RackRoleType(OrganizationalObjectType):
 
     class Meta:
         model = models.RackRole
@@ -307,7 +339,7 @@ class RackRoleType(ObjectType):
         filterset_class = filtersets.RackRoleFilterSet
 
 
-class RearPortType(TaggedObjectType):
+class RearPortType(ComponentObjectType):
 
     class Meta:
         model = models.RearPort
@@ -315,7 +347,7 @@ class RearPortType(TaggedObjectType):
         filterset_class = filtersets.RearPortFilterSet
 
 
-class RearPortTemplateType(BaseObjectType):
+class RearPortTemplateType(ComponentTemplateObjectType):
 
     class Meta:
         model = models.RearPortTemplate
@@ -323,7 +355,7 @@ class RearPortTemplateType(BaseObjectType):
         filterset_class = filtersets.RearPortTemplateFilterSet
 
 
-class RegionType(VLANGroupsMixin, ObjectType):
+class RegionType(VLANGroupsMixin, OrganizationalObjectType):
 
     class Meta:
         model = models.Region
@@ -339,7 +371,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
         filterset_class = filtersets.SiteFilterSet
 
 
-class SiteGroupType(VLANGroupsMixin, ObjectType):
+class SiteGroupType(VLANGroupsMixin, OrganizationalObjectType):
 
     class Meta:
         model = models.SiteGroup

@@ -5,8 +5,8 @@ from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMi
 
 __all__ = (
     'BaseObjectType',
-    'ObjectType',
-    'TaggedObjectType',
+    'OrganizationalObjectType',
+    'PrimaryObjectType',
 )
 
 
@@ -27,25 +27,25 @@ class BaseObjectType(DjangoObjectType):
         return queryset.restrict(info.context.user, 'view')
 
 
-class ObjectType(CustomFieldsMixin, BaseObjectType):
+class OrganizationalObjectType(
+    CustomFieldsMixin,
+    BaseObjectType
+):
     """
-    Extends BaseObjectType with support for custom fields.
-    """
-    class Meta:
-        abstract = True
-
-
-class TaggedObjectType(CustomFieldsMixin, TagsMixin, BaseObjectType):
-    """
-    Extends BaseObjectType with support for custom fields and tags
+    Base type for organizational models
     """
     class Meta:
         abstract = True
 
 
-class PrimaryObjectType(CustomFieldsMixin, JournalEntriesMixin, TagsMixin, BaseObjectType):
+class PrimaryObjectType(
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+    BaseObjectType
+):
     """
-    Extends BaseObjectType with support for custom fields, tags, and journal entries.
+    Base type for primary models
     """
     class Meta:
         abstract = True

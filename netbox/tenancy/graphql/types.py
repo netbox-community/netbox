@@ -1,5 +1,5 @@
 from tenancy import filtersets, models
-from netbox.graphql.types import ObjectType, PrimaryObjectType
+from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'TenantType',
@@ -15,7 +15,7 @@ class TenantType(PrimaryObjectType):
         filterset_class = filtersets.TenantFilterSet
 
 
-class TenantGroupType(ObjectType):
+class TenantGroupType(OrganizationalObjectType):
 
     class Meta:
         model = models.TenantGroup

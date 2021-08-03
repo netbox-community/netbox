@@ -1,5 +1,5 @@
 from ipam import filtersets, models
-from netbox.graphql.types import ObjectType, PrimaryObjectType
+from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'AggregateType',
@@ -54,7 +54,7 @@ class PrefixType(PrimaryObjectType):
         filterset_class = filtersets.PrefixFilterSet
 
 
-class RIRType(ObjectType):
+class RIRType(OrganizationalObjectType):
 
     class Meta:
         model = models.RIR
@@ -62,7 +62,7 @@ class RIRType(ObjectType):
         filterset_class = filtersets.RIRFilterSet
 
 
-class RoleType(ObjectType):
+class RoleType(OrganizationalObjectType):
 
     class Meta:
         model = models.Role
@@ -94,7 +94,7 @@ class VLANType(PrimaryObjectType):
         filterset_class = filtersets.VLANFilterSet
 
 
-class VLANGroupType(ObjectType):
+class VLANGroupType(OrganizationalObjectType):
 
     class Meta:
         model = models.VLANGroup

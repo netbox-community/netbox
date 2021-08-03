@@ -1,5 +1,5 @@
 from circuits import filtersets, models
-from netbox.graphql.types import BaseObjectType, ObjectType, PrimaryObjectType
+from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'CircuitTerminationType',
@@ -26,7 +26,7 @@ class CircuitType(PrimaryObjectType):
         filterset_class = filtersets.CircuitFilterSet
 
 
-class CircuitTypeType(ObjectType):
+class CircuitTypeType(OrganizationalObjectType):
 
     class Meta:
         model = models.CircuitType
