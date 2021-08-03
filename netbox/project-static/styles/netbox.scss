@@ -269,7 +269,13 @@ div.title-container {
   .control-group {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    // Left-align controls on mobile.
+    justify-content: flex-start;
+
+    // Right-align controls on larger screens.
+    @include media-breakpoint-up(md) {
+      justify-content: flex-end;
+    }
 
     > * {
       // Pad each control button.
@@ -283,6 +289,32 @@ div.title-container {
       &:last-child {
         // Don't pad the right side of the last control button.
         margin-right: 0;
+      }
+    }
+  }
+}
+
+.object-subtitle {
+  display: block;
+  font-size: $font-size-sm;
+  color: $text-muted;
+
+  @include media-breakpoint-up(md) {
+    display: inline-block;
+  }
+
+  > span {
+    display: block;
+
+    // Hide the separator on small screens.
+    &.separator {
+      display: none;
+    }
+
+    &,
+    &.separator {
+      @include media-breakpoint-up(md) {
+        display: inline-block;
       }
     }
   }
