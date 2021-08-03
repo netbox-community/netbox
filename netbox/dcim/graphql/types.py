@@ -1,6 +1,6 @@
 from dcim import filtersets, models
 from extras.graphql.mixins import ImageAttachmentsMixin
-from ipam.graphql.mixins import IPAddressesMixin
+from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.types import BaseObjectType, ObjectType, TaggedObjectType
 
 __all__ = (
@@ -187,7 +187,7 @@ class InventoryItemType(TaggedObjectType):
         filterset_class = filtersets.InventoryItemFilterSet
 
 
-class LocationType(ImageAttachmentsMixin, ObjectType):
+class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ObjectType):
 
     class Meta:
         model = models.Location
@@ -277,7 +277,7 @@ class PowerPortTemplateType(BaseObjectType):
         return self.type or None
 
 
-class RackType(ImageAttachmentsMixin, TaggedObjectType):
+class RackType(VLANGroupsMixin, ImageAttachmentsMixin, TaggedObjectType):
 
     class Meta:
         model = models.Rack
@@ -323,7 +323,7 @@ class RearPortTemplateType(BaseObjectType):
         filterset_class = filtersets.RearPortTemplateFilterSet
 
 
-class RegionType(ObjectType):
+class RegionType(VLANGroupsMixin, ObjectType):
 
     class Meta:
         model = models.Region
@@ -331,7 +331,7 @@ class RegionType(ObjectType):
         filterset_class = filtersets.RegionFilterSet
 
 
-class SiteType(ImageAttachmentsMixin, TaggedObjectType):
+class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, TaggedObjectType):
 
     class Meta:
         model = models.Site
@@ -339,7 +339,7 @@ class SiteType(ImageAttachmentsMixin, TaggedObjectType):
         filterset_class = filtersets.SiteFilterSet
 
 
-class SiteGroupType(ObjectType):
+class SiteGroupType(VLANGroupsMixin, ObjectType):
 
     class Meta:
         model = models.SiteGroup

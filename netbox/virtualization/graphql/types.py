@@ -1,4 +1,4 @@
-from ipam.graphql.mixins import IPAddressesMixin
+from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from virtualization import filtersets, models
 from netbox.graphql.types import ObjectType, TaggedObjectType
 
@@ -11,7 +11,7 @@ __all__ = (
 )
 
 
-class ClusterType(TaggedObjectType):
+class ClusterType(VLANGroupsMixin, TaggedObjectType):
 
     class Meta:
         model = models.Cluster
@@ -19,7 +19,7 @@ class ClusterType(TaggedObjectType):
         filterset_class = filtersets.ClusterFilterSet
 
 
-class ClusterGroupType(ObjectType):
+class ClusterGroupType(VLANGroupsMixin, ObjectType):
 
     class Meta:
         model = models.ClusterGroup

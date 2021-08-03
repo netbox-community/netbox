@@ -81,6 +81,12 @@ class ClusterGroup(OrganizationalModel):
         max_length=200,
         blank=True
     )
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='cluster_group'
+    )
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -135,6 +141,12 @@ class Cluster(PrimaryModel):
     )
     comments = models.TextField(
         blank=True
+    )
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='cluster'
     )
 
     objects = RestrictedQuerySet.as_manager()
