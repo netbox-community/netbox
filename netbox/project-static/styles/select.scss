@@ -32,7 +32,7 @@ $spacing-s: $input-padding-x;
   }
 }
 
-@import './node_modules/slim-select/src/slim-select/slimselect.scss';
+@import './node_modules/slim-select/src/slim-select/slimselect';
 
 .ss-main {
   color: $form-select-color;
@@ -50,6 +50,8 @@ $spacing-s: $input-padding-x;
   .ss-single-selected,
   .ss-multi-selected {
     padding: $form-select-padding-y $input-padding-x $form-select-padding-y $form-select-padding-x;
+    background-color: $form-select-bg;
+    border: $form-select-border-width solid $input-border-color;
     &[disabled] {
       color: $form-select-disabled-color;
       background-color: $form-select-disabled-bg;
@@ -63,7 +65,6 @@ $spacing-s: $input-padding-x;
   }
 
   .ss-single-selected {
-    background-color: $form-select-bg;
     span.ss-arrow {
       // Inherit the arrow color from the parent (see color selector).
       span.arrow-down,
@@ -83,17 +84,16 @@ $spacing-s: $input-padding-x;
 
   .ss-multi-selected {
     align-items: center;
-    padding-left: $input-padding-x;
     padding-right: $input-padding-x;
-    background-color: $form-select-bg;
+    padding-left: $input-padding-x;
 
     .ss-values {
       .ss-disabled {
-        padding: 4px 0px;
+        padding: 4px 0;
       }
       .ss-value {
-        border-radius: $badge-border-radius;
         color: var(--nbx-select-value-color);
+        border-radius: $badge-border-radius;
 
         // Don't show the depth indicator outside of the menu.
         .depth {
@@ -111,18 +111,18 @@ $spacing-s: $input-padding-x;
     .ss-list {
       .ss-option {
         &.ss-option-selected {
-          background-color: var(--nbx-select-option-selected-bg);
           color: $body-color;
+          background-color: var(--nbx-select-option-selected-bg);
         }
 
         &:hover {
-          background-color: var(--nbx-select-option-hover-bg);
           color: var(--nbx-select-option-hover-color);
+          background-color: var(--nbx-select-option-hover-bg);
         }
 
         &:last-child {
-          border-bottom-left-radius: $form-select-border-radius;
           border-bottom-right-radius: $form-select-border-radius;
+          border-bottom-left-radius: $form-select-border-radius;
         }
 
         &.ss-disabled {
@@ -138,6 +138,7 @@ $spacing-s: $input-padding-x;
           opacity: 0.3;
         }
       }
+
       &::-webkit-scrollbar {
         right: 0;
         width: 4px;
@@ -156,9 +157,8 @@ $spacing-s: $input-padding-x;
         background-color: var(--nbx-sidebar-scroll);
       }
     }
-    border-bottom-left-radius: $form-select-border-radius;
     border-bottom-right-radius: $form-select-border-radius;
-
+    border-bottom-left-radius: $form-select-border-radius;
     .ss-search {
       padding-right: $spacer * 0.5;
 
@@ -167,9 +167,9 @@ $spacing-s: $input-padding-x;
       }
 
       input[type='search'] {
-        background-color: $form-select-bg;
         color: $input-color;
-        border: $form-select-border-width solid $form-select-border-color;
+        background-color: $form-select-bg;
+        border: $input-border-width solid $input-border-color;
         &:focus {
           border-color: $form-select-focus-border-color;
           outline: 0;

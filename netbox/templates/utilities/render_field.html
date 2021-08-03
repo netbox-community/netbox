@@ -47,8 +47,8 @@
         <div class="col">
             <div class="input-group">
                 {{ field }}
-                <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark">
-                    <i class="mdi mdi-undo-variant"></i>
+                <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark border-input">
+                    <i class="mdi mdi-reload"></i>
                 </button>
             </div>
         </div>
@@ -63,7 +63,7 @@
         <div class="col">
             <div class="input-group">
                 {{ field }}
-                <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown"></button>
+                <button type="button" class="btn btn-outline-dark border-input dropdown-toggle" data-bs-toggle="dropdown"></button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a href="#" target="{{ field.id_for_label }}" data="10000" class="set_speed dropdown-item">10 Mbps</a></li>
                     <li><a href="#" target="{{ field.id_for_label }}" data="100000" class="set_speed dropdown-item">100 Mbps</a></li>

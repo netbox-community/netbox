@@ -1,37 +1,59 @@
 // Dark Mode Styles for Flatpickr.
 
+$flatpickr-bg: $gray-800;
+$flatpickr-color: $body-color;
+$flatpickr-border-color: $gray-700;
+$flatpickr-title-color: $gray-300;
+$flatpickr-disabled-color: $gray-500;
+
 .flatpickr-calendar {
-  background: $gray-700;
-  color: $body-color;
-  box-shadow: 1px 0 0 $gray-600, -1px 0 0 $gray-600, 0 1px 0 $gray-600, 0 -1px 0 $gray-600,
-    0 3px 13px rgb(0 0 0 / 8%);
+  color: $flatpickr-color;
+  background: $flatpickr-bg;
   border-radius: $border-radius;
-  & span.flatpickr-weekday {
-    color: $gray-400;
-  }
+  box-shadow: 1px 0 0 $flatpickr-border-color, -1px 0 0 $flatpickr-border-color,
+    0 1px 0 $flatpickr-border-color, 0 -1px 0 $flatpickr-border-color, 0 3px 13px rgb(0 0 0 / 8%);
+
   &.arrowTop:before,
   &.arrowTop:after {
-    border-bottom-color: $gray-700;
+    border-bottom-color: $flatpickr-bg;
   }
+
+  span.flatpickr-weekday {
+    color: $flatpickr-title-color;
+  }
+
+  .numInputWrapper {
+    span.arrowUp:after {
+      border-bottom-color: $input-color;
+    }
+    span.arrowDown:after {
+      border-top-color: $input-color;
+    }
+  }
+
   .flatpickr-months {
-    & .flatpickr-month {
-      color: $body-color;
-      fill: $body-color;
+    .flatpickr-month {
+      color: $flatpickr-color;
+      fill: $flatpickr-color;
     }
-    & .flatpickr-next-month,
-    & .flatpickr-prev-month {
-      color: $body-color;
-      fill: $body-color;
+
+    .flatpickr-next-month,
+    .flatpickr-prev-month {
+      color: $flatpickr-color;
+      fill: $flatpickr-color;
+      &:hover svg {
+        fill: $danger;
+      }
     }
-    .flatpickr-current-month .flatpickr-monthDropdown-months {
-      background: $gray-700;
+
+    .flatpickr-current-month select {
+      background: $flatpickr-bg;
     }
   }
+
   .flatpickr-day {
-    color: $body-color;
-    &.today {
-      border-color: $gray-200;
-    }
+    color: $flatpickr-color;
+
     &.selected,
     &.startRange,
     &.endRange,
@@ -50,15 +72,17 @@
     &.selected.nextMonthDay,
     &.startRange.nextMonthDay,
     &.endRange.nextMonthDay {
+      color: color-contrast($blue-300);
       background: $blue-300;
       border-color: $blue-300;
-      color: color-contrast($blue-300);
     }
+
     &:hover {
-      border-color: $gray-200;
-      background: $gray-200;
-      color: color-contrast($gray-200);
+      color: color-contrast($secondary);
+      background: $secondary;
+      border-color: $secondary;
     }
+
     &.flatpickr-disabled,
     &.flatpickr-disabled:hover,
     &.prevMonthDay,
@@ -66,7 +90,33 @@
     &.notAllowed,
     &.notAllowed.prevMonthDay,
     &.notAllowed.nextMonthDay {
-      color: $gray-500;
+      color: $flatpickr-disabled-color;
+
+      &:hover {
+        color: color-contrast($secondary);
+        background: $secondary;
+        border-color: $secondary;
+      }
     }
+  }
+
+  .flatpickr-time {
+    input {
+      color: $input-color;
+      background: $flatpickr-bg;
+
+      &:hover,
+      &:active {
+        background: $flatpickr-bg;
+      }
+    }
+
+    .flatpickr-time-separator {
+      color: $flatpickr-disabled-color;
+    }
+  }
+
+  &.showTimeInput.hasTime .flatpickr-time {
+    border-top: 1px solid $flatpickr-border-color;
   }
 }
