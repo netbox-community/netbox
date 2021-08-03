@@ -449,7 +449,7 @@ class APIViewTestCases:
                 if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'
-                elif type(field.type) is GQLList and field_name not in ('tags', 'choices'):
+                elif type(field.type) is GQLList and field_name != 'choices':
                     # TODO: Come up with something more elegant
                     # Temporary hack to support automated testing of reverse generic relations
                     fields_string += f'{field_name} {{ id }}\n'

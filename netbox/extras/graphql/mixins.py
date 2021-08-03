@@ -39,7 +39,7 @@ class JournalEntriesMixin:
 
 
 class TagsMixin:
-    tags = graphene.List(graphene.String)
+    tags = graphene.List('extras.graphql.types.TagType')
 
     def resolve_tags(self, info):
         return self.tags.all()
