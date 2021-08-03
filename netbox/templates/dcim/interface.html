@@ -5,7 +5,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_interface and not object.is_virtual %}
-    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success m-1">
+    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Child Interface
     </a>
   {% endif %}

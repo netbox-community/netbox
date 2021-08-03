@@ -22,7 +22,7 @@
                                                 {{ field }}
                                             </div>
                                         {% else %}
-                                            <div class="mb-3 mx-3">
+                                            <div class="mb-3 px-2">
                                                 <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                                 {{ field }}
                                             </div>
@@ -30,17 +30,20 @@
                                     {% endwith %}
                                 {% endfor %}
                             </div>
+                            {% if forloop.counter != filter_form.field_groups|length %}
+                                <hr class="card-divider mt-0" />
+                            {% endif %}
                         {% endfor %}
                     {% else %}
                         {% for field in filter_form.visible_fields %}
-                            <div class="col">
+                            <div class="col col-12">
                                 {% if field|widget_type == 'checkboxinput' %}
                                     <div class="form-check mb-3">
                                         <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                         {{ field }}
                                     </div>
                                 {% else %}
-                                    <div class="mb-3">
+                                    <div class="mb-3 px-2">
                                     <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     {{ field }}
                                     </div>

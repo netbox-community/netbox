@@ -107,9 +107,15 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBu
 class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Provider
     field_groups = [
+        ['q'],
         ['region_id', 'site_id'],
         ['asn', 'tag'],
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -196,7 +202,12 @@ class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
 
 class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = ProviderNetwork
-    field_order = ['provider_id']
+    field_order = ['q', 'provider_id', 'tag']
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
@@ -358,16 +369,22 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Circuit
     field_order = [
-        'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id', 'tenant_id',
-        'commit_rate',
+        'q', 'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id',
+        'tenant_id', 'commit_rate',
     ]
     field_groups = [
+        ['q'],
         ['type_id', 'status', 'commit_rate'],
         ['provider_id', 'provider_network_id'],
         ['region_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
         ['tag']
     ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,

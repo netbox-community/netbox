@@ -21,6 +21,14 @@ $theme-colors: (
   'danger': $danger,
   'light': $light,
   'dark': $dark,
+  'red': $red-300,
+  'yellow': $yellow-300,
+  'green': $green-300,
+  'blue': $blue-300,
+  'cyan': $cyan-300,
+  'indigo': $indigo-300,
+  'purple': $purple-300,
+  'pink': $pink-300,
 );
 
 $theme-colors: map-merge($theme-colors, $theme-color-addons);

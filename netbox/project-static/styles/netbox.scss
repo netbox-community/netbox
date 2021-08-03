@@ -89,8 +89,13 @@ table td > .progress {
   min-width: 6rem;
 }
 
-// Automatically space out adjacent columns.
-.col:not(:last-child):not(:only-child) {
+// Override Bootstrap form-control font-size when contained by .small element.
+.small .form-control {
+  font-size: $font-size-sm;
+}
+
+// Automatically space out adjacent columns, but not within card bodies.
+:not(.card-body) > .col:not(:last-child):not(:only-child) {
   margin-bottom: $spacer;
 }
 
@@ -110,15 +115,6 @@ table td > .progress {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-  }
-}
-
-.search-container {
-  display: flex;
-  width: 100%;
-
-  @include media-breakpoint-down(lg) {
-    display: none;
   }
 }
 
@@ -265,24 +261,126 @@ div.title-container {
   }
 }
 
+// Object list control buttons (Add/Clone/Import/Export)
+.controls {
+  margin-bottom: map.get($spacers, 2);
+
+  // Each group of buttons.
+  .control-group {
+    display: flex;
+    flex-wrap: wrap;
+    // Left-align controls on mobile.
+    justify-content: flex-start;
+
+    // Right-align controls on larger screens.
+    @include media-breakpoint-up(md) {
+      justify-content: flex-end;
+    }
+
+    > * {
+      // Pad each control button.
+      margin: map.get($spacers, 1);
+
+      &:first-child {
+        // Don't pad the left side of the first control button.
+        margin-left: 0;
+      }
+
+      &:last-child {
+        // Don't pad the right side of the last control button.
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.object-subtitle {
+  display: block;
+  font-size: $font-size-sm;
+  color: $text-muted;
+
+  @include media-breakpoint-up(md) {
+    display: inline-block;
+  }
+
+  > span {
+    display: block;
+
+    // Hide the separator on small screens.
+    &.separator {
+      display: none;
+    }
+
+    &,
+    &.separator {
+      @include media-breakpoint-up(md) {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+// Global Search
 nav.search {
   // Don't overtake dropdowns
   z-index: 999;
   justify-content: center;
   background-color: var(--nbx-body-bg);
 
-  form button.dropdown-toggle {
-    font-weight: $input-group-addon-font-weight;
-    line-height: $input-line-height;
-    color: $input-group-addon-color;
-    background-color: $input-group-addon-bg;
-    border: $input-border-width solid $input-group-addon-border-color;
-    border-color: $input-border-color;
-    @include border-radius($input-border-radius);
-    border-left: 1px solid var(--nbx-search-filter-border-left-color);
+  .search-container {
+    display: flex;
+    width: 100%;
 
-    &:focus {
-      box-shadow: unset !important;
+    @include media-breakpoint-down(lg) {
+      display: none;
+    }
+  }
+
+  // Search Input & Selected Object Value & Object Selector
+  .input-group {
+    // Selected Object
+    .search-obj-selected {
+      border-color: $input-border-color;
+    }
+
+    // Object Selector Dropdown Button
+    .dropdown-toggle {
+      // Generate the same styles as a regular Bootstrap button.
+      @include button-variant($input-group-addon-bg, $input-border-color);
+      margin-left: 0;
+      font-weight: $input-group-addon-font-weight;
+      line-height: $input-line-height;
+      color: $input-group-addon-color;
+      background-color: $input-group-addon-bg;
+      border: $input-border-width solid $input-border-color;
+      @include border-radius($input-border-radius);
+      border-left: 1px solid var(--nbx-search-filter-border-left-color);
+
+      &:focus {
+        box-shadow: unset !important;
+      }
+      // Don't show the dropdown icon — the filter icon is basically the same thing.
+      &:after {
+        display: none;
+      }
+    }
+
+    // Object Selector Dropdown Menu
+    .search-obj-selector {
+      @include media-breakpoint-down(lg) {
+        // Limit the height and enable scrolling on mobile devices.
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .dropdown-item,
+      .dropdown-header {
+        font-size: $font-size-sm;
+      }
+
+      .dropdown-header {
+        text-transform: uppercase;
+      }
     }
   }
 }
@@ -431,23 +529,6 @@ div.content-container {
   pointer-events: none;
 }
 
-.search-obj-selector {
-  @include media-breakpoint-down(lg) {
-    // Limit the height and enable scrolling on mobile devices.
-    max-height: 75vh;
-    overflow-y: auto;
-  }
-
-  .dropdown-item,
-  .dropdown-header {
-    font-size: $font-size-sm;
-  }
-
-  .dropdown-header {
-    text-transform: uppercase;
-  }
-}
-
 span.color-label {
   display: block;
   width: 5rem;
@@ -478,6 +559,14 @@ span.color-label {
   .card-body.small .form-control,
   .card-body.small .form-select {
     font-size: $input-font-size-sm;
+  }
+
+  .card-divider {
+    width: 100%;
+    height: 1px;
+    margin: $hr-margin-y 0;
+    border-top: 1px solid $card-border-color;
+    opacity: $hr-opacity;
   }
 }
 

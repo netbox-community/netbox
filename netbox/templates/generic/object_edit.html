@@ -8,10 +8,12 @@
 
 {% block controls %}
   {% if settings.DOCS_ROOT %}
-    <div class="controls pt-1">
-      <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
-        <i class="mdi mdi-help-circle"></i> Help
-      </button>
+    <div class="controls">
+      <div class="control-group">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
+          <i class="mdi mdi-help-circle"></i> Help
+        </button>
+      </div>
     </div>
   {% endif %}
 {% endblock controls %}

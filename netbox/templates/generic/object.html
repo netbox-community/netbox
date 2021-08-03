@@ -20,20 +20,19 @@
 {% block title %}{{ object }}{% endblock %}
 
 {% block subtitle %}
-  <small class="text-muted">
-    Created {{ object.created|annotated_date }} &middot;
-    Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago
-    <span class="badge bg-secondary">{{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}</span>
-  </small>
+  <div class="object-subtitle">
+    <span>Created {{ object.created|annotated_date }}</span>
+    <span class="separator">&middot;</span>
+    <span>Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago</span>
+  </div>
 {% endblock %}
 
 {% block controls %}
   {# Clone/Edit/Delete Buttons #}
-  <div class="controls pb-2 mx-0">
-    <div class="d-flex flex-wrap justify-content-end mb-2">
-      {% custom_links object %}
+  <div class="controls">
+    <div class="control-group">
       {% plugin_buttons object %}
-  
+
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
@@ -47,6 +46,9 @@
         {% delete_button object %}
       {% endif %}
 
+    </div>
+    <div class="control-group">
+      {% custom_links object %}
     </div>
   </div>
 {% endblock controls %}

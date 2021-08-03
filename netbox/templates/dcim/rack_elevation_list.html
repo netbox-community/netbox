@@ -5,16 +5,16 @@
 {% block title %}Rack Elevations{% endblock %}
 
 {% block controls %}
-    <div class="container mb-2 mx-0">
-        <div class="d-flex flex-wrap justify-content-end">
-            <button class="btn btn-sm btn-outline-dark toggle-images m-1" selected="selected">
+    <div class="controls">
+        <div class="control-group">
+            <button class="btn btn-sm btn-outline-dark toggle-images" selected="selected">
                 <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
             </button>
-            <div class="btn-group btn-group-sm m-1" role="group">
+            <div class="btn-group btn-group-sm" role="group">
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">Front</a>
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
             </div>
-            <div class="btn-group btn-group-sm m-1" role="group">
+            <div class="btn-group btn-group-sm" role="group">
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse=None %}" class="btn btn-outline-secondary{% if not reverse %} active{% endif %}">Normal</a>
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request reverse='true' %}" class="btn btn-outline-secondary{% if reverse %} active{% endif %}">Reversed</a>
             </div>

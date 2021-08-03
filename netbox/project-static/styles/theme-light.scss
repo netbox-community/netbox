@@ -4,6 +4,20 @@
 
 $input-border-color: $gray-200;
 
+$theme-colors: map-merge(
+  $theme-colors,
+  (
+    'red': $red-500,
+    'yellow': $yellow-500,
+    'green': $green-500,
+    'blue': $blue-500,
+    'cyan': $cyan-500,
+    'indigo': $indigo-500,
+    'purple': $purple-500,
+    'pink': $pink-500,
+  )
+);
+
 $theme-colors: map-merge($theme-colors, $theme-color-addons);
 
 $light: $gray-200;
