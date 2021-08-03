@@ -7,8 +7,8 @@
 {% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
 
 {% block controls %}
-<div class="controls mb-2 mx-0">
-  <div class="d-flex flex-wrap justify-content-end">
+<div class="controls">
+  <div class="control-group">
     {% block extra_controls %}{% endblock %}
     {% if permissions.add and 'add' in action_buttons %}
         {% add_button content_type.model_class|validated_viewname:"add" %}

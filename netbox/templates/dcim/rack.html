@@ -18,14 +18,14 @@
 {% endblock %}
 
 {% block extra_controls %}
-  <button class="btn btn-sm btn-outline-blue-500 m-1 toggle-images" selected="selected">
+  <button class="btn btn-sm btn-outline-primary toggle-images" selected="selected">
     <i class="mdi mdi-file-image-outline"></i> 
     Hide Images
   </button>
-  <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}{% endif %}" class="btn btn-sm btn-primary m-1{% if not prev_rack %} disabled{% endif %}">
+  <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}{% endif %}" class="btn btn-sm btn-primary{% if not prev_rack %} disabled{% endif %}">
     <i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous
   </a>
-  <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}{% endif %}" class="btn btn-sm btn-primary m-1{% if not next_rack %} disabled{% endif %}">
+  <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}{% endif %}" class="btn btn-sm btn-primary{% if not next_rack %} disabled{% endif %}">
     <i class="mdi mdi-chevron-right" aria-hidden="true"></i> Next
   </a>
 {% endblock %}

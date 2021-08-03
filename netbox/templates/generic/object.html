@@ -29,11 +29,11 @@
 
 {% block controls %}
   {# Clone/Edit/Delete Buttons #}
-  <div class="controls pb-2 mx-0">
-    <div class="d-flex flex-wrap justify-content-end mb-2">
+  <div class="controls">
+    <div class="control-group">
       {% custom_links object %}
       {% plugin_buttons object %}
-  
+
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 

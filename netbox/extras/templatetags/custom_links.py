@@ -10,10 +10,10 @@ from utilities.utils import render_jinja2
 
 register = template.Library()
 
-LINK_BUTTON = '<a href="{}"{} class="btn btn-sm btn-{} m-1">{}</a>\n'
+LINK_BUTTON = '<a href="{}"{} class="btn btn-sm btn-{}">{}</a>\n'
 
 GROUP_BUTTON = """
-<div class="dropdown m-1">
+<div class="dropdown">
     <button
         class="btn btn-sm btn-{} dropdown-toggle"
         type="button"

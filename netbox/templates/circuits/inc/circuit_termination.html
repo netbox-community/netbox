@@ -9,7 +9,7 @@
                 </a>
             {% endif %}
             {% if termination and perms.circuits.change_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-yellow-500 lh-1">
+                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-sm btn-yellow lh-1">
                     <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                 </a>
                 <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}" class="btn btn-sm btn-primary lh-1">
