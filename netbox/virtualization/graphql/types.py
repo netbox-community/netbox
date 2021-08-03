@@ -1,3 +1,4 @@
+from ipam.graphql.mixins import IPAddressesMixin
 from virtualization import filtersets, models
 from netbox.graphql.types import ObjectType, TaggedObjectType
 
@@ -42,7 +43,7 @@ class VirtualMachineType(TaggedObjectType):
         filterset_class = filtersets.VirtualMachineFilterSet
 
 
-class VMInterfaceType(TaggedObjectType):
+class VMInterfaceType(IPAddressesMixin, TaggedObjectType):
 
     class Meta:
         model = models.VMInterface

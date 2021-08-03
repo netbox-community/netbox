@@ -1,4 +1,5 @@
 from dcim import filtersets, models
+from ipam.graphql.mixins import IPAddressesMixin
 from netbox.graphql.types import BaseObjectType, ObjectType, TaggedObjectType
 
 __all__ = (
@@ -158,7 +159,7 @@ class FrontPortTemplateType(BaseObjectType):
         filterset_class = filtersets.FrontPortTemplateFilterSet
 
 
-class InterfaceType(TaggedObjectType):
+class InterfaceType(IPAddressesMixin, TaggedObjectType):
 
     class Meta:
         model = models.Interface
