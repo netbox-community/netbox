@@ -81,7 +81,7 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'button_class': CustomLinkButtonClassChoices.CLASS_INFO,
+            'button_class': CustomLinkButtonClassChoices.CLASS_CYAN,
             'weight': 200,
         }
 
