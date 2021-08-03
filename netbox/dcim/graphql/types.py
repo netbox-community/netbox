@@ -1,4 +1,5 @@
 from dcim import filtersets, models
+from extras.graphql.mixins import ImageAttachmentsMixin
 from ipam.graphql.mixins import IPAddressesMixin
 from netbox.graphql.types import BaseObjectType, ObjectType, TaggedObjectType
 
@@ -97,7 +98,7 @@ class ConsoleServerPortTemplateType(BaseObjectType):
         return self.type or None
 
 
-class DeviceType(TaggedObjectType):
+class DeviceType(ImageAttachmentsMixin, TaggedObjectType):
 
     class Meta:
         model = models.Device
@@ -186,7 +187,7 @@ class InventoryItemType(TaggedObjectType):
         filterset_class = filtersets.InventoryItemFilterSet
 
 
-class LocationType(ObjectType):
+class LocationType(ImageAttachmentsMixin, ObjectType):
 
     class Meta:
         model = models.Location
@@ -276,7 +277,7 @@ class PowerPortTemplateType(BaseObjectType):
         return self.type or None
 
 
-class RackType(TaggedObjectType):
+class RackType(ImageAttachmentsMixin, TaggedObjectType):
 
     class Meta:
         model = models.Rack
@@ -330,7 +331,7 @@ class RegionType(ObjectType):
         filterset_class = filtersets.RegionFilterSet
 
 
-class SiteType(TaggedObjectType):
+class SiteType(ImageAttachmentsMixin, TaggedObjectType):
 
     class Meta:
         model = models.Site
