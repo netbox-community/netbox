@@ -75,9 +75,9 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name,content_type,weight,button_class,link_text,link_url",
-            "Custom Link 4,dcim.site,100,primary,Link 4,http://exmaple.com/?4",
-            "Custom Link 5,dcim.site,100,primary,Link 5,http://exmaple.com/?5",
-            "Custom Link 6,dcim.site,100,primary,Link 6,http://exmaple.com/?6",
+            "Custom Link 4,dcim.site,100,blue,Link 4,http://exmaple.com/?4",
+            "Custom Link 5,dcim.site,100,blue,Link 5,http://exmaple.com/?5",
+            "Custom Link 6,dcim.site,100,blue,Link 6,http://exmaple.com/?6",
         )
 
         cls.bulk_edit_data = {
