@@ -2,11 +2,19 @@ import graphene
 from graphene.types.generic import GenericScalar
 
 __all__ = (
+    'ChangelogMixin',
     'CustomFieldsMixin',
     'ImageAttachmentsMixin',
     'JournalEntriesMixin',
     'TagsMixin',
 )
+
+
+class ChangelogMixin:
+    changelog = graphene.List('extras.graphql.types.ObjectChangeType')
+
+    def resolve_changelog(self, info):
+        return self.object_changes.restrict(info.context.user, 'view')
 
 
 class CustomFieldsMixin:

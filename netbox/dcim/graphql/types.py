@@ -1,5 +1,5 @@
 from dcim import filtersets, models
-from extras.graphql.mixins import CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin
+from extras.graphql.mixins import ChangelogMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
@@ -47,6 +47,7 @@ __all__ = (
 
 
 class ComponentObjectType(
+    ChangelogMixin,
     CustomFieldsMixin,
     TagsMixin,
     BaseObjectType
@@ -59,6 +60,7 @@ class ComponentObjectType(
 
 
 class ComponentTemplateObjectType(
+    ChangelogMixin,
     BaseObjectType
 ):
     """

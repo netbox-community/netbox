@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from graphene_django import DjangoObjectType
 
-from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
+from extras.graphql.mixins import ChangelogMixin, CustomFieldsMixin, JournalEntriesMixin, TagsMixin
 
 __all__ = (
     'BaseObjectType',
@@ -27,7 +27,19 @@ class BaseObjectType(DjangoObjectType):
         return queryset.restrict(info.context.user, 'view')
 
 
+class ObjectType(
+    ChangelogMixin,
+    BaseObjectType
+):
+    """
+    Base GraphQL object type for unclassified models which support change logging
+    """
+    class Meta:
+        abstract = True
+
+
 class OrganizationalObjectType(
+    ChangelogMixin,
     CustomFieldsMixin,
     BaseObjectType
 ):
@@ -39,6 +51,7 @@ class OrganizationalObjectType(
 
 
 class PrimaryObjectType(
+    ChangelogMixin,
     CustomFieldsMixin,
     JournalEntriesMixin,
     TagsMixin,

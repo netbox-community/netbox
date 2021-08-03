@@ -40,6 +40,11 @@ class ChangeLoggingMixin(models.Model):
         blank=True,
         null=True
     )
+    object_changes = GenericRelation(
+        to='extras.ObjectChange',
+        content_type_field='changed_object_type',
+        object_id_field='changed_object_id'
+    )
 
     class Meta:
         abstract = True
