@@ -1,5 +1,5 @@
 from extras import filtersets, models
-from netbox.graphql.types import BaseObjectType
+from netbox.graphql.types import BaseObjectType, ObjectType
 
 __all__ = (
     'ConfigContextType',
@@ -8,12 +8,13 @@ __all__ = (
     'ExportTemplateType',
     'ImageAttachmentType',
     'JournalEntryType',
+    'ObjectChangeType',
     'TagType',
     'WebhookType',
 )
 
 
-class ConfigContextType(BaseObjectType):
+class ConfigContextType(ObjectType):
 
     class Meta:
         model = models.ConfigContext
@@ -21,7 +22,7 @@ class ConfigContextType(BaseObjectType):
         filterset_class = filtersets.ConfigContextFilterSet
 
 
-class CustomFieldType(BaseObjectType):
+class CustomFieldType(ObjectType):
 
     class Meta:
         model = models.CustomField
@@ -29,7 +30,7 @@ class CustomFieldType(BaseObjectType):
         filterset_class = filtersets.CustomFieldFilterSet
 
 
-class CustomLinkType(BaseObjectType):
+class CustomLinkType(ObjectType):
 
     class Meta:
         model = models.CustomLink
@@ -37,7 +38,7 @@ class CustomLinkType(BaseObjectType):
         filterset_class = filtersets.CustomLinkFilterSet
 
 
-class ExportTemplateType(BaseObjectType):
+class ExportTemplateType(ObjectType):
 
     class Meta:
         model = models.ExportTemplate
@@ -53,7 +54,7 @@ class ImageAttachmentType(BaseObjectType):
         filterset_class = filtersets.ImageAttachmentFilterSet
 
 
-class JournalEntryType(BaseObjectType):
+class JournalEntryType(ObjectType):
 
     class Meta:
         model = models.JournalEntry
@@ -61,7 +62,15 @@ class JournalEntryType(BaseObjectType):
         filterset_class = filtersets.JournalEntryFilterSet
 
 
-class TagType(BaseObjectType):
+class ObjectChangeType(BaseObjectType):
+
+    class Meta:
+        model = models.ObjectChange
+        fields = '__all__'
+        filterset_class = filtersets.ObjectChangeFilterSet
+
+
+class TagType(ObjectType):
 
     class Meta:
         model = models.Tag
@@ -69,7 +78,7 @@ class TagType(BaseObjectType):
         filterset_class = filtersets.TagFilterSet
 
 
-class WebhookType(BaseObjectType):
+class WebhookType(ObjectType):
 
     class Meta:
         model = models.Webhook

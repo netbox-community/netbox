@@ -1,5 +1,7 @@
+from dcim.graphql.types import ComponentObjectType
+from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from virtualization import filtersets, models
-from netbox.graphql.types import ObjectType, TaggedObjectType
+from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'ClusterType',
@@ -10,7 +12,7 @@ __all__ = (
 )
 
 
-class ClusterType(TaggedObjectType):
+class ClusterType(VLANGroupsMixin, PrimaryObjectType):
 
     class Meta:
         model = models.Cluster
@@ -18,7 +20,7 @@ class ClusterType(TaggedObjectType):
         filterset_class = filtersets.ClusterFilterSet
 
 
-class ClusterGroupType(ObjectType):
+class ClusterGroupType(VLANGroupsMixin, OrganizationalObjectType):
 
     class Meta:
         model = models.ClusterGroup
@@ -26,7 +28,7 @@ class ClusterGroupType(ObjectType):
         filterset_class = filtersets.ClusterGroupFilterSet
 
 
-class ClusterTypeType(ObjectType):
+class ClusterTypeType(OrganizationalObjectType):
 
     class Meta:
         model = models.ClusterType
@@ -34,7 +36,7 @@ class ClusterTypeType(ObjectType):
         filterset_class = filtersets.ClusterTypeFilterSet
 
 
-class VirtualMachineType(TaggedObjectType):
+class VirtualMachineType(PrimaryObjectType):
 
     class Meta:
         model = models.VirtualMachine
@@ -42,7 +44,7 @@ class VirtualMachineType(TaggedObjectType):
         filterset_class = filtersets.VirtualMachineFilterSet
 
 
-class VMInterfaceType(TaggedObjectType):
+class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
 
     class Meta:
         model = models.VMInterface

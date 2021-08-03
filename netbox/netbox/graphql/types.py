@@ -1,12 +1,12 @@
-import graphene
 from django.contrib.contenttypes.models import ContentType
-from graphene.types.generic import GenericScalar
 from graphene_django import DjangoObjectType
+
+from extras.graphql.mixins import ChangelogMixin, CustomFieldsMixin, JournalEntriesMixin, TagsMixin
 
 __all__ = (
     'BaseObjectType',
-    'ObjectType',
-    'TaggedObjectType',
+    'OrganizationalObjectType',
+    'PrimaryObjectType',
 )
 
 
@@ -27,30 +27,41 @@ class BaseObjectType(DjangoObjectType):
         return queryset.restrict(info.context.user, 'view')
 
 
-class ObjectType(BaseObjectType):
+class ObjectType(
+    ChangelogMixin,
+    BaseObjectType
+):
     """
-    Extends BaseObjectType with support for custom field data.
+    Base GraphQL object type for unclassified models which support change logging
     """
-    custom_fields = GenericScalar()
-
     class Meta:
         abstract = True
 
-    def resolve_custom_fields(self, info):
-        return self.custom_field_data
 
-
-class TaggedObjectType(ObjectType):
+class OrganizationalObjectType(
+    ChangelogMixin,
+    CustomFieldsMixin,
+    BaseObjectType
+):
     """
-    Extends ObjectType with support for Tags
+    Base type for organizational models
     """
-    tags = graphene.List(graphene.String)
-
     class Meta:
         abstract = True
 
-    def resolve_tags(self, info):
-        return self.tags.all()
+
+class PrimaryObjectType(
+    ChangelogMixin,
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+    BaseObjectType
+):
+    """
+    Base type for primary models
+    """
+    class Meta:
+        abstract = True
 
 
 #

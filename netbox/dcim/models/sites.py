@@ -53,6 +53,12 @@ class Region(NestedGroupModel):
         max_length=200,
         blank=True
     )
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='region'
+    )
 
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
@@ -94,6 +100,12 @@ class SiteGroup(NestedGroupModel):
     description = models.CharField(
         max_length=200,
         blank=True
+    )
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site_group'
     )
 
     def get_absolute_url(self):
@@ -210,6 +222,12 @@ class Site(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site'
+    )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
@@ -266,6 +284,12 @@ class Location(NestedGroupModel):
     description = models.CharField(
         max_length=200,
         blank=True
+    )
+    vlan_groups = GenericRelation(
+        to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='location'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'

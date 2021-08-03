@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
-from graphene.types.dynamic import Dynamic
+from graphene.types import Dynamic as GQLDynamic, List as GQLList
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -446,8 +446,12 @@ class APIViewTestCases:
             # Compile list of fields to include
             fields_string = ''
             for field_name, field in type_class._meta.fields.items():
-                if type(field) is Dynamic:
+                if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
+                    fields_string += f'{field_name} {{ id }}\n'
+                elif type(field.type) is GQLList and field_name not in ('tags', 'choices'):
+                    # TODO: Come up with something more elegant
+                    # Temporary hack to support automated testing of reverse generic relations
                     fields_string += f'{field_name} {{ id }}\n'
                 else:
                     fields_string += f'{field_name}\n'
