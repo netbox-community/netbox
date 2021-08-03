@@ -2,6 +2,10 @@
 
 ## v3.0-beta2 (FUTURE)
 
+### Enhancements
+
+* [#6829](https://github.com/netbox-community/netbox/issues/6829) - Extend GraphQL API to support reverse generic relationships
+
 ### Bug Fixes
 
 * [#6811](https://github.com/netbox-community/netbox/issues/6811) - Fix exception when editing users
