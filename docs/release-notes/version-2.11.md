@@ -2,6 +2,10 @@
 
 ## v2.11.11 (FUTURE)
 
+### Enhancements
+
+* [#6883](https://github.com/netbox-community/netbox/issues/6883) - Add C21 & C22 power types
+
 ### Bug Fixes
 
 * [#6740](https://github.com/netbox-community/netbox/issues/6740) - Add import button to VM interfaces list
