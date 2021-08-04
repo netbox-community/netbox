@@ -7,6 +7,9 @@
     <button class="btn btn-default toggle-images" selected="selected">
         <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
     </button>
+    <button class="btn btn-default toggle-labels" selected="selected">
+        <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Labels
+    </button>
     <div class="btn-group" role="group">
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-default{% if rack_face == 'front' %} active{% endif %}">Front</a>
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-default{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
