@@ -248,6 +248,14 @@ class RegionBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
 class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Site
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #
@@ -301,6 +309,14 @@ class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
 class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = SiteGroup
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #
