@@ -13,12 +13,13 @@ def getfield(form, fieldname):
 
 
 @register.inclusion_tag('utilities/render_field.html')
-def render_field(field, bulk_nullable=False):
+def render_field(field, bulk_nullable=False, label=None):
     """
     Render a single form field from template
     """
     return {
         'field': field,
+        'label': label,
         'bulk_nullable': bulk_nullable,
     }
 

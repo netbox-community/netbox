@@ -25,6 +25,12 @@
 
 {% elif field|widget_type == 'textarea' and not field.label %}
     <div class="row mb-3">
+        {% if label %}
+        <label class="col-sm-3 col-form-label text-end{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">
+            {{ label }}
+        </label>
+        {% else %}
+        {% endif %}
         <div class="col">
             {{ field }}
             {% if field.help_text %}
