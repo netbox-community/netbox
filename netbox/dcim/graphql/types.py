@@ -1,5 +1,7 @@
 from dcim import filtersets, models
-from extras.graphql.mixins import ChangelogMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin
+from extras.graphql.mixins import (
+    ChangelogMixin, ConfigContextMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
+)
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
@@ -132,7 +134,7 @@ class ConsoleServerPortTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
-class DeviceType(ImageAttachmentsMixin, PrimaryObjectType):
+class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, PrimaryObjectType):
 
     class Meta:
         model = models.Device

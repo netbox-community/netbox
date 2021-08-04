@@ -10,6 +10,7 @@
 
 * [#6811](https://github.com/netbox-community/netbox/issues/6811) - Fix exception when editing users
 * [#6827](https://github.com/netbox-community/netbox/issues/6827) - Fix circuit termination connection dropdown
+* [#6832](https://github.com/netbox-community/netbox/issues/6832) - Support config context rendering under GraphQL API
 * [#6846](https://github.com/netbox-community/netbox/issues/6846) - Form-driven REST API calls should use brief mode
 * [#6871](https://github.com/netbox-community/netbox/issues/6871) - Support dynamic tag types in GraphQL API
 

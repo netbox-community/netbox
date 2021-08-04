@@ -3,6 +3,7 @@ from graphene.types.generic import GenericScalar
 
 __all__ = (
     'ChangelogMixin',
+    'ConfigContextMixin',
     'CustomFieldsMixin',
     'ImageAttachmentsMixin',
     'JournalEntriesMixin',
@@ -15,6 +16,13 @@ class ChangelogMixin:
 
     def resolve_changelog(self, info):
         return self.object_changes.restrict(info.context.user, 'view')
+
+
+class ConfigContextMixin:
+    config_context = GenericScalar()
+
+    def resolve_config_context(self, info):
+        return self.get_config_context()
 
 
 class CustomFieldsMixin:
