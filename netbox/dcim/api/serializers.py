@@ -173,6 +173,7 @@ class RackSerializer(PrimaryModelSerializer):
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
+    powerfeeds = NestedPowerFeedSerializer(source='powerfeed_set', many=True, read_only=True)
 
     class Meta:
         model = Rack
@@ -180,7 +181,7 @@ class RackSerializer(PrimaryModelSerializer):
             'id', 'url', 'display', 'name', 'facility_id', 'display_name', 'site', 'location', 'tenant', 'status',
             'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
             'outer_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'powerfeed_count',
+            'powerfeed_count', 'powerfeeds',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (location, facility_id). This
         # prevents facility_id from being interpreted as a required field.
