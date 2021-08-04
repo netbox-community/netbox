@@ -56,7 +56,7 @@
 
 {# Object table #}
 <div class="row">
-  <div class="col col-md-7 col-lg-8 col-xl-9 col-xxl-10">
+  <div class="col {% if filter_form %}col-md-7 col-lg-8 col-xl-9 col-xxl-10{% else %}col-12{% endif %}">
     {# Object list filter, table config #}
     {% include 'inc/table_controls.html' with table_modal="ObjectTable_config" %}
 
