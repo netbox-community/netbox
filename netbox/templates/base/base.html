@@ -80,20 +80,25 @@
     {# Additional <head> content #}
     {% block head %}{% endblock %}
   </head>
-  
+
   <body>
     <script type="text/javascript">
       (function() {
         // Check localStorage to see if the sidebar should be pinned.
         var sideNavRaw = localStorage.getItem('netbox-sidenav');
+        // Determine if the device has a small screeen. This media query is equivalent to
+        // bootstrap's media-breakpoint-down(lg) breakpoint mixin, which is what the sidenav's
+        // CSS uses.
+        var isSmallScreen = window.matchMedia('(max-width: 991.98px)').matches;
         if (typeof sideNavRaw === 'string') {
           var sideNavState = JSON.parse(sideNavRaw);
-          if (sideNavState.pinned === true) {
-            // If the sidebar should be pinned, set the appropriate body attributes prior to the
-            // rest of the content rendering. This prevents jumpy/glitchy behavior on page reloads.
+          if (sideNavState.pinned === true && !isSmallScreen) {
+            // If the sidebar should be pinned and this is not a small screen, set the appropriate
+            // body attributes prior to the rest of the content rendering. This prevents
+            // jumpy/glitchy behavior on page reloads.
             document.body.setAttribute('data-sidenav-pinned', '');
             document.body.setAttribute('data-sidenav-show', '');
-          } else if (sideNavState.pinned === false) {
+          } else {
             document.body.setAttribute('data-sidenav-hidden', '');
           }
         }
