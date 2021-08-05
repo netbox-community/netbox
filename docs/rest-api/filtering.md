@@ -69,7 +69,7 @@ Numeric based fields (ASN, VLAN ID, etc) support these lookup expressions:
 | `gt` | Greater than |
 | `gte` | Greater than or equal to |
 
-Here is an example of a Numeric Field lookup expression that will return all VLANs with a VLAN ID greater than 900:
+Here is an example of a numeric field lookup expression that will return all VLANs with a VLAN ID greater than 900:
 
 ```no-highlight
 GET /api/ipam/vlans/?vid__gt=900
@@ -92,7 +92,7 @@ String based (char) fields (Name, Address, etc) support these lookup expressions
 | `nie` | Inverse exact match (case-insensitive) |
 | `empty` | Is empty (boolean) |
 
-Here is an example of a lookup expression on a string field that will return all devices with 'switch' in the name:
+Here is an example of a lookup expression on a string field that will return all devices with `switch` in the name:
 
 ```no-highlight
 GET /api/dcim/devices/?name__ic=switch
@@ -101,7 +101,7 @@ GET /api/dcim/devices/?name__ic=switch
 ### Foreign Keys & Other Fields
 
 Certain other fields, namely foreign key relationships support just the negation
-expression: `n`. Here is example of a lookup expression on a foreign key, it would return all the VLANs that don't have have VLAN Group ID of 3203:
+expression: `n`. Here is example of a lookup expression on a foreign key, it would return all the VLANs that don't have a VLAN Group ID of 3203:
 
 ```no-highlight
 GET /api/ipam/vlans/?group_id__n=3203
