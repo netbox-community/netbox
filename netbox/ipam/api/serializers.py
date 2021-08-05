@@ -331,7 +331,7 @@ class AvailableIPSerializer(serializers.Serializer):
         return OrderedDict([
             ('family', self.context['parent'].family),
             ('address', f"{instance}/{self.context['parent'].mask_length}"),
-            ('vrf', self.context['parent'].vrf),
+            ('vrf', vrf),
         ])
 
 

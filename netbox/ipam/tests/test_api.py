@@ -216,9 +216,10 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of all available prefixes within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'))
-        Prefix.objects.create(prefix=IPNetwork('192.0.2.64/26'))
-        Prefix.objects.create(prefix=IPNetwork('192.0.2.192/27'))
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'), vrf=vrf)
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.64/26'), vrf=vrf)
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.192/27'), vrf=vrf)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix')
 
@@ -232,7 +233,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of the first available prefix within a parent prefix.
         """
-        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.add_prefix')
@@ -269,17 +270,18 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test the creation of available prefixes within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), is_pool=True)
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
 
         # Try to create five /30s (only four are available)
         data = [
-            {'prefix_length': 30, 'description': 'Test Prefix 1'},
-            {'prefix_length': 30, 'description': 'Test Prefix 2'},
-            {'prefix_length': 30, 'description': 'Test Prefix 3'},
-            {'prefix_length': 30, 'description': 'Test Prefix 4'},
-            {'prefix_length': 30, 'description': 'Test Prefix 5'},
+            {'prefix_length': 30, 'description': 'Prefix 1'},
+            {'prefix_length': 30, 'description': 'Prefix 2'},
+            {'prefix_length': 30, 'description': 'Prefix 3'},
+            {'prefix_length': 30, 'description': 'Prefix 4'},
+            {'prefix_length': 30, 'description': 'Prefix 5'},
         ]
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
@@ -299,7 +301,8 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of all available IP addresses within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress')
 
@@ -318,7 +321,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of the first available IP address within a parent prefix.
         """
-        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
@@ -342,7 +345,8 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         Test the creation of available IP addresses within a parent prefix.
         """
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
 

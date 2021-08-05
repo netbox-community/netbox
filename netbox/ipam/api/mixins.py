@@ -176,6 +176,7 @@ class AvailableIPsMixin:
             serializer = serializers.AvailableIPSerializer(ip_list, many=True, context={
                 'request': request,
                 'parent': parent,
+                'vrf': parent.vrf,
             })
 
             return Response(serializer.data)
