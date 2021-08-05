@@ -2478,6 +2478,104 @@ class CableBulkDeleteView(generic.BulkDeleteView):
     table = tables.CableTable
 
 
+class CableReconnectView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
+    queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
+    template_name = 'dcim/cable_reconnect.html'
+
+    def get_required_permission(self):
+        return 'dcim.change_cable'
+
+    def dispatch(self, request, *args, pk=None, **kwargs):
+        self.obj = Cable.objects.get(pk=pk)
+
+        idx = (self.obj.termination_a_type.model, self.obj.termination_b_type.model)
+        idx_sorted = tuple(sorted(idx))
+        if idx != idx_sorted:
+            termination_a = self.obj.termination_a
+            self.obj.termination_a = self.obj.termination_b
+            self.obj.termination_b = termination_a
+
+        self.form_class = {
+            ('circuittermination', 'circuittermination'): forms.ReconnectCircuitTerminationForm,
+            ('circuittermination', 'rearport'): forms.ReconnectCircuitTerminationToRearPortForm,
+            ('consoleport', 'consoleserverport'): forms.ReconnectConsolePortToConsoleServerPortForm,
+            ('consoleport', 'frontport'): forms.ReconnectConsolePortToFrontPortForm,
+            ('consoleport', 'rearport'): forms.ReconnectConsolePortToRearPortForm,
+            ('consoleserverport', 'frontport'): forms.ReconnectConsoleServerPortToFrontPortForm,
+            ('consoleserverport', 'rearport'): forms.ReconnectConsoleServerPortToRearPortForm,
+            ('powerfeed', 'powerport'): forms.ReconnectPowerfeedToPowerPortForm,
+            ('poweroutlet', 'powerport'): forms.ReconnectPowerOutletToPowerPortForm,
+            ('circuittermination', 'interface'): forms.ReconnectCircuitTerminationToInterfaceForm,
+            ('frontport', 'interface'): forms.ReconnectFrontPortToInterfaceForm,
+            ('interface', 'rearport'): forms.ReconnectInterfaceToRearPortForm,
+            ('interface', 'interface'): forms.ReconnectInterfaceForm,
+            ('frontport', 'frontport'): forms.ReconnectFrontPortForm,
+            ('frontport', 'rearport'): forms.ReconnectFrontPortToRearPortForm,
+            ('circuittermination', 'frontport'): forms.ReconnectCircuitTerminationToFrontPortForm,
+            ('rearport', 'rearport'): forms.ReconnectRearPortForm,
+        }[idx_sorted]
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def prefill_form(self, initial_data, termination):
+        o = getattr(self.obj, termination)
+        if o and hasattr(o, 'device'):
+            device = o.device
+            initial_data['{}_device'.format(termination)] = device
+            if device.site:
+                initial_data['{}_site'.format(termination)] = device.site
+            if device.rack:
+                initial_data['{}_rack'.format(termination)] = device.rack
+
+    def get(self, request, *args, **kwargs):
+        # Parse initial data manually to avoid setting field values as lists
+        initial_data = {k: request.GET[k] for k in request.GET}
+
+        self.prefill_form(initial_data, 'termination_a')
+        self.prefill_form(initial_data, 'termination_b')
+
+        form = self.form_class(instance=self.obj, initial=initial_data)
+
+        return render(request, self.template_name, {
+            'obj': self.obj,
+            'obj_type': Cable._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, self.obj),
+        })
+
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():
+            try:
+                if hasattr(self.obj.termination_a, '_path') and self.obj.termination_a._path_id:
+                    self.obj.termination_a._path = None
+            except CablePath.DoesNotExist:
+                pass
+            try:
+                if hasattr(self.obj.termination_b, '_path') and self.obj.termination_b._path_id:
+                    self.obj.termination_b._path = None
+            except CablePath.DoesNotExist:
+                pass
+            self.obj.delete()
+
+            self.obj.termination_a.cable = None
+            self.obj.termination_b.cable = None
+
+            form = self.form_class(request.POST, request.FILES, instance=self.obj)
+            if form.is_valid():
+                obj = form.save()
+
+                return redirect(self.get_return_url(request, obj))
+
+            return render(request, self.template_name, {
+                'obj': self.obj,
+                'obj_type': Cable._meta.verbose_name,
+                'form': form,
+
+
+                'return_url': self.get_return_url(request, self.obj),
+            })
+
+
 #
 # Connections
 #

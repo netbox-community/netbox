@@ -378,6 +378,7 @@ urlpatterns = [
     path('cables/<int:pk>/delete/', views.CableDeleteView.as_view(), name='cable_delete'),
     path('cables/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='cable_changelog', kwargs={'model': Cable}),
     path('cables/<int:pk>/journal/', ObjectJournalView.as_view(), name='cable_journal', kwargs={'model': Cable}),
+    path(r'cables/<int:pk>/reconnect/', views.CableReconnectView.as_view(), name='cable_reconnect'),
 
     # Console/power/interface connections (read-only)
     path('console-connections/', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),

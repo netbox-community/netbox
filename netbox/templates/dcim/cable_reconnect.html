@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load helpers %}
+{% load form_helpers %}
+
+{% block content %}
+<form method="post" class="form form-horizontal">
+    {% csrf_token %}
+    {% for field in form.hidden_fields %}
+        {{ field }}
+    {% endfor %}
+    {% if form.non_field_errors %}
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="panel panel-danger">
+                    <div class="panel-heading"><strong>Errors</strong></div>
+                    <div class="panel-body">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% with termination_a=form.instance.termination_a %}
+        <h3>{% block title %}Reconnect {{ form.instance.termination_a_type.name|bettertitle }}<->{{ form.instance.termination_b_type.name|bettertitle }} cable{% endblock %}</h3>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">
+                        <strong>A Side</strong>
+                    </div>
+                    <div class="panel-body">
+                        {% if tabs %}
+                            <ul class="nav nav-tabs">
+                                {% for url, link in tabs %}
+                                    <li role="presentation"><a href="{{ url }}">{{ link }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if 'termination_a_provider' in form.fields %}
+                            {% render_field form.termination_a_provider %}
+                        {% endif %}
+                        {% if 'termination_a_site' in form.fields %}
+                            {% render_field form.termination_a_site %}
+                        {% endif %}
+                        {% if 'termination_a_rackgroup' in form.fields %}
+                            {% render_field form.termination_a_rackgroup %}
+                        {% endif %}
+                        {% if 'termination_a_rack' in form.fields %}
+                            {% render_field form.termination_a_rack %}
+                        {% endif %}
+                        {% if 'termination_a_device' in form.fields %}
+                            {% render_field form.termination_a_device %}
+                        {% endif %}
+                        {% if 'termination_a_type' in form.fields %}
+                            {% render_field form.termination_a_type %}
+                        {% endif %}
+                        {% if 'termination_a_powerpanel' in form.fields %}
+                            {% render_field form.termination_a_powerpanel %}
+                        {% endif %}
+                        {% if 'termination_a_circuit' in form.fields %}
+                            {% render_field form.termination_a_circuit %}
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required">Type</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ form.instance.termination_a_type.name|capfirst }}</p>
+                            </div>
+                        </div>
+                        {% render_field form.termination_a_id %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 text-center" style="padding-top: 90px;">
+                <i class="fa fa-exchange fa-4x"></i>
+            </div>
+            <div class="col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">
+                        <strong>B Side</strong>
+                    </div>
+                    <div class="panel-body">
+                        {% if tabs %}
+                            <ul class="nav nav-tabs">
+                                {% for url, link in tabs %}
+                                    <li role="presentation"><a href="{{ url }}">{{ link }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if 'termination_b_provider' in form.fields %}
+                            {% render_field form.termination_b_provider %}
+                        {% endif %}
+                        {% if 'termination_b_site' in form.fields %}
+                            {% render_field form.termination_b_site %}
+                        {% endif %}
+                        {% if 'termination_b_rackgroup' in form.fields %}
+                            {% render_field form.termination_b_rackgroup %}
+                        {% endif %}
+                        {% if 'termination_b_rack' in form.fields %}
+                            {% render_field form.termination_b_rack %}
+                        {% endif %}
+                        {% if 'termination_b_device' in form.fields %}
+                            {% render_field form.termination_b_device %}
+                        {% endif %}
+                        {% if 'termination_b_type' in form.fields %}
+                            {% render_field form.termination_b_type %}
+                        {% endif %}
+                        {% if 'termination_b_powerpanel' in form.fields %}
+                            {% render_field form.termination_b_powerpanel %}
+                        {% endif %}
+                        {% if 'termination_b_circuit' in form.fields %}
+                            {% render_field form.termination_b_circuit %}
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required">Type</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ form.instance.termination_b_type.name|capfirst }}</p>
+                            </div>
+                        </div>
+                        {% render_field form.termination_b_id %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display: none">
+          {% include 'dcim/inc/cable_form.html' %}
+        </div>
+        <div class="form-group">
+            <div class="col-md-12 text-center">
+                <button type="submit" name="_update" class="btn btn-primary">Reconnect</button>
+                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+            </div>
+        </div>
+    {% endwith %}
+</form>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/livesearch.js' %}?v{{ settings.VERSION }}"></script>
+{% endblock %}

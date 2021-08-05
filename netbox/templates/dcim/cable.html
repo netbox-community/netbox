@@ -11,6 +11,10 @@
 
 {% block buttons %}
   {% if request.user|can_change:object %}
+    <a href="{% url 'dcim:cable_reconnect' pk=object.pk %}" class="btn btn-primary">
+        <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Reconnect    </a>
+  {% endif %}
+  {% if request.user|can_change:object %}
     {% edit_button object %}
   {% endif %}
   {% if request.user|can_delete:object %}

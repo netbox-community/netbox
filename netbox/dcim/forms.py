@@ -4269,6 +4269,574 @@ class CableCSVForm(CustomFieldModelCSVForm):
         return length_unit if length_unit is not None else ''
 
 
+class ReconnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
+    """
+    Base form for connecting a Cable to a Device component
+    """
+    termination_a_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+    )
+    termination_a_rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        display_field='display_name',
+        null_option='None',
+        query_params={
+            'site_id': '$termination_a_site'
+        }
+    )
+    termination_a_device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        display_field='display_name',
+        query_params={
+            'site_id': '$termination_a_site',
+            'rack_id': '$termination_a_rack',
+        }
+    )
+    termination_b_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False
+    )
+    termination_b_rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        display_field='display_name',
+        null_option='None',
+        query_params={
+            'site_id': '$termination_b_site'
+        }
+    )
+    termination_b_device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        display_field='display_name',
+        query_params={
+            'site_id': '$termination_b_site',
+            'rack_id': '$termination_b_rack',
+        }
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'termination_a_site', 'termination_a_rack', 'termination_a_device', 'termination_a_id',
+            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id'
+        ]
+
+    def clean_termination_a_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_a_id'], 'pk', None)
+
+    def clean_termination_b_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
+
+
+class ReconnectConsolePortToConsoleServerPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=ConsolePort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=ConsoleServerPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectConsolePortToFrontPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=ConsolePort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectConsolePortToRearPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=ConsolePort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectConsoleServerPortToFrontPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=ConsoleServerPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectConsoleServerPortToRearPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=ConsoleServerPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectPowerfeedToPowerPortForm(ReconnectCableToDeviceForm):
+    termination_a_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        display_field='cid'
+    )
+    termination_a_rackgroup = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        label='Location',
+        required=False,
+        display_field='cid',
+        query_params={
+            'site_id': '$termination_a_site'
+        }
+    )
+    termination_a_powerpanel = DynamicModelChoiceField(
+        queryset=PowerPanel.objects.all(),
+        label='Power Panel',
+        required=False,
+        query_params={
+            'site_id': '$termination_a_site',
+            'rack_group_id': '$termination_a_rackgroup',
+        }
+    )
+    termination_a_id = DynamicModelChoiceField(
+        queryset=PowerFeed.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'power_panel_id': '$termination_a_powerpanel'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'termination_a_site', 'termination_a_rackgroup', 'termination_a_powerpanel', 'termination_a_id',
+            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id'
+        ]
+
+
+class ReconnectPowerOutletToPowerPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=PowerOutlet.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectInterfaceForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device',
+            'kind': 'physical',
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device',
+            'kind': 'physical',
+        }
+    )
+
+
+class ReconnectFrontPortToInterfaceForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device',
+            'kind': 'physical',
+        }
+    )
+
+
+class ReconnectInterfaceToRearPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device',
+            'kind': 'physical',
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectCircuitTerminationToInterfaceForm(ReconnectCableToDeviceForm):
+    termination_a_provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        label='Provider',
+        required=False
+    )
+    termination_a_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False
+    )
+    termination_a_circuit = DynamicModelChoiceField(
+        queryset=Circuit.objects.all(),
+        label='Circuit',
+        display_field='cid',
+        query_params={
+            'provider_id': '$termination_a_provider',
+            'site_id': '$termination_a_site',
+        }
+    )
+    termination_a_id = DynamicModelChoiceField(
+        queryset=CircuitTermination.objects.all(),
+        label='Side',
+        display_field='term_side',
+        disabled_indicator='cable',
+        query_params={
+            'circuit_id': '$termination_a_circuit'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device',
+            'kind': 'physical',
+        }
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'termination_a_provider', 'termination_a_site', 'termination_a_circuit', 'termination_a_id',
+            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id'
+        ]
+
+
+class ReconnectCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
+    termination_a_provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        label='Provider',
+        required=False
+    )
+    termination_a_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False
+    )
+    termination_a_circuit = DynamicModelChoiceField(
+        queryset=Circuit.objects.all(),
+        label='Circuit',
+        display_field='cid',
+        query_params={
+            'provider_id': '$termination_a_provider',
+            'site_id': '$termination_a_site',
+        }
+    )
+    termination_a_id = DynamicModelChoiceField(
+        queryset=CircuitTermination.objects.all(),
+        label='Side',
+        display_field='term_side',
+        disabled_indicator='cable',
+        query_params={
+            'circuit_id': '$termination_a_circuit'
+        }
+    )
+    termination_b_provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        label='Provider',
+        required=False
+    )
+    termination_b_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False
+    )
+    termination_b_circuit = DynamicModelChoiceField(
+        queryset=Circuit.objects.all(),
+        label='Circuit',
+        display_field='cid',
+        query_params={
+            'provider_id': '$termination_b_provider',
+            'site_id': '$termination_b_site',
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=CircuitTermination.objects.all(),
+        label='Side',
+        display_field='term_side',
+        disabled_indicator='cable',
+        query_params={
+            'circuit_id': '$termination_b_circuit'
+        }
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'termination_a_provider', 'termination_a_site', 'termination_a_circuit', 'termination_a_id',
+            'termination_b_provider', 'termination_b_site', 'termination_b_circuit', 'termination_b_id', 'type',
+            'status', 'label', 'color', 'length', 'length_unit',
+        ]
+
+    def clean_termination_a_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_a_id'], 'pk', None)
+
+    def clean_termination_b_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
+
+
+class ReconnectFrontPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectFrontPortToRearPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectRearPortForm(ReconnectCableToDeviceForm):
+    termination_a_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_a_device'
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectCircuitTerminationToForm(BootstrapMixin, forms.ModelForm):
+    termination_a_provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        label='Provider',
+        required=False
+    )
+    termination_a_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False
+    )
+    termination_a_circuit = DynamicModelChoiceField(
+        queryset=Circuit.objects.all(),
+        label='Circuit',
+        display_field='cid',
+        query_params={
+            'provider_id': '$termination_a_provider',
+            'site_id': '$termination_a_site',
+        }
+    )
+    termination_a_id = DynamicModelChoiceField(
+        queryset=CircuitTermination.objects.all(),
+        label='Side',
+        display_field='term_side',
+        disabled_indicator='cable',
+        query_params={
+            'circuit_id': '$termination_a_circuit'
+        }
+    )
+    termination_b_site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False
+    )
+    termination_b_rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        display_field='display_name',
+        null_option='None',
+        query_params={
+            'site_id': '$termination_b_site'
+        }
+    )
+    termination_b_device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        display_field='display_name',
+        query_params={
+            'site_id': '$termination_b_site',
+            'rack_id': '$termination_b_rack',
+        }
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'termination_a_provider', 'termination_a_site', 'termination_a_circuit', 'termination_a_id',
+            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id'
+        ]
+
+    def clean_termination_a_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_a_id'], 'pk', None)
+
+    def clean_termination_b_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
+
+
+class ReconnectCircuitTerminationToFrontPortForm(ReconnectCircuitTerminationToForm):
+    termination_b_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
+class ReconnectCircuitTerminationToRearPortForm(ReconnectCircuitTerminationToForm):
+    termination_b_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        label='Name',
+        disabled_indicator='cable',
+        query_params={
+            'device_id': '$termination_b_device'
+        }
+    )
+
+
 class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cable.objects.all(),
