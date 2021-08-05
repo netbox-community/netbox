@@ -101,7 +101,7 @@ GET /api/dcim/devices/?name__ic=switch
 ### Foreign Keys & Other Fields
 
 Certain other fields, namely foreign key relationships support just the negation
-expression: `n`. Here is example of a lookup expression on a foreign key, it would return all the VLANs that don't have a VLAN Group ID of 3203:
+expression: `n`. Here is an example of a lookup expression on a foreign key, it would return all the VLANs that don't have a VLAN Group ID of 3203:
 
 ```no-highlight
 GET /api/ipam/vlans/?group_id__n=3203
