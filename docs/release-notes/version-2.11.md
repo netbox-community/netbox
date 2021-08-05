@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#6740](https://github.com/netbox-community/netbox/issues/6740) - Add import button to VM interfaces list
+* [#6892](https://github.com/netbox-community/netbox/issues/6892) - Fix validation of unit ranges when creating a rack reservation
 
 ---
 

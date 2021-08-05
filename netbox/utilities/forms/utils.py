@@ -32,7 +32,10 @@ def parse_numeric_range(string, base=10):
             begin, end = dash_range.split('-')
         except ValueError:
             begin, end = dash_range, dash_range
-        begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
+        try:
+            begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
+        except ValueError:
+            raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
         values.extend(range(begin, end))
     return list(set(values))
 
@@ -64,7 +67,7 @@ def parse_alphanumeric_range(string):
             else:
                 # Not a valid range (more than a single character)
                 if not len(begin) == len(end) == 1:
-                    raise forms.ValidationError('Range "{}" is invalid.'.format(dash_range))
+                    raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
                 for n in list(range(ord(begin), ord(end) + 1)):
                     values.append(chr(n))
     return values
