@@ -6,6 +6,23 @@ type Dict<T extends unknown = unknown> = Record<string, T>;
 
 type Nullable<T> = T | null;
 
+interface Window {
+  /**
+   * Bootstrap Modal Instance.
+   */
+  Modal: typeof import('bootstrap').Modal;
+
+  /**
+   * Bootstrap Toast Instance.
+   */
+  Toast: typeof import('bootstrap').Toast;
+
+  /**
+   * Bootstrap Tooltip Instance.
+   */
+  Tooltip: typeof import('bootstrap').Tooltip;
+}
+
 /**
  * Enforce string index type (not `number` or `symbol`).
  */

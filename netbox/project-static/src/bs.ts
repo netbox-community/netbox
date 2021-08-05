@@ -4,6 +4,12 @@ import { getElements } from './util';
 
 type ToastLevel = 'danger' | 'warning' | 'success' | 'info';
 
+// Add common Bootstrap components to `window`, so they may be consumed globally (primarily for
+// plugins).
+window.Modal = Modal;
+window.Toast = Toast;
+window.Tooltip = Tooltip;
+
 /**
  * Initialize masonry-layout for homepage (or any other masonry layout cards).
  */
