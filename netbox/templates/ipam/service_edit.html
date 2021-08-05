@@ -6,14 +6,14 @@
         <h5 class="text-center">Service</h5>
         {% if obj.device %}
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label text-end">Device</label>
+                <label class="col-sm-3 col-form-label text-lg-end">Device</label>
                 <div class="col">
                     <input class="form-control" value="{{ obj.device }}" disabled />
                 </div>
             </div>
         {% else %}
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label text-end">Virtual Machine</label>
+                <label class="col-sm-3 col-form-label text-lg-end">Virtual Machine</label>
                 <div class="col">
                     <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
                 </div>
@@ -21,7 +21,7 @@
         {% endif %}
         {% render_field form.name %}
         <div class="row">
-            <label class="col-sm-3 col-form-label text-end">Port(s)</label>
+            <label class="col-sm-3 col-form-label text-lg-end">Port(s)</label>
             <div class="col-2">
                 {{ form.protocol }}
             </div>

@@ -255,7 +255,7 @@ div.title-container {
 
   #content-title {
     display: flex;
-    flex: 1 0 auto;
+    flex: 1 0;
     flex-direction: column;
     padding-bottom: map.get($spacers, 2);
   }
@@ -721,6 +721,8 @@ div.bulk-buttons {
   > div.bulk-button-group {
     display: flex;
     flex-wrap: wrap;
+    // For small screens: don't fill the available space (thereby expanding the size of the button).
+    align-items: flex-start;
 
     &:first-of-type:not(:last-of-type) {
       // If there are multiple bulk button groups and this is the first, the first button in the

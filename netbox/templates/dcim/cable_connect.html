@@ -23,43 +23,43 @@
                     {% if termination_a.device %}
                         {# Device component #}
                         <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-end">Region</label>
+                            <label class="col-sm-3 col-form-label text-lg-end">Region</label>
                             <div class="col">
                                 <input class="form-control" value="{{ termination_a.device.site.region }}" disabled />
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-end">Site</label>
+                            <label class="col-sm-3 col-form-label text-lg-end">Site</label>
                             <div class="col">
                                 <input class="form-control" value="{{ termination_a.device.site }}" disabled />
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-end">Location</label>
+                            <label class="col-sm-3 col-form-label text-lg-end">Location</label>
                             <div class="col">
                                 <input class="form-control" value="{{ termination_a.device.location|default:"None" }}" disabled />
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-end">Rack</label>
+                            <label class="col-sm-3 col-form-label text-lg-end">Rack</label>
                             <div class="col">
                                 <input class="form-control" value="{{ termination_a.device.rack|default:"None" }}" disabled />
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-end">Device</label>
+                            <label class="col-sm-3 col-form-label text-lg-end">Device</label>
                             <div class="col">
                                 <input class="form-control" value="{{ termination_a.device }}" disabled />
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-end">Type</label>
+                            <label class="col-sm-3 col-form-label text-lg-end">Type</label>
                             <div class="col">
                                 <input class="form-control" value="{{ termination_a|meta:"verbose_name"|capfirst }}" disabled />
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-end">Name</label>
+                            <label class="col-sm-3 col-form-label text-lg-end">Name</label>
                             <div class="col">
                                 <input class="form-control" value="{{ termination_a }}" disabled />
                             </div>
@@ -94,7 +94,7 @@
                 </div>
             </div>
         </div>
-        <div class="col col-md-2 d-flex flex-column justify-content-center align-items-center">
+        <div class="col col-md-2 flex-column justify-content-center align-items-center d-none d-md-flex">
             <i class="mdi mdi-swap-horizontal-bold mdi-48px"></i>
         </div>
         <div class="col col-md-5">
@@ -140,7 +140,7 @@
                         {% render_field form.termination_b_circuit %}
                     {% endif %}
                     <div class="row mb-3">
-                        <label class="col-sm-3 col-form-label text-end">Type</label>
+                        <label class="col-sm-3 col-form-label text-lg-end">Type</label>
                         <div class="col">
                             <input class="form-control" value="{{ termination_b_type|capfirst }}" disabled />
                         </div>
