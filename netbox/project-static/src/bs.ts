@@ -1,4 +1,4 @@
-import { Modal, Tab, Toast, Tooltip } from 'bootstrap';
+import { Collapse, Modal, Tab, Toast, Tooltip } from 'bootstrap';
 import Masonry from 'masonry-layout';
 import { getElements } from './util';
 
@@ -6,6 +6,7 @@ type ToastLevel = 'danger' | 'warning' | 'success' | 'info';
 
 // Add common Bootstrap components to `window`, so they may be consumed globally (primarily for
 // plugins).
+window.Collapse = Collapse;
 window.Modal = Modal;
 window.Toast = Toast;
 window.Tooltip = Tooltip;

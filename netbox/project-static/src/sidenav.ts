@@ -1,8 +1,10 @@
+import { Collapse } from 'bootstrap';
 import { StateManager } from './state';
 import { getElements, isElement } from './util';
 
 type NavState = { pinned: boolean };
 type BodyAttr = 'show' | 'hide' | 'hidden' | 'pinned';
+type Section = [HTMLAnchorElement, InstanceType<typeof Collapse>];
 
 class SideNav {
   /**
@@ -15,6 +17,16 @@ class SideNav {
    */
   private state: StateManager<NavState>;
 
+  /**
+   * The currently active parent nav-link controlling a section.
+   */
+  private activeLink: Nullable<HTMLAnchorElement> = null;
+
+  /**
+   * All collapsible sections and their controlling nav-links.
+   */
+  private sections: Section[] = [];
+
   constructor(base: HTMLDivElement) {
     this.base = base;
     this.state = new StateManager<NavState>(
@@ -23,6 +35,7 @@ class SideNav {
     );
 
     this.init();
+    this.initSectionLinks();
     this.initLinks();
   }
 
@@ -97,11 +110,17 @@ class SideNav {
     }
   }
 
+  /**
+   * Show the sidenav.
+   */
   private show(): void {
     this.bodyAdd('show');
     this.bodyRemove('hidden', 'hide');
   }
 
+  /**
+   * Hide the sidenav and collapse all active nav sections.
+   */
   private hide(): void {
     this.bodyAdd('hidden');
     this.bodyRemove('pinned', 'show');
@@ -129,6 +148,51 @@ class SideNav {
       collapse.classList.remove('show');
     }
     this.state.set('pinned', false);
+  }
+
+  /**
+   * When a section's controlling nav-link is clicked, update this instance's `activeLink`
+   * attribute and close all other sections.
+   */
+  private handleSectionClick(event: Event): void {
+    event.preventDefault();
+    const element = event.target as HTMLAnchorElement;
+    this.activeLink = element;
+    this.closeInactiveSections();
+  }
+
+  /**
+   * Close all sections that are not associated with the currently active link (`activeLink`).
+   */
+  private closeInactiveSections(): void {
+    for (const [link, collapse] of this.sections) {
+      if (link !== this.activeLink) {
+        link.classList.add('collapsed');
+        link.setAttribute('aria-expanded', 'false');
+        collapse.hide();
+      }
+    }
+  }
+
+  /**
+   * Initialize `bootstrap.Collapse` instances on all section collapse elements and add event
+   * listeners to the controlling nav-links.
+   */
+  private initSectionLinks(): void {
+    for (const section of getElements<HTMLAnchorElement>(
+      '.navbar-nav .nav-item .nav-link[data-bs-toggle]',
+    )) {
+      if (section.parentElement !== null) {
+        const collapse = section.parentElement.querySelector<HTMLDivElement>('.collapse');
+        if (collapse !== null) {
+          const collapseInstance = new Collapse(collapse, {
+            toggle: false, // Don't automatically open the collapse element on invocation.
+          });
+          this.sections.push([section, collapseInstance]);
+          section.addEventListener('click', event => this.handleSectionClick(event));
+        }
+      }
+    }
   }
 
   /**
@@ -232,6 +296,10 @@ class SideNav {
     }
   }
 
+  /**
+   * Handle sidenav visibility state for small screens. On small screens, there is no pinned state,
+   * only open/closed.
+   */
   private onMobileToggle(event: Event): void {
     event.preventDefault();
     if (this.bodyHas('hidden')) {

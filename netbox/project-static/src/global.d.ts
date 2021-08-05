@@ -8,6 +8,11 @@ type Nullable<T> = T | null;
 
 interface Window {
   /**
+   * Bootstrap Collapse Instance.
+   */
+  Collapse: typeof import('bootstrap').Collapse;
+
+  /**
    * Bootstrap Modal Instance.
    */
   Modal: typeof import('bootstrap').Modal;

@@ -271,10 +271,6 @@
         white-space: nowrap;
         transition: $transition-100ms-ease-in-out;
 
-        // &.disabled {
-        //   opacity: 0.8;
-        // }
-
         &.active {
           position: relative;
           color: var(--nbx-sidebar-link-hover-bg);
