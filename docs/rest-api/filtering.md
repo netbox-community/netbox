@@ -69,7 +69,7 @@ Numeric based fields (ASN, VLAN ID, etc) support these lookup expressions:
 | `gt` | Greater than |
 | `gte` | Greater than or equal to |
 
-Here is an example of a Numeric Field lookup expression that will return all VLANs with a VLAN ID greater than 9000:
+Here is an example of a Numeric Field lookup expression that will return all VLANs with a VLAN ID greater than 900:
 
 ```no-highlight
 GET /api/ipam/vlans/?vid__gt=900
