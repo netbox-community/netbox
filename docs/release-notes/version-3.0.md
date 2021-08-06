@@ -146,11 +146,11 @@ The new REST API endpoint `/api/users/tokens/` has been added, which includes a 
 $ curl -X POST \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
-https://netbox/api/users/tokens/provision/
-{
+https://netbox/api/users/tokens/provision/ \
+--data '{
     "username": "hankhill",
     "password: "I<3C3H8",
-}
+}'
 ```
 
 If the supplied credentials are valid, NetBox will create and return a new token for the user.
