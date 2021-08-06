@@ -21,14 +21,6 @@ PREFIX_LINK = """
 <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 """
 
-PREFIX_ROLE_LINK = """
-{% if record.role %}
-    <a href="{% url 'ipam:prefix_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
-{% else %}
-    &mdash;
-{% endif %}
-"""
-
 IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
@@ -53,14 +45,6 @@ VRF_LINK = """
 {% endif %}
 """
 
-VRF_TARGETS = """
-{% for rt in value.all %}
-    <a href="{{ rt.get_absolute_url }}">{{ rt }}</a>{% if not forloop.last %}<br />{% endif %}
-{% empty %}
-    &mdash;
-{% endfor %}
-"""
-
 VLAN_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
@@ -69,14 +53,6 @@ VLAN_LINK = """
 {% else %}
     {{ record.available }} VLAN{{ record.available|pluralize }} available
 {% endif %}
-"""
-
-VLAN_PREFIXES = """
-{% for prefix in record.prefixes.all %}
-    <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
-{% empty %}
-    &mdash;
-{% endfor %}
 """
 
 VLAN_ROLE_LINK = """
@@ -106,6 +82,42 @@ VLAN_MEMBER_TAGGED = """
 """
 
 
+class PrefixColumn(tables.TemplateColumn):
+
+    template_code = """
+    {% for prefix in record.prefixes.all %}
+        <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
+    {% empty %}
+        &mdash;
+    {% endfor %}
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        prefixes = [str(prefix['prefix']) for prefix in value.all().values('prefix')]
+        return " ".join(prefixes) if prefixes else None
+
+
+class VRFTargetsColumn(tables.TemplateColumn):
+
+    template_code = """
+    {% for rt in value.all %}
+        <a href="{{ rt.get_absolute_url }}">{{ rt }}</a>{% if not forloop.last %}<br />{% endif %}
+    {% empty %}
+        &mdash;
+    {% endfor %}
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(template_code=self.template_code, *args, **kwargs)
+
+    def value(self, value):
+        rts = [rd['name'] for rd in value.all().values('name')]
+        return " ".join(rts) if rts else None
+
+
 #
 # VRFs
 #
@@ -122,12 +134,10 @@ class VRFTable(BaseTable):
     enforce_unique = BooleanColumn(
         verbose_name='Unique'
     )
-    import_targets = tables.TemplateColumn(
-        template_code=VRF_TARGETS,
+    import_targets = VRFTargetsColumn(
         orderable=False
     )
-    export_targets = tables.TemplateColumn(
-        template_code=VRF_TARGETS,
+    export_targets = VRFTargetsColumn(
         orderable=False
     )
     tags = TagColumn(
@@ -295,8 +305,8 @@ class PrefixTable(BaseTable):
         linkify=True,
         verbose_name='VLAN'
     )
-    role = tables.TemplateColumn(
-        template_code=PREFIX_ROLE_LINK
+    role = tables.Column(
+        linkify=True
     )
     is_pool = BooleanColumn(
         verbose_name='Pool'
@@ -487,8 +497,8 @@ class VLANTable(BaseTable):
     status = ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
-    role = tables.TemplateColumn(
-        template_code=VLAN_ROLE_LINK
+    role = tables.Column(
+        linkify=True
     )
 
     class Meta(BaseTable.Meta):
@@ -500,8 +510,7 @@ class VLANTable(BaseTable):
 
 
 class VLANDetailTable(VLANTable):
-    prefixes = tables.TemplateColumn(
-        template_code=VLAN_PREFIXES,
+    prefixes = PrefixColumn(
         orderable=False,
         verbose_name='Prefixes'
     )
