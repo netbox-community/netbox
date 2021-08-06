@@ -1,24 +1,56 @@
 {% extends 'base/layout.html' %}
 {% load buttons %}
+{% load helpers %}
 {% load render_table from django_tables2 %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block extra_controls %}{% export_button content_type %}{% endblock %}
 
-{% block content %}
-    <div class="row mb-3">
-        <div class="col col-md-7 col-lg-8 col-xl-9 col-xxl-10">
-            {% include 'inc/table_controls.html' %}
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    {% block tab_items %}
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="connections-list-tab" data-bs-toggle="tab" data-bs-target="#connections-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+          {{ title }}
+          {% badge table.page.paginator.count %}
+        </button>
+      </li>
+      {% if filter_form %}
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+            Filters
+          </button>
+        </li>
+      {% endif %}
+    {% endblock tab_items %}
+  </ul>
+{% endblock tabs %}
 
-            <div class="table-responsive">
-                {% render_table table 'inc/table.html' %}
-            </div>
+{% block content-wrapper %}
+  <div class="tab-content">
 
-            {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+    {# Conncetions list #}
+    <div class="tab-pane show active" id="connections-list" role="tabpanel" aria-labelledby="connections-list-tab">
+      {% include 'inc/table_controls.html' %}
+
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            {% render_table table 'inc/table.html' %}
+          </div>
         </div>
-        {% if filter_form %}
-            {% include 'inc/filter_list.html' %}
-        {% endif %}
+      </div>
+
+      {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
-{% endblock %}
+
+    {# Filter form #}
+    {% if filter_form %}
+      <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
+        {% include 'inc/filter_list.html' %}
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock content-wrapper %}
