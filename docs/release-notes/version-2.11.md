@@ -1,5 +1,19 @@
 # NetBox v2.11
 
+## v2.11.11 (FUTURE)
+
+### Enhancements
+
+* [#6883](https://github.com/netbox-community/netbox/issues/6883) - Add C21 & C22 power types
+
+### Bug Fixes
+
+* [#6740](https://github.com/netbox-community/netbox/issues/6740) - Add import button to VM interfaces list
+* [#6892](https://github.com/netbox-community/netbox/issues/6892) - Fix validation of unit ranges when creating a rack reservation
+* [#6902](https://github.com/netbox-community/netbox/issues/6902) - Populate device field when cloning device components
+
+---
+
 ## v2.11.10 (2021-07-28)
 
 ### Enhancements

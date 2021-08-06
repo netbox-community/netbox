@@ -252,6 +252,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_IEC_C14 = 'iec-60320-c14'
     TYPE_IEC_C16 = 'iec-60320-c16'
     TYPE_IEC_C20 = 'iec-60320-c20'
+    TYPE_IEC_C22 = 'iec-60320-c22'
     # IEC 60309
     TYPE_IEC_PNE4H = 'iec-60309-p-n-e-4h'
     TYPE_IEC_PNE6H = 'iec-60309-p-n-e-6h'
@@ -351,6 +352,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_IEC_C14, 'C14'),
             (TYPE_IEC_C16, 'C16'),
             (TYPE_IEC_C20, 'C20'),
+            (TYPE_IEC_C22, 'C22'),
         )),
         ('IEC 60309', (
             (TYPE_IEC_PNE4H, 'P+N+E 4H'),
@@ -467,6 +469,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_IEC_C13 = 'iec-60320-c13'
     TYPE_IEC_C15 = 'iec-60320-c15'
     TYPE_IEC_C19 = 'iec-60320-c19'
+    TYPE_IEC_C21 = 'iec-60320-c21'
     # IEC 60309
     TYPE_IEC_PNE4H = 'iec-60309-p-n-e-4h'
     TYPE_IEC_PNE6H = 'iec-60309-p-n-e-6h'
@@ -558,6 +561,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_IEC_C13, 'C13'),
             (TYPE_IEC_C15, 'C15'),
             (TYPE_IEC_C19, 'C19'),
+            (TYPE_IEC_C21, 'C21'),
         )),
         ('IEC 60309', (
             (TYPE_IEC_PNE4H, 'P+N+E 4H'),

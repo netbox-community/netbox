@@ -237,6 +237,8 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
         help_text='Port speed in bits per second'
     )
 
+    clone_fields = ['device', 'type', 'speed']
+
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
@@ -266,6 +268,8 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
         null=True,
         help_text='Port speed in bits per second'
     )
+
+    clone_fields = ['device', 'type', 'speed']
 
     class Meta:
         ordering = ('device', '_name')
@@ -302,6 +306,8 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
         validators=[MinValueValidator(1)],
         help_text="Allocated power draw (watts)"
     )
+
+    clone_fields = ['device', 'maximum_draw', 'allocated_draw']
 
     class Meta:
         ordering = ('device', '_name')
@@ -398,6 +404,8 @@ class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
         blank=True,
         help_text="Phase (for three-phase feeds)"
     )
+
+    clone_fields = ['device', 'type', 'power_port', 'feed_leg']
 
     class Meta:
         ordering = ('device', '_name')
@@ -525,6 +533,8 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         related_query_name='interface'
     )
 
+    clone_fields = ['device', 'parent', 'lag', 'type', 'mgmt_only']
+
     class Meta:
         ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
@@ -641,6 +651,8 @@ class FrontPort(ComponentModel, CableTermination):
         ]
     )
 
+    clone_fields = ['device', 'type']
+
     class Meta:
         ordering = ('device', '_name')
         unique_together = (
@@ -687,6 +699,7 @@ class RearPort(ComponentModel, CableTermination):
             MaxValueValidator(REARPORT_POSITIONS_MAX)
         ]
     )
+    clone_fields = ['device', 'type', 'positions']
 
     class Meta:
         ordering = ('device', '_name')
@@ -723,6 +736,8 @@ class DeviceBay(ComponentModel):
         blank=True,
         null=True
     )
+
+    clone_fields = ['device']
 
     class Meta:
         ordering = ('device', '_name')
@@ -805,6 +820,8 @@ class InventoryItem(MPTTModel, ComponentModel):
     )
 
     objects = TreeManager()
+
+    clone_fields = ['device', 'parent', 'manufacturer', 'part_id']
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
