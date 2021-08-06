@@ -13,8 +13,8 @@
                     {% for group in menu.groups %}
                         {# Within each main menu, there are groups of menu items #}
                             <li class="nav-item">
-                                <div class="nav-link">
-                                    {# Group Label #}
+                                {# Group Label #}
+                                <div class="nav-group-header">
                                     <span class="nav-group-label">{{ group.label }}</span>
                                 </div>
                             </li>
@@ -24,7 +24,7 @@
                             {% if request.user|has_perms:item.permissions %}
                             <li class="nav-item{% if not item.buttons %} no-buttons{% endif %}">
                                 <a href="{% url item.link %}" class="nav-link">
-                                    <span class="sidenav-normal">{{ item.link_text }}</span>
+                                    {{ item.link_text }}
                                 </a>
 
                                 {# Menu item buttons (if any) #}
@@ -45,7 +45,7 @@
                                 <li class="nav-item disabled">
                                     <a href="#" class="nav-link disabled" aria-disabled="true" disabled>
                                         <i class='mdi mdi-lock small'></i>
-                                        <span class="sidenav-normal">{{ item.link_text }}</span>
+                                        {{ item.link_text }}
                                     </a>
                                 </li>
                             {% endif %}

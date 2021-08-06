@@ -163,6 +163,12 @@
     }
   }
 
+  .nav-group-header {
+    padding: $sidenav-link-spacing-y / 2 $sidenav-link-spacing-x;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+
   // Child Link nav-item
   .nav .nav-item {
     display: flex;
@@ -178,24 +184,14 @@
 
   @include child-link() {
     width: 100%;
-    padding-top: $sidenav-link-spacing-y / 2.675;
+    padding-top: $sidenav-link-spacing-y / 2;
     padding-right: map.get($spacers, 1);
-    padding-bottom: $sidenav-link-spacing-y / 2.675;
-    /* stylelint-disable */
-    padding-left: $sidenav-link-spacing-x + $sidenav-icon-width + $sidenav-link-spacing-x / 4;
-    /* stylelint-enable */
-    margin-top: $sidenav-link-spacing-y / 3.3;
-    margin-bottom: $sidenav-link-spacing-y / 3.3;
-    font-size: $font-size-xs;
+    padding-bottom: $sidenav-link-spacing-y / 2;
+    padding-left: $sidenav-link-spacing-x;
+    margin-top: 0;
+    margin-bottom: 0;
     border-top-right-radius: $border-radius;
     border-bottom-right-radius: $border-radius;
-
-    .sidenav-normal {
-      color: $text-muted;
-      &:hover {
-        opacity: 0.8;
-      }
-    }
 
     .sidenav-mini-icon {
       width: $sidenav-link-spacing-x;
@@ -209,6 +205,7 @@
     height: 100%;
     font-weight: $font-weight-bold;
     color: var(--nbx-sidenav-parent-color);
+    padding-left: $sidenav-link-spacing-x / 2;
 
     &.active {
       color: $accordion-button-active-color;
@@ -273,7 +270,10 @@
 
         &.active {
           position: relative;
-          color: var(--nbx-sidebar-link-hover-bg);
+          background-color: var(--nbx-sidebar-link-hover-bg);
+        }
+
+        &:hover {
           background-color: var(--nbx-sidebar-link-hover-bg);
         }
 
@@ -290,7 +290,7 @@
       display: block;
       font-size: $font-size-xs;
       font-weight: $font-weight-bold;
-      color: $primary;
+      color: $secondary;
       text-transform: uppercase;
       white-space: nowrap;
     }
