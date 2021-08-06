@@ -1,15 +1,18 @@
+import datetime
+
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
+from django.utils.timezone import make_aware
 
-from users.filtersets import GroupFilterSet, ObjectPermissionFilterSet, UserFilterSet
-from users.models import ObjectPermission
+from users import filtersets
+from users.models import ObjectPermission, Token
 from utilities.testing import BaseFilterSetTests
 
 
 class UserTestCase(TestCase, BaseFilterSetTests):
     queryset = User.objects.all()
-    filterset = UserFilterSet
+    filterset = filtersets.UserFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -94,7 +97,7 @@ class UserTestCase(TestCase, BaseFilterSetTests):
 
 class GroupTestCase(TestCase, BaseFilterSetTests):
     queryset = Group.objects.all()
-    filterset = GroupFilterSet
+    filterset = filtersets.GroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -113,7 +116,7 @@ class GroupTestCase(TestCase, BaseFilterSetTests):
 
 class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectPermission.objects.all()
-    filterset = ObjectPermissionFilterSet
+    filterset = filtersets.ObjectPermissionFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -179,3 +182,53 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         object_types = ContentType.objects.filter(model__in=['site', 'rack'])
         params = {'object_types': [object_types[0].pk, object_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class TokenTestCase(TestCase, BaseFilterSetTests):
+    queryset = Token.objects.all()
+    filterset = filtersets.TokenFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        users = (
+            User(username='User1'),
+            User(username='User2'),
+            User(username='User3'),
+        )
+        User.objects.bulk_create(users)
+
+        future_date = make_aware(datetime.datetime(3000, 1, 1))
+        past_date = make_aware(datetime.datetime(2000, 1, 1))
+        tokens = (
+            Token(user=users[0], key=Token.generate_key(), expires=future_date, write_enabled=True),
+            Token(user=users[1], key=Token.generate_key(), expires=future_date, write_enabled=True),
+            Token(user=users[2], key=Token.generate_key(), expires=past_date, write_enabled=False),
+        )
+        Token.objects.bulk_create(tokens)
+
+    def test_user(self):
+        users = User.objects.order_by('id')[:2]
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_expires(self):
+        params = {'expires': '3000-01-01T00:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'expires__gte': '2021-01-01T00:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'expires__lte': '2021-01-01T00:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_key(self):
+        tokens = Token.objects.all()[:2]
+        params = {'key': [tokens[0].key, tokens[1].key]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_write_enabled(self):
+        params = {'write_enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'write_enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

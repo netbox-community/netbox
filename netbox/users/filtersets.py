@@ -65,10 +65,39 @@ class TokenFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='user',
+        queryset=User.objects.all(),
+        label='User',
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User (name)',
+    )
+    created = django_filters.DateTimeFilter()
+    created__gte = django_filters.DateTimeFilter(
+        field_name='created',
+        lookup_expr='gte'
+    )
+    created__lte = django_filters.DateTimeFilter(
+        field_name='created',
+        lookup_expr='lte'
+    )
+    expires = django_filters.DateTimeFilter()
+    expires__gte = django_filters.DateTimeFilter(
+        field_name='expires',
+        lookup_expr='gte'
+    )
+    expires__lte = django_filters.DateTimeFilter(
+        field_name='expires',
+        lookup_expr='lte'
+    )
 
     class Meta:
         model = Token
-        fields = ['id', 'user', 'created', 'expires', 'key', 'write_enabled']
+        fields = ['id', 'key', 'write_enabled']
 
 
 class ObjectPermissionFilterSet(BaseFilterSet):

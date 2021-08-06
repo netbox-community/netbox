@@ -209,7 +209,7 @@ class Token(BigIDModel):
 
     def __str__(self):
         # Only display the last 24 bits of the token to avoid accidental exposure.
-        return "{} ({})".format(self.key[-6:], self.user)
+        return f"{self.key[-6:]} ({self.user})"
 
     def save(self, *args, **kwargs):
         if not self.key:
