@@ -4,8 +4,11 @@
 
 {% block title %}Bulk Add IP Addresses{% endblock %}
 
+{% block tabs %}
+  {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='bulk_add' %}
+{% endblock %}
+
 {% block form %}
-{% include 'ipam/inc/ipadress_edit_header.html' with active_tab='bulk_add' %}
     <div class="field-group">
         <h5 class="text-center">IP Addresses</h5>
         {% render_field form.pattern %}

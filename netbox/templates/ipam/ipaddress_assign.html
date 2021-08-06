@@ -5,6 +5,10 @@
 
 {% block title %}Assign an IP Address{% endblock title %}
 
+{% block tabs %}
+  {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='assign' %}
+{% endblock %}
+
 {% block content %}
     <form action="{% querystring request %}" method="post" class="form form-horizontal">
         {% csrf_token %}

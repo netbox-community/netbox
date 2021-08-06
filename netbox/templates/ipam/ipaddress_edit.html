@@ -3,10 +3,11 @@
 {% load form_helpers %}
 {% load helpers %}
 
+{% block tabs %}
+  {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='add' %}
+{% endblock tabs %}
+
 {% block form %}
-{% if not obj.pk %}
-    {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='add' %}
-{% endif %}
     <div class="field-group">
         <h4 class="mb-3">IP Address</h4>
         {% render_field form.address %}

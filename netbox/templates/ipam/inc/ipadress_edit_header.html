@@ -1,31 +1,31 @@
 {% load helpers %}
 
-<ul class="nav nav-pills justify-content-center border-bottom-0 mb-1">
-    <li class="nav-item">
-        <a 
-            class="nav-link {% if active_tab == 'add' %}active{% endif %}"
-            href="{% url 'ipam:ipaddress_add' %}{% querystring request %}"
-        >
-            New IP
-        </a>
-    </li>
-    {% if 'interface' in request.GET or 'vminterface' in request.GET %}
-    <li class="nav-item">
-        <a
-            class="nav-link {% if active_tab == 'assign' %}active{% endif %}"
-            href="{% url 'ipam:ipaddress_assign' %}{% querystring request %}"
-        >
-            Assign IP
-        </a>
-    </li>
-    {% else %}
-    <li class="nav-item">
-        <a
-            class="nav-link {% if active_tab == 'bulk_add' %}active{% endif %}"
-            href="{% url 'ipam:ipaddress_bulk_add' %}{% querystring request %}"
-        >
-            Bulk Create
-        </a>
-    </li>
-    {% endif %}
+<ul class="nav nav-tabs px-3">
+  <li class="nav-item">
+      <a
+          class="nav-link {% if active_tab == 'add' %}active{% endif %}"
+          href="{% url 'ipam:ipaddress_add' %}{% querystring request %}"
+      >
+          {% if obj.pk %}Edit{% else %}Create{% endif %}
+      </a>
+  </li>
+  {% if 'interface' in request.GET or 'vminterface' in request.GET %}
+  <li class="nav-item">
+      <a
+          class="nav-link {% if active_tab == 'assign' %}active{% endif %}"
+          href="{% url 'ipam:ipaddress_assign' %}{% querystring request %}"
+      >
+          Assign IP
+      </a>
+  </li>
+  {% else %}
+  <li class="nav-item">
+      <a
+          class="nav-link {% if active_tab == 'bulk_add' %}active{% endif %}"
+          href="{% url 'ipam:ipaddress_bulk_add' %}{% querystring request %}"
+      >
+          Bulk Create
+      </a>
+  </li>
+  {% endif %}
 </ul>
