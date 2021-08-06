@@ -1,10 +1,10 @@
 {% if request.user.is_authenticated %}
-<span class="dropdown ms-0 ms-md-3 profile-button">
+<span class="dropdown profile-button">
   <button
     type="button"
     aria-expanded="false"
     data-bs-toggle="dropdown"
-    class="btn btn-outline-secondary dropdown-toggle"
+    class="btn btn-outline-secondary dropdown-toggle w-100"
   >
     <i class="mdi mdi-account"></i>
     <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
@@ -37,7 +37,7 @@
   </ul>
 </span>
 {% else %}
-<div class="btn-group ms-0 ms-md-3">
+<div class="btn-group">
   <a
     class="btn btn-primary ws-nowrap"
     type="button"

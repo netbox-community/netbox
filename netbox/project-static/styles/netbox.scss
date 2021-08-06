@@ -501,7 +501,7 @@ div.content-container {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: calc(100% - 4.5rem);
+  width: calc(100% - 3rem);  // $sidenav-width-closed
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
