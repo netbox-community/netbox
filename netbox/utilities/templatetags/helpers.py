@@ -386,12 +386,13 @@ def tag(tag, url_name=None):
 
 
 @register.inclusion_tag('utilities/templatetags/badge.html')
-def badge(value, show_empty=False):
+def badge(value, bg_class='secondary', show_empty=False):
     """
     Display the specified number as a badge.
     """
     return {
         'value': value,
+        'bg_class': bg_class,
         'show_empty': show_empty,
     }
 

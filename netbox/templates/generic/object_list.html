@@ -34,7 +34,7 @@
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
             Filters
-            {% if filter_form %}{% badge filter_form.changed_data|length %}{% endif %}
+            {% if filter_form %}{% badge filter_form.changed_data|length bg_class="primary" %}{% endif %}
           </button>
         </li>
       {% endif %}
