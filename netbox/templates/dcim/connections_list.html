@@ -1,24 +1,34 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object_list.html' %}
 {% load buttons %}
+{% load helpers %}
 {% load render_table from django_tables2 %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block extra_controls %}{% export_button content_type %}{% endblock %}
+{% block content-wrapper %}
+  <div class="tab-content">
 
-{% block content %}
-    <div class="row mb-3">
-        <div class="col col-md-7 col-lg-8 col-xl-9 col-xxl-10">
-            {% include 'inc/table_controls.html' %}
+    {# Conncetions list #}
+    <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+      {% include 'inc/table_controls.html' %}
 
-            <div class="table-responsive">
-                {% render_table table 'inc/table.html' %}
-            </div>
-
-            {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            {% render_table table 'inc/table.html' %}
+          </div>
         </div>
-        {% if filter_form %}
-            {% include 'inc/filter_list.html' %}
-        {% endif %}
+      </div>
+
+      {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
-{% endblock %}
+
+    {# Filter form #}
+    {% if filter_form %}
+      <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
+        {% include 'inc/filter_list.html' %}
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock content-wrapper %}

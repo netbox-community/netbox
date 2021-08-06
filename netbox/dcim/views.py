@@ -2541,6 +2541,7 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/connections_list.html'
+    action_buttons = ('export',)
 
     def extra_context(self):
         return {
@@ -2554,6 +2555,7 @@ class PowerConnectionsListView(generic.ObjectListView):
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/connections_list.html'
+    action_buttons = ('export',)
 
     def extra_context(self):
         return {
@@ -2567,6 +2569,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/connections_list.html'
+    action_buttons = ('export',)
 
     def extra_context(self):
         return {
