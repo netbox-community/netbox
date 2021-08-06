@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object_list.html' %}
 {% load helpers %}
 {% load static %}
 
@@ -22,31 +22,11 @@
     </div>
 {% endblock %}
 
-{% block tabs %}
-  <ul class="nav nav-tabs px-3">
-    {% block tab_items %}
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="rack-elevations-tab" data-bs-toggle="tab" data-bs-target="#rack-elevations" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-          Rack Elevations
-          {% badge page.paginator.count %}
-        </button>
-      </li>
-      {% if filter_form %}
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-            Filters
-          </button>
-        </li>
-      {% endif %}
-    {% endblock tab_items %}
-  </ul>
-{% endblock tabs %}
-
 {% block content-wrapper %}
   <div class="tab-content">
 
     {# Rack elevations #}
-    <div class="tab-pane show active" id="rack-elevations" role="tabpanel" aria-labelledby="rack-elevations-tab">
+    <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
       {% if page %}
           <div style="white-space: nowrap; overflow-x: scroll;">
               {% for rack in page %}

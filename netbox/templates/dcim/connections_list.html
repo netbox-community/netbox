@@ -1,37 +1,15 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object_list.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block extra_controls %}{% export_button content_type %}{% endblock %}
-
-{% block tabs %}
-  <ul class="nav nav-tabs px-3">
-    {% block tab_items %}
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="connections-list-tab" data-bs-toggle="tab" data-bs-target="#connections-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-          {{ title }}
-          {% badge table.page.paginator.count %}
-        </button>
-      </li>
-      {% if filter_form %}
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-            Filters
-          </button>
-        </li>
-      {% endif %}
-    {% endblock tab_items %}
-  </ul>
-{% endblock tabs %}
-
 {% block content-wrapper %}
   <div class="tab-content">
 
     {# Conncetions list #}
-    <div class="tab-pane show active" id="connections-list" role="tabpanel" aria-labelledby="connections-list-tab">
+    <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
       {% include 'inc/table_controls.html' %}
 
       <div class="card">
