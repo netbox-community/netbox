@@ -7,32 +7,32 @@
   <form method="post">
     {% csrf_token %}
     <div class="row mb-3 justify-content-between">
-        <div class="col col-md-2 float-end noprint table-controls mb-0 mw-33">
-            <div class="input-group input-group-sm">
-                {% if request.user.is_authenticated %}
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-dark"
-                        data-bs-toggle="modal"
-                        data-bs-target="#DeviceInterfaceTable_config"
-                        title="Configure Table">
-                        <i class="mdi mdi-cog"></i> Configure Table
-                    </button>
-                    {% endif %}
-                <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="mdi mdi-eye"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
-                    <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
-                </ul>
-            </div>
+      <div class="col col-12 col-lg-4 my-3 my-lg-0 d-flex noprint table-controls">
+        <div class="input-group input-group-sm">
+          <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
         </div>
-        <div class="col col-md-4 float-end noprint table-controls mw-33">
-            <div class="input-group input-group-sm">
-                <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
-            </div>
+      </div>
+      <div class="col col-md-3 mb-0 d-flex noprint table-controls">
+        <div class="input-group input-group-sm justify-content-end">
+          {% if request.user.is_authenticated %}
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-dark"
+                data-bs-toggle="modal"
+                data-bs-target="#DeviceInterfaceTable_config"
+                title="Configure Table">
+                <i class="mdi mdi-cog"></i> Configure Table
+            </button>
+          {% endif %}
+          <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="mdi mdi-eye"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
+            <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
+          </ul>
         </div>
+      </div>
     </div>
     {% include 'inc/responsive_table.html' with table=interface_table %}
     <div class="noprint bulk-buttons">
