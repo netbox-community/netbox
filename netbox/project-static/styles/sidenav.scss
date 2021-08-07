@@ -203,9 +203,9 @@
   @include parent-link() {
     width: unset;
     height: 100%;
+    padding-left: $sidenav-link-spacing-x / 2;
     font-weight: $font-weight-bold;
     color: var(--nbx-sidenav-parent-color);
-    padding-left: $sidenav-link-spacing-x / 2;
 
     &.active {
       color: $accordion-button-active-color;
@@ -260,20 +260,22 @@
 
       // All Links
       .nav-link {
+        position: relative;
         display: flex;
         align-items: center;
         width: 100%;
         padding: $sidenav-link-spacing-y $sidenav-link-spacing-x;
         font-size: $font-size-sm;
+        color: var(--nbx-sidenav-link-color);
         white-space: nowrap;
         transition: $transition-100ms-ease-in-out;
 
         &.active {
-          position: relative;
-          background-color: var(--nbx-sidebar-link-hover-bg);
+          background-color: var(--nbx-sidebar-link-active-bg);
         }
 
-        &:hover {
+        &:hover:not(.active) {
+          color: var(--nbx-body-color);
           background-color: var(--nbx-sidebar-link-hover-bg);
         }
 
@@ -290,7 +292,8 @@
       display: block;
       font-size: $font-size-xs;
       font-weight: $font-weight-bold;
-      color: $secondary;
+      // color: $secondary;
+      color: var(--nbx-sidenav-group-color);
       text-transform: uppercase;
       white-space: nowrap;
     }
