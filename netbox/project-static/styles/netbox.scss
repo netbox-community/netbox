@@ -250,8 +250,17 @@ table {
 
 div.title-container {
   display: flex;
+  // On small screens, `flex-direction: column;` ensures the control buttons don't appear on the
+  // same line as the title, but rather break to the next line.
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: space-between;
+
+  @include media-breakpoint-up(lg) {
+    // On large screens, `flex-direction: row;` allows the control buttons to appear vertically
+    // aligned with the title.
+    flex-direction: row;
+  }
 
   #content-title {
     display: flex;
@@ -501,7 +510,7 @@ div.content-container {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: calc(100% - 3rem);  // $sidenav-width-closed
+  width: calc(100% - #{$sidenav-width-closed});
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
