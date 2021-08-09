@@ -12,6 +12,7 @@
 * [#6892](https://github.com/netbox-community/netbox/issues/6892) - Fix validation of unit ranges when creating a rack reservation
 * [#6902](https://github.com/netbox-community/netbox/issues/6902) - Populate device field when cloning device components
 * [#6909](https://github.com/netbox-community/netbox/issues/6909) - Remove extraneous `site` column from VLAN group import form
+* [#6910](https://github.com/netbox-community/netbox/issues/6910) - Fix exception on invalid CSV import column name
 
 ---
 
