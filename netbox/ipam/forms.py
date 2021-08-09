@@ -1238,12 +1238,6 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):
-    site = CSVModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Assigned site'
-    )
     slug = SlugField()
 
     class Meta:
