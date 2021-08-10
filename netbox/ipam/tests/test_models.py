@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from ipam.choices import IPAddressRoleChoices, PrefixStatusChoices
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, IPRange, Prefix, RIR, VLAN, VLANGroup, VRF
 
 
 class TestAggregate(TestCase):
@@ -71,6 +71,23 @@ class TestPrefix(TestCase):
 
         # VRF container is limited to its own VRF
         self.assertSetEqual(child_prefix_pks, {prefixes[2].pk})
+
+    def test_get_child_ranges(self):
+        prefix = Prefix(prefix='192.168.0.16/28')
+        prefix.save()
+        ranges = IPRange.objects.bulk_create((
+            IPRange(start_address=IPNetwork('192.168.0.1/24'), end_address=IPNetwork('192.168.0.10/24'), size=10),  # No overlap
+            IPRange(start_address=IPNetwork('192.168.0.11/24'), end_address=IPNetwork('192.168.0.17/24'), size=7),  # Partial overlap
+            IPRange(start_address=IPNetwork('192.168.0.18/24'), end_address=IPNetwork('192.168.0.23/24'), size=6),  # Full overlap
+            IPRange(start_address=IPNetwork('192.168.0.24/24'), end_address=IPNetwork('192.168.0.30/24'), size=7),  # Full overlap
+            IPRange(start_address=IPNetwork('192.168.0.31/24'), end_address=IPNetwork('192.168.0.40/24'), size=10),  # Partial overlap
+        ))
+
+        child_ranges = prefix.get_child_ranges()
+
+        self.assertEqual(len(child_ranges), 2)
+        self.assertEqual(child_ranges[0], ranges[2])
+        self.assertEqual(child_ranges[1], ranges[3])
 
     def test_get_child_ips(self):
         vrfs = VRF.objects.bulk_create((

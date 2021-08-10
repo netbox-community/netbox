@@ -396,6 +396,16 @@ class Prefix(PrimaryModel):
         else:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
+    def get_child_ranges(self):
+        """
+        Return all IPRanges within this Prefix and VRF.
+        """
+        return IPRange.objects.filter(
+            vrf=self.vrf,
+            start_address__net_host_contained=str(self.prefix),
+            end_address__net_host_contained=str(self.prefix)
+        )
+
     def get_child_ips(self):
         """
         Return all IPAddresses within this Prefix and VRF. If this Prefix is a container in the global table, return

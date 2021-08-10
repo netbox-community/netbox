@@ -77,6 +77,7 @@ urlpatterns = [
     path('prefixes/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='prefix_changelog', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/journal/', ObjectJournalView.as_view(), name='prefix_journal', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/prefixes/', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
+    path('prefixes/<int:pk>/ip-ranges/', views.PrefixIPRangesView.as_view(), name='prefix_ipranges'),
     path('prefixes/<int:pk>/ip-addresses/', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
 
     # IP ranges

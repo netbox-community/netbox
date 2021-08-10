@@ -17,13 +17,18 @@
   </li>
   <li role="presentation" class="nav-item">
     <a class="nav-link{% if active_tab == 'prefixes' %} active{% endif %}" href="{% url 'ipam:prefix_prefixes' pk=object.pk %}">
-      Child Prefixes <span class="badge bg-primary">{{ object.get_child_prefixes.count }}</span>
+      Child Prefixes {% badge object.get_child_prefixes.count %}
+    </a>
+  </li>
+  <li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab == 'ip-ranges' %} active{% endif %}" href="{% url 'ipam:prefix_ipranges' pk=object.pk %}">
+      Child Ranges {% badge object.get_child_ranges.count %}
     </a>
   </li>
   {% if perms.ipam.view_ipaddress and object.status != 'container' %}
     <li role="presentation" class="nav-item">
       <a class="nav-link{% if active_tab == 'ip-addresses' %} active{% endif %}" href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">
-        IP Addresses <span class="badge bg-primary">{{ object.get_child_ips.count }}</span>
+        IP Addresses {% badge object.get_child_ips.count %}
       </a>
     </li>
   {% endif %}
