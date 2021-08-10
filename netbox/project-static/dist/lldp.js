@@ -28,4 +28,4 @@
  * measure size of elements
  * MIT license
  */
-//# sourceMappingURL=/static/lldp.js.map
+//# sourceMappingURL=lldp.js.map

@@ -8,7 +8,6 @@ const options = {
   minify: true,
   sourcemap: true,
   logLevel: 'error',
-  publicPath: '/static',
 };
 
 // Get CLI arguments for optional overrides.
