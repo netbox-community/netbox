@@ -9,15 +9,16 @@ from dcim.api.nested_serializers import (
     NestedCableSerializer,
 )
 from dcim.choices import InterfaceTypeChoices, InterfaceModeChoices
-from dcim.models import Interface, Cable
+from dcim.models import Interface, Cable, Device
 from ipam.api.nested_serializers import NestedPrefixSerializer
 from ipam.models import VLAN, Prefix
-from tenancy.api.nested_serializers import NestedTenantGroupSerializer
+from tenancy.api.nested_serializers import NestedTenantGroupSerializer, NestedTenantSerializer
 from tenancy.models import Tenant as Customer
 from utilities.utils import dynamic_import
 from netbox.api import ChoiceField, ValidatedModelSerializer, SerializedPKRelatedField, WritableNestedSerializer
 
 from netbox_virtual_circuit_plugin.models import VirtualCircuitVLAN, VirtualCircuit
+from circuits.models import Circuit, CircuitTermination
 
 
 def get_serializer_for_model(model, prefix=''):
@@ -32,6 +33,13 @@ def get_serializer_for_model(model, prefix=''):
     override_serializer_name = 'vapor.api.serializers.{}VLAN{}Serializer'.format(
         prefix, model_name
     )
+
+    # To extend Circuit model to support tenant field
+    if model_name == 'CircuitTermination':
+        override_serializer_name = 'vapor.api.serializers.{}Vapor{}Serializer'.format(
+            prefix, model_name
+        )
+
     try:
         return dynamic_import(override_serializer_name)
     except AttributeError:
@@ -54,6 +62,15 @@ class NestedVirtualCircuitSerializer(ValidatedModelSerializer):
     class Meta:
         model = VirtualCircuit
         fields = ['vcid', 'name', 'status', 'context']
+
+
+class NestedVaporDeviceSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
+    tenant = NestedTenantSerializer()
+
+    class Meta:
+        model = Device
+        fields = ['id', 'url', 'name', 'display_name', 'tenant']
 
 
 class NestedVaporVLANSerializer(WritableNestedSerializer):
@@ -80,7 +97,7 @@ class NestedVaporVLANSerializer(WritableNestedSerializer):
 
 
 class NestedVLANInterfaceSerializer(WritableNestedSerializer):
-    device = NestedDeviceSerializer(read_only=True)
+    device = NestedVaporDeviceSerializer(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     type = ChoiceField(choices=InterfaceTypeChoices, required=False)
 
@@ -166,9 +183,27 @@ class CustomerSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
         ]
 
 
+class NestedCircuitSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
+    tenant = NestedTenantSerializer()
+
+    class Meta:
+        model = Circuit
+        fields = ['id', 'url', 'cid', 'tenant']
+
+
+class NestedVaporCircuitTerminationSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
+    circuit = NestedCircuitSerializer()
+
+    class Meta:
+        model = CircuitTermination
+        fields = ['id', 'url', 'circuit', 'term_side']
+
+
 class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
-    device = NestedDeviceSerializer()
+    device = NestedVaporDeviceSerializer()
     type = ChoiceField(choices=InterfaceTypeChoices)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_null=True)
