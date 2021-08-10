@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6829](https://github.com/netbox-community/netbox/issues/6829) - Extend GraphQL API to support reverse generic relationships
+* [#6931](https://github.com/netbox-community/netbox/issues/6931) - Include applied filters on object list view
 
 ### Bug Fixes
 

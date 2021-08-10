@@ -13,7 +13,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
-from utilities.forms import TableConfigForm
+from utilities.forms import get_selected_values, TableConfigForm
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -402,4 +402,33 @@ def table_config_form(table, table_name=None):
     return {
         'table_name': table_name or table.__class__.__name__,
         'table_config_form': TableConfigForm(table=table),
+    }
+
+
+@register.inclusion_tag('utilities/templatetags/applied_filters.html')
+def applied_filters(form, query_params):
+    """
+    Display the active filters for a given filter form.
+    """
+    form.is_valid()
+
+    applied_filters = []
+    for filter_name in form.changed_data:
+        if filter_name not in query_params:
+            continue
+
+        bound_field = form.fields[filter_name].get_bound_field(form, filter_name)
+        querydict = query_params.copy()
+        querydict.pop(filter_name)
+        display_value = ', '.join(get_selected_values(form, filter_name))
+
+        applied_filters.append({
+            'name': filter_name,
+            'value': form.cleaned_data[filter_name],
+            'link_url': f'?{querydict.urlencode()}',
+            'link_text': f'{bound_field.label}: {display_value}',
+        })
+
+    return {
+        'applied_filters': applied_filters,
     }

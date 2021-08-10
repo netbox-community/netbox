@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.forms.models import fields_for_model
 
+from utilities.choices import unpack_grouped_choices
 from utilities.querysets import RestrictedQuerySet
 from .constants import *
 
@@ -11,6 +12,7 @@ __all__ = (
     'expand_alphanumeric_pattern',
     'expand_ipaddress_pattern',
     'form_from_model',
+    'get_selected_values',
     'parse_alphanumeric_range',
     'parse_numeric_range',
     'restrict_form_fields',
@@ -109,6 +111,30 @@ def expand_ipaddress_pattern(string, family):
                 yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), string])
         else:
             yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), remnant])
+
+
+def get_selected_values(form, field_name):
+    """
+    Return the list of selected human-friendly values for a form field
+    """
+    if not hasattr(form, 'cleaned_data'):
+        form.is_valid()
+
+    # Selection field
+    if hasattr(form.fields[field_name], 'choices'):
+        try:
+            choices = dict(unpack_grouped_choices(form.fields[field_name].choices))
+            return [
+                label for value, label in choices.items() if value in form.cleaned_data[field_name]
+            ]
+        except TypeError:
+            # Field uses dynamic choices. Show all that have been populated.
+            return [
+                subwidget.choice_label for subwidget in form[field_name].subwidgets
+            ]
+
+    # Non-selection field
+    return [str(form.cleaned_data[field_name])]
 
 
 def add_blank_choice(choices):

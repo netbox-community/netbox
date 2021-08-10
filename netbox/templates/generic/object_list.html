@@ -47,9 +47,14 @@
 
     {# Object list #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
-      {% if table.paginator.num_pages > 1 %}
 
-        {# "Select all" form #}
+      {# Applied filters #}
+      {% if filter_form %}
+        {% applied_filters filter_form request.GET %}
+      {% endif %}
+
+      {# "Select all" form #}
+      {% if table.paginator.num_pages > 1 %}
         {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
           <div id="select-all-box" class="d-none card noprint">
             <form method="post" class="form col-md-12">

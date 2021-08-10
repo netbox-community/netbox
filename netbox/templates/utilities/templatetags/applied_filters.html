@@ -1,0 +1,9 @@
+{% if applied_filters %}
+  <div class="mb-3">
+    {% for filter in applied_filters %}
+      <a href="{{ filter.link_url }}" class="badge rounded-pill bg-primary text-decoration-none me-1">
+        <i class="mdi mdi-close"></i> {{ filter.link_text }}
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
