@@ -948,6 +948,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_LC_APC = 'lc-apc'
     TYPE_MTRJ = 'mtrj'
     TYPE_MPO = 'mpo'
+    TYPE_MTP = 'mtp'
     TYPE_LSH = 'lsh'
     TYPE_LSH_APC = 'lsh-apc'
     TYPE_SPLICE = 'splice'
@@ -987,6 +988,7 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_LSH, 'LSH'),
                 (TYPE_LSH_APC, 'LSH/APC'),
                 (TYPE_MPO, 'MPO'),
+                (TYPE_MTP, 'MTP'),
                 (TYPE_MTRJ, 'MTRJ'),
                 (TYPE_SC, 'SC'),
                 (TYPE_SC_APC, 'SC/APC'),
