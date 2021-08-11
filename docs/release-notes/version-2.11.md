@@ -14,6 +14,7 @@
 * [#6908](https://github.com/netbox-community/netbox/issues/6908) - Allow assignment of scope to VLAN groups upon import
 * [#6909](https://github.com/netbox-community/netbox/issues/6909) - Remove extraneous `site` column from VLAN group import form
 * [#6910](https://github.com/netbox-community/netbox/issues/6910) - Fix exception on invalid CSV import column name
+* [#6935](https://github.com/netbox-community/netbox/issues/6935) - Remove extraneous columns from inventory item and device bay tables
 * [#6936](https://github.com/netbox-community/netbox/issues/6936) - Add missing `parent` column to inventory item import form
 
 ---
