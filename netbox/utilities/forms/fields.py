@@ -281,6 +281,8 @@ class CSVContentTypeField(CSVModelChoiceField):
         return f'{value.app_label}.{value.model}'
 
     def to_python(self, value):
+        if not value:
+            return None
         try:
             app_label, model = value.split('.')
         except ValueError:

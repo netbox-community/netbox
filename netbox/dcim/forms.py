@@ -4044,12 +4044,33 @@ class InventoryItemCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         required=False
     )
+    parent = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Parent inventory item'
+    )
 
     class Meta:
         model = InventoryItem
         fields = (
             'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit parent choices to inventory items belonging to this device
+        device = None
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                pass
+        if device:
+            self.fields['parent'].queryset = InventoryItem.objects.filter(device=device)
+        else:
+            self.fields['parent'].queryset = InventoryItem.objects.none()
 
 
 class InventoryItemBulkCreateForm(

@@ -652,7 +652,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             )
 
             def clean(self):
-                csv_rows = self.cleaned_data['csv'][1]
+                csv_rows = self.cleaned_data['csv'][1] if 'csv' in self.cleaned_data else None
                 csv_file = self.files.get('csv_file')
 
                 # Check that the user has not submitted both text data and a file

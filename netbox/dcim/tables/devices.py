@@ -242,10 +242,6 @@ class DeviceComponentTable(BaseTable):
         linkify=True,
         order_by=('_name',)
     )
-    cable = tables.Column(
-        linkify=True
-    )
-    mark_connected = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         order_by = ('device', 'name')

@@ -69,7 +69,7 @@ SECRET_KEY = ''
 # Specify one or more name and email address tuples representing NetBox administrators. These people will be notified of
 # application errors (assuming correct email settings are provided).
 ADMINS = [
-    # ['John Doe', 'jdoe@example.com'],
+    # ('John Doe', 'jdoe@example.com'),
 ]
 
 # URL schemes that are allowed within links in NetBox
