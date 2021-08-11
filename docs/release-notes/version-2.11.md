@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6883](https://github.com/netbox-community/netbox/issues/6883) - Add C21 & C22 power types
+* [#6921](https://github.com/netbox-community/netbox/issues/6921) - Employ a sandbox when rendering Jinja2 code for increased security
 
 ### Bug Fixes
 

@@ -17,6 +17,9 @@ When viewing a device named Router4, this link would render as:
 
 Custom links appear as buttons at the top right corner of the page. Numeric weighting can be used to influence the ordering of links.
 
+!!! warning
+    Custom links rely on user-created code to generate arbitrary HTML output, which may be dangerous. Only grant permission to create or modify custom links to trusted users.
+
 ## Context Data
 
 The following context data is available within the template when rendering a custom link's text or URL.

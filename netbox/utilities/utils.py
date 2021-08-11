@@ -6,7 +6,7 @@ from itertools import count, groupby
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
-from jinja2 import Environment
+from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
 from dcim.choices import CableLengthUnitChoices
@@ -213,7 +213,7 @@ def render_jinja2(template_code, context):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
     """
-    return Environment().from_string(source=template_code).render(**context)
+    return SandboxedEnvironment().from_string(source=template_code).render(**context)
 
 
 def prepare_cloned_fields(instance):

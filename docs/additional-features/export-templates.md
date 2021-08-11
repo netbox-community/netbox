@@ -4,10 +4,13 @@ NetBox allows users to define custom templates that can be used when exporting o
 
 Each export template is associated with a certain type of object. For instance, if you create an export template for VLANs, your custom template will appear under the "Export" button on the VLANs list. Each export template must have a name, and may optionally designate a specific export [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types) and/or file extension.
 
+Export templates must be written in [Jinja2](https://jinja.palletsprojects.com/).
+
 !!! note
     The name `table` is reserved for internal use.
 
-Export templates must be written in [Jinja2](https://jinja.palletsprojects.com/).
+!!! warning
+    Export templates are rendered using user-submitted code, which may pose security risks under certain conditions. Only grant permission to create or modify export templates to trusted users.
 
 The list of objects returned from the database when rendering an export template is stored in the `queryset` variable, which you'll typically want to iterate through using a `for` loop. Object properties can be access by name. For example:
 
