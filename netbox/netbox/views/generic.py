@@ -306,19 +306,20 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 messages.success(request, mark_safe(msg))
 
                 if '_addanother' in request.POST:
+                    redirect_url = request.path
+                    return_url = request.GET.get('return_url')
+                    if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+                        redirect_url = f'{redirect_url}?return_url={return_url}'
 
                     # If the object has clone_fields, pre-populate a new instance of the form
                     if hasattr(obj, 'clone_fields'):
-                        url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
-                        return redirect(url)
+                        redirect_url += f"{'&' if return_url else '?'}{prepare_cloned_fields(obj)}"
 
-                    return redirect(request.get_full_path())
+                    return redirect(redirect_url)
 
-                return_url = form.cleaned_data.get('return_url')
-                if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
-                    return redirect(return_url)
-                else:
-                    return redirect(self.get_return_url(request, obj))
+                return_url = self.get_return_url(request, obj)
+
+                return redirect(return_url)
 
             except PermissionsViolation:
                 msg = "Object save failed due to object-level permissions violation"
