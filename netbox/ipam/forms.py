@@ -4,7 +4,8 @@ from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldModelFilterForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
+    CustomFieldModelFilterForm,
 )
 from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
@@ -12,8 +13,8 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, ContentTypeChoiceField, CSVChoiceField,
     CSVContentTypeField, CSVModelChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    ExpandableIPAddressField, NumericArrayField, ReturnURLForm, SlugField, StaticSelect, StaticSelectMultiple,
-    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    ExpandableIPAddressField, NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from .choices import *
@@ -882,7 +883,7 @@ class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
 # IP addresses
 #
 
-class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
+class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
