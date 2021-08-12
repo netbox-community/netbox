@@ -18,7 +18,7 @@ Begin by installing all system packages required by NetBox and its dependencies.
 === "CentOS"
 
     ```no-highlight
-    sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
+    sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
     ```
 
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:

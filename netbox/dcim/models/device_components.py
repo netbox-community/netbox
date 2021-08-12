@@ -230,6 +230,7 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
     )
 
     csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
+    clone_fields = ['device', 'type', 'speed']
 
     class Meta:
         ordering = ('device', '_name')
@@ -273,6 +274,7 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
     )
 
     csv_headers = ['device', 'name', 'label', 'type', 'speed', 'mark_connected', 'description']
+    clone_fields = ['device', 'type', 'speed']
 
     class Meta:
         ordering = ('device', '_name')
@@ -324,6 +326,7 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
     csv_headers = [
         'device', 'name', 'label', 'type', 'mark_connected', 'maximum_draw', 'allocated_draw', 'description',
     ]
+    clone_fields = ['device', 'maximum_draw', 'allocated_draw']
 
     class Meta:
         ordering = ('device', '_name')
@@ -434,6 +437,7 @@ class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
     )
 
     csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description']
+    clone_fields = ['device', 'type', 'power_port', 'feed_leg']
 
     class Meta:
         ordering = ('device', '_name')
@@ -577,6 +581,7 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
         'mgmt_only', 'description', 'mode',
     ]
+    clone_fields = ['device', 'parent', 'lag', 'type', 'mgmt_only']
 
     class Meta:
         ordering = ('device', CollateAsChar('_name'))
@@ -711,6 +716,7 @@ class FrontPort(ComponentModel, CableTermination):
     csv_headers = [
         'device', 'name', 'label', 'type', 'mark_connected', 'rear_port', 'rear_port_position', 'description',
     ]
+    clone_fields = ['device', 'type']
 
     class Meta:
         ordering = ('device', '_name')
@@ -767,6 +773,7 @@ class RearPort(ComponentModel, CableTermination):
             MaxValueValidator(REARPORT_POSITIONS_MAX)
         ]
     )
+    clone_fields = ['device', 'type', 'positions']
 
     csv_headers = ['device', 'name', 'label', 'type', 'mark_connected', 'positions', 'description']
 
@@ -818,6 +825,7 @@ class DeviceBay(ComponentModel):
     )
 
     csv_headers = ['device', 'name', 'label', 'installed_device', 'description']
+    clone_fields = ['device']
 
     class Meta:
         ordering = ('device', '_name')
@@ -913,6 +921,7 @@ class InventoryItem(MPTTModel, ComponentModel):
     csv_headers = [
         'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
     ]
+    clone_fields = ['device', 'parent', 'manufacturer', 'part_id']
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')

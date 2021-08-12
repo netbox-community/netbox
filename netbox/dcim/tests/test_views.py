@@ -1736,10 +1736,10 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            "device,name",
-            "Device 1,Inventory Item 4",
-            "Device 1,Inventory Item 5",
-            "Device 1,Inventory Item 6",
+            "device,name,parent",
+            "Device 1,Inventory Item 4,Inventory Item 1",
+            "Device 1,Inventory Item 5,Inventory Item 2",
+            "Device 1,Inventory Item 6,Inventory Item 3",
         )
 
 

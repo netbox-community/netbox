@@ -11,8 +11,8 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, ContentTypeChoiceField, CSVChoiceField,
-    CSVModelChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField,
-    NumericArrayField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    CSVContentTypeField, CSVModelChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    ExpandableIPAddressField, NumericArrayField, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
@@ -682,7 +682,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
 # IP addresses
 #
 
-class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
+class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -1238,17 +1238,19 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):
-    site = CSVModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Assigned site'
-    )
     slug = SlugField()
+    scope_type = CSVContentTypeField(
+        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
+        required=False,
+        label='Scope type (app & model)'
+    )
 
     class Meta:
         model = VLANGroup
         fields = VLANGroup.csv_headers
+        labels = {
+            'scope_id': 'Scope ID',
+        }
 
 
 class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
