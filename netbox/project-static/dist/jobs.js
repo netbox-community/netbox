@@ -28,4 +28,4 @@
  * measure size of elements
  * MIT license
  */
-//# sourceMappingURL=/static/jobs.js.map
+//# sourceMappingURL=jobs.js.map
