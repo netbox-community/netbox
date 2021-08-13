@@ -1,9 +1,5 @@
 // Overrides to native HTML elements (i.e., not bootstrap classes or custom components).
 
-* {
-  transition: background-color, color 0.1s ease-in-out;
-}
-
 body {
   color: var(--nbx-body-color);
   background-color: var(--nbx-body-bg);
