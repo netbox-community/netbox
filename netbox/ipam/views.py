@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from dcim.models import Device, Interface
 from netbox.views import generic
+from utilities.forms import TableConfigForm
 from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
@@ -412,7 +413,7 @@ class PrefixPrefixesView(generic.ObjectView):
         if child_prefixes and request.GET.get('show_available', 'true') == 'true':
             child_prefixes = add_available_prefixes(instance.prefix, child_prefixes)
 
-        prefix_table = tables.PrefixDetailTable(child_prefixes)
+        prefix_table = tables.PrefixDetailTable(child_prefixes, user=request.user)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.columns.show('pk')
         paginate_table(prefix_table, request)
@@ -433,6 +434,7 @@ class PrefixPrefixesView(generic.ObjectView):
             'bulk_querystring': bulk_querystring,
             'active_tab': 'prefixes',
             'show_available': request.GET.get('show_available', 'true') == 'true',
+            'table_config_form': TableConfigForm(table=prefix_table),
         }
 
 

@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6748](https://github.com/netbox-community/netbox/issues/6748) - Add site group filter to devices list
+* [#6872](https://github.com/netbox-community/netbox/issues/6872) - Add table configuration button to child prefixes view
 
 ---
 
