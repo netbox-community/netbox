@@ -15,6 +15,7 @@
 * [#6846](https://github.com/netbox-community/netbox/issues/6846) - Form-driven REST API calls should use brief mode
 * [#6871](https://github.com/netbox-community/netbox/issues/6871) - Support dynamic tag types in GraphQL API
 * [#6894](https://github.com/netbox-community/netbox/issues/6894) - Fix available IP generation for prefix assigned to a VRF
+* [#6953](https://github.com/netbox-community/netbox/issues/6953) - Remove change log tab from non-applicable object views
 
 ---
 
