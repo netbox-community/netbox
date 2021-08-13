@@ -1,5 +1,13 @@
 # NetBox v2.11
 
+## v2.11.12 (FUTURE)
+
+### Enhancements
+
+* [#6748](https://github.com/netbox-community/netbox/issues/6748) - Add site group filter to devices list
+
+---
+
 ## v2.11.11 (2021-08-12)
 
 ### Enhancements
