@@ -10,50 +10,58 @@
   <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
 {% endblock %}
 
-{% block content %}
+{% block subtitle %}
+  <div class="object-subtitle">
     <div class="text-muted">{{ script.Meta.description|render_markdown }}</div>
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <a href="#run" role="tab" data-bs-toggle="tab" class="nav-link active">Run</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">Source</a>
-        </li>
-    </ul>
-    <div class="tab-content py-3">
-        <div role="tabpanel" class="tab-pane active" id="run">
-            <div class="row">
-                <div class="col col-md-6">
-                    {% if not perms.extras.run_script %}
-                        <div class="alert alert-warning">
-                            <i class="mdi mdi-alert"></i>
-                            You do not have permission to run scripts.
-                        </div>
-                    {% endif %}
-                    <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
-                        {% csrf_token %}
-                        <div class="field-group mb-3">
-                        {% if form.requires_input %}
-                            <h4>Script Data</h4>
-                        {% else %}
-                            <div class="alert alert-info">
-                                <i class="mdi mdi-information"></i>
-                                This script does not require any input to run.
-                            </div>
-                        {% endif %}
-                        {% render_form form %}
-                        </div>
-                        <div class="float-end">
-                            <a href="{% url 'extras:script_list' %}" class="btn btn-outline-danger">Cancel</a>
-                            <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="source">
-            <code class="h6 my-3 d-block">{{ script.filename }}</code>
-            <pre>{{ script.source }}</pre>
-        </div>
-    </div>
+  </div>
 {% endblock %}
+
+{% block tabs %}
+<ul class="nav nav-tabs px-3">
+  <li class="nav-item" role="presentation">
+    <a href="#run" role="tab" data-bs-toggle="tab" class="nav-link active">Run</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">Source</a>
+  </li>
+</ul>
+{% endblock %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="run">
+      <div class="row">
+        <div class="col">
+          {% if not perms.extras.run_script %}
+            <div class="alert alert-warning">
+              <i class="mdi mdi-alert"></i>
+              You do not have permission to run scripts.
+            </div>
+          {% endif %}
+          <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
+            {% csrf_token %}
+            <div class="field-group mb-3">
+              {% if form.requires_input %}
+                <h4 class="text-center">Script Data</h4>
+              {% else %}
+                <div class="alert alert-info">
+                  <i class="mdi mdi-information"></i>
+                  This script does not require any input to run.
+                </div>
+              {% endif %}
+              {% render_form form %}
+            </div>
+            <div class="float-end">
+              <a href="{% url 'extras:script_list' %}" class="btn btn-outline-danger">Cancel</a>
+              <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="source">
+      <code class="h6 my-3 d-block">{{ script.filename }}</code>
+      <pre>{{ script.source }}</pre>
+    </div>
+  </div>
+{% endblock content-wrapper %}

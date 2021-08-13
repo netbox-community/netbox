@@ -22,7 +22,7 @@
                             {% for class_name, script in module_scripts.items %}
                                 <tr>
                                     <td>
-                                        <a href="{% url 'extras:script' module=script.module name=class_name %}" name="script.{{ class_name }}"><strong>{{ script }}</strong></a>
+                                        <a href="{% url 'extras:script' module=script.module name=class_name %}" name="script.{{ class_name }}">{{ script }}</a>
                                     </td>
                                     <td>
                                         {% include 'extras/inc/job_label.html' with result=script.result %}

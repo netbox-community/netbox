@@ -25,9 +25,7 @@
                                     {% for report in module_reports %}
                                         <tr>
                                             <td>
-                                                <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">
-                                                    <strong>{{ report.name }}</strong>
-                                                </a>
+                                                <a href="{% url 'extras:report' module=report.module name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
                                             </td>
                                             <td>
                                                 {% include 'extras/inc/job_label.html' with result=report.result %}
