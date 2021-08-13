@@ -104,7 +104,7 @@
           <div class="row align-items-center justify-content-between mx-0">
             
             {# Docs & Community Links #}
-            <div class="col-sm-12 col-md-auto">
+            <div class="col-sm-12 col-md-auto fs-4">
               <nav class="nav justify-content-center justify-content-lg-start">
                 {# Documentation #}
                 <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
@@ -141,7 +141,7 @@
             </div>
             
             {# System Info #}
-            <div class="col-sm-12 col-md-auto text-center text-lg-end small text-muted">
+            <div class="col-sm-12 col-md-auto text-center text-lg-end text-muted">
               <span class="d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
               <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
             </div>

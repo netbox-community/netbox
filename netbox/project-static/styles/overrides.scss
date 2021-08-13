@@ -7,6 +7,7 @@
 body {
   color: var(--nbx-body-color);
   background-color: var(--nbx-body-bg);
+  font-size: $font-size-sm;
 }
 
 pre {
@@ -17,32 +18,9 @@ pre {
   border-radius: $border-radius;
 }
 
-form,
-.form-control {
-  font-size: 0.875rem;
-}
-
 // Force <small/> elements to make text smaller.
 small {
   font-size: smaller !important;
-}
-
-h1 {
-  font-weight: $font-weight-bolder;
-}
-
-h2 {
-  font-weight: $font-weight-bold;
-}
-
-h3,
-h4 {
-  font-weight: $font-weight-medium;
-}
-
-h5,
-h6 {
-  font-weight: $font-weight-medium;
 }
 
 // Fix the hideous way Safari shows button anchor elements.
@@ -55,4 +33,8 @@ a[type='button'] {
 // clicked, but where an anchor element does not suffice or is not supported.
 *[data-href] {
   cursor: pointer;
+}
+
+.form-control {
+  font-size: inherit;
 }
