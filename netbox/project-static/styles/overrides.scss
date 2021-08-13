@@ -17,6 +17,11 @@ pre {
   border-radius: $border-radius;
 }
 
+form,
+.form-control {
+  font-size: 0.875rem;
+}
+
 // Force <small/> elements to make text smaller.
 small {
   font-size: smaller !important;
