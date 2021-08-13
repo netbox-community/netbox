@@ -185,27 +185,30 @@ class TestPrefix(TestCase):
         IPAddress.objects.create(address=IPNetwork('10.0.0.4/24'))
         self.assertEqual(parent_prefix.get_first_available_ip(), '10.0.0.5/24')
 
-    def test_get_utilization(self):
-
-        # Container Prefix
-        prefix = Prefix.objects.create(
-            prefix=IPNetwork('10.0.0.0/24'),
-            status=PrefixStatusChoices.STATUS_CONTAINER
-        )
-        Prefix.objects.bulk_create((
+    def test_get_utilization_container(self):
+        prefixes = (
+            Prefix(prefix=IPNetwork('10.0.0.0/24'), status=PrefixStatusChoices.STATUS_CONTAINER),
             Prefix(prefix=IPNetwork('10.0.0.0/26')),
             Prefix(prefix=IPNetwork('10.0.0.128/26')),
-        ))
-        self.assertEqual(prefix.get_utilization(), 50)
-
-        # Non-container Prefix
-        prefix.status = PrefixStatusChoices.STATUS_ACTIVE
-        prefix.save()
-        IPAddress.objects.bulk_create(
-            # Create 32 IPAddresses within the Prefix
-            [IPAddress(address=IPNetwork('10.0.0.{}/24'.format(i))) for i in range(1, 33)]
         )
-        self.assertEqual(prefix.get_utilization(), 12)  # ~= 12%
+        Prefix.objects.bulk_create(prefixes)
+        self.assertEqual(prefixes[0].get_utilization(), 50)  # 50% utilization
+
+    def test_get_utilization_noncontainer(self):
+        prefix = Prefix.objects.create(
+            prefix=IPNetwork('10.0.0.0/24'),
+            status=PrefixStatusChoices.STATUS_ACTIVE
+        )
+
+        # Create 32 child IPs
+        IPAddress.objects.bulk_create([
+            IPAddress(address=IPNetwork(f'10.0.0.{i}/24')) for i in range(1, 33)
+        ])
+        self.assertEqual(prefix.get_utilization(), 12)  # 12.5% utilization
+
+        # Create a child range with 32 additional IPs
+        IPRange.objects.create(start_address=IPNetwork('10.0.0.33/24'), end_address=IPNetwork('10.0.0.64/24'))
+        self.assertEqual(prefix.get_utilization(), 25)  # 25% utilization
 
     #
     # Uniqueness enforcement tests

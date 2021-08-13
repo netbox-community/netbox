@@ -484,11 +484,16 @@ class Prefix(PrimaryModel):
             utilization = int(float(child_prefixes.size) / self.prefix.size * 100)
         else:
             # Compile an IPSet to avoid counting duplicate IPs
-            child_count = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()]).size
+            child_ips = netaddr.IPSet()
+            for iprange in self.get_child_ranges():
+                child_ips.add(iprange.range)
+            for ip in self.get_child_ips():
+                child_ips.add(ip.address.ip)
+
             prefix_size = self.prefix.size
             if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
-            utilization = int(float(child_count) / prefix_size * 100)
+            utilization = int(float(child_ips.size) / prefix_size * 100)
 
         return min(utilization, 100)
 
@@ -602,6 +607,10 @@ class IPRange(PrimaryModel):
     @property
     def family(self):
         return self.start_address.version if self.start_address else None
+
+    @property
+    def range(self):
+        return netaddr.IPRange(self.start_address.ip, self.end_address.ip)
 
     @property
     def mask_length(self):
