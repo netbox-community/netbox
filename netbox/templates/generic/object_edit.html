@@ -31,72 +31,66 @@
 {% block content-wrapper %}
   <div class="tab-content">
     <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
-      <form action="" method="post" enctype="multipart/form-data">
+      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
         {% csrf_token %}
-        {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
 
-        <div class="row">
-          <div class="col col-md-12 col-lg-10 offset-lg-1">
-            {% block form %}
-              {% if form.Meta.fieldsets %}
+        {% block form %}
+          {% if form.Meta.fieldsets %}
 
-                {# Render grouped fields according to Form #}
-                {% for group, fields in form.Meta.fieldsets %}
-                  <div class="field-group">
-                    <h5 class="text-center">{{ group }}</h5>
-                    {% for name in fields %}
-                        {% render_field form|getfield:name %}
-                    {% endfor %}
-                  </div>
+            {# Render grouped fields according to Form #}
+            {% for group, fields in form.Meta.fieldsets %}
+              <div class="field-group">
+                <h5 class="text-center">{{ group }}</h5>
+                {% for name in fields %}
+                    {% render_field form|getfield:name %}
                 {% endfor %}
+              </div>
+            {% endfor %}
 
-                {% if form.custom_fields %}
-                  <div class="field-group">
-                    <h5 class="text-center">Custom Fields</h5>
-                    {% render_custom_fields form %}
-                  </div>
-                {% endif %}
+            {% if form.custom_fields %}
+              <div class="field-group">
+                <h5 class="text-center">Custom Fields</h5>
+                {% render_custom_fields form %}
+              </div>
+            {% endif %}
 
-                {% if form.comments %}
-                  <div class="field-group">
-                    {% render_field form.comments label='Comments' %}
-                  </div>
-                {% endif %}
+            {% if form.comments %}
+              <div class="field-group">
+                {% render_field form.comments label='Comments' %}
+              </div>
+            {% endif %}
 
-              {% else %}
-                {# Render all fields in a single group #}
-                <div class="field-group">
-                  <h5 class="text-center">{{ obj_type|capfirst }}</h5>
-                  {% block form_fields %}{% render_form form %}{% endblock %}
-                </div>
-              {% endif %}
+          {% else %}
+            {# Render all fields in a single group #}
+            <div class="field-group">
+              <h5 class="text-center">{{ obj_type|capfirst }}</h5>
+              {% block form_fields %}{% render_form form %}{% endblock %}
+            </div>
+          {% endif %}
 
-            {% endblock form %}
-          </div>
-        </div>
+        {% endblock form %}
 
-        <div class="row my-3">
-          <div class="col col-md-12 col-lg-10 offset-lg-1 text-end">
-            {% block buttons %}
-              <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+        <div class="text-end my-3">
+          {% block buttons %}
+            <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
 
-              {% if obj.pk %}
-                <button type="submit" name="_update" class="btn btn-primary">
-                  Save
-                </button>
+            {% if obj.pk %}
+              <button type="submit" name="_update" class="btn btn-primary">
+                Save
+              </button>
+            {% else %}
+              <button type="submit" name="_addanother" class="btn btn-outline-primary">
+                Create & Add Another
+              </button>
+              <button type="submit" name="_create" class="btn btn-primary">
+                Create
+              </button>
+            {% endif %}
 
-              {% else %}
-                <button type="submit" name="_addanother" class="btn btn-outline-primary">
-                  Create & Add Another
-                </button>
-                <button type="submit" name="_create" class="btn btn-primary">
-                  Create
-                </button>
-
-              {% endif %}
-
-            {% endblock buttons %}
-          </div>
+          {% endblock buttons %}
         </div>
       </form>
     </div>

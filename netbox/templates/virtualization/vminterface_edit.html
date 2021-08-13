@@ -6,7 +6,7 @@
         <h5 class="text-center">Interface</h5>
         {% if form.instance.virtual_machine %}
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label required" for="id_device">Virtual Machine</label>
+                <label class="col-sm-3 col-form-label text-lg-end required" for="id_device">Virtual Machine</label>
                 <div class="col">
                     <input class="form-control" value="{{ form.instance.virtual_machine }}" disabled />
                 </div>
@@ -36,12 +36,12 @@
 {% endblock %}
 
 {% block buttons %}
-    <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-{% if obj.pk %}
+  <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+  {% if obj.pk %}
     <button type="submit" formaction="?return_url={% url 'virtualization:vminterface_edit' pk=obj.pk %}" class="btn btn-outline-primary">Save & Continue Editing</button>
     <button type="submit" name="_update" class="btn btn-primary">Save</button>
-{% else %}
+  {% else %}
     <button type="submit" name="_addanother" class="btn btn-outline-primary">Create & Add Another</button>
     <button type="submit" name="_create" class="btn btn-primary">Create</button>
-{% endif %}
+  {% endif %}
 {% endblock %}
