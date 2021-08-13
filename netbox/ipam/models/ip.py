@@ -435,7 +435,10 @@ class Prefix(PrimaryModel):
 
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
-        available_ips = prefix - child_ips
+        child_ranges = netaddr.IPSet()
+        for iprange in self.get_child_ranges():
+            child_ranges.add(iprange.range)
+        available_ips = prefix - child_ips - child_ranges
 
         # IPv6, pool, or IPv4 /31-/32 sets are fully usable
         if self.family == 6 or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):

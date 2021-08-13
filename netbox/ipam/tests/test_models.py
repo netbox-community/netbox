@@ -142,17 +142,17 @@ class TestPrefix(TestCase):
             IPAddress(address=IPNetwork('10.0.0.3/26')),
             IPAddress(address=IPNetwork('10.0.0.5/26')),
             IPAddress(address=IPNetwork('10.0.0.7/26')),
-            IPAddress(address=IPNetwork('10.0.0.9/26')),
-            IPAddress(address=IPNetwork('10.0.0.11/26')),
-            IPAddress(address=IPNetwork('10.0.0.13/26')),
         ))
+        IPRange.objects.create(
+            start_address=IPNetwork('10.0.0.9/26'),
+            end_address=IPNetwork('10.0.0.12/26')
+        )
         missing_ips = IPSet([
             '10.0.0.2/32',
             '10.0.0.4/32',
             '10.0.0.6/32',
             '10.0.0.8/32',
-            '10.0.0.10/32',
-            '10.0.0.12/32',
+            '10.0.0.13/32',
             '10.0.0.14/32',
         ])
         available_ips = parent_prefix.get_available_ips()
