@@ -115,7 +115,7 @@ class CustomFieldsMixin(models.Model):
             try:
                 custom_fields[field_name].validate(value)
             except ValidationError as e:
-                raise ValidationError(f"Invalid value for custom field '{field_name}': {e.message}")
+                raise ValidationError(f"Invalid value for custom field '{field_name}': {e}")
 
         # Check for missing required values
         for cf in custom_fields.values():
