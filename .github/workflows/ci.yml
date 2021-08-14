@@ -36,12 +36,16 @@ jobs:
     - name: Install dependencies & set up configuration
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pycodestyle coverage
+        pip install coverage flake8 -r requirements.txt
         ln -s configuration.testing.py netbox/netbox/configuration.py
 
     - name: Check PEP8 compliance
       run: pycodestyle --ignore=W504,E501 netbox/
+
+    - name: Lint Python code with flake8
+      run: flake8 --ignore=E302,F401,F403,F405,F541,F811,F841,W504
+                  --max-complexity=28 --max-line-length=1559
+                  --show-source --statistics .
 
     - name: Run tests
       run: coverage run --source="netbox/" netbox/manage.py test netbox/
