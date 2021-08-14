@@ -153,7 +153,7 @@ class CustomField(BigIDModel):
                 self.validate(default_value)
             except ValidationError as err:
                 raise ValidationError({
-                    'default': f'Invalid default value "{self.default}": {err.message}'
+                    'default': f'Invalid default value "{self.default}": {err}'
                 })
 
         # Minimum/maximum values can be set only for numeric fields
