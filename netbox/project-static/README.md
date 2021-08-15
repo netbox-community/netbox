@@ -83,3 +83,13 @@ yarn bundle
 ```
 
 _**Note:** if you're running the development web server_ — `manage.py runserver` — _you'll need to run_ `manage.py collectstatic` _to see your changes._
+
+### Validating TypeScript
+
+After any changes to TypeScript files, it is recommended that you also run
+the type checker - the bundler does not do this.
+
+```bash
+# netbox/project-static
+yarn typecheck
+```
