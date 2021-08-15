@@ -1,92 +1,90 @@
-import { rackImagesState } from './stores';
+import { rackImagesState, RackViewSelection } from './stores';
 import { getElements } from './util';
 
 import type { StateManager } from './state';
 
-type RackToggleState = { hidden: boolean };
+export type RackViewState = { view: RackViewSelection };
 
 /**
- * Toggle the Rack Image button to reflect the current state. If the current state is hidden and
- * the images are therefore hidden, the button should say "Show Images". Likewise, if the current
- * state is *not* hidden, and therefore the images are shown, the button should say "Hide Images".
- *
- * @param hidden Current State - `true` if images are hidden, `false` otherwise.
- * @param button Button element.
+ * Show or hide images and labels to build the desired rack view.
  */
-function toggleRackImagesButton(hidden: boolean, button: HTMLButtonElement): void {
-  const text = hidden ? 'Show Images' : 'Hide Images';
-  const selected = hidden ? '' : 'selected';
-  button.setAttribute('selected', selected);
-  button.innerHTML = `<i class="mdi mdi-file-image-outline"></i>&nbsp;${text}`;
-}
-
-/**
- * Show all rack images.
- */
-function showRackImages(): void {
-  for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
-    const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
-    for (const image of images) {
-      image.classList.remove('hidden');
-    }
-  }
-}
-
-/**
- * Hide all rack images.
- */
-function hideRackImages(): void {
-  for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
-    const images = elevation.contentDocument?.querySelectorAll('image.device-image') ?? [];
-    for (const image of images) {
-      image.classList.add('hidden');
-    }
-  }
-}
-
-/**
- * Toggle the visibility of device images and update the toggle button style.
- */
-function handleRackImageToggle(
-  target: HTMLButtonElement,
-  state: StateManager<RackToggleState>,
+function setRackView(
+  view: RackViewSelection,
+  elevation: HTMLObjectElement,
 ): void {
-  const initiallyHidden = state.get('hidden');
-  state.set('hidden', !initiallyHidden);
-  const hidden = state.get('hidden');
-
-  if (hidden) {
-    hideRackImages();
-  } else {
-    showRackImages();
+  switch(view) {
+    case 'images-and-labels': {
+      showRackElements('image.device-image', elevation);
+      showRackElements('text.device-image-label', elevation);
+      break;
+    }
+    case 'images-only': {
+      showRackElements('image.device-image', elevation);
+      hideRackElements('text.device-image-label', elevation);
+      break;
+    }
+    case 'labels-only': {
+      hideRackElements('image.device-image', elevation);
+      hideRackElements('text.device-image-label', elevation);
+      break;
+    }
   }
-  toggleRackImagesButton(hidden, target);
+}
+
+function showRackElements(
+  selector: string,
+  elevation: HTMLObjectElement,
+): void {
+  const elements = elevation.contentDocument?.querySelectorAll(selector) ?? [];
+  for (const element of elements) {
+    element.classList.remove('hidden');
+  }
+}
+
+function hideRackElements(
+  selector: string,
+  elevation: HTMLObjectElement,
+): void {
+  const elements = elevation.contentDocument?.querySelectorAll(selector) ?? [];
+  for (const element of elements) {
+    element.classList.add('hidden');
+  }
 }
 
 /**
- * Add onClick callback for toggling rack elevation images. Synchronize the image toggle button
- * text and display state of images with the local state.
+ * Change the visibility of all racks in response to selection.
+ */
+function handleRackViewSelect(
+  newView: RackViewSelection,
+  state: StateManager<RackViewState>,
+): void {
+  state.set('view', newView);
+  for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
+    setRackView(newView, elevation);
+  }
+}
+
+/**
+ * Add change callback for selecting rack elevation images, and set
+ * initial state of select and the images themselves
  */
 export function initRackElevation(): void {
-  const initiallyHidden = rackImagesState.get('hidden');
-  for (const button of getElements<HTMLButtonElement>('button.toggle-images')) {
-    toggleRackImagesButton(initiallyHidden, button);
+  const initialView = rackImagesState.get('view');
 
-    button.addEventListener(
-      'click',
+  for (const control of getElements<HTMLSelectElement>('select.rack-view')) {
+    control.selectedIndex = [...control.options].findIndex(o => o.value == initialView);
+    control.addEventListener(
+      'change',
       event => {
-        handleRackImageToggle(event.currentTarget as HTMLButtonElement, rackImagesState);
+        handleRackViewSelect((event.currentTarget as any).value as RackViewSelection, rackImagesState);
       },
       false,
     );
   }
+
   for (const element of getElements<HTMLObjectElement>('.rack_elevation')) {
     element.addEventListener('load', () => {
-      if (initiallyHidden) {
-        hideRackImages();
-      } else if (!initiallyHidden) {
-        showRackImages();
-      }
+      setRackView(initialView, element);
     });
   }
 }
