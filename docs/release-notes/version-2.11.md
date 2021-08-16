@@ -7,6 +7,10 @@
 * [#6748](https://github.com/netbox-community/netbox/issues/6748) - Add site group filter to devices list
 * [#6872](https://github.com/netbox-community/netbox/issues/6872) - Add table configuration button to child prefixes view
 
+### Bug Fixes
+
+* [#5968](https://github.com/netbox-community/netbox/issues/5968) - Model forms should save empty custom field values as null
+
 ---
 
 ## v2.11.11 (2021-08-12)
