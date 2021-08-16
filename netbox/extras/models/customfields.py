@@ -127,9 +127,10 @@ class CustomField(BigIDModel):
         """
         for ct in content_types:
             model = ct.model_class()
-            for obj in model.objects.exclude(**{f'custom_field_data__contains': self.name}):
-                obj.custom_field_data[self.name] = self.default
-                obj.save()
+            instances = model.objects.exclude(**{f'custom_field_data__contains': self.name})
+            for instance in instances:
+                instance.custom_field_data[self.name] = self.default
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
 
     def remove_stale_data(self, content_types):
         """
@@ -138,9 +139,10 @@ class CustomField(BigIDModel):
         """
         for ct in content_types:
             model = ct.model_class()
-            for obj in model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False}):
-                del(obj.custom_field_data[self.name])
-                obj.save()
+            instances = model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False})
+            for instance in instances:
+                del(instance.custom_field_data[self.name])
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
 
     def rename_object_data(self, old_name, new_name):
         """
