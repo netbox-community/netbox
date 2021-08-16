@@ -553,6 +553,8 @@ class PowerOutletTypeChoices(ChoiceSet):
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
+    # Other
+    TYPE_HARDWIRED = 'hardwired'
 
     CHOICES = (
         ('IEC 60320', (
@@ -653,6 +655,9 @@ class PowerOutletTypeChoices(ChoiceSet):
         ('Proprietary', (
             (TYPE_HDOT_CX, 'HDOT Cx'),
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
+        )),
+        ('Other', (
+            (TYPE_HARDWIRED, 'Hardwired'),
         )),
     )
 
