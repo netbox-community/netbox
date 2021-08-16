@@ -72,11 +72,15 @@ VLAN_LINK = """
 """
 
 VLAN_PREFIXES = """
+{% if perms.ipam.view_prefix %}
 {% for prefix in record.prefixes.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
 {% empty %}
     &mdash;
 {% endfor %}
+{% else %}
+    &mdash;
+{% endif }
 """
 
 VLAN_ROLE_LINK = """
