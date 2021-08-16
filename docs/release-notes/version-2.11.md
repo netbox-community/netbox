@@ -10,6 +10,7 @@
 ### Bug Fixes
 
 * [#5968](https://github.com/netbox-community/netbox/issues/5968) - Model forms should save empty custom field values as null
+* [#6686](https://github.com/netbox-community/netbox/issues/6686) - Force assignment of null custom field values to objects
 
 ---
 

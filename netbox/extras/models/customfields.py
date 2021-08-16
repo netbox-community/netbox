@@ -120,17 +120,16 @@ class CustomField(BigIDModel):
         # Cache instance's original name so we can check later whether it has changed
         self._name = self.name
 
-    def rename_object_data(self, old_name, new_name):
+    def populate_initial_data(self, content_types):
         """
-        Called when a CustomField has been renamed. Updates all assigned object data.
+        Populate initial custom field data upon either a) the creation of a new CustomField, or
+        b) the assignment of an existing CustomField to new object types.
         """
-        for ct in self.content_types.all():
+        for ct in content_types:
             model = ct.model_class()
-            params = {f'custom_field_data__{old_name}__isnull': False}
-            instances = model.objects.filter(**params)
-            for instance in instances:
-                instance.custom_field_data[new_name] = instance.custom_field_data.pop(old_name)
-            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+            for obj in model.objects.exclude(**{f'custom_field_data__contains': self.name}):
+                obj.custom_field_data[self.name] = self.default
+                obj.save()
 
     def remove_stale_data(self, content_types):
         """
@@ -142,6 +141,18 @@ class CustomField(BigIDModel):
             for obj in model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False}):
                 del(obj.custom_field_data[self.name])
                 obj.save()
+
+    def rename_object_data(self, old_name, new_name):
+        """
+        Called when a CustomField has been renamed. Updates all assigned object data.
+        """
+        for ct in self.content_types.all():
+            model = ct.model_class()
+            params = {f'custom_field_data__{old_name}__isnull': False}
+            instances = model.objects.filter(**params)
+            for instance in instances:
+                instance.custom_field_data[new_name] = instance.custom_field_data.pop(old_name)
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
 
     def clean(self):
         super().clean()

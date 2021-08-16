@@ -108,6 +108,14 @@ def _handle_deleted_object(request, webhook_queue, sender, instance, **kwargs):
 # Custom fields
 #
 
+def handle_cf_added_obj_types(instance, action, pk_set, **kwargs):
+    """
+    Handle the population of default/null values when a CustomField is added to one or more ContentTypes.
+    """
+    if action == 'post_add':
+        instance.populate_initial_data(ContentType.objects.filter(pk__in=pk_set))
+
+
 def handle_cf_removed_obj_types(instance, action, pk_set, **kwargs):
     """
     Handle the cleanup of old custom field data when a CustomField is removed from one or more ContentTypes.
@@ -131,9 +139,10 @@ def handle_cf_deleted(instance, **kwargs):
     instance.remove_stale_data(instance.content_types.all())
 
 
-m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
+m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.content_types.through)
+m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
 
 
 #
