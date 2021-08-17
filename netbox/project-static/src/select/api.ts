@@ -1,16 +1,19 @@
 import queryString from 'query-string';
+import debounce from 'just-debounce-it';
 import { readableColor } from 'color2k';
 import SlimSelect from 'slim-select';
 import { createToast } from '../bs';
 import { hasUrl, hasExclusions, isTrigger } from './util';
 import {
   isTruthy,
+  hasMore,
   hasError,
   getElement,
   getApiData,
   isApiError,
   getElements,
   createElement,
+  uniqueByProperty,
   findFirstAdjacent,
 } from '../util';
 
@@ -89,6 +92,12 @@ class APISelect {
   private readonly loadEvent: InstanceType<typeof Event>;
 
   /**
+   * Event to be dispatched when the scroll position of this element's optinos list is at the
+   * bottom.
+   */
+  private readonly bottomEvent: InstanceType<typeof Event>;
+
+  /**
    * SlimSelect instance for this element.
    */
   private readonly slim: InstanceType<typeof SlimSelect>;
@@ -133,6 +142,17 @@ class APISelect {
   private queryUrl: string = '';
 
   /**
+   * Scroll position of options is at the bottom of the list, or not. Used to determine if
+   * additional options should be fetched from the API.
+   */
+  private atBottom: boolean = false;
+
+  /**
+   * API URL for additional options, if applicable. `null` indicates no options remain.
+   */
+  private more: Nullable<string> = null;
+
+  /**
    * This element's options come from the server pre-sorted and should not be sorted client-side.
    * Determined by the existence of the `pre-sorted` attribute on the base `<select/>` element, or
    * by existence of specific fields such as `_depth`.
@@ -170,6 +190,8 @@ class APISelect {
     }
 
     this.loadEvent = new Event(`netbox.select.onload.${base.name}`);
+    this.bottomEvent = new Event(`netbox.select.atbottom.${base.name}`);
+
     this.placeholder = this.getPlaceholder();
     this.disabledOptions = this.getDisabledOptions();
     this.disabledAttributes = this.getDisabledAttributes();
@@ -257,7 +279,7 @@ class APISelect {
   /**
    * This instance's available options.
    */
-  public get options(): Option[] {
+  private get options(): Option[] {
     return this._options;
   }
 
@@ -271,9 +293,10 @@ class APISelect {
     if (!this.preSorted) {
       newOptions = optionsIn.sort((a, b) => (a.text.toLowerCase() > b.text.toLowerCase() ? 1 : -1));
     }
-
-    this._options = newOptions;
-    this.slim.setData(newOptions);
+    // Deduplicate options each time they're set.
+    const deduplicated = uniqueByProperty(newOptions, 'value');
+    this._options = deduplicated;
+    this.slim.setData(deduplicated);
   }
 
   /**
@@ -318,6 +341,21 @@ class APISelect {
    * this element's options are updated.
    */
   private addEventListeners(): void {
+    // Create a debounced function to fetch options based on the search input value.
+    const fetcher = debounce((event: Event) => this.handleSearch(event), 300, false);
+
+    // Query the API when the input value changes or a value is pasted.
+    this.slim.slim.search.input.addEventListener('keyup', event => fetcher(event));
+    this.slim.slim.search.input.addEventListener('paste', event => fetcher(event));
+
+    // Watch every scroll event to determine if the scroll position is at bottom.
+    this.slim.slim.list.addEventListener('scroll', () => this.handleScroll());
+
+    // When the scroll position is at bottom, fetch additional options.
+    this.base.addEventListener(`netbox.select.atbottom.${this.name}`, () =>
+      this.fetchOptions(this.more),
+    );
+
     // Create a unique iterator of all possible form fields which, when changed, should cause this
     // element to update its API query.
     const dependencies = new Set([...this.filterParams.keys(), ...this.pathValues.keys()]);
@@ -350,14 +388,11 @@ class APISelect {
   }
 
   /**
-   * Query the NetBox API for this element's options.
+   * Process a valid API response and add results to this instance's options.
+   *
+   * @param data Valid API response (not an error).
    */
-  private async getOptions(): Promise<void> {
-    if (this.queryUrl.includes(`{{`)) {
-      this.options = [PLACEHOLDER];
-      return;
-    }
-
+  private async processOptions(data: APIAnswer<APIObjectBase>): Promise<void> {
     // Get all non-placeholder (empty) options' values. If any exist, it means we're editing an
     // existing object. When we fetch options from the API later, we can set any of the options
     // contained in this array to `selected`.
@@ -366,19 +401,7 @@ class APISelect {
       .map(option => option.getAttribute('value'))
       .filter(isTruthy);
 
-    const data = await getApiData(this.queryUrl);
-
-    if (hasError(data)) {
-      if (isApiError(data)) {
-        return this.handleError(data.exception, data.error);
-      }
-      return this.handleError(`Error Fetching Options for field '${this.name}'`, data.error);
-    }
-
-    const { results } = data;
-    const options = [PLACEHOLDER] as Option[];
-
-    for (const result of results) {
+    for (const result of data.results) {
       let text = result.display;
 
       if (typeof result._depth === 'number') {
@@ -432,9 +455,77 @@ class APISelect {
         disabled,
       } as Option;
 
-      options.push(option);
+      this.options = [...this.options, option];
     }
-    this.options = options;
+
+    if (hasMore(data)) {
+      // If the `next` property in the API response is a URL, there are more options on the server
+      // side to be fetched.
+      this.more = data.next;
+    } else {
+      // If the `next` property in the API response is `null`, there are no more options on the
+      // server, and no additional fetching needs to occur.
+      this.more = null;
+    }
+  }
+
+  /**
+   * Fetch options from the given API URL and add them to the instance.
+   *
+   * @param url API URL
+   */
+  private async fetchOptions(url: Nullable<string>): Promise<void> {
+    if (typeof url === 'string') {
+      const data = await getApiData(url);
+
+      if (hasError(data)) {
+        if (isApiError(data)) {
+          return this.handleError(data.exception, data.error);
+        }
+        return this.handleError(`Error Fetching Options for field '${this.name}'`, data.error);
+      }
+      await this.processOptions(data);
+    }
+  }
+
+  /**
+   * Query the NetBox API for this element's options.
+   */
+  private async getOptions(): Promise<void> {
+    if (this.queryUrl.includes(`{{`)) {
+      this.options = [PLACEHOLDER];
+      return;
+    }
+    await this.fetchOptions(this.queryUrl);
+  }
+
+  /**
+   * Query the API for a specific search pattern and add the results to the available options.
+   */
+  private async handleSearch(event: Event) {
+    const { value: q } = event.target as HTMLInputElement;
+    const url = queryString.stringifyUrl({ url: this.queryUrl, query: { q } });
+    await this.fetchOptions(url);
+    this.slim.data.search(q);
+    this.slim.render();
+  }
+
+  /**
+   * Determine if the user has scrolled to the bottom of the options list. If so, try to load
+   * additional paginated options.
+   */
+  private handleScroll(): void {
+    const atBottom =
+      this.slim.slim.list.scrollTop + this.slim.slim.list.offsetHeight ===
+      this.slim.slim.list.scrollHeight;
+
+    if (this.atBottom && !atBottom) {
+      this.atBottom = false;
+      this.base.dispatchEvent(this.bottomEvent);
+    } else if (!this.atBottom && atBottom) {
+      this.atBottom = true;
+      this.base.dispatchEvent(this.bottomEvent);
+    }
   }
 
   /**

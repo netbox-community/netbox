@@ -40,6 +40,8 @@ type APIAnswer<T> = {
   results: T[];
 };
 
+type APIAnswerWithNext<T> = Exclude<APIAnswer<T>, 'next'> & { next: string };
+
 type ErrorBase = {
   error: string;
 };

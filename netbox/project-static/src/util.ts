@@ -23,6 +23,10 @@ export function hasError(data: Record<string, unknown>): data is ErrorBase {
   return 'error' in data;
 }
 
+export function hasMore(data: APIAnswer<APIObjectBase>): data is APIAnswerWithNext<APIObjectBase> {
+  return typeof data.next === 'string';
+}
+
 /**
  * Create a slug from any input string.
  *
@@ -349,4 +353,29 @@ export function createElement<
  */
 export function cToF(celsius: number): number {
   return celsius * (9 / 5) + 32;
+}
+
+/**
+ * Deduplicate an array of objects based on the value of a property.
+ *
+ * @example
+ * ```js
+ * const withDups = [{id: 1, name: 'One'}, {id: 2, name: 'Two'}, {id: 1, name: 'Other One'}];
+ * const withoutDups = uniqueByProperty(withDups, 'id');
+ * console.log(withoutDups);
+ * // [{id: 1, name: 'One'}, {id: 2, name: 'Two'}]
+ * ```
+ * @param arr Array of objects to deduplicate.
+ * @param prop Object property to use as a unique key.
+ * @returns Deduplicated array.
+ */
+export function uniqueByProperty<T extends unknown, P extends keyof T>(arr: T[], prop: P): T[] {
+  const baseMap = new Map<T[P], T>();
+  for (const item of arr) {
+    const value = item[prop];
+    if (!baseMap.has(value)) {
+      baseMap.set(value, item);
+    }
+  }
+  return Array.from(baseMap.values());
 }
