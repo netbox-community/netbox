@@ -1,3 +1,3 @@
 django-allauth==0.42.0
-netbox-virtual-circuit-plugin==1.6.1
+netbox-virtual-circuit-plugin==1.6.2
 django-storages[google]==1.11.1
