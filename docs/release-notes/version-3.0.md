@@ -1,5 +1,13 @@
 # NetBox v3.0
 
+## v3.0.0 (FUTURE)
+
+### Bug Fixes
+
+* [#6977](https://github.com/netbox-community/netbox/issues/6977) - Truncate global search dropdown on small screens
+
+---
+
 ## v3.0-beta2 (2021-08-13)
 
 ### Enhancements
