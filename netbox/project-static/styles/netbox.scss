@@ -419,10 +419,11 @@ main.login-container {
 }
 
 .footer {
-  padding-top: map.get($spacers, 4);
-  padding-right: 0;
-  padding-bottom: map.get($spacers, 3);
-  padding-left: 0;
+  padding: 0;
+
+  .nav-link {
+    padding: .5rem;
+  }
 
   @include media-breakpoint-down(md) {
     // Pad the bottom of the footer on mobile devices to account for mobile browser controls.
