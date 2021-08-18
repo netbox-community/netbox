@@ -2,6 +2,9 @@
 {% load helpers %}
 
 {% block extra_controls %}
+    <button class="btn btn-sm btn-outline-secondary toggle-depth" type="button">
+        Hide Depth Indicators
+    </button>
     <div class="dropdown">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="max_depth" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
             Max Depth{% if "depth__lte" in request.GET %}: {{ request.GET.depth__lte }}{% endif %}
