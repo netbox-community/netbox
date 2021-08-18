@@ -125,8 +125,11 @@ $spacing-s: $input-padding-x;
           border-bottom-left-radius: $form-select-border-radius;
         }
 
-        &.ss-disabled:hover {
-          color: $form-select-disabled-color;
+        &.ss-disabled {
+          background-color: unset;
+          &:hover {
+            color: $form-select-disabled-color;
+          }
         }
 
         .depth {
