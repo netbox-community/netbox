@@ -56,3 +56,17 @@
         {% render_field form.description %}
   </div>
 {% endblock %}
+
+{# Override buttons block, 'Create & Add Another'/'_addanother' is not needed on a circuit. #}
+{% block buttons %}
+    <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+    {% if obj.pk %}
+        <button type="submit" name="_update" class="btn btn-primary">
+            Save
+        </button>
+    {% else %}
+        <button type="submit" name="_create" class="btn btn-primary">
+            Create
+        </button>
+    {% endif %}
+{% endblock buttons %}
