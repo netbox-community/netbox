@@ -21,6 +21,7 @@
 * [#6827](https://github.com/netbox-community/netbox/issues/6827) - Fix circuit termination connection dropdown
 * [#6832](https://github.com/netbox-community/netbox/issues/6832) - Support config context rendering under GraphQL API
 * [#6846](https://github.com/netbox-community/netbox/issues/6846) - Form-driven REST API calls should use brief mode
+* [#6856](https://github.com/netbox-community/netbox/issues/6856) - Fix maximum options limit for API-backed select fields
 * [#6871](https://github.com/netbox-community/netbox/issues/6871) - Support dynamic tag types in GraphQL API
 * [#6894](https://github.com/netbox-community/netbox/issues/6894) - Fix available IP generation for prefix assigned to a VRF
 * [#6934](https://github.com/netbox-community/netbox/issues/6934) - Correct prefix utilization and available IP reporting to account for child IP ranges
