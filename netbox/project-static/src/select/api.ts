@@ -225,7 +225,6 @@ class APISelect {
     }
 
     this.queryParams.set('brief', true);
-    this.queryParams.set('limit', 0);
     this.updateQueryUrl();
 
     // Initialize element styling.
