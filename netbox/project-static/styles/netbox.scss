@@ -422,7 +422,7 @@ main.login-container {
   padding: 0;
 
   .nav-link {
-    padding: .5rem;
+    padding: 0.5rem;
   }
 
   @include media-breakpoint-down(md) {
@@ -864,6 +864,20 @@ div.card > div.card-header > div.table-controls {
   padding: $spacer;
   background-color: $tab-content-bg;
   border-bottom: 1px solid $nav-tabs-border-color;
+}
+
+// Object hierarchy indicators.
+.record-depth {
+  display: inline;
+  font-size: $font-size-base;
+  user-select: none;
+  opacity: 0.33;
+
+  // Add spacing to the last or only dot.
+  span:only-of-type,
+  span:last-of-type {
+    margin-right: map.get($spacers, 1);
+  }
 }
 
 #django-messages {

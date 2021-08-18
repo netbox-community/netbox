@@ -15,9 +15,13 @@ AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 PREFIX_LINK = """
 {% load helpers %}
-{% for i in record.depth|as_range %}
-    <i class="mdi mdi-circle-small"></i>
-{% endfor %}
+{% if record.depth %}
+    <div class="record-depth">
+        {% for i in record.depth|as_range %}
+            <span>•</span>
+        {% endfor %}
+    </div>
+{% endif %}
 <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 """
 
