@@ -15,8 +15,13 @@
       {# Body #}
       <div class="content-container">
 
+        {# Netbox Logo, only visible when printing #}
+        <div class="p-2 printonly">
+          <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" width="200px" />
+        </div>
+
         {# Top bar #}
-        <nav class="navbar navbar-light sticky-top flex-md-nowrap ps-6 p-3 search container-fluid">
+        <nav class="navbar navbar-light sticky-top flex-md-nowrap ps-6 p-3 search container-fluid noprint">
 
             {# Mobile Navigation #}
             <div class="nav-mobile">
@@ -102,9 +107,9 @@
         {# Page footer #}
         <footer class="footer container-fluid">
           <div class="row align-items-center justify-content-between mx-0">
-            
+
             {# Docs & Community Links #}
-            <div class="col-sm-12 col-md-auto fs-4">
+            <div class="col-sm-12 col-md-auto fs-4 noprint">
               <nav class="nav justify-content-center justify-content-lg-start">
                 {# Documentation #}
                 <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
@@ -139,7 +144,7 @@
                 </a>
               </nav>
             </div>
-            
+
             {# System Info #}
             <div class="col-sm-12 col-md-auto text-center text-lg-end text-muted">
               <span class="d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>

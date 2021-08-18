@@ -23,3 +23,22 @@ table td {
     vertical-align: middle;
   }
 }
+
+// Hide element when printing.
+.noprint {
+  @media print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+// Only show element when printing, otherwise hide.
+.printonly {
+  display: none !important;
+  visibility: hidden !important;
+
+  @media print {
+    display: block !important;
+    visibility: visible !important;
+  }
+}

@@ -68,6 +68,12 @@
       href="{% static 'netbox-dark.css'%}"
       onerror="window.location='{% url 'media_failure' %}?filename=netbox-dark.css'"
     />
+    <link
+      rel="stylesheet"
+      media="print"
+      href="{% static 'netbox-print.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-print.css'"
+    />
     <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
 
     {# Javascript #}

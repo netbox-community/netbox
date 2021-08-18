@@ -274,6 +274,12 @@ div.title-container {
 .controls {
   margin-bottom: map.get($spacers, 2);
 
+  @media print {
+    // Never print controls. Use this over the .noprint utility so plugin authors don't need to
+    // remember to add the class.
+    display: none !important;
+  }
+
   // Each group of buttons.
   .control-group {
     display: flex;
@@ -400,6 +406,15 @@ main.layout {
   max-height: 100vh;
   overflow-x: auto;
   overflow-y: hidden;
+
+  // Override styles when printing. Fixes issue where only the first page is visible when printing.
+  @media print {
+    position: static !important;
+    display: block !important;
+    height: 100%;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
 }
 
 main.login-container {
@@ -521,6 +536,12 @@ div.content-container {
   div.content {
     flex: 1;
   }
+
+  // Make the content full-width when printing.
+  @media print {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
 }
 
 // Prevent scrolling of body content when nav menu is open on mobile.
@@ -556,7 +577,7 @@ span.color-label {
 
   .card-header {
     padding: $card-cap-padding-x;
-    color: $body-color;
+    color: var(--nbx-body-color);
     border-bottom: none;
   }
 
@@ -575,6 +596,11 @@ span.color-label {
     margin: $hr-margin-y 0;
     border-top: 1px solid $card-border-color;
     opacity: $hr-opacity;
+  }
+
+  // Remove shadow when printing.
+  @media print {
+    box-shadow: unset !important;
   }
 }
 
@@ -864,6 +890,29 @@ div.card > div.card-header > div.table-controls {
   padding: $spacer;
   background-color: $tab-content-bg;
   border-bottom: 1px solid $nav-tabs-border-color;
+
+  // Remove background and border when printing.
+  @media print {
+    background-color: var(--nbx-body-bg) !important;
+    border-bottom: none !important;
+  }
+}
+
+// Override masonry-layout styles when printing.
+.masonry {
+  @media print {
+    position: static !important;
+    display: block !important;
+    height: unset !important;
+  }
+  .masonry-item {
+    @media print {
+      position: static !important;
+      top: unset !important;
+      left: unset !important;
+      display: block !important;
+    }
+  }
 }
 
 // Object hierarchy indicators.
