@@ -13,7 +13,7 @@ import { initSideNav } from './sidenav';
 import { initRackElevation } from './racks';
 import { initLinks } from './links';
 
-function initAll() {
+function initDocument() {
   for (const init of [
     initBootstrap,
     initColorMode,
@@ -34,8 +34,18 @@ function initAll() {
   }
 }
 
+function initWindow() {
+  const contentContainer = document.querySelector<HTMLElement>('.content-container');
+  if (contentContainer !== null) {
+    // Focus the content container for accessible navigation.
+    contentContainer.focus();
+  }
+}
+
+window.addEventListener('load', initWindow);
+
 if (document.readyState !== 'loading') {
-  initAll();
+  initDocument();
 } else {
-  document.addEventListener('DOMContentLoaded', initAll);
+  document.addEventListener('DOMContentLoaded', initDocument);
 }

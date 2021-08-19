@@ -529,12 +529,18 @@ div.content-container {
   overflow-x: hidden;
   overflow-y: auto;
 
-  @include media-breakpoint-down(lg) {
-    width: 100%;
+  // Don't show an outline when the content container is focused.
+  &:focus,
+  &:focus-visible {
+    outline: 0;
   }
 
   div.content {
     flex: 1;
+  }
+
+  @include media-breakpoint-down(lg) {
+    width: 100%;
   }
 
   // Make the content full-width when printing.
