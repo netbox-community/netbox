@@ -797,6 +797,24 @@ table tbody {
   }
 }
 
+// Style objects with statuses/roles within a table. As of implementation, used for IP addresses
+// assigned to interfaces.
+table .table-badge-group {
+  font-family: $font-family-monospace;
+
+  .table-badge {
+    display: block;
+    width: min-content;
+    // Apply badge padding so that IP addresses *not* within a badge appear aligned with IP
+    // addresses that *are* within a badge.
+    padding: $badge-padding-y $badge-padding-x;
+    margin-top: map.get($spacers, 1);
+    margin-bottom: map.get($spacers, 1);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-base;
+  }
+}
+
 pre.change-data {
   padding-right: 0;
   padding-left: 0;

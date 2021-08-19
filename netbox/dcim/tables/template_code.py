@@ -41,9 +41,19 @@ DEVICEBAY_STATUS = """
 """
 
 INTERFACE_IPADDRESSES = """
-{% for ip in record.ip_addresses.all %}
-    <a href="{{ ip.get_absolute_url }}">{{ ip }}</a><br />
-{% endfor %}
+<div class="table-badge-group">
+    {% for ip in record.ip_addresses.all %}
+        <a
+        class="table-badge{% if ip.status != 'active' %} badge bg-{{ ip.get_status_class }}{% elif ip.role %} badge bg-{{ ip.get_role_class }}{% endif %}"
+        href="{{ ip.get_absolute_url }}"
+        {% if ip.status != 'active'%}data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}"
+        {% elif ip.role %}data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_role_display }}"
+        {% endif %}
+        >
+        {{ ip }}
+        </a>
+    {% endfor %}
+</div>
 """
 
 INTERFACE_TAGGED_VLANS = """
