@@ -806,18 +806,21 @@ table tbody {
 // Style objects with statuses/roles within a table. As of implementation, used for IP addresses
 // assigned to interfaces.
 table .table-badge-group {
-  font-family: $font-family-monospace;
-
   .table-badge {
     display: block;
     width: min-content;
-    // Apply badge padding so that IP addresses *not* within a badge appear aligned with IP
-    // addresses that *are* within a badge.
-    padding: $badge-padding-y $badge-padding-x;
-    margin-top: map.get($spacers, 1);
-    margin-bottom: map.get($spacers, 1);
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     font-weight: $font-weight-base;
+
+    &:not(.badge) {
+      // Apply badge horizontal padding so that IP addresses *not* within a badge appear aligned
+      // with IP addresses that *are* within a badge.
+      padding: 0 $badge-padding-x;
+    }
+
+    &.badge:not(:last-of-type):not(:only-child) {
+      margin-bottom: map.get($spacers, 2);
+    }
   }
 }
 
