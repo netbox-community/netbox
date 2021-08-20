@@ -122,14 +122,6 @@ $theme-color-addons: (
   'pink-900': $pink-900,
 );
 
-/* stylelint-disable */
-$font-family-sans-serif: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-  'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
-  'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-$font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
-  'Courier New', monospace;
-/* stylelint-enable */
-
 // This is the same value as the default from Bootstrap, but it needs to be in scope prior to
 // importing _variables.scss from Bootstrap.
 $btn-close-width: 1em;
