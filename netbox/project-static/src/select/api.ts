@@ -21,6 +21,8 @@ import type { Option } from 'slim-select/dist/data';
 
 type QueryFilter = Map<string, string | number | boolean>;
 
+type ApplyMethod = 'merge' | 'replace';
+
 export type Trigger =
   /**
    * Load data when the select element is opened.
@@ -293,7 +295,23 @@ class APISelect {
       newOptions = optionsIn.sort((a, b) => (a.text.toLowerCase() > b.text.toLowerCase() ? 1 : -1));
     }
     // Deduplicate options each time they're set.
-    const deduplicated = uniqueByProperty(newOptions, 'value');
+    let deduplicated = uniqueByProperty(newOptions, 'value');
+    // Determine if the new options have a placeholder.
+    const hasPlaceholder = typeof deduplicated.find(o => o.value === '') !== 'undefined';
+    // Get the placeholder index (note: if there is no placeholder, the index will be `-1`).
+    const placeholderIdx = deduplicated.findIndex(o => o.value === '');
+
+    if (hasPlaceholder && placeholderIdx < 0) {
+      // If there is a placeholder but it is not the first element (due to sorting or other merge
+      // issues), remove it from the options array and place it in front.
+      deduplicated.splice(placeholderIdx);
+      deduplicated = [PLACEHOLDER, ...deduplicated];
+    }
+    if (!hasPlaceholder) {
+      // If there is no placeholder, add one to the front of the array.
+      deduplicated = [PLACEHOLDER, ...deduplicated];
+    }
+
     this._options = deduplicated;
     this.slim.setData(deduplicated);
   }
@@ -352,7 +370,7 @@ class APISelect {
 
     // When the scroll position is at bottom, fetch additional options.
     this.base.addEventListener(`netbox.select.atbottom.${this.name}`, () =>
-      this.fetchOptions(this.more),
+      this.fetchOptions(this.more, 'merge'),
     );
 
     // Create a unique iterator of all possible form fields which, when changed, should cause this
@@ -376,7 +394,7 @@ class APISelect {
   private async loadData(): Promise<void> {
     try {
       this.disable();
-      await this.getOptions();
+      await this.getOptions('replace');
     } catch (err) {
       console.error(err);
     } finally {
@@ -391,7 +409,10 @@ class APISelect {
    *
    * @param data Valid API response (not an error).
    */
-  private async processOptions(data: APIAnswer<APIObjectBase>): Promise<void> {
+  private async processOptions(
+    data: APIAnswer<APIObjectBase>,
+    action: ApplyMethod = 'merge',
+  ): Promise<void> {
     // Get all non-placeholder (empty) options' values. If any exist, it means we're editing an
     // existing object. When we fetch options from the API later, we can set any of the options
     // contained in this array to `selected`.
@@ -399,6 +420,8 @@ class APISelect {
       .filter(option => option.selected)
       .map(option => option.getAttribute('value'))
       .filter(isTruthy);
+
+    let options = [] as Option[];
 
     for (const result of data.results) {
       let text = result.display;
@@ -453,8 +476,15 @@ class APISelect {
         selected,
         disabled,
       } as Option;
+      options = [...options, option];
+    }
 
-      this.options = [...this.options, option];
+    switch (action) {
+      case 'merge':
+        this.options = [...this.options, ...options];
+        break;
+      case 'replace':
+        this.options = options;
     }
 
     if (hasMore(data)) {
@@ -473,7 +503,7 @@ class APISelect {
    *
    * @param url API URL
    */
-  private async fetchOptions(url: Nullable<string>): Promise<void> {
+  private async fetchOptions(url: Nullable<string>, action: ApplyMethod = 'merge'): Promise<void> {
     if (typeof url === 'string') {
       const data = await getApiData(url);
 
@@ -483,19 +513,19 @@ class APISelect {
         }
         return this.handleError(`Error Fetching Options for field '${this.name}'`, data.error);
       }
-      await this.processOptions(data);
+      await this.processOptions(data, action);
     }
   }
 
   /**
    * Query the NetBox API for this element's options.
    */
-  private async getOptions(): Promise<void> {
+  private async getOptions(action: ApplyMethod = 'merge'): Promise<void> {
     if (this.queryUrl.includes(`{{`)) {
       this.options = [PLACEHOLDER];
       return;
     }
-    await this.fetchOptions(this.queryUrl);
+    await this.fetchOptions(this.queryUrl, action);
   }
 
   /**
@@ -504,7 +534,7 @@ class APISelect {
   private async handleSearch(event: Event) {
     const { value: q } = event.target as HTMLInputElement;
     const url = queryString.stringifyUrl({ url: this.queryUrl, query: { q } });
-    await this.fetchOptions(url);
+    await this.fetchOptions(url, 'merge');
     this.slim.data.search(q);
     this.slim.render();
   }
