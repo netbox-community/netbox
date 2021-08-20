@@ -13,6 +13,7 @@
 
 * [#5968](https://github.com/netbox-community/netbox/issues/5968) - Model forms should save empty custom field values as null
 * [#6686](https://github.com/netbox-community/netbox/issues/6686) - Force assignment of null custom field values to objects
+* [#6974](https://github.com/netbox-community/netbox/issues/6974) - Show contextual label for IP address role
 
 ---
 

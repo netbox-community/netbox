@@ -56,7 +56,7 @@
                     <td>Role</td>
                     <td>
                         {% if object.role %}
-                            <a href="{% url 'ipam:ipaddress_list' %}?role={{ object.role }}">{{ object.get_role_display }}</a>
+                            <a href="{% url 'ipam:ipaddress_list' %}?role={{ object.role }}" class="label label-{{ object.get_role_class }}">{{ object.get_role_display }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
