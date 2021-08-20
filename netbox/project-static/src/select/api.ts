@@ -17,12 +17,34 @@ import {
   findFirstAdjacent,
 } from '../util';
 
+import type { Stringifiable } from 'query-string';
 import type { Option } from 'slim-select/dist/data';
 
-type QueryFilter = Map<string, string | number | boolean>;
+/**
+ * Map of string keys to primitive array values accepted by `query-string`. Keys are used as
+ * URL query parameter keys. Values correspond to query param values, enforced as an array
+ * for easier handling. For example, a mapping of `{ site_id: [1, 2] }` is serialized by
+ * `query-string` as `?site_id=1&site_id=2`. Likewise, `{ site_id: [1] }` is serialized as
+ * `?site_id=1`.
+ */
+type QueryFilter = Map<string, Stringifiable[]>;
 
+/**
+ * Map of string keys to primitive values. Used to track variables within URLs from the server. For
+ * example, `/api/$key/thing`. `PathFilter` tracks `$key` as `{ key: '' }` in the map, and when the
+ * value is later known, the value is set — `{ key: 'value' }`, and the URL is transformed to
+ * `/api/value/thing`.
+ */
+type PathFilter = Map<string, Stringifiable>;
+
+/**
+ * Merge or replace incoming options with current options.
+ */
 type ApplyMethod = 'merge' | 'replace';
 
+/**
+ * Trigger for which the select instance should fetch its data from the NetBox API.
+ */
 export type Trigger =
   /**
    * Load data when the select element is opened.
@@ -40,11 +62,9 @@ export type Trigger =
 // Various one-off patterns to replace in query param keys.
 const REPLACE_PATTERNS = [
   // Don't query `termination_a_device=1`, but rather `device=1`.
-  [new RegExp(/termination_(a|b)_(.+)/g), '$2_id'],
+  [new RegExp(/termination_(a|b)_(.+)/g), '$2'],
   // A tenant's group relationship field is `group`, but the field name is `tenant_group`.
-  [new RegExp(/tenant_(group)/g), '$1_id'],
-  // Append `_id` to any fields
-  [new RegExp(/^([A-Za-z0-9]+)(_id)?$/g), '$1_id'],
+  [new RegExp(/tenant_(group)/g), '$1'],
 ] as [RegExp, string][];
 
 // Empty placeholder option.
@@ -130,7 +150,7 @@ class APISelect {
    * `1`, `pathValues` would be updated to reflect a `"rack" => 1` mapping. When the query URL is
    * updated, the URL would change from `/dcim/racks/{{rack}}/` to `/dcim/racks/1/`.
    */
-  private readonly pathValues: QueryFilter = new Map();
+  private readonly pathValues: PathFilter = new Map();
 
   /**
    * Original API query URL passed via the `data-href` attribute from the server. This is kept so
@@ -226,7 +246,7 @@ class APISelect {
       this.updatePathValues(filter);
     }
 
-    this.queryParams.set('brief', true);
+    this.queryParams.set('brief', [true]);
     this.updateQueryUrl();
 
     // Initialize element styling.
@@ -608,7 +628,7 @@ class APISelect {
   private updateQueryUrl(): void {
     // Create new URL query parameters based on the current state of `queryParams` and create an
     // updated API query URL.
-    const query = {} as Dict<string | number | boolean>;
+    const query = {} as Dict<Stringifiable[]>;
     for (const [key, value] of this.queryParams.entries()) {
       query[key] = value;
     }
@@ -651,11 +671,32 @@ class APISelect {
         }
       }
 
-      if (isTruthy(element.value)) {
+      // Force related keys to end in `_id`, if they don't already.
+      if (key.substring(key.length - 3) !== '_id') {
+        key = `${key}_id`;
+      }
+
+      // Initialize the element value as an array, in case there are multiple values.
+      let elementValue = [] as Stringifiable[];
+
+      if (element.multiple) {
+        // If this is a multi-select (form filters, tags, etc.), use all selected options as the value.
+        elementValue = Array.from(element.options)
+          .filter(o => o.selected)
+          .map(o => o.value);
+      } else if (element.value !== '') {
+        // If this is single-select (most fields), use the element's value. This seemingly
+        // redundant/verbose check is mainly for performance, so we're not running the above three
+        // functions (`Array.from()`, `Array.filter()`, `Array.map()`) every time every select
+        // field's value changes.
+        elementValue = [element.value];
+      }
+
+      if (elementValue.length > 0) {
         // If the field has a value, add it to the map.
         if (this.filterParams.has(id)) {
-          // If this element is tracking the neighbor element, add its value to the map.
-          this.queryParams.set(key, element.value);
+          // If this instance is filtered by the neighbor element, add its value to the map.
+          this.queryParams.set(key, elementValue);
         }
       } else {
         // Otherwise, delete it (we don't want to send an empty query like `?site_id=`)
@@ -771,6 +812,34 @@ class APISelect {
       .map(v => v.name)
       .filter(v => v.includes('data'));
 
+    /**
+     * Properly handle preexistence of keys, value types, and deduplication when adding a filter to
+     * `filterParams`.
+     *
+     * _Note: This is an unnamed function so that it can access `this`._
+     */
+    const addFilter = (key: string, value: Stringifiable): void => {
+      const current = this.filterParams.get(key);
+
+      if (typeof current !== 'undefined') {
+        // This instance is already filtered by `key`, so we should add the new `value`.
+        // Merge and deduplicate the current filter parameter values with the incoming value.
+        const next = Array.from(
+          new Set<Stringifiable>([...(current as Stringifiable[]), value]),
+        );
+        this.filterParams.set(key, next);
+      } else {
+        // This instance is not already filtered by `key`, so we should add a new mapping.
+        if (value === '') {
+          // Don't add placeholder values.
+          this.filterParams.set(key, []);
+        } else {
+          // If the value is not a placeholder, add it.
+          this.filterParams.set(key, [value]);
+        }
+      }
+    };
+
     for (const key of keys) {
       if (key.match(keyPattern) && key !== 'data-query-param-exclude') {
         const value = this.base.getAttribute(key);
@@ -778,29 +847,33 @@ class APISelect {
           try {
             const parsed = JSON.parse(value) as string | string[];
             if (Array.isArray(parsed)) {
+              // Query param contains multiple values.
               for (const item of parsed) {
                 if (item.match(/^\$.+$/g)) {
-                  const replaced = item.replaceAll(pattern, '');
-                  this.filterParams.set(replaced, '');
+                  // Value is an unfulfilled variable.
+                  addFilter(item.replaceAll(pattern, ''), '');
                 } else {
-                  this.filterParams.set(key.replaceAll(keyPattern, ''), item);
+                  // Value has been fulfilled and is a real value to query.
+                  addFilter(key.replaceAll(keyPattern, ''), item);
                 }
               }
             } else {
               if (parsed.match(/^\$.+$/g)) {
-                const replaced = parsed.replaceAll(pattern, '');
-                this.filterParams.set(replaced, '');
+                // Value is an unfulfilled variable.
+                addFilter(parsed.replaceAll(pattern, ''), '');
               } else {
-                this.filterParams.set(key.replaceAll(keyPattern, ''), parsed);
+                // Value has been fulfilled and is a real value to query.
+                addFilter(key.replaceAll(keyPattern, ''), parsed);
               }
             }
           } catch (err) {
             console.warn(err);
             if (value.match(/^\$.+$/g)) {
-              const replaced = value.replaceAll(pattern, '');
-              this.filterParams.set(replaced, '');
+              // Value is an unfulfilled variable.
+              addFilter(value.replaceAll(pattern, ''), '');
             } else {
-              this.filterParams.set(key.replaceAll(keyPattern, ''), value);
+              // Value has been fulfilled and is a real value to query.
+              addFilter(key.replaceAll(keyPattern, ''), value);
             }
           }
         }

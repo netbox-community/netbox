@@ -46,11 +46,11 @@ export function slugify(slug: string, chars: number): string {
 /**
  * Type guard to determine if a value is not null, undefined, or empty.
  */
-export function isTruthy<V extends string | number | boolean | null | undefined>(
-  value: V,
-): value is NonNullable<V> {
+export function isTruthy<V extends unknown>(value: V): value is NonNullable<V> {
   const badStrings = ['', 'null', 'undefined'];
-  if (typeof value === 'string' && !badStrings.includes(value)) {
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  } else if (typeof value === 'string' && !badStrings.includes(value)) {
     return true;
   } else if (typeof value === 'number') {
     return true;
