@@ -288,7 +288,7 @@ div.title-container {
     justify-content: flex-start;
 
     // Right-align controls on larger screens.
-    @include media-breakpoint-up(md) {
+    @include media-breakpoint-up(lg) {
       justify-content: flex-end;
     }
 
@@ -872,11 +872,22 @@ div.card-overlay {
   }
 }
 
-div.card > div.card-header > div.table-controls {
+.table-controls {
   display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 25%;
+
+  @include media-breakpoint-up(md) {
+    // `!important` needed because of inherited margin-bottom from `.col`
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .table-configure {
+    justify-content: flex-start;
+
+    @include media-breakpoint-up(md) {
+      justify-content: flex-end;
+    }
+  }
 
   .form-switch.form-check-inline {
     flex: 1 0 auto;

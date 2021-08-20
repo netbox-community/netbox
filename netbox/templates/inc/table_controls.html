@@ -1,5 +1,5 @@
 <div class="row mb-3 justify-content-between">
-  <div class="col col-12 col-lg-4 my-3 my-lg-0 d-flex noprint table-controls">
+  <div class="table-controls noprint col col-12 col-md-8 col-lg-4">
     <div class="input-group input-group-sm">
       <input
         type="text"
@@ -9,9 +9,9 @@
       />
     </div>
   </div>
-  <div class="col col-md-3 mb-0 d-flex noprint table-controls">
+  <div class="table-controls noprint col col-md-3 mb-0">
     {% if request.user.is_authenticated and table_modal %}
-      <div class="input-group input-group-sm justify-content-end">
+      <div class="table-configure input-group input-group-sm">
         <button
           type="button"
           data-bs-toggle="modal"
