@@ -2,9 +2,18 @@
 
 ## v3.0.0 (FUTURE)
 
+### Enhancements
+
+* [#6881](https://github.com/netbox-community/netbox/issues/6881) - Improve device IP address styles
+* [#6976](https://github.com/netbox-community/netbox/issues/6976) - Improve handling of printing layouts/styling
+
 ### Bug Fixes
 
 * [#6977](https://github.com/netbox-community/netbox/issues/6977) - Truncate global search dropdown on small screens
+* [#6979](https://github.com/netbox-community/netbox/issues/6979) - Hide "create & add another" button for circuit terminations
+* [#6982](https://github.com/netbox-community/netbox/issues/6982) - Fix styling of empty dropdown list under dark mode
+* [#6996](https://github.com/netbox-community/netbox/issues/6996) - Global search bar should be full width on mobile
+* [#7001](https://github.com/netbox-community/netbox/issues/7001) - Fix page focus on load
 
 ---
 
