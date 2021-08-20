@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6748](https://github.com/netbox-community/netbox/issues/6748) - Add site group filter to devices list
+* [#6790](https://github.com/netbox-community/netbox/issues/6790) - Recognize a /32 IPv4 address as a child of a /32 IPv4 prefix
 * [#6872](https://github.com/netbox-community/netbox/issues/6872) - Add table configuration button to child prefixes view
 
 ### Bug Fixes
