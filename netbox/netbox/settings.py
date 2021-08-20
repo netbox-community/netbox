@@ -103,6 +103,7 @@ NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
+LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
@@ -251,6 +252,7 @@ CACHING_REDIS_SKIP_TLS_VERIFY = CACHING_REDIS.get('INSECURE_SKIP_TLS_VERIFY', Fa
 if LOGIN_TIMEOUT is not None:
     # Django default is 1209600 seconds (14 days)
     SESSION_COOKIE_AGE = LOGIN_TIMEOUT
+SESSION_SAVE_EVERY_REQUEST = bool(LOGIN_PERSISTENCE)
 if SESSION_FILE_PATH is not None:
     SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
