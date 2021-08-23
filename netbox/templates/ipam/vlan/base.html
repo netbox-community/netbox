@@ -20,10 +20,10 @@
       <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:vlan' pk=object.pk %}">VLAN</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'ipam:vlan_interfaces' pk=object.pk %}">Device Interfaces <span class="badge bg-primary">{{ object.get_interfaces.count }}</span></a>
+      <a class="nav-link{% if active_tab == 'interfaces' %} active{% endif %}" href="{% url 'ipam:vlan_interfaces' pk=object.pk %}">Device Interfaces {% badge object.get_interfaces.count %}</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if active_tab == 'vminterfaces' %} active{% endif %}" href="{% url 'ipam:vlan_vminterfaces' pk=object.pk %}">VM Interfaces <span class="badge bg-primary">{{ object.get_vminterfaces.count }}</span></a>
+      <a class="nav-link{% if active_tab == 'vminterfaces' %} active{% endif %}" href="{% url 'ipam:vlan_vminterfaces' pk=object.pk %}">VM Interfaces {% badge object.get_vminterfaces.count %}</a>
     </li>
     {% if perms.extras.view_journalentry %}
       <li class="nav-item" role="presentation">

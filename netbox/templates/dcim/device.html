@@ -122,9 +122,15 @@
                                     <td>
                                         <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                                     </td>
-                                    <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
-                                    <td>{% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}</td>
-                                    <td>{{ vc_member.vc_priority|default:"" }}</td>
+                                    <td>
+                                      {% badge vc_member.vc_position %}
+                                    </td>
+                                    <td>
+                                      {% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}
+                                    </td>
+                                    <td>
+                                      {{ vc_member.vc_priority|default:"" }}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </table>

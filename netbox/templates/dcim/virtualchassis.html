@@ -60,9 +60,17 @@
                             <td>
                                 <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                             </td>
-                            <td><span class="badge bg-secondary">{{ vc_member.vc_position }}</span></td>
-                            <td>{% if object.master == vc_member %}<i class="mdi mdi-check-bold text-success"></i>{% endif %}</td>
-                            <td>{{ vc_member.vc_priority|placeholder }}</td>
+                            <td>
+                              {% badge vc_member.vc_position %}
+                            </td>
+                            <td>
+                              {% if object.master == vc_member %}
+                                <i class="mdi mdi-check-bold text-success"></i>
+                              {% endif %}
+                            </td>
+                            <td>
+                              {{ vc_member.vc_priority|placeholder }}
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
