@@ -13,6 +13,7 @@
 ### Bug Fixes
 
 * [#5968](https://github.com/netbox-community/netbox/issues/5968) - Model forms should save empty custom field values as null
+* [#6326](https://github.com/netbox-community/netbox/issues/6326) - Enable filtering assigned VLANs by group in interface edit form
 * [#6686](https://github.com/netbox-community/netbox/issues/6686) - Force assignment of null custom field values to objects
 * [#6776](https://github.com/netbox-community/netbox/issues/6776) - Fix erroneous webhook dispatch on failure to save objects
 * [#6974](https://github.com/netbox-community/netbox/issues/6974) - Show contextual label for IP address role

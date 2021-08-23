@@ -28,6 +28,7 @@
         <div class="panel-heading"><strong>802.1Q Switching</strong></div>
         <div class="panel-body">
             {% render_field form.mode %}
+            {% render_field form.vlan_group %}
             {% render_field form.untagged_vlan %}
             {% render_field form.tagged_vlans %}
         </div>
