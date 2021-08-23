@@ -834,6 +834,10 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 
 class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
+    q = forms.CharField(
+        required=False,
+        label=_('Search')
+    )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,

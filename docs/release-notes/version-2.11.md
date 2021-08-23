@@ -8,6 +8,7 @@
 * [#6790](https://github.com/netbox-community/netbox/issues/6790) - Recognize a /32 IPv4 address as a child of a /32 IPv4 prefix
 * [#6872](https://github.com/netbox-community/netbox/issues/6872) - Add table configuration button to child prefixes view
 * [#6929](https://github.com/netbox-community/netbox/issues/6929) - Introduce `LOGIN_PERSISTENCE` configuration parameter to persist user sessions
+* [#7011](https://github.com/netbox-community/netbox/issues/7011) - Add search field to VM interfaces filter form
 
 ### Bug Fixes
 
