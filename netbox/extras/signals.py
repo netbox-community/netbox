@@ -1,3 +1,4 @@
+import logging
 import random
 from datetime import timedelta
 
@@ -6,6 +7,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models.signals import m2m_changed, post_save, pre_delete
+from django.dispatch import Signal
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
@@ -18,6 +20,10 @@ from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 #
 # Change logging/webhooks
 #
+
+# Define a custom signal that can be sent to clear any queued webhooks
+clear_webhooks = Signal()
+
 
 def _handle_changed_object(request, webhook_queue, sender, instance, **kwargs):
     """
@@ -104,9 +110,27 @@ def _handle_deleted_object(request, webhook_queue, sender, instance, **kwargs):
     model_deletes.labels(instance._meta.model_name).inc()
 
 
+def _clear_webhook_queue(webhook_queue, sender, **kwargs):
+    """
+    Delete any queued webhooks (e.g. because of an aborted bulk transaction)
+    """
+    logger = logging.getLogger('webhooks')
+    logger.info(f"Clearing {len(webhook_queue)} queued webhooks ({sender})")
+
+    webhook_queue.clear()
+
+
 #
 # Custom fields
 #
+
+def handle_cf_added_obj_types(instance, action, pk_set, **kwargs):
+    """
+    Handle the population of default/null values when a CustomField is added to one or more ContentTypes.
+    """
+    if action == 'post_add':
+        instance.populate_initial_data(ContentType.objects.filter(pk__in=pk_set))
+
 
 def handle_cf_removed_obj_types(instance, action, pk_set, **kwargs):
     """
@@ -131,9 +155,10 @@ def handle_cf_deleted(instance, **kwargs):
     instance.remove_stale_data(instance.content_types.all())
 
 
-m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
+m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.content_types.through)
+m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
 
 
 #

@@ -257,6 +257,16 @@ LOGGING = {
 
 ---
 
+## LOGIN_PERSISTENCE
+
+Default: False
+
+If true, the lifetime of a user's authentication session will be automatically reset upon each valid request. For example, if [`LOGIN_TIMEOUT`](#login_timeout) is configured to 14 days (the default), and a user whose session is due to expire in five days makes a NetBox request (with a valid session cookie), the session's lifetime will be reset to 14 days.
+
+Note that enabling this setting causes NetBox to update a user's session in the database (or file, as configured per [`SESSION_FILE_PATH`](#session_file_path)) with each request, which may introduce significant overhead in very active environments. It also permits an active user to remain authenticated to NetBox indefinitely.
+
+---
+
 ## LOGIN_REQUIRED
 
 Default: False

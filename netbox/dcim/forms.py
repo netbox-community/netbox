@@ -18,7 +18,7 @@ from extras.forms import (
 )
 from extras.models import Tag
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
-from ipam.models import IPAddress, VLAN
+from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -2421,8 +2421,8 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
     field_order = [
-        'q', 'region_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
-        'manufacturer_id', 'device_type_id', 'asset_tag', 'mac_address', 'has_primary_ip',
+        'q', 'region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id',
+        'tenant_id', 'manufacturer_id', 'device_type_id', 'asset_tag', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
         required=False,
@@ -2433,11 +2433,17 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         required=False,
         label=_('Region')
     )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region_id'
+            'region_id': '$region_id',
+            'group_id': '$site_group_id',
         },
         label=_('Site')
     )
@@ -3103,15 +3109,26 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
             'type': 'lag',
         }
     )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label='VLAN group'
+    )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Untagged VLAN'
+        label='Untagged VLAN',
+        query_params={
+            'group_id': '$vlan_group',
+        }
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Tagged VLANs'
+        label='Tagged VLANs',
+        query_params={
+            'group_id': '$vlan_group',
+        }
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
