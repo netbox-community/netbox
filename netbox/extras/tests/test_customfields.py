@@ -42,8 +42,11 @@ class CustomFieldTest(TestCase):
             cf.save()
             cf.content_types.set([obj_type])
 
-            # Assign a value to the first Site
+            # Check that the field has a null initial value
             site = Site.objects.first()
+            self.assertIsNone(site.custom_field_data[cf.name])
+
+            # Assign a value to the first Site
             site.custom_field_data[cf.name] = data['field_value']
             site.save()
 
@@ -73,8 +76,11 @@ class CustomFieldTest(TestCase):
         cf.save()
         cf.content_types.set([obj_type])
 
-        # Assign a value to the first Site
+        # Check that the field has a null initial value
         site = Site.objects.first()
+        self.assertIsNone(site.custom_field_data[cf.name])
+
+        # Assign a value to the first Site
         site.custom_field_data[cf.name] = 'Option A'
         site.save()
 

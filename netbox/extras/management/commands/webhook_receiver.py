@@ -37,12 +37,10 @@ class WebhookHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b'Webhook received!\n')
 
-        request_counter += 1
-
-        # Print the request headers to stdout
+        # Print the request headers
         if self.show_headers:
             for k, v in self.headers.items():
-                print('{}: {}'.format(k, v))
+                print(f'{k}: {v}')
             print()
 
         # Print the request body (if any)
@@ -55,7 +53,10 @@ class WebhookHandler(BaseHTTPRequestHandler):
         else:
             print('(No body)')
 
+        print(f'Completed request #{request_counter}')
         print('------------')
+
+        request_counter += 1
 
 
 class Command(BaseCommand):

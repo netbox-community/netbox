@@ -163,6 +163,10 @@ INTERNAL_IPS = ('127.0.0.1', '::1')
 #   https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {}
 
+# Automatically reset the lifetime of a valid session upon each authenticated request. Enables users to remain
+# authenticated to NetBox indefinitely.
+LOGIN_PERSISTENCE = False
+
 # Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users
 # are permitted to access most data in NetBox but not make any changes.
 LOGIN_REQUIRED = False

@@ -480,7 +480,11 @@ class CustomFieldModelForm(CustomFieldsMixin, forms.ModelForm):
 
         # Save custom field data on instance
         for cf_name in self.custom_fields:
-            self.instance.custom_field_data[cf_name[3:]] = self.cleaned_data.get(cf_name)
+            key = cf_name[3:]  # Strip "cf_" from field name
+            value = self.cleaned_data.get(cf_name)
+            empty_values = self.fields[cf_name].empty_values
+            # Convert "empty" values to null
+            self.instance.custom_field_data[key] = value if value not in empty_values else None
 
         return super().clean()
 

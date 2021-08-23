@@ -125,6 +125,30 @@ class CustomField(ChangeLoggedModel):
         # Cache instance's original name so we can check later whether it has changed
         self._name = self.name
 
+    def populate_initial_data(self, content_types):
+        """
+        Populate initial custom field data upon either a) the creation of a new CustomField, or
+        b) the assignment of an existing CustomField to new object types.
+        """
+        for ct in content_types:
+            model = ct.model_class()
+            instances = model.objects.exclude(**{f'custom_field_data__contains': self.name})
+            for instance in instances:
+                instance.custom_field_data[self.name] = self.default
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+
+    def remove_stale_data(self, content_types):
+        """
+        Delete custom field data which is no longer relevant (either because the CustomField is
+        no longer assigned to a model, or because it has been deleted).
+        """
+        for ct in content_types:
+            model = ct.model_class()
+            instances = model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False})
+            for instance in instances:
+                del(instance.custom_field_data[self.name])
+            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+
     def rename_object_data(self, old_name, new_name):
         """
         Called when a CustomField has been renamed. Updates all assigned object data.
@@ -136,17 +160,6 @@ class CustomField(ChangeLoggedModel):
             for instance in instances:
                 instance.custom_field_data[new_name] = instance.custom_field_data.pop(old_name)
             model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
-
-    def remove_stale_data(self, content_types):
-        """
-        Delete custom field data which is no longer relevant (either because the CustomField is
-        no longer assigned to a model, or because it has been deleted).
-        """
-        for ct in content_types:
-            model = ct.model_class()
-            for obj in model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False}):
-                del(obj.custom_field_data[self.name])
-                obj.save()
 
     def clean(self):
         super().clean()

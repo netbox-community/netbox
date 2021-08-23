@@ -1,7 +1,12 @@
 {% extends 'ipam/prefix/base.html' %}
+{% load helpers %}
+{% load static %}
 
 {% block buttons %}
   {% include 'ipam/inc/toggle_available.html' %}
+  {% if request.user.is_authenticated and table_config_form %}
+      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#PrefixDetailTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
+  {% endif %}
   {% if perms.ipam.add_prefix and active_tab == 'prefixes' and first_available_prefix %}
     <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ object.vrf.pk }}&site={{ object.site.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-success">
       <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Child Prefix
@@ -22,4 +27,9 @@
       {% include 'utilities/obj_table.html' with heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' parent=prefix %}
     </div>
   </div>
+  {% table_config_form prefix_table table_name="PrefixDetailTable" %}
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/tableconfig.js' %}"></script>
 {% endblock %}

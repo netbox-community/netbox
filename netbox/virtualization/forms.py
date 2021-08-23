@@ -12,7 +12,7 @@ from extras.forms import (
     CustomFieldModelFilterForm, CustomFieldsMixin,
 )
 from extras.models import Tag
-from ipam.models import IPAddress, VLAN
+from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -648,15 +648,26 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         required=False,
         label='Parent interface'
     )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label='VLAN group'
+    )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Untagged VLAN'
+        label='Untagged VLAN',
+        query_params={
+            'group_id': '$vlan_group',
+        }
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label='Tagged VLANs'
+        label='Tagged VLANs',
+        query_params={
+            'group_id': '$vlan_group',
+        }
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
