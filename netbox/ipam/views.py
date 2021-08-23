@@ -208,23 +208,6 @@ class AggregateListView(generic.ObjectListView):
     filterset = filtersets.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
-    template_name = 'ipam/aggregate_list.html'
-
-    def extra_context(self):
-        ipv4_total = 0
-        ipv6_total = 0
-
-        for aggregate in self.queryset:
-            if aggregate.prefix.version == 6:
-                # Report equivalent /64s for IPv6 to keep things sane
-                ipv6_total += int(aggregate.prefix.size / 2 ** 64)
-            else:
-                ipv4_total += aggregate.prefix.size
-
-        return {
-            'ipv4_total': ipv4_total,
-            'ipv6_total': ipv6_total,
-        }
 
 
 class AggregateView(generic.ObjectView):
