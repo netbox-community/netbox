@@ -153,7 +153,7 @@ class UserConfigView(LoginRequiredMixin, View):
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
-    template_name = 'users/change_password.html'
+    template_name = 'users/password.html'
 
     def get(self, request):
         # LDAP users cannot change their password here
@@ -165,7 +165,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'active_tab': 'change_password',
+            'active_tab': 'password',
         })
 
     def post(self, request):
@@ -194,7 +194,7 @@ class TokenListView(LoginRequiredMixin, View):
 
         return render(request, 'users/api_tokens.html', {
             'tokens': tokens,
-            'active_tab': 'api_tokens',
+            'active_tab': 'api-tokens',
         })
 
 

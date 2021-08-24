@@ -3,7 +3,7 @@
 
 {% block title %}API Tokens{% endblock %}
 
-{% block usercontent %}
+{% block content %}
     <div class="row">
         <div class="col col-md-12">
             {% for token in tokens %}
@@ -51,10 +51,12 @@
             {% empty %}
                 <p>You do not have any API tokens.</p>
             {% endfor %}
-            <a href="{% url 'user:token_add' %}" class="btn btn-sm btn-primary my-3">
+            <div class="text-end">
+              <a href="{% url 'user:token_add' %}" class="btn btn-sm btn-primary my-3">
                 <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                 Add a Token
-            </a>
+              </a>
+            </div>
         </div>
     </div>
 {% endblock %}
