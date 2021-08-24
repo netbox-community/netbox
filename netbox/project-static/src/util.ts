@@ -27,22 +27,6 @@ export function hasMore(data: APIAnswer<APIObjectBase>): data is APIAnswerWithNe
 }
 
 /**
- * Create a slug from any input string.
- *
- * @param slug Original string.
- * @param chars Maximum number of characters.
- * @returns Slugified string.
- */
-export function slugify(slug: string, chars: number): string {
-  return slug
-    .replace(/[^\-.\w\s]/g, '') // Remove unneeded chars
-    .replace(/^[\s.]+|[\s.]+$/g, '') // Trim leading/trailing spaces
-    .replace(/[-.\s]+/g, '-') // Convert spaces and decimals to hyphens
-    .toLowerCase() // Convert to lowercase
-    .substring(0, chars); // Trim to first chars chars
-}
-
-/**
  * Type guard to determine if a value is not null, undefined, or empty.
  */
 export function isTruthy<V extends unknown>(value: V): value is NonNullable<V> {
@@ -57,6 +41,45 @@ export function isTruthy<V extends unknown>(value: V): value is NonNullable<V> {
     return true;
   }
   return false;
+}
+
+/**
+ * Type guard to determine if all elements of an array are not null or undefined.
+ *
+ * @example
+ * ```js
+ * const elements = [document.getElementById("element1"), document.getElementById("element2")];
+ * if (all(elements)) {
+ *   const [element1, element2] = elements;
+ *   // element1 and element2 are now of type HTMLElement, not Nullable<HTMLElement>.
+ * }
+ * ```
+ */
+export function all<T extends unknown>(values: T[]): values is NonNullable<T>[] {
+  return values.every(value => typeof value !== 'undefined' && value !== null);
+}
+
+/**
+ * Deselect all selected options and reset the field value of a select element.
+ *
+ * @example
+ * ```js
+ * const select = document.querySelectorAll<HTMLSelectElement>("select.example");
+ * select.value = "test";
+ * console.log(select.value);
+ * // test
+ * resetSelect(select);
+ * console.log(select.value);
+ * // ''
+ * ```
+ */
+export function resetSelect<S extends HTMLSelectElement>(select: S): void {
+  for (const option of select.options) {
+    if (option.selected) {
+      option.selected = false;
+    }
+  }
+  select.value = '';
 }
 
 /**
@@ -246,15 +269,37 @@ export function getNetboxData(key: string): string | null {
 }
 
 /**
+ * Toggle visibility of an element.
+ */
+export function toggleVisibility<E extends HTMLElement | SVGElement>(
+  element: E | null,
+  action?: 'show' | 'hide',
+): void {
+  if (element !== null) {
+    if (typeof action === 'undefined') {
+      // No action is passed, so we should toggle the existing state.
+      const current = window.getComputedStyle(element).display;
+      if (current === 'none') {
+        element.style.display = '';
+      } else {
+        element.style.display = 'none';
+      }
+    } else {
+      if (action === 'show') {
+        element.style.display = '';
+      } else {
+        element.style.display = 'none';
+      }
+    }
+  }
+}
+
+/**
  * Toggle visibility of card loader.
  */
 export function toggleLoader(action: 'show' | 'hide'): void {
   for (const element of getElements<HTMLDivElement>('div.card-overlay')) {
-    if (action === 'show') {
-      element.classList.remove('d-none');
-    } else {
-      element.classList.add('d-none');
-    }
+    toggleVisibility(element, action);
   }
 }
 
