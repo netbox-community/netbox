@@ -8,7 +8,7 @@ setup:
 	sed -i -e "s/SECRET_KEY = .*/SECRET_KEY = '$(shell openssl rand -hex 32)'/g" netbox/netbox/configuration.py
 	sed -i -e "s/USER': .*/USER': 'postgres',/g" netbox/netbox/configuration.py
 	sed -i -e "s/PASSWORD': .*/PASSWORD': '12345',/g" netbox/netbox/configuration.py
-	sed -i -e "s/PLUGINS = .*/PLUGINS = ['netbox_virtual_circuit_plugin']/g" netbox/netbox/configuration.py
+	sed -i -e "s/PLUGINS = .*/PLUGINS = ['netbox_virtual_circuit_plugin', 'netbox_bgp']/g" netbox/netbox/configuration.py
 
 # spin up the required stack components to run the test suite
 local-test-deps: reset-volumes

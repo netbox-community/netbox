@@ -39,4 +39,5 @@ SECRET_KEY = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
 PLUGINS = [
     'netbox_virtual_circuit_plugin',
+    'netbox_bgp',
 ]

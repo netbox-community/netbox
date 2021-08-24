@@ -174,6 +174,7 @@ PAGINATE_COUNT = int(os.environ.get('PAGINATE_COUNT', 50))
 # Plugins
 PLUGINS = [
     'netbox_virtual_circuit_plugin',
+    'netbox_bgp',
 ]
 
 # When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to
