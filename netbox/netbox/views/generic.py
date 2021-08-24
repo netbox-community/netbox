@@ -1092,7 +1092,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     queryset = None
     form = None
     model_form = None
-    template_name = None
+    template_name = 'generic/object_edit.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -1102,7 +1102,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
-            'component_type': self.queryset.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
         })
@@ -1119,7 +1119,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                 return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
-            'component_type': self.queryset.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
         })

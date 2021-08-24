@@ -456,7 +456,6 @@ class VMInterfaceCreateView(generic.ComponentCreateView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceCreateForm
     model_form = forms.VMInterfaceForm
-    template_name = 'dcim/device_component_add.html'
 
 
 class VMInterfaceEditView(generic.ObjectEditView):
