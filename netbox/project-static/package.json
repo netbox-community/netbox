@@ -11,7 +11,15 @@
     "bundle": "node bundle.js",
     "bundle:styles": "node bundle.js --styles",
     "bundle:scripts": "node bundle.js --scripts",
-    "typecheck": "tsc --noEmit"
+    "format": "yarn format:scripts && yarn format:styles",
+    "format:scripts": "prettier -w src/**/*.ts",
+    "format:styles": "prettier -w styles/**/*.scss",
+    "validate": "yarn validate:types && yarn validate:lint",
+    "validate:lint": "eslint -c .eslintrc ./src/**/*.ts",
+    "validate:types": "tsc --noEmit",
+    "validate:formatting": "yarn validate:formatting:scripts && yarn validate:formatting:styles",
+    "validate:formatting:styles": "prettier -c styles/**/*.scss",
+    "validate:formatting:scripts": "prettier -c src/**/*.ts"
   },
   "dependencies": {
     "@mdi/font": "^5.9.55",
@@ -45,36 +53,6 @@
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "^2.2.1",
     "prettier-eslint": "^12.0.0",
-    "stylelint": "^13.13.1",
-    "stylelint-config-twbs-bootstrap": "^2.2.3",
     "typescript": "^4.2.3"
-  },
-  "stylelint": {
-    "extends": "stylelint-config-twbs-bootstrap/scss",
-    "rules": {
-      "selector-max-class": 16,
-      "selector-max-id": 4,
-      "selector-max-type": 16,
-      "selector-max-compound-selectors": 16,
-      "declaration-no-important": null,
-      "selector-max-universal": 4,
-      "selector-no-qualifying-type": [
-        true,
-        {
-          "ignore": [
-            "attribute",
-            "class"
-          ]
-        }
-      ],
-      "number-leading-zero": "always",
-      "string-quotes": "single",
-      "selector-pseudo-element-colon-notation": "single",
-      "declaration-property-value-disallowed-list": {
-        "border": "none",
-        "outline": "none"
-      },
-      "scss/selector-no-union-class-name": true
-    }
   }
 }

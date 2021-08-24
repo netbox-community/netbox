@@ -103,6 +103,7 @@ nav:
         - Signals: 'development/signals.md'
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
+        - Web UI: 'development/web-ui.md'
         - Release Checklist: 'development/release-checklist.md'
     - Release Notes:
         - Version 3.0: 'release-notes/version-3.0.md'
