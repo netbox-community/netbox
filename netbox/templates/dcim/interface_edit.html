@@ -3,30 +3,34 @@
 
 {% block form %}
     <div class="field-group">
-        <h4 class="mb-3">Interface</h4>
-            {% if form.instance.device %}
-                <div class="row mb-3">
-                    <label class="col-sm-3 col-form-label text-lg-end required" for="id_device">Device</label>
-                    <div class="col">
-                        <input class="form-control" value="{{ form.instance.device }}" disabled />
-                    </div>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Interface</h5>
+        </div>
+        {% if form.instance.device %}
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label text-lg-end required" for="id_device">Device</label>
+                <div class="col">
+                    <input class="form-control" value="{{ form.instance.device }}" disabled />
                 </div>
-            {% endif %}
+            </div>
+        {% endif %}
         {% render_field form.name %}
         {% render_field form.label %}
         {% render_field form.type %}
-        {% render_field form.enabled %}
         {% render_field form.parent %}
         {% render_field form.lag %}
         {% render_field form.mac_address %}
         {% render_field form.mtu %}
-        {% render_field form.mgmt_only %}
-        {% render_field form.mark_connected %}
         {% render_field form.description %}
         {% render_field form.tags %}
+        {% render_field form.enabled %}
+        {% render_field form.mgmt_only %}
+        {% render_field form.mark_connected %}
     </div>
     <div class="field-group">
-        <h4 class="mb-3">802.1Q Switching</h4>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">802.1Q Switching</h5>
+        </div>
         {% render_field form.mode %}
         {% render_field form.vlan_group %}
         {% render_field form.untagged_vlan %}
@@ -34,7 +38,9 @@
     </div>
     {% if form.custom_fields %}
         <div class="field-group">
-            <h4 class="mb-3">Custom Fields</h4>
+            <div class="row mb-2">
+              <h5 class="offset-sm-3">Custom Fields</h5>
+            </div>
             {% render_custom_fields form %}
         </div>
     {% endif %}

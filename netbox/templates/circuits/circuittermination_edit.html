@@ -6,54 +6,62 @@
 
 {% block form %}
   <div class="field-group">
-    <h4 class="mb-3">Termination</h4>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label">Provider</label>
-            <div class="col">
-                <input class="form-control" value="{{ obj.circuit.provider }}" disabled />
-            </div>
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Circuit Termination</h5>
+    </div>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end">Provider</label>
+        <div class="col">
+            <input class="form-control" value="{{ obj.circuit.provider }}" disabled />
         </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label">Circuit</label>
-            <div class="col">
-                <input class="form-control" value="{{ obj.circuit.cid }}" disabled />
-            </div>
+    </div>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end">Circuit</label>
+        <div class="col">
+            <input class="form-control" value="{{ obj.circuit.cid }}" disabled />
         </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label">Termination</label>
-            <div class="col">
-                <input class="form-control" value="{{ form.term_side.value }}" disabled />
-            </div>
+    </div>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end">Termination</label>
+        <div class="col">
+            <input class="form-control" value="{{ form.term_side.value }}" disabled />
         </div>
-        {% render_field form.mark_connected %}
-        {% with providernetwork_tab_active=form.initial.provider_network %}
-            <ul class="nav nav-tabs" role="tablist">
+    </div>
+    {% render_field form.mark_connected %}
+    {% with providernetwork_tab_active=form.initial.provider_network %}
+      <div class="row mb-2">
+        <div class="offset-sm-3">
+          <ul class="nav nav-pills" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">Site</button>
+              <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">Site</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link{% if providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-toggle="tab" data-bs-target="#providernetwork">Provider Network</button>
+              <button class="nav-link{% if providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-toggle="tab" data-bs-target="#providernetwork">Provider Network</button>
             </li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
-                    {% render_field form.region %}
-                    {% render_field form.site_group %}
-                    {% render_field form.site %}
-                </div>
-                <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
-                    {% render_field form.provider_network %}
-                </div>
-            </div>
-        {% endwith %}
+          </ul>
+        </div>
+      </div>
+      <div class="tab-content p-0">
+        <div class="tab-pane{% if not providernetwork_tab_active %} active{% endif %}" id="site">
+          {% render_field form.region %}
+          {% render_field form.site_group %}
+          {% render_field form.site %}
+        </div>
+        <div class="tab-pane{% if providernetwork_tab_active %} active{% endif %}" id="providernetwork">
+          {% render_field form.provider_network %}
+        </div>
+      </div>
+    {% endwith %}
   </div>
   <div class="field-group">
-    <h4 class="mb-3">Termination Details</h4>
-        {% render_field form.port_speed %}
-        {% render_field form.upstream_speed %}
-        {% render_field form.xconnect_id %}
-        {% render_field form.pp_info %}
-        {% render_field form.description %}
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Termination Details</h5>
+    </div>
+    {% render_field form.port_speed %}
+    {% render_field form.upstream_speed %}
+    {% render_field form.xconnect_id %}
+    {% render_field form.pp_info %}
+    {% render_field form.description %}
   </div>
 {% endblock %}
 

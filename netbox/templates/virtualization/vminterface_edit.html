@@ -3,34 +3,39 @@
 
 {% block form %}
     <div class="field-group">
-        <h5 class="text-center">Interface</h5>
-        {% if form.instance.virtual_machine %}
-            <div class="row mb-3">
-                <label class="col-sm-3 col-form-label text-lg-end required" for="id_device">Virtual Machine</label>
-                <div class="col">
-                    <input class="form-control" value="{{ form.instance.virtual_machine }}" disabled />
-                </div>
-            </div>
-        {% endif %}
-        {% render_field form.name %}
-        {% render_field form.enabled %}
-        {% render_field form.parent %}
-        {% render_field form.mac_address %}
-        {% render_field form.mtu %}
-        {% render_field form.description %}
-        {% render_field form.tags %}
-        
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Interface</h5>
+      </div>
+      {% if form.instance.virtual_machine %}
+          <div class="row mb-3">
+              <label class="col-sm-3 col-form-label text-lg-end required" for="id_device">Virtual Machine</label>
+              <div class="col">
+                  <input class="form-control" value="{{ form.instance.virtual_machine }}" disabled />
+              </div>
+          </div>
+      {% endif %}
+      {% render_field form.name %}
+      {% render_field form.enabled %}
+      {% render_field form.parent %}
+      {% render_field form.mac_address %}
+      {% render_field form.mtu %}
+      {% render_field form.description %}
+      {% render_field form.tags %}
     </div>
     <div class="field-group">
-        <h5 class="text-center">802.1Q Switching</h5>
-        {% render_field form.mode %}
-        {% render_field form.vlan_group %}
-        {% render_field form.untagged_vlan %}
-        {% render_field form.tagged_vlans %}
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">802.1Q Switching</h5>
+      </div>
+      {% render_field form.mode %}
+      {% render_field form.vlan_group %}
+      {% render_field form.untagged_vlan %}
+      {% render_field form.tagged_vlans %}
     </div>
     {% if form.custom_fields %}
       <div class="field-group">
-        <h5 class="text-center">Custom Fields</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Custom Fields</h5>
+        </div>
         {% render_custom_fields form %}
       </div>
     {% endif %}

@@ -2,31 +2,31 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="card">
-        <h5 class="card-header">Virtual Chassis</h5>
-        <div class="card-body">
-            {% render_field form.name %}
-            {% render_field form.domain %}
-            {% render_field form.tags %}
-        </div>
+  <div class="field-group">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Virtual Chassis</h5>
     </div>
-    <div class="card">
-        <h5 class="card-header">Member Devices</h5>
-        <div class="card-body">
-            {% render_field form.region %}
-            {% render_field form.site_group %}
-            {% render_field form.site %}
-            {% render_field form.rack %}
-            {% render_field form.members %}
-            {% render_field form.initial_position %}
-        </div>
+    {% render_field form.name %}
+    {% render_field form.domain %}
+    {% render_field form.tags %}
+  </div>
+  <div class="field-group">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Member Devices</h5>
     </div>
-    {% if form.custom_fields %}
-        <div class="card">
-            <h5 class="card-header">Custom Fields</h5>
-            <div class="card-body">
-                {% render_custom_fields form %}
-            </div>
-        </div>
-    {% endif %}
+    {% render_field form.region %}
+    {% render_field form.site_group %}
+    {% render_field form.site %}
+    {% render_field form.rack %}
+    {% render_field form.members %}
+    {% render_field form.initial_position %}
+  </div>
+  {% if form.custom_fields %}
+    <div class="field-group">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Custom Fields</h5>
+      </div>
+      {% render_custom_fields form %}
+    </div>
+  {% endif %}
 {% endblock %}

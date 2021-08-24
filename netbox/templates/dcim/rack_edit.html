@@ -3,7 +3,9 @@
 
 {% block form %}
     <div class="field-group">
-        <h5 class="text-center">Rack</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Rack</h5>
+        </div>
         {% render_field form.region %}
         {% render_field form.site_group %}
         {% render_field form.site %}
@@ -14,18 +16,24 @@
         {% render_field form.tags %}
     </div>
     <div class="field-group">
-        <h5 class="text-center">Inventory Control</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Inventory Control</h5>
+        </div>
         {% render_field form.facility_id %}
         {% render_field form.serial %}
         {% render_field form.asset_tag %}
     </div>
     <div class="field-group">
-        <h5 class="text-center">Tenancy</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Tenancy</h5>
+        </div>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
     <div class="field-group">
-        <h5 class="text-center">Dimensions</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Dimensions</h5>
+        </div>
         {% render_field form.type %}
         {% render_field form.width %}
         {% render_field form.u_height %}
@@ -48,7 +56,9 @@
     </div>
     {% if form.custom_fields %}
         <div class="field-group">
-            <h5 class="text-center">Custom Fields</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Custom Fields</h5>
+        </div>
             {% render_custom_fields form %}
         </div>
     {% endif %}

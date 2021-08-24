@@ -725,15 +725,6 @@ div.paginator > form > div.input-group {
 
 div.field-group:not(:first-of-type) {
   margin-top: $spacer * 3;
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin-bottom: $spacer;
-  }
 }
 
 label.required {

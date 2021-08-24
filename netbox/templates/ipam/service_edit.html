@@ -2,50 +2,49 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="field-group">
-        <h5 class="text-center">Service</h5>
-        {% if obj.device %}
-            <div class="row mb-3">
-                <label class="col-sm-3 col-form-label text-lg-end">Device</label>
-                <div class="col">
-                    <input class="form-control" value="{{ obj.device }}" disabled />
-                </div>
-            </div>
-        {% else %}
-            <div class="row mb-3">
-                <label class="col-sm-3 col-form-label text-lg-end">Virtual Machine</label>
-                <div class="col">
-                    <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
-                </div>
-            </div>
-        {% endif %}
-        {% render_field form.name %}
-        <div class="row">
-            <label class="col-sm-3 col-form-label text-lg-end">Port(s)</label>
-            <div class="col-2">
-                {{ form.protocol }}
-            </div>
-            <div class="col-7">
-                {{ form.ports }}
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-3"></div>
-            <div class="col-9">
-                <span class="form-text">{{ form.ports.help_text }}</span>
-            </div>
-        </div>
-        
-        {% render_field form.ipaddresses %}
-        {% render_field form.description %}
-        {% render_field form.tags %}
+  <div class="field-group">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Service</h5>
     </div>
-    {% if form.custom_fields %}
-        <div class="card">
-            <h5 class="card-header">Custom Fields</h5>
-            <div class="card-body">
-                {% render_custom_fields form %}
+    {% if obj.device %}
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label text-lg-end">Device</label>
+            <div class="col">
+                <input class="form-control" value="{{ obj.device }}" disabled />
+            </div>
+        </div>
+    {% else %}
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label text-lg-end">Virtual Machine</label>
+            <div class="col">
+                <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
             </div>
         </div>
     {% endif %}
+    {% render_field form.name %}
+    <div class="row">
+        <label class="col-sm-3 col-form-label text-lg-end">Port(s)</label>
+        <div class="col-2">
+            {{ form.protocol }}
+        </div>
+        <div class="col-7">
+            {{ form.ports }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-3"></div>
+        <div class="col-9">
+            <span class="form-text">{{ form.ports.help_text }}</span>
+        </div>
+    </div>
+    {% render_field form.ipaddresses %}
+    {% render_field form.description %}
+    {% render_field form.tags %}
+  </div>
+  {% if form.custom_fields %}
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Custom Fields</h5>
+    </div>
+    {% render_custom_fields form %}
+  {% endif %}
 {% endblock %}

@@ -43,7 +43,9 @@
             {# Render grouped fields according to Form #}
             {% for group, fields in form.Meta.fieldsets %}
               <div class="field-group">
-                <h5 class="text-center">{{ group }}</h5>
+                <div class="row mb-2">
+                  <h5 class="offset-sm-3">{{ group }}</h5>
+                </div>
                 {% for name in fields %}
                     {% render_field form|getfield:name %}
                 {% endfor %}
@@ -52,7 +54,9 @@
 
             {% if form.custom_fields %}
               <div class="field-group">
-                <h5 class="text-center">Custom Fields</h5>
+                <div class="row mb-1">
+                  <h5 class="offset-sm-3">Custom Fields</h5>
+                </div>
                 {% render_custom_fields form %}
               </div>
             {% endif %}
@@ -66,7 +70,6 @@
           {% else %}
             {# Render all fields in a single group #}
             <div class="field-group">
-              <h5 class="text-center">{{ obj_type|capfirst }}</h5>
               {% block form_fields %}{% render_form form %}{% endblock %}
             </div>
           {% endif %}

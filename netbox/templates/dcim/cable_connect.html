@@ -5,162 +5,169 @@
 
 {% block title %}Connect {{ form.instance.termination_a.device }} {{ form.instance.termination_a }} to {{ termination_b_type|bettertitle }}{% endblock %}
 
-{% block content %}
-{% with termination_a=form.instance.termination_a %}
-{% render_errors form %}
-<form method="post">
-    {% csrf_token %}
-    {% for field in form.hidden_fields %}
-        {{ field }}
-    {% endfor %}
-    <div class="row my-3">
-        <div class="col col-md-5">
-            <div class="card h-100">
-                <h5 class="card-header">
-                    A Side
-                </h5>
-                <div class="card-body">
-                    {% if termination_a.device %}
-                        {# Device component #}
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-lg-end">Region</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.device.site.region }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-lg-end">Site</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.device.site }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-lg-end">Location</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.device.location|default:"None" }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-lg-end">Rack</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.device.rack|default:"None" }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-lg-end">Device</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.device }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-lg-end">Type</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a|meta:"verbose_name"|capfirst }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label text-lg-end">Name</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a }}" disabled />
-                            </div>
-                        </div>
-                    {% else %}
-                        {# Circuit termination #}
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Site</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.site }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Provider</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.circuit.provider }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Circuit</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.circuit.cid }}" disabled />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Side</label>
-                            <div class="col">
-                                <input class="form-control" value="{{ termination_a.term_side }}" disabled />
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col col-md-2 flex-column justify-content-center align-items-center d-none d-md-flex">
-            <i class="mdi mdi-swap-horizontal-bold mdi-48px"></i>
-        </div>
-        <div class="col col-md-5">
-            <div class="card h-100">
-                <h5 class="card-header">
-                    B Side
-                </h5>
-                <div class="card-body">
-                    {% if tabs %}
-                        <ul class="nav nav-tabs">
-                            {% for url, link in tabs %}
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" href="{{ url }}">{{ link }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    {% if 'termination_b_provider' in form.fields %}
-                        {% render_field form.termination_b_provider %}
-                    {% endif %}
-                    {% if 'termination_b_region' in form.fields %}
-                        {% render_field form.termination_b_region %}
-                    {% endif %}
-                    {% if 'termination_b_site' in form.fields %}
-                        {% render_field form.termination_b_site %}
-                    {% endif %}
-                    {% if 'termination_b_location' in form.fields %}
-                        {% render_field form.termination_b_location %}
-                    {% endif %}
-                    {% if 'termination_b_rack' in form.fields %}
-                        {% render_field form.termination_b_rack %}
-                    {% endif %}
-                    {% if 'termination_b_device' in form.fields %}
-                        {% render_field form.termination_b_device %}
-                    {% endif %}
-                    {% if 'termination_b_type' in form.fields %}
-                        {% render_field form.termination_b_type %}
-                    {% endif %}
-                    {% if 'termination_b_powerpanel' in form.fields %}
-                        {% render_field form.termination_b_powerpanel %}
-                    {% endif %}
-                    {% if 'termination_b_circuit' in form.fields %}
-                        {% render_field form.termination_b_circuit %}
-                    {% endif %}
-                    <div class="row mb-3">
-                        <label class="col-sm-3 col-form-label text-lg-end">Type</label>
-                        <div class="col">
-                            <input class="form-control" value="{{ termination_b_type|capfirst }}" disabled />
-                        </div>
-                    </div>
-                    {% render_field form.termination_b_id %}
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row my-3 justify-content-center">
+{% block content-wrapper %}
+  <div class="tab-content">
+    {% with termination_a=form.instance.termination_a %}
+      {% render_errors form %}
+      <form method="post">
+      {% csrf_token %}
+      {% for field in form.hidden_fields %}
+          {{ field }}
+      {% endfor %}
+      <div class="row my-3">
+          <div class="col col-md-5">
+              <div class="card h-100">
+                  <h5 class="card-header">
+                      A Side
+                  </h5>
+                  <div class="card-body">
+                      {% if termination_a.device %}
+                          {# Device component #}
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Region</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.device.site.region }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Site</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.device.site }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Location</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.device.location|default:"None" }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Rack</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.device.rack|default:"None" }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Device</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.device }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Type</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a|meta:"verbose_name"|capfirst }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Name</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a }}" disabled />
+                              </div>
+                          </div>
+                      {% else %}
+                          {# Circuit termination #}
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label">Site</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.site }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label">Provider</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.circuit.provider }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label">Circuit</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.circuit.cid }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label">Side</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.term_side }}" disabled />
+                              </div>
+                          </div>
+                      {% endif %}
+                  </div>
+              </div>
+          </div>
+          <div class="col col-md-2 flex-column justify-content-center align-items-center d-none d-md-flex">
+              <i class="mdi mdi-swap-horizontal-bold mdi-48px"></i>
+          </div>
+          <div class="col col-md-5">
+              <div class="card h-100">
+                  <h5 class="card-header">
+                      B Side
+                  </h5>
+                  <div class="card-body">
+                      {% if tabs %}
+                          <ul class="nav nav-tabs">
+                              {% for url, link in tabs %}
+                                  <li class="nav-item" role="presentation">
+                                      <a class="nav-link" href="{{ url }}">{{ link }}</a>
+                                  </li>
+                              {% endfor %}
+                          </ul>
+                      {% endif %}
+                      {% if 'termination_b_provider' in form.fields %}
+                          {% render_field form.termination_b_provider %}
+                      {% endif %}
+                      {% if 'termination_b_region' in form.fields %}
+                          {% render_field form.termination_b_region %}
+                      {% endif %}
+                      {% if 'termination_b_site' in form.fields %}
+                          {% render_field form.termination_b_site %}
+                      {% endif %}
+                      {% if 'termination_b_location' in form.fields %}
+                          {% render_field form.termination_b_location %}
+                      {% endif %}
+                      {% if 'termination_b_rack' in form.fields %}
+                          {% render_field form.termination_b_rack %}
+                      {% endif %}
+                      {% if 'termination_b_device' in form.fields %}
+                          {% render_field form.termination_b_device %}
+                      {% endif %}
+                      {% if 'termination_b_type' in form.fields %}
+                          {% render_field form.termination_b_type %}
+                      {% endif %}
+                      {% if 'termination_b_powerpanel' in form.fields %}
+                          {% render_field form.termination_b_powerpanel %}
+                      {% endif %}
+                      {% if 'termination_b_circuit' in form.fields %}
+                          {% render_field form.termination_b_circuit %}
+                      {% endif %}
+                      <div class="row mb-3">
+                          <label class="col-sm-3 col-form-label text-lg-end">Type</label>
+                          <div class="col">
+                              <input class="form-control" value="{{ termination_b_type|capfirst }}" disabled />
+                          </div>
+                      </div>
+                      {% render_field form.termination_b_id %}
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="row my-3 justify-content-center">
         <div class="col col-md-8">
-            {% include 'dcim/inc/cable_form.html' %}
+          <div class="card">
+            <h5 class="card-header">Cable</h5>
+            <div class="card-body">
+              {% include 'dcim/inc/cable_form.html' %}
+            </div>
+          </div>
         </div>
-    </div>
-    <div class="row my-3">
+      </div>
+      <div class="row my-3">
         <div class="col col-md-12 text-center">
-            <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-            <button type="submit" name="_update" class="btn btn-primary">Connect</button>
+          <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+          <button type="submit" name="_update" class="btn btn-primary">Connect</button>
         </div>
-    </div>
-</form>
-{% endwith %}
+      </div>
+    </form>
+    {% endwith %}
+  </div>
 {% endblock %}

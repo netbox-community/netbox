@@ -5,14 +5,18 @@
     {% render_errors form %}
     
     <div class="field-group">
-        <h5 class="text-center">Device</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Device</h5>
+        </div>
         {% render_field form.name %}
         {% render_field form.device_role %}
         {% render_field form.tags %}
     </div>
     
     <div class="field-group">
-        <h5 class="text-center">Hardware</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Hardware</h5>
+        </div>
         {% render_field form.manufacturer %}
         {% render_field form.device_type %}
         {% render_field form.serial %}
@@ -20,7 +24,9 @@
     </div>
     
     <div class="field-group">
-        <h5 class="text-center">Location</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Location</h5>
+        </div>
         {% render_field form.region %}
         {% render_field form.site_group %}
         {% render_field form.site %}
@@ -52,7 +58,9 @@
     </div>
     
     <div class="field-group">
-        <h5 class="text-center">Management</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Management</h5>
+        </div>
         {% render_field form.status %}
         {% render_field form.platform %}
         {% if obj.pk %}
@@ -62,20 +70,26 @@
     </div>
     
     <div class="field-group">
-        <h5 class="text-center">Virtualization</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Virtualization</h5>
+        </div>
         {% render_field form.cluster_group %}
         {% render_field form.cluster %}
     </div>
     
     <div class="field-group">
-        <h5 class="text-center">Tenancy</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Tenancy</h5>
+        </div>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
 
 {% if form.custom_fields %}
     <div class="field-group">
-        <h5 class="text-center">Custom Fields</h5>
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Custom Fields</h5>
+        </div>
         {% render_custom_fields form %}
     </div>
 

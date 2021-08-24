@@ -769,7 +769,6 @@ class VLANGroupView(generic.ObjectView):
 class VLANGroupEditView(generic.ObjectEditView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
-    template_name = 'ipam/vlangroup_edit.html'
 
 
 class VLANGroupDeleteView(generic.ObjectDeleteView):

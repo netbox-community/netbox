@@ -9,67 +9,81 @@
 
 {% block form %}
     <div class="field-group">
-        <h4 class="mb-3">IP Address</h4>
-        {% render_field form.address %}
-        {% render_field form.status %}
-        {% render_field form.role %}
-        {% render_field form.vrf %}
-        {% render_field form.dns_name %}
-        {% render_field form.description %}
-        {% render_field form.tags %}
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">IP Address</h5>
+      </div>
+      {% render_field form.address %}
+      {% render_field form.status %}
+      {% render_field form.role %}
+      {% render_field form.vrf %}
+      {% render_field form.dns_name %}
+      {% render_field form.description %}
+      {% render_field form.tags %}
     </div>
     <div class="field-group">
-        <h4 class="mb-3">Tenancy</h4>
-        {% render_field form.tenant_group %}
-        {% render_field form.tenant %}
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Tenancy</h5>
+      </div>
+      {% render_field form.tenant_group %}
+      {% render_field form.tenant %}
     </div>
     <div class="field-group">
-        <h4 class="mb-3">Interface Assignment</h4>
-        {% with vm_tab_active=form.initial.vminterface %}
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="nav-item">
-                    <button
-                        role="tab"
-                        type="button"
-                        id="device_tab"
-                        data-bs-toggle="tab"
-                        aria-controls="device"
-                        data-bs-target="#device"
-                        class="nav-link {% if not vm_tab_active %}active{% endif %}"
-                    >
-                        Device
-                    </button>
-                </li>
-                <li role="presentation" class="nav-item">
-                    <button
-                        role="tab"
-                        type="button"
-                        id="vm_tab"
-                        data-bs-toggle="tab"
-                        aria-controls="vm"
-                        data-bs-target="#vm"
-                        class="nav-link {% if vm_tab_active %}active{% endif %}"
-                    >
-                        Virtual Machine
-                    </button>
-                </li>
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Interface Assignment</h5>
+      </div>
+      {% with vm_tab_active=form.initial.vminterface %}
+        <div class="row mb-2">
+          <div class="offset-sm-3">
+            <ul class="nav nav-pills" role="tablist">
+              <li role="presentation" class="nav-item">
+                  <button
+                      role="tab"
+                      type="button"
+                      id="device_tab"
+                      data-bs-toggle="tab"
+                      aria-controls="device"
+                      data-bs-target="#device"
+                      class="nav-link {% if not vm_tab_active %}active{% endif %}"
+                  >
+                      Device
+                  </button>
+              </li>
+              <li role="presentation" class="nav-item">
+                  <button
+                      role="tab"
+                      type="button"
+                      id="vm_tab"
+                      data-bs-toggle="tab"
+                      aria-controls="vm"
+                      data-bs-target="#vm"
+                      class="nav-link {% if vm_tab_active %}active{% endif %}"
+                  >
+                      Virtual Machine
+                  </button>
+              </li>
             </ul>
-            <div class="tab-content">
-                <div class="tab-pane {% if not vm_tab_active %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
-                    {% render_field form.device %}
-                    {% render_field form.interface %}
-                </div>
-                <div class="tab-pane {% if vm_tab_active %}active{% endif %}" id="vm" role="tabpanel" aria-labeled-by="vm_tab">
-                    {% render_field form.virtual_machine %}
-                    {% render_field form.vminterface %}
-                </div>
-            </div>
-        {% endwith %}
-        {% render_field form.primary_for_parent %}
+          </div>
+        </div>
+        <div class="tab-content p-0">
+          <div class="tab-pane {% if not vm_tab_active %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
+            {% render_field form.device %}
+            {% render_field form.interface %}
+          </div>
+          <div class="tab-pane {% if vm_tab_active %}active{% endif %}" id="vm" role="tabpanel" aria-labeled-by="vm_tab">
+            {% render_field form.virtual_machine %}
+            {% render_field form.vminterface %}
+          </div>
+          {% render_field form.primary_for_parent %}
+        </div>
+      {% endwith %}
     </div>
     <div class="field-group">
-        <h4 class="mb-3">NAT IP (Inside)</h4>
-        <ul class="nav nav-tabs" role="tablist">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">NAT IP (Inside)</h5>
+      </div>
+      <div class="row mb-2">
+        <div class="offset-sm-3">
+          <ul class="nav nav-pills" role="tablist">
             <li class="nav-item" role="presentation">
                 <button
                     role="tab"
@@ -109,29 +123,33 @@
                     By IP
                 </button>
             </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="by_device" aria-labelledby="device_tab" role="tabpanel">
-                {% render_field form.nat_region %}
-                {% render_field form.nat_site_group %}
-                {% render_field form.nat_site %}
-                {% render_field form.nat_rack %}
-                {% render_field form.nat_device %}
-            </div>
-            <div class="tab-pane" id="by_vm" aria-labelledby="vm_tab" role="tabpanel">
-                {% render_field form.nat_cluster %}
-                {% render_field form.nat_virtual_machine %}
-            </div>
-            <div class="tab-pane" id="by_vrf" aria-labelledby="vrf_tab" role="tabpanel">
-                {% render_field form.nat_vrf %}
-            </div>
-            {% render_field form.nat_inside %}
+          </ul>
         </div>
+      </div>
+      <div class="tab-content p-0">
+          <div class="tab-pane active" id="by_device" aria-labelledby="device_tab" role="tabpanel">
+              {% render_field form.nat_region %}
+              {% render_field form.nat_site_group %}
+              {% render_field form.nat_site %}
+              {% render_field form.nat_rack %}
+              {% render_field form.nat_device %}
+          </div>
+          <div class="tab-pane" id="by_vm" aria-labelledby="vm_tab" role="tabpanel">
+              {% render_field form.nat_cluster %}
+              {% render_field form.nat_virtual_machine %}
+          </div>
+          <div class="tab-pane" id="by_vrf" aria-labelledby="vrf_tab" role="tabpanel">
+              {% render_field form.nat_vrf %}
+          </div>
+          {% render_field form.nat_inside %}
+      </div>
     </div>
     {% if form.custom_fields %}
-        <div class="field-group">
-            <h4 class="mb-3">Custom Fields</h4>
-            {% render_custom_fields form %}
+      <div class="field-group">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Custom Fields</h5>
         </div>
+        {% render_custom_fields form %}
+      </div>
     {% endif %}
 {% endblock %}

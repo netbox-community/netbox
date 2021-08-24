@@ -1422,6 +1422,10 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
             'clustergroup', 'cluster',
         ]
+        fieldsets = (
+            ('VLAN Group', ('name', 'slug', 'description')),
+            ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
+        )
         widgets = {
             'scope_type': StaticSelect,
         }
