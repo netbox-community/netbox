@@ -107,12 +107,10 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEdi
 
 class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VRF
-    field_order = ['q', 'import_target_id', 'export_target_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['import_target_id', 'export_target_id'],
         ['tenant_group_id', 'tenant_id'],
-        ['tag']
     ]
     q = forms.CharField(
         required=False,
@@ -186,9 +184,8 @@ class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
 
 class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = RouteTarget
-    field_order = ['q', 'name', 'tenant_group_id', 'tenant_id', 'importing_vrfs', 'exporting_vrfs']
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['importing_vrf_id', 'exporting_vrf_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
@@ -348,9 +345,8 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
 
 class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Aggregate
-    field_order = ['q', 'family', 'rir', 'tenant_group_id', 'tenant_id']
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['family', 'rir_id'],
         ['tenant_group_id', 'tenant_id']
     ]
@@ -628,17 +624,13 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
 
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Prefix
-    field_order = [
-        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status',
-        'region_id', 'site_group_id', 'site_id', 'role_id', 'tenant_group_id', 'tenant_id',
-        'is_pool', 'mark_utilized',
-    ]
     field_groups = [
-        ['q'],
-        ['role_id', 'within_include', 'family', 'mask_length'],
-        ['vrf_id', 'present_in_vrf_id', 'is_pool', 'mark_utilized'],
+        ['q', 'tag'],
+        ['within_include', 'family', 'status', 'role_id'],
+        ['vrf_id', 'present_in_vrf_id'],
+        ['mask_length', 'is_pool', 'mark_utilized'],
         ['region_id', 'site_group_id', 'site_id'],
-        ['tenant_group_id', 'tenant_id', 'status', 'tag']
+        ['tenant_group_id', 'tenant_id']
     ]
     q = forms.CharField(
         required=False,
@@ -838,13 +830,10 @@ class IPRangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
 
 class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = IPRange
-    field_order = [
-        'q', 'family', 'vrf_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id',
-    ]
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['family', 'vrf_id', 'status', 'role_id'],
-        ['tenant_group_id', 'tenant_id', 'tag'],
+        ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
         required=False,
@@ -1280,10 +1269,10 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
         'assigned_to_interface', 'tenant_group_id', 'tenant_id',
     ]
     field_groups = [
-        ['q'],
-        ['parent', 'family', 'mask_length'],
-        ['status', 'vrf_id', 'present_in_vrf_id'],
-        ['role', 'assigned_to_interface'],
+        ['q', 'tag'],
+        ['parent', 'family', 'status', 'role'],
+        ['vrf_id', 'present_in_vrf_id'],
+        ['mask_length', 'assigned_to_interface'],
         ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
@@ -1489,8 +1478,7 @@ class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
         ['q'],
-        ['region', 'sitegroup', 'site'],
-        ['location', 'rack']
+        ['region', 'sitegroup', 'site', 'location', 'rack']
     ]
     q = forms.CharField(
         required=False,
@@ -1707,14 +1695,10 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
 
 class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VLAN
-    field_order = [
-        'q', 'region_id', 'site_group_id', 'site_id', 'group_id', 'status', 'role_id',
-        'tenant_group_id', 'tenant_id',
-    ]
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
-        ['group_id', 'role_id', 'status'],
+        ['group_id', 'status', 'role_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
@@ -1818,6 +1802,10 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
 
 class ServiceFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Service
+    field_groups = (
+        ('q', 'tag'),
+        ('protocol', 'port'),
+    )
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
