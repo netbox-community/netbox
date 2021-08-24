@@ -200,7 +200,7 @@ All Python packages required by NetBox are listed in `requirements.txt` and will
 
 ### NAPALM
 
-The [NAPALM automation](https://napalm-automation.net/) library allows NetBox to fetch live data from devices and return it to a requester via its REST API. The `NAPALM_USERNAME` and `NAPALM_PASSWORD` configuration parameters define the credentials to be used when connecting to a device.
+The [NAPALM automation](https://github.com/napalm-automation/napalm/) library allows NetBox to fetch live data from devices and return it to a requester via its REST API. The `NAPALM_USERNAME` and `NAPALM_PASSWORD` configuration parameters define the credentials to be used when connecting to a device.
 
 ```no-highlight
 sudo sh -c "echo 'napalm' >> /opt/netbox/local_requirements.txt"
