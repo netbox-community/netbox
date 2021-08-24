@@ -67,7 +67,7 @@ function handleRackImageToggle(
  * Add onClick callback for toggling rack elevation images. Synchronize the image toggle button
  * text and display state of images with the local state.
  */
-export function initRackElevation() {
+export function initRackElevation(): void {
   const initiallyHidden = rackImagesState.get('hidden');
   for (const button of getElements<HTMLButtonElement>('button.toggle-images')) {
     toggleRackImagesButton(initiallyHidden, button);

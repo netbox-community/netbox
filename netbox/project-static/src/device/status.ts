@@ -92,7 +92,7 @@ function getUptime(seconds: number): Uptime {
  *
  * @param facts NAPALM Device Facts
  */
-function processFacts(facts: DeviceFacts) {
+function processFacts(facts: DeviceFacts): void {
   for (const key of factKeys) {
     if (key in facts) {
       // Find the target element which should have its innerHTML/innerText set to a NAPALM value.
@@ -149,7 +149,7 @@ function insertTitleRow<E extends HTMLElement>(next: E, title1: string, title2: 
  * @param next Next adjacent element.For example, if this is the CPU data, `next` would be the
  *             memory row.
  */
-function insertNoneRow<E extends Nullable<HTMLElement>>(next: E) {
+function insertNoneRow<E extends Nullable<HTMLElement>>(next: E): void {
   const none = createElement('td', { colSpan: '2', innerText: 'No Data' }, [
     'text-muted',
     'text-center',
@@ -173,7 +173,7 @@ function getNext<E extends HTMLElement>(id: string): Nullable<E> {
  *
  * @param cpu NAPALM CPU data.
  */
-function processCpu(cpu: DeviceEnvironment['cpu']) {
+function processCpu(cpu: DeviceEnvironment['cpu']): void {
   // Find the next adjacent element, so we can insert elements before it.
   const next = getNext<HTMLTableRowElement>('status-cpu');
   if (typeof cpu !== 'undefined') {
@@ -200,7 +200,7 @@ function processCpu(cpu: DeviceEnvironment['cpu']) {
  *
  * @param mem NAPALM memory data.
  */
-function processMemory(mem: DeviceEnvironment['memory']) {
+function processMemory(mem: DeviceEnvironment['memory']): void {
   // Find the next adjacent element, so we can insert elements before it.
   const next = getNext<HTMLTableRowElement>('status-memory');
   if (typeof mem !== 'undefined') {
@@ -222,7 +222,7 @@ function processMemory(mem: DeviceEnvironment['memory']) {
  *
  * @param temp NAPALM temperature data.
  */
-function processTemp(temp: DeviceEnvironment['temperature']) {
+function processTemp(temp: DeviceEnvironment['temperature']): void {
   // Find the next adjacent element, so we can insert elements before it.
   const next = getNext<HTMLTableRowElement>('status-temperature');
   if (typeof temp !== 'undefined') {
@@ -249,7 +249,7 @@ function processTemp(temp: DeviceEnvironment['temperature']) {
  *
  * @param fans NAPALM fan data.
  */
-function processFans(fans: DeviceEnvironment['fans']) {
+function processFans(fans: DeviceEnvironment['fans']): void {
   // Find the next adjacent element, so we can insert elements before it.
   const next = getNext<HTMLTableRowElement>('status-fans');
   if (typeof fans !== 'undefined') {
@@ -285,7 +285,7 @@ function processFans(fans: DeviceEnvironment['fans']) {
  *
  * @param power NAPALM power data.
  */
-function processPower(power: DeviceEnvironment['power']) {
+function processPower(power: DeviceEnvironment['power']): void {
   // Find the next adjacent element, so we can insert elements before it.
   const next = getNext<HTMLTableRowElement>('status-power');
   if (typeof power !== 'undefined') {
@@ -322,7 +322,7 @@ function processPower(power: DeviceEnvironment['power']) {
  *
  * @param env NAPALM Device Environment
  */
-function processEnvironment(env: DeviceEnvironment) {
+function processEnvironment(env: DeviceEnvironment): void {
   const { cpu, memory, temperature, fans, power } = env;
   processCpu(cpu);
   processMemory(memory);
@@ -334,7 +334,7 @@ function processEnvironment(env: DeviceEnvironment) {
 /**
  * Initialize NAPALM device status handlers.
  */
-function initStatus() {
+function initStatus(): void {
   // Show loading state for both Facts & Environment cards.
   toggleLoader('show');
 

@@ -21,7 +21,7 @@ type ObjectDepthState = { hidden: boolean };
  *
  * @param element Connection Toggle Button Element
  */
-function toggleConnection(element: HTMLButtonElement) {
+function toggleConnection(element: HTMLButtonElement): void {
   const id = element.getAttribute('data');
   const connected = element.classList.contains('connected');
   const status = connected ? 'planned' : 'connected';
@@ -59,7 +59,7 @@ function toggleConnection(element: HTMLButtonElement) {
   }
 }
 
-function initConnectionToggle() {
+function initConnectionToggle(): void {
   for (const element of getElements<HTMLButtonElement>('button.cable-toggle')) {
     element.addEventListener('click', () => toggleConnection(element));
   }
@@ -116,7 +116,7 @@ function handleDepthToggle(state: StateManager<ObjectDepthState>, button: HTMLBu
 /**
  * Initialize object depth toggle buttons.
  */
-function initDepthToggle() {
+function initDepthToggle(): void {
   const initiallyHidden = objectDepthState.get('hidden');
 
   for (const button of getElements<HTMLButtonElement>('button.toggle-depth')) {
@@ -190,7 +190,7 @@ function handlePreferenceSave(event: Event): void {
 /**
  * Initialize handlers for user profile updates.
  */
-function initPreferenceUpdate() {
+function initPreferenceUpdate(): void {
   const form = getElement<HTMLFormElement>('preferences-update');
   if (form !== null) {
     form.addEventListener('submit', handlePreferenceSave);
@@ -203,7 +203,7 @@ function initPreferenceUpdate() {
  *
  * @param event Change Event
  */
-function handleSelectAllToggle(event: Event) {
+function handleSelectAllToggle(event: Event): void {
   // Select all checkbox in header row.
   const tableSelectAll = event.currentTarget as HTMLInputElement;
   // Nearest table to the select all checkbox.
@@ -248,7 +248,7 @@ function handleSelectAllToggle(event: Event) {
  *
  * @param event Change Event
  */
-function handlePkCheck(event: Event) {
+function handlePkCheck(event: Event): void {
   const target = event.currentTarget as HTMLInputElement;
   if (!target.checked) {
     for (const element of getElements<HTMLInputElement>(
@@ -267,7 +267,7 @@ function handlePkCheck(event: Event) {
  *
  * @param event Change Event
  */
-function handleSelectAll(event: Event) {
+function handleSelectAll(event: Event): void {
   const target = event.currentTarget as HTMLInputElement;
   const selectAllBox = getElement<HTMLDivElement>('select-all-box');
   if (selectAllBox !== null) {
@@ -286,7 +286,7 @@ function handleSelectAll(event: Event) {
 /**
  * Initialize table select all elements.
  */
-function initSelectAll() {
+function initSelectAll(): void {
   for (const element of getElements<HTMLInputElement>(
     'table tr th > input[type="checkbox"].toggle',
   )) {
@@ -302,20 +302,20 @@ function initSelectAll() {
   }
 }
 
-function handlePerPageSelect(event: Event) {
+function handlePerPageSelect(event: Event): void {
   const select = event.currentTarget as HTMLSelectElement;
   if (select.form !== null) {
     select.form.submit();
   }
 }
 
-function initPerPage() {
+function initPerPage(): void {
   for (const element of getElements<HTMLSelectElement>('select.per-page')) {
     element.addEventListener('change', handlePerPageSelect);
   }
 }
 
-export function initButtons() {
+export function initButtons(): void {
   for (const func of [
     initDepthToggle,
     initConnectionToggle,

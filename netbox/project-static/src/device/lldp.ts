@@ -31,7 +31,7 @@ function updateRowStyle(data: LLDPNeighborDetail) {
 
         let cInterfaceShort = null;
         if (isTruthy(cInterface)) {
-          cInterfaceShort = cInterface.replace(/^([A-Z][a-z])[^0-9]*([0-9\/]+)$/, '$1$2');
+          cInterfaceShort = cInterface.replace(/^([A-Z][a-z])[^0-9]*([0-9/]+)$/, '$1$2');
         }
 
         const nHost = neighbor.remote_system_name ?? '';

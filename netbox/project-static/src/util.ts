@@ -1,19 +1,18 @@
 import Cookie from 'cookie';
 
-type APIRes<T> = T | ErrorBase | APIError;
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
 type SelectedOption = { name: string; options: string[] };
 
-type HTMLElementProperties<E extends HTMLElement> =
-  | {
-      [k in keyof E]: E[k];
-    }
-  | {};
-
-type InferredProps<T extends keyof HTMLElementTagNameMap> = HTMLElementProperties<
-  HTMLElementTagNameMap[T]
->;
+/**
+ * Infer valid HTMLElement props based on element name.
+ */
+type InferredProps<
+  // Element name.
+  T extends keyof HTMLElementTagNameMap,
+  // Element type.
+  E extends HTMLElementTagNameMap[T] = HTMLElementTagNameMap[T]
+> = Partial<Record<keyof E, E[keyof E]>>;
 
 export function isApiError(data: Record<string, unknown>): data is APIError {
   return 'error' in data && 'exception' in data;
@@ -36,9 +35,9 @@ export function hasMore(data: APIAnswer<APIObjectBase>): data is APIAnswerWithNe
  */
 export function slugify(slug: string, chars: number): string {
   return slug
-    .replace(/[^\-\.\w\s]/g, '') // Remove unneeded chars
-    .replace(/^[\s\.]+|[\s\.]+$/g, '') // Trim leading/trailing spaces
-    .replace(/[\-\.\s]+/g, '-') // Convert spaces and decimals to hyphens
+    .replace(/[^\-.\w\s]/g, '') // Remove unneeded chars
+    .replace(/^[\s.]+|[\s.]+$/g, '') // Trim leading/trailing spaces
+    .replace(/[-.\s]+/g, '-') // Convert spaces and decimals to hyphens
     .toLowerCase() // Convert to lowercase
     .substring(0, chars); // Trim to first chars chars
 }
@@ -82,7 +81,7 @@ export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
   url: string,
   method: Method,
   data?: D,
-): Promise<APIRes<R>> {
+): Promise<APIResponse<R>> {
   const token = getCsrfToken();
   const headers = new Headers({ 'X-CSRFToken': token });
 
@@ -111,18 +110,18 @@ export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
 export async function apiPatch<R extends Dict, D extends ReqData = Dict>(
   url: string,
   data: D,
-): Promise<APIRes<R>> {
+): Promise<APIResponse<R>> {
   return await apiRequest(url, 'PATCH', data);
 }
 
-export async function apiGetBase<R extends Dict>(url: string): Promise<APIRes<R>> {
+export async function apiGetBase<R extends Dict>(url: string): Promise<APIResponse<R>> {
   return await apiRequest<R>(url, 'GET');
 }
 
 export async function apiPostForm<R extends Dict, D extends Dict>(
   url: string,
   data: D,
-): Promise<APIRes<R>> {
+): Promise<APIResponse<R>> {
   const body = new URLSearchParams();
   for (const [k, v] of Object.entries(data)) {
     body.append(k, String(v));
@@ -149,7 +148,7 @@ export function getElements<K extends keyof HTMLElementTagNameMap>(
 export function getElements<E extends Element>(...key: string[]): Generator<E>;
 export function* getElements(
   ...key: (string | keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap)[]
-) {
+): Generator<Element> {
   for (const query of key) {
     for (const element of document.querySelectorAll(query)) {
       if (element !== null) {
@@ -249,7 +248,7 @@ export function getNetboxData(key: string): string | null {
 /**
  * Toggle visibility of card loader.
  */
-export function toggleLoader(action: 'show' | 'hide') {
+export function toggleLoader(action: 'show' | 'hide'): void {
   for (const element of getElements<HTMLDivElement>('div.card-overlay')) {
     if (action === 'show') {
       element.classList.remove('d-none');
@@ -316,25 +315,27 @@ export function findFirstAdjacent<R extends HTMLElement, B extends Element = Ele
  * @param children Child elements.
  */
 export function createElement<
+  // Element name.
   T extends keyof HTMLElementTagNameMap,
+  // Element props.
+  P extends InferredProps<T>,
+  // Child element type.
   C extends HTMLElement = HTMLElement
->(
-  tag: T,
-  properties: InferredProps<T>,
-  classes: string[],
-  children: C[] = [],
-): HTMLElementTagNameMap[T] {
+>(tag: T, properties: P | null, classes: string[], children: C[] = []): HTMLElementTagNameMap[T] {
   // Create the base element.
   const element = document.createElement<T>(tag);
 
-  for (const k of Object.keys(properties)) {
-    // Add each property to the element.
-    const key = k as keyof HTMLElementProperties<HTMLElementTagNameMap[T]>;
-    const value = properties[key];
-    if (key in element) {
-      element[key] = value;
+  if (properties !== null) {
+    for (const k of Object.keys(properties)) {
+      // Add each property to the element.
+      const key = k as keyof InferredProps<T>;
+      const value = properties[key] as NonNullable<P[keyof P]>;
+      if (key in element) {
+        element[key] = value;
+      }
     }
   }
+
   // Add each CSS class to the element's class list.
   element.classList.add(...classes);
 

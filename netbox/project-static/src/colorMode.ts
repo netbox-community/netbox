@@ -6,7 +6,10 @@ const TEXT_WHEN_LIGHT = 'Dark Mode';
 const ICON_WHEN_DARK = 'mdi-lightbulb-on';
 const ICON_WHEN_LIGHT = 'mdi-lightbulb';
 
-function isColorMode(value: string): value is ColorMode {
+/**
+ * Determine if a value is a supported color mode string value.
+ */
+function isColorMode(value: unknown): value is ColorMode {
   return value === 'dark' || value === 'light';
 }
 

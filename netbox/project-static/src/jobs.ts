@@ -44,10 +44,13 @@ function updateLabel(status: JobStatus) {
     switch (status.value) {
       case 'failed' || 'errored':
         labelClass = 'danger';
+        break;
       case 'running':
         labelClass = 'warning';
+        break;
       case 'completed':
         labelClass = 'success';
+        break;
     }
     element.setAttribute('class', `badge bg-${labelClass}`);
     element.innerText = status.label;

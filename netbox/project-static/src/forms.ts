@@ -136,7 +136,7 @@ function initFormElements() {
 function moveOptionUp(element: HTMLSelectElement): void {
   const options = Array.from(element.options);
   for (let i = 1; i < options.length; i++) {
-    let option = options[i];
+    const option = options[i];
     if (option.selected) {
       element.removeChild(option);
       element.insertBefore(option, element.options[i - 1]);
@@ -290,7 +290,7 @@ function initScopeSelector() {
   }
 }
 
-export function initForms() {
+export function initForms(): void {
   for (const func of [
     initFormElements,
     initFormActions,

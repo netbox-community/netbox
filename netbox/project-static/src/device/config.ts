@@ -4,7 +4,7 @@ import { apiGetBase, getNetboxData, hasError, toggleLoader } from '../util';
 /**
  * Initialize device config elements.
  */
-function initConfig() {
+function initConfig(): void {
   toggleLoader('show');
   const url = getNetboxData('data-object-url');
 

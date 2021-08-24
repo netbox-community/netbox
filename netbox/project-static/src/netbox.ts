@@ -13,7 +13,7 @@ import { initSideNav } from './sidenav';
 import { initRackElevation } from './racks';
 import { initLinks } from './links';
 
-function initDocument() {
+function initDocument(): void {
   for (const init of [
     initBootstrap,
     initColorMode,
@@ -34,7 +34,7 @@ function initDocument() {
   }
 }
 
-function initWindow() {
+function initWindow(): void {
   const contentContainer = document.querySelector<HTMLElement>('.content-container');
   if (contentContainer !== null) {
     // Focus the content container for accessible navigation.

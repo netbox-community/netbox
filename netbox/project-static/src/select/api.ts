@@ -711,7 +711,7 @@ class APISelect {
    * @param id DOM ID of the other element.
    */
   private updatePathValues(id: string): void {
-    let key = id.replaceAll(/^id_/gi, '');
+    const key = id.replaceAll(/^id_/gi, '');
     const element = getElement<HTMLSelectElement>(`id_${key}`);
     if (element !== null) {
       // If this element's URL contains Django template tags ({{), replace the template tag
@@ -982,15 +982,16 @@ class APISelect {
         'button',
         { type: 'button' },
         ['btn', 'btn-sm', 'btn-ghost-dark'],
-        [createElement('i', {}, ['mdi', 'mdi-reload'])],
+        [createElement('i', null, ['mdi', 'mdi-reload'])],
       );
       refreshButton.addEventListener('click', () => this.loadData());
+      refreshButton.type = 'button';
       this.slim.slim.search.container.appendChild(refreshButton);
     }
   }
 }
 
-export function initApiSelect() {
+export function initApiSelect(): void {
   for (const select of getElements<HTMLSelectElement>('.netbox-api-select')) {
     new APISelect(select);
   }

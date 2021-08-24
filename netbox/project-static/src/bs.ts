@@ -45,12 +45,16 @@ export function createToast(
   switch (level) {
     case 'warning':
       iconName = 'mdi-alert';
+      break;
     case 'success':
       iconName = 'mdi-check-circle';
+      break;
     case 'info':
       iconName = 'mdi-information';
+      break;
     case 'danger':
       iconName = 'mdi-alert';
+      break;
   }
 
   const container = document.createElement('div');
@@ -109,7 +113,7 @@ export function createToast(
  */
 function initTabs() {
   const { hash } = location;
-  if (hash && hash.match(/^\#tab_.+$/)) {
+  if (hash && hash.match(/^#tab_.+$/)) {
     // The tab element will have a data-bs-target attribute with a value of the object type for
     // the corresponding tab. Once we drop the `tab_` prefix, the hash will match the target
     // element's data-bs-target value. For example, `#tab_frontports` becomes `#frontports`.

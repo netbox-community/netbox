@@ -8,7 +8,7 @@ import { getElements, getRowValues, findFirstAdjacent, isTruthy } from './util';
  * @param event "click" event for each dropdown item.
  * @param button Each dropdown item element.
  */
-function handleSearchDropdownClick(event: Event, button: HTMLButtonElement) {
+function handleSearchDropdownClick(event: Event, button: HTMLButtonElement): void {
   const dropdown = event.currentTarget as HTMLButtonElement;
   const selectedValue = findFirstAdjacent<HTMLSpanElement>(dropdown, 'span.search-obj-selected');
   const selectedType = findFirstAdjacent<HTMLInputElement>(dropdown, 'input.search-obj-type');
@@ -31,7 +31,7 @@ function handleSearchDropdownClick(event: Event, button: HTMLButtonElement) {
 /**
  * Initialize Search Bar Elements.
  */
-function initSearchBar() {
+function initSearchBar(): void {
   for (const dropdown of getElements<HTMLUListElement>('.search-obj-selector')) {
     for (const button of dropdown.querySelectorAll<HTMLButtonElement>(
       'li > button.dropdown-item',
@@ -44,7 +44,7 @@ function initSearchBar() {
 /**
  * Initialize Interface Table Filter Elements.
  */
-function initInterfaceFilter() {
+function initInterfaceFilter(): void {
   for (const input of getElements<HTMLInputElement>('input.interface-filter')) {
     const table = findFirstAdjacent<HTMLTableElement>(input, 'table');
     const rows = Array.from(
@@ -53,7 +53,7 @@ function initInterfaceFilter() {
     /**
      * Filter on-page table by input text.
      */
-    function handleInput(event: Event) {
+    function handleInput(event: Event): void {
       const target = event.target as HTMLInputElement;
       // Create a regex pattern from the input search text to match against.
       const filter = new RegExp(target.value.toLowerCase().trim());
@@ -87,7 +87,7 @@ function initInterfaceFilter() {
   }
 }
 
-function initTableFilter() {
+function initTableFilter(): void {
   for (const input of getElements<HTMLInputElement>('input.object-filter')) {
     // Find the first adjacent table element.
     const table = findFirstAdjacent<HTMLTableElement>(input, 'table');
@@ -101,7 +101,7 @@ function initTableFilter() {
      * Filter table rows by matched input text.
      * @param event
      */
-    function handleInput(event: Event) {
+    function handleInput(event: Event): void {
       const target = event.target as HTMLInputElement;
 
       // Create a regex pattern from the input search text to match against.
@@ -132,7 +132,7 @@ function initTableFilter() {
   }
 }
 
-export function initSearch() {
+export function initSearch(): void {
   for (const func of [initSearchBar, initTableFilter, initInterfaceFilter]) {
     func();
   }

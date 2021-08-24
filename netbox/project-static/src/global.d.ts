@@ -33,6 +33,8 @@ interface Window {
  */
 type Index<O extends Dict, K extends keyof O> = K extends string ? K : never;
 
+type APIResponse<T> = T | ErrorBase | APIError;
+
 type APIAnswer<T> = {
   count: number;
   next: Nullable<string>;

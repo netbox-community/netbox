@@ -237,7 +237,7 @@ class SideNav {
       '.navbar-nav .nav .nav-item a.nav-link',
     )) {
       const href = new RegExp(link.href, 'gi');
-      if (Boolean(window.location.href.match(href))) {
+      if (window.location.href.match(href)) {
         yield link;
       }
     }
@@ -310,7 +310,7 @@ class SideNav {
   }
 }
 
-export function initSideNav() {
+export function initSideNav(): void {
   for (const sidenav of getElements<HTMLDivElement>('.sidenav')) {
     new SideNav(sidenav);
   }

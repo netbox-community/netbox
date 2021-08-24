@@ -5,7 +5,7 @@ import { getElements, apiPatch, hasError, getSelectedOptions } from './util';
  * Mark each option element in the selected columns element as 'selected' so they are submitted to
  * the API.
  */
-function saveTableConfig() {
+function saveTableConfig(): void {
   for (const element of getElements<HTMLOptionElement>('select[name="columns"] option')) {
     element.selected = true;
   }
@@ -14,7 +14,7 @@ function saveTableConfig() {
 /**
  * Delete all selected columns, which reverts the user's preferences to the default column set.
  */
-function resetTableConfig() {
+function resetTableConfig(): void {
   for (const element of getElements<HTMLSelectElement>('select[name="columns"]')) {
     element.value = '';
   }
@@ -23,7 +23,7 @@ function resetTableConfig() {
 /**
  * Add columns to the table config select element.
  */
-function addColumns(event: Event) {
+function addColumns(event: Event): void {
   for (const selectedOption of getElements<HTMLOptionElement>('#id_available_columns > option')) {
     if (selectedOption.selected) {
       for (const selected of getElements<HTMLSelectElement>('#id_columns')) {
@@ -38,7 +38,7 @@ function addColumns(event: Event) {
 /**
  * Remove columns from the table config select element.
  */
-function removeColumns(event: Event) {
+function removeColumns(event: Event): void {
   for (const selectedOption of getElements<HTMLOptionElement>('#id_columns > option')) {
     if (selectedOption.selected) {
       for (const available of getElements<HTMLSelectElement>('#id_available_columns')) {
@@ -53,7 +53,7 @@ function removeColumns(event: Event) {
 /**
  * Submit form configuration to the NetBox API.
  */
-async function submitFormConfig(formConfig: Dict<Dict>) {
+async function submitFormConfig(formConfig: Dict<Dict>): Promise<APIResponse<APIUserConfig>> {
   return await apiPatch<APIUserConfig>('/api/users/config/', formConfig);
 }
 
@@ -61,7 +61,7 @@ async function submitFormConfig(formConfig: Dict<Dict>) {
  * Handle table config form submission. Sends the selected columns to the NetBox API to update
  * the user's table configuration preferences.
  */
-function handleSubmit(event: Event) {
+function handleSubmit(event: Event): void {
   event.preventDefault();
 
   const element = event.currentTarget as HTMLFormElement;
@@ -96,7 +96,7 @@ function handleSubmit(event: Event) {
 /**
  * Initialize table configuration elements.
  */
-export function initTableConfig() {
+export function initTableConfig(): void {
   for (const element of getElements<HTMLButtonElement>('#save_tableconfig')) {
     element.addEventListener('click', saveTableConfig);
   }

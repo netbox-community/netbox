@@ -164,18 +164,14 @@ class TableState {
   private table: HTMLTableElement;
   /**
    * Instance of ButtonState for the 'show/hide enabled rows' button.
-   *
-   * TS Error is expected because null handling is performed in the constructor.
    */
-  // @ts-expect-error
+  // @ts-expect-error null handling is performed in the constructor
   private enabledButton: ButtonState;
 
   /**
    * Instance of ButtonState for the 'show/hide disabled rows' button.
-   *
-   * TS Error is expected because null handling is performed in the constructor.
    */
-  // @ts-expect-error
+  // @ts-expect-error null handling is performed in the constructor
   private disabledButton: ButtonState;
 
   /**
@@ -288,7 +284,7 @@ class TableState {
 /**
  * Initialize table states.
  */
-export function initInterfaceTable() {
+export function initInterfaceTable(): void {
   for (const element of getElements<HTMLTableElement>('table')) {
     new TableState(element);
   }
