@@ -34,6 +34,12 @@ if [ $? != 0 ]; then
 	EXIT=1
 fi
 
+echo "Checking UI ESLint, TypeScript, and Prettier compliance..."
+yarn --cwd "$PWD/netbox/project-static" validate
+if [ $? != 0 ]; then
+	EXIT=1
+fi
+
 if [ $EXIT != 0 ]; then
   printf "${RED}COMMIT FAILED${NOCOLOR}\n"
 fi
