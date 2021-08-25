@@ -243,7 +243,7 @@ class RegionBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
 
 class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
-    model = Site
+    model = Region
     field_groups = [
         ['q'],
         ['parent_id'],
