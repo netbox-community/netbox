@@ -1738,6 +1738,9 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         choices=PortTypeChoices,
         widget=StaticSelect()
     )
+    color = ColorField(
+        required=False
+    )
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
