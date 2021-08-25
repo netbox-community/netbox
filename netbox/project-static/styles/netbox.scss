@@ -243,6 +243,7 @@ table {
 
   &.attr-table {
     th {
+      font-weight: normal;
       width: 25%;
     }
   }
@@ -721,10 +722,6 @@ nav.breadcrumb-container {
 
 div.paginator > form > div.input-group {
   width: fit-content;
-}
-
-div.field-group:not(:first-of-type) {
-  margin-top: $spacer * 3;
 }
 
 label.required {

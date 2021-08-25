@@ -4,7 +4,7 @@
 {% load helpers %}
 
 {% block form %}
-  <div class="field-group mb-3">
+  <div class="field-group my-4">
     <div class="row mb-2">
       <h5 class="offset-sm-3">VLAN</h5>
     </div>
@@ -15,14 +15,18 @@
     {% render_field form.description %}
     {% render_field form.tags %}
   </div>
-  <div class="field-group mb-3">
+  <hr />
+
+  <div class="field-group my-4">
     <div class="row mb-2">
       <h5 class="offset-sm-3">Tenancy</h5>
     </div>
     {% render_field form.tenant_group %}
     {% render_field form.tenant %}
   </div>
-  <div class="field-group mb-3">
+  <hr />
+
+  <div class="field-group my-4">
     <div class="row mb-2">
       <h5 class="offset-sm-3">Assignment</h5>
     </div>
@@ -39,7 +43,7 @@
           </ul>
         </div>
       </div>
-      <div class="tab-content p-0">
+      <div class="tab-content p-0 border-0">
         <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
           {% render_field form.scope_type %}
           {% render_field form.group %}
@@ -52,8 +56,10 @@
       </div>
     {% endwith %}
   </div>
+
   {% if form.custom_fields %}
-    <div class="field-group">
+    <hr />
+    <div class="field-group my-4">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Custom Fields</h5>
       </div>

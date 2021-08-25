@@ -2,7 +2,7 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Interface</h5>
         </div>
@@ -27,7 +27,9 @@
         {% render_field form.mgmt_only %}
         {% render_field form.mark_connected %}
     </div>
-    <div class="field-group">
+    <hr />
+
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">802.1Q Switching</h5>
         </div>
@@ -36,13 +38,15 @@
         {% render_field form.untagged_vlan %}
         {% render_field form.tagged_vlans %}
     </div>
+
     {% if form.custom_fields %}
-        <div class="field-group">
-            <div class="row mb-2">
-              <h5 class="offset-sm-3">Custom Fields</h5>
-            </div>
-            {% render_custom_fields form %}
+      <hr />
+      <div class="field-group my-4">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Custom Fields</h5>
         </div>
+        {% render_custom_fields form %}
+      </div>
     {% endif %}
 {% endblock %}
 

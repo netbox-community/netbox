@@ -2,7 +2,7 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Rack</h5>
         </div>
@@ -15,7 +15,9 @@
         {% render_field form.role %}
         {% render_field form.tags %}
     </div>
-    <div class="field-group">
+    <hr />
+
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Inventory Control</h5>
         </div>
@@ -23,14 +25,18 @@
         {% render_field form.serial %}
         {% render_field form.asset_tag %}
     </div>
-    <div class="field-group">
+    <hr />
+
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Tenancy</h5>
         </div>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
-    <div class="field-group">
+    <hr />
+
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Dimensions</h5>
         </div>
@@ -54,15 +60,19 @@
         </div>
         {% render_field form.desc_units %}
     </div>
+    <hr />
+
     {% if form.custom_fields %}
-        <div class="field-group">
+      <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Custom Fields</h5>
         </div>
-            {% render_custom_fields form %}
-        </div>
+          {% render_custom_fields form %}
+      </div>
+      <hr />
     {% endif %}
-    <div class="field-group">
+
+    <div class="field-group my-4">
         {% render_field form.comments label='Comments' %}
     </div>
 {% endblock %}

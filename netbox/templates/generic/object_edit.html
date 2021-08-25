@@ -42,7 +42,7 @@
 
             {# Render grouped fields according to Form #}
             {% for group, fields in form.Meta.fieldsets %}
-              <div class="field-group">
+              <div class="field-group my-4">
                 <div class="row mb-2">
                   <h5 class="offset-sm-3">{{ group }}</h5>
                 </div>
@@ -50,11 +50,15 @@
                     {% render_field form|getfield:name %}
                 {% endfor %}
               </div>
+              {% if not forloop.last %}
+                <hr />
+              {% endif %}
             {% endfor %}
 
             {% if form.custom_fields %}
-              <div class="field-group">
-                <div class="row mb-1">
+              <hr />
+              <div class="field-group my-4">
+                <div class="row mb-2">
                   <h5 class="offset-sm-3">Custom Fields</h5>
                 </div>
                 {% render_custom_fields form %}
@@ -62,14 +66,15 @@
             {% endif %}
 
             {% if form.comments %}
-              <div class="field-group">
+              <hr />
+              <div class="field-group my-4">
                 {% render_field form.comments label='Comments' %}
               </div>
             {% endif %}
 
           {% else %}
             {# Render all fields in a single group #}
-            <div class="field-group">
+            <div class="field-group my-4">
               {% block form_fields %}{% render_form form %}{% endblock %}
             </div>
           {% endif %}
