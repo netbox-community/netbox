@@ -831,6 +831,17 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='slug',
         label='Site name (slug)',
     )
+    location_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__location',
+        queryset=Location.objects.all(),
+        label='Location (ID)',
+    )
+    location = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__location__slug',
+        queryset=Location.objects.all(),
+        to_field_name='slug',
+        label='Location (slug)',
+    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
@@ -1052,39 +1063,6 @@ class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
-    )
-    region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='device__site__region',
-        lookup_expr='in',
-        label='Region (ID)',
-    )
-    region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='device__site__region',
-        lookup_expr='in',
-        to_field_name='slug',
-        label='Region (slug)',
-    )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site',
-        queryset=Site.objects.all(),
-        label='Site (ID)',
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label='Site name (slug)',
-    )
-    device_id = django_filters.ModelChoiceFilter(
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelChoiceFilter(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
