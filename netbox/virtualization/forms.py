@@ -228,11 +228,10 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
     ]
     field_groups = [
-        ['q'],
-        ['type_id'],
-        ['region_id', 'site_id'],
+        ['q', 'tag'],
+        ['group_id', 'type_id'],
+        ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
-        ['tag'],
     ]
     q = forms.CharField(
         required=False,
@@ -251,12 +250,19 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         label=_('Region'),
         fetch_trigger='open'
     )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group'),
+        fetch_trigger='open'
+    )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
         query_params={
-            'region_id': '$region_id'
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
         },
         label=_('Site'),
         fetch_trigger='open'
@@ -541,18 +547,12 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
 
 class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
-    field_order = [
-        'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_group_id',
-        'site_id', 'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
-    ]
     field_groups = [
-        ['q'],
-        ['status', 'role_id'],
-        ['platform_id', 'mac_address'],
+        ['q', 'tag'],
         ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
-        ['region_id', 'site_id'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip'],
         ['tenant_group_id', 'tenant_id'],
-
     ]
     q = forms.CharField(
         required=False,
@@ -878,10 +878,9 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['cluster_id', 'virtual_machine_id'],
         ['enabled', 'mac_address'],
-        ['tag']
     ]
     q = forms.CharField(
         required=False,

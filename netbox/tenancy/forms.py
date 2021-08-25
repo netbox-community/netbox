@@ -135,6 +135,10 @@ class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
 
 class TenantFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Tenant
+    field_groups = (
+        ('q', 'tag'),
+        ('group_id',),
+    )
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),

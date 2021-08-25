@@ -88,12 +88,14 @@ class CustomFieldFilterForm(BootstrapMixin, forms.Form):
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields')
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
     )
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,
         required=False,
-        widget=StaticSelectMultiple()
+        widget=StaticSelectMultiple(),
+        label=_('Field type')
     )
     weight = forms.IntegerField(
         required=False
@@ -174,8 +176,7 @@ class CustomLinkBulkEditForm(BootstrapMixin, BulkEditForm):
 class CustomLinkFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
         ['q'],
-        ['content_type'],
-        ['weight', 'new_window'],
+        ['content_type', 'weight', 'new_window'],
     ]
     q = forms.CharField(
         required=False,
@@ -184,7 +185,8 @@ class CustomLinkFilterForm(BootstrapMixin, forms.Form):
     )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields')
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
     )
     weight = forms.IntegerField(
         required=False
@@ -265,8 +267,7 @@ class ExportTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
         ['q'],
-        ['content_type', 'mime_type'],
-        ['file_extension', 'as_attachment'],
+        ['content_type', 'mime_type', 'file_extension', 'as_attachment'],
     ]
     q = forms.CharField(
         required=False,
@@ -275,10 +276,12 @@ class ExportTemplateFilterForm(BootstrapMixin, forms.Form):
     )
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields')
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
     )
     mime_type = forms.CharField(
-        required=False
+        required=False,
+        label=_('MIME type')
     )
     file_extension = forms.CharField(
         required=False
@@ -377,8 +380,8 @@ class WebhookBulkEditForm(BootstrapMixin, BulkEditForm):
 class WebhookFilterForm(BootstrapMixin, forms.Form):
     field_groups = [
         ['q'],
-        ['content_types', 'http_method'],
-        ['enabled', 'type_create', 'type_update', 'type_delete'],
+        ['content_types', 'http_method', 'enabled'],
+        ['type_create', 'type_update', 'type_delete'],
     ]
     q = forms.CharField(
         required=False,
@@ -387,12 +390,14 @@ class WebhookFilterForm(BootstrapMixin, forms.Form):
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields')
+        limit_choices_to=FeatureQuery('custom_fields'),
+        required=False
     )
     http_method = forms.MultipleChoiceField(
         choices=WebhookHttpMethodChoices,
         required=False,
-        widget=StaticSelectMultiple()
+        widget=StaticSelectMultiple(),
+        label=_('HTTP method')
     )
     enabled = forms.NullBooleanField(
         required=False,
@@ -693,16 +698,12 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
-    field_order = [
-        'q', 'region_id', 'site_group_id', 'site_id', 'role_id', 'platform_id', 'cluster_group_id',
-        'cluster_id', 'tenant_group_id', 'tenant_id',
-    ]
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
-        ['device_type_id', 'role_id', 'platform_id'],
+        ['device_type_id', 'platform_id', 'role_id'],
         ['cluster_group_id', 'cluster_id'],
-        ['tenant_group_id', 'tenant_id', 'tag']
+        ['tenant_group_id', 'tenant_id']
     ]
     q = forms.CharField(
         required=False,

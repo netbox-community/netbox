@@ -107,9 +107,9 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBu
 class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Provider
     field_groups = [
-        ['q'],
-        ['region_id', 'site_id'],
-        ['asn', 'tag'],
+        ['q', 'tag'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['asn'],
     ]
     q = forms.CharField(
         required=False,
@@ -122,11 +122,18 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Region'),
         fetch_trigger='open'
     )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group'),
+        fetch_trigger='open'
+    )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region_id'
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
         },
         label=_('Site'),
         fetch_trigger='open'
@@ -202,7 +209,10 @@ class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
 
 class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = ProviderNetwork
-    field_order = ['q', 'provider_id', 'tag']
+    field_groups = (
+        ('q', 'tag'),
+        ('provider_id',),
+    )
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
@@ -368,17 +378,12 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
 
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Circuit
-    field_order = [
-        'q', 'type_id', 'provider_id', 'provider_network_id', 'status', 'region_id', 'site_id', 'tenant_group_id',
-        'tenant_id', 'commit_rate',
-    ]
     field_groups = [
-        ['q'],
-        ['type_id', 'status', 'commit_rate'],
+        ['q', 'tag'],
         ['provider_id', 'provider_network_id'],
-        ['region_id', 'site_id'],
+        ['type_id', 'status', 'commit_rate'],
+        ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
-        ['tag']
     ]
     q = forms.CharField(
         required=False,
@@ -417,11 +422,18 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         label=_('Region'),
         fetch_trigger='open'
     )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group'),
+        fetch_trigger='open'
+    )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         query_params={
-            'region_id': '$region_id'
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
         },
         label=_('Site'),
         fetch_trigger='open'
