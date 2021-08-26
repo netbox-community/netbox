@@ -8,7 +8,7 @@
 {% endblock tabs %}
 
 {% block form %}
-    <div class="field-group">
+    <div class="field-group my-4">
       <div class="row mb-2">
         <h5 class="offset-sm-3">IP Address</h5>
       </div>
@@ -20,14 +20,18 @@
       {% render_field form.description %}
       {% render_field form.tags %}
     </div>
-    <div class="field-group">
+    <hr />
+
+    <div class="field-group my-4">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Tenancy</h5>
       </div>
       {% render_field form.tenant_group %}
       {% render_field form.tenant %}
     </div>
-    <div class="field-group">
+    <hr />
+
+    <div class="field-group my-4">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Interface Assignment</h5>
       </div>
@@ -64,7 +68,7 @@
             </ul>
           </div>
         </div>
-        <div class="tab-content p-0">
+        <div class="tab-content p-0 border-0">
           <div class="tab-pane {% if not vm_tab_active %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
             {% render_field form.device %}
             {% render_field form.interface %}
@@ -77,7 +81,9 @@
         </div>
       {% endwith %}
     </div>
-    <div class="field-group">
+    <hr />
+
+    <div class="field-group my-4">
       <div class="row mb-2">
         <h5 class="offset-sm-3">NAT IP (Inside)</h5>
       </div>
@@ -126,7 +132,7 @@
           </ul>
         </div>
       </div>
-      <div class="tab-content p-0">
+      <div class="tab-content p-0 border-0">
           <div class="tab-pane active" id="by_device" aria-labelledby="device_tab" role="tabpanel">
               {% render_field form.nat_region %}
               {% render_field form.nat_site_group %}
@@ -144,8 +150,10 @@
           {% render_field form.nat_inside %}
       </div>
     </div>
+
     {% if form.custom_fields %}
-      <div class="field-group">
+      <hr />
+      <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Custom Fields</h5>
         </div>

@@ -209,7 +209,14 @@
                 Locations
             </h5>
             <div class='card-body'>
+              {% if locations %}
                 <table class="table table-hover">
+                    <tr>
+                        <th>Location</th>
+                        <th>Racks</th>
+                        <th>Devices</th>
+                        <th></th>
+                    </tr>
                     {% for location in locations %}
                         <tr>
                             <td style="padding-left: {{ location.level }}8px">
@@ -230,6 +237,9 @@
                         </tr>
                     {% endfor %}
                 </table>
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
             </div>
         </div>
         <div class="card">

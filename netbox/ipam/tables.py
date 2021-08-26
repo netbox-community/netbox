@@ -548,7 +548,7 @@ class VLANTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
+        fields = ('pk', 'vid', 'name', 'site', 'group', 'tenant', 'status', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, VLAN) else '',
         }
@@ -566,8 +566,8 @@ class VLANDetailTable(VLANTable):
     )
 
     class Meta(VLANTable.Meta):
-        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
-        default_columns = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
+        fields = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
+        default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
 
 
 class VLANMembersTable(BaseTable):

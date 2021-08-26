@@ -147,6 +147,10 @@ class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         fields = [
             'name', 'description', 'tenant_group', 'tenant', 'tags',
         ]
+        fieldsets = (
+            ('Route Target', ('name', 'description', 'tags')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
 
 
 class RouteTargetCSVForm(CustomFieldModelCSVForm):
@@ -626,9 +630,8 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
     model = Prefix
     field_groups = [
         ['q', 'tag'],
-        ['within_include', 'family', 'status', 'role_id'],
+        ['within_include', 'family', 'status', 'role_id', 'mask_length', 'is_pool', 'mark_utilized'],
         ['vrf_id', 'present_in_vrf_id'],
-        ['mask_length', 'is_pool', 'mark_utilized'],
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id']
     ]
@@ -1270,9 +1273,8 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
     ]
     field_groups = [
         ['q', 'tag'],
-        ['parent', 'family', 'status', 'role'],
+        ['parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface'],
         ['vrf_id', 'present_in_vrf_id'],
-        ['mask_length', 'assigned_to_interface'],
         ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(

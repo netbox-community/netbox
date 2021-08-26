@@ -9,8 +9,10 @@
 {% endblock %}
 
 {% block form %}
-    <div class="field-group">
-        <h5 class="text-center">IP Addresses</h5>
+    <div class="field-group my-4">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">IP Addresses</h5>
+        </div>
         {% render_field form.pattern %}
         {% render_field model_form.status %}
         {% render_field model_form.role %}
@@ -18,14 +20,21 @@
         {% render_field model_form.description %}
         {% render_field model_form.tags %}
     </div>
-    <div class="field-group">
-        <h5 class="text-center">Tenancy</h5>
+    <hr />
+
+    <div class="field-group my-4">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Tenancy</h5>
+        </div>
         {% render_field model_form.tenant_group %}
         {% render_field model_form.tenant %}
     </div>
     {% if model_form.custom_fields %}
-        <div class="field-group">
-            <h5 class="text-center">Custom Fields</h5>
+        <hr />
+        <div class="field-group my-4">
+            <div class="row mb-2">
+              <h5 class="offset-sm-3">Custom Fields</h5>
+            </div>
             {% render_custom_fields model_form %}
         </div>
     {% endif %}

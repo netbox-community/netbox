@@ -16,8 +16,11 @@
 </div>
 {% render_field form.tags %}
 {% if form.custom_fields %}
+  <hr />
   <div class="field-group">
-      <h4>Custom Fields</h4>
-      {% render_custom_fields form %}
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Custom Fields</h5>
+    </div>
+    {% render_custom_fields form %}
   </div>
 {% endif %}

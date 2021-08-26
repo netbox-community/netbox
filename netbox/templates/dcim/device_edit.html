@@ -4,7 +4,7 @@
 {% block form %}
     {% render_errors form %}
     
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Device</h5>
         </div>
@@ -12,8 +12,9 @@
         {% render_field form.device_role %}
         {% render_field form.tags %}
     </div>
+    <hr />
     
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Hardware</h5>
         </div>
@@ -22,8 +23,9 @@
         {% render_field form.serial %}
         {% render_field form.asset_tag %}
     </div>
+    <hr />
     
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Location</h5>
         </div>
@@ -56,8 +58,9 @@
             {% render_field form.position %}
         {% endif %}
     </div>
+    <hr />
     
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Management</h5>
         </div>
@@ -68,38 +71,43 @@
             {% render_field form.primary_ip6 %}
         {% endif %}
     </div>
+    <hr />
     
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Virtualization</h5>
         </div>
         {% render_field form.cluster_group %}
         {% render_field form.cluster %}
     </div>
+    <hr />
     
-    <div class="field-group">
+    <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Tenancy</h5>
         </div>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
+    <hr />
 
-{% if form.custom_fields %}
-    <div class="field-group">
+    {% if form.custom_fields %}
+      <div class="field-group my-4">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Custom Fields</h5>
         </div>
         {% render_custom_fields form %}
-    </div>
+      </div>
+      <hr />
+    {% endif %}
 
-{% endif %}
-    <div class="field-group">
+    <div class="field-group my-4">
         <h5 class="text-center">Local Config Context Data</h5>
         {% render_field form.local_context_data %}
     </div>
+    <hr />
 
-    <div class="field-group">
+    <div class="field-group my-4">
         {% render_field form.comments label='Comments' %}
     </div>
 
