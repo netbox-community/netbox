@@ -437,19 +437,19 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        }
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+            {'accessor': 'group_id', 'field_name': 'site_group'},
+        ]
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         label='VLAN group',
         null_option='None',
-        query_params={
-            'site_id': '$site'
-        },
+        filter_fields=[
+            {'accessor': 'site_id', 'field_name': 'site'},
+        ],
         initial_params={
             'vlans': '$vlan'
         }
@@ -458,10 +458,10 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         label='VLAN',
-        query_params={
-            'site_id': '$site',
-            'group_id': '$vlan_group',
-        }
+        filter_fields=[
+            {'accessor': 'site_id', 'field_name': 'site'},
+            {'accessor': 'group_id', 'field_name': 'vlan_group'},
+        ]
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -573,10 +573,10 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        }
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+            {'accessor': 'group_id', 'field_name': 'site_group'},
+        ],
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -695,9 +695,9 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        query_params={
-            'region_id': '$region_id'
-        },
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region_id'},
+        ],
         label=_('Site'),
         fetch_trigger='open'
     )
@@ -883,9 +883,9 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        query_params={
-            'device_id': '$device'
-        }
+        filter_fields=[
+            {'accessor': 'device_id', 'field_name': 'device'},
+        ],
     )
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all(),
@@ -898,9 +898,9 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=VMInterface.objects.all(),
         required=False,
         label='Interface',
-        query_params={
-            'virtual_machine_id': '$virtual_machine'
-        }
+        filter_fields=[
+            {'accessor': 'virtual_machine_id', 'field_name': 'virtual_machine'},
+        ]
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -927,28 +927,28 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Site.objects.all(),
         required=False,
         label='Site',
-        query_params={
-            'region_id': '$nat_region',
-            'group_id': '$nat_site_group',
-        }
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'nat_region'},
+            {'accessor': 'group_id', 'field_name': 'nat_site_group'},
+        ],
     )
     nat_rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
         null_option='None',
-        query_params={
-            'site_id': '$site'
-        }
+        filter_fields=[
+            {'accessor': 'site_id', 'field_name': 'site'},
+        ],
     )
     nat_device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label='Device',
-        query_params={
-            'site_id': '$site',
-            'rack_id': '$nat_rack',
-        }
+        filter_fields=[
+            {'accessor': 'site_id', 'field_name': 'site'},
+            {'accessor': 'rack_id', 'field_name': 'nat_rack'},
+        ]
     )
     nat_cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
@@ -959,9 +959,9 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=VirtualMachine.objects.all(),
         required=False,
         label='Virtual Machine',
-        query_params={
-            'cluster_id': '$nat_cluster',
-        }
+        filter_fields=[
+            {'accessor': 'cluster_id', 'field_name': 'nat_cluster'},
+        ]
     )
     nat_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -972,11 +972,11 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=IPAddress.objects.all(),
         required=False,
         label='IP Address',
-        query_params={
-            'device_id': '$nat_device',
-            'virtual_machine_id': '$nat_virtual_machine',
-            'vrf_id': '$nat_vrf',
-        }
+        filter_fields=[
+            {'accessor': 'device_id', 'field_name': 'nat_device'},
+            {'accessor': 'virtual_machine_id', 'field_name': 'nat_virtual_machine'},
+            {'accessor': 'vrf_id', 'field_name': 'nat_vrf'},
+        ],
     )
     primary_for_parent = forms.BooleanField(
         required=False,
@@ -1365,10 +1365,10 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         initial_params={
             'locations': '$location'
         },
-        query_params={
-            'region_id': '$region',
-            'group_id': '$sitegroup',
-        }
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+            {'accessor': 'group_id', 'field_name': 'sitegroup'},
+        ],
     )
     location = DynamicModelChoiceField(
         queryset=Location.objects.all(),
@@ -1376,17 +1376,17 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         initial_params={
             'racks': '$rack'
         },
-        query_params={
-            'site_id': '$site',
-        }
+        filter_fields=[
+            {'accessor': 'site_id', 'field_name': 'site'},
+        ]
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
-        query_params={
-            'site_id': '$site',
-            'location_id': '$location',
-        }
+        filter_fields=[
+            {'accessor': 'site_id', 'field_name': 'site'},
+            {'accessor': 'location_id', 'field_name': 'location'},
+        ],
     )
     clustergroup = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -1399,9 +1399,9 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        query_params={
-            'group_id': '$clustergroup',
-        }
+        filter_fields=[
+            {'accessor': 'group_id', 'field_name': 'clustergroup'},
+        ],
     )
     slug = SlugField()
 
@@ -1541,9 +1541,9 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        query_params={
-            'scope_type': '$scope_type',
-        },
+        filter_fields=[
+            {'accessor': 'scope_type', 'field_name': 'scope_type'},
+        ],
         label='VLAN Group'
     )
 
@@ -1568,10 +1568,10 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        query_params={
-            'region_id': '$region',
-            'group_id': '$sitegroup',
-        }
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+            {'accessor': 'group_id', 'field_name': 'sitegroup'},
+        ]
     )
 
     # Other fields
@@ -1657,17 +1657,17 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        }
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+            {'accessor': 'group_id', 'field_name': 'site_group'},
+        ]
     )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        query_params={
-            'site_id': '$site'
-        }
+        filter_fields=[
+            {'accessor': 'site_id', 'field_name': 'site'},
+        ]
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -1722,9 +1722,9 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        query_params={
-            'region': '$region'
-        },
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+        ],
         label=_('Site'),
         fetch_trigger='open'
     )
@@ -1732,9 +1732,9 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         queryset=VLANGroup.objects.all(),
         required=False,
         null_option='None',
-        query_params={
-            'region': '$region'
-        },
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+        ],
         label=_('VLAN group'),
         fetch_trigger='open'
     )

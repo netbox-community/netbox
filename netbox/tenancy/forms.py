@@ -170,9 +170,9 @@ class TenancyForm(forms.Form):
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
-        query_params={
-            'group_id': '$tenant_group'
-        }
+        filter_fields=[
+            {'accessor': 'group_id', 'field_name': 'tenant_group'}
+        ]
     )
 
 
@@ -188,9 +188,9 @@ class TenancyFilterForm(forms.Form):
         queryset=Tenant.objects.all(),
         required=False,
         null_option='None',
-        query_params={
-            'group_id': '$tenant_group_id'
-        },
+        filter_fields=[
+            {'accessor': 'group_id', 'field_name': 'tenant_group'}
+        ],
         label=_('Tenant'),
         fetch_trigger='open'
     )

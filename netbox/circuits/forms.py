@@ -131,10 +131,10 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        query_params={
-            'region_id': '$region_id',
-            'site_group_id': '$site_group_id',
-        },
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region_id'},
+            {'accessor': 'site_group_id', 'field_name': 'site_group_id'}
+        ],
         label=_('Site'),
         fetch_trigger='open'
     )
@@ -405,9 +405,9 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     provider_network_id = DynamicModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         required=False,
-        query_params={
-            'provider_id': '$provider_id'
-        },
+        filter_fields=[
+            {'accessor': 'provider_id', 'field_name': 'provider_id'}
+        ],
         label=_('Provider network'),
         fetch_trigger='open'
     )
@@ -431,10 +431,10 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        query_params={
-            'region_id': '$region_id',
-            'site_group_id': '$site_group_id',
-        },
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region_id'},
+            {'accessor': 'site_group_id', 'field_name': 'site_group_id'},
+        ],
         label=_('Site'),
         fetch_trigger='open'
     )
@@ -467,10 +467,10 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        },
+        filter_fields=[
+            {'accessor': 'region_id', 'field_name': 'region'},
+            {'accessor': 'site_group_id', 'field_name': 'site_group'},
+        ],
         required=False
     )
     provider_network = DynamicModelChoiceField(

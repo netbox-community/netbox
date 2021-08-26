@@ -39,6 +39,8 @@ export function isTruthy<V extends unknown>(value: V): value is NonNullable<V> {
     return true;
   } else if (typeof value === 'boolean') {
     return true;
+  } else if (typeof value === 'object' && value !== null) {
+    return true;
   }
   return false;
 }

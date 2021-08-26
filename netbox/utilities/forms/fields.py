@@ -371,17 +371,20 @@ class DynamicModelChoiceMixin:
         choice (optional)
     :param str fetch_trigger: The event type which will cause the select element to
         fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
+    :param filter_fields: A dictionary or list of dictionaries that define a related
+        field. Example: `{'accessor': 'group_id', 'field_name': 'tenant_group'}` (optional)
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None, *args,
-                 **kwargs):
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None,
+                 filter_fields=[], *args, **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
         self.fetch_trigger = fetch_trigger
+        self.filter_fields = filter_fields
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -411,6 +414,10 @@ class DynamicModelChoiceMixin:
         # Attach any static query parameters
         for key, value in self.query_params.items():
             widget.add_query_param(key, value)
+
+        # Attach any dynamic query parameters
+        if len(self.filter_fields) > 0:
+            widget.add_filter_fields(self.filter_fields)
 
         return attrs
 
