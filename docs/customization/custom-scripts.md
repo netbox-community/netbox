@@ -171,6 +171,7 @@ A particular object within NetBox. Each ObjectVar must specify a particular mode
 
 * `model` - The model class
 * `query_params` - A dictionary of query parameters to use when retrieving available options (optional)
+* `filter_fields` - A dictionary or list of dictionaries that define a related field (optional)
 * `null_option` - A label representing a "null" or empty choice (optional)
 
 To limit the selections available within the list, additional query parameters can be passed as the `query_params` dictionary. For example, to show only devices with an "active" status:
@@ -184,7 +185,9 @@ device = ObjectVar(
 )
 ```
 
-Multiple values can be specified by assigning a list to the dictionary key. It is also possible to reference the value of other fields in the form by prepending a dollar sign (`$`) to the variable's name.
+Multiple values can be specified by assigning a list to the dictionary key.
+
+It is also possible to reference the value of other fields in the form by using the `filter_fields` attribute. For example, to only show sites matching the selected region:
 
 ```python
 region = ObjectVar(
@@ -192,11 +195,14 @@ region = ObjectVar(
 )
 site = ObjectVar(
     model=Site,
-    query_params={
-        'region_id': '$region'
+    filter_fields={
+        'accessor': 'region_id',
+        'field_name': 'region',
     }
 )
 ```
+
+In this example, `accessor` refers to the `region_id` field on the `Site` model, and `field_name` refers to form field name of the `Region` model.
 
 ### MultiObjectVar
 
