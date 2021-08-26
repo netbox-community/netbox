@@ -2,7 +2,8 @@ import django_tables2 as tables
 from django.conf import settings
 
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ToggleColumn,
+    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
+    ToggleColumn,
 )
 from .models import *
 
@@ -37,14 +38,16 @@ class CustomFieldTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    content_types = ContentTypesColumn()
     required = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = CustomField
         fields = (
-            'pk', 'name', 'label', 'type', 'required', 'weight', 'default', 'description', 'filter_logic', 'choices',
+            'pk', 'name', 'content_types', 'label', 'type', 'required', 'weight', 'default', 'description',
+            'filter_logic', 'choices',
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'required', 'description')
+        default_columns = ('pk', 'name', 'content_types', 'label', 'type', 'required', 'description')
 
 
 #
@@ -98,6 +101,7 @@ class WebhookTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    content_types = ContentTypesColumn()
     enabled = BooleanColumn()
     type_create = BooleanColumn()
     type_update = BooleanColumn()
@@ -106,11 +110,12 @@ class WebhookTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Webhook
         fields = (
-            'pk', 'name', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method', 'payload_url',
-            'secret', 'ssl_validation', 'ca_file_path',
+            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
+            'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
         )
         default_columns = (
-            'pk', 'name', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method', 'payload_url',
+            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
+            'payload_url',
         )
 
 
