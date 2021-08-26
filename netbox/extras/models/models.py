@@ -91,7 +91,7 @@ class Webhook(ChangeLoggedModel):
         blank=True,
         help_text="User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
                   "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
-                  "support with the same context as the request body (below)."
+                  "supported with the same context as the request body (below)."
     )
     body_template = models.TextField(
         blank=True,
@@ -249,7 +249,8 @@ class ExportTemplate(ChangeLoggedModel):
         blank=True
     )
     template_code = models.TextField(
-        help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
+        help_text='Jinja2 template code. The list of objects being exported is passed as a context variable named '
+                  '<code>queryset</code>.'
     )
     mime_type = models.CharField(
         max_length=50,

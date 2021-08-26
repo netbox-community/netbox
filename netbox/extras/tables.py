@@ -103,9 +103,18 @@ class WebhookTable(BaseTable):
     )
     content_types = ContentTypesColumn()
     enabled = BooleanColumn()
-    type_create = BooleanColumn()
-    type_update = BooleanColumn()
-    type_delete = BooleanColumn()
+    type_create = BooleanColumn(
+        verbose_name='Create'
+    )
+    type_update = BooleanColumn(
+        verbose_name='Update'
+    )
+    type_delete = BooleanColumn(
+        verbose_name='Delete'
+    )
+    ssl_validation = BooleanColumn(
+        verbose_name='SSL Validation'
+    )
 
     class Meta(BaseTable.Meta):
         model = Webhook
