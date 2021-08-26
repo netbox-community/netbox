@@ -416,7 +416,7 @@ class DynamicModelChoiceMixin:
             widget.add_query_param(key, value)
 
         # Attach any dynamic query parameters
-        if len(self.filter_fields) > 0:
+        if self.filter_fields is not None and len(self.filter_fields) > 0:
             widget.add_filter_fields(self.filter_fields)
 
         return attrs
