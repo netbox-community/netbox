@@ -40,9 +40,11 @@
           {% endif %}
           <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
             {% csrf_token %}
-            <div class="field-group mb-3">
+            <div class="field-group my-4">
               {% if form.requires_input %}
-                <h4 class="text-center">Script Data</h4>
+                <div class="row mb-2">
+                  <h5 class="offset-sm-3">Script Data</h5>
+                </div>
               {% else %}
                 <div class="alert alert-info">
                   <i class="mdi mdi-information"></i>
