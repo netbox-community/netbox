@@ -958,6 +958,9 @@ class PortTypeChoices(ChoiceSet):
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
     TYPE_SN = 'sn'
+    TYPE_URM_P2 = 'urm-p2'
+    TYPE_URM_P4 = 'urm-p4'
+    TYPE_URM_P8 = 'urm-p8'
 
     CHOICES = (
         (
@@ -998,6 +1001,9 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_ST, 'ST'),
                 (TYPE_CS, 'CS'),
                 (TYPE_SN, 'SN'),
+                (TYPE_URM_P2, 'URM-P2'),
+                (TYPE_URM_P4, 'URM-P4'),
+                (TYPE_URM_P8, 'URM-P8'),
                 (TYPE_SPLICE, 'Splice'),
             )
         )
