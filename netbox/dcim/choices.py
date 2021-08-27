@@ -246,6 +246,8 @@ class ConsolePortSpeedChoices(ChoiceSet):
 
 class PowerPortTypeChoices(ChoiceSet):
 
+    # CEE 7/16
+    TYPE_CEE_7_16_TYPE_C = 'cee-7-16-type-c'
     # IEC 60320
     TYPE_IEC_C6 = 'iec-60320-c6'
     TYPE_IEC_C8 = 'iec-60320-c8'
@@ -346,6 +348,9 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_HARDWIRED = 'hardwired'
 
     CHOICES = (
+        ('CEE 7/16', (
+            (TYPE_CEE_7_16_TYPE_C, 'CEE 7/16 Europlug'),
+        )),
         ('IEC 60320', (
             (TYPE_IEC_C6, 'C6'),
             (TYPE_IEC_C8, 'C8'),
