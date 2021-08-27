@@ -1,4 +1,4 @@
-import { getElements } from '../util';
+import { getElements, toggleVisibility } from '../util';
 
 type ShowHideMap = {
   default: { hide: string[]; show: string[] };
@@ -62,10 +62,13 @@ const showHideMap: ShowHideMap = {
  */
 function toggleParentVisibility(query: string, action: 'show' | 'hide') {
   for (const element of getElements(query)) {
-    if (action === 'show') {
-      element.parentElement?.classList.remove('d-none', 'invisible');
-    } else {
-      element.parentElement?.classList.add('d-none', 'invisible');
+    const parent = element.parentElement?.parentElement as Nullable<HTMLDivElement>;
+    if (parent !== null) {
+      if (action === 'show') {
+        toggleVisibility(parent, 'show');
+      } else {
+        toggleVisibility(parent, 'hide');
+      }
     }
   }
 }
@@ -73,8 +76,7 @@ function toggleParentVisibility(query: string, action: 'show' | 'hide') {
 /**
  * Handle changes to the Scope Type field.
  */
-function handleScopeChange(event: Event) {
-  const element = event.currentTarget as HTMLSelectElement;
+function handleScopeChange(element: HTMLSelectElement) {
   // Scope type's innerText looks something like `DCIM > region`.
   const scopeType = element.options[element.selectedIndex].innerText.toLowerCase();
 
@@ -104,6 +106,7 @@ function handleScopeChange(event: Event) {
  */
 export function initScopeSelector(): void {
   for (const element of getElements<HTMLSelectElement>('#id_scope_type')) {
-    element.addEventListener('change', handleScopeChange);
+    handleScopeChange(element);
+    element.addEventListener('change', () => handleScopeChange(element));
   }
 }

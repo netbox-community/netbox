@@ -14,6 +14,7 @@
 * [#6982](https://github.com/netbox-community/netbox/issues/6982) - Fix styling of empty dropdown list under dark mode
 * [#6996](https://github.com/netbox-community/netbox/issues/6996) - Global search bar should be full width on mobile
 * [#7001](https://github.com/netbox-community/netbox/issues/7001) - Fix page focus on load
+* [#7034](https://github.com/netbox-community/netbox/issues/7034) - Fix toggling of VLAN group scope selector fields
 
 ---
 
