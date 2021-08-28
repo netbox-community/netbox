@@ -35,7 +35,6 @@ class CustomField(ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
-        verbose_name='Object(s)',
         limit_choices_to=FeatureQuery('custom_fields'),
         help_text='The object(s) to which this field applies.'
     )

@@ -125,6 +125,10 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
             ('Custom Link', ('name', 'content_type', 'weight', 'group_name', 'button_class', 'new_window')),
             ('Templates', ('link_text', 'link_url')),
         )
+        widgets = {
+            'link_text': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'link_url': forms.Textarea(attrs={'class': 'font-monospace'}),
+        }
         help_texts = {
             'link_text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. '
                          'Links which render as empty text will not be displayed.',
@@ -217,6 +221,9 @@ class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
             ('Template', ('template_code',)),
             ('Rendering', ('mime_type', 'file_extension', 'as_attachment')),
         )
+        widgets = {
+            'template_code': forms.Textarea(attrs={'class': 'font-monospace'}),
+        }
 
 
 class ExportTemplateCSVForm(CSVModelForm):
@@ -316,6 +323,10 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             )),
             ('SSL', ('ssl_verification', 'ca_file_path')),
         )
+        widgets = {
+            'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
+        }
 
 
 class WebhookCSVForm(CSVModelForm):

@@ -12,6 +12,8 @@ from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
 from extras.models import CustomField
+from extras.utils import FeatureQuery
+from .utils import content_type_name
 from .paginator import EnhancedPaginator, get_paginate_count
 
 
@@ -235,10 +237,18 @@ class ContentTypeColumn(tables.Column):
     Display a ContentType instance.
     """
     def render(self, value):
-        return value.name[0].upper() + value.name[1:]
+        return content_type_name(value)
 
     def value(self, value):
         return f"{value.app_label}.{value.model}"
+
+
+class ContentTypesColumn(tables.ManyToManyColumn):
+    """
+    Display a list of ContentType instances.
+    """
+    def transform(self, obj):
+        return content_type_name(obj)
 
 
 class ColorColumn(tables.Column):
