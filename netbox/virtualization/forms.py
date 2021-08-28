@@ -126,10 +126,10 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        filter_fields=[
-            {'accessor': 'region_id', 'field_name': 'region'},
-            {'accessor': 'group_id', 'field_name': 'site_group'},
-        ],
+        query_params={
+            'region_id': '$region',
+            'group_id': '$site_group',
+        }
     )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -206,10 +206,10 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        filter_fields=[
-            {'accessor': 'region_id', 'field_name': 'region'},
-            {'accessor': 'group_id', 'field_name': 'site_group'},
-        ]
+        query_params={
+            'region_id': '$region',
+            'group_id': '$site_group',
+        }
     )
     comments = CommentField(
         widget=SmallTextarea,
@@ -260,10 +260,10 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        filter_fields=[
-            {'accessor': 'region_id', 'field_name': 'region_id'},
-            {'accessor': 'site_group_id', 'field_name': 'site_group'},
-        ],
+        query_params={
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
+        },
         label=_('Site'),
         fetch_trigger='open'
     )
@@ -291,26 +291,26 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        filter_fields=[
-            {'accessor': 'region_id', 'field_name': 'region'},
-            {'accessor': 'group_id', 'field_name': 'site_group'},
-        ]
+        query_params={
+            'region_id': '$region',
+            'group_id': '$site_group',
+        }
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
-        filter_fields=[
-            {'accessor': 'site_id', 'field_name': 'site'},
-        ]
+        query_params={
+            'site_id': '$site'
+        }
     )
     devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
-        filter_fields=[
-            {'accessor': 'site_id', 'field_name': 'site'},
-            {'accessor': 'rack_id', 'field_name': 'rack'},
-            {'accessor': 'cluster_id', 'field_name': 'cluster', 'default_value': None},
-        ]
+        query_params={
+            'site_id': '$site',
+            'rack_id': '$rack',
+            'cluster_id': 'null',
+        }
     )
 
     class Meta:
@@ -362,16 +362,16 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
-        filter_fields=[
-            {'accessor': 'group_id', 'field_name': 'cluster_group'},
-        ]
+        query_params={
+            'group_id': '$cluster_group'
+        }
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
-        filter_fields=[
-            {'accessor': 'vm_role', 'field_name': 'vm_role', 'default_value': True},
-        ],
+        query_params={
+            "vm_role": "True"
+        }
     )
     platform = DynamicModelChoiceField(
         queryset=Platform.objects.all(),
@@ -510,9 +510,9 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
             vm_role=True
         ),
         required=False,
-        filter_fields=[
-            {'accessor': 'vm_role', 'field_name': 'vm_role', 'default_value': True},
-        ]
+        query_params={
+            "vm_role": "True"
+        }
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -595,10 +595,10 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        filter_fields=[
-            {'accessor': 'region_id', 'field_name': 'region_id'},
-            {'accessor': 'group_id', 'field_name': 'site_group_id'},
-        ],
+        query_params={
+            'region_id': '$region_id',
+            'group_id': '$site_group_id',
+        },
         label=_('Site'),
         fetch_trigger='open'
     )
@@ -606,9 +606,9 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
         queryset=DeviceRole.objects.all(),
         required=False,
         null_option='None',
-        filter_fields=[
-            {'accessor': 'vm_role', 'field_name': 'vm_role', 'default_value': True},
-        ],
+        query_params={
+            'vm_role': "True"
+        },
         label=_('Role'),
         fetch_trigger='open'
     )
@@ -657,17 +657,17 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         queryset=VLAN.objects.all(),
         required=False,
         label='Untagged VLAN',
-        filter_fields=[
-            {'accessor': 'group_id', 'field_name': 'vlan_group'},
-        ]
+        query_params={
+            'group_id': '$vlan_group',
+        }
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         label='Tagged VLANs',
-        filter_fields=[
-            {'accessor': 'group_id', 'field_name': 'vlan_group'},
-        ]
+        query_params={
+            'group_id': '$vlan_group',
+        }
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -718,9 +718,9 @@ class VMInterfaceCreateForm(BootstrapMixin, CustomFieldsMixin, InterfaceCommonFo
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        filter_fields=[
-            {'accessor': 'virtual_machine_id', 'field_name': 'virtual_machine'},
-        ]
+        query_params={
+            'virtual_machine_id': '$virtual_machine',
+        }
     )
     mac_address = forms.CharField(
         required=False,
@@ -896,9 +896,9 @@ class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        filter_fields=[
-            {'accessor': 'cluster_id', 'field_name': 'cluster_id'},
-        ],
+        query_params={
+            'cluster_id': '$cluster_id'
+        },
         label=_('Virtual machine'),
         fetch_trigger='open'
     )

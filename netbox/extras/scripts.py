@@ -181,19 +181,16 @@ class ObjectVar(ScriptVariable):
 
     :param model: The NetBox model being referenced
     :param query_params: A dictionary of additional query parameters to attach when making REST API requests (optional)
-    :param filter_fields: A dictionary or list of dictionaries that define a related
-        field. Example: `{'accessor': 'group_id', 'field_name': 'tenant_group'}` (optional)
     :param null_option: The label to use as a "null" selection option (optional)
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, model, query_params=None, filter_fields=None, null_option=None, *args, **kwargs):
+    def __init__(self, model, query_params=None, null_option=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.field_attrs.update({
             'queryset': model.objects.all(),
             'query_params': query_params,
-            'filter_fields': filter_fields,
             'null_option': null_option,
         })
 
