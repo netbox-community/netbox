@@ -28,6 +28,40 @@ export type FilterFieldValue = {
 };
 
 /**
+ * JSON data structure from `data-dynamic-params` attribute.
+ */
+export type DataDynamicParam = {
+  /**
+   * Name of form field to track.
+   *
+   * @example [name="tenant_group"]
+   */
+  fieldName: string;
+  /**
+   * Query param key.
+   *
+   * @example group_id
+   */
+  queryParam: string;
+};
+
+/**
+ * `queryParams` Map value.
+ */
+export type QueryParam = {
+  queryParam: string;
+  queryValue: Stringifiable[];
+};
+
+/**
+ * JSON data structure from `data-static-params` attribute.
+ */
+export type DataStaticParam = {
+  queryParam: string;
+  queryValue: Stringifiable | Stringifiable[];
+};
+
+/**
  * JSON data passed from Django on the `data-filter-fields` attribute.
  */
 export type DataFilterFields = {
@@ -102,6 +136,50 @@ export function isDataFilterFields(value: unknown): value is DataFilterFields[] 
           return (
             typeof (item as DataFilterFields).fieldName === 'string' &&
             typeof (item as DataFilterFields).queryParam === 'string'
+          );
+        }
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Strict Type Guard to determine if a deserialized value from the `data-dynamic-params` attribute
+ * is of type `DataDynamicParam[]`.
+ *
+ * @param value Deserialized value from `data-dynamic-params` attribute.
+ */
+export function isDataDynamicParams(value: unknown): value is DataDynamicParam[] {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === 'object' && item !== null) {
+        if ('fieldName' in item && 'queryParam' in item) {
+          return (
+            typeof (item as DataDynamicParam).fieldName === 'string' &&
+            typeof (item as DataDynamicParam).queryParam === 'string'
+          );
+        }
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Strict Type Guard to determine if a deserialized value from the `data-static-params` attribute
+ * is of type `DataStaticParam[]`.
+ *
+ * @param value Deserialized value from `data-static-params` attribute.
+ */
+export function isStaticParams(value: unknown): value is DataStaticParam[] {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === 'object' && item !== null) {
+        if ('queryParam' in item && 'queryValue' in item) {
+          return (
+            typeof (item as DataStaticParam).queryParam === 'string' &&
+            typeof (item as DataStaticParam).queryValue !== 'undefined'
           );
         }
       }

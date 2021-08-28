@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Sequence, Union
+from typing import Dict, Sequence, List, Tuple, Union
 
 from django import forms
 from django.conf import settings
@@ -28,6 +28,9 @@ __all__ = (
 )
 
 JSONPrimitive = Union[str, bool, int, float, None]
+QueryParamValue = Union[JSONPrimitive, Sequence[JSONPrimitive]]
+QueryParam = Dict[str, QueryParamValue]
+ProcessedParams = Sequence[Dict[str, Sequence[JSONPrimitive]]]
 
 
 class SmallTextarea(forms.Textarea):
@@ -138,88 +141,132 @@ class APISelect(SelectWithDisabled):
 
     :param api_url: API endpoint URL. Required if not set automatically by the parent field.
     """
+
+    dynamic_params: Dict[str, str]
+    static_params: Dict[str, List[str]]
+
     def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.attrs['class'] = 'netbox-api-select'
+        self.dynamic_params: Dict[str, List[str]] = {}
+        self.static_params: Dict[str, List[str]] = {}
+
         if api_url:
             self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
 
-    def add_query_param(self, key: str, value: JSONPrimitive) -> None:
+    def _process_query_param(self, key: str, value: JSONPrimitive) -> None:
         """
-        Add a query parameter with a static value to the API request.
+        Based on query param value's type and value, update instance's dynamic/static params.
         """
-        self.add_filter_fields({'accessor': key, 'field_name': key, 'default_value': value})
+        if isinstance(value, str):
+            # Coerce `True` boolean.
+            if value.lower() == 'true':
+                value = True
+            # Coerce `False` boolean.
+            elif value.lower() == 'false':
+                value = False
+            # Query parameters cannot have a `None` (or `null` in JSON) type, convert
+            # `None` types to `'null'` so that ?key=null is used in the query URL.
+            elif value is None:
+                value = 'null'
 
-    def add_filter_fields(self, filter_fields: Union[Dict[str, JSONPrimitive], Sequence[Dict[str, JSONPrimitive]]]) -> None:
+        # Check type of `value` again, since it may have changed.
+        if isinstance(value, str):
+            if value.startswith('$'):
+                # A value starting with `$` indicates a dynamic query param, where the
+                # initial value is unknown and will be updated at the JavaScript layer
+                # as the related form field's value changes.
+                field_name = value.strip('$')
+                self.dynamic_params[field_name] = key
+            else:
+                # A value _not_ starting with `$` indicates a static query param, where
+                # the value is already known and should not be changed at the JavaScript
+                # layer.
+                if key in self.static_params:
+                    current = self.static_params[key]
+                    self.static_params[key] = [*current, value]
+                else:
+                    self.static_params[key] = [value]
+        else:
+            # Any non-string values are passed through as static query params, since
+            # dynamic query param values have to be a string (in order to start with
+            # `$`).
+            if key in self.static_params:
+                current = self.static_params[key]
+                self.static_params[key] = [*current, value]
+            else:
+                self.static_params[key] = [value]
+
+    def _process_query_params(self, query_params: QueryParam) -> None:
         """
-        Add details about another form field, the value for which should
-        be added to this APISelect's URL query parameters.
-
-        :Example:
-
-        ```python
-        {
-            'field_name': 'tenant_group',
-            'accessor': 'tenant',
-            'default_value': 1,
-            'include_null': False,
-        }
-        ```
-
-        :param filter_fields: Dict or list of dicts with the following properties:
-
-               - accessor: The related field's property name. For example, on the
-                           `Tenant`model, a related model might be `TenantGroup`. In
-                           this case, `accessor` would be `group_id`.
-
-               - field_name: The related field's form name. In the above `Tenant`
-                             example, `field_name` would be `tenant_group`.
-
-               - default_value: (Optional) Set a default initial value, which can be
-                                overridden if the field changes.
-
-               - include_null: (Optional) Include `null` on queries for the related
-                               field. For example, if `True`, `?<fieldName>=null` will
-                               be added to all API queries for this field.
-
+        Process an entire query_params dictionary, and handle primitive or list values.
         """
-        key = 'data-filter-fields'
+        for key, value in query_params.items():
+            if isinstance(value, (List, Tuple)):
+                # If value is a list/tuple, iterate through each item.
+                for item in value:
+                    self._process_query_param(key, item)
+            else:
+                self._process_query_param(key, value)
+
+    def _serialize_params(self, key: str, params: ProcessedParams) -> None:
+        """
+        Serialize dynamic or static query params to JSON and add the serialized value to
+        the widget attributes by `key`.
+        """
         # Deserialize the current serialized value from the widget, using an empty JSON
         # array as a fallback in the event one is not defined.
         current = json.loads(self.attrs.get(key, '[]'))
-
-        # Create a new list of filter fields using camelCse to align with front-end code standards
-        # (this value will be read and used heavily at the JavaScript layer).
-        update: Sequence[Dict[str, str]] = []
-        try:
-            if isinstance(filter_fields, Sequence):
-                update = [
-                    {
-                        'fieldName': field['field_name'],
-                        'queryParam': field['accessor'],
-                        'defaultValue': field.get('default_value'),
-                        'includeNull': field.get('include_null', False),
-                    } for field in filter_fields
-                ]
-            elif isinstance(filter_fields, Dict):
-                update = [
-                    {
-                        'fieldName': filter_fields['field_name'],
-                        'queryParam': filter_fields['accessor'],
-                        'defaultValue': filter_fields.get('default_value'),
-                        'includeNull': filter_fields.get('include_null', False),
-                    }
-                ]
-
-        except KeyError as error:
-            raise KeyError(f"Missing required property '{error.args[0]}' on APISelect.filter_fields") from error
 
         # Combine the current values with the updated values and serialize the result as
         # JSON. Note: the `separators` kwarg effectively removes extra whitespace from
         # the serialized JSON string, which is ideal since these will be passed as
         # attributes to HTML elements and parsed on the client.
-        self.attrs[key] = json.dumps([*current, *update], separators=(',', ':'))
+        self.attrs[key] = json.dumps([*current, *params], separators=(',', ':'))
+
+    def _add_dynamic_params(self) -> None:
+        """
+        Convert post-processed dynamic query params to data structure expected by front-
+        end, serialize the value to JSON, and add it to the widget attributes.
+        """
+        key = 'data-dynamic-params'
+        if len(self.dynamic_params) > 0:
+            try:
+                update = [{'fieldName': f, 'queryParam': q} for (f, q) in self.dynamic_params.items()]
+                self._serialize_params(key, update)
+            except IndexError as error:
+                raise RuntimeError(f"Missing required value for dynamic query param: '{self.dynamic_params}'") from error
+
+    def _add_static_params(self) -> None:
+        """
+        Convert post-processed static query params to data structure expected by front-
+        end, serialize the value to JSON, and add it to the widget attributes.
+        """
+        key = 'data-static-params'
+        if len(self.static_params) > 0:
+            try:
+                update = [{'queryParam': k, 'queryValue': v} for (k, v) in self.static_params.items()]
+                self._serialize_params(key, update)
+            except IndexError as error:
+                raise RuntimeError(f"Missing required value for static query param: '{self.static_params}'") from error
+
+    def add_query_params(self, query_params: QueryParam) -> None:
+        """
+        Proccess & add a dictionary of URL query parameters to the widget attributes.
+        """
+        # Process query parameters. This populates `self.dynamic_params` and `self.static_params`.
+        self._process_query_params(query_params)
+        # Add processed dynamic parameters to widget attributes.
+        self._add_dynamic_params()
+        # Add processed static parameters to widget attributes.
+        self._add_static_params()
+
+    def add_query_param(self, key: str, value: QueryParamValue) -> None:
+        """
+        Process & add a key/value pair of URL query parameters to the widget attributes.
+        """
+        self.add_query_params({key: value})
 
 
 class APISelectMultiple(APISelect, forms.SelectMultiple):

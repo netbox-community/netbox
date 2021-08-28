@@ -1,13 +1,14 @@
-import queryString from 'query-string';
-import debounce from 'just-debounce-it';
 import { readableColor } from 'color2k';
+import debounce from 'just-debounce-it';
+import queryString from 'query-string';
 import SlimSelect from 'slim-select';
 import { createToast } from '../../bs';
 import { hasUrl, hasExclusions, isTrigger } from '../util';
-import { FilterFieldMap } from './filterFields';
+import { DynamicParamsMap } from './dynamicParams';
+import { isStaticParams } from './types';
 import {
-  isTruthy,
   hasMore,
+  isTruthy,
   hasError,
   getElement,
   getApiData,
@@ -90,8 +91,6 @@ export class APISelect {
    *     Form Field Names → Object containing:
    *                         - Query parameter key name
    *                         - Query value
-   *                         - Other options such as a default value, and the option to include
-   *                           null values.
    *
    * This is different from `queryParams` in that it tracks all _possible_ related fields and their
    * values, even if they are empty. Further, the keys in `queryParams` correspond to the actual
@@ -99,7 +98,12 @@ export class APISelect {
    * the model. For example, `tenant_group` would be the field name, but `group_id` would be the
    * query parameter.
    */
-  private readonly filterFields: FilterFieldMap = new FilterFieldMap();
+  private readonly dynamicParams: DynamicParamsMap = new DynamicParamsMap();
+
+  /**
+   * API query parameters that are already known by the server and should not change.
+   */
+  private readonly staticParams: QueryFilter = new Map();
 
   /**
    * Mapping of URL template key/value pairs. If this element's URL contains Django template tags
@@ -187,30 +191,21 @@ export class APISelect {
     });
 
     // Initialize API query properties.
-    // this.getFilteredBy();
-    this.getFilterFields();
+    this.getStaticParams();
+    this.getDynamicParams();
     this.getPathKeys();
 
-    // for (const filter of this.filterParams.keys()) {
-    //   this.updateQueryParams(filter);
-    // }
-    for (const filter of this.filterFields.keys()) {
+    // Populate static query parameters.
+    for (const [key, value] of this.staticParams.entries()) {
+      this.queryParams.set(key, value);
+    }
+
+    // Populate dynamic query parameters with any form values that are already known.
+    for (const filter of this.dynamicParams.keys()) {
       this.updateQueryParams(filter);
     }
 
-    // Add any already-resolved key/value pairs to the API query parameters.
-    // for (const [key, value] of this.filterParams.entries()) {
-    //   if (isTruthy(value)) {
-    //     this.queryParams.set(key, value);
-    //   }
-    // }
-    for (const value of this.filterFields.values()) {
-      const { queryParam, queryValue } = value;
-      if (isTruthy(queryValue)) {
-        this.queryParams.set(queryParam, queryValue);
-      }
-    }
-
+    // Populate dynamic path values with any form values that are already known.
     for (const filter of this.pathValues.keys()) {
       this.updatePathValues(filter);
     }
@@ -365,7 +360,7 @@ export class APISelect {
     // Create a unique iterator of all possible form fields which, when changed, should cause this
     // element to update its API query.
     // const dependencies = new Set([...this.filterParams.keys(), ...this.pathValues.keys()]);
-    const dependencies = new Set([...this.filterFields.keys(), ...this.pathValues.keys()]);
+    const dependencies = new Set([...this.dynamicParams.keys(), ...this.pathValues.keys()]);
 
     for (const dep of dependencies) {
       const filterElement = document.querySelector(`[name="${dep}"]`);
@@ -559,11 +554,6 @@ export class APISelect {
     this.updatePathValues(target.name);
     this.updateQueryUrl();
 
-    console.group(this.name, this.queryUrl);
-    console.log(this.filterFields);
-    console.log(this.queryParams);
-    console.groupEnd();
-
     // Load new data.
     Promise.all([this.loadData()]);
   }
@@ -655,18 +645,27 @@ export class APISelect {
 
       if (elementValue.length > 0) {
         // If the field has a value, add it to the map.
-        this.filterFields.updateValue(fieldName, elementValue);
-
-        const current = this.filterFields.get(fieldName);
+        this.dynamicParams.updateValue(fieldName, elementValue);
+        // Get the updated value.
+        const current = this.dynamicParams.get(fieldName);
 
         if (typeof current !== 'undefined') {
-          const { queryParam, queryValue, includeNull } = current;
+          const { queryParam, queryValue } = current;
           let value = [] as Stringifiable[];
-          if (includeNull) {
-            value = [...value, null];
+
+          if (this.staticParams.has(queryParam)) {
+            // If the field is defined in `staticParams`, we should merge the dynamic value with
+            // the static value.
+            const staticValue = this.staticParams.get(queryParam);
+            if (typeof staticValue !== 'undefined') {
+              value = [...staticValue, ...queryValue];
+            }
+          } else {
+            // If the field is _not_ defined in `staticParams`, we should replace the current value
+            // with the new dynamic value.
+            value = queryValue;
           }
-          if (queryValue.length > 0) {
-            value = [...value, ...queryValue];
+          if (value.length > 0) {
             this.queryParams.set(queryParam, value);
           } else {
             this.queryParams.delete(queryParam);
@@ -674,7 +673,7 @@ export class APISelect {
         }
       } else {
         // Otherwise, delete it (we don't want to send an empty query like `?site_id=`)
-        const queryParam = this.filterFields.queryParam(fieldName);
+        const queryParam = this.dynamicParams.queryParam(fieldName);
         if (queryParam !== null) {
           this.queryParams.delete(queryParam);
         }
@@ -773,17 +772,48 @@ export class APISelect {
   }
 
   /**
-   * Determine if a select element should be filtered by the value of another select element.
+   * Determine if a this instances' options should be filtered by the value of another select
+   * element.
    *
-   * Looks for the DOM attribute `data-filter-fields`, the value of which is a JSON array of
+   * Looks for the DOM attribute `data-dynamic-params`, the value of which is a JSON array of
    * objects containing information about how to handle the related field.
    */
-  private getFilterFields(): void {
-    const serialized = this.base.getAttribute('data-filter-fields');
+  private getDynamicParams(): void {
+    const serialized = this.base.getAttribute('data-dynamic-params');
     try {
-      this.filterFields.addFromJson(serialized);
+      this.dynamicParams.addFromJson(serialized);
     } catch (err) {
-      console.group(`Unable to determine filter fields for select field '${this.name}'`);
+      console.group(`Unable to determine dynamic query parameters for select field '${this.name}'`);
+      console.warn(err);
+      console.groupEnd();
+    }
+  }
+
+  /**
+   * Determine if this instance's options should be filtered by static values passed from the
+   * server.
+   *
+   * Looks for the DOM attribute `data-static-params`, the value of which is a JSON array of
+   * objects containing key/value pairs to add to `this.staticParams`.
+   */
+  private getStaticParams(): void {
+    const serialized = this.base.getAttribute('data-static-params');
+
+    try {
+      if (isTruthy(serialized)) {
+        const deserialized = JSON.parse(serialized);
+        if (isStaticParams(deserialized)) {
+          for (const { queryParam, queryValue } of deserialized) {
+            if (Array.isArray(queryValue)) {
+              this.staticParams.set(queryParam, queryValue);
+            } else {
+              this.staticParams.set(queryParam, [queryValue]);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.group(`Unable to determine static query parameters for select field '${this.name}'`);
       console.warn(err);
       console.groupEnd();
     }
