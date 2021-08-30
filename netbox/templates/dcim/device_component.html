@@ -1,12 +1,9 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load perms %}
-{% load custom_links %}
 {% load plugins %}
 
-{% block title %}{{ object.device }} / {{ object }}{% endblock %}
-
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:device_list' %}">Devices</a></li>
-  <li><a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a></li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}?device_id={{ object.device.pk }}">{{ object.device }}</a></li>
 {% endblock %}

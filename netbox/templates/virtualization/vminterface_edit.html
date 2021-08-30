@@ -2,54 +2,56 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Interface</strong></div>
-        <div class="panel-body">
-            {% if form.instance.virtual_machine %}
-                <div class="form-group">
-                    <label class="col-md-3 control-label required" for="id_device">Virtual Machine</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">
-                            <a href="{{ form.instance.virtual_machine.get_absolute_url }}">{{ form.instance.virtual_machine }}</a>
-                        </p>
-                    </div>
-                </div>
-            {% endif %}
-            {% render_field form.name %}
-            {% render_field form.enabled %}
-            {% render_field form.parent %}
-            {% render_field form.mac_address %}
-            {% render_field form.mtu %}
-            {% render_field form.description %}
-            {% render_field form.tags %}
-        </div>
+    <div class="field-group my-4">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Interface</h5>
+      </div>
+      {% if form.instance.virtual_machine %}
+          <div class="row mb-3">
+              <label class="col-sm-3 col-form-label text-lg-end required" for="id_device">Virtual Machine</label>
+              <div class="col">
+                  <input class="form-control" value="{{ form.instance.virtual_machine }}" disabled />
+              </div>
+          </div>
+      {% endif %}
+      {% render_field form.name %}
+      {% render_field form.enabled %}
+      {% render_field form.parent %}
+      {% render_field form.mac_address %}
+      {% render_field form.mtu %}
+      {% render_field form.description %}
+      {% render_field form.tags %}
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>802.1Q Switching</strong></div>
-        <div class="panel-body">
-            {% render_field form.mode %}
-            {% render_field form.vlan_group %}
-            {% render_field form.untagged_vlan %}
-            {% render_field form.tagged_vlans %}
-        </div>
+    <hr />
+
+    <div class="field-group my-4">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">802.1Q Switching</h5>
+      </div>
+      {% render_field form.mode %}
+      {% render_field form.vlan_group %}
+      {% render_field form.untagged_vlan %}
+      {% render_field form.tagged_vlans %}
     </div>
+
     {% if form.custom_fields %}
-      <div class="panel panel-default">
-        <div class="panel-heading"><strong>Custom Fields</strong></div>
-        <div class="panel-body">
-          {% render_custom_fields form %}
+      <hr />
+      <div class="field-group my-4">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Custom Fields</h5>
         </div>
+        {% render_custom_fields form %}
       </div>
     {% endif %}
 {% endblock %}
 
 {% block buttons %}
-    {% if obj.pk %}
-        <button type="submit" name="_update" class="btn btn-primary">Update</button>
-        <button type="submit" formaction="?return_url={% url 'virtualization:vminterface_edit' pk=obj.pk %}" class="btn btn-primary">Update and Continue Editing</button>
-    {% else %}
-        <button type="submit" name="_create" class="btn btn-primary">Create</button>
-        <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
-    {% endif %}
-    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+  <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+  {% if obj.pk %}
+    <button type="submit" formaction="?return_url={% url 'virtualization:vminterface_edit' pk=obj.pk %}" class="btn btn-outline-primary">Save & Continue Editing</button>
+    <button type="submit" name="_update" class="btn btn-primary">Save</button>
+  {% else %}
+    <button type="submit" name="_addanother" class="btn btn-outline-primary">Create & Add Another</button>
+    <button type="submit" name="_create" class="btn btn-primary">Create</button>
+  {% endif %}
 {% endblock %}

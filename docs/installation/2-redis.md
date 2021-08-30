@@ -28,6 +28,7 @@ You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/red
 Use the `redis-cli` utility to ensure the Redis service is functional:
 
 ```no-highlight
-$ redis-cli ping
-PONG
+redis-cli ping
 ```
+
+If successful, you should receive a `PONG` response from the server.

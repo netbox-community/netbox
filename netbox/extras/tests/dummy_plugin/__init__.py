@@ -12,6 +12,11 @@ class DummyPluginConfig(PluginConfig):
     middleware = [
         'extras.tests.dummy_plugin.middleware.DummyMiddleware'
     ]
+    queues = [
+        'testing-low',
+        'testing-medium',
+        'testing-high'
+    ]
 
 
 config = DummyPluginConfig

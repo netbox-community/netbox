@@ -11,7 +11,7 @@ This will launch a lightly customized version of [the built-in Django shell](htt
 ```
 $ ./manage.py nbshell
 ### NetBox interactive shell (localhost)
-### Python 3.6.9 | Django 2.2.11 | NetBox 2.7.10
+### Python 3.7.10 | Django 3.2.5 | NetBox 3.0
 ### lsmodels() will show available models. Use help(<model>) for more info.
 ```
 
@@ -194,7 +194,7 @@ To delete multiple objects at once, call `delete()` on a filtered queryset. It's
 >>> Device.objects.filter(name__icontains='test').count()
 27
 >>> Device.objects.filter(name__icontains='test').delete()
-(35, {'dcim.DeviceBay': 0, 'secrets.Secret': 0, 'dcim.InterfaceConnection': 4,
+(35, {'dcim.DeviceBay': 0, 'dcim.InterfaceConnection': 4,
 'extras.ImageAttachment': 0, 'dcim.Device': 27, 'dcim.Interface': 4,
 'dcim.ConsolePort': 0, 'dcim.PowerPort': 0})
 ```

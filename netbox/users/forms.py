@@ -6,12 +6,7 @@ from .models import Token
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['username'].widget.attrs['placeholder'] = ''
-        self.fields['password'].widget.attrs['placeholder'] = ''
+    pass
 
 
 class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):

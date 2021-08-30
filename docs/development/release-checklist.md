@@ -6,16 +6,6 @@
 
 Check `base_requirements.txt` for any dependencies pinned to a specific version, and upgrade them to their most stable release (where possible).
 
-### Update Static Libraries
-
-Update the following static libraries to their most recent stable release:
-
-* Bootstrap 3
-* Material Design Icons
-* Select2
-* jQuery
-* jQuery UI
-
 ### Link to the Release Notes Page
 
 Add the release notes (`/docs/release-notes/X.Y.md`) to the table of contents within `mkdocs.yml`, and point `index.md` to the new file.

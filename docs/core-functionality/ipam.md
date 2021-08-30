@@ -10,6 +10,7 @@
 
 ---
 
+{!docs/models/ipam/iprange.md!}
 {!docs/models/ipam/ipaddress.md!}
 
 ---

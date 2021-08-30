@@ -1,9 +1,8 @@
 {% extends base_template %}
-
-{% block title %}{{ block.super }} - Change Log{% endblock %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
-    {% include 'panel_table.html' %}
+    {% render_table table 'inc/table.html' %}
     {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     <div class="text-muted">
         Change log retention: {% if settings.CHANGELOG_RETENTION %}{{ settings.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}

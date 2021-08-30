@@ -4,54 +4,66 @@
 {% load helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>VLAN</strong></div>
-        <div class="panel-body">
-            {% render_field form.vid %}
-            {% render_field form.name %}
-            {% render_field form.status %}
-            {% render_field form.role %}
-            {% render_field form.description %}
-            {% render_field form.tags %}
-        </div>
+  <div class="field-group my-4">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">VLAN</h5>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Tenancy</strong></div>
-        <div class="panel-body">
-            {% render_field form.tenant_group %}
-            {% render_field form.tenant %}
-        </div>
+    {% render_field form.vid %}
+    {% render_field form.name %}
+    {% render_field form.status %}
+    {% render_field form.role %}
+    {% render_field form.description %}
+    {% render_field form.tags %}
+  </div>
+  <hr />
+
+  <div class="field-group my-4">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Tenancy</h5>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>Assignment</strong>
-        </div>
-        <div class="panel-body">
-            {% with site_tab_active=form.initial.site %}
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation"{% if not site_tab_active %} class="active"{% endif %}><a href="#group" role="tab" data-toggle="tab">VLAN Group</a></li>
-                    <li role="presentation"{% if site_tab_active %} class="active"{% endif %}><a href="#site" role="tab" data-toggle="tab">Site</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
-                        {% render_field form.scope_type %}
-                        {% render_field form.group %}
-                    </div>
-                    <div class="tab-pane{% if site_tab_active %} active{% endif %}" id="site">
-                        {% render_field form.region %}
-                        {% render_field form.sitegroup %}
-                        {% render_field form.site %}
-                    </div>
-                </div>
-            {% endwith %}
-        </div>
+    {% render_field form.tenant_group %}
+    {% render_field form.tenant %}
+  </div>
+  <hr />
+
+  <div class="field-group my-4">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Assignment</h5>
     </div>
-    {% if form.custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>Custom Fields</strong></div>
-            <div class="panel-body">
-                {% render_custom_fields form %}
-            </div>
+    {% with site_tab_active=form.initial.site %}
+      <div class="row mb-2">
+        <div class="offset-sm-3">
+          <ul class="nav nav-pills" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a class="nav-link{% if not site_tab_active %} active{% endif %}" href="#group" role="tab" data-bs-toggle="tab">VLAN Group</a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link{% if site_tab_active %} active{% endif %}" href="#site" role="tab" data-bs-toggle="tab">Site</a>
+            </li>
+          </ul>
         </div>
-    {% endif %}
+      </div>
+      <div class="tab-content p-0 border-0">
+        <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
+          {% render_field form.scope_type %}
+          {% render_field form.group %}
+        </div>
+        <div class="tab-pane{% if site_tab_active %} active{% endif %}" id="site">
+          {% render_field form.region %}
+          {% render_field form.sitegroup %}
+          {% render_field form.site %}
+        </div>
+      </div>
+    {% endwith %}
+  </div>
+
+  {% if form.custom_fields %}
+    <hr />
+    <div class="field-group my-4">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Custom Fields</h5>
+      </div>
+      {% render_custom_fields form %}
+    </div>
+  {% endif %}
 {% endblock %}

@@ -4,51 +4,33 @@
 {% load static %}
 
 {% block content %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Interfaces</strong>
-                <div class="pull-right noprint">
-                    {% if request.user.is_authenticated %}
-                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#VirtualMachineVMInterfaceTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
-                    {% endif %}
-                </div>
-                <div class="pull-right col-md-2 noprint">
-                    <input class="form-control interface-filter" type="text" placeholder="Filter" title="Filter text (regular expressions supported)" style="height: 23px" />
-                </div>
+  <form method="post">
+    {% csrf_token %}
+    {% include 'inc/table_controls.html' with table_modal="VirtualMachineVMInterfaceTable_config" %}
+    {% render_table interface_table 'inc/table.html' %}
+    <div class="noprint">
+        {% if perms.virtualization.change_vminterface %}
+            <button type="submit" name="_rename" formaction="{% url 'virtualization:vminterface_bulk_rename' %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-sm">
+                <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
+            </button>
+            <button type="submit" name="_edit" formaction="{% url 'virtualization:vminterface_bulk_edit' %}?virtualmachine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-sm">
+                <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
+            </button>
+        {% endif %}
+        {% if perms.virtualization.delete_vminterface %}
+            <button type="submit" name="_delete" formaction="{% url 'virtualization:vminterface_bulk_delete' %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-danger btn-sm">
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
+            </button>
+        {% endif %}
+        {% if perms.virtualization.add_vminterface %}
+            <div class="float-end">
+                <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-primary btn-sm">
+                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add interfaces
+                </a>
             </div>
-            {% render_table interface_table 'inc/table.html' %}
-            <div class="panel-footer noprint">
-                {% if perms.virtualization.change_vminterface %}
-                    <button type="submit" name="_rename" formaction="{% url 'virtualization:vminterface_bulk_rename' %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-xs">
-                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
-                    </button>
-                    <button type="submit" name="_edit" formaction="{% url 'virtualization:vminterface_bulk_edit' %}?virtualmachine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-xs">
-                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
-                    </button>
-                {% endif %}
-                {% if perms.virtualization.delete_vminterface %}
-                    <button type="submit" name="_delete" formaction="{% url 'virtualization:vminterface_bulk_delete' %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-danger btn-xs">
-                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
-                    </button>
-                {% endif %}
-                {% if perms.virtualization.add_vminterface %}
-                    <div class="pull-right">
-                        <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-primary btn-xs">
-                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add interfaces
-                        </a>
-                    </div>
-                {% endif %}
-                <div class="clearfix"></div>
-             </div>
-        </div>
-    </form>
-    {% table_config_form interface_table %}
-{% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/connection_toggles.js' %}?v{{ settings.VERSION }}"></script>
-  <script src="{% static 'js/interface_filtering.js' %}?v{{ settings.VERSION }}"></script>
-  <script src="{% static 'js/tableconfig.js' %}?v{{ settings.VERSION }}"></script>
+        {% endif %}
+        <div class="clearfix"></div>
+     </div>
+  </form>
+  {% table_config_form interface_table %}
 {% endblock %}

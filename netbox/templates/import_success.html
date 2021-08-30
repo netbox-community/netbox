@@ -1,13 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
+
+{% block title %}Import Completed{% endblock %}
 
 {% block content %}
-    <h1>{% block title %}Import Completed{% endblock %}</h1>
-    {% include 'responsive_table.html' %}
+    {% include 'inc/responsive_table.html' %}
+    {% if return_url %}
+        <a href="{{ return_url }}" class="btn btn-outline-dark">View All</a>
+    {% endif %}
     <a href="{{ request.path }}" class="btn btn-primary">
         <span class="mdi mdi-database-import-outline" aria-hidden="true"></span>
-        Import more
+        Import More
     </a>
-    {% if return_url %}
-        <a href="{{ return_url }}" class="btn btn-default">View All</a>
-    {% endif %}
-{% endblock %}
+{% endblock content %}

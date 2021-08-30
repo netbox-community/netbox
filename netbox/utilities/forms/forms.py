@@ -4,6 +4,8 @@ import re
 import yaml
 from django import forms
 
+from .widgets import APISelect, APISelectMultiple, StaticSelect
+
 
 __all__ = (
     'BootstrapMixin',
@@ -21,6 +23,7 @@ class BootstrapMixin(forms.BaseForm):
     """
     Add the base Bootstrap CSS classes to form elements.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -28,17 +31,32 @@ class BootstrapMixin(forms.BaseForm):
             forms.CheckboxInput,
             forms.ClearableFileInput,
             forms.FileInput,
-            forms.RadioSelect
+            forms.RadioSelect,
+            forms.Select,
+            APISelect,
+            APISelectMultiple,
+            StaticSelect,
         ]
 
         for field_name, field in self.fields.items():
+
             if field.widget.__class__ not in exempt_widgets:
                 css = field.widget.attrs.get('class', '')
                 field.widget.attrs['class'] = ' '.join([css, 'form-control']).strip()
+
             if field.required and not isinstance(field.widget, forms.FileInput):
                 field.widget.attrs['required'] = 'required'
-            if 'placeholder' not in field.widget.attrs:
+
+            if 'placeholder' not in field.widget.attrs and field.label is not None:
                 field.widget.attrs['placeholder'] = field.label
+
+            if field.widget.__class__ == forms.CheckboxInput:
+                css = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = ' '.join((css, 'form-check-input')).strip()
+
+            if field.widget.__class__ == forms.Select:
+                css = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = ' '.join((css, 'form-select')).strip()
 
 
 class ReturnURLForm(forms.Form):
@@ -59,6 +77,7 @@ class BulkEditForm(forms.Form):
     """
     Base form for editing multiple objects in bulk
     """
+
     def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
@@ -69,7 +88,7 @@ class BulkEditForm(forms.Form):
             self.nullable_fields = self.Meta.nullable_fields
 
 
-class BulkRenameForm(forms.Form):
+class BulkRenameForm(BootstrapMixin, forms.Form):
     """
     An extendable form to be used for renaming objects in bulk.
     """
@@ -98,6 +117,7 @@ class CSVModelForm(forms.ModelForm):
     """
     ModelForm used for the import of objects in CSV format.
     """
+
     def __init__(self, *args, headers=None, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -165,17 +185,17 @@ class TableConfigForm(BootstrapMixin, forms.Form):
         choices=[],
         required=False,
         widget=forms.SelectMultiple(
-            attrs={'size': 10}
+            attrs={'size': 10, 'class': 'form-select'}
         ),
-        label='Available columns'
+        label='Available Columns'
     )
     columns = forms.MultipleChoiceField(
         choices=[],
         required=False,
         widget=forms.SelectMultiple(
-            attrs={'size': 10}
+            attrs={'size': 10, 'class': 'form-select'}
         ),
-        label='Selected columns'
+        label='Selected Columns'
     )
 
     def __init__(self, table, *args, **kwargs):

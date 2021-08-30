@@ -40,28 +40,28 @@ sudo systemctl enable postgresql
 
 ## Database Creation
 
-At a minimum, we need to create a database for NetBox and assign it a username and password for authentication. This is done with the following commands.
+At a minimum, we need to create a database for NetBox and assign it a username and password for authentication. Start by invoking the PostgreSQL shell as the system Postgres user.
+
+```no-highlight
+sudo -u postgres psql
+```
+
+Within the shell, enter the following commands to create the database and user (role), substituting your own value for the password:
+
+```postgresql
+CREATE DATABASE netbox;
+CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K';
+GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
+```
 
 !!! danger
     **Do not use the password from the example.** Choose a strong, random password to ensure secure database authentication for your NetBox installation.
 
-```no-highlight
-$ sudo -u postgres psql
-psql (12.5 (Ubuntu 12.5-0ubuntu0.20.04.1))
-Type "help" for help.
-
-postgres=# CREATE DATABASE netbox;
-CREATE DATABASE
-postgres=# CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K';
-CREATE ROLE
-postgres=# GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
-GRANT
-postgres=# \q
-```
+Once complete, enter `\q` to exit the PostgreSQL shell.
 
 ## Verify Service Status
 
-You can verify that authentication works issuing the following command and providing the configured password. (Replace `localhost` with your database server if using a remote database.)
+You can verify that authentication works by executing the `psql` command and passing the configured username and password. (Replace `localhost` with your database server if using a remote database.)
 
 ```no-highlight
 $ psql --username netbox --password --host localhost netbox

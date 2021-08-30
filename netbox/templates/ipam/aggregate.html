@@ -1,83 +1,82 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load helpers %}
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
-  <li><a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
-  <li>{{ object }}</li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
 {% endblock %}
 
-{% block buttons %}
+{% block extra_controls %}
   {% include 'ipam/inc/toggle_available.html' %}
-  {{ block.super }}
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Aggregate</strong>
-            </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Family</td>
-                    <td>IPv{{ object.family }}</td>
-                </tr>
-                <tr>
-                    <td>RIR</td>
-                    <td>
-                        <a href="{{ object.rir.get_absolute_url }}">{{ object.rir }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Utilization</td>
-                    <td>
-                        {{ object.get_utilization }}%
-                    </td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if object.tenant %}
-                            {% if prefix.object.group %}
-                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Aggregate
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <td>Family</td>
+                        <td>IPv{{ object.family }}</td>
+                    </tr>
+                    <tr>
+                        <td>RIR</td>
+                        <td>
+                            <a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Utilization</td>
+                        <td>
+                            {% utilization_graph object.get_utilization %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tenant</td>
+                        <td>
+                            {% if object.tenant %}
+                                {% if prefix.object.group %}
+                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                                {% endif %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
                             {% endif %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Date Added</td>
-                    <td>{{ object.date_added|annotated_date|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Date Added</td>
+                        <td>{{ object.date_added|annotated_date|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-6">
+    <div class="col col-md-6">
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:aggregate_list' %}
         {% plugin_right_page object %}
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
+<div class="row mb-3">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        {% include 'utilities/obj_table.html' with table=prefix_table table_template='panel_table.html' heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}
+<div class="row mb-3">
+    <div class="col col-md-12">
+        {% include 'utilities/obj_table.html' with table=prefix_table heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}
 	</div>
 </div>
 {% endblock %}

@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from ipam.choices import IPAddressRoleChoices, PrefixStatusChoices
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, IPRange, Prefix, RIR, VLAN, VLANGroup, VRF
 
 
 class TestAggregate(TestCase):
@@ -72,6 +72,23 @@ class TestPrefix(TestCase):
         # VRF container is limited to its own VRF
         self.assertSetEqual(child_prefix_pks, {prefixes[2].pk})
 
+    def test_get_child_ranges(self):
+        prefix = Prefix(prefix='192.168.0.16/28')
+        prefix.save()
+        ranges = IPRange.objects.bulk_create((
+            IPRange(start_address=IPNetwork('192.168.0.1/24'), end_address=IPNetwork('192.168.0.10/24'), size=10),  # No overlap
+            IPRange(start_address=IPNetwork('192.168.0.11/24'), end_address=IPNetwork('192.168.0.17/24'), size=7),  # Partial overlap
+            IPRange(start_address=IPNetwork('192.168.0.18/24'), end_address=IPNetwork('192.168.0.23/24'), size=6),  # Full overlap
+            IPRange(start_address=IPNetwork('192.168.0.24/24'), end_address=IPNetwork('192.168.0.30/24'), size=7),  # Full overlap
+            IPRange(start_address=IPNetwork('192.168.0.31/24'), end_address=IPNetwork('192.168.0.40/24'), size=10),  # Partial overlap
+        ))
+
+        child_ranges = prefix.get_child_ranges()
+
+        self.assertEqual(len(child_ranges), 2)
+        self.assertEqual(child_ranges[0], ranges[2])
+        self.assertEqual(child_ranges[1], ranges[3])
+
     def test_get_child_ips(self):
         vrfs = VRF.objects.bulk_create((
             VRF(name='VRF 1'),
@@ -125,17 +142,17 @@ class TestPrefix(TestCase):
             IPAddress(address=IPNetwork('10.0.0.3/26')),
             IPAddress(address=IPNetwork('10.0.0.5/26')),
             IPAddress(address=IPNetwork('10.0.0.7/26')),
-            IPAddress(address=IPNetwork('10.0.0.9/26')),
-            IPAddress(address=IPNetwork('10.0.0.11/26')),
-            IPAddress(address=IPNetwork('10.0.0.13/26')),
         ))
+        IPRange.objects.create(
+            start_address=IPNetwork('10.0.0.9/26'),
+            end_address=IPNetwork('10.0.0.12/26')
+        )
         missing_ips = IPSet([
             '10.0.0.2/32',
             '10.0.0.4/32',
             '10.0.0.6/32',
             '10.0.0.8/32',
-            '10.0.0.10/32',
-            '10.0.0.12/32',
+            '10.0.0.13/32',
             '10.0.0.14/32',
         ])
         available_ips = parent_prefix.get_available_ips()
@@ -168,27 +185,30 @@ class TestPrefix(TestCase):
         IPAddress.objects.create(address=IPNetwork('10.0.0.4/24'))
         self.assertEqual(parent_prefix.get_first_available_ip(), '10.0.0.5/24')
 
-    def test_get_utilization(self):
-
-        # Container Prefix
-        prefix = Prefix.objects.create(
-            prefix=IPNetwork('10.0.0.0/24'),
-            status=PrefixStatusChoices.STATUS_CONTAINER
-        )
-        Prefix.objects.bulk_create((
+    def test_get_utilization_container(self):
+        prefixes = (
+            Prefix(prefix=IPNetwork('10.0.0.0/24'), status=PrefixStatusChoices.STATUS_CONTAINER),
             Prefix(prefix=IPNetwork('10.0.0.0/26')),
             Prefix(prefix=IPNetwork('10.0.0.128/26')),
-        ))
-        self.assertEqual(prefix.get_utilization(), 50)
-
-        # Non-container Prefix
-        prefix.status = PrefixStatusChoices.STATUS_ACTIVE
-        prefix.save()
-        IPAddress.objects.bulk_create(
-            # Create 32 IPAddresses within the Prefix
-            [IPAddress(address=IPNetwork('10.0.0.{}/24'.format(i))) for i in range(1, 33)]
         )
-        self.assertEqual(prefix.get_utilization(), 12)  # ~= 12%
+        Prefix.objects.bulk_create(prefixes)
+        self.assertEqual(prefixes[0].get_utilization(), 50)  # 50% utilization
+
+    def test_get_utilization_noncontainer(self):
+        prefix = Prefix.objects.create(
+            prefix=IPNetwork('10.0.0.0/24'),
+            status=PrefixStatusChoices.STATUS_ACTIVE
+        )
+
+        # Create 32 child IPs
+        IPAddress.objects.bulk_create([
+            IPAddress(address=IPNetwork(f'10.0.0.{i}/24')) for i in range(1, 33)
+        ])
+        self.assertEqual(prefix.get_utilization(), 12)  # 12.5% utilization
+
+        # Create a child range with 32 additional IPs
+        IPRange.objects.create(start_address=IPNetwork('10.0.0.33/24'), end_address=IPNetwork('10.0.0.64/24'))
+        self.assertEqual(prefix.get_utilization(), 25)  # 25% utilization
 
     #
     # Uniqueness enforcement tests

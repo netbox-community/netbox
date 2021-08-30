@@ -177,10 +177,9 @@ class RackSerializer(PrimaryModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'url', 'display', 'name', 'facility_id', 'display_name', 'site', 'location', 'tenant', 'status',
-            'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'powerfeed_count',
+            'id', 'url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status', 'role', 'serial',
+            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (location, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -293,9 +292,9 @@ class DeviceTypeSerializer(PrimaryModelSerializer):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'display_name', 'part_number', 'u_height',
-            'is_full_depth', 'subdevice_role', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', 'device_count',
+            'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'device_count',
         ]
 
 
@@ -394,8 +393,8 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'positions', 'description', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'color', 'positions', 'description',
+            'created', 'last_updated',
         ]
 
 
@@ -408,7 +407,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'rear_port', 'rear_port_position',
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
             'description', 'created', 'last_updated',
         ]
 
@@ -474,10 +473,10 @@ class DeviceSerializer(PrimaryModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'id', 'url', 'display', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform',
-            'serial', 'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
+            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 
@@ -510,10 +509,10 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
     class Meta(DeviceSerializer.Meta):
         fields = [
-            'id', 'url', 'display', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform',
-            'serial', 'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
+            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'local_context_data',
+            'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
@@ -675,8 +674,9 @@ class RearPortSerializer(PrimaryModelSerializer, CableTerminationSerializer):
     class Meta:
         model = RearPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'positions', 'description', 'mark_connected',
-            'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'color', 'positions', 'description',
+            'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created',
+            'last_updated', '_occupied',
         ]
 
 
@@ -701,9 +701,9 @@ class FrontPortSerializer(PrimaryModelSerializer, CableTerminationSerializer):
     class Meta:
         model = FrontPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description',
-            'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields', 'created',
-            'last_updated', '_occupied',
+            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
+            'description', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'tags', 'custom_fields',
+            'created', 'last_updated', '_occupied',
         ]
 
 
@@ -843,31 +843,6 @@ class CablePathSerializer(serializers.ModelSerializer):
             context = {'request': self.context['request']}
             ret.append(serializer(node, context=context).data)
         return ret
-
-
-#
-# Interface connections
-#
-
-class InterfaceConnectionSerializer(ValidatedModelSerializer):
-    interface_a = serializers.SerializerMethodField()
-    interface_b = NestedInterfaceSerializer(source='_path.destination')
-    connected_endpoint_reachable = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Interface
-        fields = ['interface_a', 'interface_b', 'connected_endpoint_reachable']
-
-    @swagger_serializer_method(serializer_or_field=NestedInterfaceSerializer)
-    def get_interface_a(self, obj):
-        context = {'request': self.context['request']}
-        return NestedInterfaceSerializer(instance=obj, context=context).data
-
-    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
-    def get_connected_endpoint_reachable(self, obj):
-        if obj._path is not None:
-            return obj._path.is_active
-        return None
 
 
 #

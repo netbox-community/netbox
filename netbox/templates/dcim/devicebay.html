@@ -2,75 +2,73 @@
 {% load helpers %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li><a href="{% url 'dcim:device_devicebays' pk=object.device.pk %}">Device Bays</a></li>
-  <li>{{ object }}</li>
-{% endblock %}
-
 {% block content %}
     <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Device Bay</strong>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Device Bay
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th scope="row">Device</th>
+                            <td>
+                                <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Name</th>
+                            <td>{{ object.name }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Label</th>
+                            <td>{{ object.label|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Description</th>
+                            <td>{{ object.description|placeholder }}</td>
+                        </tr>
+                    </table>
                 </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Device</td>
-                        <td>
-                            <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Name</td>
-                        <td>{{ object.name }}</td>
-                    </tr>
-                    <tr>
-                        <td>Label</td>
-                        <td>{{ object.label|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                </table>
             </div>
-            {% include 'inc/custom_fields_panel.html' %}
-            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
-            {% plugin_left_page object %}
+        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all %}
+        {% plugin_left_page object %}
         </div>
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Installed Device</strong>
-                </div>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Installed Device
+                </h5>
+                <div class="card-body">
                 {% if object.installed_device %}
                     {% with device=object.installed_device %}
-                        <table class="table table-hover panel-body attr-table">
+                        <table class="table table-hover attr-table">
                             <tr>
-                                <td>Device</td>
+                                <th scope="row">Device</th>
                                 <td>
                                     <a href="{{ device.get_absolute_url }}">{{ device }}</a>
                                 </td>
                             </tr>
                             <tr>
-                                <td>Device Type</td>
+                                <th scope="row">Device Type</th>
                                 <td>{{ device.device_type }}</td>
                             </tr>
                         </table>
                     {% endwith %}
                 {% else %}
-                    <div class="panel-body text-muted">
+                    <div class="text-muted">
                         None
                     </div>
                 {% endif %}
+                </div>
             </div>
             {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col col-md-12">
             {% plugin_full_width_page object %}
         </div>
     </div>

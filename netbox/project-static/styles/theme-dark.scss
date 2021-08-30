@@ -1,0 +1,280 @@
+// Dark Mode Theme Variables and Overrides.
+
+@use 'sass:map';
+@import './theme-base';
+
+$primary: $blue-300;
+$secondary: $gray-500;
+$success: $green-300;
+$info: $cyan-300;
+$warning: $yellow-300;
+$danger: $red-300;
+$light: $gray-300;
+$dark: $gray-500;
+
+$theme-colors: (
+  'primary': $primary,
+  'secondary': $secondary,
+  'success': $success,
+  'info': $info,
+  'warning': $warning,
+  'danger': $danger,
+  'light': $light,
+  'dark': $dark,
+  'red': $red-300,
+  'yellow': $yellow-300,
+  'green': $green-300,
+  'blue': $blue-300,
+  'cyan': $cyan-300,
+  'indigo': $indigo-300,
+  'purple': $purple-300,
+  'pink': $pink-300,
+);
+
+$theme-colors: map-merge($theme-colors, $theme-color-addons);
+
+// Gradient
+$gradient: linear-gradient(180deg, rgba($white, 0.15), rgba($white, 0));
+
+// Body
+$body-bg: $darker;
+$body-color: $white;
+$body-text-align: null;
+$border-color: $gray-700;
+$box-shadow: 0 0.5rem 1rem rgba($black, 0.15);
+$box-shadow-sm: 0 0.125rem 0.25rem rgba($black, 0.075);
+$box-shadow-lg: 0 1rem 3rem rgba($black, 0.175);
+$box-shadow-inset: inset 0 1px 2px rgba($black, 0.075);
+$text-muted: $gray-400;
+$blockquote-footer-color: $gray-600;
+$mark-bg: #fcf8e3;
+$link-color: $blue-200;
+$link-hover-color: $blue-100;
+
+// Alerts
+$alert-bg-scale: -5%;
+$alert-border-scale: -20%;
+$alert-color-scale: 20%;
+
+// Tables
+$table-color: $gray-100;
+$table-border-color: $border-color;
+$table-striped-color: $table-color;
+$table-striped-bg: rgba($white, $table-striped-bg-factor);
+$table-active-color: $table-color;
+$table-active-bg: rgba($white, $table-active-bg-factor);
+$table-hover-color: $table-color;
+$table-hover-bg: rgba($white, $table-hover-bg-factor);
+$table-flush-header-bg: $gray-700;
+
+// Buttons
+$btn-box-shadow: inset 0 1px 0 rgba($black, 0.15), 0 1px 1px rgba($white, 0.075);
+$btn-active-box-shadow: inset 0 3px 5px rgba($white, 0.125);
+$btn-link-disabled-color: $gray-300;
+
+// Forms
+$component-active-bg: $primary;
+$form-text-color: $text-muted;
+$input-bg: $gray-900;
+$input-disabled-bg: $gray-700;
+$input-color: $gray-100;
+$input-border-color: $gray-700;
+$input-focus-bg: $input-bg;
+$input-focus-border-color: tint-color($component-active-bg, 10%);
+$input-focus-color: $input-color;
+$input-placeholder-color: $gray-300;
+$input-plaintext-color: $body-color;
+
+$form-check-input-active-filter: brightness(90%);
+$form-check-input-bg: $input-bg;
+$form-check-input-border: 1px solid rgba(255, 255, 255, 0.25);
+$form-check-input-checked-color: $component-active-color;
+$form-check-input-checked-bg-color: $component-active-bg;
+$form-check-input-checked-border-color: $form-check-input-checked-bg-color;
+$form-check-input-indeterminate-color: $component-active-color;
+$form-check-input-indeterminate-bg-color: $component-active-bg;
+$form-check-input-indeterminate-border-color: $form-check-input-indeterminate-bg-color;
+
+$form-switch-color: rgba(255, 255, 255, 0.25);
+$form-switch-focus-color: $input-focus-border-color;
+$form-switch-checked-color: $component-active-color;
+
+$input-group-addon-color: $input-color;
+$input-group-addon-bg: $gray-700;
+$input-group-addon-border-color: $input-border-color;
+
+$form-select-color: $input-color;
+$form-select-disabled-color: $gray-500;
+$form-select-bg: $input-bg;
+$form-select-disabled-bg: $input-disabled-bg;
+$form-select-indicator-color: $form-select-color;
+$form-select-indicator: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='#{$form-select-indicator-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>");
+
+$form-select-border-color: $input-border-color;
+$form-range-track-bg: $gray-300;
+
+$form-range-thumb-bg: $component-active-bg;
+$form-range-thumb-box-shadow: 0 0.1rem 0.25rem rgba($black, 0.1);
+$form-range-thumb-focus-box-shadow: 0 0 0 1px $body-bg, $input-focus-box-shadow;
+$form-range-thumb-active-bg: tint-color($component-active-bg, 70%);
+$form-range-thumb-disabled-bg: $gray-500;
+
+$form-file-button-color: $input-color;
+$form-file-button-bg: $input-group-addon-bg;
+$form-file-button-hover-bg: shade-color($form-file-button-bg, 5%);
+
+$form-feedback-valid-color: $success;
+$form-feedback-invalid-color: $danger;
+
+// Navs
+$nav-link-color: $body-color;
+$nav-link-hover-color: null;
+$nav-link-disabled-color: $gray-800;
+$nav-tabs-border-color: $border-color;
+$nav-tabs-link-hover-border-color: rgba($gray-800, 0.5) rgba($gray-800, 0.5) $nav-tabs-border-color;
+$nav-tabs-link-active-color: $gray-100;
+$nav-tabs-link-active-bg: $body-bg;
+$nav-tabs-link-active-border-color: $gray-800 $gray-800 $nav-tabs-link-active-bg;
+$nav-pills-link-active-color: $component-active-color;
+$nav-pills-link-active-bg: $component-active-bg;
+
+$navbar-light-color: $gray-500;
+$navbar-light-toggler-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='#{$navbar-light-color}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+$navbar-light-toggler-border-color: $gray-700;
+
+// Dropdowns
+$dropdown-color: $body-color;
+$dropdown-bg: $gray-900;
+$dropdown-border-color: rgba($white, 0.15);
+$dropdown-link-color: $gray-100;
+$dropdown-link-hover-color: $white;
+$dropdown-link-hover-bg: $gray-600;
+$dropdown-link-disabled-color: $gray-800;
+$dropdown-header-color: $gray-600;
+
+// Pagination
+$pagination-color: $link-color;
+$pagination-bg: $gray-800;
+$pagination-border-color: $gray-600;
+$pagination-focus-color: $link-hover-color;
+$pagination-focus-bg: $gray-400;
+$pagination-hover-color: $link-hover-color;
+$pagination-hover-bg: $gray-400;
+$pagination-hover-border-color: $gray-500;
+$pagination-active-color: $component-active-color;
+$pagination-active-bg: $component-active-bg;
+$pagination-active-border-color: $pagination-active-bg;
+$pagination-disabled-color: $gray-600;
+$pagination-disabled-bg: $gray-800;
+$pagination-disabled-border-color: $gray-600;
+
+// Cards
+$card-border-color: rgba($white, 0.125);
+$card-inner-border-radius: subtract($card-border-radius, $card-border-width);
+
+$card-cap-color: null;
+$card-height: null;
+$card-color: null;
+$card-bg: $gray-900;
+
+// Accordion
+$accordion-color: $body-color;
+$accordion-bg: transparent;
+$accordion-border-color: $border-color;
+$accordion-button-color: $accordion-color;
+$accordion-button-bg: $accordion-bg;
+$accordion-button-active-bg: shade-color($blue-300, 10%);
+$accordion-button-active-color: color-contrast($accordion-button-active-bg);
+$accordion-button-focus-border-color: $input-focus-border-color;
+$accordion-icon-color: $accordion-color;
+$accordion-icon-active-color: $accordion-button-active-color;
+$accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-icon-color}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+$accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-icon-active-color}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+
+// Tooltips
+$tooltip-color: $body-color;
+$tooltip-bg: $gray-700;
+$tooltip-arrow-color: $tooltip-bg;
+$form-feedback-tooltip-opacity: $tooltip-opacity;
+
+// Popovers
+$popover-bg: $gray-700;
+$popover-border-color: rgba($white, 0.2);
+$popover-header-bg: shade-color($popover-bg, 6%);
+$popover-header-color: $headings-color;
+$popover-body-color: $body-color;
+$popover-arrow-color: $popover-bg;
+$popover-arrow-outer-color: fade-in($popover-border-color, 0.05);
+
+// Toasts
+$toast-color: null;
+$toast-background-color: rgba($white, 0.85);
+$toast-border-color: rgba(0, 0, 0, 0.1);
+$toast-header-color: $gray-600;
+$toast-header-background-color: rgba($white, 0.85);
+$toast-header-border-color: rgba(0, 0, 0, 0.05);
+
+// Badges
+$badge-color: $white;
+
+// Modals
+$modal-content-color: null;
+$modal-content-bg: $gray-800;
+$modal-content-border-color: rgba($white, 0.2);
+$modal-backdrop-bg: $black;
+$modal-header-border-color: $border-color;
+$modal-footer-border-color: $modal-header-border-color;
+
+// Progress bars
+$progress-bg: $gray-600;
+$progress-bar-color: $white;
+$progress-bar-bg: $primary;
+
+// List group
+$list-group-color: $body-color;
+$list-group-bg: $card-bg;
+$list-group-border-color: rgba($white, 0.125);
+$list-group-hover-bg: rgba($gray-100, 0.15);
+$list-group-active-color: $component-active-color;
+$list-group-active-bg: $component-active-bg;
+$list-group-active-border-color: $list-group-active-bg;
+$list-group-disabled-bg: $list-group-bg;
+$list-group-action-color: $gray-300;
+$list-group-action-hover-color: $body-color;
+$list-group-action-active-color: $body-color;
+$list-group-action-active-bg: rgba($gray-300, 0.125);
+
+// Image thumbnails
+$thumbnail-bg: $body-bg;
+$thumbnail-border-color: $gray-300;
+
+// Figures
+$figure-caption-color: $gray-600;
+
+// Breadcrumbs
+$breadcrumb-divider-color: $gray-100;
+$breadcrumb-active-color: $body-color;
+$breadcrumb-divider-flipped: $breadcrumb-divider;
+$breadcrumb-divider: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='#{$breadcrumb-divider-color}'/%3E%3C/svg%3E");
+
+// Carousel
+$carousel-control-color: $white;
+$carousel-indicator-active-bg: $white;
+$carousel-caption-color: $white;
+$carousel-dark-indicator-active-bg: $black;
+$carousel-dark-caption-color: $black;
+$carousel-dark-control-icon-filter: invert(1) grayscale(100);
+
+// Close
+$btn-close-color: $white;
+$btn-close-white-filter: invert(1) grayscale(100%) brightness(200%);
+$btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$btn-close-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
+
+// Code
+$code-color: $gray-200;
+$kbd-color: $white;
+$kbd-bg: $gray-300;
+$pre-color: null;
+
+// Tabbed content
+$tab-content-bg: $darkest;

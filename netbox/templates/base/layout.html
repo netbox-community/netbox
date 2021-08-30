@@ -1,0 +1,161 @@
+{# Base layout for the core NetBox UI w/navbar and page content #}
+{% extends 'base/base.html' %}
+{% load helpers %}
+{% load nav %}
+{% load search_options %}
+{% load static %}
+
+{% block layout %}
+
+  <div class="container-fluid px-0">
+    <main class="layout">
+    {# Sidebar #}
+    {% include 'base/sidenav.html' %}
+
+      {# Body #}
+      <div class="content-container" tabindex="-2">
+
+        {# Netbox Logo, only visible when printing #}
+        <div class="p-2 printonly">
+          <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" width="200px" />
+        </div>
+
+        {# Top bar #}
+        <nav class="navbar navbar-light sticky-top flex-md-nowrap ps-6 p-3 search container-fluid noprint">
+
+            {# Mobile Navigation #}
+            <div class="nav-mobile">
+              <div class="nav-mobile-top">
+                <a class="sidebar-logo p-2 d-block" href="{% url 'home' %}">
+                  <img src="{% static 'netbox_logo.svg' %}" alt="NetBox logo" height="40" />
+                </a>
+                <button type="button" aria-label="Toggle Navigation" class="navbar-toggler sidenav-toggle-mobile">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+              </div>
+              <div class="d-flex my-1 flex-grow-1 justify-content-center w-100">
+                {% search_options %}
+              </div>
+            </div>
+
+            {# Desktop Navigation #}
+            <div class="row search-container">
+
+              {# Empty spacer column to ensure search is centered. #}
+              <div class="col-3 d-flex flex-grow-1 ps-0"></div>
+
+              {# Search bar #}
+              <div class="col-6 d-flex flex-grow-1 justify-content-center">
+                {% search_options %}
+              </div>
+
+              {# Proflie/login button #}
+              <div class="col-3 d-flex flex-grow-1 pe-0 justify-content-end">
+                {% include 'inc/profile_button.html' %}
+              </div>
+
+            </div>
+
+        </nav>
+
+        {% if settings.BANNER_TOP %}
+          <div class="alert alert-info text-center mx-3" role="alert">
+            {{ settings.BANNER_TOP|safe }}
+          </div>
+        {% endif %}
+
+        {% if settings.MAINTENANCE_MODE %}
+          <div class="alert alert-warning text-center mx-3" role="alert">
+            <h4><i class="mdi mdi-alert"></i> Maintenance Mode</h4>
+            <span>NetBox is currently in maintenance mode. Functionality may be limited.</span>
+          </div>
+        {% endif %}
+
+        {# Page header #}
+        {% block header %}
+          <div class="title-container px-3 pb-3">
+
+            {# Title #}
+            <div id="content-title">
+              {# Center-align title in object-edit views #}
+              <h1 class="h2 w-100">{% block title %}{% endblock title %}</h1>
+              {% block subtitle %}{% endblock %}
+            </div>
+
+            {# Controls #}
+            {% block controls %}{% endblock controls %}
+
+          </div>
+        {% endblock header %}
+
+        {# Page content #}
+        <div id="content" class="container-fluid content px-0 m-0">
+          {% block tabs %}{% endblock %}
+          {% block content-wrapper %}
+            <div class="px-3">
+              {% block content %}{% endblock %}
+            </div>
+          {% endblock %}
+        </div>
+
+        {% if settings.BANNER_BOTTOM %}
+          <div class="alert alert-info text-center mx-3" role="alert">
+            {{ settings.BANNER_BOTTOM|safe }}
+          </div>
+        {% endif %}
+
+        {# Page footer #}
+        <footer class="footer container-fluid">
+          <div class="row align-items-center justify-content-between mx-0">
+
+            {# Docs & Community Links #}
+            <div class="col-sm-12 col-md-auto fs-4 noprint">
+              <nav class="nav justify-content-center justify-content-lg-start">
+                {# Documentation #}
+                <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
+                  <i title="Docs" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                </a>
+
+                {# REST API #}
+                <a type="button" class="nav-link" href="{% url 'api-root' %}" target="_blank">
+                  <i title="REST API" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                </a>
+
+                {# API docs #}
+                <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
+                  <i title="REST API documentation" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                </a>
+
+                {# GraphQL API #}
+                {% if settings.GRAPHQL_ENABLED %}
+                  <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
+                    <i title="GraphQL API" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                {% endif %}
+
+                {# GitHub #}
+                <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
+                  <i title="Source Code" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                </a>
+
+                {# NetDev Slack #}
+                <a type="button" class="nav-link" href="https://netdev.chat/" target="_blank">
+                  <i title="Community" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                </a>
+              </nav>
+            </div>
+
+            {# System Info #}
+            <div class="col-sm-12 col-md-auto text-center text-lg-end text-muted">
+              <span class="d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
+              <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
+            </div>
+
+          </div>
+        </footer>
+
+      </div>
+
+    </main>
+  </div>
+{% endblock layout %}

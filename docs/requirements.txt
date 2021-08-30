@@ -1,2 +1,7 @@
+# File inclusion plugin for Python-Markdown
+# https://github.com/cmacmackin/markdown-include
+markdown-include
+
+# MkDocs Material theme (for documentation build)
+# https://github.com/squidfunk/mkdocs-material
 mkdocs-material
-git+https://github.com/cmacmackin/markdown-include.git

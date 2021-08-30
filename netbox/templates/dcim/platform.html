@@ -3,70 +3,80 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:platform_list' %}">Platforms</a></li>
-  <li>{{ object }}</li>
+  {{ block.super }}
+  {% if object.manufacturer %}
+    <li class="breadcrumb-item"><a href="{% url 'dcim:platform_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Platform</strong>
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Platform
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Manufacturer</th>
+            <td>
+              {% if object.manufacturer %}
+                <a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a>
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">NAPALM Driver</th>
+            <td>{{ object.napalm_driver|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Devices</th>
+            <td>
+              <a href="{% url 'dcim:device_list' %}?platform_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
+            </td>
+          </tr>
+        </table>
       </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td>{{ object.description|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>Manufacturer</td>
-          <td>
-            {% if object.manufacturer %}
-              <a href="{{ object.manufacturer.get_absolute_url }}">{{ object.manufacturer }}</a>
-            {% else %}
-              <span class="text-muted">None</span>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td>NAPALM Driver</td>
-          <td>{{ object.napalm_driver|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>NAPALM Arguments</td>
-          <td><pre>{{ object.napalm_args }}</pre></td>
-        </tr>
-        <tr>
-          <td>Devices</td>
-          <td>
-            <a href="{% url 'dcim:device_list' %}?platform_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
-          </td>
-        </tr>
-      </table>
     </div>
     {% plugin_left_page object %}
 	</div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        NAPALM Arguments
+      </h5>
+      <div class="card-body">
+        <pre>{{ object.napalm_args }}</pre>
+      </div>
+    </div>
     {% include 'inc/custom_fields_panel.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
-<div class="row">
-	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Devices</strong>
+<div class="row mb-3">
+	<div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">
+        Devices
+      </h5>
+      <div class="card-body">
+        {% include 'inc/table.html' with table=devices_table %}
       </div>
-      {% include 'inc/table.html' with table=devices_table %}
       {% if perms.dcim.add_device %}
-        <div class="panel-footer text-right noprint">
-          <a href="{% url 'dcim:device_add' %}?device_role={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add device
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'dcim:device_add' %}?device_role={{ object.pk }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Device
           </a>
         </div>
       {% endif %}

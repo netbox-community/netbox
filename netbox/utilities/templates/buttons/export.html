@@ -1,20 +1,31 @@
-<div class="btn-group">
-  <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <span class="mdi mdi-database-export" aria-hidden="true"></span>
-    Export <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-right">
-    <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export=table">Current view</a></li>
-    <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">Legacy CSV</a></li>
-    {% if export_templates %}
-      <li class="divider"></li>
-      {% for et in export_templates %}
-        <li><a href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export={{ et.name }}"{% if et.description %} title="{{ et.description }}"{% endif %}>{{ et.name }}</a></li>
-      {% endfor %}
-    {% endif %}
-    {% if add_exporttemplate_link %}
-      <li class="divider"></li>
-      <li><a href="{{ add_exporttemplate_link }}">Add export template... </a></li>
-    {% endif %}
-  </ul>
+<div class="dropdown">
+    <button type="button" class="btn btn-sm btn-purple dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="mdi mdi-download"></i>&nbsp;Export
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export=table">Current View</a></li>
+        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export">All Data</a></li>
+        {% if export_templates %}
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        {% for et in export_templates %}
+        <li>
+          <a class="dropdown-item"
+          href="?{% if url_params %}{{ url_params.urlencode }}&{% endif %}export={{ et.name }}"{% if et.description %}
+          title="{{ et.description }}"{% endif %}>
+            {{ et.name }}
+          </a>
+        </li>
+        {% endfor %}
+        {% endif %}
+        {% if add_exporttemplate_link %}
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ add_exporttemplate_link }}">Add export template...</a>
+        </li>
+        {% endif %}
+    </ul>
 </div>

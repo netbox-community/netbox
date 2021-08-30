@@ -23,13 +23,19 @@ if [ -d ./venv/ ]; then
 fi
 
 echo "Validating PEP8 compliance..."
-pycodestyle --ignore=W504,E501 netbox/
+pycodestyle --ignore=W504,E501 --exclude=node_modules netbox/
 if [ $? != 0 ]; then
 	EXIT=1
 fi
 
 echo "Checking for missing migrations..."
 python netbox/manage.py makemigrations --dry-run --check
+if [ $? != 0 ]; then
+	EXIT=1
+fi
+
+echo "Checking UI ESLint, TypeScript, and Prettier compliance..."
+yarn --cwd "$PWD/netbox/project-static" validate
 if [ $? != 0 ]; then
 	EXIT=1
 fi

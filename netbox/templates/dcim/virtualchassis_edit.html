@@ -1,109 +1,104 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
 
-{% block content %}
-    <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
+{% block title %}Editing Virtual Chassis {{ vc_form.instance }}{% endblock %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
+      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
         {% csrf_token %}
         {{ pk_form.pk }}
         {{ formset.management_form }}
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <h3>{% block title %}{% if vc_form.instance %}Editing {{ vc_form.instance }}{% else %}New Virtual Chassis{% endif %}{% endblock %}</h3>
-                {% if vc_form.non_field_errors %}
-                    <div class="panel panel-danger">
-                        <div class="panel-heading"><strong>Errors</strong></div>
-                        <div class="panel-body">
-                            {{ vc_form.non_field_errors }}
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>Virtual Chassis</strong></div>
-                    <div class="table panel-body">
-                        {% render_field vc_form.name %}
-                        {% render_field vc_form.domain %}
-                        {% render_field vc_form.master %}
-                        {% render_field vc_form.tags %}
-                    </div>
-                </div>
-                {% if vc_form.custom_fields %}
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><strong>Custom Fields</strong></div>
-                        <div class="panel-body">
-                            {% render_custom_fields vc_form %}
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>Members</strong></div>
-                    <table class="table panel-body">
-                        <thead>
-                            <tr>
-                                <th>Device</th>
-                                <th>ID</th>
-                                <th>Rack/Unit</th>
-                                <th>Serial</th>
-                                <th>Position</th>
-                                <th>Priority</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for form in formset %}
-                                {% for field in form.hidden_fields %}
-                                    {{ field }}
-                                {% endfor %}
-                                {% with device=form.instance virtual_chassis=vc_form.instance %}
-                                    <tr>
-                                        <td>
-                                            <a href="{{ device.get_absolute_url }}">{{ device }}</a>
-                                        </td>
-                                        <td>{{ device.pk }}</td>
-                                        <td>
-                                            {% if device.rack %}
-                                                {{ device.rack }} / {{ device.position }}
-                                            {% else %}
-                                                <span class="text-muted">&mdash;</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ device.serial|placeholder }}</td>
-                                        <td>
-                                            {{ form.vc_position }}
-                                            {% if form.vc_position.errors %}
-                                                <br /><small class="text-danger">{{ form.vc_position.errors.0 }}</small>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {{ form.vc_priority }}
-                                            {% if form.vc_priority.errors %}
-                                                <br /><small class="text-danger">{{ form.vc_priority.errors.0 }}</small>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if virtual_chassis.pk %}
-                                                <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" class="btn btn-danger btn-xs{% if virtual_chassis.master == device %} disabled{% endif %}">
-                                                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
-                                                </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endwith %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="field-group my-4">
+          <div class="row mb-2">
+            <h5 class="offset-sm-3">Virtual Chassis</h5>
+          </div>
+          {% render_field vc_form.name %}
+          {% render_field vc_form.domain %}
+          {% render_field vc_form.master %}
+          {% render_field vc_form.tags %}
         </div>
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2 text-right">
-                {% if vc_form.instance.pk %}
-                    <button type="submit" name="_update" class="btn btn-primary">Update</button>
-                {% else %}
-                    <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                {% endif %}
-                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+        <hr />
+
+        {% if vc_form.custom_fields %}
+          <div class="field-group my-4">
+            <div class="row mb-2">
+              <h5 class="offset-sm-3">Custom Fields</h5>
             </div>
+            {% render_custom_fields vc_form %}
+          </div>
+          <hr />
+        {% endif %}
+
+        <div class="field-group mb-5">
+          <h5 class="text-center">Members</h5>
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th>Device</th>
+                      <th>ID</th>
+                      <th>Rack/Unit</th>
+                      <th>Serial</th>
+                      <th>Position</th>
+                      <th>Priority</th>
+                      <th></th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for form in formset %}
+                      {% for field in form.hidden_fields %}
+                          {{ field }}
+                      {% endfor %}
+                      {% with device=form.instance virtual_chassis=vc_form.instance %}
+                          <tr>
+                              <td>
+                                  <a href="{{ device.get_absolute_url }}">{{ device }}</a>
+                              </td>
+                              <td>{{ device.pk }}</td>
+                              <td>
+                                  {% if device.rack %}
+                                      {{ device.rack }} / {{ device.position }}
+                                  {% else %}
+                                      <span class="text-muted">&mdash;</span>
+                                  {% endif %}
+                              </td>
+                              <td>{{ device.serial|placeholder }}</td>
+                              <td>
+                                  {{ form.vc_position }}
+                                  {% if form.vc_position.errors %}
+                                      <br /><small class="text-danger">{{ form.vc_position.errors.0 }}</small>
+                                  {% endif %}
+                              </td>
+                              <td>
+                                  {{ form.vc_priority }}
+                                  {% if form.vc_priority.errors %}
+                                      <br /><small class="text-danger">{{ form.vc_priority.errors.0 }}</small>
+                                  {% endif %}
+                              </td>
+                              <td>
+                                  {% if virtual_chassis.pk %}
+                                      <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" class="btn btn-danger btn-sm{% if virtual_chassis.master == device %} disabled{% endif %}">
+                                          <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
+                                      </a>
+                                  {% endif %}
+                              </td>
+                          </tr>
+                      {% endwith %}
+                  {% endfor %}
+              </tbody>
+          </table>
         </div>
-    </form>
+        <div class="text-end">
+            <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+            {% if vc_form.instance.pk %}
+                <button type="submit" name="_update" class="btn btn-primary">Save</button>
+            {% else %}
+                <button type="submit" name="_create" class="btn btn-primary">Create</button>
+            {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock %}

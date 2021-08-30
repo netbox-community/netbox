@@ -5,7 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8, 3.9]
+        node-version: [14.x]
     services:
       redis:
         image: redis
@@ -33,15 +34,30 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
     - name: Install dependencies & set up configuration
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pycodestyle coverage
         ln -s configuration.testing.py netbox/netbox/configuration.py
+        yarn --cwd netbox/project-static
+
+    - name: Build documentation
+      run: mkdocs build
+
+    - name: Collect static files
+      run: python netbox/manage.py collectstatic --no-input
 
     - name: Check PEP8 compliance
-      run: pycodestyle --ignore=W504,E501 netbox/
+      run: pycodestyle --ignore=W504,E501 --exclude=node_modules netbox/
+
+    - name: Check UI ESLint, TypeScript, and Prettier Compliance
+      run: yarn --cwd netbox/project-static validate
 
     - name: Run tests
       run: coverage run --source="netbox/" netbox/manage.py test netbox/

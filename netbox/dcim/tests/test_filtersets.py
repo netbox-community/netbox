@@ -6,6 +6,7 @@ from dcim.filtersets import *
 from dcim.models import *
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
+from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterType
 
@@ -959,9 +960,9 @@ class FrontPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         RearPortTemplate.objects.bulk_create(rear_ports)
 
         FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PortTypeChoices.TYPE_8P8C),
-            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PortTypeChoices.TYPE_110_PUNCH),
-            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PortTypeChoices.TYPE_BNC),
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN),
+            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE),
         ))
 
     def test_name(self):
@@ -975,6 +976,10 @@ class FrontPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -995,9 +1000,9 @@ class RearPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         DeviceType.objects.bulk_create(device_types)
 
         RearPortTemplate.objects.bulk_create((
-            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1),
-            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2),
-            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3),
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, positions=1),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, positions=2),
+            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, positions=3),
         ))
 
     def test_name(self):
@@ -1011,6 +1016,10 @@ class RearPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_positions(self):
@@ -1503,10 +1512,18 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -1575,6 +1592,13 @@ class ConsolePortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cabled(self):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -1615,10 +1639,18 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -1680,6 +1712,13 @@ class ConsoleServerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1727,10 +1766,18 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -1800,6 +1847,13 @@ class PowerPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1847,10 +1901,18 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -1916,6 +1978,13 @@ class PowerOutletTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1963,10 +2032,18 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -2073,6 +2150,13 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -2134,10 +2218,18 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
@@ -2153,9 +2245,9 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=devices[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
-            FrontPort(device=devices[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
-            FrontPort(device=devices[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
+            FrontPort(device=devices[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, rear_port=rear_ports[0], rear_port_position=1, description='First'),
+            FrontPort(device=devices[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
+            FrontPort(device=devices[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
             FrontPort(device=devices[3], name='Front Port 4', label='D', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
             FrontPort(device=devices[3], name='Front Port 5', label='E', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
             FrontPort(device=devices[3], name='Front Port 6', label='F', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
@@ -2177,6 +2269,10 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -2202,6 +2298,13 @@ class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
@@ -2251,18 +2354,26 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
             Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, positions=1, description='First'),
-            RearPort(device=devices[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, positions=2, description='Second'),
-            RearPort(device=devices[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, positions=3, description='Third'),
+            RearPort(device=devices[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, positions=1, description='First'),
+            RearPort(device=devices[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, positions=2, description='Second'),
+            RearPort(device=devices[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, positions=3, description='Third'),
             RearPort(device=devices[3], name='Rear Port 4', label='D', type=PortTypeChoices.TYPE_FC, positions=4),
             RearPort(device=devices[3], name='Rear Port 5', label='E', type=PortTypeChoices.TYPE_FC, positions=5),
             RearPort(device=devices[3], name='Rear Port 6', label='F', type=PortTypeChoices.TYPE_FC, positions=6),
@@ -2284,6 +2395,10 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [PortTypeChoices.TYPE_8P8C, PortTypeChoices.TYPE_110_PUNCH]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_positions(self):
@@ -2313,6 +2428,13 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
@@ -2362,10 +2484,18 @@ class DeviceBayTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -2407,6 +2537,13 @@ class DeviceBayTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
@@ -2457,10 +2594,18 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Site.objects.bulk_create(sites)
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -2524,13 +2669,19 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
     def test_device(self):
-        # TODO: Allow multiple values
-        device = Device.objects.first()
-        params = {'device_id': device.pk}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'device': device.name}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_parent_id(self):
         parent_items = InventoryItem.objects.filter(parent__isnull=True)[:2]

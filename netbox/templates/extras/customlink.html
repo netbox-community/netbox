@@ -1,0 +1,74 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+<div class="row mb-3">
+	<div class="col col-md-5">
+    <div class="card">
+      <h5 class="card-header">
+        Custom Link
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Content Type</th>
+            <td>{{ object.content_type }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Group Name</th>
+            <td>{{ object.group_name|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Weight</th>
+            <td>{{ object.weight }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Button Class</th>
+            <td>{{ object.get_button_class_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">New Window</th>
+            <td>
+              {% if object.new_window %}
+                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+              {% else %}
+                <i class="mdi mdi-close-thick text-danger" title="No"></i>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% plugin_left_page object %}
+	</div>
+	<div class="col col-md-7">
+    <div class="card">
+      <h5 class="card-header">
+        Link Text
+      </h5>
+      <div class="card-body">
+        <pre>{{ object.link_text }}</pre>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
+        Link URL
+      </h5>
+      <div class="card-body">
+        <pre>{{ object.link_url }}</pre>
+      </div>
+    </div>
+    {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
+{% endblock %}

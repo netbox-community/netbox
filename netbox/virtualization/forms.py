@@ -8,8 +8,8 @@ from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
-    CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
+    CustomFieldModelFilterForm, CustomFieldsMixin,
 )
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN, VLANGroup
@@ -18,7 +18,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, ConfirmationForm,
     CSVChoiceField, CSVModelChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField,
-    form_from_model, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    form_from_model, JSONField, SlugField, SmallTextarea, StaticSelect, StaticSelectMultiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
@@ -44,10 +44,10 @@ class ClusterTypeCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ClusterType
-        fields = ClusterType.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
-class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -80,10 +80,10 @@ class ClusterGroupCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ClusterGroup.csv_headers
+        fields = ('name', 'slug', 'description')
 
 
-class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -175,10 +175,10 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = Cluster
-        fields = Cluster.csv_headers
+        fields = ('name', 'type', 'group', 'site', 'comments')
 
 
-class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -222,39 +222,57 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cluster
     field_order = [
         'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
     ]
+    field_groups = [
+        ['q', 'tag'],
+        ['group_id', 'type_id'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['tenant_group_id', 'tenant_id'],
+    ]
     q = forms.CharField(
         required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
-        label=_('Type')
+        label=_('Type'),
+        fetch_trigger='open'
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region')
+        label=_('Region'),
+        fetch_trigger='open'
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group'),
+        fetch_trigger='open'
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
         query_params={
-            'region_id': '$region_id'
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
         },
-        label=_('Site')
+        label=_('Site'),
+        fetch_trigger='open'
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group')
+        label=_('Group'),
+        fetch_trigger='open'
     )
     tag = TagFilterField(model)
 
@@ -387,9 +405,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                                   "config context",
         }
         widgets = {
-            "status": StaticSelect2(),
-            'primary_ip4': StaticSelect2(),
-            'primary_ip6': StaticSelect2(),
+            "status": StaticSelect(),
+            'primary_ip4': StaticSelect(),
+            'primary_ip6': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -467,10 +485,12 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VirtualMachine
-        fields = VirtualMachine.csv_headers
+        fields = (
+            'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        )
 
 
-class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -479,7 +499,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
@@ -525,42 +545,51 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         ]
 
 
-class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
-    field_order = [
-        'q', 'cluster_group_id', 'cluster_type_id', 'cluster_id', 'status', 'role_id', 'region_id', 'site_group_id',
-        'site_id', 'tenant_group_id', 'tenant_id', 'platform_id', 'mac_address',
+    field_groups = [
+        ['q', 'tag'],
+        ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
+        ['region_id', 'site_group_id', 'site_id'],
+        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip'],
+        ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
         required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster group')
+        label=_('Cluster group'),
+        fetch_trigger='open'
     )
     cluster_type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster type')
+        label=_('Cluster type'),
+        fetch_trigger='open'
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label=_('Cluster')
+        label=_('Cluster'),
+        fetch_trigger='open'
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region')
+        label=_('Region'),
+        fetch_trigger='open'
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site group'),
+        fetch_trigger='open'
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -570,7 +599,8 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
             'region_id': '$region_id',
             'group_id': '$site_group_id',
         },
-        label=_('Site')
+        label=_('Site'),
+        fetch_trigger='open'
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -579,18 +609,20 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         query_params={
             'vm_role': "True"
         },
-        label=_('Role')
+        label=_('Role'),
+        fetch_trigger='open'
     )
     status = forms.MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
         required=False,
-        widget=StaticSelect2Multiple()
+        widget=StaticSelectMultiple()
     )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         null_option='None',
-        label=_('Platform')
+        label=_('Platform'),
+        fetch_trigger='open'
     )
     mac_address = forms.CharField(
         required=False,
@@ -599,7 +631,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
@@ -650,7 +682,7 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
-            'mode': StaticSelect2()
+            'mode': StaticSelect()
         }
         labels = {
             'mode': '802.1Q Mode',
@@ -671,7 +703,7 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)
 
 
-class VMInterfaceCreateForm(BootstrapMixin, CustomFieldForm, InterfaceCommonForm):
+class VMInterfaceCreateForm(BootstrapMixin, CustomFieldsMixin, InterfaceCommonForm):
     model = VMInterface
     virtual_machine = DynamicModelChoiceField(
         queryset=VirtualMachine.objects.all()
@@ -686,7 +718,6 @@ class VMInterfaceCreateForm(BootstrapMixin, CustomFieldForm, InterfaceCommonForm
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        display_field='display_name',
         query_params={
             'virtual_machine_id': '$virtual_machine',
         }
@@ -702,7 +733,7 @@ class VMInterfaceCreateForm(BootstrapMixin, CustomFieldForm, InterfaceCommonForm
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
-        widget=StaticSelect2(),
+        widget=StaticSelect(),
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -743,7 +774,9 @@ class VMInterfaceCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = VMInterface
-        fields = VMInterface.csv_headers
+        fields = (
+            'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+        )
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
@@ -753,7 +786,7 @@ class VMInterfaceCSVForm(CustomFieldModelCSVForm):
             return self.cleaned_data['enabled']
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -766,8 +799,7 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulk
     )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
-        required=False,
-        display_field='display_name'
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
@@ -786,7 +818,7 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulk
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
-        widget=StaticSelect2()
+        widget=StaticSelect()
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -845,14 +877,21 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 
 class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
     model = VMInterface
+    field_groups = [
+        ['q', 'tag'],
+        ['cluster_id', 'virtual_machine_id'],
+        ['enabled', 'mac_address'],
+    ]
     q = forms.CharField(
         required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label=_('Cluster')
+        label=_('Cluster'),
+        fetch_trigger='open'
     )
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
@@ -860,11 +899,12 @@ class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
         query_params={
             'cluster_id': '$cluster_id'
         },
-        label=_('Virtual machine')
+        label=_('Virtual machine'),
+        fetch_trigger='open'
     )
     enabled = forms.NullBooleanField(
         required=False,
-        widget=StaticSelect2(
+        widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )

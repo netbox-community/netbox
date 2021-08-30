@@ -6,13 +6,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from extras.choices import *
-from extras.utils import FeatureQuery
-from netbox.models import BigIDModel
+from extras.utils import FeatureQuery, extras_features
+from netbox.models import ChangeLoggedModel
 from utilities.forms import (
-    CSVChoiceField, DatePicker, LaxURLField, StaticSelect2Multiple, StaticSelect2, add_blank_choice,
+    CSVChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
@@ -29,11 +30,11 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-class CustomField(BigIDModel):
+@extras_features('webhooks')
+class CustomField(ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
-        verbose_name='Object(s)',
         limit_choices_to=FeatureQuery('custom_fields'),
         help_text='The object(s) to which this field applies.'
     )
@@ -113,6 +114,9 @@ class CustomField(BigIDModel):
 
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
+
+    def get_absolute_url(self):
+        return reverse('extras:customfield', args=[self.pk])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -235,7 +239,7 @@ class CustomField(BigIDModel):
                 (False, 'False'),
             )
             field = forms.NullBooleanField(
-                required=required, initial=initial, widget=StaticSelect2(choices=choices)
+                required=required, initial=initial, widget=StaticSelect(choices=choices)
             )
 
         # Date
@@ -257,12 +261,12 @@ class CustomField(BigIDModel):
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
                 field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelect2()
+                    choices=choices, required=required, initial=initial, widget=StaticSelect()
                 )
             else:
                 field_class = CSVChoiceField if for_csv_import else forms.MultipleChoiceField
                 field = field_class(
-                    choices=choices, required=required, initial=initial, widget=StaticSelect2Multiple()
+                    choices=choices, required=required, initial=initial, widget=StaticSelectMultiple()
                 )
 
         # URL

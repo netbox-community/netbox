@@ -1,0 +1,16 @@
+{% extends 'generic/object_edit.html' %}
+
+{% block buttons %}
+  <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+  {% if component_type == 'interface' and perms.ipam.add_ipaddress %}
+    <button type="submit" name="_assignip" class="btn btn-outline-success">
+      Create & Assign IP Address
+    </button>
+  {% endif %}
+  <button type="submit" name="_addanother" class="btn btn-outline-primary">
+    Create & Add Another
+  </button>
+  <button type="submit" name="_create" class="btn btn-primary">
+    Create
+  </button>
+{% endblock %}

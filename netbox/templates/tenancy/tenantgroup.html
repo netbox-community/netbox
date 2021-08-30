@@ -3,65 +3,68 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'tenancy:tenantgroup_list' %}">Tenant Groups</a></li>
+  {{ block.super }}
   {% for tenantgroup in object.get_ancestors %}
-    <li><a href="{{ tenantgroup.get_absolute_url }}">{{ tenantgroup }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'tenancy:tenantgroup_list' %}?parent_id={{ tenantgroup.pk }}">{{ tenantgroup }}</a></li>
   {% endfor %}
-  <li>{{ object }}</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Tenant Group</strong>
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">
+        Tenant Group
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Parent</th>
+            <td>
+              {% if object.parent %}
+                <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
+              {% else %}
+                <span class="text-muted">&mdash;</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Sites</th>
+            <td>
+              <a href="{% url 'tenancy:tenant_list' %}?group_id={{ object.pk }}">{{ tenants_table.rows|length }}</a>
+            </td>
+          </tr>
+        </table>
       </div>
-      <table class="table table-hover panel-body attr-table">
-        <tr>
-          <td>Name</td>
-          <td>{{ object.name }}</td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td>{{ object.description|placeholder }}</td>
-        </tr>
-        <tr>
-          <td>Parent</td>
-          <td>
-            {% if object.parent %}
-              <a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a>
-            {% else %}
-              <span class="text-muted">&mdash;</span>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td>Sites</td>
-          <td>
-            <a href="{% url 'tenancy:tenant_list' %}?group_id={{ object.pk }}">{{ tenants_table.rows|length }}</a>
-          </td>
-        </tr>
-      </table>
     </div>
     {% plugin_left_page object %}
   </div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
     {% include 'inc/custom_fields_panel.html' %}
     {% plugin_right_page object %}
 	</div>
 </div>
-<div class="row">
-	<div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <strong>Tenants</strong>
+<div class="row mb-3">
+	<div class="col col-md-12">
+    <div class="card">
+      <div class="card-header">
+        Tenants
       </div>
-      {% include 'inc/table.html' with table=tenants_table %}
+      <div class="card-body">
+        {% include 'inc/table.html' with table=tenants_table %}
+      </div>
       {% if perms.tenancy.add_tenant %}
-        <div class="panel-footer text-right noprint">
-          <a href="{% url 'tenancy:tenant_add' %}?group={{ object.pk }}" class="btn btn-xs btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add tenant
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'tenancy:tenant_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Tenant
           </a>
         </div>
       {% endif %}

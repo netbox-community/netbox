@@ -1,18 +1,34 @@
-{% extends 'base.html' %}
+{% extends 'generic/object_list.html' %}
 {% load buttons %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
 
-{% block content %}
-<div class="pull-right noprint">
-    {% export_button content_type %}
-</div>
-<h1>{% block title %}{{ title }}{% endblock %}</h1>
-<div class="row">
-	  <div class="col-md-12">
-        <div class="col-md-3 pull-right right-side-panel noprint">
-            {% include 'inc/search_panel.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+
+    {# Conncetions list #}
+    <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+      {% include 'inc/table_controls.html' %}
+
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            {% render_table table 'inc/table.html' %}
+          </div>
         </div>
-        {% include 'responsive_table.html' %}
-        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+      </div>
+
+      {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
-</div>
-{% endblock %}
+
+    {# Filter form #}
+    {% if filter_form %}
+      <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
+        {% include 'inc/filter_list.html' %}
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock content-wrapper %}

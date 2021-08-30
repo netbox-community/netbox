@@ -4,7 +4,9 @@ from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
     Manufacturer, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
-from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, LinkedCountColumn, TagColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+)
 
 __all__ = (
     'ConsolePortTemplateTable',
@@ -164,6 +166,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
+    color = ColorColumn()
     actions = ButtonsColumn(
         model=FrontPortTemplate,
         buttons=('edit', 'delete'),
@@ -172,11 +175,12 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = FrontPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description', 'actions')
         empty_text = "None"
 
 
 class RearPortTemplateTable(ComponentTemplateTable):
+    color = ColorColumn()
     actions = ButtonsColumn(
         model=RearPortTemplate,
         buttons=('edit', 'delete'),
@@ -185,7 +189,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = RearPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'positions', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'description', 'actions')
         empty_text = "None"
 
 

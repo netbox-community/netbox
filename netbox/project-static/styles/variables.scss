@@ -1,0 +1,55 @@
+// NetBox CSS Variables
+
+:root {
+  // Light Mode Variables.
+  --nbx-sidebar-bg: #{$gray-200};
+  --nbx-sidebar-scroll: #{$gray-500};
+  --nbx-sidebar-link-hover-bg: #{rgba($gray-600, 0.15)};
+  --nbx-sidebar-link-active-bg: #{$blue-100};
+  --nbx-sidebar-title-color: #{$text-muted};
+  --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(0, 0, 0, 0.25);
+  --nbx-breadcrumb-bg: #{$light};
+  --nbx-body-bg: #{$white};
+  --nbx-body-color: #{$gray-800};
+  --nbx-pre-bg: #{$gray-100};
+  --nbx-pre-border-color: #{$gray-600};
+  --nbx-change-added: #{rgba($green, 0.4)};
+  --nbx-change-removed: #{rgba($red, 0.4)};
+  --nbx-cable-node-bg: #{$gray-100};
+  --nbx-cable-node-border-color: #{$gray-200};
+  --nbx-cable-termination-bg: #{$gray-200};
+  --nbx-cable-termination-border-color: #{$gray-300};
+  --nbx-search-filter-border-left-color: #{$gray-300};
+  --nbx-color-mode-toggle-color: #{$primary};
+  --nbx-sidenav-link-color: #{$gray-800};
+  --nbx-sidenav-pin-color: #{$orange};
+  --nbx-sidenav-parent-color: #{$gray-900};
+  --nbx-sidenav-group-color: #{$gray-800};
+
+  &[data-netbox-color-mode='dark'] {
+    // Dark Mode Variables.
+    --nbx-sidebar-bg: #{$gray-900};
+    --nbx-sidebar-scroll: #{$gray-700};
+    --nbx-sidebar-link-active-bg: #{rgba($blue-300, 0.25)};
+    --nbx-sidebar-link-hover-bg: #{rgba($gray-500, 0.15)};
+    --nbx-sidebar-title-color: #{$gray-600};
+    --nbx-sidebar-shadow: inset 0px -25px 20px -25px rgba(255, 255, 255, 0.05);
+    --nbx-breadcrumb-bg: #{$gray-800};
+    --nbx-body-bg: #{$darker};
+    --nbx-body-color: #{$gray-100};
+    --nbx-pre-bg: #{$gray-700};
+    --nbx-pre-border-color: #{$gray-600};
+    --nbx-change-added: #{rgba($green-300, 0.4)};
+    --nbx-change-removed: #{rgba($red-300, 0.4)};
+    --nbx-cable-node-bg: #{$gray-700};
+    --nbx-cable-node-border-color: #{$gray-600};
+    --nbx-cable-termination-bg: #{$gray-800};
+    --nbx-cable-termination-border-color: #{$gray-700};
+    --nbx-search-filter-border-left-color: #{$gray-600};
+    --nbx-color-mode-toggle-color: #{$yellow-300};
+    --nbx-sidenav-link-color: #{$gray-200};
+    --nbx-sidenav-pin-color: #{$yellow};
+    --nbx-sidenav-parent-color: #{$gray-100};
+    --nbx-sidenav-group-color: #{$gray-600};
+  }
+}

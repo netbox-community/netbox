@@ -1,0 +1,43 @@
+{% load nav %}
+{% load static %}
+
+<nav class="sidenav noprint" id="sidenav" data-simplebar>
+  <div class="sidenav-header">
+
+  {# Brand #}
+
+    {# Full Logo #}
+    <a class="sidenav-brand" href="/">
+      <img src="{% static 'netbox_logo.svg' %}" height="48" class="sidenav-brand-img" alt="NetBox Logo">
+    </a>
+
+    {# Icon Logo #}
+    <a class="sidenav-brand-icon" href="/">
+      <img src="{% static 'netbox_icon.svg' %}" height="32" class="sidenav-brand-img" alt="NetBox Logo">
+    </a>
+
+    {# Pin/Unpin Toggle #}
+    <button class="btn btn-sm btn-ghost-primary sidenav-toggle">
+      <div class="sidenav-toggle-icon">
+        <i class="mdi mdi-pin"></i>
+      </div>
+    </button>
+
+  </div>
+
+  <div class="sidenav-inner h-100 mb-auto">
+
+    {# Collapse #}
+    <div class="collapse sidenav-collapse">
+
+      {# Nav Items #}
+      {% nav %}
+
+    </div>
+
+    {# Profile controls #}
+    <div class="profile-button-container">
+      {% include 'inc/profile_button.html' %}
+    </div>
+  </div>
+</nav>

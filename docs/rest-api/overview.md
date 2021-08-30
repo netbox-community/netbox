@@ -67,7 +67,7 @@ Comprehensive, interactive documentation of all REST API endpoints is available 
 
 ## Endpoint Hierarchy
 
-NetBox's entire REST API is housed under the API root at `https://<hostname>/api/`. The URL structure is divided at the root level by application: circuits, DCIM, extras, IPAM, plugins, secrets, tenancy, users, and virtualization. Within each application exists a separate path for each model. For example, the provider and circuit objects are located under the "circuits" application:
+NetBox's entire REST API is housed under the API root at `https://<hostname>/api/`. The URL structure is divided at the root level by application: circuits, DCIM, extras, IPAM, plugins, tenancy, users, and virtualization. Within each application exists a separate path for each model. For example, the provider and circuit objects are located under the "circuits" application:
 
 * `/api/circuits/providers/`
 * `/api/circuits/circuits/`

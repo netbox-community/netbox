@@ -3,30 +3,30 @@
 
 {% block title %}API Tokens{% endblock %}
 
-{% block usercontent %}
+{% block content %}
     <div class="row">
-        <div class="col-md-12">
+        <div class="col col-md-12">
             {% for token in tokens %}
-                <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
-                    <div class="panel-heading">
-                        <div class="pull-right noprint">
-                            <a class="btn btn-xs btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
-                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
-                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
+                <div class="card{% if token.is_expired %} bg-danger{% endif %}">
+                    <div class="card-header">
+                        <div class="float-end noprint">
+                            <a class="m-1 btn btn-sm btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
+                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="m-1 btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="m-1 btn btn-sm btn-danger">Delete</a>
                         </div>
                         <i class="mdi mdi-key"></i>
                         <samp><span id="token_{{ token.pk }}">{{ token.key }}</span></samp>
                         {% if token.is_expired %}
-                            <span class="label label-danger">Expired</span>
+                            <span class="badge bg-danger">Expired</span>
                         {% endif %}
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col col-md-4">
                                 <small class="text-muted">Created</small><br />
                                 {{ token.created|annotated_date }}
                             </div>
-                            <div class="col-md-4">
+                            <div class="col col-md-4">
                                 <small class="text-muted">Expires</small><br />
                                 {% if token.expires %}
                                     {{ token.expires|annotated_date }}
@@ -34,12 +34,12 @@
                                     <span>Never</span>
                                 {% endif %}
                             </div>
-                            <div class="col-md-4">
-                                <small class="text-muted">Create/edit/delete operations</small><br />
+                            <div class="col col-md-4">
+                                <small class="text-muted">Create/Edit/Delete Operations</small><br />
                                 {% if token.write_enabled %}
-                                    <span class="label label-success">Enabled</span>
+                                    <span class="badge bg-success">Enabled</span>
                                 {% else %}
-                                    <span class="label label-danger">Disabled</span>
+                                    <span class="badge bg-danger">Disabled</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -51,16 +51,12 @@
             {% empty %}
                 <p>You do not have any API tokens.</p>
             {% endfor %}
-            <a href="{% url 'user:token_add' %}" class="btn btn-primary">
+            <div class="text-end">
+              <a href="{% url 'user:token_add' %}" class="btn btn-sm btn-primary my-3">
                 <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                Add a token
-            </a>
+                Add a Token
+              </a>
+            </div>
         </div>
     </div>
-{% endblock %}
-
-{% block javascript %}
-<script type="text/javascript">
-new ClipboardJS('.copy-token');
-</script>
 {% endblock %}

@@ -54,11 +54,15 @@ our [contributing guide](CONTRIBUTING.md) prior to beginning any work.
 
 ### Screenshots
 
-![Screenshot of main page](docs/media/screenshot1.png "Main page")
+![Screenshot of main page (light mode)](docs/media/screenshots/home-light.png "Main page (light mode)")
 
-![Screenshot of rack elevation](docs/media/screenshot2.png "Rack elevation")
+![Screenshot of main page (dark mode)](docs/media/screenshots/home-dark.png "Main page (dark mode)")
 
-![Screenshot of prefix hierarchy](docs/media/screenshot3.png "Prefix hierarchy")
+![Screenshot of rack elevation](docs/media/screenshots/rack.png "Rack elevation")
+
+![Screenshot of prefixes hierarchy](docs/media/screenshots/prefixes-list.png "Prefixes hierarchy")
+
+![Screenshot of cable trace](docs/media/screenshots/cable-trace.png "Cable tracing")
 
 ### Related projects
 

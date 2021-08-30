@@ -1,35 +1,26 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 
-{% block content %}
-<div class="row">
-    <div class="col-sm-12 col-md-10 col-md-offset-1">
-        <h1>{% block title %}{% endblock %}</h1>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-3 col-md-2 col-md-offset-1">
-        <ul class="nav nav-pills nav-stacked">
-            <li{% if active_tab == "profile" %} class="active"{% endif %}>
-                <a href="{% url 'user:profile' %}">Profile</a>
-            </li>
-            <li{% if active_tab == "preferences" %} class="active"{% endif %}>
-                <a href="{% url 'user:preferences' %}">Preferences</a>
-            </li>
-            {% if not request.user.ldap_username %}
-                <li{% if active_tab == "change_password" %} class="active"{% endif %}>
-                    <a href="{% url 'user:change_password' %}">Change Password</a>
-                </li>
-            {% endif %}
-            <li{% if active_tab == "api_tokens" %} class="active"{% endif %}>
-                <a href="{% url 'user:token_list' %}">API Tokens</a>
-            </li>
-            <li{% if active_tab == "userkey" %} class="active"{% endif %}>
-                <a href="{% url 'user:userkey' %}">User Key</a>
-            </li>
-        </ul>
-    </div>
-	<div class="col-sm-9 col-md-8">
-        {% block usercontent %}{% endblock %}
-	</div>
-</div>
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li role="presentation" class="nav-item">
+      <a class="nav-link{% if active_tab == 'profile' %} active{% endif %}" href="{% url 'user:profile' %}">Profile</a>
+    </li>
+    <li role="presentation" class="nav-item">
+      <a class="nav-link{% if active_tab == 'preferences' %} active{% endif %}" href="{% url 'user:preferences' %}">Preferences</a>
+    </li>
+    {% if not request.user.ldap_username %}
+      <li role="presentation" class="nav-item">
+        <a class="nav-link{% if active_tab == 'password' %} active{% endif %}" href="{% url 'user:change_password' %}">Password</a>
+      </li>
+    {% endif %}
+    <li role="presentation" class="nav-item">
+      <a class="nav-link{% if active_tab == 'api-tokens' %} active{% endif %}" href="{% url 'user:token_list' %}">API Tokens</a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    {% block content %}{% endblock %}
+  </div>
 {% endblock %}

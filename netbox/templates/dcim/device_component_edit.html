@@ -3,12 +3,10 @@
 
 {% block form_fields %}
     {% if form.instance.device %}
-        <div class="form-group">
-            <label class="col-md-3 control-label required" for="id_device">Device</label>
-            <div class="col-md-9">
-                <p class="form-control-static">
-                    <a href="{{ form.instance.device.get_absolute_url }}">{{ form.instance.device }}</a>
-                </p>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label text-lg-end">Device</label>
+            <div class="col">
+                <input class="form-control" value="{{ form.instance.device }}" disabled />
             </div>
         </div>
     {% endif %}

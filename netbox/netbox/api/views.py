@@ -5,9 +5,11 @@ from collections import OrderedDict
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError
+from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.response import Response
@@ -16,6 +18,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet as ModelViewSet_
 from rq.worker import Worker
 
+from extras.models import ExportTemplate
 from netbox.api import BulkOperationSerializer
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import SerializerNotFound
@@ -222,6 +225,18 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
             # Check that the instance is matched by the view's queryset
             self.queryset.get(pk=instance.pk)
 
+    def list(self, request, *args, **kwargs):
+        """
+        Overrides ListModelMixin to allow processing ExportTemplates.
+        """
+        if 'export' in request.GET:
+            content_type = ContentType.objects.get_for_model(self.serializer_class.Meta.model)
+            et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+            queryset = self.filter_queryset(self.get_queryset())
+            return et.render_to_response(queryset)
+
+        return super().list(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         model = self.queryset.model
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
@@ -289,7 +304,6 @@ class APIRootView(APIView):
             ('extras', reverse('extras-api:api-root', request=request, format=format)),
             ('ipam', reverse('ipam-api:api-root', request=request, format=format)),
             ('plugins', reverse('plugins-api:api-root', request=request, format=format)),
-            ('secrets', reverse('secrets-api:api-root', request=request, format=format)),
             ('status', reverse('api-status', request=request, format=format)),
             ('tenancy', reverse('tenancy-api:api-root', request=request, format=format)),
             ('users', reverse('users-api:api-root', request=request, format=format)),

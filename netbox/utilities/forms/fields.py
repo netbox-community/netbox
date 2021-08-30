@@ -6,10 +6,11 @@ from io import StringIO
 import django_filters
 from django import forms
 from django.conf import settings
-from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.forms import BoundField
+from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices
@@ -20,6 +21,7 @@ from .constants import *
 from .utils import expand_alphanumeric_pattern, expand_ipaddress_pattern, parse_csv, validate_csv
 
 __all__ = (
+    'ColorField',
     'CommentField',
     'ContentTypeChoiceField',
     'ContentTypeMultipleChoiceField',
@@ -28,6 +30,7 @@ __all__ = (
     'CSVDataField',
     'CSVFileField',
     'CSVModelChoiceField',
+    'CSVMultipleContentTypeField',
     'CSVTypedChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
@@ -62,6 +65,7 @@ class SlugField(forms.SlugField):
     """
     Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
     """
+
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
@@ -70,13 +74,20 @@ class SlugField(forms.SlugField):
         self.widget.attrs['slug-source'] = slug_source
 
 
+class ColorField(forms.CharField):
+    """
+    A field which represents a color in hexadecimal RRGGBB format.
+    """
+    widget = widgets.ColorSelect
+
+
 class TagFilterField(forms.MultipleChoiceField):
     """
     A filter field for the tags of a model. Only the tags used by a model are displayed.
 
     :param model: The model of the filter
     """
-    widget = widgets.StaticSelect2Multiple
+    widget = widgets.StaticSelectMultiple
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
@@ -103,6 +114,7 @@ class JSONField(_JSONField):
     """
     Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -281,6 +293,20 @@ class CSVContentTypeField(CSVModelChoiceField):
             raise forms.ValidationError(f'Invalid object type')
 
 
+class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
+    STATIC_CHOICES = True
+
+    # TODO: Improve validation of selected ContentTypes
+    def prepare_value(self, value):
+        if type(value) is str:
+            ct_filter = Q()
+            for name in value.split(','):
+                app_label, model = name.split('.')
+                ct_filter |= Q(app_label=app_label, model=model)
+            return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
+        return super().prepare_value(value)
+
+
 #
 # Expansion fields
 #
@@ -290,6 +316,7 @@ class ExpandableNameField(forms.CharField):
     A field which allows for numeric range expansion
       Example: 'Gi0/[1-3]' => ['Gi0/1', 'Gi0/2', 'Gi0/3']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -315,6 +342,7 @@ class ExpandableIPAddressField(forms.CharField):
     A field which allows for expansion of IP address ranges
       Example: '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -336,24 +364,24 @@ class ExpandableIPAddressField(forms.CharField):
 
 class DynamicModelChoiceMixin:
     """
-    :param display_field: The name of the attribute of an API response object to display in the selection list
     :param query_params: A dictionary of additional key/value pairs to attach to the API request
     :param initial_params: A dictionary of child field references to use for selecting a parent field's initial value
     :param null_option: The string used to represent a null selection (if any)
     :param disabled_indicator: The name of the field which, if populated, will disable selection of the
         choice (optional)
+    :param str fetch_trigger: The event type which will cause the select element to
+        fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    # TODO: Remove display_field in v3.0
-    def __init__(self, display_field='display', query_params=None, initial_params=None, null_option=None,
-                 disabled_indicator=None, *args, **kwargs):
-        self.display_field = display_field
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None,
+                 *args, **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
+        self.fetch_trigger = fetch_trigger
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -362,9 +390,7 @@ class DynamicModelChoiceMixin:
         super().__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
-        attrs = {
-            'display-field': self.display_field,
-        }
+        attrs = {}
 
         # Set value-field attribute if the field specifies to_field_name
         if self.to_field_name:
@@ -378,9 +404,13 @@ class DynamicModelChoiceMixin:
         if self.disabled_indicator is not None:
             attrs['disabled-indicator'] = self.disabled_indicator
 
+        # Set the fetch trigger, if any.
+        if self.fetch_trigger is not None:
+            attrs['data-fetch-trigger'] = self.fetch_trigger
+
         # Attach any static query parameters
-        for key, value in self.query_params.items():
-            widget.add_query_param(key, value)
+        if (len(self.query_params) > 0):
+            widget.add_query_params(self.query_params)
 
         return attrs
 

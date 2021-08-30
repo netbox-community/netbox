@@ -1,132 +1,99 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 
-{% block header %}
-    <h1>{% block title %}Cable Trace for {{ object|meta:"verbose_name"|bettertitle }} {{ object }}{% endblock %}</h1>
-{% endblock %}
+{% block title %}Cable Trace for {{ object|meta:"verbose_name"|bettertitle }} {{ object }}{% endblock %}
 
 {% block content %}
     <div class="row">
-        <div class="col-md-5 col-sm-12">
-            <div class="cable-trace">
+        <div class="col col-md-5">
+            <div class="text-center my-3">
+                <object data="{{ svg_url }}" class="rack_elevation"></object>
+                <a class="btn btn-outline-primary btn-sm my-3" href="{{ svg_url }}">
+                    <i class="mdi mdi-file-download"></i> Download SVG
+                </a>
+            </div>
+            <div class="trace-end">
                 {% with traced_path=path.origin.trace %}
-                    {% for near_end, cable, far_end in traced_path %}
-
-                        {# Near end #}
-                        {% if near_end.device %}
-                            {% include 'dcim/trace/device.html' with device=near_end.device %}
-                            {% include 'dcim/trace/termination.html' with termination=near_end %}
-                        {% elif near_end.power_panel %}
-                            {% include 'dcim/trace/powerpanel.html' with powerpanel=near_end.power_panel %}
-                            {% include 'dcim/trace/termination.html' with termination=far_end%}
-                        {% elif near_end.circuit %}
-                            {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
-                            {% include 'dcim/trace/termination.html' with termination=near_end %}
-                        {% endif %}
-
-                        {# Cable #}
-                        {% if cable %}
-                            {% include 'dcim/trace/cable.html' %}
-                        {% elif far_end %}
-                            {% include 'dcim/trace/attachment.html' %}
-                        {% endif %}
-
-                        {# Far end #}
-                        {% if far_end.device %}
-                            {% include 'dcim/trace/termination.html' with termination=far_end %}
-                            {% if forloop.last %}
-                                {% include 'dcim/trace/device.html' with device=far_end.device %}
-                            {% endif %}
-                        {% elif far_end.power_panel %}
-                            {% include 'dcim/trace/termination.html' with termination=far_end %}
-                            {% include 'dcim/trace/powerpanel.html' with powerpanel=far_end.power_panel %}
-                        {% elif far_end.circuit %}
-                            {% include 'dcim/trace/termination.html' with termination=far_end %}
-                            {% if forloop.last %}
-                                {% include 'dcim/trace/circuit.html' with circuit=far_end.circuit %}
-                            {% endif %}
-                        {% elif far_end %}
-                            {% include 'dcim/trace/object.html' with object=far_end %}
-                        {% endif %}
-
-                        {% if forloop.last %}
-                            {% if path.is_split %}
-                                <div class="trace-end">
-                                    <h3 class="text-danger">Path split!</h3>
-                                    <p>Select a node below to continue:</p>
-                                    <ul class="text-left">
-                                        {% for next_node in path.get_split_nodes %}
-                                            {% if next_node.cable %}
-                                                <li>
-                                                    <a href="{% url 'dcim:frontport_trace' pk=next_node.pk %}">{{ next_node }}</a>
-                                                    (Cable <a href="{{ next_node.cable.get_absolute_url }}">{{ next_node.cable }}</a>)
-                                                </li>
-                                            {% else %}
-                                                <li class="text-muted">{{ next_node }}</li>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            {% else %}
-                                <div class="trace-end">
-                                    <h3{% if far_end %} class="text-success"{% endif %}>Trace completed</h3>
-                                    <h5>Total segments: {{ traced_path|length }}</h5>
-                                    <h5>Total length:
-                                        {% if total_length %}
-                                            {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} Meters /
-                                            {{ total_length|meters_to_feet|floatformat:"-2" }} Feet
-                                        {% else %}
-                                            <span class="text-muted">N/A</span>
-                                        {% endif %}
-                                    </h5>
-                                </div>
-                            {% endif %}
-                        {% endif %}
-
-                    {% endfor %}
+                    {% if path.is_split %}
+                        <h3 class="text-danger">Path split!</h3>
+                        <p>Select a node below to continue:</p>
+                        <ul class="text-start">
+                            {% for next_node in path.get_split_nodes %}
+                                {% if next_node.cable %}
+                                    <li>
+                                        <a href="{% url 'dcim:frontport_trace' pk=next_node.pk %}">{{ next_node }}</a>
+                                        (Cable <a href="{{ next_node.cable.get_absolute_url }}">{{ next_node.cable }}</a>)
+                                    </li>
+                                {% else %}
+                                    <li class="text-muted">{{ next_node }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <h3 class="text-center text-success">Trace Completed</h3>
+                        <table class="table">
+                          <tr>
+                            <th scope="row">Total segments</th>
+                            <td>{{ traced_path|length }}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Total length</th>
+                            <td>
+                              {% if total_length %}
+                                {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} Meters /
+                                {{ total_length|meters_to_feet|floatformat:"-2" }} Feet
+                              {% else %}
+                                <span class="text-muted">N/A</span>
+                              {% endif %}
+                            </td>
+                          </tr>
+                        </table>
+                    {% endif %}
                 {% endwith %}
             </div>
         </div>
-        <div class="col-md-7 col-sm-12">
+        <div class="col col-md-7">
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                  <strong>Related Paths</strong>
-                </div>
-                <table class="table table-hover panel-body">
-                    <thead>
-                        <tr>
-                            <th>Origin</th>
-                            <th>Destination</th>
-                            <th>Segments</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cablepath in related_paths %}
-                            <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
-                                <td>
-                                    <a href="?cablepath_id={{ cablepath.pk }}">
-                                        {{ cablepath.origin.parent_object }} / {{ cablepath.origin }}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if cablepath.destination %}
-                                        {{ cablepath.destination }} ({{ cablepath.destination.parent_object }})
-                                    {% else %}
-                                        <span class="text-muted">Incomplete</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-right">
-                                    {{ cablepath.segment_count }}
-                                </td>
+            <div class="card">
+                <h5 class="card-header">
+                  Related Paths
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Origin</th>
+                                <th>Destination</th>
+                                <th>Segments</th>
                             </tr>
-                        {% empty %}
-                            <td colspan="3" class="text-muted">
-                                None found
-                            </td>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for cablepath in related_paths %}
+                                <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
+                                    <td>
+                                        <a href="?cablepath_id={{ cablepath.pk }}">
+                                            {{ cablepath.origin.parent_object }} / {{ cablepath.origin }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if cablepath.destination %}
+                                            {{ cablepath.destination }} ({{ cablepath.destination.parent_object }})
+                                        {% else %}
+                                            <span class="text-muted">Incomplete</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        {{ cablepath.segment_count }}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <td colspan="3" class="text-muted">
+                                    None found
+                                </td>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
