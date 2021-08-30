@@ -15,6 +15,7 @@
 * [#6996](https://github.com/netbox-community/netbox/issues/6996) - Global search bar should be full width on mobile
 * [#7001](https://github.com/netbox-community/netbox/issues/7001) - Fix page focus on load
 * [#7034](https://github.com/netbox-community/netbox/issues/7034) - Fix toggling of VLAN group scope selector fields
+* [#7045](https://github.com/netbox-community/netbox/issues/7045) - Fix navigation menu rendering under Chrome
 
 ---
 
