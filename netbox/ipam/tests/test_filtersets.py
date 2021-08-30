@@ -451,7 +451,7 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mask_length(self):
-        params = {'mask_length': '24'}
+        params = {'mask_length': ['24']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_vrf(self):
