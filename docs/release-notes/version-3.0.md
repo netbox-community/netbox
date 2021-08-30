@@ -2,46 +2,6 @@
 
 ## v3.0.0 (FUTURE)
 
-### Enhancements
-
-* [#6881](https://github.com/netbox-community/netbox/issues/6881) - Improve device IP address styles
-* [#6976](https://github.com/netbox-community/netbox/issues/6976) - Improve handling of printing layouts/styling
-
-### Bug Fixes
-
-* [#6977](https://github.com/netbox-community/netbox/issues/6977) - Truncate global search dropdown on small screens
-* [#6979](https://github.com/netbox-community/netbox/issues/6979) - Hide "create & add another" button for circuit terminations
-* [#6982](https://github.com/netbox-community/netbox/issues/6982) - Fix styling of empty dropdown list under dark mode
-* [#6996](https://github.com/netbox-community/netbox/issues/6996) - Global search bar should be full width on mobile
-* [#7001](https://github.com/netbox-community/netbox/issues/7001) - Fix page focus on load
-* [#7034](https://github.com/netbox-community/netbox/issues/7034) - Fix toggling of VLAN group scope selector fields
-* [#7045](https://github.com/netbox-community/netbox/issues/7045) - Fix navigation menu rendering under Chrome
-
----
-
-## v3.0-beta2 (2021-08-13)
-
-### Enhancements
-
-* [#6829](https://github.com/netbox-community/netbox/issues/6829) - Extend GraphQL API to support reverse generic relationships
-* [#6931](https://github.com/netbox-community/netbox/issues/6931) - Include applied filters on object list view
-
-### Bug Fixes
-
-* [#6811](https://github.com/netbox-community/netbox/issues/6811) - Fix exception when editing users
-* [#6827](https://github.com/netbox-community/netbox/issues/6827) - Fix circuit termination connection dropdown
-* [#6832](https://github.com/netbox-community/netbox/issues/6832) - Support config context rendering under GraphQL API
-* [#6846](https://github.com/netbox-community/netbox/issues/6846) - Form-driven REST API calls should use brief mode
-* [#6856](https://github.com/netbox-community/netbox/issues/6856) - Fix maximum options limit for API-backed select fields
-* [#6871](https://github.com/netbox-community/netbox/issues/6871) - Support dynamic tag types in GraphQL API
-* [#6894](https://github.com/netbox-community/netbox/issues/6894) - Fix available IP generation for prefix assigned to a VRF
-* [#6934](https://github.com/netbox-community/netbox/issues/6934) - Correct prefix utilization and available IP reporting to account for child IP ranges
-* [#6953](https://github.com/netbox-community/netbox/issues/6953) - Remove change log tab from non-applicable object views
-
----
-
-## v3.0-beta1 (2021-07-23)
-
 !!! warning "Existing Deployments Must Upgrade from v2.11"
     Upgrading an existing NetBox deployment to version 3.0 **must** be done from version 2.11.0 or later. If attempting to upgrade a deployment of NetBox v2.10 or earlier, first upgrade to a NetBox v2.11 release, and then upgrade from v2.11 to v3.0. This will avoid any problems with the database migration optimizations implemented in version 3.0.
 
@@ -217,6 +177,16 @@ Note that NetBox's `rqworker` process will _not_ service custom queues by defaul
 * [#5806](https://github.com/netbox-community/netbox/issues/5806) - Add kilometer and mile as choices for cable length unit
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
 * [#6328](https://github.com/netbox-community/netbox/issues/6328) - Build and serve documentation locally
+
+### Bug Fixes (from v3.2-beta2)
+
+* [#6977](https://github.com/netbox-community/netbox/issues/6977) - Truncate global search dropdown on small screens
+* [#6979](https://github.com/netbox-community/netbox/issues/6979) - Hide "create & add another" button for circuit terminations
+* [#6982](https://github.com/netbox-community/netbox/issues/6982) - Fix styling of empty dropdown list under dark mode
+* [#6996](https://github.com/netbox-community/netbox/issues/6996) - Global search bar should be full width on mobile
+* [#7001](https://github.com/netbox-community/netbox/issues/7001) - Fix page focus on load
+* [#7034](https://github.com/netbox-community/netbox/issues/7034) - Fix toggling of VLAN group scope selector fields
+* [#7045](https://github.com/netbox-community/netbox/issues/7045) - Fix navigation menu rendering under Chrome
 
 ### Other Changes
 
