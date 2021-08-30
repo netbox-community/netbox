@@ -36,23 +36,21 @@ This documentation provides two options for installing NetBox: from a downloadab
 Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox` as the NetBox root.
 
 ```no-highlight
-$ sudo wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
-$ sudo tar -xzf vX.Y.Z.tar.gz -C /opt
-$ sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
-$ ls -l /opt | grep netbox
-lrwxrwxrwx  1 root root         13 Jul 20 13:44 netbox -> netbox-2.9.0/
-drwxr-xr-x  2 root root       4096 Jul 20 13:44 netbox-2.9.0
+sudo wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
+sudo tar -xzf vX.Y.Z.tar.gz -C /opt
+sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
 ```
 
 !!! note
-    It is recommended to install NetBox in a directory named for its version number. For example, NetBox v2.9.0 would be installed into `/opt/netbox-2.9.0`, and a symlink from `/opt/netbox/` would point to this location. This allows for future releases to be installed in parallel without interrupting the current installation. When changing to the new release, only the symlink needs to be updated.
+    It is recommended to install NetBox in a directory named for its version number. For example, NetBox v3.0.0 would be installed into `/opt/netbox-3.0.0`, and a symlink from `/opt/netbox/` would point to this location. (You can verify this configuration with the command `ls -l /opt | grep netbox`.) This allows for future releases to be installed in parallel without interrupting the current installation. When changing to the new release, only the symlink needs to be updated.
 
 ### Option B: Clone the Git Repository
 
 Create the base directory for the NetBox installation. For this guide, we'll use `/opt/netbox`.
 
 ```no-highlight
-sudo mkdir -p /opt/netbox/ && cd /opt/netbox/
+sudo mkdir -p /opt/netbox/
+cd /opt/netbox/
 ```
 
 If `git` is not already installed, install it:
@@ -75,7 +73,7 @@ Next, clone the **master** branch of the NetBox GitHub repository into the curre
 sudo git clone -b master https://github.com/netbox-community/netbox.git .
 ```
 
-The screen below should be the result:
+The `git clone` command should generate output similar to the following:
 
 ```
 Cloning into '.'...
@@ -250,13 +248,8 @@ Once the virtual environment has been activated, you should notice the string `(
 Next, we'll create a superuser account using the `createsuperuser` Django management command (via `manage.py`). Specifying an email address for the user is not required, but be sure to use a very strong password.
 
 ```no-highlight
-(venv) $ cd /opt/netbox/netbox
-(venv) $ python3 manage.py createsuperuser
-Username: admin
-Email address: admin@example.com
-Password:
-Password (again):
-Superuser created successfully.
+cd /opt/netbox/netbox
+python3 manage.py createsuperuser
 ```
 
 ## Schedule the Housekeeping Task
@@ -276,13 +269,19 @@ See the [housekeeping documentation](../administration/housekeeping.md) for furt
 At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance:
 
 ```no-highlight
-(venv) $ python3 manage.py runserver 0.0.0.0:8000 --insecure
+python3 manage.py runserver 0.0.0.0:8000 --insecure
+```
+
+If successful, you should see output similar to the following:
+
+```no-highlight
+Watching for file changes with StatReloader
 Performing system checks...
 
 System check identified no issues (0 silenced).
-November 17, 2020 - 16:08:13
-Django version 3.1.3, using settings 'netbox.settings'
-Starting development server at http://0.0.0.0:8000/
+August 30, 2021 - 18:02:23
+Django version 3.2.6, using settings 'netbox.settings'
+Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
 

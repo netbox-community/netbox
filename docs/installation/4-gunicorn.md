@@ -31,18 +31,23 @@ sudo systemctl enable netbox netbox-rq
 You can use the command `systemctl status netbox` to verify that the WSGI service is running:
 
 ```no-highlight
-# systemctl status netbox.service
+systemctl status netbox.service
+```
+
+You should see output similar to the following:
+
+```no-highlight
 ● netbox.service - NetBox WSGI Service
      Loaded: loaded (/etc/systemd/system/netbox.service; enabled; vendor preset: enabled)
-     Active: active (running) since Tue 2020-11-17 16:18:23 UTC; 3min 35s ago
+     Active: active (running) since Mon 2021-08-30 04:02:36 UTC; 14h ago
        Docs: https://netbox.readthedocs.io/en/stable/
-   Main PID: 22836 (gunicorn)
-      Tasks: 6 (limit: 2345)
-     Memory: 339.3M
+   Main PID: 1140492 (gunicorn)
+      Tasks: 19 (limit: 4683)
+     Memory: 666.2M
      CGroup: /system.slice/netbox.service
-             ├─22836 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid>
-             ├─22854 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid>
-             ├─22855 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid>
+             ├─1140492 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /va>
+             ├─1140513 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /va>
+             ├─1140514 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /va>
 ...
 ```
 
