@@ -1,6 +1,7 @@
 // Netbox-specific Styles and Overrides.
 
 @use 'sass:map';
+@use 'sass:math';
 @import './sidenav';
 @import './overrides';
 @import './utilities';
@@ -746,7 +747,7 @@ label.required {
 div.bulk-buttons {
   display: flex;
   justify-content: space-between;
-  margin: $spacer / 2 0;
+  margin: math.div($spacer, 2) 0;
 
   // Each group of buttons needs to be contained separately for alignment purposes. This way, you
   // can put some buttons in a group that aligns left, and other buttons in a group that aligns
@@ -777,7 +778,7 @@ div.bulk-buttons {
 
     // However, the rest of the buttons should have spacing applied in all directions.
     > * {
-      margin: $spacer / 4;
+      margin: math.div($spacer, 4);
     }
   }
 }
