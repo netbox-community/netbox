@@ -31,7 +31,7 @@ a[type='button'] {
   cursor: pointer;
 }
 
-.form-control {
+.form-control:not([type='file']) {
   font-size: inherit;
 }
 
