@@ -25,12 +25,10 @@
     "@mdi/font": "^5.9.55",
     "@popperjs/core": "^2.9.2",
     "bootstrap": "^5.0.2",
-    "clipboard": "2.0.6",
+    "clipboard": "^2.0.8",
     "color2k": "^1.2.4",
     "cookie": "^0.4.1",
     "dayjs": "^1.10.4",
-    "esbuild": "^0.12.15",
-    "esbuild-sass-plugin": "^1.4.8",
     "flatpickr": "4.6.3",
     "just-debounce-it": "^1.4.0",
     "masonry-layout": "^4.2.2",
@@ -41,11 +39,12 @@
   },
   "devDependencies": {
     "@types/bootstrap": "^5.0.12",
-    "@types/clipboard": "^2.0.1",
     "@types/cookie": "^0.4.0",
     "@types/masonry-layout": "^4.2.2",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
+    "esbuild": "^0.12.24",
+    "esbuild-sass-plugin": "^1.5.2",
     "eslint": "^7.22.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-import-resolver-typescript": "^2.4.0",
@@ -54,5 +53,13 @@
     "prettier": "^2.2.1",
     "prettier-eslint": "^12.0.0",
     "typescript": "^4.2.3"
+  },
+  "resolutions": {
+    "eslint-import-resolver-typescript/**/path-parse": "^1.0.7",
+    "slim-select/**/trim-newlines": "^3.0.1",
+    "eslint/glob-parent": "^5.1.2",
+    "esbuild-sass-plugin/**/glob-parent": "^5.1.2",
+    "@typescript-eslint/**/glob-parent": "^5.1.2",
+    "eslint-plugin-import/**/hosted-git-info": "^2.8.9"
   }
 }
