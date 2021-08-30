@@ -1,5 +1,13 @@
 # NetBox v3.0
 
+## v2.11.12 (2021-08-23)
+
+### Bug Fixes
+
+* [#7070](https://github.com/netbox-community/netbox/issues/7070) - Fix exception when filtering by prefix max length in UI
+
+---
+
 ## v3.0.0 (2021-08-30)
 
 !!! warning "Existing Deployments Must Upgrade from v2.11"

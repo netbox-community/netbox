@@ -216,7 +216,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     children = MultiValueNumberFilter(
         field_name='_children'
     )
-    mask_length = django_filters.NumberFilter(
+    mask_length = MultiValueNumberFilter(
         field_name='prefix',
         lookup_expr='net_mask_length'
     )

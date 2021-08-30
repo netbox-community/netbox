@@ -658,11 +658,11 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         label=_('Address family'),
         widget=StaticSelect()
     )
-    mask_length = forms.ChoiceField(
+    mask_length = forms.MultipleChoiceField(
         required=False,
         choices=PREFIX_MASK_LENGTH_CHOICES,
         label=_('Mask length'),
-        widget=StaticSelect()
+        widget=StaticSelectMultiple()
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
