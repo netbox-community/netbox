@@ -65,7 +65,9 @@
         {% url journal_viewname pk=object.pk as journal_url %}
         {% if journal_url %}
           <li role="presentation" class="nav-item">
-            <a href="{{ journal_url }}" class="nav-link{% if active_tab == 'journal'%} active{% endif %}">Journal</a>
+            <a href="{{ journal_url }}" class="nav-link{% if active_tab == 'journal'%} active{% endif %}">
+              Journal {% badge object.journal_entries.count %}
+            </a>
           </li>
         {% endif %}
       {% endwith %}
