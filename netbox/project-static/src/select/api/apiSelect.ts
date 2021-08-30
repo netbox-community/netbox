@@ -1,71 +1,26 @@
-import queryString from 'query-string';
-import debounce from 'just-debounce-it';
 import { readableColor } from 'color2k';
+import debounce from 'just-debounce-it';
+import queryString from 'query-string';
 import SlimSelect from 'slim-select';
-import { createToast } from '../bs';
-import { hasUrl, hasExclusions, isTrigger } from './util';
+import { createToast } from '../../bs';
+import { hasUrl, hasExclusions, isTrigger } from '../util';
+import { DynamicParamsMap } from './dynamicParams';
+import { isStaticParams } from './types';
 import {
-  isTruthy,
   hasMore,
+  isTruthy,
   hasError,
   getElement,
   getApiData,
   isApiError,
-  getElements,
   createElement,
   uniqueByProperty,
   findFirstAdjacent,
-} from '../util';
+} from '../../util';
 
 import type { Stringifiable } from 'query-string';
 import type { Option } from 'slim-select/dist/data';
-
-/**
- * Map of string keys to primitive array values accepted by `query-string`. Keys are used as
- * URL query parameter keys. Values correspond to query param values, enforced as an array
- * for easier handling. For example, a mapping of `{ site_id: [1, 2] }` is serialized by
- * `query-string` as `?site_id=1&site_id=2`. Likewise, `{ site_id: [1] }` is serialized as
- * `?site_id=1`.
- */
-type QueryFilter = Map<string, Stringifiable[]>;
-
-/**
- * Map of string keys to primitive values. Used to track variables within URLs from the server. For
- * example, `/api/$key/thing`. `PathFilter` tracks `$key` as `{ key: '' }` in the map, and when the
- * value is later known, the value is set — `{ key: 'value' }`, and the URL is transformed to
- * `/api/value/thing`.
- */
-type PathFilter = Map<string, Stringifiable>;
-
-/**
- * Merge or replace incoming options with current options.
- */
-type ApplyMethod = 'merge' | 'replace';
-
-/**
- * Trigger for which the select instance should fetch its data from the NetBox API.
- */
-export type Trigger =
-  /**
-   * Load data when the select element is opened.
-   */
-  | 'open'
-  /**
-   * Load data when the element is loaded.
-   */
-  | 'load'
-  /**
-   * Load data when a parent element is uncollapsed.
-   */
-  | 'collapse';
-
-// Various one-off patterns to replace in query param keys.
-const REPLACE_PATTERNS = [
-  // Don't query `termination_a_device=1`, but rather `device=1`.
-  [new RegExp(/termination_(a|b)_(.+)/g), '$2'],
-  // A tenant's group relationship field is `group`, but the field name is `tenant_group`.
-  [new RegExp(/tenant_(group)/g), '$1'],
-] as [RegExp, string][];
+import type { Trigger, PathFilter, ApplyMethod, QueryFilter } from './types';
 
 // Empty placeholder option.
 const PLACEHOLDER = {
@@ -81,7 +36,7 @@ const DISABLED_ATTRIBUTES = ['occupied'] as string[];
  * Manage a single API-backed select element's state. Each API select element is likely controlled
  * or dynamically updated by one or more other API select (or static select) elements' values.
  */
-class APISelect {
+export class APISelect {
   /**
    * Base `<select/>` DOM element.
    */
@@ -125,22 +80,30 @@ class APISelect {
   private readonly slim: InstanceType<typeof SlimSelect>;
 
   /**
-   * API query parameters that should be applied to API queries for this field. This will be
-   * updated as other dependent fields' values change. This is a mapping of:
-   *
-   *     Form Field Names → Form Field Values
-   *
-   * This is/might be different than the query parameters themselves, as the form field names may
-   * be different than the object model key names. For example, `tenant_group` would be the field
-   * name, but `group` would be the query parameter. Query parameters themselves are tracked in
-   * `queryParams`.
-   */
-  private readonly filterParams: QueryFilter = new Map();
-
-  /**
    * Post-parsed URL query parameters for API queries.
    */
   private readonly queryParams: QueryFilter = new Map();
+
+  /**
+   * API query parameters that should be applied to API queries for this field. This will be
+   * updated as other dependent fields' values change. This is a mapping of:
+   *
+   *     Form Field Names → Object containing:
+   *                         - Query parameter key name
+   *                         - Query value
+   *
+   * This is different from `queryParams` in that it tracks all _possible_ related fields and their
+   * values, even if they are empty. Further, the keys in `queryParams` correspond to the actual
+   * query parameter keys, which are not necessarily the same as the form field names, depending on
+   * the model. For example, `tenant_group` would be the field name, but `group_id` would be the
+   * query parameter.
+   */
+  private readonly dynamicParams: DynamicParamsMap = new DynamicParamsMap();
+
+  /**
+   * API query parameters that are already known by the server and should not change.
+   */
+  private readonly staticParams: QueryFilter = new Map();
 
   /**
    * Mapping of URL template key/value pairs. If this element's URL contains Django template tags
@@ -228,20 +191,21 @@ class APISelect {
     });
 
     // Initialize API query properties.
-    this.getFilteredBy();
+    this.getStaticParams();
+    this.getDynamicParams();
     this.getPathKeys();
 
-    for (const filter of this.filterParams.keys()) {
+    // Populate static query parameters.
+    for (const [key, value] of this.staticParams.entries()) {
+      this.queryParams.set(key, value);
+    }
+
+    // Populate dynamic query parameters with any form values that are already known.
+    for (const filter of this.dynamicParams.keys()) {
       this.updateQueryParams(filter);
     }
 
-    // Add any already-resolved key/value pairs to the API query parameters.
-    for (const [key, value] of this.filterParams.entries()) {
-      if (isTruthy(value)) {
-        this.queryParams.set(key, value);
-      }
-    }
-
+    // Populate dynamic path values with any form values that are already known.
     for (const filter of this.pathValues.keys()) {
       this.updatePathValues(filter);
     }
@@ -395,7 +359,8 @@ class APISelect {
 
     // Create a unique iterator of all possible form fields which, when changed, should cause this
     // element to update its API query.
-    const dependencies = new Set([...this.filterParams.keys(), ...this.pathValues.keys()]);
+    // const dependencies = new Set([...this.filterParams.keys(), ...this.pathValues.keys()]);
+    const dependencies = new Set([...this.dynamicParams.keys(), ...this.pathValues.keys()]);
 
     for (const dep of dependencies) {
       const filterElement = document.querySelector(`[name="${dep}"]`);
@@ -588,6 +553,7 @@ class APISelect {
     this.updateQueryParams(target.name);
     this.updatePathValues(target.name);
     this.updateQueryUrl();
+
     // Load new data.
     Promise.all([this.loadData()]);
   }
@@ -655,27 +621,12 @@ class APISelect {
    * Update an element's API URL based on the value of another element on which this element
    * relies.
    *
-   * @param id DOM ID of the other element.
+   * @param fieldName DOM ID of the other element.
    */
-  private updateQueryParams(id: string): void {
-    let key = id.replaceAll(/^id_/gi, '');
+  private updateQueryParams(fieldName: string): void {
     // Find the element dependency.
-    const element = getElement<HTMLSelectElement>(`id_${key}`);
+    const element = document.querySelector<HTMLSelectElement>(`[name="${fieldName}"]`);
     if (element !== null) {
-      // If the dependency has a value, parse the dependency's name (form key) for any
-      // required replacements.
-      for (const [pattern, replacement] of REPLACE_PATTERNS) {
-        if (key.match(pattern)) {
-          key = key.replaceAll(pattern, replacement);
-          break;
-        }
-      }
-
-      // Force related keys to end in `_id`, if they don't already.
-      if (key.substring(key.length - 3) !== '_id') {
-        key = `${key}_id`;
-      }
-
       // Initialize the element value as an array, in case there are multiple values.
       let elementValue = [] as Stringifiable[];
 
@@ -694,13 +645,38 @@ class APISelect {
 
       if (elementValue.length > 0) {
         // If the field has a value, add it to the map.
-        if (this.filterParams.has(id)) {
-          // If this instance is filtered by the neighbor element, add its value to the map.
-          this.queryParams.set(key, elementValue);
+        this.dynamicParams.updateValue(fieldName, elementValue);
+        // Get the updated value.
+        const current = this.dynamicParams.get(fieldName);
+
+        if (typeof current !== 'undefined') {
+          const { queryParam, queryValue } = current;
+          let value = [] as Stringifiable[];
+
+          if (this.staticParams.has(queryParam)) {
+            // If the field is defined in `staticParams`, we should merge the dynamic value with
+            // the static value.
+            const staticValue = this.staticParams.get(queryParam);
+            if (typeof staticValue !== 'undefined') {
+              value = [...staticValue, ...queryValue];
+            }
+          } else {
+            // If the field is _not_ defined in `staticParams`, we should replace the current value
+            // with the new dynamic value.
+            value = queryValue;
+          }
+          if (value.length > 0) {
+            this.queryParams.set(queryParam, value);
+          } else {
+            this.queryParams.delete(queryParam);
+          }
         }
       } else {
         // Otherwise, delete it (we don't want to send an empty query like `?site_id=`)
-        this.queryParams.delete(key);
+        const queryParam = this.dynamicParams.queryParam(fieldName);
+        if (queryParam !== null) {
+          this.queryParams.delete(queryParam);
+        }
       }
     }
   }
@@ -796,88 +772,50 @@ class APISelect {
   }
 
   /**
-   * Determine if a select element should be filtered by the value of another select element.
+   * Determine if a this instances' options should be filtered by the value of another select
+   * element.
    *
-   * Looks for the DOM attribute `data-query-param-<name of other field>`, which would look like:
-   * `["$<name>"]`
-   *
-   * If the attribute exists, parse out the raw value. In the above example, this would be `name`.
+   * Looks for the DOM attribute `data-dynamic-params`, the value of which is a JSON array of
+   * objects containing information about how to handle the related field.
    */
-  private getFilteredBy(): void {
-    const pattern = new RegExp(/\[|\]|"|\$/g);
-    const keyPattern = new RegExp(/data-query-param-/g);
+  private getDynamicParams(): void {
+    const serialized = this.base.getAttribute('data-dynamic-params');
+    try {
+      this.dynamicParams.addFromJson(serialized);
+    } catch (err) {
+      console.group(`Unable to determine dynamic query parameters for select field '${this.name}'`);
+      console.warn(err);
+      console.groupEnd();
+    }
+  }
 
-    // Extract data attributes.
-    const keys = Object.values(this.base.attributes)
-      .map(v => v.name)
-      .filter(v => v.includes('data'));
+  /**
+   * Determine if this instance's options should be filtered by static values passed from the
+   * server.
+   *
+   * Looks for the DOM attribute `data-static-params`, the value of which is a JSON array of
+   * objects containing key/value pairs to add to `this.staticParams`.
+   */
+  private getStaticParams(): void {
+    const serialized = this.base.getAttribute('data-static-params');
 
-    /**
-     * Properly handle preexistence of keys, value types, and deduplication when adding a filter to
-     * `filterParams`.
-     *
-     * _Note: This is an unnamed function so that it can access `this`._
-     */
-    const addFilter = (key: string, value: Stringifiable): void => {
-      const current = this.filterParams.get(key);
-
-      if (typeof current !== 'undefined') {
-        // This instance is already filtered by `key`, so we should add the new `value`.
-        // Merge and deduplicate the current filter parameter values with the incoming value.
-        const next = Array.from(
-          new Set<Stringifiable>([...(current as Stringifiable[]), value]),
-        );
-        this.filterParams.set(key, next);
-      } else {
-        // This instance is not already filtered by `key`, so we should add a new mapping.
-        if (value === '') {
-          // Don't add placeholder values.
-          this.filterParams.set(key, []);
-        } else {
-          // If the value is not a placeholder, add it.
-          this.filterParams.set(key, [value]);
-        }
-      }
-    };
-
-    for (const key of keys) {
-      if (key.match(keyPattern) && key !== 'data-query-param-exclude') {
-        const value = this.base.getAttribute(key);
-        if (value !== null) {
-          try {
-            const parsed = JSON.parse(value) as string | string[];
-            if (Array.isArray(parsed)) {
-              // Query param contains multiple values.
-              for (const item of parsed) {
-                if (item.match(/^\$.+$/g)) {
-                  // Value is an unfulfilled variable.
-                  addFilter(item.replaceAll(pattern, ''), '');
-                } else {
-                  // Value has been fulfilled and is a real value to query.
-                  addFilter(key.replaceAll(keyPattern, ''), item);
-                }
-              }
+    try {
+      if (isTruthy(serialized)) {
+        const deserialized = JSON.parse(serialized);
+        if (isStaticParams(deserialized)) {
+          for (const { queryParam, queryValue } of deserialized) {
+            if (Array.isArray(queryValue)) {
+              this.staticParams.set(queryParam, queryValue);
             } else {
-              if (parsed.match(/^\$.+$/g)) {
-                // Value is an unfulfilled variable.
-                addFilter(parsed.replaceAll(pattern, ''), '');
-              } else {
-                // Value has been fulfilled and is a real value to query.
-                addFilter(key.replaceAll(keyPattern, ''), parsed);
-              }
-            }
-          } catch (err) {
-            console.warn(err);
-            if (value.match(/^\$.+$/g)) {
-              // Value is an unfulfilled variable.
-              addFilter(value.replaceAll(pattern, ''), '');
-            } else {
-              // Value has been fulfilled and is a real value to query.
-              addFilter(key.replaceAll(keyPattern, ''), value);
+              this.staticParams.set(queryParam, [queryValue]);
             }
           }
         }
       }
+    } catch (err) {
+      console.group(`Unable to determine static query parameters for select field '${this.name}'`);
+      console.warn(err);
+      console.groupEnd();
     }
   }
 
@@ -988,11 +926,5 @@ class APISelect {
       refreshButton.type = 'button';
       this.slim.slim.search.container.appendChild(refreshButton);
     }
-  }
-}
-
-export function initApiSelect(): void {
-  for (const select of getElements<HTMLSelectElement>('.netbox-api-select')) {
-    new APISelect(select);
   }
 }

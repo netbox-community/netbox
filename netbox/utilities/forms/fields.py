@@ -375,8 +375,8 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None, *args,
-                 **kwargs):
+    def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None,
+                 *args, **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
@@ -409,8 +409,8 @@ class DynamicModelChoiceMixin:
             attrs['data-fetch-trigger'] = self.fetch_trigger
 
         # Attach any static query parameters
-        for key, value in self.query_params.items():
-            widget.add_query_param(key, value)
+        if (len(self.query_params) > 0):
+            widget.add_query_params(self.query_params)
 
         return attrs
 
