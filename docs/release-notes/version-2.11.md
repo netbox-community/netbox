@@ -1,17 +1,5 @@
 # NetBox v2.11
 
-## v2.11.13 (FUTURE)
-
-### Enhancements
-
-* [#7042](https://github.com/netbox-community/netbox/issues/7042) - Show count of journal entries in tab under object view
-
-### Bug Fixes
-
-* [#7019](https://github.com/netbox-community/netbox/issues/7019) - Enable searching VM interfaces by description
-
----
-
 ## v2.11.12 (2021-08-23)
 
 ### Enhancements
