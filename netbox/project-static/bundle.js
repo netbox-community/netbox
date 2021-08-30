@@ -6,7 +6,8 @@ const options = {
   outdir: './dist',
   bundle: true,
   minify: true,
-  sourcemap: true,
+  sourcemap: 'external',
+  sourcesContent: false,
   logLevel: 'error',
 };
 
@@ -91,6 +92,8 @@ async function bundleStyles() {
     }
     let result = await esbuild.build({
       ...options,
+      // Disable sourcemaps for CSS/SCSS files, see #7068
+      sourcemap: false,
       entryPoints,
       plugins: [sassPlugin(pluginOptions)],
       loader: {
