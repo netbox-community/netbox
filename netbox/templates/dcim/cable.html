@@ -4,86 +4,78 @@
 {% load perms %}
 {% load plugins %}
 
-{% block breadcrumbs %}
-  <li><a href="{% url 'dcim:cable_list' %}">Cables</a></li>
-  <li>{{ object }}</li>
-{% endblock %}
-
-{% block buttons %}
-  {% if request.user|can_change:object %}
-    {% edit_button object %}
-  {% endif %}
-  {% if request.user|can_delete:object %}
-    {% delete_button object %}
-  {% endif %}
-{% endblock %}
-
 {% block content %}
     <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Cable</strong>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Cable
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th scope="row">Type</th>
+                            <td>{{ object.get_type_display|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Status</th>
+                            <td>
+                                <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Label</th>
+                            <td>{{ object.label|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Color</th>
+                            <td>
+                                {% if object.color %}
+                                    <span class="color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Length</th>
+                            <td>
+                                {% if object.length %}
+                                    {{ object.length|floatformat }} {{ object.get_length_unit_display }}
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-                <table class="table table-hover panel-body attr-table">
-                    <tr>
-                        <td>Type</td>
-                        <td>{{ object.get_type_display|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <td>Status</td>
-                        <td>
-                            <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Label</td>
-                        <td>{{ object.label|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <td>Color</td>
-                        <td>
-                            {% if object.color %}
-                                <span class="label color-block" style="background-color: #{{ object.color }}">&nbsp;</span>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Length</td>
-                        <td>
-                            {% if object.length %}
-                                {{ object.length }} {{ object.get_length_unit_display }}
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                </table>
             </div>
             {% include 'inc/custom_fields_panel.html' %}
             {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:cable_list' %}
             {% plugin_left_page object %}
         </div>
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Termination A</strong>
-                </div>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Termination A
+                </h5>
+                <div class="card-body">
                 {% include 'dcim/inc/cable_termination.html' with termination=object.termination_a %}
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Termination B</strong>
                 </div>
+            </div>
+            <div class="card">
+                <h5 class="card-header">
+                    Termination B
+                </h5>
+                <div class="card-body">
                 {% include 'dcim/inc/cable_termination.html' with termination=object.termination_b %}
+                </div>
             </div>
             {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col col-md-12">
             {% plugin_full_width_page object %}
         </div>
     </div>

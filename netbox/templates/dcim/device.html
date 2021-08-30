@@ -7,359 +7,344 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-12">
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="details">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <strong>Device</strong>
-                                </div>
-                                <table class="table table-hover panel-body attr-table">
-                                    <tr>
-                                        <td>Region</td>
-                                        <td>
-                                            {% if object.site.region %}
-                                                {% for region in object.site.region.get_ancestors %}
-                                                    <a href="{{ region.get_absolute_url }}">{{ region }}</a> /
-                                                {% endfor %}
-                                                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a>
-                                            {% else %}
-                                                <span class="text-muted">None</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Site</td>
-                                        <td>
-                                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Location</td>
-                                        <td>
-                                            {% if object.location %}
-                                                {% for location in object.location.get_ancestors %}
-                                                    <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
-                                                {% endfor %}
-                                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
-                                            {% else %}
-                                                <span class="text-muted">None</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Rack</td>
-                                        <td>
-                                            {% if object.rack %}
-                                                <a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack }}</a>
-                                            {% else %}
-                                                <span class="text-muted">None</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Position</td>
-                                        <td>
-                                            {% if object.parent_bay %}
-                                                {% with object.parent_bay.device as parent %}
-                                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> / {{ object.parent_bay }}
-                                                    {% if parent.position %}
-                                                        (U{{ parent.position }} / {{ parent.get_face_display }})
-                                                    {% endif %}
-                                                {% endwith %}
-                                            {% elif object.rack and object.position %}
-                                                <span>U{{ object.position }} / {{ object.get_face_display }}</span>
-                                            {% elif object.rack and object.device_type.u_height %}
-                                                <span class="label label-warning">Not racked</span>
-                                            {% else %}
-                                                <span class="text-muted">&mdash;</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tenant</td>
-                                        <td>
-                                            {% if object.tenant %}
-                                                {% if object.tenant.group %}
-                                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                                                {% endif %}
-                                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                                            {% else %}
-                                                <span class="text-muted">None</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Device Type</td>
-                                        <td>
-                                            <span><a href="{{ object.device_type.get_absolute_url }}">{{ object.device_type.display_name }}</a> ({{ object.device_type.u_height }}U)</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Serial Number</td>
-                                        <td><span>{{ object.serial|placeholder }}</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Asset Tag</td>
-                                        <td><span>{{ object.asset_tag|placeholder }}</span></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            {% if vc_members %}
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <strong>Virtual Chassis</strong>
-                                    </div>
-                                    <table class="table table-hover panel-body attr-table">
-                                        <tr>
-                                            <th>Device</th>
-                                            <th>Position</th>
-                                            <th>Master</th>
-                                            <th>Priority</th>
-                                        </tr>
-                                        {% for vc_member in vc_members %}
-                                            <tr{% if vc_member == object %} class="info"{% endif %}>
-                                                <td>
-                                                    <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
-                                                </td>
-                                                <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
-                                                <td>{% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}</td>
-                                                <td>{{ vc_member.vc_priority|default:"" }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
-                                    <div class="panel-footer text-right noprint">
-                                        <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary btn-xs">
-                                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> View Virtual Chassis
-                                        </a>
-                                    </div>
-                                </div>
-                            {% endif %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <strong>Management</strong>
-                                </div>
-                                <table class="table table-hover panel-body attr-table">
-                                    <tr>
-                                        <td>Role</td>
-                                        <td>
-                                            <a href="{{ object.device_role.get_absolute_url }}">{{ object.device_role }}</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Platform</td>
-                                        <td>
-                                            {% if object.platform %}
-                                               <a href="{{ object.platform.get_absolute_url }}">{{ object.platform }}</a>
-                                            {% else %}
-                                                <span class="text-muted">None</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Status</td>
-                                        <td>
-                                            <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Primary IPv4</td>
-                                        <td>
-                                            {% if object.primary_ip4 %}
-                                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
-                                                {% if object.primary_ip4.nat_inside %}
-                                                    <span>(NAT for {{ object.primary_ip4.nat_inside.address.ip }})</span>
-                                                {% elif object.primary_ip4.nat_outside %}
-                                                    <span>(NAT: {{ object.primary_ip4.nat_outside.address.ip }})</span>
-                                                {% endif %}
-                                            {% else %}
-                                                <span class="text-muted">&mdash;</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Primary IPv6</td>
-                                        <td>
-                                            {% if object.primary_ip6 %}
-                                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
-                                                {% if object.primary_ip6.nat_inside %}
-                                                    <span>(NAT for {{ object.primary_ip6.nat_inside.address.ip }})</span>
-                                                {% elif object.primary_ip6.nat_outside %}
-                                                    <span>(NAT: {{ object.primary_ip6.nat_outside.address.ip }})</span>
-                                                {% endif %}
-                                            {% else %}
-                                                <span class="text-muted">&mdash;</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% if object.cluster %}
-                                        <tr>
-                                            <td>Cluster</td>
-                                            <td>
-                                                {% if object.cluster.group %}
-                                                    <a href="{{ object.cluster.group.get_absolute_url }}">{{ object.cluster.group }}</a> /
-                                                {% endif %}
-                                                <a href="{{ object.cluster.get_absolute_url }}">{{ object.cluster }}</a>
-                                            </td>
-                                        </tr>
-                                    {% endif %}
-                                </table>
-                            </div>
-                            {% include 'inc/custom_fields_panel.html' %}
-                            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:device_list' %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <strong>Comments</strong>
-                                </div>
-                                <div class="panel-body rendered-markdown">
-                                    {% if object.comments %}
-                                        {{ object.comments|render_markdown }}
-                                    {% else %}
-                                        <span class="text-muted">None</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% plugin_left_page object %}
-                        </div>
-                        <div class="col-md-6">
-                            {% if object.powerports.exists and object.poweroutlets.exists %}
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <strong>Power Utilization</strong>
-                                    </div>
-                                    <table class="table table-hover panel-body">
-                                        <tr>
-                                            <th>Input</th>
-                                            <th>Outlets</th>
-                                            <th>Allocated</th>
-                                            <th>Available</th>
-                                            <th>Utilization</th>
-                                        </tr>
-                                        {% for powerport in object.powerports.all %}
-                                            {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoint %}
-                                                <tr>
-                                                    <td>{{ powerport }}</td>
-                                                    <td>{{ utilization.outlet_count }}</td>
-                                                    <td>{{ utilization.allocated }}VA</td>
-                                                    {% if powerfeed.available_power %}
-                                                        <td>{{ powerfeed.available_power }}VA</td>
-                                                        <td>{% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}</td>
-                                                    {% else %}
-                                                        <td class="text-muted">&mdash;</td>
-                                                        <td class="text-muted">&mdash;</td>
-                                                    {% endif %}
-                                                </tr>
-                                                {% for leg in utilization.legs %}
-                                                    <tr>
-                                                        <td style="padding-left: 20px">Leg {{ leg.name }}</td>
-                                                        <td>{{ leg.outlet_count }}</td>
-                                                        <td>{{ leg.allocated }}</td>
-                                                        <td>{{ powerfeed.available_power|divide:3 }}VA</td>
-                                                        {% with phase_available=powerfeed.available_power|divide:3 %}
-                                                            <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
-                                                        {% endwith %}
-                                                    </tr>
-                                                {% endfor %}
-                                            {% endwith %}
-                                        {% endfor %}
-                                    </table>
-                                </div>
-                            {% endif %}
-                            {% if perms.secrets.view_secret %}
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <strong>Secrets</strong>
-                                    </div>
-                                    {% include 'secrets/inc/assigned_secrets.html' %}
-                                    {% if perms.secrets.add_secret %}
-                                        <div class="panel-footer text-right noprint">
-                                            <a href="{% url 'secrets:secret_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-xs btn-primary">
-                                                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add secret
-                                            </a>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <strong>Services</strong>
-                                </div>
-                                {% if services %}
-                                    <table class="table table-hover panel-body">
-                                        {% for service in services %}
-                                            {% include 'ipam/inc/service.html' %}
-                                        {% endfor %}
-                                    </table>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">
+                    Device
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th scope="row">Region</th>
+                            <td>
+                                {% if object.site.region %}
+                                    {% for region in object.site.region.get_ancestors %}
+                                    <a href="{{ region.get_absolute_url }}">{{ region }}</a> /
+                                    {% endfor %}
+                                    <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a>
                                 {% else %}
-                                    <div class="panel-body text-muted">
-                                        None
-                                    </div>
+                                <span class="text-muted">None</span>
                                 {% endif %}
-                                {% if perms.ipam.add_service %}
-                                    <div class="panel-footer text-right noprint">
-                                        <a href="{% url 'dcim:device_service_assign' device=object.pk %}" class="btn btn-xs btn-primary">
-                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign service
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <strong>Images</strong>
-                                </div>
-                                {% include 'inc/image_attachments.html' with images=object.images.all %}
-                                {% if perms.extras.add_imageattachment %}
-                                    <div class="panel-footer text-right noprint">
-                                        <a href="{% url 'dcim:device_add_image' object_id=object.pk %}" class="btn btn-primary btn-xs">
-                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                                            Attach an image
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="panel panel-default noprint">
-                                <div class="panel-heading">
-                                    <strong>Related Devices</strong>
-                                </div>
-                                {% if related_devices %}
-                                    <table class="table table-hover panel-body">
-                                        {% for rd in related_devices %}
-                                            <tr>
-                                                <td>
-                                                    <a href="{% url 'dcim:device' pk=rd.pk %}">{{ rd }}</a>
-                                                </td>
-                                                <td>
-                                                    {% if rd.rack %}
-                                                        <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
-                                                    {% else %}
-                                                        <span class="text-muted">&mdash;</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ rd.device_type.display_name }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Site</th>
+                            <td>
+                                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                            </td>
+                        </tr>
+                        <th scope="row">Location</th>
+                            <td>
+                            {% if object.location %}
+                                {% for location in object.location.get_ancestors %}
+                                    <a href="{{ location.get_absolute_url }}">{{ location }}</a> /
+                                {% endfor %}
+                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Rack</th>
+                            <td>
+                                {% if object.rack %}
+                                    <a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack }}</a>
                                 {% else %}
-                                    <div class="panel-body text-muted">None found</div>
+                                    <span class="text-muted">None</span>
                                 {% endif %}
-                            </div>
-                            {% plugin_right_page object %}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            {% plugin_full_width_page object %}
-                        </div>
-                    </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Position</th>
+                            <td>
+                                {% if object.parent_bay %}
+                                    {% with object.parent_bay.device as parent %}
+                                        <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> / {{ object.parent_bay }}
+                                        {% if parent.position %}
+                                            (U{{ parent.position }} / {{ parent.get_face_display }})
+                                        {% endif %}
+                                    {% endwith %}
+                                {% elif object.rack and object.position %}
+                                    <span>U{{ object.position }} / {{ object.get_face_display }}</span>
+                                {% elif object.rack and object.device_type.u_height %}
+                                    <span class="badge bg-warning">Not racked</span>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Tenant</th>
+                            <td>
+                                {% if object.tenant %}
+                                    {% if object.tenant.group %}
+                                        <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                                    {% endif %}
+                                    <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Device Type</th>
+                            <td>
+                                <span><a href="{{ object.device_type.get_absolute_url }}">{{ object.device_type }}</a> ({{ object.device_type.u_height }}U)</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Serial Number</th>
+                            <td><code>{{ object.serial|placeholder }}</code></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Asset Tag</th>
+                            <td><span>{{ object.asset_tag|placeholder }}</span></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
+            {% if vc_members %}
+                <div class="card">
+                    <h5 class="card-header">
+                        Virtual Chassis
+                    </h5>
+                    <div class="card-body">
+                        <table class="table table-hover attr-table">
+                            <tr>
+                                <th>Device</th>
+                                <th>Position</th>
+                                <th>Master</th>
+                                <th>Priority</th>
+                            </tr>
+                            {% for vc_member in vc_members %}
+                                <tr{% if vc_member == object %} class="info"{% endif %}>
+                                    <td>
+                                        <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
+                                    </td>
+                                    <td>
+                                      {% badge vc_member.vc_position %}
+                                    </td>
+                                    <td>
+                                      {% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}
+                                    </td>
+                                    <td>
+                                      {{ vc_member.vc_priority|default:"" }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <div class="card-footer text-end noprint">
+                        <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary btn-sm">
+                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> View Virtual Chassis
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="card">
+                <h5 class="card-header">
+                    Management
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th scope="row">Status</th>
+                            <td>
+                                <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Role</th>
+                            <td>
+                                <a href="{% url 'dcim:device_list' %}?role={{ object.device_role.slug }}">{{ object.device_role }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Platform</th>
+                            <td>
+                                {% if object.platform %}
+                                <a href="{{ object.platform.get_absolute_url }}">{{ object.platform }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Primary IPv4</th>
+                            <td>
+                                {% if object.primary_ip4 %}
+                                    <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
+                                    {% if object.primary_ip4.nat_inside %}
+                                        <span>(NAT for {{ object.primary_ip4.nat_inside.address.ip }})</span>
+                                    {% elif object.primary_ip4.nat_outside %}
+                                        <span>(NAT: {{ object.primary_ip4.nat_outside.address.ip }})</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Primary IPv6</th>
+                            <td>
+                                {% if object.primary_ip6 %}
+                                    <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
+                                    {% if object.primary_ip6.nat_inside %}
+                                        <span>(NAT for {{ object.primary_ip6.nat_inside.address.ip }})</span>
+                                    {% elif object.primary_ip6.nat_outside %}
+                                        <span>(NAT: {{ object.primary_ip6.nat_outside.address.ip }})</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if object.cluster %}
+                            <tr>
+                                <th>Cluster</th>
+                                <td>
+                                    {% if object.cluster.group %}
+                                        <a href="{{ object.cluster.group.get_absolute_url }}">{{ object.cluster.group }}</a> /
+                                    {% endif %}
+                                    <a href="{{ object.cluster.get_absolute_url }}">{{ object.cluster }}</a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+            {% include 'inc/custom_fields_panel.html' %}
+            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:device_list' %}
+            {% include 'inc/comments_panel.html' %}
+            {% plugin_left_page object %}
+        </div>
+        <div class="col col-md-6">
+            {% if object.powerports.exists and object.poweroutlets.exists %}
+                <div class="card">
+                    <h5 class="card-header">
+                        Power Utilization
+                    </h5>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <tr>
+                                <th>Input</th>
+                                <th>Outlets</th>
+                                <th>Allocated</th>
+                                <th>Available</th>
+                                <th>Utilization</th>
+                            </tr>
+                            {% for powerport in object.powerports.all %}
+                                {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoint %}
+                                    <tr>
+                                        <td>{{ powerport }}</td>
+                                        <td>{{ utilization.outlet_count }}</td>
+                                        <td>{{ utilization.allocated }}VA</td>
+                                        {% if powerfeed.available_power %}
+                                            <td>{{ powerfeed.available_power }}VA</td>
+                                            <td>{% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}</td>
+                                        {% else %}
+                                            <td class="text-muted">&mdash;</td>
+                                            <td class="text-muted">&mdash;</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% for leg in utilization.legs %}
+                                        <tr>
+                                            <td style="padding-left: 20px">Leg {{ leg.name }}</td>
+                                            <td>{{ leg.outlet_count }}</td>
+                                            <td>{{ leg.allocated }}</td>
+                                            <td>{{ powerfeed.available_power|divide:3 }}VA</td>
+                                            {% with phase_available=powerfeed.available_power|divide:3 %}
+                                                <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
+                                            {% endwith %}
+                                        </tr>
+                                    {% endfor %}
+                                {% endwith %}
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="card">
+                <h5 class="card-header">
+                    Services
+                </h5>
+                <div class="card-body">
+                {% if services %}
+                    <table class="table table-hover">
+                        {% for service in services %}
+                            {% include 'ipam/inc/service.html' %}
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <div class="text-muted">
+                        None
+                    </div>
+                {% endif %}
+                </div>
+                {% if perms.ipam.add_service %}
+                <div class="card-footer text-end noprint">
+                    <a href="{% url 'dcim:device_service_assign' device=object.pk %}" class="btn btn-sm btn-primary">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Service
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card">
+                <h5 class="card-header">
+                    Images
+                </h5>
+                <div class="card-body">
+                    {% include 'inc/image_attachments.html' with images=object.images.all %}
+                </div>
+                {% if perms.extras.add_imageattachment %}
+                <div class="card-footer text-end noprint">
+                    <a href="{% url 'dcim:device_add_image' object_id=object.pk %}" class="btn btn-primary btn-sm">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
+                        Attach an Image
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card noprint">
+                <h5 class="card-header">
+                    Related Devices
+                </h5>
+                <div class="card-body">
+                    {% if related_devices %}
+                    <table class="table table-hover">
+                        <tr>
+                            <th>Device</th>
+                            <th>Rack</th>
+                            <th>Type</th>
+                        </tr>
+                        {% for rd in related_devices %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'dcim:device' pk=rd.pk %}">{{ rd }}</a>
+                            </td>
+                            <td>
+                                {% if rd.rack %}
+                                    <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">{{ rd.rack }}</a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ rd.device_type }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% else %}
+                    <div class="text-muted">None</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% plugin_right_page object %}
         </div>
     </div>
-    {% include 'secrets/inc/private_key_modal.html' %}
-{% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
+    <div class="row">
+        <div class="col col-md-12">
+            {% plugin_full_width_page object %}
+        </div>
+    </div>
 {% endblock %}

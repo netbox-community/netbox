@@ -48,7 +48,7 @@ The plugin source directory contains all of the actual Python code and other res
 
 ### Create setup.py
 
-`setup.py` is the [setup script](https://docs.python.org/3.6/distutils/setupscript.html) we'll use to install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to inform the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
+`setup.py` is the [setup script](https://docs.python.org/3.7/distutils/setupscript.html) we'll use to install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to inform the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
 
 ```python
 from setuptools import find_packages, setup
@@ -113,7 +113,6 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `min_version` | Minimum version of NetBox with which the plugin is compatible |
 | `max_version` | Maximum version of NetBox with which the plugin is compatible |
 | `middleware` | A list of middleware classes to append after NetBox's build-in middleware |
-| `caching_config` | Plugin-specific cache configuration
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`) |
 | `menu_items` | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`) |
 
@@ -386,30 +385,30 @@ class SiteAnimalCount(PluginTemplateExtension):
 template_extensions = [SiteAnimalCount]
 ```
 
-## Caching Configuration
+## Background Tasks
 
-By default, all query operations within a plugin are cached. To change this, define a caching configuration under the PluginConfig class' `caching_config` attribute. All configuration keys will be applied within the context of the plugin; there is no need to include the plugin name. An example configuration is below:
+By default, Netbox provides 3 differents [RQ](https://python-rq.org/) queues to run background jobs : *high*, *default* and *low*.
+These 3 core queues can be used out-of-the-box by plugins to define background tasks.
+
+Plugins can also define dedicated queues. These queues can be configured under the PluginConfig class `queues` attribute. An example configuration
+is below:
 
 ```python
 class MyPluginConfig(PluginConfig):
+    name = 'myplugin'
     ...
-    caching_config = {
-        'foo': {
-            'ops': 'get',
-            'timeout': 60 * 15,
-        },
-        '*': {
-            'ops': 'all',
-        }
-    }
+    queues = [
+        'queue1',
+        'queue2',
+        'queue-whatever-the-name'
+    ]
 ```
 
-To disable caching for your plugin entirely, set:
+The PluginConfig above creates 3 queues with the following names: *myplugin.queue1*, *myplugin.queue2*, *myplugin.queue-whatever-the-name*.
+As you can see, the queue's name is always preprended with the plugin's name, to avoid any name clashes between different plugins.
 
-```python
-caching_config = {
-    '*': None
-}
+In case you create dedicated queues for your plugin, it is strongly advised to also create a dedicated RQ worker instance. This instance should only listen to the queues defined in your plugin - to avoid impact between your background tasks and netbox internal tasks.
+
 ```
-
-See the [django-cacheops](https://github.com/Suor/django-cacheops) documentation for more detail on configuring caching.
+python manage.py rqworker myplugin.queue1 myplugin.queue2 myplugin.queue-whatever-the-name
+```

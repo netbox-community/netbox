@@ -2,7 +2,7 @@ from django.urls import path
 
 from extras.views import ObjectChangeLogView, ObjectJournalView
 from . import views
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from .models import *
 
 app_name = 'ipam'
 urlpatterns = [
@@ -77,7 +77,21 @@ urlpatterns = [
     path('prefixes/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='prefix_changelog', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/journal/', ObjectJournalView.as_view(), name='prefix_journal', kwargs={'model': Prefix}),
     path('prefixes/<int:pk>/prefixes/', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
+    path('prefixes/<int:pk>/ip-ranges/', views.PrefixIPRangesView.as_view(), name='prefix_ipranges'),
     path('prefixes/<int:pk>/ip-addresses/', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
+
+    # IP ranges
+    path('ip-ranges/', views.IPRangeListView.as_view(), name='iprange_list'),
+    path('ip-ranges/add/', views.IPRangeEditView.as_view(), name='iprange_add'),
+    path('ip-ranges/import/', views.IPRangeBulkImportView.as_view(), name='iprange_import'),
+    path('ip-ranges/edit/', views.IPRangeBulkEditView.as_view(), name='iprange_bulk_edit'),
+    path('ip-ranges/delete/', views.IPRangeBulkDeleteView.as_view(), name='iprange_bulk_delete'),
+    path('ip-ranges/<int:pk>/', views.IPRangeView.as_view(), name='iprange'),
+    path('ip-ranges/<int:pk>/edit/', views.IPRangeEditView.as_view(), name='iprange_edit'),
+    path('ip-ranges/<int:pk>/delete/', views.IPRangeDeleteView.as_view(), name='iprange_delete'),
+    path('ip-ranges/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='iprange_changelog', kwargs={'model': IPRange}),
+    path('ip-ranges/<int:pk>/journal/', ObjectJournalView.as_view(), name='iprange_journal', kwargs={'model': IPRange}),
+    path('ip-ranges/<int:pk>/ip-addresses/', views.IPRangeIPAddressesView.as_view(), name='iprange_ipaddresses'),
 
     # IP addresses
     path('ip-addresses/', views.IPAddressListView.as_view(), name='ipaddress_list'),

@@ -1,195 +1,174 @@
 {% extends 'virtualization/virtualmachine/base.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load static %}
 {% load helpers %}
 {% load plugins %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Virtual Machine</strong>
+<div class="row my-3">
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Virtual Machine
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ object }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td>
+                            <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Role</th>
+                        <td>
+                            {% if object.role %}
+                                <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Platform</th>
+                        <td>
+                            {% if object.platform %}
+                                <a href="{{ object.platform.get_absolute_url }}">{{ object.platform }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Tenant</th>
+                        <td>
+                            {% if object.tenant %}
+                                {% if object.tenant.group %}
+                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                                {% endif %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Primary IPv4</th>
+                        <td>
+                            {% if object.primary_ip4 %}
+                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
+                                {% if object.primary_ip4.nat_inside %}
+                                    <span>(NAT for {{ object.primary_ip4.nat_inside.address.ip }})</span>
+                                {% elif object.primary_ip4.nat_outside %}
+                                    <span>(NAT: {{ object.primary_ip4.nat_outside.address.ip }})</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Primary IPv6</th>
+                        <td>
+                            {% if object.primary_ip6 %}
+                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
+                                {% if object.primary_ip6.nat_inside %}
+                                    <span>(NAT for {{ object.primary_ip6.nat_inside.address.ip }})</span>
+                                {% elif object.primary_ip6.nat_outside %}
+                                    <span>(NAT: {{ object.primary_ip6.nat_outside.address.ip }})</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Name</td>
-                    <td>{{ object }}</td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        <span class="label label-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Role</td>
-                    <td>
-                        {% if object.role %}
-                            <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Platform</td>
-                    <td>
-                        {% if object.platform %}
-                            <a href="{{ object.platform.get_absolute_url }}">{{ object.platform }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if object.tenant %}
-                            {% if object.tenant.group %}
-                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                            {% endif %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Primary IPv4</td>
-                    <td>
-                        {% if object.primary_ip4 %}
-                            <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
-                            {% if object.primary_ip4.nat_inside %}
-                                <span>(NAT for {{ object.primary_ip4.nat_inside.address.ip }})</span>
-                            {% elif object.primary_ip4.nat_outside %}
-                                <span>(NAT: {{ object.primary_ip4.nat_outside.address.ip }})</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Primary IPv6</td>
-                    <td>
-                        {% if object.primary_ip6 %}
-                            <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
-                            {% if object.primary_ip6.nat_inside %}
-                                <span>(NAT for {{ object.primary_ip6.nat_inside.address.ip }})</span>
-                            {% elif object.primary_ip6.nat_outside %}
-                                <span>(NAT: {{ object.primary_ip6.nat_outside.address.ip }})</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
         </div>
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='virtualization:virtualmachine_list' %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body rendered-markdown">
-                {% if object.comments %}
-                    {{ object.comments|render_markdown }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
-        </div>
+        {% include 'inc/comments_panel.html' %}
         {% plugin_left_page object %}
     </div>
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Cluster</strong>
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Cluster
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Cluster</th>
+                        <td>
+                            {% if object.cluster.group %}
+                                <a href="{{ object.cluster.group.get_absolute_url }}">{{ object.cluster.group }}</a> /
+                            {% endif %}
+                            <a href="{{ object.cluster.get_absolute_url }}">{{ object.cluster }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Cluster Type</th>
+                        <td>{{ object.cluster.type }}</td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Cluster</td>
-                    <td>
-                        {% if object.cluster.group %}
-                            <a href="{{ object.cluster.group.get_absolute_url }}">{{ object.cluster.group }}</a> /
-                        {% endif %}
-                        <a href="{{ object.cluster.get_absolute_url }}">{{ object.cluster }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Cluster Type</td>
-                    <td>{{ object.cluster.type }}</td>
-                </tr>
-            </table>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Resources</strong>
+        <div class="card">
+            <h5 class="card-header">
+                Resources
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row"><i class="mdi mdi-gauge"></i> Virtual CPUs</th>
+                        <td>{{ object.vcpus|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><i class="mdi mdi-chip"></i> Memory</th>
+                        <td>
+                            {% if object.memory %}
+                                {{ object.memory|humanize_megabytes }} MB
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><i class="mdi mdi-harddisk"></i> Disk Space</th>
+                        <td>
+                            {% if object.disk %}
+                                {{ object.disk }} GB
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td><i class="mdi mdi-gauge"></i> Virtual CPUs</td>
-                    <td>{{ object.vcpus|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td><i class="mdi mdi-chip"></i> Memory</td>
-                    <td>
-                        {% if object.memory %}
-                            <span title="{{ object.memory }} MB">{{ object.memory|humanize_megabytes }}</span>
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td><i class="mdi mdi-harddisk"></i> Disk Space</td>
-                    <td>
-                        {% if object.disk %}
-                            {{ object.disk }} GB
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
         </div>
-        {% if perms.secrets.view_secret %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Secrets</strong>
-                </div>
-                {% include 'secrets/inc/assigned_secrets.html' %}
-                {% if perms.secrets.add_secret %}
-                    <div class="panel-footer text-right noprint">
-                        <a href="{% url 'secrets:secret_add' %}?virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-xs btn-primary">
-                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add secret
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Services</strong>
-            </div>
+        <div class="card">
+            <h5 class="card-header">
+                Services
+            </h5>
+            <div class="card-body">
             {% if services %}
-                <table class="table table-hover panel-body">
+                <table class="table table-hover">
                     {% for service in services %}
                         {% include 'ipam/inc/service.html' %}
                     {% endfor %}
                 </table>
             {% else %}
-                <div class="panel-body text-muted">
-                    None
-                </div>
+                <span class="text-muted">None</span>
             {% endif %}
+            </div>
             {% if perms.ipam.add_service %}
-                <div class="panel-footer text-right noprint">
-                    <a href="{% url 'virtualization:virtualmachine_service_assign' virtualmachine=object.pk %}" class="btn btn-xs btn-primary">
-                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign service
+                <div class="card-footer text-end noprint">
+                    <a href="{% url 'virtualization:virtualmachine_service_assign' virtualmachine=object.pk %}" class="btn btn-sm btn-primary">
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Service
                     </a>
                 </div>
             {% endif %}
@@ -198,15 +177,8 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>
-{% include 'secrets/inc/private_key_modal.html' %}
-{% endblock %}
-
-{% block javascript %}
-  <script src="{% static 'js/interface_filtering.js' %}?v{{ settings.VERSION }}"></script>
-  <script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
-  <script src="{% static 'js/tableconfig.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

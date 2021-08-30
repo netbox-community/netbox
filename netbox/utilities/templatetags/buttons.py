@@ -88,7 +88,7 @@ def export_button(context, content_type=None):
         user = context['request'].user
         export_templates = ExportTemplate.objects.restrict(user, 'view').filter(content_type=content_type)
         if user.is_staff and user.has_perm('extras.add_exporttemplate'):
-            add_exporttemplate_link = f"{reverse('admin:extras_exporttemplate_add')}?content_type={content_type.pk}"
+            add_exporttemplate_link = f"{reverse('extras:exporttemplate_add')}?content_type={content_type.pk}"
     else:
         export_templates = []
 

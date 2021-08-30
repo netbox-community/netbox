@@ -6,6 +6,7 @@ from .vrfs import *
 __all__ = (
     'Aggregate',
     'IPAddress',
+    'IPRange',
     'Prefix',
     'RIR',
     'Role',

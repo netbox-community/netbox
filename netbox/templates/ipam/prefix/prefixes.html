@@ -23,8 +23,8 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-md-12">
-      {% include 'utilities/obj_table.html' with table=prefix_table table_template='panel_table.html' heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' parent=prefix %}
+    <div class="col col-md-12">
+      {% include 'utilities/obj_table.html' with heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' parent=prefix %}
     </div>
   </div>
   {% table_config_form prefix_table table_name="PrefixDetailTable" %}

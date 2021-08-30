@@ -3,17 +3,40 @@
 
 {% block title %}User Profile{% endblock %}
 
-{% block usercontent %}
-    <small class="text-muted">User login</small>
-    <h5>{{ request.user.username }}</h5>
-    <small class="text-muted">Full name</small>
-    <h5>{{ request.user.first_name }} {{ request.user.last_name }}</h5>
-    <small class="text-muted">Email</small>
-    <h5>{{ request.user.email }}</h5>
-    <small class="text-muted">Registered</small>
-    <h5>{{ request.user.date_joined|annotated_date }}</h5>
-    <small class="text-muted">Groups</small>
-    <h5>{{ request.user.groups.all|join:', ' }}</h5>
-    <small class="text-muted">Admin access</small>
-    <h5>{{ request.user.is_staff|yesno|capfirst }}</h5>
+{% block content %}
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <span class="text-muted">User Login</span>
+      <h5 class="mb-3">{{ request.user.username }}</h5>
+
+      <span class="text-muted">Full Name</span>
+      <h5 class="mb-3">
+        {% if request.user.first_name and request.user.last_name %}
+          {{ request.user.first_name }} {{ request.user.last_name }}
+        {% elif request.user.first_name and not request.user.last_name %}
+          {{ request.user.first_name }}
+        {% else %}
+          {{ request.user.last_name|placeholder }}
+        {% endif %}
+      </h5>
+
+      <span class="text-muted">Email</span>
+      <h5 class="mb-3">{{ request.user.email|placeholder }}</h5>
+
+      <span class="text-muted">Registered</span>
+      <h5 class="mb-3">{{ request.user.date_joined|annotated_date }}</h5>
+
+      <span class="text-muted">Groups</span>
+      <h5 class="mb-3">
+        {% for group in request.user.groups.all %}
+          <span class="badge bg-secondary">{{ group }}</span>
+        {% empty %}
+          <span class="text-muted">None</span>
+        {% endfor %}
+      </h5>
+
+      <span class="text-muted">Admin Access</span>
+      <h5 class="mb-3">{{ request.user.is_staff|yesno|capfirst }}</h5>
+    </div>
+  </div>
 {% endblock %}

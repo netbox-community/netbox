@@ -1,0 +1,46 @@
+{% comment %}
+  This template derives from the graphene-django project:
+  https://github.com/graphql-python/graphene-django/blob/main/graphene_django/templates/graphene/graphiql.html
+{% endcomment %}
+<!--
+The request to this GraphQL server provided the header "Accept: text/html"
+and as a result has been presented GraphiQL - an in-browser IDE for
+exploring GraphQL.
+If you wish to receive JSON, provide the header "Accept: application/json" or
+add "&raw" to the end of the URL within a browser.
+-->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html, body, #editor {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        width: 100%;
+      }
+    </style>
+    <link href="{% static 'graphiql.css'%}" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="{% static 'graphql.ico' %}" />
+    <title>GraphiQL | NetBox</title>
+  </head>
+  <body>
+    <div id="editor"></div>
+    {% csrf_token %}
+    <script type="application/javascript">
+      window.GRAPHENE_SETTINGS = {
+      {% if subscription_path %}
+        subscriptionPath: "{{subscription_path}}",
+      {% endif %}
+        graphiqlHeaderEditorEnabled: {{ graphiql_header_editor_enabled|yesno:"true,false" }},
+      };
+    </script>
+    <script
+      type="text/javascript"
+      src="{% static 'graphiql.js' %}"
+      onerror="window.location='{% url 'media_failure' %}?filename=graphiql.js'">
+    </script>
+    <script src="{% static 'graphene_django/graphiql.js' %}"></script>
+  </body>
+</html>

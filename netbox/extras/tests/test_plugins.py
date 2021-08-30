@@ -80,11 +80,13 @@ class PluginTest(TestCase):
         """
         self.assertIn('extras.tests.dummy_plugin.middleware.DummyMiddleware', settings.MIDDLEWARE)
 
-    def test_caching_config(self):
+    def test_queues(self):
         """
-        Check that plugin caching configuration is registered.
+        Check that plugin queues are registered with the accurate name.
         """
-        self.assertIn('extras.tests.dummy_plugin.*', settings.CACHEOPS)
+        self.assertIn('extras.tests.dummy_plugin.testing-low', settings.RQ_QUEUES)
+        self.assertIn('extras.tests.dummy_plugin.testing-medium', settings.RQ_QUEUES)
+        self.assertIn('extras.tests.dummy_plugin.testing-high', settings.RQ_QUEUES)
 
     def test_min_version(self):
         """

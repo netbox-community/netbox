@@ -1,0 +1,73 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block title %}{{ object.name }}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'extras:exporttemplate_list' %}?content_type={{ object.content_type.pk }}">{{ object.content_type }}</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+	<div class="col col-md-5">
+    <div class="card">
+      <h5 class="card-header">
+        Export Template
+      </h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Content Type</th>
+            <td>{{ object.content_type }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">MIME Type</th>
+            <td>{{ object.mime_type|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">File Extension</th>
+            <td>{{ object.file_extension|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Attachment</th>
+            <td>
+              {% if object.as_attachment %}
+                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+              {% else %}
+                <i class="mdi mdi-close-thick text-danger" title="No"></i>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% plugin_left_page object %}
+	</div>
+	<div class="col col-md-7">
+    <div class="card">
+      <h5 class="card-header">
+        Template
+      </h5>
+      <div class="card-body">
+        <pre>{{ object.template_code }}</pre>
+      </div>
+    </div>
+    {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
+{% endblock %}

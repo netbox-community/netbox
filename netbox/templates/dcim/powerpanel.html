@@ -4,78 +4,80 @@
 {% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></li>
-  <li><a href="{% url 'dcim:powerpanel_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
   {% if object.location %}
-    <li><a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a></li>
   {% endif %}
-  <li>{{ object }}</li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Power Panel</strong>
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Power Panel
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Site</th>
+                        <td>
+                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Location</th>
+                        <td>
+                            {% if object.location %}
+                                <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Site</td>
-                    <td>
-                        <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Location</td>
-                    <td>
-                        {% if object.location %}
-                            <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
         </div>
         {% plugin_left_page object %}
     </div>
-	<div class="col-md-6">
+	<div class="col col-md-6">
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:powerpanel_list' %}
         {% plugin_right_page object %}
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
+<div class="row my-3">
+    <div class="col col-md-12">
         <form method="post">
             {% csrf_token %}
-            <div class="panel panel-default">
-                {% render_table powerfeed_table 'inc/table.html' %}
-                <div class="panel-footer noprint">
+            <div class="card">
+                <div class="card-body">
+                    {% render_table powerfeed_table 'inc/table.html' %}
+                </div>
+                <div class="card-footer noprint">
                     {% if perms.dcim.change_powerfeed %}
-                        <button type="submit" name="_edit" formaction="{% url 'dcim:powerfeed_bulk_edit' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-warning btn-xs">
+                        <button type="submit" name="_edit" formaction="{% url 'dcim:powerfeed_bulk_edit' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-warning btn-sm">
                             <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                         </button>
                     {% endif %}
                     {% if perms.dcim.delete_cable %}
-                        <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerfeed_bulk_disconnect' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger btn-xs">
+                        <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerfeed_bulk_disconnect' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
                             <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                         </button>
                     {% endif %}
                     {% if perms.dcim.delete_powerfeed %}
-                        <button type="submit" name="_delete" formaction="{% url 'dcim:powerfeed_bulk_delete' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger btn-xs">
+                        <button type="submit" name="_delete" formaction="{% url 'dcim:powerfeed_bulk_delete' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger btn-sm">
                             <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                         </button>
                     {% endif %}
                     {% if perms.dcim.add_powerfeed %}
-                        <div class="pull-right">
-                            <a href="{% url 'dcim:powerfeed_add' %}?power_panel={{ object.pk }}&return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-primary btn-xs">
-                                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add power feeds
+                        <div class="float-end">
+                            <a href="{% url 'dcim:powerfeed_add' %}?power_panel={{ object.pk }}&return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-primary btn-sm">
+                                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Power Feeds
                             </a>
                         </div>
                     {% endif %}
-                    <div class="clearfix"></div>
                  </div>
             </div>
         </form>

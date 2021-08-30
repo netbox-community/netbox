@@ -7,7 +7,7 @@ This section of the documentation discusses installing and configuring the NetBo
 Begin by installing all system packages required by NetBox and its dependencies.
 
 !!! note
-    NetBox v2.8.0 and later require Python 3.6, 3.7, or 3.8.
+    NetBox v3.0 and later require Python 3.7, 3.8, or 3.9.
 
 === "Ubuntu"
 
@@ -72,7 +72,7 @@ If `git` is not already installed, install it:
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
 
 ```no-highlight
-$ sudo git clone -b master https://github.com/netbox-community/netbox.git .
+sudo git clone -b master https://github.com/netbox-community/netbox.git .
 ```
 
 The screen below should be the result:
@@ -219,12 +219,19 @@ sudo sh -c "echo 'django-storages' >> /opt/netbox/local_requirements.txt"
 Once NetBox has been configured, we're ready to proceed with the actual installation. We'll run the packaged upgrade script (`upgrade.sh`) to perform the following actions:
 
 * Create a Python virtual environment
-* Install all required Python packages
+* Installs all required Python packages
 * Run database schema migrations
+* Builds the documentation locally (for offline use)
 * Aggregate static resource files on disk
 
 ```no-highlight
 sudo /opt/netbox/upgrade.sh
+```
+
+Note that **Python 3.7 or later is required** for NetBox v3.0 and later releases. If the default Python installation on your server does not meet this requirement, you'll need to install Python 3.7 or later separately, and pass the path to the support installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+
+```no-highlight
+sudo PYTHON=/usr/bin/python3.7 /opt/netbox/upgrade.sh
 ```
 
 !!! note
@@ -252,6 +259,18 @@ Password (again):
 Superuser created successfully.
 ```
 
+## Schedule the Housekeeping Task
+
+NetBox includes a `housekeeping` management command that handles some recurring cleanup tasks, such as clearing out old sessions and expired change records. Although this command may be run manually, it is recommended to configure a scheduled job using the system's `cron` daemon or a similar utility.
+
+A shell script which invokes this command is included at `contrib/netbox-housekeeping.sh`. It can be copied to your system's daily cron task directory, or included within the crontab directly. (If installing NetBox into a nonstandard path, be sure to update the system paths within this script first.)
+
+```shell
+cp /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/
+```
+
+See the [housekeeping documentation](../administration/housekeeping.md) for further details.
+
 ## Test the Application
 
 At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance:
@@ -267,6 +286,8 @@ Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
 
+Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Try logging in using the username and password specified when creating a superuser.
+
 !!! note
     By default RHEL based distros will likely block your testing attempts with firewalld. The development server port can be opened with `firewall-cmd` (add `--permanent` if you want the rule to survive server restarts):
 
@@ -274,20 +295,10 @@ Quit the server with CONTROL-C.
     firewall-cmd --zone=public --add-port=8000/tcp
     ```
 
-Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page.
-
 !!! danger
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
-
-Note that the initial user interface will be locked down for non-authenticated users.
-
-![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_ui_guest.png)
-
-Try logging in using the superuser account we just created. Once authenticated, you'll be able to access all areas of the UI:
-
-![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)
 
 Type `Ctrl+c` to stop the development server.

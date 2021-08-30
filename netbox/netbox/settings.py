@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.11.12'
+VERSION = '3.0.0-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -25,15 +25,9 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if platform.python_version_tuple() < ('3', '6'):
-    raise RuntimeError(
-        "NetBox requires Python 3.6 or higher (current: Python {})".format(platform.python_version())
-    )
-# TODO: Remove in NetBox v3.0
 if platform.python_version_tuple() < ('3', '7'):
-    warnings.warn(
-        "Support for Python 3.6 will be dropped in NetBox v3.0. Please upgrade to Python 3.7 or later at your "
-        "earliest convenience."
+    raise RuntimeError(
+        f"NetBox requires Python 3.7 or higher (current: Python {platform.python_version()})"
     )
 
 
@@ -50,6 +44,16 @@ except ModuleNotFoundError as e:
             "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
         )
     raise
+
+# Warn on removed config parameters
+if hasattr(configuration, 'CACHE_TIMEOUT'):
+    warnings.warn(
+        "The CACHE_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
+    )
+if hasattr(configuration, 'RELEASE_CHECK_TIMEOUT'):
+    warnings.warn(
+        "The RELEASE_CHECK_TIMEOUT configuration parameter was removed in v3.0.0 and no longer has any effect."
+    )
 
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
@@ -75,11 +79,11 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
-CACHE_TIMEOUT = getattr(configuration, 'CACHE_TIMEOUT', 0)
 CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
+CUSTOM_VALIDATORS = getattr(configuration, 'CUSTOM_VALIDATORS', {})
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
@@ -88,6 +92,7 @@ DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BAS
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
+GRAPHQL_ENABLED = getattr(configuration, 'GRAPHQL_ENABLED', True)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 LOGGING = getattr(configuration, 'LOGGING', {})
@@ -116,7 +121,6 @@ REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PE
 REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
 REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
-RELEASE_CHECK_TIMEOUT = getattr(configuration, 'RELEASE_CHECK_TIMEOUT', 24 * 3600)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
@@ -142,10 +146,6 @@ if RELEASE_CHECK_URL:
         validator(RELEASE_CHECK_URL)
     except ValidationError as err:
         raise ImproperlyConfigured(str(err))
-
-# Enforce a minimum cache timeout for update checks
-if RELEASE_CHECK_TIMEOUT < 3600:
-    raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
 
 #
@@ -230,19 +230,31 @@ if 'caching' not in REDIS:
     raise ImproperlyConfigured(
         "REDIS section in configuration.py is missing caching subsection."
     )
-CACHING_REDIS = REDIS['caching']
-CACHING_REDIS_HOST = CACHING_REDIS.get('HOST', 'localhost')
-CACHING_REDIS_PORT = CACHING_REDIS.get('PORT', 6379)
-CACHING_REDIS_SENTINELS = CACHING_REDIS.get('SENTINELS', [])
-CACHING_REDIS_USING_SENTINEL = all([
-    isinstance(CACHING_REDIS_SENTINELS, (list, tuple)),
-    len(CACHING_REDIS_SENTINELS) > 0
-])
-CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get('SENTINEL_SERVICE', 'default')
-CACHING_REDIS_PASSWORD = CACHING_REDIS.get('PASSWORD', '')
-CACHING_REDIS_DATABASE = CACHING_REDIS.get('DATABASE', 0)
-CACHING_REDIS_SSL = CACHING_REDIS.get('SSL', False)
-CACHING_REDIS_SKIP_TLS_VERIFY = CACHING_REDIS.get('INSECURE_SKIP_TLS_VERIFY', False)
+CACHING_REDIS_HOST = REDIS['caching'].get('HOST', 'localhost')
+CACHING_REDIS_PORT = REDIS['caching'].get('PORT', 6379)
+CACHING_REDIS_DATABASE = REDIS['caching'].get('DATABASE', 0)
+CACHING_REDIS_PASSWORD = REDIS['caching'].get('PASSWORD', '')
+CACHING_REDIS_SENTINELS = REDIS['caching'].get('SENTINELS', [])
+CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'default')
+CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
+CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'PASSWORD': CACHING_REDIS_PASSWORD,
+        }
+    }
+}
+if CACHING_REDIS_SENTINELS:
+    CACHES['default']['LOCATION'] = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_SENTINEL_SERVICE}/{CACHING_REDIS_DATABASE}'
+    CACHES['default']['OPTIONS']['CLIENT_CLASS'] = 'django_redis.client.SentinelClient'
+    CACHES['default']['OPTIONS']['SENTINELS'] = CACHING_REDIS_SENTINELS
+if CACHING_REDIS_SKIP_TLS_VERIFY:
+    CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_cert_reqs'] = False
 
 
 #
@@ -286,12 +298,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'cacheops',
     'corsheaders',
     'debug_toolbar',
+    'graphiql_debug_toolbar',
     'django_filters',
     'django_tables2',
     'django_prometheus',
+    'graphene_django',
     'mptt',
     'rest_framework',
     'taggit',
@@ -300,7 +313,6 @@ INSTALLED_APPS = [
     'dcim',
     'ipam',
     'extras',
-    'secrets',
     'tenancy',
     'users',
     'utilities',
@@ -311,7 +323,7 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'graphiql_debug_toolbar.middleware.DebugToolbarMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -369,9 +381,11 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = BASE_DIR + '/static'
-STATIC_URL = '/{}static/'.format(BASE_PATH)
+STATIC_URL = f'/{BASE_PATH}static/'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "project-static"),
+    os.path.join(BASE_DIR, 'project-static', 'dist'),
+    os.path.join(BASE_DIR, 'project-static', 'img'),
+    ('docs', os.path.join(BASE_DIR, 'project-static', 'docs')),  # Prefix with /docs
 )
 
 # Media
@@ -400,48 +414,6 @@ EXEMPT_EXCLUDE_MODELS = (
     ('users', 'objectpermission'),
 )
 
-#
-# Caching
-#
-if CACHING_REDIS_USING_SENTINEL:
-    CACHEOPS_SENTINEL = {
-        'locations': CACHING_REDIS_SENTINELS,
-        'service_name': CACHING_REDIS_SENTINEL_SERVICE,
-        'db': CACHING_REDIS_DATABASE,
-        'password': CACHING_REDIS_PASSWORD,
-    }
-else:
-    CACHEOPS_REDIS = {
-        'host': CACHING_REDIS_HOST,
-        'port': CACHING_REDIS_PORT,
-        'db': CACHING_REDIS_DATABASE,
-        'password': CACHING_REDIS_PASSWORD,
-        'ssl': CACHING_REDIS_SSL,
-        'ssl_cert_reqs': None if CACHING_REDIS_SKIP_TLS_VERIFY else 'required',
-    }
-CACHEOPS_ENABLED = bool(CACHE_TIMEOUT)
-CACHEOPS_DEFAULTS = {
-    'timeout': CACHE_TIMEOUT
-}
-CACHEOPS = {
-    'auth.user': {'ops': 'get', 'timeout': 60 * 15},
-    'auth.*': {'ops': ('fetch', 'get')},
-    'auth.permission': {'ops': 'all'},
-    'circuits.*': {'ops': 'all'},
-    'dcim.inventoryitem': None,  # MPTT models are exempt due to raw SQL
-    'dcim.region': None,  # MPTT models are exempt due to raw SQL
-    'dcim.location': None,  # MPTT models are exempt due to raw SQL
-    'dcim.*': {'ops': 'all'},
-    'ipam.*': {'ops': 'all'},
-    'extras.*': {'ops': 'all'},
-    'secrets.*': {'ops': 'all'},
-    'users.*': {'ops': 'all'},
-    'tenancy.tenantgroup': None,  # MPTT models are exempt due to raw SQL
-    'tenancy.*': {'ops': 'all'},
-    'virtualization.*': {'ops': 'all'},
-}
-CACHEOPS_DEGRADE_ON_FAILURE = True
-
 
 #
 # Django Prometheus
@@ -465,6 +437,7 @@ FILTERS_NULL_CHOICE_VALUE = 'null'
 REST_FRAMEWORK_VERSION = VERSION.rsplit('.', 1)[0]  # Use major.minor as API version
 REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
+    'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'netbox.api.authentication.TokenAuthentication',
@@ -492,6 +465,17 @@ REST_FRAMEWORK = {
         'bulk_destroy': 'bulk_delete',
     },
     'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
+}
+
+
+#
+# Graphene
+#
+
+GRAPHENE = {
+    # Avoids naming collision on models with 'type' field; see
+    # https://github.com/graphql-python/graphene-django/issues/185
+    'DJANGO_CHOICE_FIELD_ENUM_V3_NAMING': True,
 }
 
 
@@ -565,17 +549,15 @@ else:
     }
 
 RQ_QUEUES = {
-    'default': RQ_PARAMS,  # Webhooks
-    'check_releases': RQ_PARAMS,
+    'high': RQ_PARAMS,
+    'default': RQ_PARAMS,
+    'low': RQ_PARAMS,
 }
 
 
 #
 # NetBox internal settings
 #
-
-# Secrets
-SECRETS_MIN_PUBKEY_SIZE = 2048
 
 # Pagination
 PER_PAGE_DEFAULTS = [
@@ -623,11 +605,13 @@ for plugin_name in PLUGINS:
     if plugin_middleware and type(plugin_middleware) in (list, tuple):
         MIDDLEWARE.extend(plugin_middleware)
 
-    # Apply cacheops config
-    if type(plugin_config.caching_config) is not dict:
+    # Create RQ queues dedicated to the plugin
+    # we use the plugin name as a prefix for queue name's defined in the plugin config
+    # ex: mysuperplugin.mysuperqueue1
+    if type(plugin_config.queues) is not list:
         raise ImproperlyConfigured(
-            "Plugin {} caching_config must be a dictionary.".format(plugin_name)
+            "Plugin {} queues must be a list.".format(plugin_name)
         )
-    CACHEOPS.update({
-        "{}.{}".format(plugin_name, key): value for key, value in plugin_config.caching_config.items()
+    RQ_QUEUES.update({
+        f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })

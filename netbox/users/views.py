@@ -14,8 +14,6 @@ from django.utils.http import is_safe_url
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 
-from secrets.forms import UserKeyForm
-from secrets.models import SessionKey, UserKey
 from utilities.forms import ConfirmationForm
 from .forms import LoginForm, PasswordChangeForm, TokenForm
 from .models import Token
@@ -91,6 +89,7 @@ class LogoutView(View):
     """
     Deauthenticate a web user.
     """
+
     def get(self, request):
         logger = logging.getLogger('netbox.auth.logout')
 
@@ -136,9 +135,17 @@ class UserConfigView(LoginRequiredMixin, View):
         data = userconfig.all()
 
         # Delete selected preferences
-        for key in request.POST.getlist('pk'):
-            if key in data:
-                userconfig.clear(key)
+        if "_delete" in request.POST:
+            for key in request.POST.getlist('pk'):
+                if key in data:
+                    userconfig.clear(key)
+        # Update specific values
+        elif "_update" in request.POST:
+            for key in request.POST:
+                if not key.startswith('_') and not key.startswith('csrf'):
+                    for value in request.POST.getlist(key):
+                        userconfig.set(key, value)
+
         userconfig.save()
         messages.success(request, "Your preferences have been updated.")
 
@@ -146,7 +153,7 @@ class UserConfigView(LoginRequiredMixin, View):
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
-    template_name = 'users/change_password.html'
+    template_name = 'users/password.html'
 
     def get(self, request):
         # LDAP users cannot change their password here
@@ -158,7 +165,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'active_tab': 'change_password',
+            'active_tab': 'password',
         })
 
     def post(self, request):
@@ -175,93 +182,6 @@ class ChangePasswordView(LoginRequiredMixin, View):
         })
 
 
-class UserKeyView(LoginRequiredMixin, View):
-    template_name = 'users/userkey.html'
-
-    def get(self, request):
-        try:
-            userkey = UserKey.objects.get(user=request.user)
-        except UserKey.DoesNotExist:
-            userkey = None
-
-        return render(request, self.template_name, {
-            'object': userkey,
-            'active_tab': 'userkey',
-        })
-
-
-class UserKeyEditView(LoginRequiredMixin, View):
-    template_name = 'users/userkey_edit.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.userkey = UserKey.objects.get(user=request.user)
-        except UserKey.DoesNotExist:
-            self.userkey = UserKey(user=request.user)
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request):
-        form = UserKeyForm(instance=self.userkey)
-
-        return render(request, self.template_name, {
-            'object': self.userkey,
-            'form': form,
-            'active_tab': 'userkey',
-        })
-
-    def post(self, request):
-        form = UserKeyForm(data=request.POST, instance=self.userkey)
-        if form.is_valid():
-            uk = form.save(commit=False)
-            uk.user = request.user
-            uk.save()
-            messages.success(request, "Your user key has been saved.")
-            return redirect('user:userkey')
-
-        return render(request, self.template_name, {
-            'userkey': self.userkey,
-            'form': form,
-            'active_tab': 'userkey',
-        })
-
-
-class SessionKeyDeleteView(LoginRequiredMixin, View):
-
-    def get(self, request):
-
-        sessionkey = get_object_or_404(SessionKey, userkey__user=request.user)
-        form = ConfirmationForm()
-
-        return render(request, 'users/sessionkey_delete.html', {
-            'obj_type': sessionkey._meta.verbose_name,
-            'form': form,
-            'return_url': reverse('user:userkey'),
-        })
-
-    def post(self, request):
-
-        sessionkey = get_object_or_404(SessionKey, userkey__user=request.user)
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-
-            # Delete session key
-            sessionkey.delete()
-            messages.success(request, "Session key deleted")
-
-            # Delete cookie
-            response = redirect('user:userkey')
-            response.delete_cookie('session_key')
-
-            return response
-
-        return render(request, 'users/sessionkey_delete.html', {
-            'obj_type': sessionkey._meta.verbose_name,
-            'form': form,
-            'return_url': reverse('user:userkey'),
-        })
-
-
 #
 # API tokens
 #
@@ -274,7 +194,7 @@ class TokenListView(LoginRequiredMixin, View):
 
         return render(request, 'users/api_tokens.html', {
             'tokens': tokens,
-            'active_tab': 'api_tokens',
+            'active_tab': 'api-tokens',
         })
 
 

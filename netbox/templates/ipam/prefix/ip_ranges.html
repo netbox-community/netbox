@@ -1,0 +1,10 @@
+{% extends 'ipam/prefix/base.html' %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      {% include 'utilities/obj_table.html' with heading='Child IP Ranges' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' parent=prefix %}
+    </div>
+  </div>
+{% endblock %}

@@ -538,7 +538,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
     class Meta:
         model = FrontPortTemplate
-        fields = ['id', 'name', 'type']
+        fields = ['id', 'name', 'type', 'color']
 
 
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
@@ -549,7 +549,7 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentF
 
     class Meta:
         model = RearPortTemplate
-        fields = ['id', 'name', 'type', 'positions']
+        fields = ['id', 'name', 'type', 'color', 'positions']
 
 
 class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
@@ -831,6 +831,17 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='slug',
         label='Site name (slug)',
     )
+    location_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__location',
+        queryset=Location.objects.all(),
+        label='Location (ID)',
+    )
+    location = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__location__slug',
+        queryset=Location.objects.all(),
+        to_field_name='slug',
+        label='Location (slug)',
+    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
@@ -1027,7 +1038,7 @@ class FrontPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
 
     class Meta:
         model = FrontPort
-        fields = ['id', 'name', 'label', 'type', 'description']
+        fields = ['id', 'name', 'label', 'type', 'color', 'description']
 
 
 class RearPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
@@ -1038,7 +1049,7 @@ class RearPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTe
 
     class Meta:
         model = RearPort
-        fields = ['id', 'name', 'label', 'type', 'positions', 'description']
+        fields = ['id', 'name', 'label', 'type', 'color', 'positions', 'description']
 
 
 class DeviceBayFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
@@ -1052,39 +1063,6 @@ class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
-    )
-    region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='device__site__region',
-        lookup_expr='in',
-        label='Region (ID)',
-    )
-    region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='device__site__region',
-        lookup_expr='in',
-        to_field_name='slug',
-        label='Region (slug)',
-    )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site',
-        queryset=Site.objects.all(),
-        label='Site (ID)',
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label='Site name (slug)',
-    )
-    device_id = django_filters.ModelChoiceFilter(
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelChoiceFilter(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),

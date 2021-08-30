@@ -6,11 +6,11 @@ Prior to upgrading your NetBox instance, be sure to carefully review all [releas
 
 ## Update Dependencies to Required Versions
 
-NetBox v2.9.0 and later requires the following:
+NetBox v3.0 and later requires the following:
 
 | Dependency | Minimum Version |
 |------------|-----------------|
-| Python     | 3.6             |
+| Python     | 3.7             |
 | PostgreSQL | 9.6             |
 | Redis      | 4.0             |
 
@@ -75,16 +75,23 @@ Once the new code is in place, verify that any optional Python packages required
 sudo ./upgrade.sh
 ```
 
+!!! warning
+    If the default version of Python is not at least 3.7, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
+
+    ```no-highlight
+    sudo PYTHON=/usr/bin/python3.7 ./upgrade.sh
+    ```
+
 This script performs the following actions:
 
 * Destroys and rebuilds the Python virtual environment
 * Installs all required Python packages (listed in `requirements.txt`)
 * Installs any additional packages from `local_requirements.txt`
 * Applies any database migrations that were included in the release
+* Builds the documentation locally (for offline use)
 * Collects all static files to be served by the HTTP service
 * Deletes stale content types from the database
 * Deletes all expired user sessions from the database
-* Clears all cached data to prevent conflicts with the new release
 
 !!! note
     If the upgrade script prompts a warning about unreflected database migrations, this indicates that some change has
@@ -102,5 +109,12 @@ Finally, restart the gunicorn and RQ services:
 sudo systemctl restart netbox netbox-rq
 ```
 
-!!! note
-    If upgrading from an installation that uses supervisord, please see the instructions for [migrating to systemd](migrating-to-systemd.md). The use of supervisord is no longer supported.
+## Verify Housekeeping Scheduling
+
+If upgrading from a release prior to NetBox v3.0, check that a cron task (or similar scheduled process) has been configured to run NetBox's nightly housekeeping command. A shell script which invokes this command is included at `contrib/netbox-housekeeping.sh`. It can be copied to your system's daily cron task directory, or included within the crontab directly. (If NetBox has been installed in a nonstandard path, be sure to update the system paths within this script first.)
+
+```shell
+cp /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/
+```
+
+See the [housekeeping documentation](../administration/housekeeping.md) for further details.

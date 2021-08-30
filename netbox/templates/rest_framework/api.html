@@ -1,11 +1,13 @@
 {% extends 'rest_framework/base.html' %}
 {% load static %}
 
-{% block bootstrap_theme %}
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>
-{% endblock %}
+{% block head %}
+  {{ block.super }}
+  <link rel="icon" type="image/png" href="{% static 'rest-api.ico' %}" />
+{% endblock head %}
+
+{% block title %}{% if name %}{{ name }} | {% endif %}NetBox REST API{% endblock %}
 
 {% block branding %}
-    <a class="navbar-brand" href="/{{ settings.BASE_PATH }}">NetBox</a>
-{% endblock %}
+  <a class="navbar-brand" href="/{{ settings.BASE_PATH }}">NetBox</a>
+{% endblock branding %}

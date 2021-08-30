@@ -47,10 +47,8 @@ class PluginConfig(AppConfig):
     # Middleware classes provided by the plugin
     middleware = []
 
-    # Cacheops configuration. Cache all operations by default.
-    caching_config = {
-        '*': {'ops': 'all'},
-    }
+    # Django-rq queues dedicated to the plugin
+    queues = []
 
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.

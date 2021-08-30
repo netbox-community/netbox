@@ -24,7 +24,8 @@ class LoginRequiredMiddleware(object):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             # Determine exempt paths
             exempt_paths = [
-                reverse('api-root')
+                reverse('api-root'),
+                reverse('graphql'),
             ]
             if settings.METRICS_ENABLED:
                 exempt_paths.append(reverse('prometheus-django-metrics'))

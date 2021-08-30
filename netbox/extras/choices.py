@@ -45,28 +45,40 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
 
 class CustomLinkButtonClassChoices(ChoiceSet):
 
-    CLASS_DEFAULT = 'default'
-    CLASS_PRIMARY = 'primary'
-    CLASS_SUCCESS = 'success'
-    CLASS_INFO = 'info'
-    CLASS_WARNING = 'warning'
-    CLASS_DANGER = 'danger'
-    CLASS_LINK = 'link'
+    CLASS_DEFAULT = 'outline-dark'
+    CLASS_LINK = 'ghost-dark'
+    CLASS_BLUE = 'blue'
+    CLASS_INDIGO = 'indigo'
+    CLASS_PURPLE = 'purple'
+    CLASS_PINK = 'pink'
+    CLASS_RED = 'red'
+    CLASS_ORANGE = 'orange'
+    CLASS_YELLOW = 'yellow'
+    CLASS_GREEN = 'green'
+    CLASS_TEAL = 'teal'
+    CLASS_CYAN = 'cyan'
+    CLASS_GRAY = 'secondary'
 
     CHOICES = (
         (CLASS_DEFAULT, 'Default'),
-        (CLASS_PRIMARY, 'Primary (blue)'),
-        (CLASS_SUCCESS, 'Success (green)'),
-        (CLASS_INFO, 'Info (aqua)'),
-        (CLASS_WARNING, 'Warning (orange)'),
-        (CLASS_DANGER, 'Danger (red)'),
-        (CLASS_LINK, 'None (link)'),
+        (CLASS_LINK, 'Link'),
+        (CLASS_BLUE, 'Blue'),
+        (CLASS_INDIGO, 'Indigo'),
+        (CLASS_PURPLE, 'Purple'),
+        (CLASS_PINK, 'Pink'),
+        (CLASS_RED, 'Red'),
+        (CLASS_ORANGE, 'Orange'),
+        (CLASS_YELLOW, 'Yellow'),
+        (CLASS_GREEN, 'Green'),
+        (CLASS_TEAL, 'Teal'),
+        (CLASS_CYAN, 'Cyan'),
+        (CLASS_GRAY, 'Gray'),
     )
-
 
 #
 # ObjectChanges
 #
+
 
 class ObjectChangeActionChoices(ChoiceSet):
 
@@ -106,7 +118,7 @@ class JournalEntryKindChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        KIND_INFO: 'default',
+        KIND_INFO: 'info',
         KIND_SUCCESS: 'success',
         KIND_WARNING: 'warning',
         KIND_DANGER: 'danger',
@@ -134,7 +146,7 @@ class LogLevelChoices(ChoiceSet):
     )
 
     CSS_CLASSES = {
-        LOG_DEFAULT: 'default',
+        LOG_DEFAULT: 'secondary',
         LOG_SUCCESS: 'success',
         LOG_INFO: 'info',
         LOG_WARNING: 'warning',

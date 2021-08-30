@@ -1,0 +1,40 @@
+// Overrides to native HTML elements (i.e., not bootstrap classes or custom components).
+
+body {
+  color: var(--nbx-body-color);
+  background-color: var(--nbx-body-bg);
+  font-size: $font-size-sm;
+}
+
+pre {
+  padding: $spacer;
+  white-space: pre;
+  background-color: var(--nbx-pre-bg);
+  border: 1px solid var(--nbx-pre-border-color);
+  border-radius: $border-radius;
+}
+
+// Force <small/> elements to make text smaller.
+small {
+  font-size: smaller !important;
+}
+
+// Fix the hideous way Safari shows button anchor elements.
+a[type='button'] {
+  -webkit-appearance: unset !important;
+}
+
+// Ensure elements with data-href set show the correct cursor.
+// data-href is set on non non-anchor elements that need to redirect the user to a URL when
+// clicked, but where an anchor element does not suffice or is not supported.
+*[data-href] {
+  cursor: pointer;
+}
+
+.form-control {
+  font-size: inherit;
+}
+
+.badge {
+  font-size: $font-size-xs;
+}

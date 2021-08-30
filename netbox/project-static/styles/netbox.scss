@@ -1,0 +1,987 @@
+// Netbox-specific Styles and Overrides.
+
+@use 'sass:map';
+@import './sidenav';
+@import './overrides';
+@import './utilities';
+@import './variables';
+
+@each $color, $value in $theme-colors {
+  // Override CSS values on each theme color.
+
+  // Use Bootstrap's method of coloring alert links to appropriately color close buttons within
+  // another colored element.
+  // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_alert.scss#L50-L52
+  // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_close.scss#L12
+  $shifted-bg: shift-color($value, $alert-bg-scale);
+  $shifted-color: shift-color($value, $alert-color-scale);
+
+  @if (contrast-ratio($shifted-bg, $shifted-color) < $min-contrast-ratio) {
+    $shifted-color: mix($value, color-contrast($shifted-bg), abs($alert-color-scale));
+  }
+
+  $btn-close-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$shifted-color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
+  .bg-#{$color} button.btn-close {
+    background: transparent escape-svg($btn-close-bg) center / $btn-close-width auto no-repeat;
+  }
+
+  .btn.btn-ghost-#{$color} {
+    color: $value;
+    &:hover {
+      background-color: rgba($value, 0.12);
+    }
+  }
+
+  // Use Bootstrap's method of coloring the .alert-link class automatically.
+  // See: https://github.com/twbs/bootstrap/blob/2bdbb42dcf6bfb99b5e9e5444d9e64589eb8c08f/scss/_alert.scss#L50-L52
+
+  .alert.alert-#{$color},
+  .table-#{$color} {
+    // Exclude buttons.
+    a:not(.btn) {
+      font-weight: $font-weight-bold;
+      color: $shifted-color;
+    }
+    // Apply a border to buttons contained within colored elements, if they're not already a
+    // bordered button class.
+    .btn:not([class*='btn-outline']) {
+      border-color: $gray-700;
+    }
+  }
+
+  // Toasts required a slightly different approach because the background color isn't "shifted",
+  // it's the direct theme color.
+  .toast.bg-#{$color} {
+    $shifted-color: shift-color($value, $alert-color-scale);
+
+    @if (contrast-ratio($value, $shifted-color) < $min-contrast-ratio) {
+      $shifted-color: mix($value, color-contrast($value), abs($alert-color-scale));
+    }
+    a:not(.btn) {
+      font-weight: $font-weight-bold;
+      color: $shifted-color;
+    }
+  }
+
+  // Use proper contrasting color foreground color for special components.
+  .badge,
+  .toast,
+  .toast-header,
+  .progress-bar {
+    &.bg-#{$color} {
+      color: color-contrast($value);
+    }
+  }
+
+  // Use proper foreground color in the alert body. Note: this is applied to p, & small because
+  // we *don't* want to override the h1-h6 colors for alerts, since those are set to a color
+  // similar to the alert color.
+  .alert.alert-#{$color} {
+    p,
+    small {
+      color: color-contrast($value);
+    }
+  }
+}
+
+// Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
+table td > .progress {
+  min-width: 6rem;
+}
+
+// Override Bootstrap form-control font-size when contained by .small element.
+.small .form-control {
+  font-size: $font-size-sm;
+}
+
+// Automatically space out adjacent columns, but not within card bodies.
+:not(.card-body) > .col:not(:last-child):not(:only-child) {
+  margin-bottom: $spacer;
+}
+
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  @include media-breakpoint-down(lg) {
+    display: flex;
+  }
+
+  .nav-mobile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
+.card > .table.table-flush {
+  margin-bottom: 0;
+  overflow: hidden;
+  border-bottom-right-radius: $card-border-radius;
+  border-bottom-left-radius: $card-border-radius;
+
+  thead th[scope='col'] {
+    padding-top: map.get($spacers, 3);
+    padding-bottom: map.get($spacers, 3);
+    text-transform: uppercase;
+    vertical-align: middle;
+    background-color: $table-flush-header-bg;
+    border-top: 1px solid $card-border-color;
+    border-bottom-color: $card-border-color;
+  }
+
+  th,
+  td {
+    padding-right: map.get($spacers, 4) !important;
+    padding-left: map.get($spacers, 4) !important;
+    border-right: 0;
+    border-left: 0;
+  }
+  tr[class] {
+    border-color: $card-border-color !important;
+    &:last-of-type {
+      border-bottom-color: transparent !important;
+      border-bottom-right-radius: $card-border-radius;
+      border-bottom-left-radius: $card-border-radius;
+    }
+  }
+}
+
+// Primarily used for the new release notification, but could be used for other alerts as needed.
+// Wrap any alerts in .header-alert-container to ensure the layout is consistent.
+.header-alert-container {
+  // Center-align the alert(s).
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // Apply the same spacing that's applied to the #content div's first child (.px-3).
+  padding: 0 $spacer;
+
+  // By default, alerts inside .header-alert-container should take up the full width.
+  .alert {
+    width: 100%;
+
+    // Adjust the max-width for larger screens so there's not a big ugly blue blob taking up the
+    // entire screen.
+    @include media-breakpoint-up(md) {
+      max-width: 75%;
+    }
+    @include media-breakpoint-up(lg) {
+      max-width: 50%;
+    }
+  }
+}
+
+span.profile-button .dropdown-menu {
+  right: 0;
+  left: auto;
+  display: block !important;
+  margin-top: 0.5rem;
+  box-shadow: $box-shadow;
+  transition: opacity 0.2s ease-in-out;
+
+  &:not(.show) {
+    pointer-events: none;
+    opacity: 0;
+  }
+  &.show {
+    pointer-events: auto;
+    opacity: 1;
+  }
+}
+
+div#advanced-search-content div.card div.card-body div.col:not(:last-child) {
+  margin-right: 1rem;
+}
+
+table {
+  a {
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  &.table > :not(caption) > * > * {
+    padding-right: $table-cell-padding-x-sm !important;
+    padding-left: $table-cell-padding-x-sm !important;
+  }
+  td,
+  th {
+    font-size: $font-size-sm;
+    line-height: $line-height-sm;
+    vertical-align: middle;
+    &.min-width {
+      width: 1%;
+    }
+    .form-check-input {
+      // Ensure checkboxes aren't too small inside object tables.
+      margin-top: 0.125em;
+      font-size: $font-size-base;
+    }
+
+    .btn-sm {
+      line-height: $line-height-xs;
+    }
+
+    p {
+      // Remove spacing from paragraph elements within tables.
+      margin-bottom: 0;
+    }
+  }
+
+  &.object-list {
+    th {
+      font-size: $font-size-xs;
+      line-height: $line-height-xs;
+      vertical-align: bottom;
+    }
+  }
+
+  &.attr-table {
+    th {
+      font-weight: normal;
+      width: 25%;
+    }
+  }
+}
+
+div.title-container {
+  display: flex;
+  // On small screens, `flex-direction: column;` ensures the control buttons don't appear on the
+  // same line as the title, but rather break to the next line.
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  @include media-breakpoint-up(lg) {
+    // On large screens, `flex-direction: row;` allows the control buttons to appear vertically
+    // aligned with the title.
+    flex-direction: row;
+  }
+
+  #content-title {
+    display: flex;
+    flex: 1 0;
+    flex-direction: column;
+    padding-bottom: map.get($spacers, 2);
+  }
+}
+
+// Object list control buttons (Add/Clone/Import/Export)
+.controls {
+  margin-bottom: map.get($spacers, 2);
+
+  @media print {
+    // Never print controls. Use this over the .noprint utility so plugin authors don't need to
+    // remember to add the class.
+    display: none !important;
+  }
+
+  // Each group of buttons.
+  .control-group {
+    display: flex;
+    flex-wrap: wrap;
+    // Left-align controls on mobile.
+    justify-content: flex-start;
+
+    // Right-align controls on larger screens.
+    @include media-breakpoint-up(lg) {
+      justify-content: flex-end;
+    }
+
+    > * {
+      // Pad each control button.
+      margin: map.get($spacers, 1);
+
+      &:first-child {
+        // Don't pad the left side of the first control button.
+        margin-left: 0;
+      }
+
+      &:last-child {
+        // Don't pad the right side of the last control button.
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.object-subtitle {
+  display: block;
+  font-size: $font-size-sm;
+  color: $text-muted;
+
+  @include media-breakpoint-up(md) {
+    display: inline-block;
+  }
+
+  > span {
+    display: block;
+
+    // Hide the separator on small screens.
+    &.separator {
+      display: none;
+    }
+
+    &,
+    &.separator {
+      @include media-breakpoint-up(md) {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+// Global Search
+nav.search {
+  // Don't overtake dropdowns
+  z-index: 999;
+  justify-content: center;
+  background-color: var(--nbx-body-bg);
+
+  .search-container {
+    display: flex;
+    width: 100%;
+
+    @include media-breakpoint-down(lg) {
+      display: none;
+    }
+  }
+
+  // Search Input & Selected Object Value & Object Selector
+  .input-group {
+    // Selected Object
+    .search-obj-selected {
+      border-color: $input-border-color;
+    }
+
+    // Object Selector Dropdown Button
+    .dropdown-toggle {
+      // Generate the same styles as a regular Bootstrap button.
+      @include button-variant($input-group-addon-bg, $input-border-color);
+      margin-left: 0;
+      font-weight: $input-group-addon-font-weight;
+      line-height: $input-line-height;
+      color: $input-group-addon-color;
+      background-color: $input-group-addon-bg;
+      border: $input-border-width solid $input-border-color;
+      @include border-radius($input-border-radius);
+      border-left: 1px solid var(--nbx-search-filter-border-left-color);
+
+      &:focus {
+        box-shadow: unset !important;
+      }
+      // Don't show the dropdown icon — the filter icon is basically the same thing.
+      &:after {
+        display: none;
+      }
+    }
+
+    // Object Selector Dropdown Menu
+    .search-obj-selector {
+      // Limit the height and enable scrolling on mobile devices.
+      max-height: 70vh;
+      overflow-y: auto;
+
+      .dropdown-item,
+      .dropdown-header {
+        font-size: $font-size-sm;
+      }
+
+      .dropdown-header {
+        text-transform: uppercase;
+      }
+    }
+  }
+}
+
+main.layout {
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100vh;
+  height: -webkit-fill-available;
+  max-height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  // Override styles when printing. Fixes issue where only the first page is visible when printing.
+  @media print {
+    position: static !important;
+    display: block !important;
+    height: 100%;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+}
+
+main.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100vw;
+  height: calc(100vh - 4rem);
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  + footer.footer button.color-mode-toggle {
+    color: var(--nbx-color-mode-toggle-color);
+  }
+}
+
+.footer {
+  padding: 0;
+
+  .nav-link {
+    padding: 0.5rem;
+  }
+
+  @include media-breakpoint-down(md) {
+    // Pad the bottom of the footer on mobile devices to account for mobile browser controls.
+    margin-bottom: 8rem;
+  }
+}
+
+footer.login-footer {
+  height: 4rem;
+  margin-top: auto;
+
+  .container-fluid {
+    display: flex;
+    justify-content: flex-end;
+    padding: $container-padding-x $grid-gutter-width;
+  }
+}
+
+h1.accordion-item-title,
+h2.accordion-item-title,
+h3.accordion-item-title,
+h4.accordion-item-title,
+h5.accordion-item-title,
+h6.accordion-item-title {
+  padding: 0.25rem 0.5rem;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: var(--nbx-sidebar-title-color);
+  text-transform: uppercase;
+}
+
+.form-login {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+
+  input:focus {
+    z-index: 1;
+  }
+
+  input[type='text'] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  input[type='password'] {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .form-control {
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+.navbar-brand {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+nav.nav.nav-pills {
+  .nav-item.nav-link {
+    padding: 0.25rem 0.5rem;
+    font-size: $font-size-sm;
+    border-radius: $border-radius;
+
+    &:hover {
+      color: $accordion-button-active-color;
+      background-color: $accordion-button-active-bg;
+    }
+  }
+}
+
+// Ensure the content container is full-height, and that the content block is also full height so
+// that the footer is always at the bottom.
+div.content-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - #{$sidenav-width-closed});
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  // Don't show an outline when the content container is focused.
+  &:focus,
+  &:focus-visible {
+    outline: 0;
+  }
+
+  div.content {
+    flex: 1;
+  }
+
+  @include media-breakpoint-down(lg) {
+    width: 100%;
+  }
+
+  // Make the content full-width when printing.
+  @media print {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+}
+
+// Prevent scrolling of body content when nav menu is open on mobile.
+.sidebar.collapse.show ~ .content-container > .content {
+  @media (max-width: map.get($grid-breakpoints, 'md')) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: hidden;
+  }
+}
+
+.tooltip {
+  pointer-events: none;
+}
+
+span.color-label {
+  display: block;
+  width: 5rem;
+  height: 1rem;
+  padding: $badge-padding-y $badge-padding-x;
+  border: 1px solid #303030;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow-sm;
+}
+
+.btn {
+  white-space: nowrap;
+}
+
+.card {
+  box-shadow: $box-shadow-sm;
+
+  .card-header {
+    padding: $card-cap-padding-x;
+    color: var(--nbx-body-color);
+    border-bottom: none;
+  }
+
+  .card-header + .card-body {
+    padding-top: 0;
+  }
+
+  .card-body.small .form-control,
+  .card-body.small .form-select {
+    font-size: $input-font-size-sm;
+  }
+
+  .card-divider {
+    width: 100%;
+    height: 1px;
+    margin: $hr-margin-y 0;
+    border-top: 1px solid $card-border-color;
+    opacity: $hr-opacity;
+  }
+
+  // Remove shadow when printing.
+  @media print {
+    box-shadow: unset !important;
+  }
+}
+
+.form-floating {
+  position: relative;
+
+  > .input-group > .form-control,
+  > .input-group > .form-select {
+    height: $form-floating-height;
+    padding: $form-floating-padding-y $form-floating-padding-x;
+  }
+
+  > .input-group > label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%; // allow textareas
+    padding: $form-floating-padding-y $form-floating-padding-x;
+    pointer-events: none;
+    border: $input-border-width solid transparent; // Required for aligning label's text with the input as it affects inner box model
+    transform-origin: 0 0;
+    @include transition($form-floating-transition);
+  }
+
+  > .input-group > .form-control {
+    &::placeholder {
+      color: transparent;
+    }
+
+    &:focus,
+    &:not(:placeholder-shown) {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+    // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+    &:-webkit-autofill {
+      padding-top: $form-floating-input-padding-t;
+      padding-bottom: $form-floating-input-padding-b;
+    }
+  }
+
+  > .input-group > .form-select,
+  > .choices > .choices__inner,
+  > .ss-main span.placeholder, // SlimSelect Single
+  > .ss-main div.ss-values // SlimSelect Multiple
+  {
+    padding-top: $form-floating-input-padding-t;
+    padding-bottom: $form-floating-input-padding-b;
+  }
+
+  > .input-group > .form-control:focus,
+  > .input-group > .form-control:not(:placeholder-shown),
+  > .input-group > .form-select,
+  > .choices,
+  > .ss-main {
+    ~ label {
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+      z-index: 4;
+    }
+  }
+  // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
+  > .input-group > .form-control:-webkit-autofill {
+    ~ label {
+      z-index: 4;
+      opacity: $form-floating-label-opacity;
+      transform: $form-floating-label-transform;
+    }
+  }
+}
+
+.form-object-edit {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+textarea.form-control[rows='10'] {
+  height: 18rem;
+}
+
+textarea#id_local_context_data,
+textarea.markdown,
+textarea#id_public_key,
+textarea.form-control[name='csv'],
+textarea.form-control[name='data'] {
+  font-family: $font-family-monospace;
+}
+
+.card:not(:only-of-type) {
+  margin-bottom: $spacer;
+}
+
+.stat-btn {
+  min-width: $spacer * 3;
+}
+
+nav.breadcrumb-container {
+  width: fit-content;
+  padding: $badge-padding-y $badge-padding-x;
+  font-size: $font-size-sm;
+
+  ol.breadcrumb {
+    margin-bottom: 0;
+    li.breadcrumb-item > a {
+      text-decoration: none;
+    }
+    li.breadcrumb-item > a:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+div.paginator > form > div.input-group {
+  width: fit-content;
+}
+
+label.required {
+  font-weight: $font-weight-bold;
+
+  &:after {
+    position: absolute;
+    display: inline-block;
+    margin: 0 0 0 2px;
+    font-family: 'Material Design Icons';
+    font-size: 8px;
+    font-style: normal;
+    font-weight: $font-weight-medium;
+    text-decoration: none;
+    content: '\f06C4';
+  }
+}
+
+// Applied to containing element around table bulk-action buttons (bulk-edit, bulk-disconnect
+// bulk-delete, etc). Each usage of .bulk-buttons needs to have groups of buttons wrapped with
+// .bulk-button-group so that proper spacing is applied (even if there is only one group).
+div.bulk-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: $spacer / 2 0;
+
+  // Each group of buttons needs to be contained separately for alignment purposes. This way, you
+  // can put some buttons in a group that aligns left, and other buttons in a group that aligns
+  // right.
+  > div.bulk-button-group {
+    display: flex;
+    flex-wrap: wrap;
+    // For small screens: don't fill the available space (thereby expanding the size of the button).
+    align-items: flex-start;
+
+    &:first-of-type:not(:last-of-type) {
+      // If there are multiple bulk button groups and this is the first, the first button in the
+      // group should *not* have left spacing applied, so the button group aligns with the rest
+      // of the page elements.
+      > *:first-child {
+        margin-left: 0;
+      }
+    }
+
+    &:last-of-type:not(:first-of-type) {
+      // If there are multiple bulk button groups and this is the last, the last button in the
+      // group should *not* have right spacing applied, so the button group aligns with the rest
+      // of the page elements.
+      > *:last-child {
+        margin-right: 0;
+      }
+    }
+
+    // However, the rest of the buttons should have spacing applied in all directions.
+    > * {
+      margin: $spacer / 4;
+    }
+  }
+}
+
+table tbody {
+  @each $color, $value in $theme-colors {
+    tr.#{$color} {
+      background-color: rgba($value, 0.15);
+      border-color: $gray-500;
+    }
+  }
+}
+
+// Style objects with statuses/roles within a table. As of implementation, used for IP addresses
+// assigned to interfaces.
+table .table-badge-group {
+  .table-badge {
+    display: block;
+    width: min-content;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-base;
+
+    &:not(.badge) {
+      // Apply badge horizontal padding so that IP addresses *not* within a badge appear aligned
+      // with IP addresses that *are* within a badge.
+      padding: 0 $badge-padding-x;
+    }
+
+    &.badge:not(:last-of-type):not(:only-child) {
+      margin-bottom: map.get($spacers, 2);
+    }
+  }
+}
+
+pre.change-data {
+  padding-right: 0;
+  padding-left: 0;
+
+  > span {
+    display: block;
+    padding-right: $spacer;
+    padding-left: $spacer;
+
+    &.added {
+      background-color: var(--nbx-change-added);
+    }
+
+    &.removed {
+      background-color: var(--nbx-change-removed);
+    }
+  }
+}
+
+pre.change-diff {
+  border-color: transparent;
+
+  &.change-removed {
+    background-color: var(--nbx-change-removed);
+  }
+
+  &.change-added {
+    background-color: var(--nbx-change-added);
+  }
+}
+
+div.card-overlay {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($white, 0.75);
+  border-radius: $border-radius;
+
+  > div.spinner-border {
+    width: 6rem;
+    height: 6rem;
+    color: $secondary;
+  }
+}
+
+.table-controls {
+  display: flex;
+
+  @include media-breakpoint-up(md) {
+    // `!important` needed because of inherited margin-bottom from `.col`
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .table-configure {
+    justify-content: flex-start;
+
+    @include media-breakpoint-up(md) {
+      justify-content: flex-end;
+    }
+  }
+
+  .form-switch.form-check-inline {
+    flex: 1 0 auto;
+    font-size: $font-size-sm;
+  }
+}
+
+// Right-align the paginator element.
+.paginator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: $spacer 0;
+}
+
+// Tabbed content
+.nav-tabs {
+  .nav-link {
+    &:hover {
+      // Don't show a bottom-border on a hovered nav link because it overlaps with the .nav-tab border.
+      border-bottom-color: transparent;
+    }
+    &.active {
+      // Set the background-color of an active tab to the same color as the .tab-content
+      // background-color so it visually indicates which tab is open.
+      background-color: $tab-content-bg;
+      border-bottom-color: $tab-content-bg;
+      // Move the active tab down 1px to overtake the .nav-tabs element's border, but only for that
+      // tab. This is an ugly hack, but it works.
+      transform: translateY(1px);
+    }
+  }
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  padding: $spacer;
+  background-color: $tab-content-bg;
+  border-bottom: 1px solid $nav-tabs-border-color;
+
+  // Remove background and border when printing.
+  @media print {
+    background-color: var(--nbx-body-bg) !important;
+    border-bottom: none !important;
+  }
+}
+
+// Override masonry-layout styles when printing.
+.masonry {
+  @media print {
+    position: static !important;
+    display: block !important;
+    height: unset !important;
+  }
+  .masonry-item {
+    @media print {
+      position: static !important;
+      top: unset !important;
+      left: unset !important;
+      display: block !important;
+    }
+  }
+}
+
+// Object hierarchy indicators.
+.record-depth {
+  display: inline;
+  font-size: $font-size-base;
+  user-select: none;
+  opacity: 0.33;
+
+  // Add spacing to the last or only dot.
+  span:only-of-type,
+  span:last-of-type {
+    margin-right: map.get($spacers, 1);
+  }
+}
+
+#django-messages {
+  position: fixed;
+  right: $spacer;
+  bottom: 0;
+  margin: $spacer;
+}
+
+// Page-specific styles.
+html {
+  // Shade the home page content background-color.
+  &[data-netbox-path='/'] {
+    .content-container,
+    .search {
+      background-color: $gray-100 !important;
+    }
+    &[data-netbox-color-mode='dark'] {
+      .content-container,
+      .search {
+        background-color: $darkest !important;
+      }
+    }
+  }
+
+  // Don't show the django-messages toasts on the login screen in favor of the alert component.
+  &[data-netbox-path*='/login'] {
+    #django-messages {
+      display: none;
+    }
+  }
+}

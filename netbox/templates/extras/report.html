@@ -1,46 +1,38 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 
 {% block title %}{{ report.name }}{% endblock %}
 
-{% block header %}
-    <div class="row noprint">
-        <div class="col-md-12">
-            <ol class="breadcrumb">
-                <li><a href="{% url 'extras:report_list' %}">Reports</a></li>
-                <li><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
-                <li>{{ report.name }}</li>
-            </ol>
-        </div>
-    </div>
-    {% if perms.extras.run_report %}
-        <div class="pull-right noprint">
-            <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="_run" class="btn btn-primary">
-                    {% if report.result %}
-                        <i class="mdi mdi-replay"></i> Run Again
-                    {% else %}
-                        <i class="mdi mdi-play"></i> Run Report
-                    {% endif %}
-                </button>
-            </form>
-        </div>
-    {% endif %}
-    <h1 class="title">{{ report.name }}</h1>
-    {% if report.description %}
-        <p class="lead">{{ report.description|render_markdown }}</p>
-    {% endif %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">Reports</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
+{% if report.description %}
+    <p class="text-muted">{{ report.description|render_markdown }}</p>
+{% endif %}
+{% if perms.extras.run_report %}
+<div class="float-end noprint">
+    <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+        {% csrf_token %}
+        <button type="submit" name="_run" class="btn btn-primary">
             {% if report.result %}
-                Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
-                    <strong>{{ report.result.created|annotated_date }}</strong>
-                </a>
+                <i class="mdi mdi-replay"></i> Run Again
+            {% else %}
+                <i class="mdi mdi-play"></i> Run Report
             {% endif %}
-        </div>
+        </button>
+    </form>
+</div>
+{% endif %}
+<div class="row">
+    <div class="col col-md-12">
+        {% if report.result %}
+            Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
+                <strong>{{ report.result.created|annotated_date }}</strong>
+            </a>
+        {% endif %}
     </div>
+</div>
 {% endblock %}

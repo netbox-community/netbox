@@ -4,68 +4,60 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'circuits:providernetwork_list' %}">Provider Networks</a></li>
-  <li><a href="{% url 'circuits:providernetwork_list' %}?provider_id={{ object.provider_id }}">{{ object.provider }}</a></li>
-  <li>{{ object }}</li>
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'circuits:providernetwork_list' %}?provider_id={{ object.provider_id }}">{{ object.provider }}</a></li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
-	  <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Provider Network</strong>
+	  <div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">
+                Provider Network
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Provider</th>
+                        <td>
+                            <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Provider</td>
-                    <td>
-                        <a href="{{ object.provider.get_absolute_url }}">{{ object.provider }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Name</td>
-                    <td>{{ object.name }}</td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description }}</td>
-                </tr>
-            </table>
         </div>
         {% plugin_left_page object %}
     </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body rendered-markdown">
-                {% if object.comments %}
-                    {{ object.comments|render_markdown }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
-        </div>
+    <div class="col col-md-6">
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='circuits:providernetwork_list' %}
+        {% include 'inc/comments_panel.html' %}
         {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Circuits</strong>
+    <div class="col col-md-12">
+        <div class="card">
+            <h5 class="card-header">
+                Circuits
+            </h5>
+            <div class="card-body">
+                {% include 'inc/table.html' with table=circuits_table %}
             </div>
-            {% include 'inc/table.html' with table=circuits_table %}
         </div>
         {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>

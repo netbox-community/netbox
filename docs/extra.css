@@ -11,9 +11,19 @@ table {
     width: 100%;
 }
 th {
-    background-color: #f0f0f0;
     padding: 6px;
+    font-weight: bold;
 }
 td {
     padding: 6px;
+}
+/* Remove table header coloring.  */
+.md-typeset table:not([class]) th {
+    color: unset !important;
+    background-color: unset !important;
+}
+thead tr {
+    /* Colorize table headers. */
+    background-color: var(--md-code-bg-color);
+    color: var(--md-code-fg-color);
 }

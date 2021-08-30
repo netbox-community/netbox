@@ -1,0 +1,129 @@
+{# Base template for (almost) all NetBox pages #}
+{% load static %}
+{% load helpers %}
+<!DOCTYPE html>
+<html
+  lang="en"
+  data-netbox-path="{{ request.path }}"
+  {% if preferences|get_key:'ui.colormode' == 'dark'%}
+    data-netbox-color-mode="dark"
+  {% else %}
+    data-netbox-color-mode="light"
+  {% endif %}
+  >
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, viewport-fit=cover"
+    />
+
+    {# Page title #}
+    <title>{% block title %}Home{% endblock %} | NetBox</title>
+
+    <script type="text/javascript">
+      /**
+       * Determine the best initial color mode to use prior to rendering.
+       */
+      (function() {
+        // Browser prefers dark color scheme.
+        var preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        // Browser prefers light color scheme.
+        var preferLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        // Client NetBox color-mode override.
+        var clientMode = localStorage.getItem('netbox-color-mode');
+        // NetBox server-rendered value.
+        var serverMode = document.documentElement.getAttribute('data-netbox-color-mode');
+
+        if ((clientMode !== null) && (clientMode !== serverMode)) {
+          // If the client mode is set, use its value over the server's value.
+          return document.documentElement.setAttribute('data-netbox-color-mode', clientMode);
+        }
+        if (preferDark && serverMode === 'light') {
+          // If the client value matches the server value, the browser preferrs dark-mode, but
+          // the server value doesn't match the browser preference, use dark mode.
+          return document.documentElement.setAttribute('data-netbox-color-mode', 'dark');
+        }
+        if (preferLight && serverMode === 'dark') {
+          // If the client value matches the server value, the browser preferrs dark-mode, but
+          // the server value doesn't match the browser preference, use light mode.
+          return document.documentElement.setAttribute('data-netbox-color-mode', 'light');
+        }
+      })();
+    </script>
+
+    {# Static resources #}
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-external.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-external.css'"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-light.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-light.css'"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'netbox-dark.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-dark.css'"
+    />
+    <link
+      rel="stylesheet"
+      media="print"
+      href="{% static 'netbox-print.css'%}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-print.css'"
+    />
+    <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
+
+    {# Javascript #}
+    <script
+      type="text/javascript"
+      src="{% static 'netbox.js' %}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'">
+    </script>
+
+    {# Additional <head> content #}
+    {% block head %}{% endblock %}
+  </head>
+
+  <body>
+    <script type="text/javascript">
+      (function() {
+        // Check localStorage to see if the sidebar should be pinned.
+        var sideNavRaw = localStorage.getItem('netbox-sidenav');
+        // Determine if the device has a small screeen. This media query is equivalent to
+        // bootstrap's media-breakpoint-down(lg) breakpoint mixin, which is what the sidenav's
+        // CSS uses.
+        var isSmallScreen = window.matchMedia('(max-width: 991.98px)').matches;
+        if (typeof sideNavRaw === 'string') {
+          var sideNavState = JSON.parse(sideNavRaw);
+          if (sideNavState.pinned === true && !isSmallScreen) {
+            // If the sidebar should be pinned and this is not a small screen, set the appropriate
+            // body attributes prior to the rest of the content rendering. This prevents
+            // jumpy/glitchy behavior on page reloads.
+            document.body.setAttribute('data-sidenav-pinned', '');
+            document.body.setAttribute('data-sidenav-show', '');
+          } else {
+            document.body.setAttribute('data-sidenav-hidden', '');
+          }
+        }
+      })();
+    </script>
+
+    {# Page layout #}
+    {% block layout %}{% endblock %}
+
+    {# Additional Javascript #}
+    {% block javascript %}{% endblock %}
+
+    {# User messages #}
+    {% include 'inc/messages.html' %}
+
+    {# Data container #}
+    <div id="netbox-data" style="display: none!important; visibility: hidden!important">
+      {% block data %}{% endblock %}
+    </div>
+
+  </body>
+</html>

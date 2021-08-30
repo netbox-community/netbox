@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+from typing import Dict, Any
 
 import yaml
 from django import template
@@ -12,7 +13,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
-from utilities.forms import TableConfigForm
+from utilities.forms import get_selected_values, TableConfigForm
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -274,6 +275,35 @@ def meters_to_feet(n):
     return float(n) * 3.28084
 
 
+@register.filter("startswith")
+def startswith(text: str, starts: str) -> bool:
+    """
+    Template implementation of `str.startswith()`.
+    """
+    if isinstance(text, str):
+        return text.startswith(starts)
+    return False
+
+
+@register.filter
+def get_key(value: Dict, arg: str) -> Any:
+    """
+    Template implementation of `dict.get()`, for accessing dict values
+    by key when the key is not able to be used in a template. For
+    example, `{"ui.colormode": "dark"}`.
+    """
+    return value.get(arg, None)
+
+
+@register.filter
+def get_item(value: object, attr: str) -> Any:
+    """
+    Template implementation of `__getitem__`, for accessing the `__getitem__` method
+    of a class from a template.
+    """
+    return value[attr]
+
+
 #
 # Tags
 #
@@ -296,15 +326,51 @@ def querystring(request, **kwargs):
         return ''
 
 
+@register.filter
+def status_from_tag(tag: str = "info") -> str:
+    """
+    Determine Bootstrap theme status/level from Django's Message.level_tag.
+    """
+    status_map = {
+        'warning': 'warning',
+        'success': 'success',
+        'error': 'danger',
+        'debug': 'info',
+        'info': 'info',
+    }
+    return status_map.get(tag.lower(), 'info')
+
+
+@register.filter
+def icon_from_status(status: str = "info") -> str:
+    """
+    Determine icon class name from Bootstrap theme status/level.
+    """
+    icon_map = {
+        'warning': 'alert',
+        'success': 'check-circle',
+        'danger': 'alert',
+        'info': 'information',
+    }
+    return icon_map.get(status.lower(), 'information')
+
+
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
 def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     """
     Display a horizontal bar graph indicating a percentage of utilization.
     """
+    if danger_threshold and utilization >= danger_threshold:
+        bar_class = 'bg-danger'
+    elif warning_threshold and utilization >= warning_threshold:
+        bar_class = 'bg-warning'
+    elif warning_threshold or danger_threshold:
+        bar_class = 'bg-success'
+    else:
+        bar_class = 'bg-gray'
     return {
         'utilization': utilization,
-        'warning_threshold': warning_threshold,
-        'danger_threshold': danger_threshold,
+        'bar_class': bar_class,
     }
 
 
@@ -320,12 +386,13 @@ def tag(tag, url_name=None):
 
 
 @register.inclusion_tag('utilities/templatetags/badge.html')
-def badge(value, show_empty=False):
+def badge(value, bg_class='secondary', show_empty=False):
     """
     Display the specified number as a badge.
     """
     return {
         'value': value,
+        'bg_class': bg_class,
         'show_empty': show_empty,
     }
 
@@ -335,4 +402,33 @@ def table_config_form(table, table_name=None):
     return {
         'table_name': table_name or table.__class__.__name__,
         'table_config_form': TableConfigForm(table=table),
+    }
+
+
+@register.inclusion_tag('utilities/templatetags/applied_filters.html')
+def applied_filters(form, query_params):
+    """
+    Display the active filters for a given filter form.
+    """
+    form.is_valid()
+
+    applied_filters = []
+    for filter_name in form.changed_data:
+        if filter_name not in query_params:
+            continue
+
+        bound_field = form.fields[filter_name].get_bound_field(form, filter_name)
+        querydict = query_params.copy()
+        querydict.pop(filter_name)
+        display_value = ', '.join(get_selected_values(form, filter_name))
+
+        applied_filters.append({
+            'name': filter_name,
+            'value': form.cleaned_data[filter_name],
+            'link_url': f'?{querydict.urlencode()}',
+            'link_text': f'{bound_field.label}: {display_value}',
+        })
+
+    return {
+        'applied_filters': applied_filters,
     }

@@ -12,6 +12,8 @@ from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
 from extras.models import CustomField
+from extras.utils import FeatureQuery
+from .utils import content_type_name
 from .paginator import EnhancedPaginator, get_paginate_count
 
 
@@ -24,7 +26,7 @@ class BaseTable(tables.Table):
 
     class Meta:
         attrs = {
-            'class': 'table table-hover table-headings',
+            'class': 'table table-hover object-list',
         }
 
     def __init__(self, *args, user=None, **kwargs):
@@ -124,14 +126,17 @@ class ToggleColumn(tables.CheckBoxColumn):
         if 'attrs' not in kwargs:
             kwargs['attrs'] = {
                 'td': {
-                    'class': 'min-width'
+                    'class': 'min-width',
+                },
+                'input': {
+                    'class': 'form-check-input'
                 }
             }
         super().__init__(*args, default=default, visible=visible, **kwargs)
 
     @property
     def header(self):
-        return mark_safe('<input type="checkbox" class="toggle" title="Toggle all" />')
+        return mark_safe('<input type="checkbox" class="toggle form-check-input" title="Toggle All" />')
 
 
 class BooleanColumn(tables.Column):
@@ -161,21 +166,21 @@ class ButtonsColumn(tables.TemplateColumn):
     :param return_url_extra: String to append to the return URL (e.g. for specifying a tab) (optional)
     """
     buttons = ('changelog', 'edit', 'delete')
-    attrs = {'td': {'class': 'text-right text-nowrap noprint'}}
+    attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
     # Note that braces are escaped to allow for string formatting prior to template rendering
     template_code = """
     {{% if "changelog" in buttons %}}
-        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-default btn-xs" title="Change log">
+        <a href="{{% url '{app_label}:{model_name}_changelog' pk=record.pk %}}" class="btn btn-outline-dark btn-sm" title="Change log">
             <i class="mdi mdi-history"></i>
         </a>
     {{% endif %}}
     {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-warning" title="Edit">
+        <a href="{{% url '{app_label}:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-sm btn-warning" title="Edit">
             <i class="mdi mdi-pencil"></i>
         </a>
     {{% endif %}}
     {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
-        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-danger" title="Delete">
+        <a href="{{% url '{app_label}:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-sm btn-danger" title="Delete">
             <i class="mdi mdi-trash-can-outline"></i>
         </a>
     {{% endif %}}
@@ -219,7 +224,7 @@ class ChoiceFieldColumn(tables.Column):
             css_class = getattr(record, f'get_{name}_class')()
             label = getattr(record, f'get_{name}_display')()
             return mark_safe(
-                f'<span class="label label-{css_class}">{label}</span>'
+                f'<span class="badge bg-{css_class}">{label}</span>'
             )
         return self.default
 
@@ -232,10 +237,18 @@ class ContentTypeColumn(tables.Column):
     Display a ContentType instance.
     """
     def render(self, value):
-        return value.name[0].upper() + value.name[1:]
+        return content_type_name(value)
 
     def value(self, value):
         return f"{value.app_label}.{value.model}"
+
+
+class ContentTypesColumn(tables.ManyToManyColumn):
+    """
+    Display a list of ContentType instances.
+    """
+    def transform(self, obj):
+        return content_type_name(obj)
 
 
 class ColorColumn(tables.Column):
@@ -244,7 +257,7 @@ class ColorColumn(tables.Column):
     """
     def render(self, value):
         return mark_safe(
-            f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
+            f'<span class="color-label" style="background-color: #{value}">&nbsp;</span>'
         )
 
     def value(self, value):
@@ -257,7 +270,13 @@ class ColoredLabelColumn(tables.TemplateColumn):
     """
     template_code = """
     {% load helpers %}
-    {% if value %}<label class="label" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">{{ value }}</label>{% else %}&mdash;{% endif %}
+    {% if value %}
+    <span class="badge" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">
+      {{ value }}
+    </span>
+    {% else %}
+    &mdash;
+    {% endif %}
     """
 
     def __init__(self, *args, **kwargs):

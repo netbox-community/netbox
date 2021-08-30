@@ -1,0 +1,16 @@
+{% load render_table from django_tables2 %}
+
+<div class="card {% if panel_class %}bg-{{ panel_class }}{% endif %}">
+    {% if heading %}
+    <h5 class="card-header">
+        {{ heading }}
+    </h5>
+    {% endif %}
+    <div class="card-body">
+    {% if table.rows %}
+        {% render_table table 'inc/table.html' %}
+    {% else %}
+        <div class="text-muted">None</div>
+    {% endif %}
+    </div>
+</div>

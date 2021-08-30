@@ -22,7 +22,7 @@ class ObjectPermissionInline(admin.TabularInline):
     verbose_name_plural = 'Permissions'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('objectpermission__object_types').nocache()
+        return super().get_queryset(request).prefetch_related('objectpermission__object_types')
 
     @staticmethod
     def object_types(instance):

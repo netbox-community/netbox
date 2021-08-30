@@ -1,32 +1,29 @@
 {% extends base_template %}
 {% load form_helpers %}
+{% load render_table from django_tables2 %}
 
-{% block title %}{{ block.super }} - Journal{% endblock %}
+{% render_errors form %}
 
 {% block content %}
-    {% if perms.extras.add_journalentry %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>New Journal Entry</strong>
-            </div>
-            <form action="{% url 'extras:journalentry_add' %}" method="post" enctype="multipart/form-data" class="form form-horizontal">
-                {% csrf_token %}
-                {% for field in form.hidden_fields %}
-                    {{ field }}
-                {% endfor %}
-                <div class="row panel-body">
-                    <div class="col-md-10 col-md-offset-1">
-                        {% render_field form.kind %}
-                        {% render_field form.comments %}
-                        <div class="text-right">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                            <a href="{{ object.get_absolute_url }}" class="btn btn-default">Cancel</a>
-                        </div>
-                    </div>
-                </div>
-            </form>
+  {% if perms.extras.add_journalentry %}
+    <form action="{% url 'extras:journalentry_add' %}" method="post" enctype="multipart/form-data">
+      <div class="container">
+        <div class="field-group">
+          <h4>New Journal Entry</h4>
+          {% csrf_token %}
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+          {% render_field form.kind %}
+          {% render_field form.comments %}
         </div>
-    {% endif %}
-    {% include 'panel_table.html' %}
-    {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+        <div class="col col-md-12 text-end my-3">
+          <a href="{{ object.get_absolute_url }}" class="btn btn-outline-danger">Cancel</a>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  {% endif %}
+  {% render_table table 'inc/table.html' %}
+  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
 {% endblock %}

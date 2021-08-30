@@ -1,41 +1,50 @@
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load render_table from django_tables2 %}
 
 {% block title %}Search{% endblock %}
 
 {% block content %}
     {% if request.GET.q %}
-        {% include 'search_form.html' with search_form=form %}
         {% if results %}
             <div class="row">
-                <div class="col-md-10">
+                <div class="col col-md-9">
                     {% for obj_type in results %}
-                        <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
-                        {% include 'panel_table.html' with table=obj_type.table %}
-                        <a href="{{ obj_type.url }}" class="btn btn-primary pull-right">
-                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span>
-                            {% if obj_type.table.page.has_next %}
-                                See all {{ obj_type.table.page.paginator.count }} results
-                            {% else %}
-                                Refine search
-                            {% endif %}
-                        </a>
-                    <div class="clearfix"></div>
+                        <div class="card">
+                            <h5 class="card-header">{{ obj_type.name|bettertitle }}</h5>
+                            <div class="card-body table-responsive">
+                                {% render_table obj_type.table 'inc/table.html' %}
+                            </div>
+                            <div class="card-footer text-end">
+                                <a href="{{ obj_type.url }}" class="btn btn-sm btn-primary my-1">
+                                    <i class="mdi mdi-arrow-right-bold" aria-hidden="true"></i>
+                                    {% if obj_type.table.page.has_next %}
+                                        See All {{ obj_type.table.page.paginator.count }} Results
+                                    {% else %}
+                                        Refine Search
+                                    {% endif %}
+                                </a>    
+                            </div>
+                        </div>
                     {% endfor %}
                 </div>
-                <div class="col-md-2" style="padding-top: 20px;">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <strong>Search Results</strong>
-                        </div>
-                        <div class="list-group">
-                            {% for obj_type in results %}
-                                <a href="#{{ obj_type.name|lower }}" class="list-group-item">
-                                    {{ obj_type.name|bettertitle }}
-                                    <span class="badge">{{ obj_type.table.page.paginator.count }}</span>
-                                </a>
-                            {% endfor %}
+                <div class="col col-md-3">
+                    <div class="card">
+                        <h5 class="card-header">
+                            Search Results
+                        </h5>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                {% for obj_type in results %}
+                                    <a href="#{{ obj_type.name|lower }}" class="list-group-item">
+                                        <div class="float-end">
+                                          {% badge obj_type.table.page.paginator.count %}
+                                        </div>
+                                        {{ obj_type.name|bettertitle }}
+                                    </a>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -44,17 +53,17 @@
             <h3 class="text-muted text-center">No results found</h3>
         {% endif %}
     {% else %}
-        <div class="row" style="margin-top: 150px;">
-            <div class="col-sm-4 col-sm-offset-4">
+        <div class="row">
+            <div class="col col-12 col-lg-4 offset-lg-4">
                 <form action="{% url 'search' %}" method="get" class="form form-horizontal">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <strong>Search</strong>
-                        </div>
-                        <div class="panel-body">
+                    <div class="card">
+                        <h5 class="card-header">
+                            Search
+                        </h5>
+                        <div class="card-body">
                             {% render_form form %}
                         </div>
-                        <div class="panel-footer text-right">
+                        <div class="card-footer text-end">
                             <button type="submit" class="btn btn-primary">
                                 <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
                             </button>
@@ -64,4 +73,4 @@
             </div>
         </div>
     {% endif %}
-{% endblock %}
+{% endblock content %}

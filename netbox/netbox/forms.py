@@ -13,7 +13,7 @@ OBJ_TYPE_CHOICES = (
         ('rack', 'Racks'),
         ('rackreservation', 'Rack reservations'),
         ('location', 'Locations'),
-        ('devicetype', 'Device types'),
+        ('devicetype', 'Device Types'),
         ('device', 'Devices'),
         ('virtualchassis', 'Virtual chassis'),
         ('cable', 'Cables'),
@@ -23,20 +23,30 @@ OBJ_TYPE_CHOICES = (
         ('vrf', 'VRFs'),
         ('aggregate', 'Aggregates'),
         ('prefix', 'Prefixes'),
-        ('ipaddress', 'IP addresses'),
+        ('ipaddress', 'IP Addresses'),
         ('vlan', 'VLANs'),
-    )),
-    ('Secrets', (
-        ('secret', 'Secrets'),
     )),
     ('Tenancy', (
         ('tenant', 'Tenants'),
     )),
     ('Virtualization', (
         ('cluster', 'Clusters'),
-        ('virtualmachine', 'Virtual machines'),
+        ('virtualmachine', 'Virtual Machines'),
     )),
 )
+
+
+def build_options():
+    options = [{"label": OBJ_TYPE_CHOICES[0][1], "items": []}]
+
+    for label, choices in OBJ_TYPE_CHOICES[1:]:
+        items = []
+
+        for value, choice_label in choices:
+            items.append({"label": choice_label, "value": value})
+
+        options.append({"label": label, "items": items})
+    return options
 
 
 class SearchForm(BootstrapMixin, forms.Form):
@@ -46,3 +56,4 @@ class SearchForm(BootstrapMixin, forms.Form):
     obj_type = forms.ChoiceField(
         choices=OBJ_TYPE_CHOICES, required=False, label='Type'
     )
+    options = build_options()

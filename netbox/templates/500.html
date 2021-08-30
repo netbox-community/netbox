@@ -4,23 +4,19 @@
 
 <head>
     <title>Server Error</title>
-    <link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'materialdesignicons-5.4.55/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'netbox.css'%}" />
     <meta charset="UTF-8">
 </head>
 
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <div class="panel panel-danger" style="margin-top: 200px">
-                    <div class="panel-heading">
-                        <strong>
-                            <i class="mdi mdi-alert"></i>
-                            Server Error
-                        </strong>
-                    </div>
-                    <div class="panel-body">
+            <div class="col col-md-6 offset-md-3">
+                <div class="card bg-danger mt-5">
+                    <h5 class="card-header">
+                        <i class="mdi mdi-alert"></i> Server Error
+                    </h5>
+                    <div class="card-body">
                         {% block message %}
                             <p>
                                 There was a problem with your request. Please contact an administrator.
@@ -38,7 +34,7 @@ NetBox version: {{ netbox_version }}</pre>
                         <p>
                             If further assistance is required, please post to the <a href="https://groups.google.com/g/netbox-discuss">NetBox mailing list</a>.
                         </p>
-                        <div class="text-right">
+                        <div class="text-end">
                             <a href="{% url 'home' %}" class="btn btn-primary">Home Page</a>
                         </div>
                     </div>

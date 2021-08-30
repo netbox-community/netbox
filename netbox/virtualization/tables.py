@@ -19,7 +19,7 @@ __all__ = (
 
 VMINTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
+    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-sm btn-success" title="Add IP Address">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
     </a>
 {% endif %}
@@ -180,10 +180,10 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'virtual_machine', 'name', 'enabled', 'parent', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'pk', 'name', 'virtual_machine', 'enabled', 'parent', 'mac_address', 'mtu', 'mode', 'description', 'tags',
             'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
-        default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'parent', 'description')
+        default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'parent', 'description')
 
 
 class VirtualMachineVMInterfaceTable(VMInterfaceTable):

@@ -1,0 +1,185 @@
+// SlimSelect Style Overrides.
+
+$height: $input-height;
+$white: $white;
+$font-color: $input-color;
+$font-placeholder-color: $input-placeholder-color;
+$font-disabled-color: $form-select-disabled-color;
+$primary-color: $primary;
+$border-color: $form-select-border-color;
+$search-highlight-color: $yellow;
+$border-radius: $form-select-border-radius;
+$spacing-l: $input-padding-x;
+$spacing-m: $input-padding-x;
+$spacing-s: $input-padding-x;
+
+:root {
+  // Light Mode Variables.
+  --nbx-select-content-bg: #{$form-select-bg};
+  --nbx-select-option-selected-bg: #{$gray-300};
+  --nbx-select-option-hover-bg: #{$blue};
+  --nbx-select-option-hover-color: #{$white};
+  --nbx-select-placeholder-color: #{$gray-600};
+  --nbx-select-value-color: #{$white};
+  &[data-netbox-color-mode='dark'] {
+    // Dark Mode Variables.
+    --nbx-select-content-bg: #{$gray-900};
+    --nbx-select-option-selected-bg: #{$gray-500};
+    --nbx-select-option-hover-bg: #{$blue-200};
+    --nbx-select-option-hover-color: #{color-contrast($blue-200)};
+    --nbx-select-placeholder-color: #{$gray-500};
+    --nbx-select-value-color: #{$black};
+  }
+}
+
+@import './node_modules/slim-select/src/slim-select/slimselect';
+
+.ss-main {
+  color: $form-select-color;
+
+  &.is-invalid .ss-single-selected,
+  &.is-invalid .ss-multi-selected {
+    border-color: $form-feedback-icon-invalid-color;
+  }
+
+  &.is-valid .ss-single-selected,
+  &.is-valid .ss-multi-selected {
+    border-color: $form-feedback-icon-valid-color;
+  }
+
+  .ss-single-selected,
+  .ss-multi-selected {
+    padding: $form-select-padding-y $input-padding-x $form-select-padding-y $form-select-padding-x;
+    background-color: $form-select-bg;
+    border: $form-select-border-width solid $input-border-color;
+    &[disabled] {
+      color: $form-select-disabled-color;
+      background-color: $form-select-disabled-bg;
+      border-color: $form-select-disabled-border-color;
+    }
+  }
+
+  div.ss-multi-selected .ss-values .ss-disabled,
+  div.ss-single-selected span.placeholder .ss-disabled {
+    color: var(--nbx-select-placeholder-color);
+  }
+
+  .ss-single-selected {
+    span.ss-arrow {
+      // Inherit the arrow color from the parent (see color selector).
+      span.arrow-down,
+      span.arrow-up {
+        border-color: currentColor;
+      }
+    }
+    // Don't show the depth indicator outside of the menu.
+    .placeholder .depth {
+      display: none;
+    }
+    span.placeholder > *,
+    span.placeholder {
+      line-height: $input-line-height;
+    }
+  }
+
+  .ss-multi-selected {
+    align-items: center;
+    padding-right: $input-padding-x;
+    padding-left: $input-padding-x;
+
+    .ss-values {
+      .ss-disabled {
+        padding: 4px 0;
+      }
+      .ss-value {
+        color: var(--nbx-select-value-color);
+        border-radius: $badge-border-radius;
+
+        // Don't show the depth indicator outside of the menu.
+        .depth {
+          display: none;
+        }
+      }
+    }
+    .ss-add {
+      margin: 0 0.75rem;
+    }
+  }
+
+  .ss-content {
+    background-color: var(--nbx-select-content-bg);
+    .ss-list {
+      .ss-option {
+        &.ss-option-selected {
+          color: $body-color;
+          background-color: var(--nbx-select-option-selected-bg);
+        }
+
+        &:hover {
+          color: var(--nbx-select-option-hover-color);
+          background-color: var(--nbx-select-option-hover-bg);
+        }
+
+        &:last-child {
+          border-bottom-right-radius: $form-select-border-radius;
+          border-bottom-left-radius: $form-select-border-radius;
+        }
+
+        &.ss-disabled {
+          background-color: unset;
+          &:hover {
+            color: $form-select-disabled-color;
+          }
+        }
+
+        .depth {
+          // Lighten the dash prefix on nested options.
+          opacity: 0.3;
+        }
+      }
+
+      &::-webkit-scrollbar {
+        right: 0;
+        width: 4px;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        right: 0;
+        width: 2px;
+        background-color: var(--nbx-sidebar-scroll);
+      }
+    }
+    border-bottom-right-radius: $form-select-border-radius;
+    border-bottom-left-radius: $form-select-border-radius;
+    .ss-search {
+      padding-right: $spacer * 0.5;
+
+      button {
+        margin-left: $spacer * 0.75;
+      }
+
+      input[type='search'] {
+        color: $input-color;
+        background-color: $form-select-bg;
+        border: $input-border-width solid $input-border-color;
+        &:focus {
+          border-color: $form-select-focus-border-color;
+          outline: 0;
+          @if $enable-shadows {
+            @include box-shadow($form-select-box-shadow, $form-select-focus-box-shadow);
+          } @else {
+            // Avoid using mixin so we can pass custom focus shadow properly
+            box-shadow: $form-select-focus-box-shadow;
+          }
+        }
+      }
+    }
+  }
+}

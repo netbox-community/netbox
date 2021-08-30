@@ -36,7 +36,8 @@ __all__ = (
 # Webhooks
 #
 
-class Webhook(BigIDModel):
+@extras_features('webhooks')
+class Webhook(ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -90,7 +91,7 @@ class Webhook(BigIDModel):
         blank=True,
         help_text="User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
                   "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
-                  "support with the same context as the request body (below)."
+                  "supported with the same context as the request body (below)."
     )
     body_template = models.TextField(
         blank=True,
@@ -128,6 +129,9 @@ class Webhook(BigIDModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:webhook', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -171,7 +175,8 @@ class Webhook(BigIDModel):
 # Custom links
 #
 
-class CustomLink(BigIDModel):
+@extras_features('webhooks')
+class CustomLink(ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -221,12 +226,16 @@ class CustomLink(BigIDModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('extras:customlink', args=[self.pk])
+
 
 #
 # Export templates
 #
 
-class ExportTemplate(BigIDModel):
+@extras_features('webhooks')
+class ExportTemplate(ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
@@ -240,7 +249,8 @@ class ExportTemplate(BigIDModel):
         blank=True
     )
     template_code = models.TextField(
-        help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
+        help_text='Jinja2 template code. The list of objects being exported is passed as a context variable named '
+                  '<code>queryset</code>.'
     )
     mime_type = models.CharField(
         max_length=50,
@@ -268,6 +278,9 @@ class ExportTemplate(BigIDModel):
 
     def __str__(self):
         return f"{self.content_type}: {self.name}"
+
+    def get_absolute_url(self):
+        return reverse('extras:exporttemplate', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -300,13 +313,12 @@ class ExportTemplate(BigIDModel):
 
         # Build the response
         response = HttpResponse(output, content_type=mime_type)
-        filename = 'netbox_{}{}'.format(
-            queryset.model._meta.verbose_name_plural,
-            '.{}'.format(self.file_extension) if self.file_extension else ''
-        )
 
         if self.as_attachment:
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            basename = queryset.model._meta.verbose_name_plural.replace(' ', '_')
+            extension = f'.{self.file_extension}' if self.file_extension else ''
+            filename = f'netbox_{basename}{extension}'
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         return response
 

@@ -1,7 +1,21 @@
-<div class="progress text-center">
-    {% if utilization < 30 %}<span style="font-size: 12px;">{{ utilization }}%</span>{% endif %}
-    <div class="progress-bar progress-bar-{% if utilization >= danger_threshold %}danger{% elif utilization >= warning_threshold %}warning{% else %}success{% endif %}"
-        role="progressbar" aria-valuenow="{{ utilization }}" aria-valuemin="0" aria-valuemax="100" style="width: {% if utilization > 100 %}100{% else %}{{ utilization }}{% endif %}%">
-        {% if utilization >= 30 %}{{ utilization }}%{% endif %}
+{% if utilization == 0 %}
+  <div class="progress align-items-center justify-content-center">
+    <span class="w-100 text-center">{{ utilization }}%</span>
+  </div>
+{% else %}
+  <div class="progress">
+    <div
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="{{ utilization }}"
+      class="progress-bar {{ bar_class }}"
+      style="width: {{ utilization }}%;"
+    >
+      {% if utilization >= 25 %}{{ utilization }}%{% endif %}
     </div>
-</div>
+    {% if utilization < 25 %}
+      <span class="ps-1">{{ utilization }}%</span>
+    {% endif %}
+  </div>
+{% endif %}

@@ -1,38 +1,35 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
-{% load custom_links %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></li>
+  {{ block.super }}
   {% if object.vrf %}
-    <li><a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ipam:prefix_list' %}?vrf_id={{ object.vrf.pk }}">{{ object.vrf }}</a></li>
   {% endif %}
-  <li>{{ object }}</li>
 {% endblock %}
 
-{% block tabs %}
-  <ul class="nav nav-tabs" style="margin-bottom: 20px">
-    <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-      <a href="{% url 'ipam:prefix' pk=object.pk %}">Prefix</a>
+{% block tab_items %}
+  <li role="presentation" class="nav-item">
+    <a class="nav-link{% if not active_tab %} active{% endif %}" href="{% url 'ipam:prefix' pk=object.pk %}">
+      Prefix
+    </a>
+  </li>
+  <li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab == 'prefixes' %} active{% endif %}" href="{% url 'ipam:prefix_prefixes' pk=object.pk %}">
+      Child Prefixes {% badge object.get_child_prefixes.count %}
+    </a>
+  </li>
+  <li role="presentation" class="nav-item">
+    <a class="nav-link{% if active_tab == 'ip-ranges' %} active{% endif %}" href="{% url 'ipam:prefix_ipranges' pk=object.pk %}">
+      Child Ranges {% badge object.get_child_ranges.count %}
+    </a>
+  </li>
+  {% if perms.ipam.view_ipaddress and object.status != 'container' %}
+    <li role="presentation" class="nav-item">
+      <a class="nav-link{% if active_tab == 'ip-addresses' %} active{% endif %}" href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">
+        IP Addresses {% badge object.get_child_ips.count %}
+      </a>
     </li>
-    <li role="presentation"{% if active_tab == 'prefixes' %} class="active"{% endif %}>
-      <a href="{% url 'ipam:prefix_prefixes' pk=object.pk %}">Child Prefixes <span class="badge">{{ object.get_child_prefixes.count }}</span></a>
-    </li>
-    {% if perms.ipam.view_ipaddress and object.status != 'container' %}
-      <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}>
-        <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">IP Addresses <span class="badge">{{ object.get_child_ips.count }}</span></a>
-      </li>
-    {% endif %}
-    {% if perms.extras.view_journalentry %}
-      <li role="presentation"{% if active_tab == 'journal' %} class="active"{% endif %}>
-        <a href="{% url 'ipam:prefix_journal' pk=object.pk %}">Journal</a>
-      </li>
-    {% endif %}
-    {% if perms.extras.view_objectchange %}
-      <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-        <a href="{% url 'ipam:prefix_changelog' pk=object.pk %}">Change Log</a>
-      </li>
-    {% endif %}
-  </ul>
+  {% endif %}
 {% endblock %}

@@ -1,123 +1,113 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load helpers %}
 {% load static %}
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'dcim:rackreservation_list' %}">Rack Reservations</a></li>
-  <li><a href="{{ object.rack.get_absolute_url }}">{{ object.rack }}</a></li>
-  <li>Units {{ object.unit_list }}</li>
-{% endblock %}
-
-{% block buttons %}
-  {% if perms.dcim.change_rackreservation %}
-    {% edit_button object %}
-  {% endif %}
-  {% if perms.dcim.delete_rackreservation %}
-    {% delete_button object %}
-  {% endif %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'dcim:rackreservation_list' %}?rack_id={{ object.rack.pk }}">{{ object.rack }}</a></li>
+  <li class="breadcrumb-item">Units {{ object.unit_list }}</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Rack</strong>
+<div class="row mb-3">
+	<div class="col col-12 col-xl-5">
+        <div class="card">
+            <h5 class="card-header">
+                Rack
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    {% with rack=object.rack %}
+                        <tr>
+                            <th scope="row">Site</th>
+                            <td>
+                                {% if rack.site.region %}
+                                    <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
+                                {% endif %}
+                                <a href="{{ rack.site.get_absolute_url }}">{{ rack.site }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Location</th>
+                            <td>
+                                {% if rack.location %}
+                                    <a href="{{ rack.location.get_absolute_url }}">{{ rack.location }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Rack</th>
+                            <td>
+                                <a href="{{ rack.get_absolute_url }}">{{ rack }}</a>
+                            </td>
+                        </tr>
+                    {% endwith %}
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                {% with rack=object.rack %}
+        </div>
+        <div class="card">
+            <h5 class="card-header">
+                Reservation Details
+            </h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
                     <tr>
-                        <td>Site</td>
-                        <td>
-                            {% if rack.site.region %}
-                                <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
-                            {% endif %}
-                            <a href="{{ rack.site.get_absolute_url }}">{{ rack.site }}</a>
-                        </td>
+                        <th scope="row">Units</th>
+                        <td>{{ object.unit_list }}</td>
                     </tr>
                     <tr>
-                        <td>Location</td>
+                        <th scope="row">Tenant</th>
                         <td>
-                            {% if rack.location %}
-                                <a href="{{ rack.location.get_absolute_url }}">{{ rack.location }}</a>
+                            {% if object.tenant %}
+                                {% if object.tenant.group %}
+                                    <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                                {% endif %}
+                                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
                         </td>
                     </tr>
                     <tr>
-                        <td>Rack</td>
-                        <td>
-                            <a href="{{ rack.get_absolute_url }}">{{ rack }}</a>
-                        </td>
+                        <th scope="row">User</th>
+                        <td>{{ object.user }}</td>
                     </tr>
-                {% endwith %}
-            </table>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Reservation Details</strong>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description }}</td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Units</td>
-                    <td>{{ object.unit_list }}</td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if object.tenant %}
-                            {% if object.tenant.group %}
-                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                            {% endif %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>User</td>
-                    <td>{{ object.user }}</td>
-                </tr>
-                <tr>
-                    <td>Description</td>
-                    <td>{{ object.description }}</td>
-                </tr>
-            </table>
         </div>
         {% include 'inc/custom_fields_panel.html' %}
         {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:rackreservation_list' %}
         {% plugin_left_page object %}
 	</div>
-    <div class="col-md-6">
+    <div class="col col-12 col-xl-7">
         <div class="row" style="margin-bottom: 20px">
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <div class="rack_header">
+            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+                <div style="margin-left: 30px">
                     <h4>Front</h4>
+                    {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='front' %}
                 </div>
-                {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='front' %}
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <div class="rack_header">
+            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+                <div style="margin-left: -30px">
                     <h4>Rear</h4>
+                    {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='rear' %}
                 </div>
-                {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='rear' %}
             </div>
         </div>
         {% plugin_right_page object %}
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>
-{% endblock %}
-
-{% block javascript %}
-<script src="{% static 'js/rack_elevations.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

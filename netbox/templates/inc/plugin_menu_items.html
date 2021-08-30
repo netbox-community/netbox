@@ -8,10 +8,10 @@
                 {% if not menu_item.permissions or request.user|has_perms:menu_item.permissions %}
                     <li>
                         {% if menu_item.buttons %}
-                            <div class="buttons pull-right">
+                            <div class="buttons float-end">
                                 {% for button in menu_item.buttons %}
                                     {% if not button.permissions or request.user|has_perms:button.permissions %}
-                                        <a href="{% url button.link %}" class="btn btn-xs btn-{{ button.color }}" title="{{ button.title }}"><i class="{{ button.icon_class }}"></i></a>
+                                        <a href="{% url button.link %}" class="btn btn-sm btn-{{ button.color }}" title="{{ button.title }}"><i class="{{ button.icon_class }}"></i></a>
                                     {% endif %}
                                 {% endfor %}
                             </div>
