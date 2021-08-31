@@ -404,12 +404,11 @@ class PrefixPrefixesView(generic.ObjectView):
         bulk_querystring = 'vrf_id={}&within={}'.format(instance.vrf.pk if instance.vrf else '0', instance.prefix)
 
         return {
-            'first_available_prefix': instance.get_first_available_prefix(),
             'table': table,
             'bulk_querystring': bulk_querystring,
             'active_tab': 'prefixes',
+            'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': request.GET.get('show_available', 'true') == 'true',
-            'table_config_form': TableConfigForm(table=table),
         }
 
 
@@ -421,7 +420,7 @@ class PrefixIPRangesView(generic.ObjectView):
         # Find all IPRanges belonging to this Prefix
         ip_ranges = instance.get_child_ranges().restrict(request.user, 'view').prefetch_related('vrf')
 
-        table = tables.IPRangeTable(ip_ranges)
+        table = tables.IPRangeTable(ip_ranges, user=request.user)
         if request.user.has_perm('ipam.change_iprange') or request.user.has_perm('ipam.delete_iprange'):
             table.columns.show('pk')
         paginate_table(table, request)
@@ -449,7 +448,7 @@ class PrefixIPAddressesView(generic.ObjectView):
         if request.GET.get('show_available', 'true') == 'true':
             ipaddresses = add_available_ipaddresses(instance.prefix, ipaddresses, instance.is_pool)
 
-        table = tables.IPAddressTable(ipaddresses)
+        table = tables.IPAddressTable(ipaddresses, user=request.user)
         if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
             table.columns.show('pk')
         paginate_table(table, request)
@@ -457,10 +456,10 @@ class PrefixIPAddressesView(generic.ObjectView):
         bulk_querystring = 'vrf_id={}&parent={}'.format(instance.vrf.pk if instance.vrf else '0', instance.prefix)
 
         return {
-            'first_available_ip': instance.get_first_available_ip(),
             'table': table,
             'bulk_querystring': bulk_querystring,
             'active_tab': 'ip-addresses',
+            'first_available_ip': instance.get_first_available_ip(),
             'show_available': request.GET.get('show_available', 'true') == 'true',
         }
 

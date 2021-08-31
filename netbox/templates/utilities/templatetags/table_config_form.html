@@ -7,11 +7,11 @@
         <h5 class="modal-title">Table Configuration</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form class="form-horizontal userconfigform" data-config-root="tables.{{ table_config_form.table_name }}">
+      <form class="form-horizontal userconfigform" data-config-root="tables.{{ form.table_name }}">
         <div class="modal-body row">
           <div class="col-5 text-center">
-            {{ table_config_form.available_columns.label }}
-            {{ table_config_form.available_columns }}
+            {{ form.available_columns.label }}
+            {{ form.available_columns }}
           </div>
           <div class="col-2 d-flex align-items-center">
             <div>
@@ -24,8 +24,8 @@
             </div>
           </div>
           <div class="col-5 text-center">
-            {{ table_config_form.columns.label }}
-            {{ table_config_form.columns }}
+            {{ form.columns.label }}
+            {{ form.columns }}
             <a class="btn btn-primary btn-sm mt-2" id="move-option-up" data-target="id_columns">
                 <i class="mdi mdi-arrow-up-bold"></i> Move Up
             </a>

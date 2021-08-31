@@ -9,5 +9,5 @@
 {% block title %}{% if name %}{{ name }} | {% endif %}NetBox REST API{% endblock %}
 
 {% block branding %}
-  <a class="navbar-brand" href="/{{ settings.BASE_PATH }}">NetBox</a>
+  <a class="navbar-brand" href="{% url 'home' %}">NetBox</a>
 {% endblock branding %}
