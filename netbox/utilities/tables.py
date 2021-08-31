@@ -237,9 +237,13 @@ class ContentTypeColumn(tables.Column):
     Display a ContentType instance.
     """
     def render(self, value):
+        if value is None:
+            return None
         return content_type_name(value)
 
     def value(self, value):
+        if value is None:
+            return None
         return f"{value.app_label}.{value.model}"
 
 
