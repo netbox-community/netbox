@@ -4586,8 +4586,8 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
     color = ColorField(
         required=False
     )
-    length = forms.IntegerField(
-        min_value=1,
+    length = forms.DecimalField(
+        min_value=0,
         required=False
     )
     length_unit = forms.ChoiceField(
