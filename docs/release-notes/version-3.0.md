@@ -1,11 +1,12 @@
 # NetBox v3.0
 
-## v2.11.12 (2021-08-23)
+## v3.0.1 (FUTURE)
 
 ### Bug Fixes
 
 * [#7070](https://github.com/netbox-community/netbox/issues/7070) - Fix exception when filtering by prefix max length in UI
 * [#7071](https://github.com/netbox-community/netbox/issues/7071) - Fix exception when removing a primary IP from a device/VM
+* [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 
 ---
 

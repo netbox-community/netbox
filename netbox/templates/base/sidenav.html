@@ -7,12 +7,12 @@
   {# Brand #}
 
     {# Full Logo #}
-    <a class="sidenav-brand" href="/">
+    <a class="sidenav-brand" href="{% url 'home' %}">
       <img src="{% static 'netbox_logo.svg' %}" height="48" class="sidenav-brand-img" alt="NetBox Logo">
     </a>
 
     {# Icon Logo #}
-    <a class="sidenav-brand-icon" href="/">
+    <a class="sidenav-brand-icon" href="{% url 'home' %}">
       <img src="{% static 'netbox_icon.svg' %}" height="32" class="sidenav-brand-img" alt="NetBox Logo">
     </a>
 
