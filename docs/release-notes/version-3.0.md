@@ -17,7 +17,6 @@
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 * [#7101](https://github.com/netbox-community/netbox/issues/7101) - Enforce `MAX_PAGE_SIZE` for table and REST API pagination
 
-
 ---
 
 ## v3.0.0 (2021-08-30)
