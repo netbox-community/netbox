@@ -367,6 +367,18 @@ class JobResultFilterSet(BaseFilterSet):
 #
 
 class ContentTypeFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(app_label__icontains=value) |
+            Q(model__icontains=value)
+        )
 
     class Meta:
         model = ContentType

@@ -11,6 +11,7 @@
 * [#7082](https://github.com/netbox-community/netbox/issues/7082) - Avoid exception when referencing invalid content type in table
 * [#7083](https://github.com/netbox-community/netbox/issues/7083) - Correct labeling for VM memory attribute
 * [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix KeyError exception when editing access VLAN on an interface
+* [#7089](https://github.com/netbox-community/netbox/issues/7089) - Fix ContentTypeFilterSet not filtering on q filter
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 
 ---
