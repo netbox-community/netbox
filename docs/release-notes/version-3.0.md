@@ -8,11 +8,13 @@
 * [#7071](https://github.com/netbox-community/netbox/issues/7071) - Fix exception when removing a primary IP from a device/VM
 * [#7072](https://github.com/netbox-community/netbox/issues/7072) - Fix table configuration under prefix child object views
 * [#7075](https://github.com/netbox-community/netbox/issues/7075) - Fix UI bug when a custom field has a space in the name
+* [#7081](https://github.com/netbox-community/netbox/issues/7081) - Fix UI bug that did not properly request and handle paginated data
 * [#7082](https://github.com/netbox-community/netbox/issues/7082) - Avoid exception when referencing invalid content type in table
 * [#7083](https://github.com/netbox-community/netbox/issues/7083) - Correct labeling for VM memory attribute
 * [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix KeyError exception when editing access VLAN on an interface
 * [#7089](https://github.com/netbox-community/netbox/issues/7089) - Fix ContentTypeFilterSet not filtering on q filter
 * [#7090](https://github.com/netbox-community/netbox/issues/7090) - Fix Cable Bulk Edit Form - allow decimal input on Length field
+* [#7091](https://github.com/netbox-community/netbox/issues/7091) - Ensure API requests from the UI are aware of `BASE_PATH`
 * [#7093](https://github.com/netbox-community/netbox/issues/7093) - Multi-select custom field filters should employ exact match
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 * [#7101](https://github.com/netbox-community/netbox/issues/7101) - Enforce `MAX_PAGE_SIZE` for table and REST API pagination
