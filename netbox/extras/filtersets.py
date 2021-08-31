@@ -372,6 +372,10 @@ class ContentTypeFilterSet(django_filters.FilterSet):
         label='Search',
     )
 
+    class Meta:
+        model = ContentType
+        fields = ['id', 'app_label', 'model']
+
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
@@ -379,7 +383,3 @@ class ContentTypeFilterSet(django_filters.FilterSet):
             Q(app_label__icontains=value) |
             Q(model__icontains=value)
         )
-
-    class Meta:
-        model = ContentType
-        fields = ['id', 'app_label', 'model']
