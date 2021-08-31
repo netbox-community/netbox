@@ -15,6 +15,7 @@
 * [#7089](https://github.com/netbox-community/netbox/issues/7089) - Fix ContentTypeFilterSet not filtering on q filter
 * [#7090](https://github.com/netbox-community/netbox/issues/7090) - Fix Cable Bulk Edit Form - allow decimal input on Length field
 * [#7091](https://github.com/netbox-community/netbox/issues/7091) - Ensure API requests from the UI are aware of `BASE_PATH`
+* [#7092](https://github.com/netbox-community/netbox/issues/7092) - Fix missing bulk edit buttons on Prefix IP Addresses table
 * [#7093](https://github.com/netbox-community/netbox/issues/7093) - Multi-select custom field filters should employ exact match
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 * [#7101](https://github.com/netbox-community/netbox/issues/7101) - Enforce `MAX_PAGE_SIZE` for table and REST API pagination

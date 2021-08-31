@@ -455,8 +455,16 @@ class PrefixIPAddressesView(generic.ObjectView):
 
         bulk_querystring = 'vrf_id={}&parent={}'.format(instance.vrf.pk if instance.vrf else '0', instance.prefix)
 
+        # Compile permissions list for rendering the object table
+        permissions = {
+            'add': request.user.has_perm('ipam.add_ipaddress'),
+            'change': request.user.has_perm('ipam.change_ipaddress'),
+            'delete': request.user.has_perm('ipam.delete_ipaddress'),
+        }
+
         return {
             'table': table,
+            'permissions': permissions,
             'bulk_querystring': bulk_querystring,
             'active_tab': 'ip-addresses',
             'first_available_ip': instance.get_first_available_ip(),
