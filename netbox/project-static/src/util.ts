@@ -1,4 +1,5 @@
 import Cookie from 'cookie';
+import queryString from 'query-string';
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
@@ -127,16 +128,31 @@ function getCsrfToken(): string {
  *
  * @param path Relative path _after_ (excluding) the `BASE_PATH`.
  */
-function buildUrl(path: string): string {
+function buildUrl(destination: string): string {
+  // Separate the path from any URL search params.
+  const [pathname, search] = destination.split(/(?=\?)/g);
+
+  // If the `origin` exists in the API path (as in the case of paginated responses), remove it.
+  const origin = new RegExp(window.location.origin, 'g');
+  const path = pathname.replaceAll(origin, '');
+
   const basePath = getBasePath();
+
+  // Combine `BASE_PATH` with this request's path, removing _all_ slashes.
   let combined = [...basePath.split('/'), ...path.split('/')].filter(p => p);
+
   if (combined[0] !== '/') {
+    // Ensure the URL has a leading slash.
     combined = ['', ...combined];
   }
   if (combined[combined.length - 1] !== '/') {
+    // Ensure the URL has a trailing slash.
     combined = [...combined, ''];
   }
-  return combined.join('/');
+  const url = combined.join('/');
+  // Construct an object from the URL search params so it can be re-serialized with the new URL.
+  const query = Object.fromEntries(new URLSearchParams(search).entries());
+  return queryString.stringifyUrl({ url, query });
 }
 
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(

@@ -470,6 +470,7 @@ export class APISelect {
         break;
       case 'replace':
         this.options = options;
+        break;
     }
 
     if (hasMore(data)) {
