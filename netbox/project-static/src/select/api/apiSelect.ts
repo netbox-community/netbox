@@ -715,7 +715,7 @@ export class APISelect {
   private getPlaceholder(): string {
     let placeholder = this.name;
     if (this.base.id) {
-      const label = document.querySelector(`label[for=${this.base.id}]`) as HTMLLabelElement;
+      const label = document.querySelector(`label[for="${this.base.id}"]`) as HTMLLabelElement;
       // Set the placeholder text to the label value, if it exists.
       if (label !== null) {
         placeholder = `Select ${label.innerText.trim()}`;
