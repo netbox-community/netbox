@@ -390,6 +390,19 @@ export class APISelect {
   }
 
   /**
+   * Get all options from the native select element that are already selected and do not contain
+   * placeholder values.
+   */
+  private getPreselectedOptions(): HTMLOptionElement[] {
+    return Array.from(this.base.options)
+      .filter(option => option.selected)
+      .filter(option => {
+        if (option.value === '---------' || option.innerText === '---------') return false;
+        return true;
+      });
+  }
+
+  /**
    * Process a valid API response and add results to this instance's options.
    *
    * @param data Valid API response (not an error).
@@ -398,13 +411,19 @@ export class APISelect {
     data: APIAnswer<APIObjectBase>,
     action: ApplyMethod = 'merge',
   ): Promise<void> {
-    // Get all non-placeholder (empty) options' values. If any exist, it means we're editing an
-    // existing object. When we fetch options from the API later, we can set any of the options
-    // contained in this array to `selected`.
-    const selectOptions = Array.from(this.base.options)
-      .filter(option => option.selected)
-      .map(option => option.getAttribute('value'))
-      .filter(isTruthy);
+    // Get all already-selected options.
+    const preSelected = this.getPreselectedOptions();
+
+    // Get the values of all already-selected options.
+    const selectedValues = preSelected.map(option => option.getAttribute('value')).filter(isTruthy);
+
+    // Build SlimSelect options from all already-selected options.
+    const preSelectedOptions = preSelected.map(option => ({
+      value: option.value,
+      text: option.innerText,
+      selected: true,
+      disabled: false,
+    })) as Option[];
 
     let options = [] as Option[];
 
@@ -441,12 +460,12 @@ export class APISelect {
       }
 
       // Set option to disabled if it is contained within the disabled array.
-      if (selectOptions.some(option => this.disabledOptions.includes(option))) {
+      if (selectedValues.some(option => this.disabledOptions.includes(option))) {
         disabled = true;
       }
 
       // Set pre-selected options.
-      if (selectOptions.includes(value)) {
+      if (selectedValues.includes(value)) {
         selected = true;
         // If an option is selected, it can't be disabled. Otherwise, it won't be submitted with
         // the rest of the form, resulting in that field's value being deleting from the object.
@@ -469,7 +488,7 @@ export class APISelect {
         this.options = [...this.options, ...options];
         break;
       case 'replace':
-        this.options = options;
+        this.options = [...preSelectedOptions, ...options];
         break;
     }
 
