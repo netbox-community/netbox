@@ -21,8 +21,8 @@ class Command(_Command):
             raise CommandError(
                 "This command is available for development purposes only. It will\n"
                 "NOT resolve any issues with missing or unapplied migrations. For assistance,\n"
-                "please post to the NetBox mailing list:\n"
-                "    https://groups.google.com/g/netbox-discuss"
+                "please post to the NetBox discussion forum on GitHub:\n"
+                "    https://github.com/netbox-community/netbox/discussions"
             )
 
         super().handle(*args, **kwargs)
