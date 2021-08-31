@@ -5,6 +5,7 @@
 <html
   lang="en"
   data-netbox-path="{{ request.path }}"
+  data-netbox-base-path="{% base_path %}"
   {% if preferences|get_key:'ui.colormode' == 'dark'%}
     data-netbox-color-mode="dark"
   {% else %}

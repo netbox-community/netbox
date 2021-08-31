@@ -304,28 +304,6 @@ def get_item(value: object, attr: str) -> Any:
     return value[attr]
 
 
-#
-# Tags
-#
-
-@register.simple_tag()
-def querystring(request, **kwargs):
-    """
-    Append or update the page number in a querystring.
-    """
-    querydict = request.GET.copy()
-    for k, v in kwargs.items():
-        if v is not None:
-            querydict[k] = str(v)
-        elif k in querydict:
-            querydict.pop(k)
-    querystring = querydict.urlencode(safe='/')
-    if querystring:
-        return '?' + querystring
-    else:
-        return ''
-
-
 @register.filter
 def status_from_tag(tag: str = "info") -> str:
     """
@@ -353,6 +331,36 @@ def icon_from_status(status: str = "info") -> str:
         'info': 'information',
     }
     return icon_map.get(status.lower(), 'information')
+
+
+#
+# Tags
+#
+
+@register.simple_tag()
+def querystring(request, **kwargs):
+    """
+    Append or update the page number in a querystring.
+    """
+    querydict = request.GET.copy()
+    for k, v in kwargs.items():
+        if v is not None:
+            querydict[k] = str(v)
+        elif k in querydict:
+            querydict.pop(k)
+    querystring = querydict.urlencode(safe='/')
+    if querystring:
+        return '?' + querystring
+    else:
+        return ''
+
+
+@register.simple_tag()
+def base_path():
+    """
+    Access `BASE_PATH` in templates.
+    """
+    return settings.BASE_PATH
 
 
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
