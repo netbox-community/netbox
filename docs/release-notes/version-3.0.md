@@ -7,6 +7,7 @@
 * [#7070](https://github.com/netbox-community/netbox/issues/7070) - Fix exception when filtering by prefix max length in UI
 * [#7071](https://github.com/netbox-community/netbox/issues/7071) - Fix exception when removing a primary IP from a device/VM
 * [#7072](https://github.com/netbox-community/netbox/issues/7072) - Fix table configuration under prefix child object views
+* [#7075](https://github.com/netbox-community/netbox/issues/7075) - Fix UI bug when a custom field has a space in the name
 * [#7082](https://github.com/netbox-community/netbox/issues/7082) - Avoid exception when referencing invalid content type in table
 * [#7083](https://github.com/netbox-community/netbox/issues/7083) - Correct labeling for VM memory attribute
 * [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix KeyError exception when editing access VLAN on an interface
