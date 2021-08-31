@@ -401,7 +401,7 @@ def badge(value, bg_class='secondary', show_empty=False):
 def table_config_form(table, table_name=None):
     return {
         'table_name': table_name or table.__class__.__name__,
-        'table_config_form': TableConfigForm(table=table),
+        'form': TableConfigForm(table=table),
     }
 
 

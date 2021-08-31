@@ -1,4 +1,6 @@
 {% extends 'ipam/prefix/base.html' %}
+{% load helpers %}
+{% load static %}
 
 {% block extra_controls %}
   {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and first_available_ip %}
@@ -11,7 +13,13 @@
 {% block content %}
   <div class="row">
     <div class="col col-md-12">
+      {% include 'inc/table_controls.html' with table_modal="IPAddressTable_config" %}
       {% include 'utilities/obj_table.html' with heading='IP Addresses' bulk_edit_url='ipam:ipaddress_bulk_edit' bulk_delete_url='ipam:ipaddress_bulk_delete' %}
     </div>
   </div>
+  {% table_config_form table table_name="IPAddressTable" %}
+{% endblock %}
+
+{% block javascript %}
+  <script src="{% static 'js/tableconfig.js' %}"></script>
 {% endblock %}

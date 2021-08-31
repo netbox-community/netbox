@@ -6,6 +6,7 @@
 
 * [#7070](https://github.com/netbox-community/netbox/issues/7070) - Fix exception when filtering by prefix max length in UI
 * [#7071](https://github.com/netbox-community/netbox/issues/7071) - Fix exception when removing a primary IP from a device/VM
+* [#7072](https://github.com/netbox-community/netbox/issues/7072) - Fix table configuration under prefix child object views
 * [#7083](https://github.com/netbox-community/netbox/issues/7083) - Correct labeling for VM memory attribute
 * [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix KeyError exception when editing access VLAN on an interface
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
