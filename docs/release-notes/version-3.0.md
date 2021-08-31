@@ -19,6 +19,7 @@
 * [#7093](https://github.com/netbox-community/netbox/issues/7093) - Multi-select custom field filters should employ exact match
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 * [#7101](https://github.com/netbox-community/netbox/issues/7101) - Enforce `MAX_PAGE_SIZE` for table and REST API pagination
+* [#7106](https://github.com/netbox-community/netbox/issues/7106) - Fix incorrect "Map It" button URL on a site's Physical Address field
 
 ---
 

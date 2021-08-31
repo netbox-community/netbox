@@ -109,8 +109,8 @@
                         <td>
                             {% if object.physical_address %}
                                 <div class="float-end noprint">
-                                    <a href="{{ settings.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
-                                        <i class="mdi mdi-map-marker"></i> Map it
+                                    <a href="{{ settings.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
+                                        <i class="mdi mdi-map-marker"></i> Map It
                                     </a>
                                 </div>
                                 <span>{{ object.physical_address|linebreaksbr }}</span>
@@ -129,7 +129,7 @@
                             {% if object.latitude and object.longitude %}
                                 <div class="float-end noprint">
                                     <a href="{{ settings.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
-                                        <i class="mdi mdi-map-marker"></i> Map it
+                                        <i class="mdi mdi-map-marker"></i> Map It
                                     </a>
                                 </div>
                                 <span>{{ object.latitude }}, {{ object.longitude }}</span>
