@@ -22,6 +22,7 @@
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 * [#7101](https://github.com/netbox-community/netbox/issues/7101) - Enforce `MAX_PAGE_SIZE` for table and REST API pagination
 * [#7106](https://github.com/netbox-community/netbox/issues/7106) - Fix incorrect "Map It" button URL on a site's Physical Address field
+* [#7107](https://github.com/netbox-community/netbox/issues/7107) - Fix missing search button and search results in IP Address assignment "Assign IP" tab
 
 ---
 

@@ -9,7 +9,7 @@
   {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='assign' %}
 {% endblock %}
 
-{% block content %}
+{% block form %}
     <form action="{% querystring request %}" method="post" class="form form-horizontal">
         {% csrf_token %}
         {% for field in form.hidden_fields %}
@@ -17,13 +17,10 @@
         {% endfor %}
         <div class="row mb-3">
             <div class="col col-md-8 offset-md-2">
-                {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='assign' %}
-                <div class="card">
-                    <h5 class="card-header">Select IP Address</h5>
-                    <div class="card-body">
-                        {% render_field form.vrf_id %}
-                        {% render_field form.q %}
-                    </div>
+                <div class="field-group">
+                    <h6>Select IP Address</h6>
+                    {% render_field form.vrf_id %}
+                    {% render_field form.q %}
                 </div>
             </div>
         </div>
@@ -42,4 +39,7 @@
             </div>
         </div>
     {% endif %}
-{% endblock %}
+{% endblock form %}
+
+{% block buttons %}
+{% endblock buttons%}
