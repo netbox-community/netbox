@@ -113,6 +113,10 @@ class ExceptionHandlingMiddleware(object):
 
     def process_exception(self, request, exception):
 
+        # Handle exceptions that occur from REST API requests
+        if is_api_request(request):
+            return rest_api_server_error(request)
+
         # Don't catch exceptions when in debug mode
         if settings.DEBUG:
             return
@@ -120,10 +124,6 @@ class ExceptionHandlingMiddleware(object):
         # Ignore Http404s (defer to Django's built-in 404 handling)
         if isinstance(exception, Http404):
             return
-
-        # Handle exceptions that occur from REST API requests
-        if is_api_request(request):
-            return rest_api_server_error(request)
 
         # Determine the type of exception. If it's a common issue, return a custom error page with instructions.
         custom_template = None
