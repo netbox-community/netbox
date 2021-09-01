@@ -320,6 +320,7 @@ export class APISelect {
         this.slim.slim.multiSelected.container.setAttribute('disabled', '');
       }
     }
+    this.slim.disable();
   }
 
   /**
@@ -335,6 +336,7 @@ export class APISelect {
         this.slim.slim.multiSelected.container.removeAttribute('disabled');
       }
     }
+    this.slim.enable();
   }
 
   /**
@@ -355,6 +357,11 @@ export class APISelect {
     // When the scroll position is at bottom, fetch additional options.
     this.base.addEventListener(`netbox.select.atbottom.${this.name}`, () =>
       this.fetchOptions(this.more, 'merge'),
+    );
+
+    // When the base select element is disabled or enabled, properly disable/enable this instance.
+    this.base.addEventListener(`netbox.select.disabled.${this.name}`, event =>
+      this.handleDisableEnable(event),
     );
 
     // Create a unique iterator of all possible form fields which, when changed, should cause this
@@ -390,6 +397,19 @@ export class APISelect {
   }
 
   /**
+   * Get all options from the native select element that are already selected and do not contain
+   * placeholder values.
+   */
+  private getPreselectedOptions(): HTMLOptionElement[] {
+    return Array.from(this.base.options)
+      .filter(option => option.selected)
+      .filter(option => {
+        if (option.value === '---------' || option.innerText === '---------') return false;
+        return true;
+      });
+  }
+
+  /**
    * Process a valid API response and add results to this instance's options.
    *
    * @param data Valid API response (not an error).
@@ -398,13 +418,19 @@ export class APISelect {
     data: APIAnswer<APIObjectBase>,
     action: ApplyMethod = 'merge',
   ): Promise<void> {
-    // Get all non-placeholder (empty) options' values. If any exist, it means we're editing an
-    // existing object. When we fetch options from the API later, we can set any of the options
-    // contained in this array to `selected`.
-    const selectOptions = Array.from(this.base.options)
-      .filter(option => option.selected)
-      .map(option => option.getAttribute('value'))
-      .filter(isTruthy);
+    // Get all already-selected options.
+    const preSelected = this.getPreselectedOptions();
+
+    // Get the values of all already-selected options.
+    const selectedValues = preSelected.map(option => option.getAttribute('value')).filter(isTruthy);
+
+    // Build SlimSelect options from all already-selected options.
+    const preSelectedOptions = preSelected.map(option => ({
+      value: option.value,
+      text: option.innerText,
+      selected: true,
+      disabled: false,
+    })) as Option[];
 
     let options = [] as Option[];
 
@@ -441,12 +467,12 @@ export class APISelect {
       }
 
       // Set option to disabled if it is contained within the disabled array.
-      if (selectOptions.some(option => this.disabledOptions.includes(option))) {
+      if (selectedValues.some(option => this.disabledOptions.includes(option))) {
         disabled = true;
       }
 
       // Set pre-selected options.
-      if (selectOptions.includes(value)) {
+      if (selectedValues.includes(value)) {
         selected = true;
         // If an option is selected, it can't be disabled. Otherwise, it won't be submitted with
         // the rest of the form, resulting in that field's value being deleting from the object.
@@ -469,7 +495,8 @@ export class APISelect {
         this.options = [...this.options, ...options];
         break;
       case 'replace':
-        this.options = options;
+        this.options = [...preSelectedOptions, ...options];
+        break;
     }
 
     if (hasMore(data)) {
@@ -556,6 +583,23 @@ export class APISelect {
 
     // Load new data.
     Promise.all([this.loadData()]);
+  }
+
+  /**
+   * Event handler to be dispatched when the base select element is disabled or enabled. When that
+   * occurs, run the instance's `disable()` or `enable()` methods to synchronize UI state with
+   * desired action.
+   *
+   * @param event Dispatched event matching pattern `netbox.select.disabled.<name>`
+   */
+  private handleDisableEnable(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+
+    if (target.disabled === true) {
+      this.disable();
+    } else if (target.disabled === false) {
+      this.enable();
+    }
   }
 
   /**
@@ -715,7 +759,7 @@ export class APISelect {
   private getPlaceholder(): string {
     let placeholder = this.name;
     if (this.base.id) {
-      const label = document.querySelector(`label[for=${this.base.id}]`) as HTMLLabelElement;
+      const label = document.querySelector(`label[for="${this.base.id}"]`) as HTMLLabelElement;
       // Set the placeholder text to the label value, if it exists.
       if (label !== null) {
         placeholder = `Select ${label.innerText.trim()}`;

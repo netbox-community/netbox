@@ -181,7 +181,6 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             'table': table,
             'permissions': permissions,
             'action_buttons': self.action_buttons,
-            'table_config_form': TableConfigForm(table=table),
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
         context.update(self.extra_context())

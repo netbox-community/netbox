@@ -1,5 +1,36 @@
 # NetBox v3.0
 
+## v3.0.1 (2021-09-01)
+
+### Bug Fixes
+
+* [#7041](https://github.com/netbox-community/netbox/issues/7041) - Properly format JSON config object returned from a NAPALM device
+* [#7070](https://github.com/netbox-community/netbox/issues/7070) - Fix exception when filtering by prefix max length in UI
+* [#7071](https://github.com/netbox-community/netbox/issues/7071) - Fix exception when removing a primary IP from a device/VM
+* [#7072](https://github.com/netbox-community/netbox/issues/7072) - Fix table configuration under prefix child object views
+* [#7075](https://github.com/netbox-community/netbox/issues/7075) - Fix UI bug when a custom field has a space in the name
+* [#7080](https://github.com/netbox-community/netbox/issues/7080) - Fix missing image previews
+* [#7081](https://github.com/netbox-community/netbox/issues/7081) - Fix UI bug that did not properly request and handle paginated data
+* [#7082](https://github.com/netbox-community/netbox/issues/7082) - Avoid exception when referencing invalid content type in table
+* [#7083](https://github.com/netbox-community/netbox/issues/7083) - Correct labeling for VM memory attribute
+* [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix KeyError exception when editing access VLAN on an interface
+* [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix issue where hidden VLAN form fields were incorrectly included in the form submission
+* [#7089](https://github.com/netbox-community/netbox/issues/7089) - Fix filtering of change log by content type
+* [#7090](https://github.com/netbox-community/netbox/issues/7090) - Allow decimal input on length field when bulk editing cables
+* [#7091](https://github.com/netbox-community/netbox/issues/7091) - Ensure API requests from the UI are aware of `BASE_PATH`
+* [#7092](https://github.com/netbox-community/netbox/issues/7092) - Fix missing bulk edit buttons on Prefix IP Addresses table
+* [#7093](https://github.com/netbox-community/netbox/issues/7093) - Multi-select custom field filters should employ exact match
+* [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
+* [#7101](https://github.com/netbox-community/netbox/issues/7101) - Enforce `MAX_PAGE_SIZE` for table and REST API pagination
+* [#7106](https://github.com/netbox-community/netbox/issues/7106) - Fix incorrect "Map It" button URL on a site's physical address field
+* [#7107](https://github.com/netbox-community/netbox/issues/7107) - Fix missing search button and search results in IP address assignment "Assign IP" tab
+* [#7109](https://github.com/netbox-community/netbox/issues/7109) - Ensure human readability of exceptions raised during REST API requests
+* [#7113](https://github.com/netbox-community/netbox/issues/7113) - Show bulk edit/delete actions for prefix child objects
+* [#7123](https://github.com/netbox-community/netbox/issues/7123) - Remove "Global" placeholder for null VRF field
+* [#7124](https://github.com/netbox-community/netbox/issues/7124) - Fix duplicate static query param values in API Select
+
+---
+
 ## v3.0.0 (2021-08-30)
 
 !!! warning "Existing Deployments Must Upgrade from v2.11"

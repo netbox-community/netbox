@@ -185,7 +185,7 @@ class APISelect(SelectWithDisabled):
                 # layer.
                 if key in self.static_params:
                     current = self.static_params[key]
-                    self.static_params[key] = [*current, value]
+                    self.static_params[key] = [v for v in set([*current, value])]
                 else:
                     self.static_params[key] = [value]
         else:
@@ -194,7 +194,7 @@ class APISelect(SelectWithDisabled):
             # `$`).
             if key in self.static_params:
                 current = self.static_params[key]
-                self.static_params[key] = [*current, value]
+                self.static_params[key] = [v for v in set([*current, value])]
             else:
                 self.static_params[key] = [value]
 

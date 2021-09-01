@@ -14,6 +14,7 @@ EXACT_FILTER_TYPES = (
     CustomFieldTypeChoices.TYPE_DATE,
     CustomFieldTypeChoices.TYPE_INTEGER,
     CustomFieldTypeChoices.TYPE_SELECT,
+    CustomFieldTypeChoices.TYPE_MULTISELECT,
 )
 
 
@@ -35,7 +36,9 @@ class CustomFieldFilter(django_filters.Filter):
 
         self.field_name = f'custom_field_data__{self.field_name}'
 
-        if custom_field.type not in EXACT_FILTER_TYPES:
+        if custom_field.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            self.lookup_expr = 'has_key'
+        elif custom_field.type not in EXACT_FILTER_TYPES:
             if custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
                 self.lookup_expr = 'icontains'
 

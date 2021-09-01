@@ -304,28 +304,6 @@ def get_item(value: object, attr: str) -> Any:
     return value[attr]
 
 
-#
-# Tags
-#
-
-@register.simple_tag()
-def querystring(request, **kwargs):
-    """
-    Append or update the page number in a querystring.
-    """
-    querydict = request.GET.copy()
-    for k, v in kwargs.items():
-        if v is not None:
-            querydict[k] = str(v)
-        elif k in querydict:
-            querydict.pop(k)
-    querystring = querydict.urlencode(safe='/')
-    if querystring:
-        return '?' + querystring
-    else:
-        return ''
-
-
 @register.filter
 def status_from_tag(tag: str = "info") -> str:
     """
@@ -353,6 +331,28 @@ def icon_from_status(status: str = "info") -> str:
         'info': 'information',
     }
     return icon_map.get(status.lower(), 'information')
+
+
+#
+# Tags
+#
+
+@register.simple_tag()
+def querystring(request, **kwargs):
+    """
+    Append or update the page number in a querystring.
+    """
+    querydict = request.GET.copy()
+    for k, v in kwargs.items():
+        if v is not None:
+            querydict[k] = str(v)
+        elif k in querydict:
+            querydict.pop(k)
+    querystring = querydict.urlencode(safe='/')
+    if querystring:
+        return '?' + querystring
+    else:
+        return ''
 
 
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
@@ -401,7 +401,7 @@ def badge(value, bg_class='secondary', show_empty=False):
 def table_config_form(table, table_name=None):
     return {
         'table_name': table_name or table.__class__.__name__,
-        'table_config_form': TableConfigForm(table=table),
+        'form': TableConfigForm(table=table),
     }
 
 
@@ -411,16 +411,16 @@ def applied_filters(form, query_params):
     Display the active filters for a given filter form.
     """
     form.is_valid()
+    querydict = query_params.copy()
 
     applied_filters = []
     for filter_name in form.changed_data:
-        if filter_name not in query_params:
+        if filter_name not in querydict:
             continue
 
         bound_field = form.fields[filter_name].get_bound_field(form, filter_name)
-        querydict = query_params.copy()
         querydict.pop(filter_name)
-        display_value = ', '.join(get_selected_values(form, filter_name))
+        display_value = ', '.join([str(v) for v in get_selected_values(form, filter_name)])
 
         applied_filters.append({
             'name': filter_name,

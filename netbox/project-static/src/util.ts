@@ -1,4 +1,5 @@
 import Cookie from 'cookie';
+import queryString from 'query-string';
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
@@ -11,14 +12,16 @@ type InferredProps<
   // Element name.
   T extends keyof HTMLElementTagNameMap,
   // Element type.
-  E extends HTMLElementTagNameMap[T] = HTMLElementTagNameMap[T]
+  E extends HTMLElementTagNameMap[T] = HTMLElementTagNameMap[T],
 > = Partial<Record<keyof E, E[keyof E]>>;
 
 export function isApiError(data: Record<string, unknown>): data is APIError {
   return 'error' in data && 'exception' in data;
 }
 
-export function hasError(data: Record<string, unknown>): data is ErrorBase {
+export function hasError<E extends ErrorBase = ErrorBase>(
+  data: Record<string, unknown>,
+): data is E {
   return 'error' in data;
 }
 
@@ -94,7 +97,7 @@ export function isElement(obj: Element | null | undefined): obj is Element {
 /**
  * Retrieve the CSRF token from cookie storage.
  */
-export function getCsrfToken(): string {
+function getCsrfToken(): string {
   const { csrftoken: csrfToken } = Cookie.parse(document.cookie);
   if (typeof csrfToken === 'undefined') {
     throw new Error('Invalid or missing CSRF token');
@@ -102,8 +105,60 @@ export function getCsrfToken(): string {
   return csrfToken;
 }
 
+/**
+ * Get the NetBox `settings.BASE_PATH` from the `<html/>` element's data attributes.
+ *
+ * @returns If there is no `BASE_PATH` specified, the return value will be `''`.
+ */ function getBasePath(): string {
+  const value = document.documentElement.getAttribute('data-netbox-base-path');
+  if (value === null) {
+    return '';
+  }
+  return value;
+}
+
+/**
+ * Build a NetBox URL that includes `settings.BASE_PATH` and enforces leading and trailing slashes.
+ *
+ * @example
+ * ```js
+ * // With a BASE_PATH of 'netbox/'
+ * const url = buildUrl('/api/dcim/devices');
+ * console.log(url);
+ * // => /netbox/api/dcim/devices/
+ * ```
+ *
+ * @param path Relative path _after_ (excluding) the `BASE_PATH`.
+ */
+function buildUrl(destination: string): string {
+  // Separate the path from any URL search params.
+  const [pathname, search] = destination.split(/(?=\?)/g);
+
+  // If the `origin` exists in the API path (as in the case of paginated responses), remove it.
+  const origin = new RegExp(window.location.origin, 'g');
+  const path = pathname.replaceAll(origin, '');
+
+  const basePath = getBasePath();
+
+  // Combine `BASE_PATH` with this request's path, removing _all_ slashes.
+  let combined = [...basePath.split('/'), ...path.split('/')].filter(p => p);
+
+  if (combined[0] !== '/') {
+    // Ensure the URL has a leading slash.
+    combined = ['', ...combined];
+  }
+  if (combined[combined.length - 1] !== '/') {
+    // Ensure the URL has a trailing slash.
+    combined = [...combined, ''];
+  }
+  const url = combined.join('/');
+  // Construct an object from the URL search params so it can be re-serialized with the new URL.
+  const query = Object.fromEntries(new URLSearchParams(search).entries());
+  return queryString.stringifyUrl({ url, query });
+}
+
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
-  url: string,
+  path: string,
   method: Method,
   data?: D,
 ): Promise<APIResponse<R>> {
@@ -115,6 +170,7 @@ export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
     body = JSON.stringify(data);
     headers.set('content-type', 'application/json');
   }
+  const url = buildUrl(path);
 
   const res = await fetch(url, { method, body, headers, credentials: 'same-origin' });
   const contentType = res.headers.get('Content-Type');
@@ -367,8 +423,13 @@ export function createElement<
   // Element props.
   P extends InferredProps<T>,
   // Child element type.
-  C extends HTMLElement = HTMLElement
->(tag: T, properties: P | null, classes: string[], children: C[] = []): HTMLElementTagNameMap[T] {
+  C extends HTMLElement = HTMLElement,
+>(
+  tag: T,
+  properties: P | null,
+  classes: Nullable<string[]> = null,
+  children: C[] = [],
+): HTMLElementTagNameMap[T] {
   // Create the base element.
   const element = document.createElement<T>(tag);
 
@@ -384,7 +445,9 @@ export function createElement<
   }
 
   // Add each CSS class to the element's class list.
-  element.classList.add(...classes);
+  if (classes !== null && classes.length > 0) {
+    element.classList.add(...classes);
+  }
 
   for (const child of children) {
     // Add each child element to the base element.

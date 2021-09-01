@@ -1,4 +1,4 @@
-import { all, getElement, resetSelect, toggleVisibility } from '../util';
+import { all, getElement, resetSelect, toggleVisibility as _toggleVisibility } from '../util';
 
 /**
  * Get a select element's containing `.row` element.
@@ -12,6 +12,38 @@ function fieldContainer(element: Nullable<HTMLSelectElement>): Nullable<HTMLElem
     return container;
   }
   return null;
+}
+
+/**
+ * Toggle visibility of the select element's container and disable the select element itself.
+ *
+ * @param element Select element.
+ * @param action 'show' or 'hide'
+ */
+function toggleVisibility<E extends Nullable<HTMLSelectElement>>(
+  element: E,
+  action: 'show' | 'hide',
+): void {
+  // Find the select element's containing element.
+  const parent = fieldContainer(element);
+  if (element !== null && parent !== null) {
+    // Toggle container visibility to visually remove it from the form.
+    _toggleVisibility(parent, action);
+    // Create a new event so that the APISelect instance properly handles the enable/disable
+    // action.
+    const event = new Event(`netbox.select.disabled.${element.name}`);
+    switch (action) {
+      case 'hide':
+        // Disable the native select element and dispatch the event APISelect is listening for.
+        element.disabled = true;
+        element.dispatchEvent(event);
+        break;
+      case 'show':
+        // Enable the native select element and dispatch the event APISelect is listening for.
+        element.disabled = false;
+        element.dispatchEvent(event);
+    }
+  }
 }
 
 /**
@@ -29,7 +61,7 @@ function handleModeNone(): void {
     resetSelect(untaggedVlan);
     resetSelect(taggedVlans);
     for (const element of elements) {
-      toggleVisibility(fieldContainer(element), 'hide');
+      toggleVisibility(element, 'hide');
     }
   }
 }
@@ -46,9 +78,9 @@ function handleModeAccess(): void {
   if (all(elements)) {
     const [taggedVlans, untaggedVlan, vlanGroup] = elements;
     resetSelect(taggedVlans);
-    toggleVisibility(fieldContainer(vlanGroup), 'show');
-    toggleVisibility(fieldContainer(untaggedVlan), 'show');
-    toggleVisibility(fieldContainer(taggedVlans), 'hide');
+    toggleVisibility(vlanGroup, 'show');
+    toggleVisibility(untaggedVlan, 'show');
+    toggleVisibility(taggedVlans, 'hide');
   }
 }
 
@@ -63,9 +95,9 @@ function handleModeTagged(): void {
   ];
   if (all(elements)) {
     const [taggedVlans, untaggedVlan, vlanGroup] = elements;
-    toggleVisibility(fieldContainer(taggedVlans), 'show');
-    toggleVisibility(fieldContainer(vlanGroup), 'show');
-    toggleVisibility(fieldContainer(untaggedVlan), 'show');
+    toggleVisibility(taggedVlans, 'show');
+    toggleVisibility(vlanGroup, 'show');
+    toggleVisibility(untaggedVlan, 'show');
   }
 }
 
@@ -81,9 +113,9 @@ function handleModeTaggedAll(): void {
   if (all(elements)) {
     const [taggedVlans, untaggedVlan, vlanGroup] = elements;
     resetSelect(taggedVlans);
-    toggleVisibility(fieldContainer(vlanGroup), 'show');
-    toggleVisibility(fieldContainer(untaggedVlan), 'show');
-    toggleVisibility(fieldContainer(taggedVlans), 'hide');
+    toggleVisibility(vlanGroup, 'show');
+    toggleVisibility(untaggedVlan, 'show');
+    toggleVisibility(taggedVlans, 'hide');
   }
 }
 

@@ -491,11 +491,6 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'status': StaticSelect(),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['vrf'].empty_label = 'Global'
-
 
 class PrefixCSVForm(CustomFieldModelCSVForm):
     vrf = CSVModelChoiceField(
@@ -658,11 +653,11 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         label=_('Address family'),
         widget=StaticSelect()
     )
-    mask_length = forms.ChoiceField(
+    mask_length = forms.MultipleChoiceField(
         required=False,
         choices=PREFIX_MASK_LENGTH_CHOICES,
         label=_('Mask length'),
-        widget=StaticSelect()
+        widget=StaticSelectMultiple()
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -759,11 +754,6 @@ class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         widgets = {
             'status': StaticSelect(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['vrf'].empty_label = 'Global'
 
 
 class IPRangeCSVForm(CustomFieldModelCSVForm):
@@ -1026,8 +1016,6 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
         super().__init__(*args, **kwargs)
 
-        self.fields['vrf'].empty_label = 'Global'
-
         # Initialize primary_for_parent if IP address is already assigned
         if self.instance.pk and self.instance.assigned_object:
             parent = self.instance.assigned_object.parent_object
@@ -1101,10 +1089,6 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'status': StaticSelect(),
             'role': StaticSelect(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['vrf'].empty_label = 'Global'
 
 
 class IPAddressCSVForm(CustomFieldModelCSVForm):
@@ -1256,8 +1240,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
     vrf_id = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        empty_label='Global'
+        label='VRF'
     )
     q = forms.CharField(
         required=False,

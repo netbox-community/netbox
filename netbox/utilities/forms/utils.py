@@ -119,13 +119,14 @@ def get_selected_values(form, field_name):
     """
     if not hasattr(form, 'cleaned_data'):
         form.is_valid()
+    filter_data = form.cleaned_data.get(field_name)
 
     # Selection field
     if hasattr(form.fields[field_name], 'choices'):
         try:
             choices = dict(unpack_grouped_choices(form.fields[field_name].choices))
             return [
-                label for value, label in choices.items() if value in form.cleaned_data[field_name]
+                label for value, label in choices.items() if str(value) in filter_data
             ]
         except TypeError:
             # Field uses dynamic choices. Show all that have been populated.
@@ -134,7 +135,7 @@ def get_selected_values(form, field_name):
             ]
 
     # Non-selection field
-    return [str(form.cleaned_data[field_name])]
+    return [str(filter_data)]
 
 
 def add_blank_choice(choices):

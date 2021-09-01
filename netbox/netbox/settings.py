@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '3.0.0'
+VERSION = '3.0.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -560,6 +560,10 @@ RQ_QUEUES = {
 #
 
 # Pagination
+if MAX_PAGE_SIZE and PAGINATE_COUNT > MAX_PAGE_SIZE:
+    raise ImproperlyConfigured(
+        f"PAGINATE_COUNT ({PAGINATE_COUNT}) must be less than or equal to MAX_PAGE_SIZE ({MAX_PAGE_SIZE}), if set."
+    )
 PER_PAGE_DEFAULTS = [
     25, 50, 100, 250, 500, 1000
 ]

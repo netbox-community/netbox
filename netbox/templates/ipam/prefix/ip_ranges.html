@@ -1,10 +1,13 @@
 {% extends 'ipam/prefix/base.html' %}
-
+{% load helpers %}
+{% load static %}
 
 {% block content %}
   <div class="row">
     <div class="col col-md-12">
-      {% include 'utilities/obj_table.html' with heading='Child IP Ranges' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' parent=prefix %}
+      {% include 'inc/table_controls.html' with table_modal="IPRangeTable_config" %}
+      {% include 'utilities/obj_table.html' with heading='Child IP Ranges' bulk_edit_url='ipam:iprange_bulk_edit' bulk_delete_url='ipam:iprange_bulk_delete' parent=prefix %}
     </div>
   </div>
+  {% table_config_form table table_name="IPRangeTable" %}
 {% endblock %}

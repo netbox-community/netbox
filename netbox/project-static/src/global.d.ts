@@ -18,6 +18,11 @@ interface Window {
   Modal: typeof import('bootstrap').Modal;
 
   /**
+   * Bootstrap Popover Instance.
+   */
+  Popover: typeof import('bootstrap').Popover;
+
+  /**
    * Bootstrap Toast Instance.
    */
   Toast: typeof import('bootstrap').Toast;
@@ -147,11 +152,14 @@ type LLDPNeighborDetail = {
 
 type DeviceConfig = {
   get_config: {
-    candidate: string;
-    running: string;
-    startup: string;
+    candidate: string | Record<string, unknown>;
+    running: string | Record<string, unknown>;
+    startup: string | Record<string, unknown>;
+    error?: string;
   };
 };
+
+type DeviceConfigType = Exclude<keyof DeviceConfig['get_config'], 'error'>;
 
 type DeviceEnvironment = {
   cpu?: {

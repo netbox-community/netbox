@@ -129,7 +129,7 @@ class InterfaceCommonForm(forms.Form):
         super().clean()
 
         parent_field = 'device' if 'device' in self.cleaned_data else 'virtual_machine'
-        tagged_vlans = self.cleaned_data['tagged_vlans']
+        tagged_vlans = self.cleaned_data.get('tagged_vlans')
 
         # Untagged interfaces cannot be assigned tagged VLANs
         if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and tagged_vlans:
@@ -142,7 +142,7 @@ class InterfaceCommonForm(forms.Form):
             self.cleaned_data['tagged_vlans'] = []
 
         # Validate tagged VLANs; must be a global VLAN or in the same site
-        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED:
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED and tagged_vlans:
             valid_sites = [None, self.cleaned_data[parent_field].site]
             invalid_vlans = [str(v) for v in tagged_vlans if v.site not in valid_sites]
 
@@ -4586,8 +4586,8 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
     color = ColorField(
         required=False
     )
-    length = forms.IntegerField(
-        min_value=1,
+    length = forms.DecimalField(
+        min_value=0,
         required=False
     )
     length_unit = forms.ChoiceField(
