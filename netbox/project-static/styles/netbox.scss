@@ -971,7 +971,7 @@ div.card-overlay {
 // Page-specific styles.
 html {
   // Shade the home page content background-color.
-  &[data-netbox-path='/'] {
+  &[data-netbox-url-name='home'] {
     .content-container,
     .search {
       background-color: $gray-100 !important;
@@ -985,7 +985,7 @@ html {
   }
 
   // Don't show the django-messages toasts on the login screen in favor of the alert component.
-  &[data-netbox-path*='/login'] {
+  &[data-netbox-url-name='login'] {
     #django-messages {
       display: none;
     }

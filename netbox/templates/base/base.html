@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html
   lang="en"
-  data-netbox-path="{{ request.path }}"
+  data-netbox-url-name="{{ request.resolver_match.url_name }}"
   data-netbox-base-path="{{ settings.BASE_PATH }}"
   {% if preferences|get_key:'ui.colormode' == 'dark'%}
     data-netbox-color-mode="dark"
