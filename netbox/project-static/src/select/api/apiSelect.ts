@@ -320,6 +320,7 @@ export class APISelect {
         this.slim.slim.multiSelected.container.setAttribute('disabled', '');
       }
     }
+    this.slim.disable();
   }
 
   /**
@@ -335,6 +336,7 @@ export class APISelect {
         this.slim.slim.multiSelected.container.removeAttribute('disabled');
       }
     }
+    this.slim.enable();
   }
 
   /**
@@ -355,6 +357,11 @@ export class APISelect {
     // When the scroll position is at bottom, fetch additional options.
     this.base.addEventListener(`netbox.select.atbottom.${this.name}`, () =>
       this.fetchOptions(this.more, 'merge'),
+    );
+
+    // When the base select element is disabled or enabled, properly disable/enable this instance.
+    this.base.addEventListener(`netbox.select.disabled.${this.name}`, event =>
+      this.handleDisableEnable(event),
     );
 
     // Create a unique iterator of all possible form fields which, when changed, should cause this
@@ -576,6 +583,23 @@ export class APISelect {
 
     // Load new data.
     Promise.all([this.loadData()]);
+  }
+
+  /**
+   * Event handler to be dispatched when the base select element is disabled or enabled. When that
+   * occurs, run the instance's `disable()` or `enable()` methods to synchronize UI state with
+   * desired action.
+   *
+   * @param event Dispatched event matching pattern `netbox.select.disabled.<name>`
+   */
+  private handleDisableEnable(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+
+    if (target.disabled === true) {
+      this.disable();
+    } else if (target.disabled === false) {
+      this.enable();
+    }
   }
 
   /**

@@ -14,6 +14,7 @@
 * [#7082](https://github.com/netbox-community/netbox/issues/7082) - Avoid exception when referencing invalid content type in table
 * [#7083](https://github.com/netbox-community/netbox/issues/7083) - Correct labeling for VM memory attribute
 * [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix KeyError exception when editing access VLAN on an interface
+* [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix issue where hidden VLAN form fields were incorrectly included in the form submission
 * [#7089](https://github.com/netbox-community/netbox/issues/7089) - Fix ContentTypeFilterSet not filtering on q filter
 * [#7090](https://github.com/netbox-community/netbox/issues/7090) - Fix Cable Bulk Edit Form - allow decimal input on Length field
 * [#7091](https://github.com/netbox-community/netbox/issues/7091) - Ensure API requests from the UI are aware of `BASE_PATH`
