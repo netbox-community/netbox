@@ -348,8 +348,12 @@ def content_type_name(contenttype):
     """
     Return a proper ContentType name.
     """
-    meta = contenttype.model_class()._meta
-    return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+    try:
+        meta = contenttype.model_class()._meta
+        return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
+    except AttributeError:
+        # Model no longer exists
+        return f'{contenttype.app_label} > {contenttype.model}'
 
 
 #
