@@ -22,7 +22,7 @@ from extras.models import ExportTemplate
 from netbox.api import BulkOperationSerializer
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import SerializerNotFound
-from utilities.api import get_serializer_for_model
+from utilities.api import get_serializer_for_model, rest_api_server_error
 
 HTTP_ACTIONS = {
     'GET': 'view',
@@ -210,6 +210,8 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
                 *args,
                 **kwargs
             )
+        except Exception as e:
+            return rest_api_server_error(request, *args, **kwargs)
 
     def _validate_objects(self, instance):
         """
