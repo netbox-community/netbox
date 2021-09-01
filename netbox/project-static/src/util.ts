@@ -422,7 +422,12 @@ export function createElement<
   P extends InferredProps<T>,
   // Child element type.
   C extends HTMLElement = HTMLElement,
->(tag: T, properties: P | null, classes: string[], children: C[] = []): HTMLElementTagNameMap[T] {
+>(
+  tag: T,
+  properties: P | null,
+  classes: Nullable<string[]> = null,
+  children: C[] = [],
+): HTMLElementTagNameMap[T] {
   // Create the base element.
   const element = document.createElement<T>(tag);
 
@@ -438,7 +443,9 @@ export function createElement<
   }
 
   // Add each CSS class to the element's class list.
-  element.classList.add(...classes);
+  if (classes !== null && classes.length > 0) {
+    element.classList.add(...classes);
+  }
 
   for (const child of children) {
     // Add each child element to the base element.

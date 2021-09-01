@@ -956,6 +956,11 @@ div.card-overlay {
   }
 }
 
+// Remove the max-width from image preview popovers as this is controlled on the image element.
+.popover.image-preview-popover {
+  max-width: unset;
+}
+
 #django-messages {
   position: fixed;
   right: $spacer;

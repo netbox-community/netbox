@@ -18,6 +18,11 @@ interface Window {
   Modal: typeof import('bootstrap').Modal;
 
   /**
+   * Bootstrap Popover Instance.
+   */
+  Popover: typeof import('bootstrap').Popover;
+
+  /**
    * Bootstrap Toast Instance.
    */
   Toast: typeof import('bootstrap').Toast;

@@ -1,6 +1,6 @@
-import { Collapse, Modal, Tab, Toast, Tooltip } from 'bootstrap';
+import { Collapse, Modal, Popover, Tab, Toast, Tooltip } from 'bootstrap';
 import Masonry from 'masonry-layout';
-import { getElements } from './util';
+import { createElement, getElements } from './util';
 
 type ToastLevel = 'danger' | 'warning' | 'success' | 'info';
 
@@ -8,6 +8,7 @@ type ToastLevel = 'danger' | 'warning' | 'success' | 'info';
 // plugins).
 window.Collapse = Collapse;
 window.Modal = Modal;
+window.Popover = Popover;
 window.Toast = Toast;
 window.Tooltip = Tooltip;
 
@@ -157,12 +158,47 @@ function initSidebarAccordions(): void {
 }
 
 /**
+ * Initialize image preview popover, which shows a preview of an image from an image link with the
+ * `.image-preview` class.
+ */
+function initImagePreview(): void {
+  for (const element of getElements<HTMLAnchorElement>('a.image-preview')) {
+    // Generate a max-width that's a quarter of the screen's width (note - the actual element
+    // width will be slightly larger due to the popover body's padding).
+    const maxWidth = `${Math.round(window.innerWidth / 4)}px`;
+
+    // Create an image element that uses the linked image as its `src`.
+    const image = createElement('img', { src: element.href });
+    image.style.maxWidth = maxWidth;
+
+    // Create a container for the image.
+    const content = createElement('div', null, null, [image]);
+
+    // Initialize the Bootstrap Popper instance.
+    new Popover(element, {
+      // Attach this custom class to the popover so that it styling can be controlled via CSS.
+      customClass: 'image-preview-popover',
+      trigger: 'hover',
+      html: true,
+      content,
+    });
+  }
+}
+
+/**
  * Enable any defined Bootstrap Tooltips.
  *
  * @see https://getbootstrap.com/docs/5.0/components/tooltips
  */
 export function initBootstrap(): void {
-  for (const func of [initTooltips, initModals, initMasonry, initTabs, initSidebarAccordions]) {
+  for (const func of [
+    initTooltips,
+    initModals,
+    initMasonry,
+    initTabs,
+    initImagePreview,
+    initSidebarAccordions,
+  ]) {
     func();
   }
 }
