@@ -48,7 +48,8 @@ def is_api_request(request):
     Return True of the request is being made via the REST API.
     """
     api_path = reverse('api-root')
-    return request.path_info.startswith(api_path)
+
+    return request.path_info.startswith(api_path) and request.content_type == 'application/json'
 
 
 def get_view_name(view, suffix=None):

@@ -355,14 +355,6 @@ def querystring(request, **kwargs):
         return ''
 
 
-@register.simple_tag()
-def base_path():
-    """
-    Access `BASE_PATH` in templates.
-    """
-    return settings.BASE_PATH
-
-
 @register.inclusion_tag('utilities/templatetags/utilization_graph.html')
 def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     """
