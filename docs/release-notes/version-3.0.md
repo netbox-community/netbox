@@ -1,6 +1,6 @@
 # NetBox v3.0
 
-## v3.0.1 (FUTURE)
+## v3.0.1 (2021-09-01)
 
 ### Bug Fixes
 
@@ -15,17 +15,17 @@
 * [#7083](https://github.com/netbox-community/netbox/issues/7083) - Correct labeling for VM memory attribute
 * [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix KeyError exception when editing access VLAN on an interface
 * [#7084](https://github.com/netbox-community/netbox/issues/7084) - Fix issue where hidden VLAN form fields were incorrectly included in the form submission
-* [#7089](https://github.com/netbox-community/netbox/issues/7089) - Fix ContentTypeFilterSet not filtering on q filter
-* [#7090](https://github.com/netbox-community/netbox/issues/7090) - Fix Cable Bulk Edit Form - allow decimal input on Length field
+* [#7089](https://github.com/netbox-community/netbox/issues/7089) - Fix filtering of change log by content type
+* [#7090](https://github.com/netbox-community/netbox/issues/7090) - Allow decimal input on length field when bulk editing cables
 * [#7091](https://github.com/netbox-community/netbox/issues/7091) - Ensure API requests from the UI are aware of `BASE_PATH`
 * [#7092](https://github.com/netbox-community/netbox/issues/7092) - Fix missing bulk edit buttons on Prefix IP Addresses table
 * [#7093](https://github.com/netbox-community/netbox/issues/7093) - Multi-select custom field filters should employ exact match
 * [#7096](https://github.com/netbox-community/netbox/issues/7096) - Home links should honor `BASE_PATH` configuration
 * [#7101](https://github.com/netbox-community/netbox/issues/7101) - Enforce `MAX_PAGE_SIZE` for table and REST API pagination
-* [#7106](https://github.com/netbox-community/netbox/issues/7106) - Fix incorrect "Map It" button URL on a site's Physical Address field
-* [#7107](https://github.com/netbox-community/netbox/issues/7107) - Fix missing search button and search results in IP Address assignment "Assign IP" tab
+* [#7106](https://github.com/netbox-community/netbox/issues/7106) - Fix incorrect "Map It" button URL on a site's physical address field
+* [#7107](https://github.com/netbox-community/netbox/issues/7107) - Fix missing search button and search results in IP address assignment "Assign IP" tab
 * [#7109](https://github.com/netbox-community/netbox/issues/7109) - Ensure human readability of exceptions raised during REST API requests
-* [#7113](https://github.com/netbox-community/netbox/issues/7113) - Fix IPRange bulk options within Prefix view
+* [#7113](https://github.com/netbox-community/netbox/issues/7113) - Show bulk edit/delete actions for prefix child objects
 * [#7123](https://github.com/netbox-community/netbox/issues/7123) - Remove "Global" placeholder for null VRF field
 * [#7124](https://github.com/netbox-community/netbox/issues/7124) - Fix duplicate static query param values in API Select
 
