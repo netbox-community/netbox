@@ -24,6 +24,7 @@
 * [#7106](https://github.com/netbox-community/netbox/issues/7106) - Fix incorrect "Map It" button URL on a site's Physical Address field
 * [#7107](https://github.com/netbox-community/netbox/issues/7107) - Fix missing search button and search results in IP Address assignment "Assign IP" tab
 * [#7109](https://github.com/netbox-community/netbox/issues/7109) - Ensure human readability of exceptions raised during REST API requests
+* [#7113](https://github.com/netbox-community/netbox/issues/7113) - Fix IPRange bulk options within Prefix view
 
 ---
 
