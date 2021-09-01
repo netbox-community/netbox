@@ -19,7 +19,9 @@ export function isApiError(data: Record<string, unknown>): data is APIError {
   return 'error' in data && 'exception' in data;
 }
 
-export function hasError(data: Record<string, unknown>): data is ErrorBase {
+export function hasError<E extends ErrorBase = ErrorBase>(
+  data: Record<string, unknown>,
+): data is E {
   return 'error' in data;
 }
 

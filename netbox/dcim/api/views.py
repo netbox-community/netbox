@@ -22,7 +22,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
 from utilities.api import get_serializer_for_model
-from utilities.utils import count_related
+from utilities.utils import count_related, decode_dict
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -498,7 +498,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
                 response[method] = {'error': 'Only get_* NAPALM methods are supported'}
                 continue
             try:
-                response[method] = getattr(d, method)()
+                response[method] = decode_dict(getattr(d, method)())
             except NotImplementedError:
                 response[method] = {'error': 'Method {} not implemented for NAPALM driver {}'.format(method, driver)}
             except Exception as e:

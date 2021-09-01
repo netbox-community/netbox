@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#7041](https://github.com/netbox-community/netbox/issues/7041) - Properly format JSON config object returned from a NAPALM device
 * [#7070](https://github.com/netbox-community/netbox/issues/7070) - Fix exception when filtering by prefix max length in UI
 * [#7071](https://github.com/netbox-community/netbox/issues/7071) - Fix exception when removing a primary IP from a device/VM
 * [#7072](https://github.com/netbox-community/netbox/issues/7072) - Fix table configuration under prefix child object views

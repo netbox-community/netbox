@@ -1,7 +1,9 @@
 import datetime
 import json
+import urllib
 from collections import OrderedDict
 from itertools import count, groupby
+from typing import Any, Dict, List, Tuple
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
@@ -284,6 +286,45 @@ def flatten_dict(d, prefix='', separator='.'):
         else:
             ret[key] = v
     return ret
+
+
+def decode_dict(encoded_dict: Dict, *, decode_keys: bool = True) -> Dict:
+    """
+    Recursively URL decode string keys and values of a dict.
+
+    For example, `{'1%2F1%2F1': {'1%2F1%2F2': ['1%2F1%2F3', '1%2F1%2F4']}}` would
+    become: `{'1/1/1': {'1/1/2': ['1/1/3', '1/1/4']}}`
+
+    :param encoded_dict: Dictionary to be decoded.
+    :param decode_keys: (Optional) Enable/disable decoding of dict keys.
+    """
+
+    def decode_value(value: Any, _decode_keys: bool) -> Any:
+        """
+        Handle URL decoding of any supported value type.
+        """
+        # Decode string values.
+        if isinstance(value, str):
+            return urllib.parse.unquote(value)
+        # Recursively decode each list item.
+        elif isinstance(value, list):
+            return [decode_value(v, _decode_keys) for v in value]
+        # Recursively decode each tuple item.
+        elif isinstance(value, Tuple):
+            return tuple(decode_value(v, _decode_keys) for v in value)
+        # Recursively decode each dict key/value pair.
+        elif isinstance(value, dict):
+            # Don't decode keys, if `decode_keys` is false.
+            if not _decode_keys:
+                return {k: decode_value(v, _decode_keys) for k, v in value.items()}
+            return {urllib.parse.unquote(k): decode_value(v, _decode_keys) for k, v in value.items()}
+        return value
+
+    if not decode_keys:
+        # Don't decode keys, if `decode_keys` is false.
+        return {k: decode_value(v, decode_keys) for k, v in encoded_dict.items()}
+
+    return {urllib.parse.unquote(k): decode_value(v, decode_keys) for k, v in encoded_dict.items()}
 
 
 # Taken from django.utils.functional (<3.0)
