@@ -1,6 +1,8 @@
 import Cookie from 'cookie';
 import queryString from 'query-string';
 
+import type { Stringifiable } from 'query-string';
+
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
 type SelectedOption = { name: string; options: string[] };
@@ -118,6 +120,30 @@ function getCsrfToken(): string {
 }
 
 /**
+ * Constrict an object from a URL query param string, with all values as an array.
+ *
+ * @param params URL search query string.
+ * @returns Constructed query object.
+ */
+function queryParamsToObject(params: string): Record<string, Stringifiable[]> {
+  const result = {} as Record<string, Stringifiable[]>;
+  const searchParams = new URLSearchParams(params);
+  for (const [key, originalValue] of searchParams.entries()) {
+    let value = [] as Stringifiable[];
+    if (key in result) {
+      value = [...value, ...result[key]];
+    }
+    if (Array.isArray(originalValue)) {
+      value = [...value, ...originalValue];
+    } else {
+      value = [...value, originalValue];
+    }
+    result[key] = value;
+  }
+  return result;
+}
+
+/**
  * Build a NetBox URL that includes `settings.BASE_PATH` and enforces leading and trailing slashes.
  *
  * @example
@@ -153,7 +179,7 @@ function buildUrl(destination: string): string {
   }
   const url = combined.join('/');
   // Construct an object from the URL search params so it can be re-serialized with the new URL.
-  const query = Object.fromEntries(new URLSearchParams(search).entries());
+  const query = queryParamsToObject(search);
   return queryString.stringifyUrl({ url, query });
 }
 

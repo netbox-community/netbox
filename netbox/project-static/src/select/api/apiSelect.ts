@@ -174,16 +174,6 @@ export class APISelect {
       this.preSorted = true;
     }
 
-    const emptyOption = base.getAttribute('data-empty-option');
-    if (isTruthy(emptyOption)) {
-      this.emptyOption = {
-        text: emptyOption,
-        value: '',
-      };
-    } else {
-      this.emptyOption = EMPTY_PLACEHOLDER;
-    }
-
     if (hasUrl(base)) {
       const url = base.getAttribute('data-url') as string;
       this.url = url;
@@ -196,6 +186,16 @@ export class APISelect {
     this.placeholder = this.getPlaceholder();
     this.disabledOptions = this.getDisabledOptions();
     this.disabledAttributes = this.getDisabledAttributes();
+
+    const emptyOption = base.getAttribute('data-empty-option');
+    if (isTruthy(emptyOption)) {
+      this.emptyOption = {
+        text: emptyOption,
+        value: '',
+      };
+    } else {
+      this.emptyOption = EMPTY_PLACEHOLDER;
+    }
 
     this.slim = new SlimSelect({
       select: this.base,
@@ -295,21 +295,18 @@ export class APISelect {
       newOptions = optionsIn.sort((a, b) => (a.text.toLowerCase() > b.text.toLowerCase() ? 1 : -1));
     }
     // Deduplicate options each time they're set.
-    let deduplicated = uniqueByProperty(newOptions, 'value');
+    const deduplicated = uniqueByProperty(newOptions, 'value');
     // Determine if the new options have a placeholder.
     const hasPlaceholder = typeof deduplicated.find(o => o.value === '') !== 'undefined';
     // Get the placeholder index (note: if there is no placeholder, the index will be `-1`).
     const placeholderIdx = deduplicated.findIndex(o => o.value === '');
 
-    if (hasPlaceholder && placeholderIdx < 0) {
-      // If there is a placeholder but it is not the first element (due to sorting or other merge
-      // issues), remove it from the options array and place it in front.
-      deduplicated.splice(placeholderIdx);
-      deduplicated = [this.emptyOption, ...deduplicated];
-    }
-    if (!hasPlaceholder) {
-      // If there is no placeholder, add one to the front of the array.
-      deduplicated = [this.emptyOption, ...deduplicated];
+    if (hasPlaceholder && placeholderIdx >= 0) {
+      // If there is an existing placeholder, replace it.
+      deduplicated[placeholderIdx] = this.emptyOption;
+    } else {
+      // If there is not a placeholder, add one to the front.
+      deduplicated.unshift(this.emptyOption);
     }
     this._options = deduplicated;
     this.slim.setData(deduplicated);
