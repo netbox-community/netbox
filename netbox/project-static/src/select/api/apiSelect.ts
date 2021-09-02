@@ -22,6 +22,13 @@ import type { Stringifiable } from 'query-string';
 import type { Option } from 'slim-select/dist/data';
 import type { Trigger, PathFilter, ApplyMethod, QueryFilter } from './types';
 
+// Empty placeholder option.
+const EMPTY_PLACEHOLDER = {
+  value: '',
+  text: '',
+  placeholder: true,
+} as Option;
+
 // Attributes which if truthy should render the option disabled.
 const DISABLED_ATTRIBUTES = ['occupied'] as string[];
 
@@ -45,7 +52,11 @@ export class APISelect {
    */
   public readonly placeholder: string;
 
-  public readonly emptyOption: Nullable<Option> = null;
+  /**
+   * Empty/placeholder option. Display text is optionally overridden via the `data-empty-option`
+   * attribute.
+   */
+  public readonly emptyOption: Option;
 
   /**
    * Event that will initiate the API call to NetBox to load option data. By default, the trigger
@@ -142,7 +153,7 @@ export class APISelect {
   /**
    * This instance's available options.
    */
-  private _options: Option[] = [];
+  private _options: Option[] = [EMPTY_PLACEHOLDER];
 
   /**
    * Array of options values which should be considered disabled or static.
@@ -169,6 +180,8 @@ export class APISelect {
         text: emptyOption,
         value: '',
       };
+    } else {
+      this.emptyOption = EMPTY_PLACEHOLDER;
     }
 
     if (hasUrl(base)) {
@@ -288,13 +301,13 @@ export class APISelect {
     // Get the placeholder index (note: if there is no placeholder, the index will be `-1`).
     const placeholderIdx = deduplicated.findIndex(o => o.value === '');
 
-    if (hasPlaceholder && placeholderIdx < 0 && this.emptyOption !== null) {
+    if (hasPlaceholder && placeholderIdx < 0) {
       // If there is a placeholder but it is not the first element (due to sorting or other merge
       // issues), remove it from the options array and place it in front.
       deduplicated.splice(placeholderIdx);
       deduplicated = [this.emptyOption, ...deduplicated];
     }
-    if (!hasPlaceholder && this.emptyOption !== null) {
+    if (!hasPlaceholder) {
       // If there is no placeholder, add one to the front of the array.
       deduplicated = [this.emptyOption, ...deduplicated];
     }
@@ -306,11 +319,7 @@ export class APISelect {
    * Remove all options and reset back to the generic placeholder.
    */
   private resetOptions(): void {
-    if (this.emptyOption !== null) {
-      this.options = [this.emptyOption];
-    } else {
-      this.options = [];
-    }
+    this.options = [this.emptyOption];
   }
 
   /**
