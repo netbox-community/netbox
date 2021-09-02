@@ -1,5 +1,10 @@
 # NetBox v3.0
 
+## v3.0.2 (FUTURE)
+* [#7131](https://github.com/netbox-community/netbox/issues/7131) - Fix issue where Site fields were hidden when editing a VLAN group
+
+---
+
 ## v3.0.1 (2021-09-01)
 
 ### Bug Fixes
