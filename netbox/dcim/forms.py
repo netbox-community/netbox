@@ -23,10 +23,10 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorField, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
-    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect, StaticSelectMultiple, TagFilterField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    ClearableFileInput, ColorField, CommentField, CSVChoiceField, CSVContentTypeField, CSVModelChoiceField,
+    CSVTypedChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model,
+    JSONField, NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect, StaticSelectMultiple,
+    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -1271,10 +1271,10 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         )
         widgets = {
             'subdevice_role': StaticSelect(),
-            'front_image': forms.ClearableFileInput(attrs={
+            'front_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
             }),
-            'rear_image': forms.ClearableFileInput(attrs={
+            'rear_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
             })
         }

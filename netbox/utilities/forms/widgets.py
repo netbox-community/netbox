@@ -12,6 +12,7 @@ __all__ = (
     'APISelect',
     'APISelectMultiple',
     'BulkEditNullBooleanSelect',
+    'ClearableFileInput',
     'ColorSelect',
     'ContentTypeSelect',
     'DatePicker',
@@ -133,6 +134,13 @@ class NumericArrayField(SimpleArrayField):
         if isinstance(value, str):
             value = ','.join([str(n) for n in parse_numeric_range(value)])
         return super().to_python(value)
+
+
+class ClearableFileInput(forms.ClearableFileInput):
+    """
+    Override Django's stock ClearableFileInput with a custom template.
+    """
+    template_name = 'widgets/clearable_file_input.html'
 
 
 class APISelect(SelectWithDisabled):

@@ -1,0 +1,24 @@
+<div class="row">
+  <div class="col-6">
+    {% if widget.is_initial %}
+      <a href="{{ widget.value.url }}">{{ widget.value }}</a>
+      {% if not widget.required %}
+        <br />
+        <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+        <label for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>
+      {% endif %}
+    {% else %}
+      <span class="text-muted">None assigned</span>
+    {% endif %}
+  </div>
+  <div class="col-6">
+    <input
+  class="form-control"
+  type="{{ widget.type }}"
+  name="{{ widget.name }}"
+  id="id_{{ widget.name }}"
+  accept="{{ widget.attrs.accept }}"
+  {% if widget.required %}required{% endif %}
+/>
+  </div>
+</div>
