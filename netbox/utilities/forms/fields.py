@@ -376,7 +376,7 @@ class DynamicModelChoiceMixin:
     widget = widgets.APISelect
 
     def __init__(self, query_params=None, initial_params=None, null_option=None, disabled_indicator=None, fetch_trigger=None,
-                 *args, **kwargs):
+                 empty_label=None, *args, **kwargs):
         self.query_params = query_params or {}
         self.initial_params = initial_params or {}
         self.null_option = null_option
@@ -386,11 +386,14 @@ class DynamicModelChoiceMixin:
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
         self.to_field_name = kwargs.get('to_field_name')
+        self.empty_option = empty_label or ""
 
         super().__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
-        attrs = {}
+        attrs = {
+            'data-empty-option': self.empty_option
+        }
 
         # Set value-field attribute if the field specifies to_field_name
         if self.to_field_name:
