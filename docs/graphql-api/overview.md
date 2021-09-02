@@ -45,7 +45,7 @@ NetBox provides both a singular and plural query field for each object type:
 * `$OBJECT`: Returns a single object. Must specify the object's unique ID as `(id: 123)`.
 * `$OBJECT_list`: Returns a list of objects, optionally filtered by given parameters.
 
-For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of fitlers) to fetch all devices.
+For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of filters) to fetch all devices.
 
 For more detail on constructing GraphQL queries, see the [Graphene documentation](https://docs.graphene-python.org/en/latest/).
 
