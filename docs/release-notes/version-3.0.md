@@ -5,6 +5,7 @@
 * [#7131](https://github.com/netbox-community/netbox/issues/7131) - Fix issue where Site fields were hidden when editing a VLAN group
 * [#7148](https://github.com/netbox-community/netbox/issues/7148) - Fix issue where static query parameters with multiple values were not queried properly
 * [#7153](https://github.com/netbox-community/netbox/issues/7153) - Allow clearing of assigned device type images
+* [#7169](https://github.com/netbox-community/netbox/issues/7169) - Fix CSV import file upload
 
 ---
 
