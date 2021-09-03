@@ -111,7 +111,8 @@ function getCsrfToken(): string {
  * Get the NetBox `settings.BASE_PATH` from the `<html/>` element's data attributes.
  *
  * @returns If there is no `BASE_PATH` specified, the return value will be `''`.
- */ function getBasePath(): string {
+ */
+function getBasePath(): string {
   const value = document.documentElement.getAttribute('data-netbox-base-path');
   if (value === null) {
     return '';
@@ -156,7 +157,7 @@ function queryParamsToObject(params: string): Record<string, Stringifiable[]> {
  *
  * @param path Relative path _after_ (excluding) the `BASE_PATH`.
  */
-function buildUrl(destination: string): string {
+export function buildUrl(destination: string): string {
   // Separate the path from any URL search params.
   const [pathname, search] = destination.split(/(?=\?)/g);
 
@@ -184,7 +185,7 @@ function buildUrl(destination: string): string {
 }
 
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
-  path: string,
+  url: string,
   method: Method,
   data?: D,
 ): Promise<APIResponse<R>> {
@@ -196,7 +197,6 @@ export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
     body = JSON.stringify(data);
     headers.set('content-type', 'application/json');
   }
-  const url = buildUrl(path);
 
   const res = await fetch(url, { method, body, headers, credentials: 'same-origin' });
   const contentType = res.headers.get('Content-Type');
