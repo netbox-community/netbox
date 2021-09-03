@@ -1,5 +1,5 @@
 import { createToast } from './bs';
-import { getElements, apiPatch, buildUrl, hasError, getSelectedOptions } from './util';
+import { getElements, apiPatch, hasError, getSelectedOptions } from './util';
 
 /**
  * Mark each option element in the selected columns element as 'selected' so they are submitted to
@@ -54,8 +54,7 @@ function removeColumns(event: Event): void {
  * Submit form configuration to the NetBox API.
  */
 async function submitFormConfig(formConfig: Dict<Dict>): Promise<APIResponse<APIUserConfig>> {
-  const url = buildUrl('/api/users/config/');
-  return await apiPatch<APIUserConfig>(url, formConfig);
+  return await apiPatch<APIUserConfig>('/api/users/config/', formConfig);
 }
 
 /**

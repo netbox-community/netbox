@@ -157,15 +157,20 @@ function queryParamsToObject(params: string): Record<string, Stringifiable[]> {
  *
  * @param path Relative path _after_ (excluding) the `BASE_PATH`.
  */
-export function buildUrl(destination: string): string {
+function buildUrl(destination: string): string {
   // Separate the path from any URL search params.
   const [pathname, search] = destination.split(/(?=\?)/g);
 
   // If the `origin` exists in the API path (as in the case of paginated responses), remove it.
   const origin = new RegExp(window.location.origin, 'g');
-  const path = pathname.replaceAll(origin, '');
+  let path = pathname.replaceAll(origin, '');
 
   const basePath = getBasePath();
+
+  // If the `BASE_PATH` already exists in the URL, remove it.
+  if (basePath !== '' && path.includes(basePath)) {
+    path = path.replaceAll(basePath, '');
+  }
 
   // Combine `BASE_PATH` with this request's path, removing _all_ slashes.
   let combined = [...basePath.split('/'), ...path.split('/')].filter(p => p);
@@ -185,7 +190,7 @@ export function buildUrl(destination: string): string {
 }
 
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
-  url: string,
+  path: string,
   method: Method,
   data?: D,
 ): Promise<APIResponse<R>> {
@@ -197,6 +202,8 @@ export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
     body = JSON.stringify(data);
     headers.set('content-type', 'application/json');
   }
+
+  const url = buildUrl(path);
 
   const res = await fetch(url, { method, body, headers, credentials: 'same-origin' });
   const contentType = res.headers.get('Content-Type');
