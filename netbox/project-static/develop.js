@@ -13,9 +13,9 @@ const collectStatic = type => {
 
   console.log('[*] collecting..');
   exec('../../venv/bin/python3 ../manage.py collectstatic --no-input', (err, stdout, stderr) => {
-    err && console.error(err);
+    err && console.error(`[**] Error: ${err}`);
     stdout && console.log(`[*] ${stdout.trim()}`);
-    stderr && console.log('[**] Python Err:', stderr);
+    stderr && console.log(`[**] Python Err: ${stderr.trim()}`);
     console.log('[*] waiting..\n');
   });
 };
