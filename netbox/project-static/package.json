@@ -8,6 +8,7 @@
     "netbox-graphiql"
   ],
   "scripts": {
+    "dev": "node develop.js",
     "bundle": "node bundle.js",
     "bundle:styles": "node bundle.js --styles",
     "bundle:scripts": "node bundle.js --scripts",
@@ -44,6 +45,7 @@
     "@types/masonry-layout": "^4.2.2",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
+    "chokidar": "^3.5.2",
     "esbuild": "^0.12.24",
     "esbuild-sass-plugin": "^1.5.2",
     "eslint": "^7.32.0",
