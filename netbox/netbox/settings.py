@@ -250,6 +250,7 @@ CACHES = {
     }
 }
 if CACHING_REDIS_SENTINELS:
+    DJANGO_REDIS_CONNECTION_FACTORY = 'django_redis.pool.SentinelConnectionFactory'
     CACHES['default']['LOCATION'] = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_SENTINEL_SERVICE}/{CACHING_REDIS_DATABASE}'
     CACHES['default']['OPTIONS']['CLIENT_CLASS'] = 'django_redis.client.SentinelClient'
     CACHES['default']['OPTIONS']['SENTINELS'] = CACHING_REDIS_SENTINELS
