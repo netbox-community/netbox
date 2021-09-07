@@ -7,6 +7,7 @@
 * [#7153](https://github.com/netbox-community/netbox/issues/7153) - Allow clearing of assigned device type images
 * [#7164](https://github.com/netbox-community/netbox/issues/7164) - Fix styling of "decommissioned" label for circuits
 * [#7169](https://github.com/netbox-community/netbox/issues/7169) - Fix CSV import file upload
+* [#7176](https://github.com/netbox-community/netbox/issues/7176) - Fix issue where query parameters were duplicated across different forms of the same type
 * [#7193](https://github.com/netbox-community/netbox/issues/7193) - Fix prefix (flat) template issue when viewing child prefixes with prefixes available
 
 ---

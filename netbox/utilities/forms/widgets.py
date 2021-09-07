@@ -163,6 +163,13 @@ class APISelect(SelectWithDisabled):
         if api_url:
             self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
 
+    def __deepcopy__(self, memo):
+        """Reset `static_params` and `dynamic_params` when APISelect is deepcopied."""
+        result = super().__deepcopy__(memo)
+        result.dynamic_params = {}
+        result.static_params = {}
+        return result
+
     def _process_query_param(self, key: str, value: JSONPrimitive) -> None:
         """
         Based on query param value's type and value, update instance's dynamic/static params.
