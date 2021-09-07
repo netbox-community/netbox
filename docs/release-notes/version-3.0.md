@@ -9,6 +9,7 @@
 * [#7169](https://github.com/netbox-community/netbox/issues/7169) - Fix CSV import file upload
 * [#7176](https://github.com/netbox-community/netbox/issues/7176) - Fix issue where query parameters were duplicated across different forms of the same type
 * [#7193](https://github.com/netbox-community/netbox/issues/7193) - Fix prefix (flat) template issue when viewing child prefixes with prefixes available
+* [#7202](https://github.com/netbox-community/netbox/issues/7202) - Verify integrity of static assets in CI
 
 ---
 
