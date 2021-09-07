@@ -30,8 +30,10 @@ body:
     attributes:
       label: Proposed functionality
       description: >
-        Describe in detail the new feature or behavior you'd like to propose. Include any specific
-        changes to work flows, data models, or the user interface.
+        Describe in detail the new feature or behavior you are proposing. Include any specific changes
+        to work flows, data models, and/or the user interface. The more detail you provide here, the
+        greater chance your proposal has of being discussed. Feature requests which don't include an
+        actionable implementation plan will be rejected.
     validations:
       required: true
   - type: textarea
