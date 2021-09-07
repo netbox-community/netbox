@@ -163,17 +163,21 @@ function buildUrl(destination: string): string {
 
   // If the `origin` exists in the API path (as in the case of paginated responses), remove it.
   const origin = new RegExp(window.location.origin, 'g');
-  let path = pathname.replaceAll(origin, '');
+  let path = pathname
+    .replaceAll(origin, '')
+    .split('/')
+    .filter(p => p);
 
   const basePath = getBasePath();
 
-  // If the `BASE_PATH` already exists in the URL, remove it.
-  if (basePath !== '' && path.includes(basePath)) {
-    path = path.replaceAll(basePath, '');
+  // If the `BASE_PATH` already exists in the URL, and it is the first element, remove it.
+  if (basePath !== '' && path[0].includes(basePath)) {
+    const [_, ...appPath] = path;
+    path = ['', ...appPath];
   }
 
   // Combine `BASE_PATH` with this request's path, removing _all_ slashes.
-  let combined = [...basePath.split('/'), ...path.split('/')].filter(p => p);
+  let combined = [...basePath.split('/'), ...path].filter(p => p);
 
   if (combined[0] !== '/') {
     // Ensure the URL has a leading slash.
