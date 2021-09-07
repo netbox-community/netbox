@@ -25,6 +25,15 @@ PREFIX_LINK = """
 <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 """
 
+PREFIXFLAT_LINK = """
+{% load helpers %}
+{% if record.pk %}
+    <a href="{% url 'ipam:prefix' pk=record.pk %}">{{ record.prefix }}</a>
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 PREFIX_ROLE_LINK = """
 {% if record.role %}
     <a href="{% url 'ipam:prefix_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
@@ -281,10 +290,10 @@ class PrefixTable(BaseTable):
         template_code=PREFIX_LINK,
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    prefix_flat = tables.Column(
-        accessor=Accessor('prefix'),
-        linkify=True,
-        verbose_name='Prefix (Flat)'
+    prefix_flat = tables.TemplateColumn(
+        template_code=PREFIXFLAT_LINK,
+        attrs={'td': {'class': 'text-nowrap'}},
+        verbose_name='Prefix (Flat)',
     )
     depth = tables.Column(
         accessor=Accessor('_depth'),
