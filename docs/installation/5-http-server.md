@@ -66,6 +66,7 @@ Finally, ensure that the required Apache modules are enabled, enable the `netbox
 
 ```no-highlight
 sudo a2enmod ssl proxy proxy_http headers
+sudo a2dissite 000-default.conf
 sudo a2ensite netbox
 sudo systemctl restart apache2
 ```
