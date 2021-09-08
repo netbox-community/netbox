@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.conf import settings
 from django.forms.models import fields_for_model
 
 from utilities.choices import unpack_grouped_choices
@@ -124,17 +125,16 @@ def get_selected_values(form, field_name):
     # Selection field
     if hasattr(field, 'choices'):
         try:
-            grouped_choices = [(k, v) for k, v in field.choices]
+            choices = unpack_grouped_choices(field.choices)
 
             if hasattr(field, 'null_option'):
                 # If the field has a `null_option` attribute set and it is selected,
                 # add it to the field's grouped choices.
                 if field.null_option is not None and None in filter_data:
-                    grouped_choices.append((field.null_option, field.null_option))
+                    choices.append((settings.FILTERS_NULL_CHOICE_VALUE, field.null_option))
 
-            choices = dict(unpack_grouped_choices(grouped_choices))
             return [
-                label for value, label in choices.items() if str(value) in filter_data or None in filter_data
+                label for value, label in choices if str(value) in filter_data or None in filter_data
             ]
         except TypeError:
             # Field uses dynamic choices. Show all that have been populated.
