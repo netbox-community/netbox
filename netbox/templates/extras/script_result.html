@@ -112,6 +112,6 @@
 {% endblock content-wrapper %}
 
 {% block data %}
-<span data-job-id="{{ result.pk }}"></span>
+<span data-job-url="{% url 'extras-api:jobresult-detail' pk=result.pk %}"></span>
 <span data-job-complete="{{ result.completed }}"></span>
 {% endblock %}
