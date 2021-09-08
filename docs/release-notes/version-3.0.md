@@ -13,6 +13,7 @@
 * [#7179](https://github.com/netbox-community/netbox/issues/7179) - Prevent obscuring "connect" pop-up for interfaces under device view
 * [#7188](https://github.com/netbox-community/netbox/issues/7188) - Fix issue where select fields with `null_option` did not render or send the null option
 * [#7189](https://github.com/netbox-community/netbox/issues/7189) - Set connection factory for django-redis when Sentinel is in use
+* [#7191](https://github.com/netbox-community/netbox/issues/7191) - Fix issue where API-backed multi-select elements cleared selected options when adding new options
 * [#7193](https://github.com/netbox-community/netbox/issues/7193) - Fix prefix (flat) template issue when viewing child prefixes with prefixes available
 * [#7205](https://github.com/netbox-community/netbox/issues/7205) - Fix issue where selected fields with `null_option` set were not added to applied filters
 * [#7209](https://github.com/netbox-community/netbox/issues/7209) - Allow unlimited API results when `MAX_PAGE_SIZE` is disabled

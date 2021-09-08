@@ -5,7 +5,7 @@ import SlimSelect from 'slim-select';
 import { createToast } from '../../bs';
 import { hasUrl, hasExclusions, isTrigger } from '../util';
 import { DynamicParamsMap } from './dynamicParams';
-import { isStaticParams } from './types';
+import { isStaticParams, isOption } from './types';
 import {
   hasMore,
   isTruthy,
@@ -157,11 +157,6 @@ export class APISelect {
   private preSorted: boolean = false;
 
   /**
-   * This instance's available options.
-   */
-  private _options: Option[] = [EMPTY_PLACEHOLDER];
-
-  /**
    * Array of options values which should be considered disabled or static.
    */
   private disabledOptions: Array<string> = [];
@@ -295,7 +290,7 @@ export class APISelect {
    * This instance's available options.
    */
   private get options(): Option[] {
-    return this._options;
+    return this.slim.data.data.filter(isOption);
   }
 
   /**
@@ -329,7 +324,6 @@ export class APISelect {
       // If there is not a placeholder, add one to the front.
       deduplicated.unshift(this.emptyOption);
     }
-    this._options = deduplicated;
     this.slim.setData(deduplicated);
   }
 
@@ -381,7 +375,12 @@ export class APISelect {
     const fetcher = debounce((event: Event) => this.handleSearch(event), 300, false);
 
     // Query the API when the input value changes or a value is pasted.
-    this.slim.slim.search.input.addEventListener('keyup', event => fetcher(event));
+    this.slim.slim.search.input.addEventListener('keyup', event => {
+      // Only search when necessary keys are pressed.
+      if (!event.key.match(/^(Arrow|Enter|Tab).*/)) {
+        return fetcher(event);
+      }
+    });
     this.slim.slim.search.input.addEventListener('paste', event => fetcher(event));
 
     // Watch every scroll event to determine if the scroll position is at bottom.
@@ -470,7 +469,7 @@ export class APISelect {
     for (const result of data.results) {
       let text = result.display;
 
-      if (typeof result._depth === 'number') {
+      if (typeof result._depth === 'number' && result._depth > 0) {
         // If the object has a `_depth` property, indent its display text.
         if (!this.preSorted) {
           this.preSorted = true;
