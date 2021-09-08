@@ -1,4 +1,5 @@
 import type { Stringifiable } from 'query-string';
+import type { Option, Optgroup } from 'slim-select/dist/data';
 
 /**
  * Map of string keys to primitive array values accepted by `query-string`. Keys are used as
@@ -186,4 +187,13 @@ export function isStaticParams(value: unknown): value is DataStaticParam[] {
     }
   }
   return false;
+}
+
+/**
+ * Type guard to determine if a SlimSelect `dataObject` is an `Option`.
+ *
+ * @param data Option or Option Group
+ */
+export function isOption(data: Option | Optgroup): data is Option {
+  return !('options' in data);
 }

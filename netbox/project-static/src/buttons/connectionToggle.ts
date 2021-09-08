@@ -8,12 +8,12 @@ import { isTruthy, apiPatch, hasError, getElements } from '../util';
  * @param element Connection Toggle Button Element
  */
 function toggleConnection(element: HTMLButtonElement): void {
-  const id = element.getAttribute('data');
+  const url = element.getAttribute('data-url');
   const connected = element.classList.contains('connected');
   const status = connected ? 'planned' : 'connected';
 
-  if (isTruthy(id)) {
-    apiPatch(`/api/dcim/cables/${id}/`, { status }).then(res => {
+  if (isTruthy(url)) {
+    apiPatch(url, { status }).then(res => {
       if (hasError(res)) {
         // If the API responds with an error, show it to the user.
         createToast('danger', 'Error', res.error).show();

@@ -12,6 +12,7 @@ __all__ = (
     'APISelect',
     'APISelectMultiple',
     'BulkEditNullBooleanSelect',
+    'ClearableFileInput',
     'ColorSelect',
     'ContentTypeSelect',
     'DatePicker',
@@ -135,6 +136,13 @@ class NumericArrayField(SimpleArrayField):
         return super().to_python(value)
 
 
+class ClearableFileInput(forms.ClearableFileInput):
+    """
+    Override Django's stock ClearableFileInput with a custom template.
+    """
+    template_name = 'widgets/clearable_file_input.html'
+
+
 class APISelect(SelectWithDisabled):
     """
     A select widget populated via an API call
@@ -154,6 +162,13 @@ class APISelect(SelectWithDisabled):
 
         if api_url:
             self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
+
+    def __deepcopy__(self, memo):
+        """Reset `static_params` and `dynamic_params` when APISelect is deepcopied."""
+        result = super().__deepcopy__(memo)
+        result.dynamic_params = {}
+        result.static_params = {}
+        return result
 
     def _process_query_param(self, key: str, value: JSONPrimitive) -> None:
         """

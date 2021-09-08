@@ -17,17 +17,32 @@
     {% block content %}
         <div class="row">
             <div class="col col-md-12 col-lg-10 offset-lg-1">
-                <form action="" method="post" class="form">
-                    {% csrf_token %}
-                    {% render_form form %}
-                    <div class="form-group">
-                        <div class="col col-md-12 text-end">
-                            {% if return_url %}
-                                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                            {% endif %}
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
+                <ul class="nav nav-pills px-3" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" role="tab" type="button" data-bs-target="#csv" data-bs-toggle="tab">CSV Data</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" role="tab" type="button" data-bs-target="#csv-file" data-bs-toggle="tab">CSV File Upload</button>
+                  </li>
+                </ul>
+                <form action="" method="post" enctype="multipart/form-data" class="form">
+                  {% csrf_token %}
+                  <div class="tab-content border-0">
+                    <div role="tabpanel" class="tab-pane active" id="csv">
+                      {% render_field form.csv %}
                     </div>
+                    <div role="tabpanel" class="tab-pane" id="csv-file">
+                      {% render_field form.csv_file %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                      <div class="col col-md-12 text-end">
+                          {% if return_url %}
+                              <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                          {% endif %}
+                          <button type="submit" class="btn btn-primary">Submit</button>
+                      </div>
+                  </div>
                 </form>
                 {% if fields %}
                 <div class="row my-3">

@@ -7,7 +7,7 @@
         <h5 class="modal-title">Table Configuration</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form class="form-horizontal userconfigform" data-config-root="tables.{{ form.table_name }}">
+      <form class="form-horizontal userconfigform" data-url="{% url 'users-api:userconfig-list' %}" data-config-root="tables.{{ form.table_name }}">
         <div class="modal-body row">
           <div class="col-5 text-center">
             {{ form.available_columns.label }}

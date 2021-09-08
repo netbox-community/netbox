@@ -1,16 +1,13 @@
 *.pyc
 *.swp
-node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/netbox/project-static/.cache
+/netbox/project-static/node_modules
 /netbox/project-static/docs/*
 !/netbox/project-static/docs/.info
 /netbox/netbox/configuration.py
 /netbox/netbox/ldap_config.py
-/netbox/project-static/.cache
-/netbox/project-static/node_modules
 /netbox/reports/*
 !/netbox/reports/__init__.py
 /netbox/scripts/*

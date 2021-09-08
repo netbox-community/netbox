@@ -58,6 +58,9 @@ jobs:
 
     - name: Check UI ESLint, TypeScript, and Prettier Compliance
       run: yarn --cwd netbox/project-static validate
+    
+    - name: Validate Static Asset Integrity
+      run: scripts/verify-bundles.sh
 
     - name: Run tests
       run: coverage run --source="netbox/" netbox/manage.py test netbox/

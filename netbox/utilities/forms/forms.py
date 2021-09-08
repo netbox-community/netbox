@@ -4,7 +4,7 @@ import re
 import yaml
 from django import forms
 
-from .widgets import APISelect, APISelectMultiple, StaticSelect
+from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSelect
 
 
 __all__ = (
@@ -29,12 +29,12 @@ class BootstrapMixin(forms.BaseForm):
 
         exempt_widgets = [
             forms.CheckboxInput,
-            forms.ClearableFileInput,
             forms.FileInput,
             forms.RadioSelect,
             forms.Select,
             APISelect,
             APISelectMultiple,
+            ClearableFileInput,
             StaticSelect,
         ]
 

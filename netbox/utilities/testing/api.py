@@ -39,13 +39,13 @@ class APITestCase(ModelTestCase):
 
     def setUp(self):
         """
-        Create a superuser and token for API calls.
+        Create a user and token for API calls.
         """
         # Create the test user and assign permissions
         self.user = User.objects.create_user(username='testuser')
         self.add_permissions(*self.user_permissions)
         self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
+        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
 
     def _get_view_namespace(self):
         return f'{self.view_namespace or self.model._meta.app_label}-api'
