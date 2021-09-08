@@ -10,6 +10,7 @@
 * [#7176](https://github.com/netbox-community/netbox/issues/7176) - Fix issue where query parameters were duplicated across different forms of the same type
 * [#7188](https://github.com/netbox-community/netbox/issues/7188) - Fix issue where select fields with `null_option` did not render or send the null option
 * [#7193](https://github.com/netbox-community/netbox/issues/7193) - Fix prefix (flat) template issue when viewing child prefixes with prefixes available
+* [#7205](https://github.com/netbox-community/netbox/issues/7205) - Fix issue where selected fields with `null_option` set were not added to applied filters
 
 ---
 
