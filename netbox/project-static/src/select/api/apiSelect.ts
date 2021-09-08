@@ -59,6 +59,12 @@ export class APISelect {
   public readonly emptyOption: Option;
 
   /**
+   * Null option. When `data-null-option` attribute is a string, the value is used to created an
+   * option of type `{text: '<value from data-null-option>': 'null'}`.
+   */
+  public readonly nullOption: Nullable<Option> = null;
+
+  /**
    * Event that will initiate the API call to NetBox to load option data. By default, the trigger
    * is `'load'`, so data will be fetched when the element renders on the page.
    */
@@ -197,6 +203,14 @@ export class APISelect {
       this.emptyOption = EMPTY_PLACEHOLDER;
     }
 
+    const nullOption = base.getAttribute('data-null-option');
+    if (isTruthy(nullOption)) {
+      this.nullOption = {
+        text: nullOption,
+        value: 'null',
+      };
+    }
+
     this.slim = new SlimSelect({
       select: this.base,
       allowDeselect: true,
@@ -291,8 +305,15 @@ export class APISelect {
    */
   private set options(optionsIn: Option[]) {
     let newOptions = optionsIn;
+    // Ensure null option is present, if it exists.
+    if (this.nullOption !== null) {
+      newOptions = [this.nullOption, ...newOptions];
+    }
+    // Sort options unless this element is pre-sorted.
     if (!this.preSorted) {
-      newOptions = optionsIn.sort((a, b) => (a.text.toLowerCase() > b.text.toLowerCase() ? 1 : -1));
+      newOptions = newOptions.sort((a, b) =>
+        a.text.toLowerCase() > b.text.toLowerCase() ? 1 : -1,
+      );
     }
     // Deduplicate options each time they're set.
     const deduplicated = uniqueByProperty(newOptions, 'value');
