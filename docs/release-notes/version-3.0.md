@@ -1,12 +1,13 @@
 # NetBox v3.0
 
-## v3.0.2 (FUTURE)
+## v3.0.2 (2021-09-08)
 
 ### Bug Fixes
 
 * [#7131](https://github.com/netbox-community/netbox/issues/7131) - Fix issue where Site fields were hidden when editing a VLAN group
 * [#7148](https://github.com/netbox-community/netbox/issues/7148) - Fix issue where static query parameters with multiple values were not queried properly
 * [#7153](https://github.com/netbox-community/netbox/issues/7153) - Allow clearing of assigned device type images
+* [#7162](https://github.com/netbox-community/netbox/issues/7162) - Ensure consistent treatment of `BASE_PATH` for UI-driven API requests
 * [#7164](https://github.com/netbox-community/netbox/issues/7164) - Fix styling of "decommissioned" label for circuits
 * [#7169](https://github.com/netbox-community/netbox/issues/7169) - Fix CSV import file upload
 * [#7176](https://github.com/netbox-community/netbox/issues/7176) - Fix issue where query parameters were duplicated across different forms of the same type
