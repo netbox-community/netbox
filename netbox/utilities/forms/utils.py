@@ -121,7 +121,6 @@ def get_selected_values(form, field_name):
         form.is_valid()
     filter_data = form.cleaned_data.get(field_name)
     field = form.fields[field_name]
-
     # Selection field
     if hasattr(field, 'choices'):
         try:
@@ -130,12 +129,12 @@ def get_selected_values(form, field_name):
             if hasattr(field, 'null_option'):
                 # If the field has a `null_option` attribute set and it is selected,
                 # add it to the field's grouped choices.
-                if field.null_option is not None and field.null_option in filter_data:
+                if field.null_option is not None and None in filter_data:
                     grouped_choices.append((field.null_option, field.null_option))
 
             choices = dict(unpack_grouped_choices(grouped_choices))
             return [
-                label for value, label in choices.items() if str(value) in filter_data
+                label for value, label in choices.items() if str(value) in filter_data or None in filter_data
             ]
         except TypeError:
             # Field uses dynamic choices. Show all that have been populated.

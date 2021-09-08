@@ -485,5 +485,5 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
         """
         if self.null_option is not None and settings.FILTERS_NULL_CHOICE_VALUE in value:
             value = [v for v in value if v != settings.FILTERS_NULL_CHOICE_VALUE]
-            return [self.null_option, *value]
+            return [None, *value]
         return super().clean(value)
