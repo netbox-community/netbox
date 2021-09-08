@@ -478,7 +478,7 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     filter = django_filters.ModelMultipleChoiceFilter
     widget = widgets.APISelectMultiple
 
-    def clean(self, value: list[str]):
+    def clean(self, value):
         """
         When null option is enabled and "None" is sent as part of a form to be submitted, it is sent as the
         string 'null'.  This will check for that condition and gracefully handle the conversion to a NoneType.
