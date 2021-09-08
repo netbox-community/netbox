@@ -53,8 +53,8 @@ function removeColumns(event: Event): void {
 /**
  * Submit form configuration to the NetBox API.
  */
-async function submitFormConfig(formConfig: Dict<Dict>): Promise<APIResponse<APIUserConfig>> {
-  return await apiPatch<APIUserConfig>('/api/users/config/', formConfig);
+async function submitFormConfig(url: string, formConfig: Dict<Dict>): Promise<APIResponse<APIUserConfig>> {
+  return await apiPatch<APIUserConfig>(url, formConfig);
 }
 
 /**
@@ -65,6 +65,18 @@ function handleSubmit(event: Event): void {
   event.preventDefault();
 
   const element = event.currentTarget as HTMLFormElement;
+
+  // Get the API URL for submitting the form
+  const url = element.getAttribute('data-url');
+  if (url == null) {
+    const toast = createToast(
+        'danger',
+        'Error Updating Table Configuration',
+        'No API path defined for configuration form.'
+    );
+    toast.show();
+    return;
+  }
 
   // Get all the selected options from any select element in the form.
   const options = getSelectedOptions(element);
@@ -83,7 +95,7 @@ function handleSubmit(event: Event): void {
   const data = path.reduceRight<Dict<Dict>>((value, key) => ({ [key]: value }), formData);
 
   // Submit the resulting object to the API to update the user's preferences for this table.
-  submitFormConfig(data).then(res => {
+  submitFormConfig(url, data).then(res => {
     if (hasError(res)) {
       const toast = createToast('danger', 'Error Updating Table Configuration', res.error);
       toast.show();
