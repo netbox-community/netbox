@@ -4,7 +4,7 @@ import { apiGetBase, hasError, getNetboxData } from './util';
 let timeout: number = 1000;
 
 interface JobInfo {
-  id: Nullable<string>;
+  url: Nullable<string>;
   complete: boolean;
 }
 
@@ -23,15 +23,16 @@ function asyncTimeout(ms: number) {
 function getJobInfo(): JobInfo {
   let complete = false;
 
-  const id = getNetboxData('data-job-id');
-  const jobComplete = getNetboxData('data-job-complete');
+  // Determine the API URL for the job status
+  const url = getNetboxData('data-job-url');
 
   // Determine the job completion status, if present. If the job is not complete, the value will be
   // "None". Otherwise, it will be a stringified date.
+  const jobComplete = getNetboxData('data-job-complete');
   if (typeof jobComplete === 'string' && jobComplete.toLowerCase() !== 'none') {
     complete = true;
   }
-  return { id, complete };
+  return { url, complete };
 }
 
 /**
@@ -59,10 +60,10 @@ function updateLabel(status: JobStatus) {
 
 /**
  * Recursively check the job's status.
- * @param id Job ID
+ * @param url API URL for job result
  */
-async function checkJobStatus(id: string) {
-  const res = await apiGetBase<APIJobResult>(`/api/extras/job-results/${id}/`);
+async function checkJobStatus(url: string) {
+  const res = await apiGetBase<APIJobResult>(url);
   if (hasError(res)) {
     // If the response is an API error, display an error message and stop checking for job status.
     const toast = createToast('danger', 'Error', res.error);
@@ -82,17 +83,17 @@ async function checkJobStatus(id: string) {
       if (timeout < 10000) {
         timeout += 1000;
       }
-      await Promise.all([checkJobStatus(id), asyncTimeout(timeout)]);
+      await Promise.all([checkJobStatus(url), asyncTimeout(timeout)]);
     }
   }
 }
 
 function initJobs() {
-  const { id, complete } = getJobInfo();
+  const { url, complete } = getJobInfo();
 
-  if (id !== null && !complete) {
+  if (url !== null && !complete) {
     // If there is a job ID and it is not completed, check for the job's status.
-    Promise.resolve(checkJobStatus(id));
+    Promise.resolve(checkJobStatus(url));
   }
 }
 

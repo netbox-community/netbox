@@ -1,7 +1,4 @@
 import Cookie from 'cookie';
-import queryString from 'query-string';
-
-import type { Stringifiable } from 'query-string';
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 type ReqData = URLSearchParams | Dict | undefined | unknown;
@@ -107,84 +104,8 @@ function getCsrfToken(): string {
   return csrfToken;
 }
 
-/**
- * Get the NetBox `settings.BASE_PATH` from the `<html/>` element's data attributes.
- *
- * @returns If there is no `BASE_PATH` specified, the return value will be `''`.
- */ function getBasePath(): string {
-  const value = document.documentElement.getAttribute('data-netbox-base-path');
-  if (value === null) {
-    return '';
-  }
-  return value;
-}
-
-/**
- * Constrict an object from a URL query param string, with all values as an array.
- *
- * @param params URL search query string.
- * @returns Constructed query object.
- */
-function queryParamsToObject(params: string): Record<string, Stringifiable[]> {
-  const result = {} as Record<string, Stringifiable[]>;
-  const searchParams = new URLSearchParams(params);
-  for (const [key, originalValue] of searchParams.entries()) {
-    let value = [] as Stringifiable[];
-    if (key in result) {
-      value = [...value, ...result[key]];
-    }
-    if (Array.isArray(originalValue)) {
-      value = [...value, ...originalValue];
-    } else {
-      value = [...value, originalValue];
-    }
-    result[key] = value;
-  }
-  return result;
-}
-
-/**
- * Build a NetBox URL that includes `settings.BASE_PATH` and enforces leading and trailing slashes.
- *
- * @example
- * ```js
- * // With a BASE_PATH of 'netbox/'
- * const url = buildUrl('/api/dcim/devices');
- * console.log(url);
- * // => /netbox/api/dcim/devices/
- * ```
- *
- * @param path Relative path _after_ (excluding) the `BASE_PATH`.
- */
-function buildUrl(destination: string): string {
-  // Separate the path from any URL search params.
-  const [pathname, search] = destination.split(/(?=\?)/g);
-
-  // If the `origin` exists in the API path (as in the case of paginated responses), remove it.
-  const origin = new RegExp(window.location.origin, 'g');
-  const path = pathname.replaceAll(origin, '');
-
-  const basePath = getBasePath();
-
-  // Combine `BASE_PATH` with this request's path, removing _all_ slashes.
-  let combined = [...basePath.split('/'), ...path.split('/')].filter(p => p);
-
-  if (combined[0] !== '/') {
-    // Ensure the URL has a leading slash.
-    combined = ['', ...combined];
-  }
-  if (combined[combined.length - 1] !== '/') {
-    // Ensure the URL has a trailing slash.
-    combined = [...combined, ''];
-  }
-  const url = combined.join('/');
-  // Construct an object from the URL search params so it can be re-serialized with the new URL.
-  const query = queryParamsToObject(search);
-  return queryString.stringifyUrl({ url, query });
-}
-
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
-  path: string,
+  url: string,
   method: Method,
   data?: D,
 ): Promise<APIResponse<R>> {
@@ -196,7 +117,6 @@ export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
     body = JSON.stringify(data);
     headers.set('content-type', 'application/json');
   }
-  const url = buildUrl(path);
 
   const res = await fetch(url, { method, body, headers, credentials: 'same-origin' });
   const contentType = res.headers.get('Content-Type');
