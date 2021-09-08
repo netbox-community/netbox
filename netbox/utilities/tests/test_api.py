@@ -1,7 +1,8 @@
 import urllib.parse
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 
@@ -120,6 +121,54 @@ class WritableNestedSerializerTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
+
+
+class APIPaginationTestCase(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse('dcim-api:site-list')
+
+        # Create a large number of Sites for testing
+        Site.objects.bulk_create([
+            Site(name=f'Site {i}', slug=f'site-{i}') for i in range(1, 101)
+        ])
+
+    def test_default_page_size(self):
+        response = self.client.get(self.url, format='json', **self.header)
+        page_size = settings.PAGINATE_COUNT
+        self.assertLess(page_size, 100, "Default page size not sufficient for data set")
+
+        self.assertEqual(response.data['count'], 100)
+        self.assertTrue(response.data['next'].endswith(f'?limit={page_size}&offset={page_size}'))
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), page_size)
+
+    def test_custom_page_size(self):
+        response = self.client.get(f'{self.url}?limit=10', format='json', **self.header)
+
+        self.assertEqual(response.data['count'], 100)
+        self.assertTrue(response.data['next'].endswith(f'?limit=10&offset=10'))
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), 10)
+
+    @override_settings(MAX_PAGE_SIZE=20)
+    def test_max_page_size(self):
+        response = self.client.get(f'{self.url}?limit=0', format='json', **self.header)
+
+        self.assertEqual(response.data['count'], 100)
+        self.assertTrue(response.data['next'].endswith(f'?limit=20&offset=20'))
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), 20)
+
+    @override_settings(MAX_PAGE_SIZE=0)
+    def test_max_page_size_disabled(self):
+        response = self.client.get(f'{self.url}?limit=0', format='json', **self.header)
+
+        self.assertEqual(response.data['count'], 100)
+        self.assertIsNone(response.data['next'])
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), 100)
 
 
 class APIDocsTestCase(TestCase):
