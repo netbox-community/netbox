@@ -32,7 +32,7 @@
                     <table class="table table-hover">
                         {% for method, data in result.data.items %}
                             <tr>
-                                <td><code><a href="#{{ method }}">{{ method }}</a></code></td>
+                                <td class="font-monospace"><a href="#{{ method }}">{{ method }}</a></td>
                                 <td class="text-end report-stats">
                                     <span class="badge bg-success">{{ data.success }}</span>
                                     <span class="badge bg-info">{{ data.info }}</span>
