@@ -1,5 +1,13 @@
 # NetBox v3.0
 
+## v3.0.3 (FUTURE)
+
+### Bug Fixes
+
+* [#7226](https://github.com/netbox-community/netbox/issues/7226) - Exempt GraphQL API requests from CSRF inspection
+
+---
+
 ## v3.0.2 (2021-09-08)
 
 ### Bug Fixes
