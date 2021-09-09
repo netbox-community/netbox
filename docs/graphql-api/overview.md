@@ -11,7 +11,7 @@ curl -H "Authorization: Token $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json" \
 http://netbox/graphql/ \
---data '{"query": "query {circuits(status:\"active\" {cid provider {name}}}"}'
+--data '{"query": "query {circuit_list(status:\"active\") {cid provider {name}}}"}'
 ```
 
 The response will include the requested data formatted as JSON:
@@ -54,7 +54,7 @@ For more detail on constructing GraphQL queries, see the [Graphene documentation
 The GraphQL API employs the same filtering logic as the UI and REST API. Filters can be specified as key-value pairs within parentheses immediately following the query name. For example, the following will return only sites within the North Carolina region with a status of active:
 
 ```
-{"query": "query {sites(region:\"north-carolina\", status:\"active\") {name}}"}
+{"query": "query {site_list(region:\"north-carolina\", status:\"active\") {name}}"}
 ```
 
 ## Authentication
