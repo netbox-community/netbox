@@ -218,7 +218,7 @@ NetBox provides a base template to ensure a consistent user experience, which pl
 For more information on how template blocks work, consult the [Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#block).
 
 ```jinja2
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 
 {% block content %}
     {% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}
