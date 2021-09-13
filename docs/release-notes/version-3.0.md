@@ -2,6 +2,10 @@
 
 ## v3.0.3 (FUTURE)
 
+### Enhancements
+
+* [#7239](https://github.com/netbox-community/netbox/issues/7239) - Redirect global search to filtered object list when an object type is selected
+
 ### Bug Fixes
 
 * [#7167](https://github.com/netbox-community/netbox/issues/7167) - Ensure consistent font size when using monospace formatting
