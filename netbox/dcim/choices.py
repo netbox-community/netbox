@@ -761,6 +761,9 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_T3 = 't3'
     TYPE_E3 = 'e3'
 
+    # ATM/DSL
+    TYPE_XDSL = 'xdsl'
+
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
     TYPE_STACKWISE_PLUS = 'cisco-stackwise-plus'
@@ -883,6 +886,12 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_E1, 'E1 (2.048 Mbps)'),
                 (TYPE_T3, 'T3 (45 Mbps)'),
                 (TYPE_E3, 'E3 (34 Mbps)'),
+            )
+        ),
+        (
+            'ATM',
+            (
+                (TYPE_XDSL, 'xDSL'),
             )
         ),
         (

@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#6387](https://github.com/netbox-community/netbox/issues/6387) - Add xDSL interface type
 * [#7239](https://github.com/netbox-community/netbox/issues/7239) - Redirect global search to filtered object list when an object type is selected
 
 ### Bug Fixes
