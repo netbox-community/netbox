@@ -478,11 +478,11 @@ class Prefix(PrimaryModel):
         if self.mark_utilized:
             return 100
 
+        queryset = Prefix.objects.filter(
+            prefix__net_contained=str(self.prefix),
+            vrf=self.vrf
+        )
         if self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            queryset = Prefix.objects.filter(
-                prefix__net_contained=str(self.prefix),
-                vrf=self.vrf
-            )
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             utilization = int(float(child_prefixes.size) / self.prefix.size * 100)
         else:
@@ -492,6 +492,9 @@ class Prefix(PrimaryModel):
                 child_ips.add(iprange.range)
             for ip in self.get_child_ips():
                 child_ips.add(ip.address.ip)
+            for p in queryset:
+                if p.mark_utilized:
+                    child_ips.add(p.prefix)
 
             prefix_size = self.prefix.size
             if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
