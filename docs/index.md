@@ -10,7 +10,6 @@ NetBox is an infrastructure resource modeling (IRM) application designed to empo
 * **Connections** - Network, console, and power connections among devices
 * **Virtualization** - Virtual machines and clusters
 * **Data circuits** - Long-haul communications circuits and providers
-* **Secrets** - Encrypted storage of sensitive credentials
 
 ## What NetBox Is Not
 
