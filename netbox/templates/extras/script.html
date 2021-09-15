@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load log_levels %}
@@ -15,6 +15,8 @@
     <div class="text-muted">{{ script.Meta.description|render_markdown }}</div>
   </div>
 {% endblock %}
+
+{% block controls %}{% endblock %}
 
 {% block tabs %}
 <ul class="nav nav-tabs px-3">
