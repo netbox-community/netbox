@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#6387](https://github.com/netbox-community/netbox/issues/6387) - Add xDSL interface type
+* [#6988](https://github.com/netbox-community/netbox/issues/6988) - Order tenants alphabetically without regard to group assignment
 * [#7032](https://github.com/netbox-community/netbox/issues/7032) - Add URM port types
 * [#7239](https://github.com/netbox-community/netbox/issues/7239) - Redirect global search to filtered object list when an object type is selected
 
