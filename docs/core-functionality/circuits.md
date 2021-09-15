@@ -1,10 +1,10 @@
 # Circuits
 
-{!docs/models/circuits/provider.md!}
-{!docs/models/circuits/providernetwork.md!}
+{!models/circuits/provider.md!}
+{!models/circuits/providernetwork.md!}
 
 ---
 
-{!docs/models/circuits/circuit.md!}
-{!docs/models/circuits/circuittype.md!}
-{!docs/models/circuits/circuittermination.md!}
+{!models/circuits/circuit.md!}
+{!models/circuits/circuittype.md!}
+{!models/circuits/circuittermination.md!}
