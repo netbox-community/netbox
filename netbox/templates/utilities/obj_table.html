@@ -1,4 +1,5 @@
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 {% if permissions.change or permissions.delete %}
     <form method="post" class="form form-horizontal">
@@ -28,7 +29,9 @@
             </div>
         {% endif %}
 
-        {% include table_template|default:'inc/responsive_table.html' %}
+        <div class="table-responsive">
+          {% render_table table 'inc/table.html' %}
+        </div>
 
         <div class="float-start noprint">
             {% block extra_actions %}{% endblock %}
@@ -48,7 +51,9 @@
     </form>
 {% else %}
 
-    {% include table_template|default:'inc/responsive_table.html' %}
+    <div class="table-responsive">
+      {% render_table table 'inc/table.html' %}
+    </div>
 
 {% endif %}
 
