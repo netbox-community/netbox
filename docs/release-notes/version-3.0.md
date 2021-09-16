@@ -12,6 +12,7 @@
 
 ### Bug Fixes
 
+* [#5775](https://github.com/netbox-community/netbox/issues/5775) - Enable group synchronization for remote authentication backend
 * [#7167](https://github.com/netbox-community/netbox/issues/7167) - Ensure consistent font size when using monospace formatting
 * [#7226](https://github.com/netbox-community/netbox/issues/7226) - Exempt GraphQL API requests from CSRF inspection
 * [#7248](https://github.com/netbox-community/netbox/issues/7248) - Fix global search results section links
