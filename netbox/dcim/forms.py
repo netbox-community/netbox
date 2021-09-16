@@ -2202,9 +2202,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
                 'disabled-indicator': 'device',
-                'data-query-param-face': "[\"$face\"]",
-                # The UI will not sort this element's options.
-                'pre-sorted': ''
+                'data-query-param-face': "[\"$face\"]"
             }
         )
     )
