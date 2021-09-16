@@ -61,6 +61,18 @@ class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
+class ClusterTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = ClusterType
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+
+
 #
 # Cluster groups
 #
@@ -95,6 +107,18 @@ class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = ['description']
+
+
+class ClusterGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = ClusterGroup
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #

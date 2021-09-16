@@ -24,6 +24,8 @@ class ClusterTypeListView(generic.ObjectListView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
     )
+    filterset = filtersets.ClusterTypeFilterSet
+    filterset_form = forms.ClusterTypeFilterForm
     table = tables.ClusterTypeTable
 
 
@@ -86,6 +88,8 @@ class ClusterGroupListView(generic.ObjectListView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
     )
+    filterset = filtersets.ClusterGroupFilterSet
+    filterset_form = forms.ClusterGroupFilterForm
     table = tables.ClusterGroupTable
 
 

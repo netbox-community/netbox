@@ -696,6 +696,18 @@ class RackRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['color', 'description']
 
 
+class RackRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = RackRole
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+
+
 #
 # Racks
 #
@@ -1238,6 +1250,18 @@ class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = ['description']
+
+
+class ManufacturerFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = Manufacturer
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #
@@ -2074,6 +2098,18 @@ class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = ['color', 'description']
+
+
+class DeviceRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = DeviceRole
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #

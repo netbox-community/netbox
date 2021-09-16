@@ -283,6 +283,8 @@ class RoleListView(generic.ObjectListView):
         prefix_count=count_related(Prefix, 'role'),
         vlan_count=count_related(VLAN, 'role')
     )
+    filterset = filtersets.RoleFilterSet
+    filterset_form = forms.RoleFilterForm
     table = tables.RoleTable
 
 

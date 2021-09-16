@@ -440,6 +440,8 @@ class RackRoleListView(generic.ObjectListView):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
     )
+    filterset = filtersets.RackRoleFilterSet
+    filterset_form = forms.RackRoleFilterForm
     table = tables.RackRoleTable
 
 
@@ -684,6 +686,8 @@ class ManufacturerListView(generic.ObjectListView):
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
     )
+    filterset = filtersets.ManufacturerFilterSet
+    filterset_form = forms.ManufacturerFilterForm
     table = tables.ManufacturerTable
 
 
@@ -1149,6 +1153,8 @@ class DeviceRoleListView(generic.ObjectListView):
         device_count=count_related(Device, 'device_role'),
         vm_count=count_related(VirtualMachine, 'role')
     )
+    filterset = filtersets.DeviceRoleFilterSet
+    filterset_form = forms.DeviceRoleFilterForm
     table = tables.DeviceRoleTable
 
 

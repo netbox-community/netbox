@@ -144,6 +144,8 @@ class CircuitTypeListView(generic.ObjectListView):
     queryset = CircuitType.objects.annotate(
         circuit_count=count_related(Circuit, 'type')
     )
+    filterset = filtersets.CircuitTypeFilterSet
+    filterset_form = forms.CircuitTypeFilterForm
     table = tables.CircuitTypeTable
 
 
