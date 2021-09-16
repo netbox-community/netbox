@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#5775](https://github.com/netbox-community/netbox/issues/5775) - Enable synchronization of groups for remote authentication backend
 * [#6387](https://github.com/netbox-community/netbox/issues/6387) - Add xDSL interface type
 * [#6988](https://github.com/netbox-community/netbox/issues/6988) - Order tenants alphabetically without regard to group assignment
 * [#7032](https://github.com/netbox-community/netbox/issues/7032) - Add URM port types
