@@ -7,6 +7,19 @@ from utilities.tables import (
 )
 from .models import *
 
+__all__ = (
+    'ConfigContextTable',
+    'CustomFieldTable',
+    'CustomLinkTable',
+    'ExportTemplateTable',
+    'JournalEntryTable',
+    'ObjectChangeTable',
+    'ObjectJournalTable',
+    'TaggedItemTable',
+    'TagTable',
+    'WebhookTable',
+)
+
 CONFIGCONTEXT_ACTIONS = """
 {% if perms.extras.change_configcontext %}
     <a href="{% url 'extras:configcontext_edit' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil" aria-hidden="true"></i></a>

@@ -6,6 +6,14 @@ from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, Markdo
 from .models import *
 
 
+__all__ = (
+    'CircuitTable',
+    'CircuitTypeTable',
+    'ProviderTable',
+    'ProviderNetworkTable',
+)
+
+
 CIRCUITTERMINATION_LINK = """
 {% if value.site %}
   <a href="{{ value.site.get_absolute_url }}">{{ value.site }}</a>
