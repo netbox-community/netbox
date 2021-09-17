@@ -17,8 +17,9 @@
 * [#7167](https://github.com/netbox-community/netbox/issues/7167) - Ensure consistent font size when using monospace formatting
 * [#7226](https://github.com/netbox-community/netbox/issues/7226) - Exempt GraphQL API requests from CSRF inspection
 * [#7248](https://github.com/netbox-community/netbox/issues/7248) - Fix global search results section links
-* [#7279](https://github.com/netbox-community/netbox/issues/7279) - Fix exception when tracing cable with no associated path
 * [#7266](https://github.com/netbox-community/netbox/issues/7266) - Tweak font color for form field placeholder text
+* [#7279](https://github.com/netbox-community/netbox/issues/7279) - Fix exception when tracing cable with no associated path
+* [#7282](https://github.com/netbox-community/netbox/issues/7282) - Fix KeyError exception when `INSECURE_SKIP_TLS_VERIFY` is true
 
 ---
 
