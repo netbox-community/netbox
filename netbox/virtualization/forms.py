@@ -9,7 +9,7 @@ from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
-    CustomFieldModelFilterForm, CustomFieldsMixin,
+    CustomFieldModelFilterForm, CustomFieldsMixin, LocalConfigContextFilterForm,
 )
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN, VLANGroup
@@ -569,13 +569,13 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
         ]
 
 
-class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualMachineFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
     field_groups = [
         ['q', 'tag'],
         ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
         ['region_id', 'site_group_id', 'site_id'],
-        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip'],
+        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data'],
         ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
