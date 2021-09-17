@@ -21,6 +21,7 @@
 * [#7226](https://github.com/netbox-community/netbox/issues/7226) - Exempt GraphQL API requests from CSRF inspection
 * [#7248](https://github.com/netbox-community/netbox/issues/7248) - Fix global search results section links
 * [#7266](https://github.com/netbox-community/netbox/issues/7266) - Tweak font color for form field placeholder text
+* [#7273](https://github.com/netbox-community/netbox/issues/7273) - Fix natural ordering of device components in UI form fields
 * [#7279](https://github.com/netbox-community/netbox/issues/7279) - Fix exception when tracing cable with no associated path
 * [#7282](https://github.com/netbox-community/netbox/issues/7282) - Fix KeyError exception when `INSECURE_SKIP_TLS_VERIFY` is true
 
