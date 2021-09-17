@@ -171,7 +171,11 @@ class ClusterVirtualMachinesView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         virtualmachines = VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=instance)
-        virtualmachines_table = tables.VirtualMachineTable(virtualmachines, orderable=False)
+        virtualmachines_table = tables.VirtualMachineTable(
+            virtualmachines,
+            exclude=('cluster',),
+            orderable=False
+        )
 
         return {
             'virtualmachines_table': virtualmachines_table,
@@ -315,7 +319,7 @@ class VirtualMachineListView(generic.ObjectListView):
     queryset = VirtualMachine.objects.all()
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
-    table = tables.VirtualMachineDetailTable
+    table = tables.VirtualMachineTable
     template_name = 'virtualization/virtualmachine_list.html'
 
 

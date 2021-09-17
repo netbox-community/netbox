@@ -215,13 +215,6 @@ class AggregateTable(BaseTable):
         format="Y-m-d",
         verbose_name='Added'
     )
-
-    class Meta(BaseTable.Meta):
-        model = Aggregate
-        fields = ('pk', 'prefix', 'rir', 'tenant', 'date_added', 'description')
-
-
-class AggregateDetailTable(AggregateTable):
     child_count = tables.Column(
         verbose_name='Prefixes'
     )
@@ -233,7 +226,8 @@ class AggregateDetailTable(AggregateTable):
         url_name='ipam:aggregate_list'
     )
 
-    class Meta(AggregateTable.Meta):
+    class Meta(BaseTable.Meta):
+        model = Aggregate
         fields = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags')
         default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
 
@@ -332,20 +326,6 @@ class PrefixTable(BaseTable):
     mark_utilized = BooleanColumn(
         verbose_name='Marked Utilized'
     )
-
-    class Meta(BaseTable.Meta):
-        model = Prefix
-        fields = (
-            'pk', 'prefix', 'prefix_flat', 'status', 'depth', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role',
-            'is_pool', 'mark_utilized', 'description',
-        )
-        default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
-        row_attrs = {
-            'class': lambda record: 'success' if not record.pk else '',
-        }
-
-
-class PrefixDetailTable(PrefixTable):
     utilization = PrefixUtilizationColumn(
         accessor='get_utilization',
         orderable=False
@@ -354,7 +334,8 @@ class PrefixDetailTable(PrefixTable):
         url_name='ipam:prefix_list'
     )
 
-    class Meta(PrefixTable.Meta):
+    class Meta(BaseTable.Meta):
+        model = Prefix
         fields = (
             'pk', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
             'is_pool', 'mark_utilized', 'description', 'tags',
@@ -362,6 +343,9 @@ class PrefixDetailTable(PrefixTable):
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
         )
+        row_attrs = {
+            'class': lambda record: 'success' if not record.pk else '',
+        }
 
 
 #
@@ -427,25 +411,11 @@ class IPAddressTable(BaseTable):
         orderable=False,
         verbose_name='Device/VM'
     )
-
-    class Meta(BaseTable.Meta):
-        model = IPAddress
-        fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'assigned_object_parent', 'dns_name',
-            'description',
-        )
-        row_attrs = {
-            'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
-        }
-
-
-class IPAddressDetailTable(IPAddressTable):
     nat_inside = tables.Column(
         linkify=True,
         orderable=False,
         verbose_name='NAT (Inside)'
     )
-    tenant = TenantColumn()
     assigned = BooleanColumn(
         accessor='assigned_object_id',
         verbose_name='Assigned'
@@ -454,14 +424,18 @@ class IPAddressDetailTable(IPAddressTable):
         url_name='ipam:ipaddress_list'
     )
 
-    class Meta(IPAddressTable.Meta):
+    class Meta(BaseTable.Meta):
+        model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name',
-            'description', 'tags',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
+            'tags',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
         )
+        row_attrs = {
+            'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
+        }
 
 
 class IPAddressAssignTable(BaseTable):
@@ -554,29 +528,22 @@ class VLANTable(BaseTable):
     role = tables.TemplateColumn(
         template_code=VLAN_ROLE_LINK
     )
-
-    class Meta(BaseTable.Meta):
-        model = VLAN
-        fields = ('pk', 'vid', 'name', 'site', 'group', 'tenant', 'status', 'role', 'description')
-        row_attrs = {
-            'class': lambda record: 'success' if not isinstance(record, VLAN) else '',
-        }
-
-
-class VLANDetailTable(VLANTable):
     prefixes = tables.TemplateColumn(
         template_code=VLAN_PREFIXES,
         orderable=False,
         verbose_name='Prefixes'
     )
-    tenant = TenantColumn()
     tags = TagColumn(
         url_name='ipam:vlan_list'
     )
 
-    class Meta(VLANTable.Meta):
+    class Meta(BaseTable.Meta):
+        model = VLAN
         fields = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
+        row_attrs = {
+            'class': lambda record: 'success' if not isinstance(record, VLAN) else '',
+        }
 
 
 class VLANMembersTable(BaseTable):

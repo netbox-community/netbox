@@ -455,6 +455,8 @@ class RackRoleView(generic.ObjectView):
 
         racks_table = tables.RackTable(racks)
         racks_table.columns.hide('role')
+        racks_table.columns.hide('get_utilization')
+        racks_table.columns.hide('get_power_utilization')
         paginate_table(racks_table, request)
 
         return {
@@ -505,7 +507,7 @@ class RackListView(generic.ObjectListView):
     )
     filterset = filtersets.RackFilterSet
     filterset_form = forms.RackFilterForm
-    table = tables.RackDetailTable
+    table = tables.RackTable
 
 
 class RackElevationListView(generic.ObjectListView):
