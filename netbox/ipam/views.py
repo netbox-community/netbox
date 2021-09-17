@@ -155,9 +155,7 @@ class RIRView(generic.ObjectView):
         aggregates = Aggregate.objects.restrict(request.user, 'view').filter(
             rir=instance
         )
-
-        aggregates_table = tables.AggregateTable(aggregates)
-        aggregates_table.columns.hide('rir')
+        aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
         paginate_table(aggregates_table, request)
 
         return {
@@ -207,7 +205,7 @@ class AggregateListView(generic.ObjectListView):
     )
     filterset = filtersets.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
-    table = tables.AggregateDetailTable
+    table = tables.AggregateTable
 
 
 class AggregateView(generic.ObjectView):
@@ -227,7 +225,7 @@ class AggregateView(generic.ObjectView):
         if request.GET.get('show_available', 'true') == 'true':
             child_prefixes = add_available_prefixes(instance.prefix, child_prefixes)
 
-        prefix_table = tables.PrefixDetailTable(child_prefixes)
+        prefix_table = tables.PrefixTable(child_prefixes, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.columns.show('pk')
         paginate_table(prefix_table, request)
@@ -296,8 +294,7 @@ class RoleView(generic.ObjectView):
             role=instance
         )
 
-        prefixes_table = tables.PrefixTable(prefixes)
-        prefixes_table.columns.hide('role')
+        prefixes_table = tables.PrefixTable(prefixes, exclude=('role', 'utilization'))
         paginate_table(prefixes_table, request)
 
         return {
@@ -340,7 +337,7 @@ class PrefixListView(generic.ObjectListView):
     queryset = Prefix.objects.all()
     filterset = filtersets.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
-    table = tables.PrefixDetailTable
+    table = tables.PrefixTable
     template_name = 'ipam/prefix_list.html'
 
 
@@ -363,8 +360,11 @@ class PrefixView(generic.ObjectView):
         ).prefetch_related(
             'site', 'role'
         )
-        parent_prefix_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
-        parent_prefix_table.exclude = ('vrf',)
+        parent_prefix_table = tables.PrefixTable(
+            list(parent_prefixes),
+            exclude=('vrf', 'utilization'),
+            orderable=False
+        )
 
         # Duplicate prefixes table
         duplicate_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
@@ -374,8 +374,11 @@ class PrefixView(generic.ObjectView):
         ).prefetch_related(
             'site', 'role'
         )
-        duplicate_prefix_table = tables.PrefixTable(list(duplicate_prefixes), orderable=False)
-        duplicate_prefix_table.exclude = ('vrf',)
+        duplicate_prefix_table = tables.PrefixTable(
+            list(duplicate_prefixes),
+            exclude=('vrf', 'utilization'),
+            orderable=False
+        )
 
         return {
             'aggregate': aggregate,
@@ -398,7 +401,7 @@ class PrefixPrefixesView(generic.ObjectView):
         if child_prefixes and request.GET.get('show_available', 'true') == 'true':
             child_prefixes = add_available_prefixes(instance.prefix, child_prefixes)
 
-        table = tables.PrefixDetailTable(child_prefixes, user=request.user)
+        table = tables.PrefixTable(child_prefixes, user=request.user, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             table.columns.show('pk')
         paginate_table(table, request)
@@ -601,7 +604,7 @@ class IPAddressListView(generic.ObjectListView):
     queryset = IPAddress.objects.all()
     filterset = filtersets.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
-    table = tables.IPAddressDetailTable
+    table = tables.IPAddressTable
 
 
 class IPAddressView(generic.ObjectView):
@@ -615,8 +618,11 @@ class IPAddressView(generic.ObjectView):
         ).prefetch_related(
             'site', 'role'
         )
-        parent_prefixes_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
-        parent_prefixes_table.exclude = ('vrf',)
+        parent_prefixes_table = tables.PrefixTable(
+            list(parent_prefixes),
+            exclude=('vrf', 'utilization'),
+            orderable=False
+        )
 
         # Duplicate IPs table
         duplicate_ips = IPAddress.objects.restrict(request.user, 'view').filter(
@@ -767,11 +773,9 @@ class VLANGroupView(generic.ObjectView):
         vlans_count = vlans.count()
         vlans = add_available_vlans(vlans, vlan_group=instance)
 
-        vlans_table = tables.VLANDetailTable(vlans)
+        vlans_table = tables.VLANTable(vlans, exclude=('site', 'group', 'prefixes'))
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlans_table.columns.show('pk')
-        vlans_table.columns.hide('site')
-        vlans_table.columns.hide('group')
         paginate_table(vlans_table, request)
 
         # Compile permissions list for rendering the object table
@@ -828,7 +832,7 @@ class VLANListView(generic.ObjectListView):
     queryset = VLAN.objects.all()
     filterset = filtersets.VLANFilterSet
     filterset_form = forms.VLANFilterForm
-    table = tables.VLANDetailTable
+    table = tables.VLANTable
 
 
 class VLANView(generic.ObjectView):
@@ -838,8 +842,7 @@ class VLANView(generic.ObjectView):
         prefixes = Prefix.objects.restrict(request.user, 'view').filter(vlan=instance).prefetch_related(
             'vrf', 'site', 'role'
         )
-        prefix_table = tables.PrefixTable(list(prefixes), orderable=False)
-        prefix_table.exclude = ('vlan',)
+        prefix_table = tables.PrefixTable(list(prefixes), exclude=('vlan', 'utilization'), orderable=False)
 
         return {
             'prefix_table': prefix_table,

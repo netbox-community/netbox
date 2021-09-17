@@ -39,9 +39,7 @@ class ClusterTypeView(generic.ObjectView):
             device_count=count_related(Device, 'cluster'),
             vm_count=count_related(VirtualMachine, 'cluster')
         )
-
-        clusters_table = tables.ClusterTable(clusters)
-        clusters_table.columns.hide('type')
+        clusters_table = tables.ClusterTable(clusters, exclude=('type',))
         paginate_table(clusters_table, request)
 
         return {
@@ -103,9 +101,7 @@ class ClusterGroupView(generic.ObjectView):
             device_count=count_related(Device, 'cluster'),
             vm_count=count_related(VirtualMachine, 'cluster')
         )
-
-        clusters_table = tables.ClusterTable(clusters)
-        clusters_table.columns.hide('group')
+        clusters_table = tables.ClusterTable(clusters, exclude=('group',))
         paginate_table(clusters_table, request)
 
         return {
@@ -171,7 +167,11 @@ class ClusterVirtualMachinesView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         virtualmachines = VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=instance)
-        virtualmachines_table = tables.VirtualMachineTable(virtualmachines, orderable=False)
+        virtualmachines_table = tables.VirtualMachineTable(
+            virtualmachines,
+            exclude=('cluster',),
+            orderable=False
+        )
 
         return {
             'virtualmachines_table': virtualmachines_table,
@@ -315,7 +315,7 @@ class VirtualMachineListView(generic.ObjectListView):
     queryset = VirtualMachine.objects.all()
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
-    table = tables.VirtualMachineDetailTable
+    table = tables.VirtualMachineTable
     template_name = 'virtualization/virtualmachine_list.html'
 
 
@@ -430,9 +430,9 @@ class VMInterfaceView(generic.ObjectView):
         child_interfaces = VMInterface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_tables = tables.VMInterfaceTable(
             child_interfaces,
+            exclude=('virtual_machine',),
             orderable=False
         )
-        child_interfaces_tables.columns.hide('virtual_machine')
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []

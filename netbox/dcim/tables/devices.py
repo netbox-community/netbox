@@ -18,6 +18,7 @@ from .template_code import (
 )
 
 __all__ = (
+    'BaseInterfaceTable',
     'ConsolePortTable',
     'ConsoleServerPortTable',
     'DeviceBayTable',

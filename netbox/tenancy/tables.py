@@ -5,6 +5,12 @@ from utilities.tables import (
 )
 from .models import Tenant, TenantGroup
 
+__all__ = (
+    'TenantColumn',
+    'TenantGroupTable',
+    'TenantTable',
+)
+
 
 #
 # Table columns

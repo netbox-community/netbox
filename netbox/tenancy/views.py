@@ -32,9 +32,7 @@ class TenantGroupView(generic.ObjectView):
         tenants = Tenant.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-
-        tenants_table = tables.TenantTable(tenants)
-        tenants_table.columns.hide('group')
+        tenants_table = tables.TenantTable(tenants, exclude=('group',))
         paginate_table(tenants_table, request)
 
         return {

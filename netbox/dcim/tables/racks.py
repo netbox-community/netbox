@@ -10,7 +10,6 @@ from utilities.tables import (
 
 __all__ = (
     'RackTable',
-    'RackDetailTable',
     'RackReservationTable',
     'RackRoleTable',
 )
@@ -56,17 +55,6 @@ class RackTable(BaseTable):
         template_code="{{ record.u_height }}U",
         verbose_name='Height'
     )
-
-    class Meta(BaseTable.Meta):
-        model = Rack
-        fields = (
-            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
-            'width', 'u_height',
-        )
-        default_columns = ('pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height')
-
-
-class RackDetailTable(RackTable):
     comments = MarkdownColumn()
     device_count = LinkedCountColumn(
         viewname='dcim:device_list',
@@ -85,7 +73,8 @@ class RackDetailTable(RackTable):
         url_name='dcim:rack_list'
     )
 
-    class Meta(RackTable.Meta):
+    class Meta(BaseTable.Meta):
+        model = Rack
         fields = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
             'width', 'u_height', 'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'tags',

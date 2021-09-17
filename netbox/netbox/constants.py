@@ -21,7 +21,7 @@ from tenancy.tables import TenantTable
 from utilities.utils import count_related
 from virtualization.filtersets import ClusterFilterSet, VirtualMachineFilterSet
 from virtualization.models import Cluster, VirtualMachine
-from virtualization.tables import ClusterTable, VirtualMachineDetailTable
+from virtualization.tables import ClusterTable, VirtualMachineTable
 
 SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict((
@@ -130,7 +130,7 @@ SEARCH_TYPES = OrderedDict((
             'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
         ),
         'filterset': VirtualMachineFilterSet,
-        'table': VirtualMachineDetailTable,
+        'table': VirtualMachineTable,
         'url': 'virtualization:virtualmachine_list',
     }),
     # IPAM
