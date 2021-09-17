@@ -12,6 +12,7 @@
 * [#7208](https://github.com/netbox-community/netbox/issues/7208) - Add navigation breadcrumbs for custom scripts & reports
 * [#7210](https://github.com/netbox-community/netbox/issues/7210) - Add search/filter forms for all organizational models
 * [#7239](https://github.com/netbox-community/netbox/issues/7239) - Redirect global search to filtered object list when an object type is selected
+* [#7284](https://github.com/netbox-community/netbox/issues/7284) - Include comments field in table/export for all appropriate models
 
 ### Bug Fixes
 

@@ -5,7 +5,7 @@ from dcim.models import (
     Manufacturer, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+    BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
 )
 
 __all__ = (
@@ -68,6 +68,7 @@ class DeviceTypeTable(BaseTable):
         url_params={'device_type_id': 'pk'},
         verbose_name='Instances'
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='dcim:devicetype_list'
     )
@@ -76,7 +77,7 @@ class DeviceTypeTable(BaseTable):
         model = DeviceType
         fields = (
             'pk', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'instance_count', 'tags',
+            'comments', 'instance_count', 'tags',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',

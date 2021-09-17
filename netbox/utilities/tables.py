@@ -12,7 +12,6 @@ from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
 from extras.models import CustomField
-from extras.utils import FeatureQuery
 from .utils import content_type_name
 from .paginator import EnhancedPaginator, get_paginate_count
 
@@ -393,6 +392,28 @@ class UtilizationColumn(tables.TemplateColumn):
 
     def value(self, value):
         return f'{value}%'
+
+
+class MarkdownColumn(tables.TemplateColumn):
+    """
+    Render a Markdown string.
+    """
+    template_code = """
+    {% load helpers %}
+    {% if value %}
+      {{ value|render_markdown }}
+    {% else %}
+      &mdash;
+    {% endif %}
+    """
+
+    def __init__(self):
+        super().__init__(
+            template_code=self.template_code
+        )
+
+    def value(self, value):
+        return value
 
 
 #

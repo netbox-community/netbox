@@ -3,7 +3,7 @@ from django.conf import settings
 
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
-    ToggleColumn,
+    MarkdownColumn, ToggleColumn,
 )
 from .models import *
 
@@ -232,6 +232,7 @@ class JournalEntryTable(ObjectJournalTable):
         orderable=False,
         verbose_name='Object'
     )
+    comments = MarkdownColumn()
 
     class Meta(BaseTable.Meta):
         model = JournalEntry

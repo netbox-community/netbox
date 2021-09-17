@@ -1,6 +1,8 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, ButtonsColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
+)
 from .models import Tenant, TenantGroup
 
 
@@ -60,11 +62,12 @@ class TenantTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='tenancy:tenant_list'
     )
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'name', 'slug', 'group', 'description', 'tags')
+        fields = ('pk', 'name', 'slug', 'group', 'description', 'comments', 'tags')
         default_columns = ('pk', 'name', 'group', 'description')

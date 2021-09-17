@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, MarkdownColumn, TagColumn, ToggleColumn
 from .models import *
 
 
@@ -28,6 +28,7 @@ class ProviderTable(BaseTable):
         accessor=Accessor('count_circuits'),
         verbose_name='Circuits'
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='circuits:provider_list'
     )
@@ -35,7 +36,8 @@ class ProviderTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Provider
         fields = (
-            'pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count', 'tags',
+            'pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count', 'comments',
+            'tags',
         )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 
@@ -52,13 +54,14 @@ class ProviderNetworkTable(BaseTable):
     provider = tables.Column(
         linkify=True
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='circuits:providernetwork_list'
     )
 
     class Meta(BaseTable.Meta):
         model = ProviderNetwork
-        fields = ('pk', 'name', 'provider', 'description', 'tags')
+        fields = ('pk', 'name', 'provider', 'description', 'comments', 'tags')
         default_columns = ('pk', 'name', 'provider', 'description')
 
 
@@ -105,6 +108,7 @@ class CircuitTable(BaseTable):
         template_code=CIRCUITTERMINATION_LINK,
         verbose_name='Side Z'
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='circuits:circuit_list'
     )
@@ -113,7 +117,7 @@ class CircuitTable(BaseTable):
         model = Circuit
         fields = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
-            'commit_rate', 'description', 'tags',
+            'commit_rate', 'description', 'comments', 'tags',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',

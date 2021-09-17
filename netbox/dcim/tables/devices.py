@@ -9,7 +9,7 @@ from dcim.models import (
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
-    TagColumn, ToggleColumn,
+    MarkdownColumn, TagColumn, ToggleColumn,
 )
 from .template_code import (
     CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, DEVICEBAY_BUTTONS, DEVICEBAY_STATUS,
@@ -187,6 +187,7 @@ class DeviceTable(BaseTable):
     vc_priority = tables.Column(
         verbose_name='VC Priority'
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='dcim:device_list'
     )
@@ -196,7 +197,7 @@ class DeviceTable(BaseTable):
         fields = (
             'pk', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
             'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'tags',
+            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
