@@ -24,6 +24,7 @@
 * [#7273](https://github.com/netbox-community/netbox/issues/7273) - Fix natural ordering of device components in UI form fields
 * [#7279](https://github.com/netbox-community/netbox/issues/7279) - Fix exception when tracing cable with no associated path
 * [#7282](https://github.com/netbox-community/netbox/issues/7282) - Fix KeyError exception when `INSECURE_SKIP_TLS_VERIFY` is true
+* [#7298](https://github.com/netbox-community/netbox/issues/7298) - Restore missing object names from applied object list filters
 
 ---
 

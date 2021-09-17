@@ -411,10 +411,10 @@ def applied_filters(form, query_params):
     Display the active filters for a given filter form.
     """
     form.is_valid()
-    querydict = query_params.copy()
 
     applied_filters = []
     for filter_name in form.changed_data:
+        querydict = query_params.copy()
         if filter_name not in querydict:
             continue
 
