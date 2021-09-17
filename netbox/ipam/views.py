@@ -155,10 +155,7 @@ class RIRView(generic.ObjectView):
         aggregates = Aggregate.objects.restrict(request.user, 'view').filter(
             rir=instance
         )
-
-        aggregates_table = tables.AggregateTable(aggregates)
-        aggregates_table.columns.hide('rir')
-        aggregates_table.columns.hide('utilization')
+        aggregates_table = tables.AggregateTable(aggregates, exclude=('rir', 'utilization'))
         paginate_table(aggregates_table, request)
 
         return {
