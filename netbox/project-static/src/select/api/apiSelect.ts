@@ -150,13 +150,6 @@ export class APISelect {
   private more: Nullable<string> = null;
 
   /**
-   * This element's options come from the server pre-sorted and should not be sorted client-side.
-   * Determined by the existence of the `pre-sorted` attribute on the base `<select/>` element, or
-   * by existence of specific fields such as `_depth`.
-   */
-  private preSorted: boolean = false;
-
-  /**
    * Array of options values which should be considered disabled or static.
    */
   private disabledOptions: Array<string> = [];
@@ -170,10 +163,6 @@ export class APISelect {
     // Initialize readonly properties.
     this.base = base;
     this.name = base.name;
-
-    if (base.getAttribute('pre-sorted') !== null) {
-      this.preSorted = true;
-    }
 
     if (hasUrl(base)) {
       const url = base.getAttribute('data-url') as string;
@@ -294,21 +283,13 @@ export class APISelect {
   }
 
   /**
-   * Sort incoming options by label and apply the new options to both the SlimSelect instance and
-   * this manager's state. If the `preSorted` attribute exists on the base `<select/>` element,
-   * the options will *not* be sorted.
+   * Apply new options to both the SlimSelect instance and this manager's state.
    */
   private set options(optionsIn: Option[]) {
     let newOptions = optionsIn;
     // Ensure null option is present, if it exists.
     if (this.nullOption !== null) {
       newOptions = [this.nullOption, ...newOptions];
-    }
-    // Sort options unless this element is pre-sorted.
-    if (!this.preSorted) {
-      newOptions = newOptions.sort((a, b) =>
-        a.text.toLowerCase() > b.text.toLowerCase() ? 1 : -1,
-      );
     }
     // Deduplicate options each time they're set.
     const deduplicated = uniqueByProperty(newOptions, 'value');
@@ -471,9 +452,6 @@ export class APISelect {
 
       if (typeof result._depth === 'number' && result._depth > 0) {
         // If the object has a `_depth` property, indent its display text.
-        if (!this.preSorted) {
-          this.preSorted = true;
-        }
         text = `<span class="depth">${'─'.repeat(result._depth)}&nbsp;</span>${text}`;
       }
       const data = {} as Record<string, string>;
