@@ -11,6 +11,7 @@ from django_tables2 import RequestConfig
 from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
+from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from .utils import content_type_name
 from .paginator import EnhancedPaginator, get_paginate_count
@@ -344,11 +345,15 @@ class CustomFieldColumn(tables.Column):
     """
     Display custom fields in the appropriate format.
     """
+
     def __init__(self, customfield, *args, **kwargs):
         self.customfield = customfield
         kwargs['accessor'] = Accessor(f'custom_field_data__{customfield.name}')
         if 'verbose_name' not in kwargs:
             kwargs['verbose_name'] = customfield.label or customfield.name
+
+        linkify = bool(customfield.type == CustomFieldTypeChoices.TYPE_URL)
+        kwargs.setdefault('linkify', linkify)
 
         super().__init__(*args, **kwargs)
 
