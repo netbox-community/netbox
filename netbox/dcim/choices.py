@@ -761,6 +761,9 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_T3 = 't3'
     TYPE_E3 = 'e3'
 
+    # ATM/DSL
+    TYPE_XDSL = 'xdsl'
+
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
     TYPE_STACKWISE_PLUS = 'cisco-stackwise-plus'
@@ -886,6 +889,12 @@ class InterfaceTypeChoices(ChoiceSet):
             )
         ),
         (
+            'ATM',
+            (
+                (TYPE_XDSL, 'xDSL'),
+            )
+        ),
+        (
             'Stacking',
             (
                 (TYPE_STACKWISE, 'Cisco StackWise'),
@@ -958,6 +967,9 @@ class PortTypeChoices(ChoiceSet):
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
     TYPE_SN = 'sn'
+    TYPE_URM_P2 = 'urm-p2'
+    TYPE_URM_P4 = 'urm-p4'
+    TYPE_URM_P8 = 'urm-p8'
 
     CHOICES = (
         (
@@ -998,6 +1010,9 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_ST, 'ST'),
                 (TYPE_CS, 'CS'),
                 (TYPE_SN, 'SN'),
+                (TYPE_URM_P2, 'URM-P2'),
+                (TYPE_URM_P4, 'URM-P4'),
+                (TYPE_URM_P8, 'URM-P8'),
                 (TYPE_SPLICE, 'Splice'),
             )
         )

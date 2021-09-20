@@ -122,28 +122,32 @@ def get_selected_values(form, field_name):
         form.is_valid()
     filter_data = form.cleaned_data.get(field_name)
     field = form.fields[field_name]
-    # Selection field
-    if hasattr(field, 'choices'):
-        try:
-            choices = unpack_grouped_choices(field.choices)
-
-            if hasattr(field, 'null_option'):
-                # If the field has a `null_option` attribute set and it is selected,
-                # add it to the field's grouped choices.
-                if field.null_option is not None and None in filter_data:
-                    choices.append((settings.FILTERS_NULL_CHOICE_VALUE, field.null_option))
-
-            return [
-                label for value, label in choices if str(value) in filter_data or None in filter_data
-            ]
-        except TypeError:
-            # Field uses dynamic choices. Show all that have been populated.
-            return [
-                subwidget.choice_label for subwidget in form[field_name].subwidgets
-            ]
 
     # Non-selection field
-    return [str(filter_data)]
+    if not hasattr(field, 'choices'):
+        return [str(filter_data)]
+
+    # Get choice labels
+    if type(field.choices) is forms.models.ModelChoiceIterator:
+        # Field uses dynamic choices: show all that have been populated on the widget
+        values = [
+            subwidget.choice_label for subwidget in form[field_name].subwidgets
+        ]
+
+    else:
+        # Static selection field
+        choices = unpack_grouped_choices(field.choices)
+        values = [
+            label for value, label in choices if str(value) in filter_data or None in filter_data
+        ]
+
+    if hasattr(field, 'null_option'):
+        # If the field has a `null_option` attribute set and it is selected,
+        # add it to the field's grouped choices.
+        if field.null_option is not None and None in filter_data:
+            values.append(field.null_option)
+
+    return values
 
 
 def add_blank_choice(choices):

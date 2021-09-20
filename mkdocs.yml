@@ -3,9 +3,6 @@ site_dir: netbox/project-static/docs
 site_url: https://netbox.readthedocs.io/
 repo_name: netbox-community/netbox
 repo_url: https://github.com/netbox-community/netbox
-python:
-    install:
-        - requirements: docs/requirements.txt
 theme:
   name: material
   icon:
@@ -24,13 +21,14 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/netbox-community/netbox
     - icon: fontawesome/brands/slack
-      link: https://slack.netbox.dev
+      link: https://netdev.chat/
 extra_css:
     - extra.css
 markdown_extensions:
     - admonition
     - attr_list
     - markdown_include.include:
+        base_path: 'docs/'
         headingOffset: 1
     - pymdownx.emoji:
         emoji_index: !!python/name:materialx.emoji.twemoji

@@ -3,7 +3,8 @@ from django.conf import settings
 from dcim.tables.devices import BaseInterfaceTable
 from tenancy.tables import TenantColumn
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, MarkdownColumn, TagColumn,
+    ToggleColumn,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -11,11 +12,12 @@ __all__ = (
     'ClusterTable',
     'ClusterGroupTable',
     'ClusterTypeTable',
-    'VirtualMachineDetailTable',
     'VirtualMachineTable',
     'VirtualMachineVMInterfaceTable',
     'VMInterfaceTable',
 )
+
+PRIMARY_IP_ORDERING = ('primary_ip4', 'primary_ip6') if settings.PREFER_IPV4 else ('primary_ip6', 'primary_ip4')
 
 VMINTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress %}
@@ -91,13 +93,14 @@ class ClusterTable(BaseTable):
         url_params={'cluster_id': 'pk'},
         verbose_name='VMs'
     )
+    comments = MarkdownColumn()
     tags = TagColumn(
         url_name='virtualization:cluster_list'
     )
 
     class Meta(BaseTable.Meta):
         model = Cluster
-        fields = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count', 'tags')
+        fields = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'device_count', 'vm_count', 'tags')
         default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
 
 
@@ -116,13 +119,7 @@ class VirtualMachineTable(BaseTable):
     )
     role = ColoredLabelColumn()
     tenant = TenantColumn()
-
-    class Meta(BaseTable.Meta):
-        model = VirtualMachine
-        fields = ('pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk')
-
-
-class VirtualMachineDetailTable(VirtualMachineTable):
+    comments = MarkdownColumn()
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'
@@ -131,18 +128,11 @@ class VirtualMachineDetailTable(VirtualMachineTable):
         linkify=True,
         verbose_name='IPv6 Address'
     )
-    if settings.PREFER_IPV4:
-        primary_ip = tables.Column(
-            linkify=True,
-            order_by=('primary_ip4', 'primary_ip6'),
-            verbose_name='IP Address'
-        )
-    else:
-        primary_ip = tables.Column(
-            linkify=True,
-            order_by=('primary_ip6', 'primary_ip4'),
-            verbose_name='IP Address'
-        )
+    primary_ip = tables.Column(
+        linkify=True,
+        order_by=PRIMARY_IP_ORDERING,
+        verbose_name='IP Address'
+    )
     tags = TagColumn(
         url_name='virtualization:virtualmachine_list'
     )
@@ -151,7 +141,7 @@ class VirtualMachineDetailTable(VirtualMachineTable):
         model = VirtualMachine
         fields = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'primary_ip4',
-            'primary_ip6', 'primary_ip', 'tags',
+            'primary_ip6', 'primary_ip', 'comments', 'tags',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',

@@ -3,9 +3,22 @@ from django.conf import settings
 
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ContentTypeColumn, ContentTypesColumn,
-    ToggleColumn,
+    MarkdownColumn, ToggleColumn,
 )
 from .models import *
+
+__all__ = (
+    'ConfigContextTable',
+    'CustomFieldTable',
+    'CustomLinkTable',
+    'ExportTemplateTable',
+    'JournalEntryTable',
+    'ObjectChangeTable',
+    'ObjectJournalTable',
+    'TaggedItemTable',
+    'TagTable',
+    'WebhookTable',
+)
 
 CONFIGCONTEXT_ACTIONS = """
 {% if perms.extras.change_configcontext %}
@@ -232,6 +245,7 @@ class JournalEntryTable(ObjectJournalTable):
         orderable=False,
         verbose_name='Object'
     )
+    comments = MarkdownColumn()
 
     class Meta(BaseTable.Meta):
         model = JournalEntry

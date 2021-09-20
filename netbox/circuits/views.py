@@ -34,9 +34,7 @@ class ProviderView(generic.ObjectView):
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         )
-
-        circuits_table = tables.CircuitTable(circuits)
-        circuits_table.columns.hide('provider')
+        circuits_table = tables.CircuitTable(circuits, exclude=('provider',))
         paginate_table(circuits_table, request)
 
         return {
@@ -97,10 +95,7 @@ class ProviderNetworkView(generic.ObjectView):
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         )
-
         circuits_table = tables.CircuitTable(circuits)
-        circuits_table.columns.hide('termination_a')
-        circuits_table.columns.hide('termination_z')
         paginate_table(circuits_table, request)
 
         return {
@@ -144,6 +139,8 @@ class CircuitTypeListView(generic.ObjectListView):
     queryset = CircuitType.objects.annotate(
         circuit_count=count_related(Circuit, 'type')
     )
+    filterset = filtersets.CircuitTypeFilterSet
+    filterset_form = forms.CircuitTypeFilterForm
     table = tables.CircuitTypeTable
 
 
@@ -151,12 +148,8 @@ class CircuitTypeView(generic.ObjectView):
     queryset = CircuitType.objects.all()
 
     def get_extra_context(self, request, instance):
-        circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            type=instance
-        )
-
-        circuits_table = tables.CircuitTable(circuits)
-        circuits_table.columns.hide('type')
+        circuits = Circuit.objects.restrict(request.user, 'view').filter(type=instance)
+        circuits_table = tables.CircuitTable(circuits, exclude=('type',))
         paginate_table(circuits_table, request)
 
         return {

@@ -256,7 +256,17 @@ class RIRBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['is_private', 'description']
 
 
-class RIRFilterForm(BootstrapMixin, forms.Form):
+class RIRFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = RIR
+    field_groups = [
+        ['q'],
+        ['is_private'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     is_private = forms.NullBooleanField(
         required=False,
         label=_('Private'),
@@ -411,6 +421,18 @@ class RoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = ['description']
+
+
+class RoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = Role
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #
@@ -1460,11 +1482,12 @@ class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['site', 'description']
 
 
-class VLANGroupFilterForm(BootstrapMixin, forms.Form):
+class VLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     field_groups = [
         ['q'],
         ['region', 'sitegroup', 'site', 'location', 'rack']
     ]
+    model = VLANGroup
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),

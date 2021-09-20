@@ -25,7 +25,7 @@ A cable may be traced from either of its endpoints by clicking the "trace" butto
 
 In the example below, three individual cables comprise a path between devices A and D:
 
-![Cable path](../../media/models/dcim_cable_trace.png)
+![Cable path](/media/models/dcim_cable_trace.png)
 
 Traced from Interface 1 on Device A, NetBox will show the following path:
 

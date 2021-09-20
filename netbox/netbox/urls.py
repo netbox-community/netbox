@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include
 from django.urls import path, re_path
+from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -63,7 +64,7 @@ _patterns = [
     re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(), name='schema_swagger'),
 
     # GraphQL
-    path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema), name='graphql'),
+    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema)), name='graphql'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),

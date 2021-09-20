@@ -5,7 +5,10 @@
 
 {% block content %}
     <div class="row">
+
+        {# Cable trace SVG & options #}
         <div class="col col-md-5">
+          {% if path %}
             <div class="text-center my-3">
                 <object data="{{ svg_url }}" class="rack_elevation"></object>
                 <a class="btn btn-outline-primary btn-sm my-3" href="{{ svg_url }}">
@@ -51,9 +54,15 @@
                     {% endif %}
                 {% endwith %}
             </div>
+          {% else %}
+            <h3 class="text-center text-muted my-3">
+              No paths found
+            </h3>
+          {% endif %}
         </div>
-        <div class="col col-md-7">
 
+        {# Related paths #}
+        <div class="col col-md-7">
             <div class="card">
                 <h5 class="card-header">
                   Related Paths
@@ -95,7 +104,7 @@
                     </table>
                 </div>
             </div>
-
         </div>
+
     </div>
 {% endblock %}

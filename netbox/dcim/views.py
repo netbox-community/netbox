@@ -131,8 +131,7 @@ class RegionView(generic.ObjectView):
         sites = Site.objects.restrict(request.user, 'view').filter(
             region=instance
         )
-        sites_table = tables.SiteTable(sites)
-        sites_table.columns.hide('region')
+        sites_table = tables.SiteTable(sites, exclude=('region',))
         paginate_table(sites_table, request)
 
         return {
@@ -216,8 +215,7 @@ class SiteGroupView(generic.ObjectView):
         sites = Site.objects.restrict(request.user, 'view').filter(
             group=instance
         )
-        sites_table = tables.SiteTable(sites)
-        sites_table.columns.hide('group')
+        sites_table = tables.SiteTable(sites, exclude=('group',))
         paginate_table(sites_table, request)
 
         return {
@@ -440,6 +438,8 @@ class RackRoleListView(generic.ObjectListView):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
     )
+    filterset = filtersets.RackRoleFilterSet
+    filterset_form = forms.RackRoleFilterForm
     table = tables.RackRoleTable
 
 
@@ -451,8 +451,7 @@ class RackRoleView(generic.ObjectView):
             role=instance
         )
 
-        racks_table = tables.RackTable(racks)
-        racks_table.columns.hide('role')
+        racks_table = tables.RackTable(racks, exclude=('role', 'get_utilization', 'get_power_utilization'))
         paginate_table(racks_table, request)
 
         return {
@@ -503,7 +502,7 @@ class RackListView(generic.ObjectListView):
     )
     filterset = filtersets.RackFilterSet
     filterset_form = forms.RackFilterForm
-    table = tables.RackDetailTable
+    table = tables.RackTable
 
 
 class RackElevationListView(generic.ObjectListView):
@@ -684,6 +683,8 @@ class ManufacturerListView(generic.ObjectListView):
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
     )
+    filterset = filtersets.ManufacturerFilterSet
+    filterset_form = forms.ManufacturerFilterForm
     table = tables.ManufacturerTable
 
 
@@ -700,8 +701,7 @@ class ManufacturerView(generic.ObjectView):
             manufacturer=instance
         )
 
-        devicetypes_table = tables.DeviceTypeTable(devicetypes)
-        devicetypes_table.columns.hide('manufacturer')
+        devicetypes_table = tables.DeviceTypeTable(devicetypes, exclude=('manufacturer',))
         paginate_table(devicetypes_table, request)
 
         return {
@@ -1149,6 +1149,8 @@ class DeviceRoleListView(generic.ObjectListView):
         device_count=count_related(Device, 'device_role'),
         vm_count=count_related(VirtualMachine, 'role')
     )
+    filterset = filtersets.DeviceRoleFilterSet
+    filterset_form = forms.DeviceRoleFilterForm
     table = tables.DeviceRoleTable
 
 
@@ -1159,9 +1161,7 @@ class DeviceRoleView(generic.ObjectView):
         devices = Device.objects.restrict(request.user, 'view').filter(
             device_role=instance
         )
-
-        devices_table = tables.DeviceTable(devices)
-        devices_table.columns.hide('device_role')
+        devices_table = tables.DeviceTable(devices, exclude=('device_role',))
         paginate_table(devices_table, request)
 
         return {
@@ -1225,9 +1225,7 @@ class PlatformView(generic.ObjectView):
         devices = Device.objects.restrict(request.user, 'view').filter(
             platform=instance
         )
-
-        devices_table = tables.DeviceTable(devices)
-        devices_table.columns.hide('platform')
+        devices_table = tables.DeviceTable(devices, exclude=('platform',))
         paginate_table(devices_table, request)
 
         return {
@@ -1872,9 +1870,9 @@ class InterfaceView(generic.ObjectView):
         child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_tables = tables.InterfaceTable(
             child_interfaces,
+            exclude=('device', 'parent'),
             orderable=False
         )
-        child_interfaces_tables.columns.hide('device')
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
@@ -2410,6 +2408,12 @@ class PathTraceView(generic.ObjectView):
                 path = CablePath.objects.get(pk=path_id)
             else:
                 path = related_paths.first()
+
+        # No paths found
+        if path is None:
+            return {
+                'path': None
+            }
 
         # Get the total length of the cable and whether the length is definitive (fully defined)
         total_length, is_definitive = path.get_total_length() if path else (None, False)

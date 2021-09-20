@@ -696,6 +696,18 @@ class RackRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['color', 'description']
 
 
+class RackRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = RackRole
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+
+
 #
 # Racks
 #
@@ -1238,6 +1250,18 @@ class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = ['description']
+
+
+class ManufacturerFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = Manufacturer
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #
@@ -2076,6 +2100,18 @@ class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['color', 'description']
 
 
+class DeviceRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = DeviceRole
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+
+
 #
 # Platforms
 #
@@ -2202,9 +2238,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
                 'disabled-indicator': 'device',
-                'data-query-param-face': "[\"$face\"]",
-                # The UI will not sort this element's options.
-                'pre-sorted': ''
+                'data-query-param-face': "[\"$face\"]"
             }
         )
     )

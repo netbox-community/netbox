@@ -1,5 +1,6 @@
 {% extends 'virtualization/cluster/base.html' %}
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
 <div class="row">
@@ -8,8 +9,8 @@
       <h5 class="card-header">
         Virtual Machines
       </h5>
-      <div class="card-body">
-        {% include 'inc/responsive_table.html' with table=virtualmachines_table %}
+      <div class="card-body table-responsive">
+        {% render_table virtualmachines_table 'inc/table.html' %}
       </div>
     </div>
   </div>

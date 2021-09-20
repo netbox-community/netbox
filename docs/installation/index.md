@@ -13,7 +13,7 @@ The following sections detail how to set up a new instance of NetBox:
 
 The video below demonstrates the installation of NetBox v2.10.3 on Ubuntu 20.04 for your reference.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/dFANGlxXEng" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/7Fpd2-q9_28" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Requirements
 

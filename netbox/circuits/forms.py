@@ -266,6 +266,18 @@ class CircuitTypeCSVForm(CustomFieldModelCSVForm):
         }
 
 
+class CircuitTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = CircuitType
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+
+
 #
 # Circuits
 #

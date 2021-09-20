@@ -71,8 +71,8 @@
               <i class="mdi mdi-clipboard-clock"></i>
               <span class="ms-1">Change Log</span>
             </h6>
-            <div class="card-body">
-              {% include 'inc/responsive_table.html' with table=changelog_table %}
+            <div class="card-body table-responsive">
+              {% render_table changelog_table 'inc/table.html' %}
             </div>
           </div>
         </div>

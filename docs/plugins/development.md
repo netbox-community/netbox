@@ -17,12 +17,12 @@ However, keep in mind that each piece of functionality is entirely optional. For
 
 ## Initial Setup
 
-## Plugin Structure
+### Plugin Structure
 
 Although the specific structure of a plugin is largely left to the discretion of its authors, a typical NetBox plugin looks something like this:
 
 ```no-highlight
-plugin_name/
+project-name/
   - plugin_name/
     - templates/
       - plugin_name/
@@ -38,13 +38,13 @@ plugin_name/
   - setup.py
 ```
 
-The top level is the project root. Immediately within the root should exist several items:
+The top level is the project root, which can have any name that you like. Immediately within the root should exist several items:
 
 * `setup.py` - This is a standard installation script used to install the plugin package within the Python environment.
 * `README` - A brief introduction to your plugin, how to install and configure it, where to find help, and any other pertinent information. It is recommended to write README files using a markup language such as Markdown.
-* The plugin source directory, with the same name as your plugin.
+* The plugin source directory, with the same name as your plugin. This must be a valid Python package name (e.g. no spaces or hyphens).
 
-The plugin source directory contains all of the actual Python code and other resources used by your plugin. Its structure is left to the author's discretion, however it is recommended to follow best practices as outlined in the [Django documentation](https://docs.djangoproject.com/en/stable/intro/reusable-apps/). At a minimum, this directory **must** contain an `__init__.py` file containing an instance of NetBox's `PluginConfig` class.
+The plugin source directory contains all the actual Python code and other resources used by your plugin. Its structure is left to the author's discretion, however it is recommended to follow best practices as outlined in the [Django documentation](https://docs.djangoproject.com/en/stable/intro/reusable-apps/). At a minimum, this directory **must** contain an `__init__.py` file containing an instance of NetBox's `PluginConfig` class.
 
 ### Create setup.py
 
@@ -117,6 +117,21 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `menu_items` | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`) |
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
+
+### Create a Virtual Environment
+
+It is strongly recommended to create a Python [virtual environment](https://docs.python.org/3/tutorial/venv.html) specific to your plugin. This will afford you complete control over the installed versions of all dependencies and avoid conflicting with any system packages. This environment can live wherever you'd like, however it should be excluded from revision control. (A popular convention is to keep all virtual environments in the user's home directory, e.g. `~/.virtualenvs/`.)
+
+```shell
+python3 -m venv /path/to/my/venv
+```
+
+You can make NetBox available within this environment by creating a path file pointing to its location. This will add NetBox to the Python path upon activation. (Be sure to adjust the command below to specify your actual virtual environment path, Python version, and NetBox installation.)
+
+```shell
+cd $VENV/lib/python3.7/site-packages/
+echo /opt/netbox/netbox > netbox.pth
+```
 
 ### Install the Plugin for Development
 
@@ -218,7 +233,7 @@ NetBox provides a base template to ensure a consistent user experience, which pl
 For more information on how template blocks work, consult the [Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#block).
 
 ```jinja2
-{% extends 'base.html' %}
+{% extends 'base/layout.html' %}
 
 {% block content %}
     {% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}

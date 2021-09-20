@@ -19,7 +19,7 @@ $spacing-s: $input-padding-x;
   --nbx-select-option-selected-bg: #{$gray-300};
   --nbx-select-option-hover-bg: #{$blue};
   --nbx-select-option-hover-color: #{$white};
-  --nbx-select-placeholder-color: #{$gray-600};
+  --nbx-select-placeholder-color: #{$gray-500};
   --nbx-select-value-color: #{$white};
   &[data-netbox-color-mode='dark'] {
     // Dark Mode Variables.
@@ -27,7 +27,7 @@ $spacing-s: $input-padding-x;
     --nbx-select-option-selected-bg: #{$gray-500};
     --nbx-select-option-hover-bg: #{$blue-200};
     --nbx-select-option-hover-color: #{color-contrast($blue-200)};
-    --nbx-select-placeholder-color: #{$gray-500};
+    --nbx-select-placeholder-color: #{$gray-700};
     --nbx-select-value-color: #{$black};
   }
 }

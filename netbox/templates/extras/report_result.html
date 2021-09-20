@@ -2,15 +2,13 @@
 {% load helpers %}
 {% load static %}
 
-{% block title %}{{ report.name }} <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>{% endblock %}
-
 {% block head %}
 <script src="{% static 'jobs.js' %}?v{{ settings.VERSION }}"
         onerror="window.location='{% url 'media_failure' %}?filename=jobs.js'"></script>
 {% endblock %}
 
-{% block content %}
-<div class="row">
+{% block content-wrapper %}
+<div class="row px-3">
     <div class="col col-md-12">
         <p>
             Run: <strong>{{ result.created|annotated_date }}</strong>
@@ -21,7 +19,7 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             {% endif %}
-            
+            <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
         </p>
         {% if result.completed %}
             <div class="card">
@@ -32,7 +30,7 @@
                     <table class="table table-hover">
                         {% for method, data in result.data.items %}
                             <tr>
-                                <td><code><a href="#{{ method }}">{{ method }}</a></code></td>
+                                <td class="font-monospace"><a href="#{{ method }}">{{ method }}</a></td>
                                 <td class="text-end report-stats">
                                     <span class="badge bg-success">{{ data.success }}</span>
                                     <span class="badge bg-info">{{ data.info }}</span>

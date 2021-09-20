@@ -26,7 +26,6 @@ from ipam.models import Aggregate, IPAddress, IPRange, Prefix, VLAN, VRF
 from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from netbox.forms import SearchForm
 from tenancy.models import Tenant
-from utilities.tables import paginate_table
 from virtualization.models import Cluster, VirtualMachine
 
 
@@ -154,26 +153,18 @@ class HomeView(View):
 class SearchView(View):
 
     def get(self, request):
-
-        # No query
-        if 'q' not in request.GET:
-            return render(request, 'search.html', {
-                'form': SearchForm(),
-            })
-
         form = SearchForm(request.GET)
         results = []
 
         if form.is_valid():
 
+            # If an object type has been specified, redirect to the dedicated view for it
             if form.cleaned_data['obj_type']:
-                # Searching for a single type of object
-                obj_types = [form.cleaned_data['obj_type']]
-            else:
-                # Searching all object types
-                obj_types = SEARCH_TYPES.keys()
+                object_type = form.cleaned_data['obj_type']
+                url = reverse(SEARCH_TYPES[object_type]['url'])
+                return redirect(f"{url}?q={form.cleaned_data['q']}")
 
-            for obj_type in obj_types:
+            for obj_type in SEARCH_TYPES.keys():
 
                 queryset = SEARCH_TYPES[obj_type]['queryset'].restrict(request.user, 'view')
                 filterset = SEARCH_TYPES[obj_type]['filterset']

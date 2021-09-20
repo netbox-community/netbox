@@ -104,7 +104,7 @@ Once you have created a report, it will appear in the reports list. Initially, r
 !!! note
     To run a report, a user must be assigned the `extras.run_report` permission. This is achieved by assigning the user (or group) a permission on the Report object and specifying the `run` action in the admin UI as shown below.
 
-    ![Adding the run action to a permission](../../media/admin_ui_run_permission.png)
+    ![Adding the run action to a permission](/media/admin_ui_run_permission.png)
 
 ### Via the Web UI
 

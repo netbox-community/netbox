@@ -1,5 +1,6 @@
 {% extends 'virtualization/cluster/base.html' %}
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
 <div class="row">
@@ -10,8 +11,8 @@
       </h5>
       <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
       {% csrf_token %}
-      <div class="card-body">
-        {% include 'inc/responsive_table.html' with table=devices_table %}
+      <div class="card-body table-responsive">
+        {% render_table devices_table 'inc/table.html' %}
       </div>
       {% if perms.virtualization.change_cluster %}
         <div class="card-footer noprint">

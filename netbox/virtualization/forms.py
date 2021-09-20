@@ -9,7 +9,7 @@ from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
-    CustomFieldModelFilterForm, CustomFieldsMixin,
+    CustomFieldModelFilterForm, CustomFieldsMixin, LocalConfigContextFilterForm,
 )
 from extras.models import Tag
 from ipam.models import IPAddress, VLAN, VLANGroup
@@ -61,6 +61,18 @@ class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
+class ClusterTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = ClusterType
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+
+
 #
 # Cluster groups
 #
@@ -95,6 +107,18 @@ class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = ['description']
+
+
+class ClusterGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = ClusterGroup
+    field_groups = [
+        ['q'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
 
 
 #
@@ -545,13 +569,13 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
         ]
 
 
-class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualMachineFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
     field_groups = [
         ['q', 'tag'],
         ['cluster_group_id', 'cluster_type_id', 'cluster_id'],
         ['region_id', 'site_group_id', 'site_id'],
-        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip'],
+        ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data'],
         ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(

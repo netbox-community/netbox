@@ -1,10 +1,10 @@
 # Virtualization
 
-{!docs/models/virtualization/cluster.md!}
-{!docs/models/virtualization/clustertype.md!}
-{!docs/models/virtualization/clustergroup.md!}
+{!models/virtualization/cluster.md!}
+{!models/virtualization/clustertype.md!}
+{!models/virtualization/clustergroup.md!}
 
 ---
 
-{!docs/models/virtualization/virtualmachine.md!}
-{!docs/models/virtualization/vminterface.md!}
+{!models/virtualization/virtualmachine.md!}
+{!models/virtualization/vminterface.md!}

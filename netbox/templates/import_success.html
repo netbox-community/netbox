@@ -1,9 +1,12 @@
 {% extends 'base/layout.html' %}
+{% load render_table from django_tables2 %}
 
 {% block title %}Import Completed{% endblock %}
 
 {% block content %}
-    {% include 'inc/responsive_table.html' %}
+    <div class="table-responsive">
+        {% render_table table 'inc/table.html' %}
+    </div>
     {% if return_url %}
         <a href="{{ return_url }}" class="btn btn-outline-dark">View All</a>
     {% endif %}

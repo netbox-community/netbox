@@ -1,7 +1,7 @@
 # Device Types
 
-{!docs/models/dcim/devicetype.md!}
-{!docs/models/dcim/manufacturer.md!}
+{!models/dcim/devicetype.md!}
+{!models/dcim/manufacturer.md!}
 
 ---
 
@@ -30,11 +30,11 @@ Once component templates have been created, every new device that you create as 
 !!! note
     Assignment of components from templates occurs only at the time of device creation. If you modify the templates of a device type, it will not affect devices which have already been created. However, you always have the option of adding, modifying, or deleting components on existing devices.
 
-{!docs/models/dcim/consoleporttemplate.md!}
-{!docs/models/dcim/consoleserverporttemplate.md!}
-{!docs/models/dcim/powerporttemplate.md!}
-{!docs/models/dcim/poweroutlettemplate.md!}
-{!docs/models/dcim/interfacetemplate.md!}
-{!docs/models/dcim/frontporttemplate.md!}
-{!docs/models/dcim/rearporttemplate.md!}
-{!docs/models/dcim/devicebaytemplate.md!}
+{!models/dcim/consoleporttemplate.md!}
+{!models/dcim/consoleserverporttemplate.md!}
+{!models/dcim/powerporttemplate.md!}
+{!models/dcim/poweroutlettemplate.md!}
+{!models/dcim/interfacetemplate.md!}
+{!models/dcim/frontporttemplate.md!}
+{!models/dcim/rearporttemplate.md!}
+{!models/dcim/devicebaytemplate.md!}

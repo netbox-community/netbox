@@ -409,7 +409,7 @@ export function createElement<
  * @returns Degrees in Fahrenheit.
  */
 export function cToF(celsius: number): number {
-  return celsius * (9 / 5) + 32;
+  return Math.round((celsius * (9 / 5) + 32 + Number.EPSILON) * 10) / 10;
 }
 
 /**

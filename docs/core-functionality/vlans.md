@@ -1,4 +1,4 @@
 # VLAN Management
 
-{!docs/models/ipam/vlan.md!}
-{!docs/models/ipam/vlangroup.md!}
+{!models/ipam/vlan.md!}
+{!models/ipam/vlangroup.md!}

@@ -1,4 +1,6 @@
 {% load helpers %}
+{% load render_table from django_tables2 %}
+
 {% if perms.dcim.change_devicetype %}
     <form method="post">
         {% csrf_token %}
@@ -6,8 +8,8 @@
             <h5 class="card-header">
                 {{ title }}
             </h5>
-            <div class="card-body">
-                {% include 'inc/responsive_table.html' %}
+            <div class="card-body table-responsive">
+                {% render_table table 'inc/table.html' %}
             </div>
             <div class="card-footer noprint">
                 {% if table.rows %}
@@ -36,8 +38,8 @@
         <h5 class="card-header">
             {{ title }}
         </h5>
-        <div class="card-body">
-            {% include 'inc/responsive_table.html' %}
+        <div class="card-body table-responsive">
+            {% render_table table 'inc/table.html' %}
         </div>
     </div>
 {% endif %}

@@ -79,7 +79,7 @@
           </tr>
           <tr>
             <th scope="row">Payload URL</th>
-            <td><code>{{ object.payload_url }}</code></td>
+            <td class="font-monospace">{{ object.payload_url }}</td>
           </tr>
           <tr>
             <th scope="row">HTTP Content Type</th>
@@ -110,13 +110,7 @@
           </tr>
           <tr>
             <th scope="row">CA File Path</th>
-            <td>
-              {% if object.ca_file_path %}
-                <code>{{ object.ca_file_path }}</code>
-              {% else %}
-                &mdash
-              {% endif %}
-            </td>
+            <td>{{ object.ca_file_path|placeholder }}</td>
           </tr>
         </table>
       </div>

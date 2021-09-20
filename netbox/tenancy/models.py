@@ -83,7 +83,7 @@ class Tenant(PrimaryModel):
     ]
 
     class Meta:
-        ordering = ['group', 'name']
+        ordering = ['name']
 
     def __str__(self):
         return self.name

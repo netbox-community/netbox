@@ -1,5 +1,34 @@
 # NetBox v3.0
 
+## v3.0.3 (2021-09-20)
+
+### Enhancements
+
+* [#5775](https://github.com/netbox-community/netbox/issues/5775) - Enable synchronization of groups for remote authentication backend
+* [#6387](https://github.com/netbox-community/netbox/issues/6387) - Add xDSL interface type
+* [#6988](https://github.com/netbox-community/netbox/issues/6988) - Order tenants alphabetically without regard to group assignment
+* [#7032](https://github.com/netbox-community/netbox/issues/7032) - Add URM port types
+* [#7087](https://github.com/netbox-community/netbox/issues/7087) - Add `local_context_data` filter for virtual machines list
+* [#7208](https://github.com/netbox-community/netbox/issues/7208) - Add navigation breadcrumbs for custom scripts & reports
+* [#7210](https://github.com/netbox-community/netbox/issues/7210) - Add search/filter forms for all organizational models
+* [#7239](https://github.com/netbox-community/netbox/issues/7239) - Redirect global search to filtered object list when an object type is selected
+* [#7284](https://github.com/netbox-community/netbox/issues/7284) - Include comments field in table/export for all appropriate models
+
+### Bug Fixes
+
+* [#7167](https://github.com/netbox-community/netbox/issues/7167) - Ensure consistent font size when using monospace formatting
+* [#7226](https://github.com/netbox-community/netbox/issues/7226) - Exempt GraphQL API requests from CSRF inspection
+* [#7228](https://github.com/netbox-community/netbox/issues/7228) - Improve temperature conversions under device status
+* [#7248](https://github.com/netbox-community/netbox/issues/7248) - Fix global search results section links
+* [#7266](https://github.com/netbox-community/netbox/issues/7266) - Tweak font color for form field placeholder text
+* [#7273](https://github.com/netbox-community/netbox/issues/7273) - Fix natural ordering of device components in UI form fields
+* [#7279](https://github.com/netbox-community/netbox/issues/7279) - Fix exception when tracing cable with no associated path
+* [#7282](https://github.com/netbox-community/netbox/issues/7282) - Fix KeyError exception when `INSECURE_SKIP_TLS_VERIFY` is true
+* [#7298](https://github.com/netbox-community/netbox/issues/7298) - Restore missing object names from applied object list filters
+* [#7301](https://github.com/netbox-community/netbox/issues/7301) - Fix exception when deleting a large number of child prefixes
+
+---
+
 ## v3.0.2 (2021-09-08)
 
 ### Bug Fixes
