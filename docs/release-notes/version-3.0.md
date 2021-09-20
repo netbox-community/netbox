@@ -25,6 +25,7 @@
 * [#7279](https://github.com/netbox-community/netbox/issues/7279) - Fix exception when tracing cable with no associated path
 * [#7282](https://github.com/netbox-community/netbox/issues/7282) - Fix KeyError exception when `INSECURE_SKIP_TLS_VERIFY` is true
 * [#7298](https://github.com/netbox-community/netbox/issues/7298) - Restore missing object names from applied object list filters
+* [#7301](https://github.com/netbox-community/netbox/issues/7301) - Fix exception when deleting a large number of child prefixes
 
 ---
 

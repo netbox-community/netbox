@@ -1010,10 +1010,10 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
+            qs = model.objects.all()
             if self.filterset is not None:
-                pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
-            else:
-                pk_list = model.objects.values_list('pk', flat=True)
+                qs = self.filterset(request.GET, qs).qs
+            pk_list = qs.only('pk').values_list('pk', flat=True)
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
