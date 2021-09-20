@@ -8,6 +8,7 @@
 
         {% if table.paginator.num_pages > 1 %}
             <div id="select-all-box" class="d-none card noprint">
+              <div class="card-body">
                 <div class="float-end">
                     {% if bulk_edit_url and permissions.change %}
                         <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if bulk_querystring %}?{{ bulk_querystring }}{% elif request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm" disabled="disabled">
@@ -26,6 +27,7 @@
                     Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
                     </label>
                 </div>
+              </div>
             </div>
         {% endif %}
 
