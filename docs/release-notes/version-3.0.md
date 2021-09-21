@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#7321](https://github.com/netbox-community/netbox/issues/7321) - Don't overwrite multi-select custom fields during bulk edit
 * [#7324](https://github.com/netbox-community/netbox/issues/7324) - Fix TypeError exception in web UI when filtering objects using single-choice filters
 
 ## v3.0.3 (2021-09-20)
