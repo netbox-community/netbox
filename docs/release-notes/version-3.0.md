@@ -1,5 +1,11 @@
 # NetBox v3.0
 
+## v3.0.4 (FUTURE)
+
+### Bug Fixes
+
+* [#7324](https://github.com/netbox-community/netbox/issues/7324) - Fix TypeError exception in web UI when filtering objects using single-choice filters
+
 ## v3.0.3 (2021-09-20)
 
 ### Enhancements

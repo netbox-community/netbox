@@ -137,6 +137,8 @@ def get_selected_values(form, field_name):
     else:
         # Static selection field
         choices = unpack_grouped_choices(field.choices)
+        if type(filter_data) not in (list, tuple):
+            filter_data = [filter_data]  # Ensure filter data is iterable
         values = [
             label for value, label in choices if str(value) in filter_data or None in filter_data
         ]
