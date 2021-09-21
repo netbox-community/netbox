@@ -185,11 +185,10 @@ class PathEndpoint(models.Model):
 
         # Construct the complete path
         path = [self, *self._path.get_path()]
-        if self._path.destination:
-            path.append(self._path.destination)
-        while len(path) % 3:
-            # Pad to ensure we have complete three-tuples (e.g. for paths that end at a RearPort)
-            path.insert(-1, None)
+        while (len(path) + 1) % 3:
+            # Pad to ensure we have complete three-tuples (e.g. for paths that end at a non-connected FrontPort)
+            path.append(None)
+        path.append(self._path.destination)
 
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))
