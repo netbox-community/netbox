@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#7118](https://github.com/netbox-community/netbox/issues/7118) - Render URL custom fields as hyperlinks in object tables
 * [#7323](https://github.com/netbox-community/netbox/issues/7323) - Add serial filter field for racks & devices
 
 ### Bug Fixes
