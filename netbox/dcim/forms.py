@@ -938,7 +938,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         ['q', 'tag'],
         ['region_id', 'site_id', 'location_id'],
         ['status', 'role_id'],
-        ['type', 'width', 'asset_tag'],
+        ['type', 'width', 'serial', 'asset_tag'],
         ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
@@ -992,6 +992,9 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         null_option='None',
         label=_('Role'),
         fetch_trigger='open'
+    )
+    serial = forms.CharField(
+        required=False
     )
     asset_tag = forms.CharField(
         required=False
@@ -2590,7 +2593,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id'],
-        ['status', 'role_id', 'asset_tag', 'mac_address'],
+        ['status', 'role_id', 'serial', 'asset_tag', 'mac_address'],
         ['manufacturer_id', 'device_type_id', 'platform_id'],
         ['tenant_group_id', 'tenant_id'],
         [
@@ -2678,6 +2681,9 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         choices=DeviceStatusChoices,
         required=False,
         widget=StaticSelectMultiple()
+    )
+    serial = forms.CharField(
+        required=False
     )
     asset_tag = forms.CharField(
         required=False

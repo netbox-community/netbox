@@ -2,6 +2,10 @@
 
 ## v3.0.4 (FUTURE)
 
+### Enhancements
+
+* [#7323](https://github.com/netbox-community/netbox/issues/7323) - Add serial filter field for racks & devices
+
 ### Bug Fixes
 
 * [#7321](https://github.com/netbox-community/netbox/issues/7321) - Don't overwrite multi-select custom fields during bulk edit
