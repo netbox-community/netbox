@@ -1,5 +1,8 @@
 import graphene
+from django.contrib.contenttypes.models import ContentType
 from graphene.types.generic import GenericScalar
+
+from extras.models import ObjectChange
 
 __all__ = (
     'ChangelogMixin',
@@ -15,7 +18,12 @@ class ChangelogMixin:
     changelog = graphene.List('extras.graphql.types.ObjectChangeType')
 
     def resolve_changelog(self, info):
-        return self.object_changes.restrict(info.context.user, 'view')
+        content_type = ContentType.objects.get_for_model(self)
+        object_changes = ObjectChange.objects.filter(
+            changed_object_type=content_type,
+            changed_object_id=self.pk
+        )
+        return object_changes.restrict(info.context.user, 'view')
 
 
 class ConfigContextMixin:
