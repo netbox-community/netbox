@@ -13,6 +13,7 @@
 * [#7321](https://github.com/netbox-community/netbox/issues/7321) - Don't overwrite multi-select custom fields during bulk edit
 * [#7324](https://github.com/netbox-community/netbox/issues/7324) - Fix TypeError exception in web UI when filtering objects using single-choice filters
 * [#7333](https://github.com/netbox-community/netbox/issues/7333) - Prevent inadvertent deletion of prior change records when deleting objects
+* [#7341](https://github.com/netbox-community/netbox/issues/7341) - Fix incorrect url in Circuit breadcrumbs
 
 ## v3.0.3 (2021-09-20)
 
