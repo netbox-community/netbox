@@ -2169,9 +2169,10 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()
-            messages.success(request, "{} has been removed from {}.".format(removed_device, device_bay))
+            messages.success(request, f"{removed_device} has been removed from {device_bay}.")
+            return_url = self.get_return_url(request, device_bay.device)
 
-            return redirect('dcim:device', pk=device_bay.device.pk)
+            return redirect(return_url)
 
         return render(request, 'dcim/devicebay_depopulate.html', {
             'device_bay': device_bay,
