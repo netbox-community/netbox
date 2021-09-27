@@ -15,6 +15,7 @@
 * [#7324](https://github.com/netbox-community/netbox/issues/7324) - Fix TypeError exception in web UI when filtering objects using single-choice filters
 * [#7333](https://github.com/netbox-community/netbox/issues/7333) - Prevent inadvertent deletion of prior change records when deleting objects
 * [#7341](https://github.com/netbox-community/netbox/issues/7341) - Fix incorrect URL in circuit breadcrumbs
+* [#7356](https://github.com/netbox-community/netbox/issues/7356) - Fix display of model documentation when adding device components
 * [#7360](https://github.com/netbox-community/netbox/issues/7360) - Correct redirection URL after removing child device from device bay
 
 ## v3.0.3 (2021-09-20)

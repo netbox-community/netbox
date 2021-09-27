@@ -1100,6 +1100,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
+            'obj': self.queryset.model(),
             'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
