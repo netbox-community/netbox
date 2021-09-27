@@ -17,6 +17,7 @@
 * [#7341](https://github.com/netbox-community/netbox/issues/7341) - Fix incorrect URL in circuit breadcrumbs
 * [#7353](https://github.com/netbox-community/netbox/issues/7353) - Fix bulk creation of device/VM components via list view
 * [#7356](https://github.com/netbox-community/netbox/issues/7356) - Fix display of model documentation when adding device components
+* [#7358](https://github.com/netbox-community/netbox/issues/7358) - Add missing `choices` column to custom field CSV import form
 * [#7360](https://github.com/netbox-community/netbox/issues/7360) - Correct redirection URL after removing child device from device bay
 
 ## v3.0.3 (2021-09-20)

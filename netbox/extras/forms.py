@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
@@ -46,12 +47,17 @@ class CustomFieldCSVForm(CSVModelForm):
         limit_choices_to=FeatureQuery('custom_fields'),
         help_text="One or more assigned object types"
     )
+    choices = SimpleArrayField(
+        base_field=forms.CharField(),
+        required=False,
+        help_text='Comma-separated list of field choices'
+    )
 
     class Meta:
         model = CustomField
         fields = (
             'name', 'label', 'type', 'content_types', 'required', 'description', 'weight', 'filter_logic', 'default',
-            'weight',
+            'choices', 'weight',
         )
 
 
