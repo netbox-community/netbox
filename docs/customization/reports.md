@@ -97,6 +97,21 @@ The recording of one or more failure messages will automatically flag a report a
 
 To perform additional tasks, such as sending an email or calling a webhook, after a report has been run, extend the `post_run()` method. The status of the report is available as `self.failed` and the results object is `self.result`.
 
+By default, reports within a module are unordered and 'randomly' displayed in the reports list page. If you want to order reports, you can defined the `report_order` variable at the end
+of your module. The `report_order` variable is a tuple which contains each Report class in a specific order.
+
+```
+from extras.reports import Report
+
+class DeviceConnectionsReport(Report)
+    pass
+
+class DeviceIPsReport(Report)
+    pass
+
+report_order = (DeviceIPsReport, DeviceConnectionsReport)
+```
+
 Once you have created a report, it will appear in the reports list. Initially, reports will have no results associated with them. To generate results, run the report.
 
 ## Running Reports
