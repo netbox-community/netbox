@@ -1,70 +1,69 @@
 {% extends 'generic/object_list.html' %}
 
 {% block bulk_buttons %}
-    {% if perms.dcim.change_device %}
-        <div class="dropdown">
-            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Components
+  {% if perms.dcim.change_device %}
+    <div class="dropdown">
+      <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Components
+      </button>
+      <ul class="dropdown-menu">
+        {% if perms.dcim.add_consoleport %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_consoleport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+             Console Ports
             </button>
-            <ul class="dropdown-menu">
-                {% if perms.dcim.add_consoleport %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_consoleport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"       
-                       class="dropdown-item formaction">
-                       Console Ports
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.dcim.add_consoleserverport %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_consoleserverport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
-                       class="dropdown-item formaction">Console Server Ports
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.dcim.add_powerport %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_powerport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-                       class="dropdown-item formaction">Power Ports
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.dcim.add_poweroutlet %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_poweroutlet' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-                       class="dropdown-item formaction">Power Outlets
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.dcim.add_interface %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-                       class="dropdown-item formaction">Interfaces
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.dcim.add_rearport %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_rearport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-                       class="dropdown-item formaction">Rear Ports
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.dcim.add_devicebay %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_devicebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-                       class="dropdown-item formaction">Device Bays
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.dcim.add_inventoryitem %}
-                <li>
-                    <a href="{% url 'dcim:device_bulk_add_inventoryitem' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-                       class="dropdown-item formaction">Inventory Items
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-    {% endif %}
+          </li>
+        {% endif %}
+        {% if perms.dcim.add_consoleserverport %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_consoleserverport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item ">
+              Console Server Ports
+            </button>
+          </li>
+        {% endif %}
+        {% if perms.dcim.add_powerport %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_powerport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              Power Ports
+            </button>
+          </li>
+        {% endif %}
+        {% if perms.dcim.add_poweroutlet %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_poweroutlet' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              Power Outlets
+            </button>
+          </li>
+        {% endif %}
+        {% if perms.dcim.add_interface %}
+          <li>
+              <button type="submit" formaction="{% url 'dcim:device_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+                 class="dropdown-item">Interfaces
+              </button>
+          </li>
+        {% endif %}
+        {% if perms.dcim.add_rearport %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_rearport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              Rear Ports
+            </button>
+          </li>
+        {% endif %}
+        {% if perms.dcim.add_devicebay %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_devicebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              Device Bays
+            </button>
+          </li>
+        {% endif %}
+        {% if perms.dcim.add_inventoryitem %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_inventoryitem' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              Inventory Items
+            </button>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
 {% endblock %}
