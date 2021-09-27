@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from dcim.choices import DeviceFaceChoices, DeviceStatusChoices, InterfaceTypeChoices
 from dcim.forms import *
 from dcim.models import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType

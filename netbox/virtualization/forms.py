@@ -5,7 +5,8 @@ from django.utils.translation import gettext as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
-from dcim.forms import InterfaceCommonForm, INTERFACE_MODE_HELP_TEXT
+from dcim.forms.models import INTERFACE_MODE_HELP_TEXT
+from dcim.forms.common import InterfaceCommonForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm,
@@ -569,7 +570,12 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
         ]
 
 
-class VirtualMachineFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualMachineFilterForm(
+    BootstrapMixin,
+    LocalConfigContextFilterForm,
+    TenancyFilterForm,
+    CustomFieldModelFilterForm
+):
     model = VirtualMachine
     field_groups = [
         ['q', 'tag'],
