@@ -316,6 +316,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_CS8365C = 'cs8365c'
     TYPE_CS8465C = 'cs8465c'
     # ITA/international
+    TYPE_ITA_C = 'ita-c'
     TYPE_ITA_E = 'ita-e'
     TYPE_ITA_F = 'ita-f'
     TYPE_ITA_EF = 'ita-ef'
@@ -421,6 +422,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_CS8465C, 'CS8465C'),
         )),
         ('International/ITA', (
+            (TYPE_ITA_C, 'ITA Type C (CEE 7/16)'),
             (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
             (TYPE_ITA_F, 'ITA Type F (CEE 7/4)'),
             (TYPE_ITA_EF, 'ITA Type E/F (CEE 7/7)'),
