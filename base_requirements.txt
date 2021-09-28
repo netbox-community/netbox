@@ -94,10 +94,6 @@ Pillow
 # https://github.com/psycopg/psycopg2
 psycopg2-binary
 
-# Extensive cryptographic library (fork of pycrypto)
-# https://github.com/Legrandin/pycryptodome
-pycryptodome
-
 # YAML rendering library
 # https://github.com/yaml/pyyaml
 PyYAML
