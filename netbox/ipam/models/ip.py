@@ -600,6 +600,11 @@ class IPRange(PrimaryModel):
             if overlapping_range:
                 raise ValidationError(f"Defined addresses overlap with range {overlapping_range} in VRF {self.vrf}")
 
+            # Validate maximum size
+            MAX_SIZE = 2 ** 32 - 1
+            if int(self.end_address.ip - self.start_address.ip) + 1 > MAX_SIZE:
+                raise ValidationError(f"Defined range exceeds maximum supported size ({MAX_SIZE})")
+
     def save(self, *args, **kwargs):
 
         # Record the range's size (number of IP addresses)

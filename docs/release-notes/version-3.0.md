@@ -13,6 +13,7 @@
 
 ### Bug Fixes
 
+* [#7252](https://github.com/netbox-community/netbox/issues/7252) - Validate IP range size does not exceed max supported value
 * [#7294](https://github.com/netbox-community/netbox/issues/7294) - Fix SVG rendering for cable traces ending at unoccupied front ports
 * [#7304](https://github.com/netbox-community/netbox/issues/7304) - Require explicit values for all required choice fields during CSV import
 * [#7321](https://github.com/netbox-community/netbox/issues/7321) - Don't overwrite multi-select custom fields during bulk edit
