@@ -7,6 +7,7 @@
 * [#6917](https://github.com/netbox-community/netbox/issues/6917) - Make ip assigned checkmark in ip table link to interface
 * [#7118](https://github.com/netbox-community/netbox/issues/7118) - Render URL custom fields as hyperlinks in object tables
 * [#7323](https://github.com/netbox-community/netbox/issues/7323) - Add serial filter field for racks & devices
+* [#7372](https://github.com/netbox-community/netbox/issues/7372) - Link to local docs for model from object add/edit views
 
 ### Bug Fixes
 

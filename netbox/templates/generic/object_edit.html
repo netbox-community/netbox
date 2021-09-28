@@ -7,12 +7,12 @@
 {% endblock title %}
 
 {% block controls %}
-  {% if settings.DOCS_ROOT %}
+  {% if obj and settings.DOCS_ROOT %}
     <div class="controls">
       <div class="control-group">
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#docs_modal" title="Help">
+        <a href="{{ obj|get_docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View model documentation">
           <i class="mdi mdi-help-circle"></i> Help
-        </button>
+        </a>
       </div>
     </div>
   {% endif %}
@@ -84,7 +84,6 @@
         <div class="text-end my-3">
           {% block buttons %}
             <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
-
             {% if obj.pk %}
               <button type="submit" name="_update" class="btn btn-primary">
                 Save
@@ -97,15 +96,10 @@
                 Create
               </button>
             {% endif %}
-
           {% endblock buttons %}
         </div>
       </form>
     </div>
   </div>
-
-  {% if obj and settings.DOCS_ROOT %}
-    {% include 'inc/modal.html' with name='docs' content=obj|get_docs %}
-  {% endif %}
 
 {% endblock content-wrapper %}
