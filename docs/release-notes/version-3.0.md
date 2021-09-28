@@ -11,6 +11,7 @@
 ### Bug Fixes
 
 * [#7294](https://github.com/netbox-community/netbox/issues/7294) - Fix SVG rendering for cable traces ending at unoccupied front ports
+* [#7304](https://github.com/netbox-community/netbox/issues/7304) - Require explicit values for all required choice fields during CSV import
 * [#7321](https://github.com/netbox-community/netbox/issues/7321) - Don't overwrite multi-select custom fields during bulk edit
 * [#7324](https://github.com/netbox-community/netbox/issues/7324) - Fix TypeError exception in web UI when filtering objects using single-choice filters
 * [#7333](https://github.com/netbox-community/netbox/issues/7333) - Prevent inadvertent deletion of prior change records when deleting objects

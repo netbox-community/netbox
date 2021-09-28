@@ -60,7 +60,6 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
     )
     status = CSVChoiceField(
         choices=CircuitStatusChoices,
-        required=False,
         help_text='Operational status'
     )
     tenant = CSVModelChoiceField(

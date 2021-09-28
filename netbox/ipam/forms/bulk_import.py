@@ -198,7 +198,6 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
     )
     status = CSVChoiceField(
         choices=IPAddressStatusChoices,
-        required=False,
         help_text='Operational status'
     )
     role = CSVChoiceField(

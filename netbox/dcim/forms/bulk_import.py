@@ -70,7 +70,6 @@ class SiteGroupCSVForm(CustomFieldModelCSVForm):
 class SiteCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
-        required=False,
         help_text='Operational status'
     )
     region = CSVModelChoiceField(
@@ -156,7 +155,6 @@ class RackCSVForm(CustomFieldModelCSVForm):
     )
     status = CSVChoiceField(
         choices=RackStatusChoices,
-        required=False,
         help_text='Operational status'
     )
     role = CSVModelChoiceField(
@@ -929,22 +927,18 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
     )
     status = CSVChoiceField(
         choices=PowerFeedStatusChoices,
-        required=False,
         help_text='Operational status'
     )
     type = CSVChoiceField(
         choices=PowerFeedTypeChoices,
-        required=False,
         help_text='Primary or redundant'
     )
     supply = CSVChoiceField(
         choices=PowerFeedSupplyChoices,
-        required=False,
         help_text='Supply type (AC/DC)'
     )
     phase = CSVChoiceField(
         choices=PowerFeedPhaseChoices,
-        required=False,
         help_text='Single or three-phase'
     )
 
