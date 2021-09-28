@@ -24,6 +24,7 @@
 * [#7356](https://github.com/netbox-community/netbox/issues/7356) - Fix display of model documentation when adding device components
 * [#7358](https://github.com/netbox-community/netbox/issues/7358) - Add missing `choices` column to custom field CSV import form
 * [#7360](https://github.com/netbox-community/netbox/issues/7360) - Correct redirection URL after removing child device from device bay
+* [#7365](https://github.com/netbox-community/netbox/issues/7365) - Optimize performance when calculating prefix utilization
 * [#7374](https://github.com/netbox-community/netbox/issues/7374) - Add missing `face` parameter to API elevations request when editing device
 
 ## v3.0.3 (2021-09-20)
