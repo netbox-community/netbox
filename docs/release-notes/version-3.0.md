@@ -10,6 +10,7 @@
 * [#7118](https://github.com/netbox-community/netbox/issues/7118) - Render URL custom fields as hyperlinks in object tables
 * [#7323](https://github.com/netbox-community/netbox/issues/7323) - Add serial filter field for racks & devices
 * [#7372](https://github.com/netbox-community/netbox/issues/7372) - Link to local docs for model from object add/edit views
+* [#7389](https://github.com/netbox-community/netbox/issues/7389) - Linkify tenant group in tenants list
 
 ### Bug Fixes
 
