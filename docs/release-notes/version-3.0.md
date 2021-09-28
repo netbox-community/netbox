@@ -8,6 +8,7 @@
 * [#6973](https://github.com/netbox-community/netbox/issues/6973) - Enable custom ordering of reports
 * [#7022](https://github.com/netbox-community/netbox/issues/7022) - Add ITA type C (CEE 7/16) power port type
 * [#7118](https://github.com/netbox-community/netbox/issues/7118) - Render URL custom fields as hyperlinks in object tables
+* [#7314](https://github.com/netbox-community/netbox/issues/7314) - Add SMA 905/906 fiber port types
 * [#7323](https://github.com/netbox-community/netbox/issues/7323) - Add serial filter field for racks & devices
 * [#7372](https://github.com/netbox-community/netbox/issues/7372) - Link to local docs for model from object add/edit views
 * [#7389](https://github.com/netbox-community/netbox/issues/7389) - Linkify tenant group in tenants list
