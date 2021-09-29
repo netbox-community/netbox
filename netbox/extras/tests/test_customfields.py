@@ -506,10 +506,10 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'cf_text', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_select'),
-            ('Site 1', 'site-1', 'ABC', '123', 'True', '2020-01-01', 'http://example.com/1', 'Choice A'),
-            ('Site 2', 'site-2', 'DEF', '456', 'False', '2020-01-02', 'http://example.com/2', 'Choice B'),
-            ('Site 3', 'site-3', '', '', '', '', '', ''),
+            ('name', 'slug', 'status', 'cf_text', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_select'),
+            ('Site 1', 'site-1', 'active', 'ABC', '123', 'True', '2020-01-01', 'http://example.com/1', 'Choice A'),
+            ('Site 2', 'site-2', 'active', 'DEF', '456', 'False', '2020-01-02', 'http://example.com/2', 'Choice B'),
+            ('Site 3', 'site-3', 'active', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 

@@ -322,10 +322,10 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,location,name,width,u_height",
-            "Site 1,,Rack 4,19,42",
-            "Site 1,Location 1,Rack 5,19,42",
-            "Site 2,Location 2,Rack 6,19,42",
+            "site,location,name,status,width,u_height",
+            "Site 1,,Rack 4,active,19,42",
+            "Site 1,Location 1,Rack 5,active,19,42",
+            "Site 2,Location 2,Rack 6,active,19,42",
         )
 
         cls.bulk_edit_data = {
@@ -1991,10 +1991,10 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,power_panel,name,voltage,amperage,max_utilization",
-            "Site 1,Power Panel 1,Power Feed 4,120,20,80",
-            "Site 1,Power Panel 1,Power Feed 5,120,20,80",
-            "Site 1,Power Panel 1,Power Feed 6,120,20,80",
+            "site,power_panel,name,status,type,supply,phase,voltage,amperage,max_utilization",
+            "Site 1,Power Panel 1,Power Feed 4,active,primary,ac,single-phase,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 5,active,primary,ac,single-phase,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 6,active,primary,ac,single-phase,120,20,80",
         )
 
         cls.bulk_edit_data = {

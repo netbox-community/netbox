@@ -1,14 +1,20 @@
 {% extends 'generic/object_list.html' %}
 
 {% block bulk_buttons %}
-    {% if perms.virtualization.change_virtualmachine %}
-        <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
+  {% if perms.virtualization.change_virtualmachine %}
+    <div class="dropdown">
+      <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Components
+      </button>
+      <ul class="dropdown-menu">
+        {% if perms.virtualization.add_vminterface %}
+          <li>
+            <button type="submit" formaction="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              Interfaces
             </button>
-            <ul class="dropdown-menu">
-                {% if perms.virtualization.add_vminterface %}<li><a href="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Interfaces</a></li>{% endif %}
-            </ul>
-        </div>
-    {% endif %}
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
 {% endblock %}

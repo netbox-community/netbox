@@ -318,7 +318,8 @@ class IPAddressTable(BaseTable):
         verbose_name='NAT (Inside)'
     )
     assigned = BooleanColumn(
-        accessor='assigned_object_id',
+        accessor='assigned_object',
+        linkify=True,
         verbose_name='Assigned'
     )
     tags = TagColumn(

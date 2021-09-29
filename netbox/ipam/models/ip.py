@@ -487,11 +487,9 @@ class Prefix(PrimaryModel):
             utilization = int(float(child_prefixes.size) / self.prefix.size * 100)
         else:
             # Compile an IPSet to avoid counting duplicate IPs
-            child_ips = netaddr.IPSet()
-            for iprange in self.get_child_ranges():
-                child_ips.add(iprange.range)
-            for ip in self.get_child_ips():
-                child_ips.add(ip.address.ip)
+            child_ips = netaddr.IPSet(
+                [_.range for _ in self.get_child_ranges()] + [_.address.ip for _ in self.get_child_ips()]
+            )
 
             prefix_size = self.prefix.size
             if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
@@ -599,6 +597,11 @@ class IPRange(PrimaryModel):
             ).first()
             if overlapping_range:
                 raise ValidationError(f"Defined addresses overlap with range {overlapping_range} in VRF {self.vrf}")
+
+            # Validate maximum size
+            MAX_SIZE = 2 ** 32 - 1
+            if int(self.end_address.ip - self.start_address.ip) + 1 > MAX_SIZE:
+                raise ValidationError(f"Defined range exceeds maximum supported size ({MAX_SIZE})")
 
     def save(self, *args, **kwargs):
 

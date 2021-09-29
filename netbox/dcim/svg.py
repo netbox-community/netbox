@@ -482,7 +482,7 @@ class CableTraceSVG:
                 )
                 parent_objects.append(parent_object)
 
-            else:
+            elif far_end:
 
                 # Attachment
                 attachment = self._draw_attachment()

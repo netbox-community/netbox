@@ -17,7 +17,7 @@ body:
         What version of NetBox are you currently running? (If you don't have access to the most
         recent NetBox release, consider testing on our [demo instance](https://demo.netbox.dev/)
         before opening a bug report to see if your issue has already been addressed.)
-      placeholder: v3.0.3
+      placeholder: v3.0.4
     validations:
       required: true
   - type: dropdown
@@ -25,9 +25,9 @@ body:
       label: Python version
       description: What version of Python are you currently running?
       options:
-        - 3.7
-        - 3.8
-        - 3.9
+        - "3.7"
+        - "3.8"
+        - "3.9"
     validations:
       required: true
   - type: textarea

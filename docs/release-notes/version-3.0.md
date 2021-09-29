@@ -1,5 +1,35 @@
 # NetBox v3.0
 
+## v3.0.4 (2021-09-29)
+
+### Enhancements
+
+* [#6917](https://github.com/netbox-community/netbox/issues/6917) - Make IP assigned checkmark in IP table link to interface
+* [#6973](https://github.com/netbox-community/netbox/issues/6973) - Enable custom ordering of reports
+* [#7022](https://github.com/netbox-community/netbox/issues/7022) - Add ITA type C (CEE 7/16) power port type
+* [#7118](https://github.com/netbox-community/netbox/issues/7118) - Render URL custom fields as hyperlinks in object tables
+* [#7314](https://github.com/netbox-community/netbox/issues/7314) - Add SMA 905/906 fiber port types
+* [#7323](https://github.com/netbox-community/netbox/issues/7323) - Add serial filter field for racks & devices
+* [#7372](https://github.com/netbox-community/netbox/issues/7372) - Link to local docs for model from object add/edit views
+* [#7389](https://github.com/netbox-community/netbox/issues/7389) - Linkify tenant group in tenants list
+
+### Bug Fixes
+
+* [#7252](https://github.com/netbox-community/netbox/issues/7252) - Validate IP range size does not exceed max supported value
+* [#7294](https://github.com/netbox-community/netbox/issues/7294) - Fix SVG rendering for cable traces ending at unoccupied front ports
+* [#7304](https://github.com/netbox-community/netbox/issues/7304) - Require explicit values for all required choice fields during CSV import
+* [#7321](https://github.com/netbox-community/netbox/issues/7321) - Don't overwrite multi-select custom fields during bulk edit
+* [#7324](https://github.com/netbox-community/netbox/issues/7324) - Fix TypeError exception in web UI when filtering objects using single-choice filters
+* [#7333](https://github.com/netbox-community/netbox/issues/7333) - Prevent inadvertent deletion of prior change records when deleting objects
+* [#7341](https://github.com/netbox-community/netbox/issues/7341) - Fix incorrect URL in circuit breadcrumbs
+* [#7353](https://github.com/netbox-community/netbox/issues/7353) - Fix bulk creation of device/VM components via list view
+* [#7356](https://github.com/netbox-community/netbox/issues/7356) - Fix display of model documentation when adding device components
+* [#7358](https://github.com/netbox-community/netbox/issues/7358) - Add missing `choices` column to custom field CSV import form
+* [#7360](https://github.com/netbox-community/netbox/issues/7360) - Correct redirection URL after removing child device from device bay
+* [#7365](https://github.com/netbox-community/netbox/issues/7365) - Optimize performance when calculating prefix utilization
+* [#7374](https://github.com/netbox-community/netbox/issues/7374) - Add missing `face` parameter to API elevations request when editing device
+* [#7392](https://github.com/netbox-community/netbox/issues/7392) - Fix "help" links for custom fields, other models
+
 ## v3.0.3 (2021-09-20)
 
 ### Enhancements

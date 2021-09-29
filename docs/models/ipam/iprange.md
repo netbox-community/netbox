@@ -9,3 +9,6 @@ IP also ranges share the same functional roles as prefixes and VLANs, although t
 * Deprecated - No longer in use
 
 The status of a range does _not_ have any impact on its member IP addresses, which may have their statuses modified separately.
+
+!!! note
+    The maximum supported size of an IP range is 2^32 - 1.

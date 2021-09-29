@@ -824,14 +824,14 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                                     if form.cleaned_data[name]:
                                         getattr(obj, name).set(form.cleaned_data[name])
                                 # Normal fields
-                                elif form.cleaned_data[name] not in (None, '', []):
+                                elif name in form.changed_data:
                                     setattr(obj, name, form.cleaned_data[name])
 
                             # Update custom fields
                             for name in custom_fields:
                                 if name in form.nullable_fields and name in nullified_fields:
                                     obj.custom_field_data[name] = None
-                                elif form.cleaned_data.get(name) not in (None, ''):
+                                elif name in form.changed_data:
                                     obj.custom_field_data[name] = form.cleaned_data[name]
 
                             obj.full_clean()
@@ -1100,6 +1100,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
+            'obj': self.queryset.model(),
             'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),

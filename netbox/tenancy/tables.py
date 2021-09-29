@@ -68,6 +68,9 @@ class TenantTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    group = tables.Column(
+        linkify=True
+    )
     comments = MarkdownColumn()
     tags = TagColumn(
         url_name='tenancy:tenant_list'

@@ -122,10 +122,10 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "cid,provider,type",
-            "Circuit 4,Provider 1,Circuit Type 1",
-            "Circuit 5,Provider 1,Circuit Type 1",
-            "Circuit 6,Provider 1,Circuit Type 1",
+            "cid,provider,type,status",
+            "Circuit 4,Provider 1,Circuit Type 1,active",
+            "Circuit 5,Provider 1,Circuit Type 1,active",
+            "Circuit 6,Provider 1,Circuit Type 1,active",
         )
 
         cls.bulk_edit_data = {

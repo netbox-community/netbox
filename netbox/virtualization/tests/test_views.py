@@ -194,10 +194,10 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,cluster",
-            "Virtual Machine 4,Cluster 1",
-            "Virtual Machine 5,Cluster 1",
-            "Virtual Machine 6,Cluster 1",
+            "name,status,cluster",
+            "Virtual Machine 4,active,Cluster 1",
+            "Virtual Machine 5,active,Cluster 1",
+            "Virtual Machine 6,active,Cluster 1",
         )
 
         cls.bulk_edit_data = {

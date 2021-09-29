@@ -11,6 +11,7 @@ from django_tables2 import RequestConfig
 from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
+from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from .utils import content_type_name
 from .paginator import EnhancedPaginator, get_paginate_count
@@ -355,6 +356,9 @@ class CustomFieldColumn(tables.Column):
     def render(self, value):
         if isinstance(value, list):
             return ', '.join(v for v in value)
+        elif self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
+            # Linkify custom URLs
+            return mark_safe(f'<a href="{value}">{value}</a>')
         return value or self.default
 
 

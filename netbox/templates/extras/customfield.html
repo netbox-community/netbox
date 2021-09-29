@@ -56,7 +56,13 @@
           </tr>
           <tr>
             <th scope="row">Choices</th>
-            <td>{{ object.choices|placeholder }}</td>
+            <td>
+              {% if object.choices %}
+                {{ object.choices|join:", " }}
+              {% else %}
+                <span class="text-muted">&mdash;</span>
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">Filter Logic</th>
