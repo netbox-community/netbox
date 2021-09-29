@@ -28,6 +28,7 @@
 * [#7360](https://github.com/netbox-community/netbox/issues/7360) - Correct redirection URL after removing child device from device bay
 * [#7365](https://github.com/netbox-community/netbox/issues/7365) - Optimize performance when calculating prefix utilization
 * [#7374](https://github.com/netbox-community/netbox/issues/7374) - Add missing `face` parameter to API elevations request when editing device
+* [#7392](https://github.com/netbox-community/netbox/issues/7392) - Fix "help" links for custom fields, other models
 
 ## v3.0.3 (2021-09-20)
 
