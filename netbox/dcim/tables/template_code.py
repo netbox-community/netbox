@@ -5,13 +5,11 @@ CABLETERMINATION = """
     <i class="mdi mdi-chevron-right"></i>
   {% endif %}
   <a href="{{ value.get_absolute_url }}">{{ value }}</a>
-{% else %}
-  &mdash;
 {% endif %}
 """
 
 CABLE_LENGTH = """
-{% if record.length %}{{ record.length }} {{ record.get_length_unit_display }}{% else %}&mdash;{% endif %}
+{% if record.length %}{{ record.length }} {{ record.get_length_unit_display }}{% endif %}
 """
 
 CABLE_TERMINATION_PARENT = """
@@ -63,8 +61,6 @@ INTERFACE_TAGGED_VLANS = """
     {% endfor %}
 {% elif record.mode == 'tagged-all' %}
   All
-{% else %}
-  &mdash;
 {% endif %}
 """
 

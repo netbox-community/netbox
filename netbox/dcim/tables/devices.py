@@ -9,7 +9,7 @@ from dcim.models import (
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
-    MarkdownColumn, TagColumn, ToggleColumn,
+    MarkdownColumn, TagColumn, TemplateColumn, ToggleColumn,
 )
 from .template_code import (
     CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, DEVICEBAY_BUTTONS, DEVICEBAY_STATUS,
@@ -258,7 +258,7 @@ class CableTerminationTable(BaseTable):
         orderable=False,
         verbose_name='Cable Color'
     )
-    cable_peer = tables.TemplateColumn(
+    cable_peer = TemplateColumn(
         accessor='_cable_peer',
         template_code=CABLETERMINATION,
         orderable=False,
@@ -268,7 +268,7 @@ class CableTerminationTable(BaseTable):
 
 
 class PathEndpointTable(CableTerminationTable):
-    connection = tables.TemplateColumn(
+    connection = TemplateColumn(
         accessor='_path.last_node',
         template_code=CABLETERMINATION,
         verbose_name='Connection',
@@ -470,7 +470,7 @@ class BaseInterfaceTable(BaseTable):
         verbose_name='IP Addresses'
     )
     untagged_vlan = tables.Column(linkify=True)
-    tagged_vlans = tables.TemplateColumn(
+    tagged_vlans = TemplateColumn(
         template_code=INTERFACE_TAGGED_VLANS,
         orderable=False,
         verbose_name='Tagged VLANs'

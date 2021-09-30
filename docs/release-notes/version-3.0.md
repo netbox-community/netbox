@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#6895](https://github.com/netbox-community/netbox/issues/6895) - Remove errant markup for null values in CSV export
 * [#7373](https://github.com/netbox-community/netbox/issues/7373) - Fix flashing when server, client, and browser color-mode preferences are mismatched
 
 ---

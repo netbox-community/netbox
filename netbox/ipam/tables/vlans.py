@@ -6,7 +6,7 @@ from dcim.models import Interface
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ContentTypeColumn, LinkedCountColumn, TagColumn,
-    ToggleColumn,
+    TemplateColumn, ToggleColumn,
 )
 from virtualization.models import VMInterface
 from ipam.models import *
@@ -35,17 +35,7 @@ VLAN_LINK = """
 VLAN_PREFIXES = """
 {% for prefix in record.prefixes.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
-{% empty %}
-    &mdash;
 {% endfor %}
-"""
-
-VLAN_ROLE_LINK = """
-{% if record.role %}
-    <a href="{% url 'ipam:vlan_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
-{% else %}
-    &mdash;
-{% endif %}
 """
 
 VLANGROUP_ADD_VLAN = """
@@ -115,10 +105,10 @@ class VLANTable(BaseTable):
     status = ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
-    role = tables.TemplateColumn(
-        template_code=VLAN_ROLE_LINK
+    role = tables.Column(
+        linkify=True
     )
-    prefixes = tables.TemplateColumn(
+    prefixes = TemplateColumn(
         template_code=VLAN_PREFIXES,
         orderable=False,
         verbose_name='Prefixes'
@@ -190,8 +180,8 @@ class InterfaceVLANTable(BaseTable):
     )
     tenant = TenantColumn()
     status = ChoiceFieldColumn()
-    role = tables.TemplateColumn(
-        template_code=VLAN_ROLE_LINK
+    role = tables.Column(
+        linkify=True
     )
 
     class Meta(BaseTable.Meta):

@@ -157,6 +157,25 @@ class BooleanColumn(tables.Column):
         return str(value)
 
 
+class TemplateColumn(tables.TemplateColumn):
+    """
+    Overrides the stock TemplateColumn to render a placeholder if the returned value is an empty string.
+    """
+    PLACEHOLDER = mark_safe('&mdash;')
+
+    def render(self, *args, **kwargs):
+        ret = super().render(*args, **kwargs)
+        if not ret.strip():
+            return self.PLACEHOLDER
+        return ret
+
+    def value(self, **kwargs):
+        ret = super().value(**kwargs)
+        if ret == self.PLACEHOLDER:
+            return ''
+        return ret
+
+
 class ButtonsColumn(tables.TemplateColumn):
     """
     Render edit, delete, and changelog buttons for an object.

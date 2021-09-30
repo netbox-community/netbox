@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from tenancy.tables import TenantColumn
-from utilities.tables import BaseTable, BooleanColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, TagColumn, TemplateColumn, ToggleColumn
 from ipam.models import *
 
 __all__ = (
@@ -11,9 +11,7 @@ __all__ = (
 
 VRF_TARGETS = """
 {% for rt in value.all %}
-    <a href="{{ rt.get_absolute_url }}">{{ rt }}</a>{% if not forloop.last %}<br />{% endif %}
-{% empty %}
-    &mdash;
+  <a href="{{ rt.get_absolute_url }}">{{ rt }}</a>{% if not forloop.last %}<br />{% endif %}
 {% endfor %}
 """
 
@@ -34,11 +32,11 @@ class VRFTable(BaseTable):
     enforce_unique = BooleanColumn(
         verbose_name='Unique'
     )
-    import_targets = tables.TemplateColumn(
+    import_targets = TemplateColumn(
         template_code=VRF_TARGETS,
         orderable=False
     )
-    export_targets = tables.TemplateColumn(
+    export_targets = TemplateColumn(
         template_code=VRF_TARGETS,
         orderable=False
     )
