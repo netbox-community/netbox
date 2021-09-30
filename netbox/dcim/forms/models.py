@@ -38,6 +38,7 @@ __all__ = (
     'LocationForm',
     'ManufacturerForm',
     'PlatformForm',
+    'PopulateDeviceBayForm',
     'PowerFeedForm',
     'PowerOutletForm',
     'PowerOutletTemplateForm',
