@@ -25,3 +25,6 @@ psycopg2-binary==2.9.1
 PyYAML==5.4.1
 svgwrite==1.4.1
 tablib==3.0.0
+
+# Workaround for #7401
+jsonschema==3.2.0
