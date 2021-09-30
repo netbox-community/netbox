@@ -230,7 +230,7 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
         Overrides ListModelMixin to allow processing ExportTemplates.
         """
         if 'export' in request.GET:
-            content_type = ContentType.objects.get_for_model(self.serializer_class.Meta.model)
+            content_type = ContentType.objects.get_for_model(self.get_serializer_class().Meta.model)
             et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
             queryset = self.filter_queryset(self.get_queryset())
             return et.render_to_response(queryset)
