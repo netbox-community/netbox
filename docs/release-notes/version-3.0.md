@@ -2,6 +2,10 @@
 
 ## v3.0.5 (FUTURE)
 
+### Bug Fixes
+
+* [#7373](https://github.com/netbox-community/netbox/issues/7373) - Fix flashing when server, client, and browser color-mode preferences are mismatched
+
 ---
 
 ## v3.0.4 (2021-09-29)
