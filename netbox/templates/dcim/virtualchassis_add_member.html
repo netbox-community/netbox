@@ -4,25 +4,19 @@
 {% block title %}Add New Member to Virtual Chassis {{ virtual_chassis }}{% endblock %}
 
 {% block content %}
-    <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
+    <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
         {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col col-md-6">
-                <div class="card">
-                    <h5 class="card-header">Add New Member</h5>
-                    <div class="card-body">
-                        {% render_form member_select_form %}
-                        {% render_form membership_form %}
-                    </div>
-                </div>
+        <div class="card">
+            <h5 class="card-header">Add New Member</h5>
+            <div class="card-body">
+                {% render_form member_select_form %}
+                {% render_form membership_form %}
             </div>
         </div>
-        <div class="row mb-3">
-            <div class="col col-md-6 text-end">
-                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                <button type="submit" name="_addanother" class="btn btn-outline-primary">Add Another</button>
-                <button type="submit" name="_save" class="btn btn-primary">Save</button>
-            </div>
+        <div class="text-end my-3">
+            <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+            <button type="submit" name="_addanother" class="btn btn-outline-primary">Add Another</button>
+            <button type="submit" name="_save" class="btn btn-primary">Save</button>
         </div>
     </form>
 {% endblock %}

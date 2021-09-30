@@ -52,6 +52,7 @@ __all__ = (
     'RegionForm',
     'SiteForm',
     'SiteGroupForm',
+    'VCMemberSelectForm',
     'VirtualChassisForm',
 )
 

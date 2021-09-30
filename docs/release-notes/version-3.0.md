@@ -7,6 +7,7 @@
 * [#6895](https://github.com/netbox-community/netbox/issues/6895) - Remove errant markup for null values in CSV export
 * [#7373](https://github.com/netbox-community/netbox/issues/7373) - Fix flashing when server, client, and browser color-mode preferences are mismatched
 * [#7397](https://github.com/netbox-community/netbox/issues/7397) - Fix AttributeError exception when rendering export template for devices via REST API
+* [#7411](https://github.com/netbox-community/netbox/issues/7411) - Fix exception in UI when adding member devices to virtual chassis
 
 ---
 
