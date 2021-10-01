@@ -59,22 +59,7 @@
   </div>
 	<div class="col col-md-6">
     {% include 'inc/custom_fields_panel.html' %}
-    <div class="card">
-        <h5 class="card-header">
-            Images
-        </h5>
-        <div class="card-body">
-          {% include 'inc/image_attachments.html' with images=object.images.all %}
-        </div>
-        {% if perms.extras.add_imageattachment %}
-          <div class="card-footer text-end noprint">
-              <a href="{% url 'extras:imageattachment_add' %}?content_type=dcim.location&object_id={{ object.pk }}" class="btn btn-primary btn-sm">
-                  <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                  Attach an Image
-              </a>
-          </div>
-        {% endif %}
-    </div>
+    {% include 'inc/image_attachments_panel.html' %}
     {% plugin_right_page object %}
 	</div>
 </div>
