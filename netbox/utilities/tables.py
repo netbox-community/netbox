@@ -111,6 +111,16 @@ class BaseTable(tables.Table):
     def selected_columns(self):
         return self._get_columns(visible=True)
 
+    @property
+    def objects_count(self):
+        """
+        Return the total number of real objects represented by the Table. This is useful when dealing with
+        prefixes/IP addresses/etc., where some table rows may represent available address space.
+        """
+        if not hasattr(self, '_objects_count'):
+            self._objects_count = sum(1 for obj in self.data if getattr(obj, 'pk'))
+        return self._objects_count
+
 
 #
 # Table columns
