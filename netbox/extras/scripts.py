@@ -484,7 +484,7 @@ def get_scripts(use_names=False):
             module_scripts[cls.__name__] = cls
         if module_scripts:
             scripts[module_name] = module_scripts
-    
+
     return scripts
 
 

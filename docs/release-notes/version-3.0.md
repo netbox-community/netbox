@@ -2,6 +2,10 @@
 
 ## v3.0.5 (FUTURE)
 
+### Enhancements
+
+* [#7387](https://github.com/netbox-community/netbox/issues/7387) - Enable arbitrary ordering of custom scripts
+
 ### Bug Fixes
 
 * [#6895](https://github.com/netbox-community/netbox/issues/6895) - Remove errant markup for null values in CSV export
