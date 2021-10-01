@@ -78,6 +78,7 @@ urlpatterns = [
          kwargs={'model': models.ConfigContext}),
 
     # Image attachments
+    path('image-attachments/add/', views.ImageAttachmentEditView.as_view(), name='imageattachment_add'),
     path('image-attachments/<int:pk>/edit/', views.ImageAttachmentEditView.as_view(), name='imageattachment_edit'),
     path('image-attachments/<int:pk>/delete/', views.ImageAttachmentDeleteView.as_view(), name='imageattachment_delete'),
 

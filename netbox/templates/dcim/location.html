@@ -68,7 +68,7 @@
         </div>
         {% if perms.extras.add_imageattachment %}
           <div class="card-footer text-end noprint">
-              <a href="{% url 'dcim:location_add_image' object_id=object.pk %}" class="btn btn-primary btn-sm">
+              <a href="{% url 'extras:imageattachment_add' %}?content_type=dcim.location&object_id={{ object.pk }}" class="btn btn-primary btn-sm">
                   <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                   Attach an Image
               </a>
