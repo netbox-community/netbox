@@ -398,6 +398,9 @@ def applied_filters(form, query_params):
 
     applied_filters = []
     for filter_name in form.changed_data:
+        if filter_name not in form.cleaned_data:
+            continue
+
         querydict = query_params.copy()
         if filter_name not in querydict:
             continue
