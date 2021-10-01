@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#6423](https://github.com/netbox-community/netbox/issues/6423) - Cache rendered REST API specifications
 * [#7387](https://github.com/netbox-community/netbox/issues/7387) - Enable arbitrary ordering of custom scripts
 
 ### Bug Fixes
