@@ -29,13 +29,18 @@ class BaseTable(tables.Table):
             'class': 'table table-hover object-list',
         }
 
-    def __init__(self, *args, user=None, **kwargs):
+    def __init__(self, *args, user=None, extra_columns=None, **kwargs):
         # Add custom field columns
         obj_type = ContentType.objects.get_for_model(self._meta.model)
-        for cf in CustomField.objects.filter(content_types=obj_type):
-            self.base_columns[f'cf_{cf.name}'] = CustomFieldColumn(cf)
+        cf_columns = [
+            (f'cf_{cf.name}', CustomFieldColumn(cf)) for cf in CustomField.objects.filter(content_types=obj_type)
+        ]
+        if extra_columns is not None:
+            extra_columns.extend(cf_columns)
+        else:
+            extra_columns = cf_columns
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
@@ -50,17 +55,22 @@ class BaseTable(tables.Table):
 
         # Apply custom column ordering for user
         if user is not None and not isinstance(user, AnonymousUser):
-            columns = user.config.get(f"tables.{self.__class__.__name__}.columns")
-            if columns:
+            selected_columns = user.config.get(f"tables.{self.__class__.__name__}.columns")
+            if selected_columns:
                 pk = self.base_columns.pop('pk', None)
                 actions = self.base_columns.pop('actions', None)
 
-                for name, column in self.base_columns.items():
-                    if name in columns:
+                for name, column in self.columns.items():
+                    if name in selected_columns:
                         self.columns.show(name)
                     else:
                         self.columns.hide(name)
-                self.sequence = [c for c in columns if c in self.base_columns]
+                # Rearrange the sequence to list selected columns first, followed by all remaining columns
+                # TODO: There's probably a more clever way to accomplish this
+                self.sequence = [
+                    *[c for c in selected_columns if c in self.columns.names()],
+                    *[c for c in self.columns.names() if c not in selected_columns]
+                ]
 
                 # Always include PK and actions column, if defined on the table
                 if pk:
