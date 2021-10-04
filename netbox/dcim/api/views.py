@@ -8,6 +8,7 @@ from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
@@ -672,6 +673,12 @@ class ConnectedDeviceViewSet(ViewSet):
         peer_device_name = request.query_params.get(self._device_param.name)
         peer_interface_name = request.query_params.get(self._interface_param.name)
 
+        # check permissions of user, if login is required
+        if settings.LOGIN_REQUIRED:
+            if not request.user.has_perm('dcim.view_device') or not request.user.has_perm('dcim.view_interface'):
+                raise PermissionDenied('You do not have permission to perform this action.')
+
+        # check query parameters
         if not peer_device_name or not peer_interface_name:
             raise MissingFilterException(detail='Request must include "peer_device" and "peer_interface" filters.')
 
