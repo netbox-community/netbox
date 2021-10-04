@@ -15,6 +15,7 @@
 * [#6433](https://github.com/netbox-community/netbox/issues/6433) - Fix bulk editing of child prefixes under aggregate view
 * [#6817](https://github.com/netbox-community/netbox/issues/6817) - Custom field columns should be removed from tables upon their deletion
 * [#6895](https://github.com/netbox-community/netbox/issues/6895) - Remove errant markup for null values in CSV export
+* [#7215](https://github.com/netbox-community/netbox/issues/7215) - Prevent rack elevations from overlapping when higher width is specified
 * [#7373](https://github.com/netbox-community/netbox/issues/7373) - Fix flashing when server, client, and browser color-mode preferences are mismatched
 * [#7397](https://github.com/netbox-community/netbox/issues/7397) - Fix AttributeError exception when rendering export template for devices via REST API
 * [#7401](https://github.com/netbox-community/netbox/issues/7401) - Pin `jsonschema` package to v3.2.0 to fix REST API docs rendering
