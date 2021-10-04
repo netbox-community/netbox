@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Cable
-from utilities.tables import BaseTable, ChoiceFieldColumn, ColorColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ChoiceFieldColumn, ColorColumn, TagColumn, TemplateColumn, ToggleColumn
 from .template_code import CABLE_LENGTH, CABLE_TERMINATION_PARENT
 
 __all__ = (
@@ -45,7 +45,7 @@ class CableTable(BaseTable):
         verbose_name='Termination B'
     )
     status = ChoiceFieldColumn()
-    length = tables.TemplateColumn(
+    length = TemplateColumn(
         template_code=CABLE_LENGTH,
         order_by='_abs_length'
     )

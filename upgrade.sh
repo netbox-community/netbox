@@ -61,22 +61,6 @@ else
   echo "Skipping local dependencies (local_requirements.txt not found)"
 fi
 
-# Test schema migrations integrity
-COMMAND="python3 netbox/manage.py showmigrations"
-eval $COMMAND > /dev/null 2>&1 || {
-  echo "--------------------------------------------------------------------"
-  echo "ERROR: Database schema migrations are out of synchronization. (No"
-  echo "data has been lost.) If attempting to upgrade to NetBox v3.0 or"
-  echo "later, first upgrade to a v2.11 release to ensure schema migrations"
-  echo "have been correctly prepared. For further detail on the exact error,"
-  echo "run the following commands:"
-  echo ""
-  echo "    source ${VIRTUALENV}/bin/activate"
-  echo "    ${COMMAND}"
-  echo "--------------------------------------------------------------------"
-  exit 1
-}
-
 # Apply any database migrations
 COMMAND="python3 netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."

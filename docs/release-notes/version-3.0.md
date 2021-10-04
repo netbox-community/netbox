@@ -1,5 +1,31 @@
 # NetBox v3.0
 
+## v3.0.5 (2021-10-04)
+
+### Enhancements
+
+* [#5925](https://github.com/netbox-community/netbox/issues/5925) - Always show IP addresses tab under prefix view
+* [#6423](https://github.com/netbox-community/netbox/issues/6423) - Cache rendered REST API specifications
+* [#6708](https://github.com/netbox-community/netbox/issues/6708) - Add image attachment support for circuits, power panels
+* [#7387](https://github.com/netbox-community/netbox/issues/7387) - Enable arbitrary ordering of custom scripts
+* [#7427](https://github.com/netbox-community/netbox/issues/7427) - Don't select hidden rows when selecting all in a table
+
+### Bug Fixes
+
+* [#6433](https://github.com/netbox-community/netbox/issues/6433) - Fix bulk editing of child prefixes under aggregate view
+* [#6817](https://github.com/netbox-community/netbox/issues/6817) - Custom field columns should be removed from tables upon their deletion
+* [#6895](https://github.com/netbox-community/netbox/issues/6895) - Remove errant markup for null values in CSV export
+* [#7215](https://github.com/netbox-community/netbox/issues/7215) - Prevent rack elevations from overlapping when higher width is specified
+* [#7373](https://github.com/netbox-community/netbox/issues/7373) - Fix flashing when server, client, and browser color-mode preferences are mismatched
+* [#7397](https://github.com/netbox-community/netbox/issues/7397) - Fix AttributeError exception when rendering export template for devices via REST API
+* [#7401](https://github.com/netbox-community/netbox/issues/7401) - Pin `jsonschema` package to v3.2.0 to fix REST API docs rendering
+* [#7411](https://github.com/netbox-community/netbox/issues/7411) - Fix exception in UI when adding member devices to virtual chassis
+* [#7412](https://github.com/netbox-community/netbox/issues/7412) - Fix exception in UI when adding child device to device bay
+* [#7417](https://github.com/netbox-community/netbox/issues/7417) - Prevent exception when filtering objects list by invalid tag
+* [#7425](https://github.com/netbox-community/netbox/issues/7425) - Housekeeping command should honor zero verbosity
+
+---
+
 ## v3.0.4 (2021-09-29)
 
 ### Enhancements
@@ -29,6 +55,8 @@
 * [#7365](https://github.com/netbox-community/netbox/issues/7365) - Optimize performance when calculating prefix utilization
 * [#7374](https://github.com/netbox-community/netbox/issues/7374) - Add missing `face` parameter to API elevations request when editing device
 * [#7392](https://github.com/netbox-community/netbox/issues/7392) - Fix "help" links for custom fields, other models
+
+---
 
 ## v3.0.3 (2021-09-20)
 

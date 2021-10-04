@@ -290,22 +290,7 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="card">
-                <h5 class="card-header">
-                    Images
-                </h5>
-                <div class="card-body">
-                    {% include 'inc/image_attachments.html' with images=object.images.all %}
-                </div>
-                {% if perms.extras.add_imageattachment %}
-                <div class="card-footer text-end noprint">
-                    <a href="{% url 'dcim:device_add_image' object_id=object.pk %}" class="btn btn-primary btn-sm">
-                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-                        Attach an Image
-                    </a>
-                </div>
-                {% endif %}
-            </div>
+            {% include 'inc/image_attachments_panel.html' %}
             <div class="card noprint">
                 <h5 class="card-header">
                     Related Devices

@@ -38,6 +38,7 @@ __all__ = (
     'LocationForm',
     'ManufacturerForm',
     'PlatformForm',
+    'PopulateDeviceBayForm',
     'PowerFeedForm',
     'PowerOutletForm',
     'PowerOutletTemplateForm',
@@ -52,6 +53,7 @@ __all__ = (
     'RegionForm',
     'SiteForm',
     'SiteGroupForm',
+    'VCMemberSelectForm',
     'VirtualChassisForm',
 )
 

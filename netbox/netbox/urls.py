@@ -17,7 +17,7 @@ from .admin import admin_site
 
 openapi_info = openapi.Info(
     title="NetBox API",
-    default_version='v2',
+    default_version='v3',
     description="API to access NetBox",
     terms_of_service="https://github.com/netbox-community/netbox",
     license=openapi.License(name="Apache v2 License"),
@@ -59,9 +59,9 @@ _patterns = [
     path('api/users/', include('users.api.urls')),
     path('api/virtualization/', include('virtualization.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
-    path('api/docs/', schema_view.with_ui('swagger'), name='api_docs'),
-    path('api/redoc/', schema_view.with_ui('redoc'), name='api_redocs'),
-    re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(), name='schema_swagger'),
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=86400), name='api_docs'),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=86400), name='api_redocs'),
+    re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(cache_timeout=86400), name='schema_swagger'),
 
     # GraphQL
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema)), name='graphql'),
