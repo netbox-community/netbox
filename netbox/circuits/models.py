@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -201,6 +202,9 @@ class Circuit(PrimaryModel):
     )
     comments = models.TextField(
         blank=True
+    )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
     )
 
     # Cache associated CircuitTerminations

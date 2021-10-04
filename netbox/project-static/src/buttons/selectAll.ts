@@ -36,7 +36,7 @@ function handleSelectAllToggle(event: Event): void {
 
   if (table !== null) {
     for (const element of table.querySelectorAll<HTMLInputElement>(
-      'input[type="checkbox"][name="pk"]',
+      'tr:not(.d-none) input[type="checkbox"][name="pk"]',
     )) {
       if (tableSelectAll.checked) {
         // Check all PK checkboxes if the select all checkbox is checked.

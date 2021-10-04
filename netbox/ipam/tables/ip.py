@@ -39,15 +39,7 @@ PREFIXFLAT_LINK = """
 {% if record.pk %}
     <a href="{% url 'ipam:prefix' pk=record.pk %}">{{ record.prefix }}</a>
 {% else %}
-    &mdash;
-{% endif %}
-"""
-
-PREFIX_ROLE_LINK = """
-{% if record.role %}
-    <a href="{% url 'ipam:prefix_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
-{% else %}
-    &mdash;
+    {{ record.prefix }}
 {% endif %}
 """
 
@@ -218,8 +210,8 @@ class PrefixTable(BaseTable):
         linkify=True,
         verbose_name='VLAN'
     )
-    role = tables.TemplateColumn(
-        template_code=PREFIX_ROLE_LINK
+    role = tables.Column(
+        linkify=True
     )
     is_pool = BooleanColumn(
         verbose_name='Pool'
@@ -264,8 +256,8 @@ class IPRangeTable(BaseTable):
     status = ChoiceFieldColumn(
         default=AVAILABLE_LABEL
     )
-    role = tables.TemplateColumn(
-        template_code=PREFIX_ROLE_LINK
+    role = tables.Column(
+        linkify=True
     )
     tenant = TenantColumn()
 

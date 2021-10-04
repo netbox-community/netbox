@@ -240,6 +240,7 @@ class AggregateView(generic.ObjectView):
         return {
             'prefix_table': prefix_table,
             'permissions': permissions,
+            'bulk_querystring': f'within={instance.prefix}',
             'show_available': request.GET.get('show_available', 'true') == 'true',
         }
 

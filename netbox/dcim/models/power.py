@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -38,6 +39,9 @@ class PowerPanel(PrimaryModel):
     )
     name = models.CharField(
         max_length=100
+    )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
     )
 
     objects = RestrictedQuerySet.as_manager()

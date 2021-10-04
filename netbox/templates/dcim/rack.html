@@ -210,22 +210,7 @@
                 </div>
             </div>
         {% endif %}
-        <div class="card">
-            <h5 class="card-header">
-                Images
-            </h5>
-            <div class="card-body">
-            {% include 'inc/image_attachments.html' with images=object.images.all %}
-            </div>
-            {% if perms.extras.add_imageattachment %}
-            <div class="card-footer text-end noprint">
-                <a href="{% url 'dcim:rack_add_image' object_id=object.pk %}" class="btn btn-primary btn-sm">
-                    <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                    Attach an Image
-                </a>
-            </div>
-            {% endif %}
-        </div>
+        {% include 'inc/image_attachments_panel.html' %}
         <div class="card">
             <h5 class="card-header">
                 Reservations
