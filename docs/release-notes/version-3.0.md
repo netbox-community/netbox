@@ -1,5 +1,13 @@
 # NetBox v3.0
 
+## v3.0.6 (FUTURE)
+
+### Bug Fixes
+
+* [#7442](https://github.com/netbox-community/netbox/issues/7442) - Fix missing actions column on user-configured tables
+
+---
+
 ## v3.0.5 (2021-10-04)
 
 ### Enhancements

@@ -57,14 +57,14 @@ class BaseTable(tables.Table):
         if user is not None and not isinstance(user, AnonymousUser):
             selected_columns = user.config.get(f"tables.{self.__class__.__name__}.columns")
             if selected_columns:
-                pk = self.base_columns.pop('pk', None)
-                actions = self.base_columns.pop('actions', None)
 
+                # Show only persistent or selected columns
                 for name, column in self.columns.items():
-                    if name in selected_columns:
+                    if name in ['pk', 'actions', *selected_columns]:
                         self.columns.show(name)
                     else:
                         self.columns.hide(name)
+
                 # Rearrange the sequence to list selected columns first, followed by all remaining columns
                 # TODO: There's probably a more clever way to accomplish this
                 self.sequence = [
@@ -72,12 +72,14 @@ class BaseTable(tables.Table):
                     *[c for c in self.columns.names() if c not in selected_columns]
                 ]
 
-                # Always include PK and actions column, if defined on the table
-                if pk:
-                    self.base_columns['pk'] = pk
+                # PK column should always come first
+                if 'pk' in self.sequence:
+                    self.sequence.remove('pk')
                     self.sequence.insert(0, 'pk')
-                if actions:
-                    self.base_columns['actions'] = actions
+
+                # Actions column should always come last
+                if 'actions' in self.sequence:
+                    self.sequence.remove('actions')
                     self.sequence.append('actions')
 
         # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
