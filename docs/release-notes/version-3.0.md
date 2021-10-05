@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#7442](https://github.com/netbox-community/netbox/issues/7442) - Fix missing actions column on user-configured tables
+* [#7446](https://github.com/netbox-community/netbox/issues/7446) - Fix exception when viewing a large number of child IPs within a prefix
 
 ---
 
