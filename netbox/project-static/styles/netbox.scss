@@ -73,16 +73,6 @@
       color: color-contrast($value);
     }
   }
-
-  // Use proper foreground color in the alert body. Note: this is applied to p, & small because
-  // we *don't* want to override the h1-h6 colors for alerts, since those are set to a color
-  // similar to the alert color.
-  .alert.alert-#{$color} {
-    p,
-    small {
-      color: color-contrast($value);
-    }
-  }
 }
 
 // Ensure progress bars (utilization graph) in tables aren't too narrow to display the percentage.
