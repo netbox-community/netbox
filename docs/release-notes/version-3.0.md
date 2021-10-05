@@ -17,7 +17,6 @@
 * [#6423](https://github.com/netbox-community/netbox/issues/6423) - Cache rendered REST API specifications
 * [#6708](https://github.com/netbox-community/netbox/issues/6708) - Add image attachment support for circuits, power panels
 * [#7387](https://github.com/netbox-community/netbox/issues/7387) - Enable arbitrary ordering of custom scripts
-* [#7427](https://github.com/netbox-community/netbox/issues/7427) - Don't select hidden rows when selecting all in a table
 
 ### Bug Fixes
 
@@ -32,6 +31,7 @@
 * [#7412](https://github.com/netbox-community/netbox/issues/7412) - Fix exception in UI when adding child device to device bay
 * [#7417](https://github.com/netbox-community/netbox/issues/7417) - Prevent exception when filtering objects list by invalid tag
 * [#7425](https://github.com/netbox-community/netbox/issues/7425) - Housekeeping command should honor zero verbosity
+* [#7427](https://github.com/netbox-community/netbox/issues/7427) - Don't select hidden rows when selecting all in a table
 
 ---
 
