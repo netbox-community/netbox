@@ -190,16 +190,21 @@ div#advanced-search-content div.card div.card-body div.col:not(:last-child) {
 }
 
 table {
-  a {
-    text-decoration: none;
-    &:hover {
-      text-decoration: underline;
+  td {
+    a {
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
-  &.table > :not(caption) > * > * {
-    padding-right: $table-cell-padding-x-sm !important;
-    padding-left: $table-cell-padding-x-sm !important;
+  th {
+    a, a:hover {
+      color: $body-color;
+      text-decoration: none;
+    }
   }
+
   td,
   th {
     font-size: $font-size-sm;
@@ -222,6 +227,11 @@ table {
       // Remove spacing from paragraph elements within tables.
       margin-bottom: 0;
     }
+  }
+
+  &.table > :not(caption) > * > * {
+    padding-right: $table-cell-padding-x-sm !important;
+    padding-left: $table-cell-padding-x-sm !important;
   }
 
   &.object-list {
