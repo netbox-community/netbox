@@ -8,6 +8,7 @@
 * [#7446](https://github.com/netbox-community/netbox/issues/7446) - Fix exception when viewing a large number of child IPs within a prefix
 * [#7455](https://github.com/netbox-community/netbox/issues/7455) - Fix site/provider network validation for circuit termination API serializer
 * [#7459](https://github.com/netbox-community/netbox/issues/7459) - Pre-populate location data when adding a device to a rack
+* [#7460](https://github.com/netbox-community/netbox/issues/7460) - Fix filtering connections by site ID
 
 ---
 
