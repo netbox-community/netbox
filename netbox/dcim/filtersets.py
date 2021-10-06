@@ -10,7 +10,8 @@ from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
+    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .choices import *
@@ -1183,6 +1184,10 @@ class CableFilterSet(PrimaryModelFilterSet):
         method='search',
         label='Search',
     )
+    termination_a_type = ContentTypeFilter()
+    termination_a_id = MultiValueNumberFilter()
+    termination_b_type = ContentTypeFilter()
+    termination_b_id = MultiValueNumberFilter()
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
     )
@@ -1227,7 +1232,7 @@ class CableFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = Cable
-        fields = ['id', 'label', 'length', 'length_unit']
+        fields = ['id', 'label', 'length', 'length_unit', 'termination_a_id', 'termination_b_id']
 
     def search(self, queryset, name, value):
         if not value.strip():

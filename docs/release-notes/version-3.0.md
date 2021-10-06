@@ -6,6 +6,7 @@
 
 * [#6850](https://github.com/netbox-community/netbox/issues/6850) - Default to current user when creating journal entries via REST API
 * [#6955](https://github.com/netbox-community/netbox/issues/6955) - Include type, ID, and slug on object view
+* [#7394](https://github.com/netbox-community/netbox/issues/7394) - Enable filtering cables by termination type & ID in REST API
 * [#7462](https://github.com/netbox-community/netbox/issues/7462) - Include count of assigned virtual machines under platform view
 
 ### Bug Fixes
