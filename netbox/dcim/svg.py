@@ -132,14 +132,18 @@ class RackElevationSVG:
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):
+        link_url = '{}?{}'.format(
+            reverse('dcim:device_add'),
+            urlencode({
+                'site': rack.site.pk,
+                'location': rack.location.pk if rack.location else '',
+                'rack': rack.pk,
+                'face': face_id,
+                'position': id_
+            })
+        )
         link = drawing.add(
-            drawing.a(
-                href='{}?{}'.format(
-                    reverse('dcim:device_add'),
-                    urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': face_id, 'position': id_})
-                ),
-                target='_top'
-            )
+            drawing.a(href=link_url, target='_top')
         )
         if reservation:
             link.set_desc('{} — {} · {}'.format(
