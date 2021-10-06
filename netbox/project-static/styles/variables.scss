@@ -23,7 +23,7 @@
   --nbx-color-mode-toggle-color: #{$primary};
   --nbx-sidenav-link-color: #{$gray-800};
   --nbx-sidenav-pin-color: #{$orange};
-  --nbx-sidenav-parent-color: #{$gray-900};
+  --nbx-sidenav-parent-color: #{$gray-800};
   --nbx-sidenav-group-color: #{$gray-800};
 
   &[data-netbox-color-mode='dark'] {
@@ -49,7 +49,7 @@
     --nbx-color-mode-toggle-color: #{$yellow-300};
     --nbx-sidenav-link-color: #{$gray-200};
     --nbx-sidenav-pin-color: #{$yellow};
-    --nbx-sidenav-parent-color: #{$gray-100};
+    --nbx-sidenav-parent-color: #{$gray-200};
     --nbx-sidenav-group-color: #{$gray-600};
   }
 }

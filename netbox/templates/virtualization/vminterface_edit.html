@@ -2,7 +2,7 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="field-group my-4">
+    <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">Interface</h5>
       </div>
@@ -22,9 +22,8 @@
       {% render_field form.description %}
       {% render_field form.tags %}
     </div>
-    <hr />
 
-    <div class="field-group my-4">
+    <div class="field-group my-5">
       <div class="row mb-2">
         <h5 class="offset-sm-3">802.1Q Switching</h5>
       </div>
@@ -35,8 +34,7 @@
     </div>
 
     {% if form.custom_fields %}
-      <hr />
-      <div class="field-group my-4">
+      <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Custom Fields</h5>
         </div>

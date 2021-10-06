@@ -1,5 +1,24 @@
 # NetBox v3.0
 
+## v3.0.6 (2021-10-06)
+
+### Enhancements
+
+* [#6850](https://github.com/netbox-community/netbox/issues/6850) - Default to current user when creating journal entries via REST API
+* [#6955](https://github.com/netbox-community/netbox/issues/6955) - Include type, ID, and slug on object view
+* [#7394](https://github.com/netbox-community/netbox/issues/7394) - Enable filtering cables by termination type & ID in REST API
+* [#7462](https://github.com/netbox-community/netbox/issues/7462) - Include count of assigned virtual machines under platform view
+
+### Bug Fixes
+
+* [#7442](https://github.com/netbox-community/netbox/issues/7442) - Fix missing actions column on user-configured tables
+* [#7446](https://github.com/netbox-community/netbox/issues/7446) - Fix exception when viewing a large number of child IPs within a prefix
+* [#7455](https://github.com/netbox-community/netbox/issues/7455) - Fix site/provider network validation for circuit termination API serializer
+* [#7459](https://github.com/netbox-community/netbox/issues/7459) - Pre-populate location data when adding a device to a rack
+* [#7460](https://github.com/netbox-community/netbox/issues/7460) - Fix filtering connections by site ID
+
+---
+
 ## v3.0.5 (2021-10-04)
 
 ### Enhancements
@@ -8,7 +27,6 @@
 * [#6423](https://github.com/netbox-community/netbox/issues/6423) - Cache rendered REST API specifications
 * [#6708](https://github.com/netbox-community/netbox/issues/6708) - Add image attachment support for circuits, power panels
 * [#7387](https://github.com/netbox-community/netbox/issues/7387) - Enable arbitrary ordering of custom scripts
-* [#7427](https://github.com/netbox-community/netbox/issues/7427) - Don't select hidden rows when selecting all in a table
 
 ### Bug Fixes
 
@@ -23,6 +41,7 @@
 * [#7412](https://github.com/netbox-community/netbox/issues/7412) - Fix exception in UI when adding child device to device bay
 * [#7417](https://github.com/netbox-community/netbox/issues/7417) - Prevent exception when filtering objects list by invalid tag
 * [#7425](https://github.com/netbox-community/netbox/issues/7425) - Housekeeping command should honor zero verbosity
+* [#7427](https://github.com/netbox-community/netbox/issues/7427) - Don't select hidden rows when selecting all in a table
 
 ---
 

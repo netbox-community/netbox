@@ -136,14 +136,20 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         SIDE_A = CircuitTerminationSideChoices.SIDE_A
         SIDE_Z = CircuitTerminationSideChoices.SIDE_Z
 
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
         )
         Site.objects.bulk_create(sites)
 
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        provider_networks = (
+            ProviderNetwork(provider=provider, name='Provider Network 1'),
+            ProviderNetwork(provider=provider, name='Provider Network 2'),
+        )
+        ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
             Circuit(cid='Circuit 1', provider=provider, type=circuit_type),
@@ -153,10 +159,10 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = (
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side=SIDE_A),
-            CircuitTermination(circuit=circuits[0], site=sites[1], term_side=SIDE_Z),
-            CircuitTermination(circuit=circuits[1], site=sites[0], term_side=SIDE_A),
-            CircuitTermination(circuit=circuits[1], site=sites[1], term_side=SIDE_Z),
+            CircuitTermination(circuit=circuits[0], term_side=SIDE_A, site=sites[0]),
+            CircuitTermination(circuit=circuits[0], term_side=SIDE_Z, provider_network=provider_networks[0]),
+            CircuitTermination(circuit=circuits[1], term_side=SIDE_A, site=sites[1]),
+            CircuitTermination(circuit=circuits[1], term_side=SIDE_Z, provider_network=provider_networks[1]),
         )
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
@@ -164,13 +170,13 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
             {
                 'circuit': circuits[2].pk,
                 'term_side': SIDE_A,
-                'site': sites[1].pk,
+                'site': sites[0].pk,
                 'port_speed': 200000,
             },
             {
                 'circuit': circuits[2].pk,
                 'term_side': SIDE_Z,
-                'site': sites[1].pk,
+                'provider_network': provider_networks[0].pk,
                 'port_speed': 200000,
             },
         ]

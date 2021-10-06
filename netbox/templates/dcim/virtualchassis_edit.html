@@ -11,7 +11,7 @@
         {% csrf_token %}
         {{ pk_form.pk }}
         {{ formset.management_form }}
-        <div class="field-group my-4">
+        <div class="field-group my-5">
           <div class="row mb-2">
             <h5 class="offset-sm-3">Virtual Chassis</h5>
           </div>
@@ -20,16 +20,14 @@
           {% render_field vc_form.master %}
           {% render_field vc_form.tags %}
         </div>
-        <hr />
 
         {% if vc_form.custom_fields %}
-          <div class="field-group my-4">
+          <div class="field-group my-5">
             <div class="row mb-2">
               <h5 class="offset-sm-3">Custom Fields</h5>
             </div>
             {% render_custom_fields vc_form %}
           </div>
-          <hr />
         {% endif %}
 
         <div class="field-group mb-5">
