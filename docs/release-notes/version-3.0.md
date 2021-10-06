@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#6850](https://github.com/netbox-community/netbox/issues/6850) - Default to current user when creating journal entries via REST API
 * [#7462](https://github.com/netbox-community/netbox/issues/7462) - Include count of assigned virtual machines under platform view
 
 ### Bug Fixes

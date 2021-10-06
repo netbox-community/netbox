@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from drf_yasg.utils import swagger_serializer_method
@@ -30,6 +31,7 @@ __all__ = (
     'ExportTemplateSerializer',
     'ImageAttachmentSerializer',
     'JobResultSerializer',
+    'JournalEntrySerializer',
     'ObjectChangeSerializer',
     'ReportDetailSerializer',
     'ReportSerializer',
@@ -192,6 +194,12 @@ class JournalEntrySerializer(ValidatedModelSerializer):
         queryset=ContentType.objects.all()
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
+    created_by = serializers.PrimaryKeyRelatedField(
+        allow_null=True,
+        queryset=User.objects.all(),
+        required=False,
+        default=serializers.CurrentUserDefault()
+    )
     kind = ChoiceField(
         choices=JournalEntryKindChoices,
         required=False
