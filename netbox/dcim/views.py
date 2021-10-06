@@ -1229,6 +1229,7 @@ class PlatformView(generic.ObjectView):
 
         return {
             'devices_table': devices_table,
+            'virtualmachine_count': VirtualMachine.objects.filter(platform=instance).count()
         }
 
 

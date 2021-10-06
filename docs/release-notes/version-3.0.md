@@ -2,6 +2,10 @@
 
 ## v3.0.6 (FUTURE)
 
+### Enhancements
+
+* [#7462](https://github.com/netbox-community/netbox/issues/7462) - Include count of assigned virtual machines under platform view
+
 ### Bug Fixes
 
 * [#7442](https://github.com/netbox-community/netbox/issues/7442) - Fix missing actions column on user-configured tables
