@@ -46,6 +46,12 @@
               <a href="{% url 'dcim:device_list' %}?platform_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
             </td>
           </tr>
+          <tr>
+            <th scope="row">Virtual Machines</th>
+            <td>
+              <a href="{% url 'virtualization:virtualmachine_list' %}?platform_id={{ object.pk }}">{{ virtualmachine_count }}</a>
+            </td>
+          </tr>
         </table>
       </div>
     </div>

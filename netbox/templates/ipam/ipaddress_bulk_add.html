@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block form %}
-    <div class="field-group my-4">
+    <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">IP Addresses</h5>
         </div>
@@ -20,9 +20,8 @@
         {% render_field model_form.description %}
         {% render_field model_form.tags %}
     </div>
-    <hr />
 
-    <div class="field-group my-4">
+    <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Tenancy</h5>
         </div>
@@ -30,8 +29,7 @@
         {% render_field model_form.tenant %}
     </div>
     {% if model_form.custom_fields %}
-        <hr />
-        <div class="field-group my-4">
+        <div class="field-group my-5">
             <div class="row mb-2">
               <h5 class="offset-sm-3">Custom Fields</h5>
             </div>

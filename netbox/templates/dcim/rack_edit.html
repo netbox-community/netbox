@@ -2,7 +2,7 @@
 {% load form_helpers %}
 
 {% block form %}
-    <div class="field-group my-4">
+    <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Rack</h5>
         </div>
@@ -15,9 +15,8 @@
         {% render_field form.role %}
         {% render_field form.tags %}
     </div>
-    <hr />
 
-    <div class="field-group my-4">
+    <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Inventory Control</h5>
         </div>
@@ -25,18 +24,16 @@
         {% render_field form.serial %}
         {% render_field form.asset_tag %}
     </div>
-    <hr />
 
-    <div class="field-group my-4">
+    <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Tenancy</h5>
         </div>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
-    <hr />
 
-    <div class="field-group my-4">
+    <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Dimensions</h5>
         </div>
@@ -45,34 +42,33 @@
         {% render_field form.u_height %}
         <div class="row mb-3">
             <label class="col col-md-3 col-form-label text-lg-end">Outer Dimensions</label>
-            <div class="col col-md-3">
+            <div class="col col-md-3 mb-1">
                 {{ form.outer_width }}
                 <div class="form-text">Width</div>
             </div>
-            <div class="col col-md-3">
+            <div class="col col-md-3 mb-1">
                 {{ form.outer_depth }}
                 <div class="form-text">Depth</div>
             </div>
-            <div class="col col-md-3">
+            <div class="col col-md-3 mb-1">
                 {{ form.outer_unit }}
                 <div class="form-text">Unit</div>
             </div>
         </div>
         {% render_field form.desc_units %}
     </div>
-    <hr />
 
     {% if form.custom_fields %}
-      <div class="field-group my-4">
+      <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">Custom Fields</h5>
         </div>
           {% render_custom_fields form %}
       </div>
-      <hr />
     {% endif %}
 
-    <div class="field-group my-4">
-        {% render_field form.comments label='Comments' %}
+    <div class="field-group my-5">
+      <h5 class="text-center">Comments</h5>
+      {% render_field form.comments %}
     </div>
 {% endblock %}

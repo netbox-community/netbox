@@ -10,13 +10,13 @@ from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
+    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .choices import *
 from .constants import *
 from .models import *
-
 
 __all__ = (
     'CableFilterSet',
@@ -1184,6 +1184,10 @@ class CableFilterSet(PrimaryModelFilterSet):
         method='search',
         label='Search',
     )
+    termination_a_type = ContentTypeFilter()
+    termination_a_id = MultiValueNumberFilter()
+    termination_b_type = ContentTypeFilter()
+    termination_b_id = MultiValueNumberFilter()
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
     )
@@ -1228,7 +1232,7 @@ class CableFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = Cable
-        fields = ['id', 'label', 'length', 'length_unit']
+        fields = ['id', 'label', 'length', 'length_unit', 'termination_a_id', 'termination_b_id']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1241,73 +1245,6 @@ class CableFilterSet(PrimaryModelFilterSet):
             Q(**{'_termination_b_{}__in'.format(name): value})
         )
         return queryset
-
-
-class ConnectionFilterSet(BaseFilterSet):
-
-    def filter_site(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(device__site__slug=value)
-
-    def filter_device(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(**{f'{name}__in': value})
-
-
-class ConsoleConnectionFilterSet(ConnectionFilterSet):
-    site = django_filters.CharFilter(
-        method='filter_site',
-        label='Site (slug)',
-    )
-    device_id = MultiValueNumberFilter(
-        method='filter_device'
-    )
-    device = MultiValueCharFilter(
-        method='filter_device',
-        field_name='device__name'
-    )
-
-    class Meta:
-        model = ConsolePort
-        fields = ['name']
-
-
-class PowerConnectionFilterSet(ConnectionFilterSet):
-    site = django_filters.CharFilter(
-        method='filter_site',
-        label='Site (slug)',
-    )
-    device_id = MultiValueNumberFilter(
-        method='filter_device'
-    )
-    device = MultiValueCharFilter(
-        method='filter_device',
-        field_name='device__name'
-    )
-
-    class Meta:
-        model = PowerPort
-        fields = ['name']
-
-
-class InterfaceConnectionFilterSet(ConnectionFilterSet):
-    site = django_filters.CharFilter(
-        method='filter_site',
-        label='Site (slug)',
-    )
-    device_id = MultiValueNumberFilter(
-        method='filter_device'
-    )
-    device = MultiValueCharFilter(
-        method='filter_device',
-        field_name='device__name'
-    )
-
-    class Meta:
-        model = Interface
-        fields = []
 
 
 class PowerPanelFilterSet(PrimaryModelFilterSet):
@@ -1441,3 +1378,52 @@ class PowerFeedFilterSet(PrimaryModelFilterSet, CableTerminationFilterSet, PathE
             Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
+
+
+#
+# Connection filter sets
+#
+
+class ConnectionFilterSet(BaseFilterSet):
+    site_id = MultiValueNumberFilter(
+        method='filter_connections',
+        field_name='device__site_id'
+    )
+    site = MultiValueCharFilter(
+        method='filter_connections',
+        field_name='device__site__slug'
+    )
+    device_id = MultiValueNumberFilter(
+        method='filter_connections',
+        field_name='device_id'
+    )
+    device = MultiValueCharFilter(
+        method='filter_connections',
+        field_name='device__name'
+    )
+
+    def filter_connections(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(**{f'{name}__in': value})
+
+
+class ConsoleConnectionFilterSet(ConnectionFilterSet):
+
+    class Meta:
+        model = ConsolePort
+        fields = ['name']
+
+
+class PowerConnectionFilterSet(ConnectionFilterSet):
+
+    class Meta:
+        model = PowerPort
+        fields = ['name']
+
+
+class InterfaceConnectionFilterSet(ConnectionFilterSet):
+
+    class Meta:
+        model = Interface
+        fields = []

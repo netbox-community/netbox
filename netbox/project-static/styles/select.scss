@@ -70,6 +70,7 @@ $spacing-s: $input-padding-x;
       span.arrow-down,
       span.arrow-up {
         border-color: currentColor;
+        color: $text-muted;
       }
     }
     // Don't show the depth indicator outside of the menu.

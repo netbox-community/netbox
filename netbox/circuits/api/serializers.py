@@ -3,10 +3,10 @@ from rest_framework import serializers
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
-from dcim.api.serializers import CableTerminationSerializer, ConnectedEndpointSerializer
+from dcim.api.serializers import CableTerminationSerializer
 from netbox.api import ChoiceField
 from netbox.api.serializers import (
-    BaseModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer, WritableNestedSerializer
+    OrganizationalModelSerializer, PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
 )
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from .nested_serializers import *
@@ -90,11 +90,11 @@ class CircuitSerializer(PrimaryModelSerializer):
         ]
 
 
-class CircuitTerminationSerializer(BaseModelSerializer, CableTerminationSerializer):
+class CircuitTerminationSerializer(ValidatedModelSerializer, CableTerminationSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
     circuit = NestedCircuitSerializer()
-    site = NestedSiteSerializer(required=False)
-    provider_network = NestedProviderNetworkSerializer(required=False)
+    site = NestedSiteSerializer(required=False, allow_null=True)
+    provider_network = NestedProviderNetworkSerializer(required=False, allow_null=True)
     cable = NestedCableSerializer(read_only=True)
 
     class Meta:
