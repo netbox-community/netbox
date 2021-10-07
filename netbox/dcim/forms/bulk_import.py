@@ -577,8 +577,8 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Interface
         fields = (
-            'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
-            'mgmt_only', 'description', 'mode',
+            'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'wwn',
+            'mtu', 'mgmt_only', 'description', 'mode',
         )
 
     def __init__(self, *args, **kwargs):

@@ -957,7 +957,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label', 'type', 'enabled', 'mgmt_only', 'mac_address'],
+        ['name', 'label', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
     type = forms.MultipleChoiceField(
@@ -980,6 +980,10 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     mac_address = forms.CharField(
         required=False,
         label='MAC address'
+    )
+    wwn = forms.CharField(
+        required=False,
+        label='WWN'
     )
     tag = TagFilterField(model)
 

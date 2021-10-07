@@ -9,7 +9,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import MACAddressField
+from dcim.fields import MACAddressField, WWNField
 from dcim.svg import CableTraceSVG
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
@@ -510,6 +510,12 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         default=False,
         verbose_name='Management only',
         help_text='This interface is used only for out-of-band management'
+    )
+    wwn = WWNField(
+        null=True,
+        blank=True,
+        verbose_name='WWN',
+        help_text='64-bit World Wide Name'
     )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',

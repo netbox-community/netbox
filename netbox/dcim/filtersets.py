@@ -10,7 +10,7 @@ from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
@@ -964,6 +964,7 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         label='LAG interface (ID)',
     )
     mac_address = MultiValueMACAddressFilter()
+    wwn = MultiValueWWNFilter()
     tag = TagFilter()
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',

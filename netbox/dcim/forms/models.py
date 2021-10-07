@@ -1091,7 +1091,7 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mac_address', 'mtu', 'mgmt_only',
+            'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
             'mark_connected', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {

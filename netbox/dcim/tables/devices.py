@@ -492,7 +492,7 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'device', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
+            'pk', 'name', 'device', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
             'description', 'mark_connected', 'cable', 'cable_color', 'cable_peer', 'connection', 'tags', 'ip_addresses',
             'untagged_vlan', 'tagged_vlans',
         )
@@ -524,7 +524,7 @@ class DeviceInterfaceTable(InterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
             'description', 'mark_connected', 'cable', 'cable_color', 'cable_peer', 'connection', 'tags', 'ip_addresses',
             'untagged_vlan', 'tagged_vlans', 'actions',
         )

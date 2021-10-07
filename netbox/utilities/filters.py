@@ -57,6 +57,10 @@ class MultiValueMACAddressFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(MACAddressField)
 
 
+class MultiValueWWNFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(MACAddressField)
+
+
 class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     """
     Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]
