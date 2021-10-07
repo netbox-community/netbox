@@ -192,6 +192,7 @@ class ConsolePortTypeChoices(ChoiceSet):
     TYPE_USB_MINI_B = 'usb-mini-b'
     TYPE_USB_MICRO_A = 'usb-micro-a'
     TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_OTHER = 'other'
 
     CHOICES = (
@@ -210,6 +211,7 @@ class ConsolePortTypeChoices(ChoiceSet):
             (TYPE_USB_MINI_B, 'USB Mini B'),
             (TYPE_USB_MICRO_A, 'USB Micro A'),
             (TYPE_USB_MICRO_B, 'USB Micro B'),
+            (TYPE_USB_MICRO_AB, 'USB Micro AB'),
         )),
         ('Other', (
             (TYPE_OTHER, 'Other'),
@@ -337,6 +339,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MINI_B = 'usb-mini-b'
     TYPE_USB_MICRO_A = 'usb-micro-a'
     TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
     # Direct current (DC)
@@ -444,6 +447,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_MINI_B, 'USB Mini B'),
             (TYPE_USB_MICRO_A, 'USB Micro A'),
             (TYPE_USB_MICRO_B, 'USB Micro B'),
+            (TYPE_USB_MICRO_AB, 'USB Micro AB'),
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
