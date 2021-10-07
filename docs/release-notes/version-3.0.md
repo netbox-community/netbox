@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#6879](https://github.com/netbox-community/netbox/issues/6879) - Improve ability to toggle images/labels in rack elevations 
 * [#7485](https://github.com/netbox-community/netbox/issues/7485) - Add USB micro AB type
 
 ### Bug Fixes
