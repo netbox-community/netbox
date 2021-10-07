@@ -2,6 +2,10 @@
 
 ## v3.0.7 (FUTURE)
 
+### Enhancements
+
+* [#7485](https://github.com/netbox-community/netbox/issues/7485) - Add USB micro AB type
+
 ### Bug Fixes
 
 * [#7471](https://github.com/netbox-community/netbox/issues/7471) - Correct redirect URL when attaching images via "add another" button
