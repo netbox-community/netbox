@@ -5,6 +5,10 @@
 
 {% block title %}{{ script }}{% endblock %}
 
+{% block object_identifier %}
+  {{ script.full_name }}
+{% endblock %}
+
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
   <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>

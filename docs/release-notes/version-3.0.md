@@ -1,5 +1,21 @@
 # NetBox v3.0
 
+## v3.0.7 (FUTURE)
+
+### Enhancements
+
+* [#6879](https://github.com/netbox-community/netbox/issues/6879) - Improve ability to toggle images/labels in rack elevations 
+* [#7485](https://github.com/netbox-community/netbox/issues/7485) - Add USB micro AB type
+
+### Bug Fixes
+
+* [#7051](https://github.com/netbox-community/netbox/issues/7051) - Fix permissions evaluation and improve error handling for connected device REST API endpoint
+* [#7471](https://github.com/netbox-community/netbox/issues/7471) - Correct redirect URL when attaching images via "add another" button
+* [#7474](https://github.com/netbox-community/netbox/issues/7474) - Fix AttributeError exception when rendering a report or custom script
+* [#7479](https://github.com/netbox-community/netbox/issues/7479) - Fix parent interface choices when bulk editing VM interfaces
+
+---
+
 ## v3.0.6 (2021-10-06)
 
 ### Enhancements
