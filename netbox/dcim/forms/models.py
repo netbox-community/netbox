@@ -157,7 +157,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class LocationForm(BootstrapMixin, CustomFieldModelForm):
+class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -191,7 +191,13 @@ class LocationForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Location
         fields = (
-            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description',
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant',
+        )
+        fieldsets = (
+            ('Location', (
+                'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description',
+            )),
+            ('Tenancy', ('tenant_group', 'tenant')),
         )
 
 

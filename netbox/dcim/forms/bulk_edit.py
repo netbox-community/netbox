@@ -148,13 +148,17 @@ class LocationBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
             'site_id': '$site'
         }
     )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
     description = forms.CharField(
         max_length=200,
         required=False
     )
 
     class Meta:
-        nullable_fields = ['parent', 'description']
+        nullable_fields = ['parent', 'tenant', 'description']
 
 
 class RackRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):

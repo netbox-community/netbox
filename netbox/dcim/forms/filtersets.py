@@ -175,8 +175,13 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     tag = TagFilterField(model)
 
 
-class LocationFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class LocationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Location
+    field_groups = [
+        ['q'],
+        ['region_id', 'site_group_id', 'site_id', 'parent_id'],
+        ['tenant_group_id', 'tenant_id'],
+    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),

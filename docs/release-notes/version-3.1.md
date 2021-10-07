@@ -6,6 +6,7 @@
 ### Enhancements
 
 * [#1337](https://github.com/netbox-community/netbox/issues/1337) - Add WWN field to interfaces
+* [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations
 
 ### Other Changes
 

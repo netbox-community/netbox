@@ -7,7 +7,6 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from django.core.exceptions import ValidationError
 from dcim.fields import ASNField
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
@@ -280,6 +279,13 @@ class Location(NestedGroupModel):
         blank=True,
         null=True,
         db_index=True
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='locations',
+        blank=True,
+        null=True
     )
     description = models.CharField(
         max_length=200,

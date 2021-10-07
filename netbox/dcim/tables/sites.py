@@ -103,6 +103,7 @@ class LocationTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
+    tenant = TenantColumn()
     rack_count = LinkedCountColumn(
         viewname='dcim:rack_list',
         url_params={'location_id': 'pk'},
@@ -120,5 +121,5 @@ class LocationTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Location
-        fields = ('pk', 'name', 'site', 'rack_count', 'device_count', 'description', 'slug', 'actions')
-        default_columns = ('pk', 'name', 'site', 'rack_count', 'device_count', 'description', 'actions')
+        fields = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'actions')

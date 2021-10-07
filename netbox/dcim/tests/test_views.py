@@ -12,6 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import VLAN
+from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 
 
@@ -157,13 +158,13 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=site),
-            Location(name='Location 2', slug='location-2', site=site),
-            Location(name='Location 3', slug='location-3', site=site),
+            Location(name='Location 1', slug='location-1', site=site, tenant=tenant),
+            Location(name='Location 2', slug='location-2', site=site, tenant=tenant),
+            Location(name='Location 3', slug='location-3', site=site, tenant=tenant),
         )
         for location in locations:
             location.save()
@@ -172,14 +173,15 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Location X',
             'slug': 'location-x',
             'site': site.pk,
+            'tenant': tenant.pk,
             'description': 'A new location',
         }
 
         cls.csv_data = (
-            "site,name,slug,description",
-            "Site 1,Location 4,location-4,Fourth location",
-            "Site 1,Location 5,location-5,Fifth location",
-            "Site 1,Location 6,location-6,Sixth location",
+            "site,tenant,name,slug,description",
+            "Site 1,Tenant 1,Location 4,location-4,Fourth location",
+            "Site 1,Tenant 1,Location 5,location-5,Fifth location",
+            "Site 1,Tenant 1,Location 6,location-6,Sixth location",
         )
 
         cls.bulk_edit_data = {

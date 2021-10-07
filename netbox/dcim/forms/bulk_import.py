@@ -120,10 +120,16 @@ class LocationCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Location not found.',
         }
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'description')
+        fields = ('site', 'parent', 'name', 'slug', 'tenant', 'description')
 
 
 class RackRoleCSVForm(CustomFieldModelCSVForm):

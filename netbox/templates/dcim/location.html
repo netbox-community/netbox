@@ -41,6 +41,19 @@
             </td>
           </tr>
           <tr>
+              <th scope="row">Tenant</th>
+              <td>
+                  {% if object.tenant %}
+                      {% if object.tenant.group %}
+                          <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                      {% endif %}
+                      <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                  {% else %}
+                      <span class="text-muted">None</span>
+                  {% endif %}
+              </td>
+          </tr>
+          <tr>
             <th scope="row">Racks</th>
             <td>
               <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ rack_count }}</a>
