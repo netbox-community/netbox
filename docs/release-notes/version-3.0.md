@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#7471](https://github.com/netbox-community/netbox/issues/7471) - Correct redirect URL when attaching images via "add another" button
 * [#7474](https://github.com/netbox-community/netbox/issues/7474) - Fix AttributeError exception when rendering a report or custom script
 
 ---
