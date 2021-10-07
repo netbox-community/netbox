@@ -3,6 +3,10 @@
 
 {% block title %}{{ report.name }}{% endblock %}
 
+{% block object_identifier %}
+  {{ report.full_name }}
+{% endblock %}
+
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">Reports</a></li>
   <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>

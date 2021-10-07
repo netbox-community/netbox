@@ -1,5 +1,13 @@
 # NetBox v3.0
 
+## v3.0.7 (FUTURE)
+
+### Bug Fixes
+
+* [#7474](https://github.com/netbox-community/netbox/issues/7474) - Fix AttributeError exception when rendering a report or custom script
+
+---
+
 ## v3.0.6 (2021-10-06)
 
 ### Enhancements
