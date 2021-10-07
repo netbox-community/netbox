@@ -877,6 +877,8 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 initial_data['device'] = request.GET.get('device')
             elif 'device_type' in request.GET:
                 initial_data['device_type'] = request.GET.get('device_type')
+            elif 'virtual_machine' in request.GET:
+                initial_data['virtual_machine'] = request.GET.get('virtual_machine')
 
             form = self.form(model, initial=initial_data)
             restrict_form_fields(form, request.user)

@@ -12,6 +12,7 @@
 * [#7051](https://github.com/netbox-community/netbox/issues/7051) - Fix permissions evaluation and improve error handling for connected device REST API endpoint
 * [#7471](https://github.com/netbox-community/netbox/issues/7471) - Correct redirect URL when attaching images via "add another" button
 * [#7474](https://github.com/netbox-community/netbox/issues/7474) - Fix AttributeError exception when rendering a report or custom script
+* [#7479](https://github.com/netbox-community/netbox/issues/7479) - Fix parent interface choices when bulk editing VM interfaces
 
 ---
 
