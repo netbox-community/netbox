@@ -112,6 +112,9 @@ class RackElevationSVG:
             )
             image.fit(scale='slice')
             link.add(image)
+            link.add(drawing.text(str(name), insert=text, stroke='black',
+                     stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
+            link.add(drawing.text(str(name), insert=text, fill='white', class_='device-image-label'))
 
     def _draw_device_rear(self, drawing, device, start, end, text):
         rect = drawing.rect(start, end, class_="slot blocked")
@@ -129,6 +132,9 @@ class RackElevationSVG:
             )
             image.fit(scale='slice')
             drawing.add(image)
+            drawing.add(drawing.text(str(device), insert=text, stroke='black',
+                        stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
+            drawing.add(drawing.text(str(device), insert=text, fill='white', class_='device-image-label'))
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):

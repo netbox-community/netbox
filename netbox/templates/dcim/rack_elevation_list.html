@@ -7,9 +7,13 @@
 {% block controls %}
     <div class="controls">
         <div class="control-group">
-            <button class="btn btn-sm btn-outline-dark toggle-images" selected="selected">
-                <span class="mdi mdi mdi-checkbox-marked-circle-outline" aria-hidden="true"></span> Show Images
-            </button>
+            <div class="btn-group btn-group-sm" role="group">
+                <select class="btn btn-sm btn-outline-secondary active rack-view">
+                  <option value="images-and-labels" selected="selected">Images and Labels</option>
+                  <option value="images-only">Images only</option>
+                  <option value="labels-only">Labels only</option>
+                </select>
+            </div>
             <div class="btn-group btn-group-sm" role="group">
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">Front</a>
                 <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
