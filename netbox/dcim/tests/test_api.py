@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
@@ -1490,40 +1491,35 @@ class ConnectedDeviceTest(APITestCase):
 
         super().setUp()
 
-        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
-        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
-        self.devicetype1 = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
-        )
-        self.devicetype2 = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 2', slug='test-device-type-2'
-        )
-        self.devicerole1 = DeviceRole.objects.create(
-            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
-        )
-        self.devicerole2 = DeviceRole.objects.create(
-            name='Test Device Role 2', slug='test-device-role-2', color='00ff00'
-        )
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
         self.device1 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='TestDevice1', site=self.site1
+            device_type=devicetype, device_role=devicerole, name='TestDevice1', site=site
         )
         self.device2 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='TestDevice2', site=self.site1
+            device_type=devicetype, device_role=devicerole, name='TestDevice2', site=site
         )
         self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
         self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
+        self.interface3 = Interface.objects.create(device=self.device1, name='eth1')  # Not connected
 
         cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
         cable.save()
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_connected_device(self):
-
         url = reverse('dcim-api:connected-device-list')
-        response = self.client.get(url + '?peer_device=TestDevice2&peer_interface=eth0', **self.header)
 
+        url_params = f'?peer_device={self.device1.name}&peer_interface={self.interface1.name}'
+        response = self.client.get(url + url_params, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['name'], self.device1.name)
+        self.assertEqual(response.data['name'], self.device2.name)
+
+        url_params = f'?peer_device={self.device1.name}&peer_interface={self.interface3.name}'
+        response = self.client.get(url + url_params, **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
