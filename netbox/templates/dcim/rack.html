@@ -18,10 +18,6 @@
 {% endblock %}
 
 {% block extra_controls %}
-  <button class="btn btn-sm btn-outline-primary toggle-images" selected="selected">
-    <i class="mdi mdi-file-image-outline"></i> 
-    Hide Images
-  </button>
   <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}{% endif %}" class="btn btn-sm btn-primary{% if not prev_rack %} disabled{% endif %}">
     <i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous
   </a>
@@ -271,6 +267,13 @@
         {% plugin_left_page object %}
 	  </div>
     <div class="col col-12 col-xl-7">
+      <div class="text-end mb-4">
+        <select class="btn btn-sm btn-outline-dark rack-view">
+          <option value="images-and-labels" selected="selected">Images and Labels</option>
+          <option value="images-only">Images only</option>
+          <option value="labels-only">Labels only</option>
+        </select>
+      </div>
         <div class="row" style="margin-bottom: 20px">
             <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
               <div style="margin-left: 30px">

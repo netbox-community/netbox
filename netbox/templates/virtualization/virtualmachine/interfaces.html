@@ -13,7 +13,7 @@
             <button type="submit" name="_rename" formaction="{% url 'virtualization:vminterface_bulk_rename' %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-sm">
                 <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
             </button>
-            <button type="submit" name="_edit" formaction="{% url 'virtualization:vminterface_bulk_edit' %}?virtualmachine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-sm">
+            <button type="submit" name="_edit" formaction="{% url 'virtualization:vminterface_bulk_edit' %}?virtual_machine={{ object.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-sm">
                 <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
             </button>
         {% endif %}

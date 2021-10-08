@@ -2,7 +2,7 @@ import socket
 from collections import OrderedDict
 
 from django.conf import settings
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
@@ -17,10 +17,10 @@ from dcim import filtersets
 from dcim.models import *
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from ipam.models import Prefix, VLAN
-from netbox.api.views import ModelViewSet
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
+from netbox.api.views import ModelViewSet
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related, decode_dict
 from virtualization.models import VirtualMachine
@@ -675,15 +675,25 @@ class ConnectedDeviceViewSet(ViewSet):
         if not peer_device_name or not peer_interface_name:
             raise MissingFilterException(detail='Request must include "peer_device" and "peer_interface" filters.')
 
-        # Determine local interface from peer interface's connection
+        # Determine local endpoint from peer interface's connection
+        peer_device = get_object_or_404(
+            Device.objects.restrict(request.user, 'view'),
+            name=peer_device_name
+        )
         peer_interface = get_object_or_404(
-            Interface.objects.all(),
-            device__name=peer_device_name,
+            Interface.objects.restrict(request.user, 'view'),
+            device=peer_device,
             name=peer_interface_name
         )
-        local_interface = peer_interface.connected_endpoint
+        endpoint = peer_interface.connected_endpoint
 
-        if local_interface is None:
-            return Response()
+        # If an Interface, return the parent device
+        if type(endpoint) is Interface:
+            device = get_object_or_404(
+                Device.objects.restrict(request.user, 'view'),
+                pk=endpoint.device_id
+            )
+            return Response(serializers.DeviceSerializer(device, context={'request': request}).data)
 
-        return Response(serializers.DeviceSerializer(local_interface.device, context={'request': request}).data)
+        # Connected endpoint is none or not an Interface
+        raise Http404

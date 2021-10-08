@@ -9,15 +9,17 @@
   {# Breadcrumbs #}
   <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
     <div class="float-end">
-      <code class="text-muted" title="Object type and ID">
-        {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
-        {% if object.slug %}({{ object.slug }}){% endif %}
-      </code>
+        <code class="text-muted">
+          {% block object_identifier %}
+            {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
+            {% if object.slug %}({{ object.slug }}){% endif %}
+          {% endblock object_identifier %}
+        </code>
     </div>
     <ol class="breadcrumb">
       {% block breadcrumbs %}
         <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a></li>
-      {% endblock %}
+      {% endblock breadcrumbs %}
     </ol>
   </nav>
   {{ block.super }}
