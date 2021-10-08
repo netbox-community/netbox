@@ -480,11 +480,20 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
 
 
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         field_name='device_type_id',
         label='Device type (ID)',
     )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(name__icontains=value)
 
 
 class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
