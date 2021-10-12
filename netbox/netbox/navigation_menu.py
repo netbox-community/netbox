@@ -188,6 +188,19 @@ CONNECTIONS_MENU = Menu(
     ),
 )
 
+WIRELESS_MENU = Menu(
+    label='Wireless',
+    icon_class='mdi mdi-wifi',
+    groups=(
+        MenuGroup(
+            label='Wireless',
+            items=(
+                get_model_item('wireless', 'ssid', 'SSIDs'),
+            ),
+        ),
+    ),
+)
+
 IPAM_MENU = Menu(
     label='IPAM',
     icon_class='mdi mdi-counter',
@@ -343,6 +356,7 @@ MENUS = [
     ORGANIZATION_MENU,
     DEVICES_MENU,
     CONNECTIONS_MENU,
+    WIRELESS_MENU,
     IPAM_MENU,
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,

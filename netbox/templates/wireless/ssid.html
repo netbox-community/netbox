@@ -1,0 +1,46 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+<div class="row">
+	<div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">SSID</h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">VLAN</th>
+                        <td>
+                            {% if object.vlan %}
+                                <a href="{{ object.vlan.get_absolute_url }}">{{ object.vlan }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:site_list' %}
+        {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+        {% include 'inc/custom_fields_panel.html' %}
+        {% plugin_right_page object %}
+	</div>
+</div>
+<div class="row">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
+{% endblock %}
