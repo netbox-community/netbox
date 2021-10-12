@@ -18,7 +18,7 @@ class WirelessRootView(APIRootView):
 # Providers
 #
 
-class SSIDViewSet(CustomFieldModelViewSet):
-    queryset = SSID.objects.prefetch_related('tags')
-    serializer_class = serializers.SSIDSerializer
-    filterset_class = filtersets.SSIDFilterSet
+class WirelessLANViewSet(CustomFieldModelViewSet):
+    queryset = WirelessLAN.objects.prefetch_related('tags')
+    serializer_class = serializers.WirelessLANSerializer
+    filterset_class = filtersets.WirelessLANFilterSet

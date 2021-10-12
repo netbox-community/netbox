@@ -195,7 +195,7 @@ WIRELESS_MENU = Menu(
         MenuGroup(
             label='Wireless',
             items=(
-                get_model_item('wireless', 'ssid', 'SSIDs'),
+                get_model_item('wireless', 'wirelesslan', 'Wireless LANs'),
             ),
         ),
     ),

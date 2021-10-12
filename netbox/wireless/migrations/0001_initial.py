@@ -9,27 +9,26 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('extras', '0062_clear_secrets_changelog'),
         ('ipam', '0050_iprange'),
+        ('extras', '0062_clear_secrets_changelog'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SSID',
+            name='WirelessLAN',
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=32)),
+                ('ssid', models.CharField(max_length=32)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
                 ('vlan', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='ipam.vlan')),
             ],
             options={
-                'verbose_name': 'SSID',
-                'verbose_name_plural': 'SSIDs',
-                'ordering': ('name', 'pk'),
+                'verbose_name': 'Wireless LAN',
+                'ordering': ('ssid', 'pk'),
             },
         ),
     ]

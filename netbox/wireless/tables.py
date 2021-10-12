@@ -1,23 +1,23 @@
 import django_tables2 as tables
 
-from .models import SSID
+from .models import WirelessLAN
 from utilities.tables import BaseTable, TagColumn, ToggleColumn
 
 __all__ = (
-    'SSIDTable',
+    'WirelessLANTable',
 )
 
 
-class SSIDTable(BaseTable):
+class WirelessLANTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(
+    ssid = tables.Column(
         linkify=True
     )
     tags = TagColumn(
-        url_name='dcim:cable_list'
+        url_name='wireless:wirelesslan_list'
     )
 
     class Meta(BaseTable.Meta):
-        model = SSID
-        fields = ('pk', 'name', 'description', 'vlan')
-        default_columns = ('pk', 'name', 'description', 'vlan')
+        model = WirelessLAN
+        fields = ('pk', 'ssid', 'description', 'vlan')
+        default_columns = ('pk', 'ssid', 'description', 'vlan')

@@ -1,14 +1,14 @@
 from extras.forms import CustomFieldModelCSVForm
 from ipam.models import VLAN
 from utilities.forms import CSVModelChoiceField
-from wireless.models import SSID
+from wireless.models import WirelessLAN
 
 __all__ = (
-    'SSIDCSVForm',
+    'WirelessLANCSVForm',
 )
 
 
-class SSIDCSVForm(CustomFieldModelCSVForm):
+class WirelessLANCSVForm(CustomFieldModelCSVForm):
     vlan = CSVModelChoiceField(
         queryset=VLAN.objects.all(),
         to_field_name='name',
@@ -16,5 +16,5 @@ class SSIDCSVForm(CustomFieldModelCSVForm):
     )
 
     class Meta:
-        model = SSID
-        fields = ('name', 'description', 'vlan')
+        model = WirelessLAN
+        fields = ('ssid', 'description', 'vlan')

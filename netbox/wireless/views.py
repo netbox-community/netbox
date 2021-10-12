@@ -4,43 +4,43 @@ from .models import *
 
 
 #
-# SSIDs
+# Wireless LANs
 #
 
-class SSIDListView(generic.ObjectListView):
-    queryset = SSID.objects.all()
-    filterset = filtersets.SSIDFilterSet
-    filterset_form = forms.SSIDFilterForm
-    table = tables.SSIDTable
+class WirelessLANListView(generic.ObjectListView):
+    queryset = WirelessLAN.objects.all()
+    filterset = filtersets.WirelessLANFilterSet
+    filterset_form = forms.WirelessLANFilterForm
+    table = tables.WirelessLANTable
 
 
-class SSIDView(generic.ObjectView):
-    queryset = SSID.objects.all()
+class WirelessLANView(generic.ObjectView):
+    queryset = WirelessLAN.objects.all()
 
 
-class SSIDEditView(generic.ObjectEditView):
-    queryset = SSID.objects.all()
-    model_form = forms.SSIDForm
+class WirelessLANEditView(generic.ObjectEditView):
+    queryset = WirelessLAN.objects.all()
+    model_form = forms.WirelessLANForm
 
 
-class SSIDDeleteView(generic.ObjectDeleteView):
-    queryset = SSID.objects.all()
+class WirelessLANDeleteView(generic.ObjectDeleteView):
+    queryset = WirelessLAN.objects.all()
 
 
-class SSIDBulkImportView(generic.BulkImportView):
-    queryset = SSID.objects.all()
-    model_form = forms.SSIDCSVForm
-    table = tables.SSIDTable
+class WirelessLANBulkImportView(generic.BulkImportView):
+    queryset = WirelessLAN.objects.all()
+    model_form = forms.WirelessLANCSVForm
+    table = tables.WirelessLANTable
 
 
-class SSIDBulkEditView(generic.BulkEditView):
-    queryset = SSID.objects.all()
-    filterset = filtersets.SSIDFilterSet
-    table = tables.SSIDTable
-    form = forms.SSIDBulkEditForm
+class WirelessLANBulkEditView(generic.BulkEditView):
+    queryset = WirelessLAN.objects.all()
+    filterset = filtersets.WirelessLANFilterSet
+    table = tables.WirelessLANTable
+    form = forms.WirelessLANBulkEditForm
 
 
-class SSIDBulkDeleteView(generic.BulkDeleteView):
-    queryset = SSID.objects.all()
-    filterset = filtersets.SSIDFilterSet
-    table = tables.SSIDTable
+class WirelessLANBulkDeleteView(generic.BulkDeleteView):
+    queryset = WirelessLAN.objects.all()
+    filterset = filtersets.WirelessLANFilterSet
+    table = tables.WirelessLANTable

@@ -1,13 +1,13 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from dcim.models import *
 from extras.forms import CustomFieldModelFilterForm
 from utilities.forms import BootstrapMixin, TagFilterField
+from .models import WirelessLAN
 
 
-class SSIDFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
-    model = PowerFeed
+class WirelessLANFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = WirelessLAN
     field_groups = [
         ['q', 'tag'],
     ]

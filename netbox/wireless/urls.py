@@ -7,16 +7,16 @@ from .models import *
 app_name = 'wireless'
 urlpatterns = (
 
-    # SSIDs
-    path('ssids/', views.SSIDListView.as_view(), name='ssid_list'),
-    path('ssids/add/', views.SSIDEditView.as_view(), name='ssid_add'),
-    path('ssids/import/', views.SSIDBulkImportView.as_view(), name='ssid_import'),
-    path('ssids/edit/', views.SSIDBulkEditView.as_view(), name='ssid_bulk_edit'),
-    path('ssids/delete/', views.SSIDBulkDeleteView.as_view(), name='ssid_bulk_delete'),
-    path('ssids/<int:pk>/', views.SSIDView.as_view(), name='ssid'),
-    path('ssids/<int:pk>/edit/', views.SSIDEditView.as_view(), name='ssid_edit'),
-    path('ssids/<int:pk>/delete/', views.SSIDDeleteView.as_view(), name='ssid_delete'),
-    path('ssids/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='ssid_changelog', kwargs={'model': SSID}),
-    path('ssids/<int:pk>/journal/', ObjectJournalView.as_view(), name='ssid_journal', kwargs={'model': SSID}),
+    # Wireless LANs
+    path('wireless-lans/', views.WirelessLANListView.as_view(), name='wirelesslan_list'),
+    path('wireless-lans/add/', views.WirelessLANEditView.as_view(), name='wirelesslan_add'),
+    path('wireless-lans/import/', views.WirelessLANBulkImportView.as_view(), name='wirelesslan_import'),
+    path('wireless-lans/edit/', views.WirelessLANBulkEditView.as_view(), name='wirelesslan_bulk_edit'),
+    path('wireless-lans/delete/', views.WirelessLANBulkDeleteView.as_view(), name='wirelesslan_bulk_delete'),
+    path('wireless-lans/<int:pk>/', views.WirelessLANView.as_view(), name='wirelesslan'),
+    path('wireless-lans/<int:pk>/edit/', views.WirelessLANEditView.as_view(), name='wirelesslan_edit'),
+    path('wireless-lans/<int:pk>/delete/', views.WirelessLANDeleteView.as_view(), name='wirelesslan_delete'),
+    path('wireless-lans/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='wirelesslan_changelog', kwargs={'model': WirelessLAN}),
+    path('wireless-lans/<int:pk>/journal/', ObjectJournalView.as_view(), name='wirelesslan_journal', kwargs={'model': WirelessLAN}),
 
 )

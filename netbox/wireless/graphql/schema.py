@@ -5,5 +5,5 @@ from .types import *
 
 
 class WirelessQuery(graphene.ObjectType):
-    ssid = ObjectField(SSIDType)
-    ssid_list = ObjectListField(SSIDType)
+    wirelesslan = ObjectField(WirelessLANType)
+    wirelesslan_list = ObjectListField(WirelessLANType)

@@ -1,17 +1,15 @@
-from dcim.constants import *
-from dcim.models import *
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
 from utilities.forms import BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from wireless.models import SSID
+from wireless.models import WirelessLAN
 
 __all__ = (
-    'SSIDForm',
+    'WirelessLANForm',
 )
 
 
-class SSIDForm(BootstrapMixin, CustomFieldModelForm):
+class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False
@@ -22,11 +20,11 @@ class SSIDForm(BootstrapMixin, CustomFieldModelForm):
     )
 
     class Meta:
-        model = SSID
+        model = WirelessLAN
         fields = [
-            'name', 'description', 'vlan', 'tags',
+            'ssid', 'description', 'vlan', 'tags',
         ]
         fieldsets = (
-            ('SSID', ('name', 'description', 'tags')),
+            ('Wireless LAN', ('ssid', 'description', 'tags')),
             ('VLAN', ('vlan',)),
         )

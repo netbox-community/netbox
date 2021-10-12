@@ -2,13 +2,13 @@ from wireless import filtersets, models
 from netbox.graphql.types import ObjectType
 
 __all__ = (
-    'SSIDType',
+    'WirelessLANType',
 )
 
 
-class SSIDType(ObjectType):
+class WirelessLANType(ObjectType):
 
     class Meta:
-        model = models.SSID
+        model = models.WirelessLAN
         fields = '__all__'
-        filterset_class = filtersets.SSIDFilterSet
+        filterset_class = filtersets.WirelessLANFilterSet

@@ -1,21 +1,20 @@
 from rest_framework import serializers
 
-from dcim.api.serializers import NestedInterfaceSerializer
 from ipam.api.serializers import NestedVLANSerializer
 from netbox.api.serializers import PrimaryModelSerializer
 from wireless.models import *
 
 __all__ = (
-    'SSIDSerializer',
+    'WirelessLANSerializer',
 )
 
 
-class SSIDSerializer(PrimaryModelSerializer):
+class WirelessLANSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:ssid-detail')
     vlan = NestedVLANSerializer(required=False, allow_null=True)
 
     class Meta:
-        model = SSID
+        model = WirelessLAN
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'vlan',
+            'id', 'url', 'display', 'ssid', 'description', 'vlan',
         ]

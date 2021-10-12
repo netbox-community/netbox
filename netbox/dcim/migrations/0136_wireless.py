@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wireless', '__first__'),
+        ('wireless', '0001_initial'),
         ('dcim', '0135_location_tenant'),
     ]
 
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='interface',
-            name='ssids',
-            field=models.ManyToManyField(blank=True, related_name='interfaces', to='wireless.SSID'),
+            name='wireless_lans',
+            field=models.ManyToManyField(blank=True, related_name='interfaces', to='wireless.WirelessLAN'),
         ),
     ]

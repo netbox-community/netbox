@@ -260,19 +260,19 @@
             {% endif %}
             {% if object.is_wireless %}
                 <div class="card">
-                    <h5 class="card-header">SSIDs</h5>
+                    <h5 class="card-header">Wireless LANs</h5>
                     <div class="card-body">
                         <table class="table table-hover table-headings">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
+                                    <th>SSID</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for ssid in object.ssids.all %}
+                                {% for wlan in object.wlans.all %}
                                     <tr>
                                         <td>
-                                            <a href="{{ ssid.get_absolute_url }}">{{ ssid.name }}</a>
+                                            <a href="{{ wlan.get_absolute_url }}">{{ wlan.ssid }}</a>
                                         </td>
                                     </tr>
                                 {% empty %}

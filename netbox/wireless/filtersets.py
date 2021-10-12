@@ -6,11 +6,11 @@ from netbox.filtersets import PrimaryModelFilterSet
 from .models import *
 
 __all__ = (
-    'SSIDFilterSet',
+    'WirelessLANFilterSet',
 )
 
 
-class SSIDFilterSet(PrimaryModelFilterSet):
+class WirelessLANFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -18,14 +18,14 @@ class SSIDFilterSet(PrimaryModelFilterSet):
     tag = TagFilter()
 
     class Meta:
-        model = SSID
-        fields = ['id', 'name']
+        model = WirelessLAN
+        fields = ['id', 'ssid']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = (
-            Q(name__icontains=value) |
+            Q(ssid__icontains=value) |
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
