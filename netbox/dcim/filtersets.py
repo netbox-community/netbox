@@ -990,7 +990,10 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
 
     class Meta:
         model = Interface
-        fields = ['id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
+        fields = [
+            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'rf_channel', 'rf_channel_width',
+            'description',
+        ]
 
     def filter_device(self, queryset, name, value):
         try:

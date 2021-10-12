@@ -517,6 +517,18 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         verbose_name='WWN',
         help_text='64-bit World Wide Name'
     )
+    rf_channel = models.CharField(
+        max_length=50,
+        choices=WirelessChannelChoices,
+        blank=True,
+        verbose_name='Wireless channel'
+    )
+    rf_channel_width = models.PositiveSmallIntegerField(
+        choices=WirelessChannelWidthChoices,
+        blank=True,
+        null=True,
+        verbose_name='Channel width'
+    )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.SET_NULL,
@@ -602,6 +614,12 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         # A LAG interface cannot be its own parent
         if self.pk and self.lag_id == self.pk:
             raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
+
+        # RF channel attributes may be set only for wireless interfaces
+        if self.rf_channel and self.type not in WIRELESS_IFACE_TYPES:
+            raise ValidationError({'rf_channel': "Channel may be set only on wireless interfaces."})
+        if self.rf_channel_width and self.type not in WIRELESS_IFACE_TYPES:
+            raise ValidationError({'rf_channel_width': "Channel width may be set only on wireless interfaces."})
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:

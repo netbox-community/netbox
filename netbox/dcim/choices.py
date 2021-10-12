@@ -1136,6 +1136,137 @@ class CableLengthUnitChoices(ChoiceSet):
 
 
 #
+# Wireless
+#
+
+class WirelessChannelChoices(ChoiceSet):
+    CHANNEL_AUTO = 'auto'
+
+    # 2.4 GHz
+    CHANNEL_24G_1 = '2.4g-1'
+    CHANNEL_24G_2 = '2.4g-2'
+    CHANNEL_24G_3 = '2.4g-3'
+    CHANNEL_24G_4 = '2.4g-4'
+    CHANNEL_24G_5 = '2.4g-5'
+    CHANNEL_24G_6 = '2.4g-6'
+    CHANNEL_24G_7 = '2.4g-7'
+    CHANNEL_24G_8 = '2.4g-8'
+    CHANNEL_24G_9 = '2.4g-9'
+    CHANNEL_24G_10 = '2.4g-10'
+    CHANNEL_24G_11 = '2.4g-11'
+    CHANNEL_24G_12 = '2.4g-12'
+    CHANNEL_24G_13 = '2.4g-13'
+
+    # 5 GHz
+    CHANNEL_5G_32 = '5g-32'
+    CHANNEL_5G_34 = '5g-34'
+    CHANNEL_5G_36 = '5g-36'
+    CHANNEL_5G_38 = '5g-38'
+    CHANNEL_5G_40 = '5g-40'
+    CHANNEL_5G_42 = '5g-42'
+    CHANNEL_5G_44 = '5g-44'
+    CHANNEL_5G_46 = '5g-46'
+    CHANNEL_5G_48 = '5g-48'
+    CHANNEL_5G_50 = '5g-50'
+    CHANNEL_5G_52 = '5g-52'
+    CHANNEL_5G_54 = '5g-54'
+    CHANNEL_5G_56 = '5g-56'
+    CHANNEL_5G_58 = '5g-58'
+    CHANNEL_5G_60 = '5g-60'
+    CHANNEL_5G_62 = '5g-62'
+    CHANNEL_5G_64 = '5g-64'
+    CHANNEL_5G_100 = '5g-100'
+    CHANNEL_5G_102 = '5g-102'
+    CHANNEL_5G_104 = '5g-104'
+    CHANNEL_5G_106 = '5g-106'
+    CHANNEL_5G_108 = '5g-108'
+    CHANNEL_5G_110 = '5g-110'
+    CHANNEL_5G_112 = '5g-112'
+    CHANNEL_5G_114 = '5g-114'
+    CHANNEL_5G_116 = '5g-116'
+    CHANNEL_5G_118 = '5g-118'
+    CHANNEL_5G_120 = '5g-120'
+    CHANNEL_5G_122 = '5g-122'
+    CHANNEL_5G_124 = '5g-124'
+    CHANNEL_5G_126 = '5g-126'
+    CHANNEL_5G_128 = '5g-128'
+
+    CHOICES = (
+        (CHANNEL_AUTO, 'Auto'),
+        (
+            '2.4 GHz (802.11b/g/n/ax)',
+            (
+                (CHANNEL_24G_1, '1 (2412 MHz)'),
+                (CHANNEL_24G_2, '2 (2417 MHz)'),
+                (CHANNEL_24G_3, '3 (2422 MHz)'),
+                (CHANNEL_24G_4, '4 (2427 MHz)'),
+                (CHANNEL_24G_5, '5 (2432 MHz)'),
+                (CHANNEL_24G_6, '6 (2437 MHz)'),
+                (CHANNEL_24G_7, '7 (2442 MHz)'),
+                (CHANNEL_24G_8, '8 (2447 MHz)'),
+                (CHANNEL_24G_9, '9 (2452 MHz)'),
+                (CHANNEL_24G_10, '10 (2457 MHz)'),
+                (CHANNEL_24G_11, '11 (2462 MHz)'),
+                (CHANNEL_24G_12, '12 (2467 MHz)'),
+                (CHANNEL_24G_13, '13 (2472 MHz)'),
+            )
+        ),
+        (
+            '5 GHz (802.11a/n/ac/ax)',
+            (
+                (CHANNEL_5G_32, '32 (5160 MHz)'),
+                (CHANNEL_5G_34, '34 (5170 MHz)'),
+                (CHANNEL_5G_36, '36 (5180 MHz)'),
+                (CHANNEL_5G_38, '38 (5190 MHz)'),
+                (CHANNEL_5G_40, '40 (5200 MHz)'),
+                (CHANNEL_5G_42, '42 (5210 MHz)'),
+                (CHANNEL_5G_44, '44 (5220 MHz)'),
+                (CHANNEL_5G_46, '46 (5230 MHz)'),
+                (CHANNEL_5G_48, '48 (5240 MHz)'),
+                (CHANNEL_5G_50, '50 (5250 MHz)'),
+                (CHANNEL_5G_52, '52 (5260 MHz)'),
+                (CHANNEL_5G_54, '54 (5270 MHz)'),
+                (CHANNEL_5G_56, '56 (5280 MHz)'),
+                (CHANNEL_5G_58, '58 (5290 MHz)'),
+                (CHANNEL_5G_60, '60 (5300 MHz)'),
+                (CHANNEL_5G_62, '62 (5310 MHz)'),
+                (CHANNEL_5G_64, '64 (5320 MHz)'),
+                (CHANNEL_5G_100, '100 (5500 MHz)'),
+                (CHANNEL_5G_102, '102 (5510 MHz)'),
+                (CHANNEL_5G_104, '104 (5520 MHz)'),
+                (CHANNEL_5G_106, '106 (5530 MHz)'),
+                (CHANNEL_5G_108, '108 (5540 MHz)'),
+                (CHANNEL_5G_110, '110 (5550 MHz)'),
+                (CHANNEL_5G_112, '112 (5560 MHz)'),
+                (CHANNEL_5G_114, '114 (5570 MHz)'),
+                (CHANNEL_5G_116, '116 (5580 MHz)'),
+                (CHANNEL_5G_118, '118 (5590 MHz)'),
+                (CHANNEL_5G_120, '120 (5600 MHz)'),
+                (CHANNEL_5G_122, '122 (5610 MHz)'),
+                (CHANNEL_5G_124, '124 (5620 MHz)'),
+                (CHANNEL_5G_126, '126 (5630 MHz)'),
+                (CHANNEL_5G_128, '128 (5640 MHz)'),
+            )
+        ),
+    )
+
+
+class WirelessChannelWidthChoices(ChoiceSet):
+
+    CHANNEL_WIDTH_20 = 20
+    CHANNEL_WIDTH_40 = 40
+    CHANNEL_WIDTH_80 = 80
+    CHANNEL_WIDTH_160 = 160
+
+    CHOICES = (
+        (CHANNEL_WIDTH_20, '20 MHz'),
+        (CHANNEL_WIDTH_40, '40 MHz'),
+        (CHANNEL_WIDTH_80, '80 MHz'),
+        (CHANNEL_WIDTH_160, '160 MHz'),
+    )
+
+
+#
 # PowerFeeds
 #
 

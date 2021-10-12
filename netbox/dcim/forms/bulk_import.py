@@ -584,7 +584,7 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'wwn',
-            'mtu', 'mgmt_only', 'description', 'mode',
+            'mtu', 'mgmt_only', 'description', 'mode', 'rf_channel', 'rf_channel_width',
         )
 
     def __init__(self, *args, **kwargs):

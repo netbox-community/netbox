@@ -632,6 +632,8 @@ class InterfaceSerializer(PrimaryModelSerializer, CableTerminationSerializer, Co
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
+    rf_channel = ChoiceField(choices=WirelessChannelChoices)
+    rf_channel_width = ChoiceField(choices=WirelessChannelWidthChoices)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -646,10 +648,10 @@ class InterfaceSerializer(PrimaryModelSerializer, CableTerminationSerializer, Co
         model = Interface
         fields = [
             'id', 'url', 'display', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
-            'wwn', 'mgmt_only', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable',
-            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses',
-            '_occupied',
+            'wwn', 'mgmt_only', 'description', 'mode', 'rf_channel', 'rf_channel_width', 'untagged_vlan',
+            'tagged_vlans', 'mark_connected', 'cable', 'cable_peer', 'cable_peer_type', 'connected_endpoint',
+            'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
+            'last_updated', 'count_ipaddresses', '_occupied',
         ]
 
     def validate(self, data):

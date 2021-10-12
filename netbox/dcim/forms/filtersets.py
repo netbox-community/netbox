@@ -963,6 +963,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
+        ['rf_channel', 'rf_channel_width'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
     type = forms.MultipleChoiceField(
@@ -989,6 +990,16 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     wwn = forms.CharField(
         required=False,
         label='WWN'
+    )
+    rf_channel = forms.MultipleChoiceField(
+        choices=WirelessChannelChoices,
+        required=False,
+        widget=StaticSelectMultiple()
+    )
+    rf_channel_width = forms.MultipleChoiceField(
+        choices=WirelessChannelWidthChoices,
+        required=False,
+        widget=StaticSelectMultiple()
     )
     tag = TagFilterField(model)
 

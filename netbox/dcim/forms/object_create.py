@@ -465,7 +465,19 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
+        widget=StaticSelect()
+    )
+    rf_channel = forms.ChoiceField(
+        choices=add_blank_choice(WirelessChannelChoices),
+        required=False,
         widget=StaticSelect(),
+        label='Wireless channel'
+    )
+    rf_channel_width = forms.ChoiceField(
+        choices=add_blank_choice(WirelessChannelWidthChoices),
+        required=False,
+        widget=StaticSelect(),
+        label='Channel width'
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -477,7 +489,8 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     )
     field_order = (
         'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
-        'description', 'mgmt_only', 'mark_connected', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
+        'description', 'mgmt_only', 'mark_connected', 'rf_channel', 'rf_channel_width', 'mode' 'untagged_vlan',
+        'tagged_vlans', 'tags'
     )
 
     def __init__(self, *args, **kwargs):

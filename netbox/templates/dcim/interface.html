@@ -39,6 +39,16 @@
                             <th scope="row">Type</th>
                             <td>{{ object.get_type_display }}</td>
                         </tr>
+                        {% if object.is_wireless %}
+                            <tr>
+                                <th scope="row">Channel</th>
+                                <td>{{ object.get_rf_channel_display|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Channel Width</th>
+                                <td>{{ object.get_rf_channel_width_display|placeholder }}</td>
+                            </tr>
+                        {% endif %}
                         <tr>
                             <th scope="row">Enabled</th>
                             <td>
