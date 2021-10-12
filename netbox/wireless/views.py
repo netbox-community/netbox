@@ -15,7 +15,7 @@ class SSIDListView(generic.ObjectListView):
 
 
 class SSIDView(generic.ObjectView):
-    queryset = SSID.objects.prefetch_related('power_panel', 'rack')
+    queryset = SSID.objects.all()
 
 
 class SSIDEditView(generic.ObjectEditView):
@@ -34,13 +34,13 @@ class SSIDBulkImportView(generic.BulkImportView):
 
 
 class SSIDBulkEditView(generic.BulkEditView):
-    queryset = SSID.objects.prefetch_related('power_panel', 'rack')
+    queryset = SSID.objects.all()
     filterset = filtersets.SSIDFilterSet
     table = tables.SSIDTable
     form = forms.SSIDBulkEditForm
 
 
 class SSIDBulkDeleteView(generic.BulkDeleteView):
-    queryset = SSID.objects.prefetch_related('power_panel', 'rack')
+    queryset = SSID.objects.all()
     filterset = filtersets.SSIDFilterSet
     table = tables.SSIDTable

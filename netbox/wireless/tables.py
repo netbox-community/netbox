@@ -10,9 +10,8 @@ __all__ = (
 
 class SSIDTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
+    name = tables.Column(
+        linkify=True
     )
     tags = TagColumn(
         url_name='dcim:cable_list'
@@ -20,5 +19,5 @@ class SSIDTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = SSID
-        fields = ('pk', 'id', 'name', 'description', 'vlan')
+        fields = ('pk', 'name', 'description', 'vlan')
         default_columns = ('pk', 'name', 'description', 'vlan')

@@ -1,13 +1,18 @@
 from django.db import models
+from django.urls import reverse
 
 from extras.utils import extras_features
-from netbox.models import PrimaryModel
+from netbox.models import BigIDModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'SSID',
 )
 
+
+#
+# SSIDs
+#
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class SSID(PrimaryModel):
@@ -38,3 +43,6 @@ class SSID(PrimaryModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('wireless:ssid', args=[self.pk])

@@ -258,6 +258,33 @@
                     </div>
                 </div>
             {% endif %}
+            {% if object.is_wireless %}
+                <div class="card">
+                    <h5 class="card-header">SSIDs</h5>
+                    <div class="card-body">
+                        <table class="table table-hover table-headings">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ssid in object.ssids.all %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ ssid.get_absolute_url }}">{{ ssid.name }}</a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-muted">None</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
             {% if object.is_lag %}
                 <div class="card">
                     <h5 class="card-header">LAG Members</h5>

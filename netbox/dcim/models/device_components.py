@@ -529,6 +529,12 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         null=True,
         verbose_name='Channel width'
     )
+    ssids = models.ManyToManyField(
+        to='wireless.SSID',
+        related_name='interfaces',
+        blank=True,
+        verbose_name='SSIDs'
+    )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.SET_NULL,

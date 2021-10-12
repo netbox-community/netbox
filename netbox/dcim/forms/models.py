@@ -16,6 +16,7 @@ from utilities.forms import (
     SlugField, StaticSelect,
 )
 from virtualization.models import Cluster, ClusterGroup
+from wireless.models import SSID
 from .common import InterfaceCommonForm
 
 __all__ = (
@@ -1068,6 +1069,11 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
             'type': 'lag',
         }
     )
+    ssids = DynamicModelMultipleChoiceField(
+        queryset=SSID.objects.all(),
+        required=False,
+        label='SSIDs'
+    )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -1098,8 +1104,8 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         model = Interface
         fields = [
             'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
-            'mark_connected', 'description', 'mode', 'rf_channel', 'rf_channel_width', 'untagged_vlan', 'tagged_vlans',
-            'tags',
+            'mark_connected', 'description', 'mode', 'rf_channel', 'rf_channel_width', 'ssids', 'untagged_vlan',
+            'tagged_vlans', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
