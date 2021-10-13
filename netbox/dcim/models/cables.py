@@ -379,7 +379,7 @@ class CablePath(BigIDModel):
         """
         from circuits.models import CircuitTermination
 
-        if origin is None or origin.cable is None:
+        if origin is None or origin.link is None:
             return None
 
         destination = None
@@ -389,12 +389,12 @@ class CablePath(BigIDModel):
         is_split = False
 
         node = origin
-        while node.cable is not None:
-            if node.cable.status != CableStatusChoices.STATUS_CONNECTED:
+        while node.link is not None:
+            if hasattr(node.link, 'status') and node.link.status != CableStatusChoices.STATUS_CONNECTED:
                 is_active = False
 
-            # Follow the cable to its far-end termination
-            path.append(object_to_path_node(node.cable))
+            # Follow the link to its far-end termination
+            path.append(object_to_path_node(node.link))
             peer_termination = node.get_cable_peer()
 
             # Follow a FrontPort to its corresponding RearPort

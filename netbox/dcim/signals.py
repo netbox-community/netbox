@@ -2,37 +2,11 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, pre_delete
-from django.db import transaction
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
 from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
-
-
-def create_cablepath(node):
-    """
-    Create CablePaths for all paths originating from the specified node.
-    """
-    cp = CablePath.from_origin(node)
-    if cp:
-        try:
-            cp.save()
-        except Exception as e:
-            print(node, node.pk)
-            raise e
-
-
-def rebuild_paths(obj):
-    """
-    Rebuild all CablePaths which traverse the specified node
-    """
-    cable_paths = CablePath.objects.filter(path__contains=obj)
-
-    with transaction.atomic():
-        for cp in cable_paths:
-            cp.delete()
-            if cp.origin:
-                create_cablepath(cp.origin)
+from .utils import create_cablepath, rebuild_paths
 
 
 #

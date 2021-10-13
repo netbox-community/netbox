@@ -157,6 +157,13 @@ class CableTermination(models.Model):
     def parent_object(self):
         raise NotImplementedError("CableTermination models must implement parent_object()")
 
+    @property
+    def link(self):
+        """
+        Generic wrapper for a Cable, WirelessLink, or some other relation to a connected termination.
+        """
+        return self.cable
+
 
 class PathEndpoint(models.Model):
     """
@@ -656,6 +663,10 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     @property
     def is_lag(self):
         return self.type == InterfaceTypeChoices.TYPE_LAG
+
+    @property
+    def link(self):
+        return self.cable or self.wireless_link
 
 
 #
