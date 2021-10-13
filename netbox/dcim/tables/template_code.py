@@ -1,4 +1,4 @@
-CABLETERMINATION = """
+LINKTERMINATION = """
 {% if value %}
   {% if value.parent_object %}
     <a href="{{ value.parent_object.get_absolute_url }}">{{ value.parent_object }}</a>

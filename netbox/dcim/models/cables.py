@@ -395,7 +395,7 @@ class CablePath(BigIDModel):
 
             # Follow the link to its far-end termination
             path.append(object_to_path_node(node.link))
-            peer_termination = node.get_cable_peer()
+            peer_termination = node.get_link_peer()
 
             # Follow a FrontPort to its corresponding RearPort
             if isinstance(peer_termination, FrontPort):

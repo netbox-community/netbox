@@ -25,12 +25,12 @@ def update_connected_interfaces(instance, created, raw=False, **kwargs):
     if instance.interface_a.wireless_link != instance:
         logger.debug(f"Updating interface A for wireless link {instance}")
         instance.interface_a.wireless_link = instance
-        instance.interface_a._cable_peer = instance.interface_b  # TODO: Rename _cable_peer field
+        instance.interface_a._link_peer = instance.interface_b
         instance.interface_a.save()
     if instance.interface_b.cable != instance:
         logger.debug(f"Updating interface B for wireless link {instance}")
         instance.interface_b.wireless_link = instance
-        instance.interface_b._cable_peer = instance.interface_a
+        instance.interface_b._link_peer = instance.interface_a
         instance.interface_b.save()
 
     # Create/update cable paths
@@ -50,15 +50,15 @@ def nullify_connected_interfaces(instance, **kwargs):
         logger.debug(f"Nullifying interface A for wireless link {instance}")
         Interface.objects.filter(pk=instance.interface_a.pk).update(
             wireless_link=None,
-            _cable_peer_type=None,
-            _cable_peer_id=None
+            _link_peer_type=None,
+            _link_peer_id=None
         )
     if instance.interface_b is not None:
         logger.debug(f"Nullifying interface B for wireless link {instance}")
         Interface.objects.filter(pk=instance.interface_b.pk).update(
             wireless_link=None,
-            _cable_peer_type=None,
-            _cable_peer_id=None
+            _link_peer_type=None,
+            _link_peer_id=None
         )
 
     # Delete and retrace any dependent cable paths

@@ -71,10 +71,10 @@ class PowerFeedTable(CableTerminationTable):
         model = PowerFeed
         fields = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'mark_connected', 'cable', 'cable_color', 'cable_peer', 'connection', 'available_power',
+            'max_utilization', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'available_power',
             'comments', 'tags',
         )
         default_columns = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',
-            'cable_peer',
+            'link_peer',
         )

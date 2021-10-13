@@ -83,12 +83,12 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
     if instance.termination_a.cable != instance:
         logger.debug(f"Updating termination A for cable {instance}")
         instance.termination_a.cable = instance
-        instance.termination_a._cable_peer = instance.termination_b
+        instance.termination_a._link_peer = instance.termination_b
         instance.termination_a.save()
     if instance.termination_b.cable != instance:
         logger.debug(f"Updating termination B for cable {instance}")
         instance.termination_b.cable = instance
-        instance.termination_b._cable_peer = instance.termination_a
+        instance.termination_b._link_peer = instance.termination_a
         instance.termination_b.save()
 
     # Create/update cable paths
@@ -119,11 +119,11 @@ def nullify_connected_endpoints(instance, **kwargs):
     if instance.termination_a is not None:
         logger.debug(f"Nullifying termination A for cable {instance}")
         model = instance.termination_a._meta.model
-        model.objects.filter(pk=instance.termination_a.pk).update(_cable_peer_type=None, _cable_peer_id=None)
+        model.objects.filter(pk=instance.termination_a.pk).update(_link_peer_type=None, _link_peer_id=None)
     if instance.termination_b is not None:
         logger.debug(f"Nullifying termination B for cable {instance}")
         model = instance.termination_b._meta.model
-        model.objects.filter(pk=instance.termination_b.pk).update(_cable_peer_type=None, _cable_peer_id=None)
+        model.objects.filter(pk=instance.termination_b.pk).update(_link_peer_type=None, _link_peer_id=None)
 
     # Delete and retrace any dependent cable paths
     for cablepath in CablePath.objects.filter(path__contains=instance):

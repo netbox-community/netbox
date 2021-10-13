@@ -10,7 +10,7 @@ from extras.utils import extras_features
 from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import ExclusionValidator
-from .device_components import CableTermination, PathEndpoint
+from .device_components import LinkTermination, PathEndpoint
 
 __all__ = (
     'PowerFeed',
@@ -67,7 +67,7 @@ class PowerPanel(PrimaryModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerFeed(PrimaryModel, PathEndpoint, CableTermination):
+class PowerFeed(PrimaryModel, PathEndpoint, LinkTermination):
     """
     An electrical circuit delivered from a PowerPanel.
     """

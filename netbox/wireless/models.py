@@ -98,6 +98,9 @@ class WirelessLink(PrimaryModel):
         ordering = ['pk']
         unique_together = ('interface_a', 'interface_b')
 
+    def __str__(self):
+        return f'#{self.pk}'
+
     def get_absolute_url(self):
         return reverse('wireless:wirelesslink', args=[self.pk])
 
