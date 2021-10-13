@@ -14,11 +14,13 @@ class WirelessRootView(APIRootView):
         return 'Wireless'
 
 
-#
-# Providers
-#
-
 class WirelessLANViewSet(CustomFieldModelViewSet):
-    queryset = WirelessLAN.objects.prefetch_related('tags')
+    queryset = WirelessLAN.objects.prefetch_related('vlan', 'tags')
     serializer_class = serializers.WirelessLANSerializer
     filterset_class = filtersets.WirelessLANFilterSet
+
+
+class WirelessLinkViewSet(CustomFieldModelViewSet):
+    queryset = WirelessLink.objects.prefetch_related('interface_a', 'interface_b', 'tags')
+    serializer_class = serializers.WirelessLinkSerializer
+    filterset_class = filtersets.WirelessLinkFilterSet

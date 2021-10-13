@@ -196,6 +196,7 @@ WIRELESS_MENU = Menu(
             label='Wireless',
             items=(
                 get_model_item('wireless', 'wirelesslan', 'Wireless LANs'),
+                get_model_item('wireless', 'wirelesslink', 'Wirelesss Links', actions=['import']),
             ),
         ),
     ),

@@ -1,0 +1,20 @@
+<table class="table table-hover panel-body attr-table">
+  <tr>
+    <td>Device</td>
+    <td>
+      <a href="{{ interface.device.get_absolute_url }}">{{ interface.device }}</a>
+    </td>
+  </tr>
+  <tr>
+    <td>Interface</td>
+    <td>
+      <a href="{{ interface.get_absolute_url }}">{{ interface }}</a>
+    </td>
+  </tr>
+  <tr>
+    <td>Type</td>
+    <td>
+      {{ interface.get_type_display }}
+    </td>
+  </tr>
+</table>
