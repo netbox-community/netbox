@@ -37,13 +37,15 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
         queryset=Interface.objects.all(),
         query_params={
             'kind': 'wireless'
-        }
+        },
+        label='Interface A'
     )
     interface_b = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         query_params={
             'kind': 'wireless'
-        }
+        },
+        label='Interface B'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),

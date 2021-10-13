@@ -117,7 +117,7 @@
             {% plugin_left_page object %}
         </div>
         <div class="col col-md-6">
-            {% if object.is_connectable %}
+            {% if not object.is_virtual %}
                 <div class="card">
                     <h5 class="card-header">
                         Connection
@@ -221,10 +221,19 @@
                                 </td>
                             </tr>
                         </table>
+                    {% elif object.wireless_link %}
+                        <table class="table table-hover">
+                            <tr>
+                                <th scope="row">Wireless Link</th>
+                                <td>
+                                    <a href="{{ object.wireless_link.get_absolute_url }}">{{ object.wireless_link }}</a>
+                                </td>
+                            </tr>
+                        </table>
                     {% else %}
                         <div class="text-muted">
                             Not Connected
-                            {% if perms.dcim.add_cable %}
+                            {% if object.is_wired and perms.dcim.add_cable %}
                                 <div class="dropdown float-end">
                                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
@@ -251,6 +260,12 @@
                                             </a>
                                         </li>
                                     </ul>
+                                </div>
+                            {% elif object.is_wireless and perms.wireless.add_wirelesslink %}
+                                <div class="dropdown float-end">
+                                    <a href="{% url 'wireless:wirelesslink_add' %}?interface_a={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+                                        <span class="mdi mdi-wifi-plus" aria-hidden="true"></span> Connect
+                                    </a>
                                 </div>
                             {% endif %}
                         </div>

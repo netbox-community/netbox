@@ -529,6 +529,13 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         null=True,
         verbose_name='Channel width'
     )
+    wireless_link = models.ForeignKey(
+        to='wireless.WirelessLink',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
     wireless_lans = models.ManyToManyField(
         to='wireless.WirelessLAN',
         related_name='interfaces',
@@ -568,14 +575,14 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     def clean(self):
         super().clean()
 
-        # Virtual interfaces cannot be connected
-        if not self.is_connectable and self.cable:
+        # Virtual Interfaces cannot have a Cable attached
+        if self.is_virtual and self.cable:
             raise ValidationError({
                 'type': f"{self.get_type_display()} interfaces cannot have a cable attached."
             })
 
-        # Non-connectable interfaces cannot be marked as connected
-        if not self.is_connectable and self.mark_connected:
+        # Virtual Interfaces cannot be marked as connected
+        if self.is_virtual and self.mark_connected:
             raise ValidationError({
                 'mark_connected': f"{self.get_type_display()} interfaces cannot be marked as connected."
             })
@@ -635,8 +642,8 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
             })
 
     @property
-    def is_connectable(self):
-        return self.type not in NONCONNECTABLE_IFACE_TYPES
+    def is_wired(self):
+        return not self.is_virtual and not self.is_wireless
 
     @property
     def is_virtual(self):

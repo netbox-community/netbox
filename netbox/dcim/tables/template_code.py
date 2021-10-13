@@ -203,7 +203,7 @@ INTERFACE_BUTTONS = """
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
     {% endif %}
-{% elif record.is_connectable and perms.dcim.add_cable %}
+{% elif record.is_wired and perms.dcim.add_cable %}
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     {% if not record.mark_connected %}
