@@ -632,8 +632,8 @@ class InterfaceSerializer(PrimaryModelSerializer, CableTerminationSerializer, Co
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
-    rf_channel = ChoiceField(choices=WirelessChannelChoices)
-    rf_channel_width = ChoiceField(choices=WirelessChannelWidthChoices)
+    rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False)
+    rf_channel_width = ChoiceField(choices=WirelessChannelWidthChoices, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),

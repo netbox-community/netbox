@@ -29,7 +29,7 @@ class WirelessLinkSerializer(PrimaryModelSerializer):
     interface_b = NestedInterfaceSerializer()
 
     class Meta:
-        model = WirelessLAN
+        model = WirelessLink
         fields = [
             'id', 'url', 'display', 'interface_a', 'interface_b', 'ssid', 'description',
         ]
