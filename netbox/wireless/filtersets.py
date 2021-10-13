@@ -3,13 +3,29 @@ from django.db.models import Q
 
 from dcim.choices import LinkStatusChoices
 from extras.filters import TagFilter
-from netbox.filtersets import PrimaryModelFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from .models import *
 
 __all__ = (
     'WirelessLANFilterSet',
+    'WirelessLANGroupFilterSet',
     'WirelessLinkFilterSet',
 )
+
+
+class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=WirelessLANGroup.objects.all()
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=WirelessLANGroup.objects.all(),
+        to_field_name='slug'
+    )
+
+    class Meta:
+        model = WirelessLANGroup
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class WirelessLANFilterSet(PrimaryModelFilterSet):

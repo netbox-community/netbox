@@ -1,18 +1,56 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from extras.utils import extras_features
-from netbox.models import BigIDModel, PrimaryModel
+from netbox.models import BigIDModel, NestedGroupModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 from .constants import SSID_MAX_LENGTH
 
 __all__ = (
     'WirelessLAN',
+    'WirelessLANGroup',
     'WirelessLink',
 )
+
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class WirelessLANGroup(NestedGroupModel):
+    """
+    A nested grouping of WirelessLANs
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ('name', 'pk')
+        unique_together = (
+            ('parent', 'name')
+        )
+
+    def get_absolute_url(self):
+        return reverse('wireless:wirelesslangroup', args=[self.pk])
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -23,6 +61,13 @@ class WirelessLAN(PrimaryModel):
     ssid = models.CharField(
         max_length=SSID_MAX_LENGTH,
         verbose_name='SSID'
+    )
+    group = models.ForeignKey(
+        to='wireless.WirelessLANGroup',
+        on_delete=models.SET_NULL,
+        related_name='wireless_lans',
+        blank=True,
+        null=True
     )
     vlan = models.ForeignKey(
         to='ipam.VLAN',
@@ -100,7 +145,7 @@ class WirelessLink(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    clone_fields = ('ssid', 'status')
+    clone_fields = ('ssid', 'group', 'status')
 
     class Meta:
         ordering = ['pk']

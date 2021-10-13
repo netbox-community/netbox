@@ -1,12 +1,33 @@
 import django_tables2 as tables
 
+from utilities.tables import (
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn,
+)
 from .models import *
-from utilities.tables import BaseTable, ChoiceFieldColumn, TagColumn, ToggleColumn
 
 __all__ = (
     'WirelessLANTable',
+    'WirelessLANGroupTable',
     'WirelessLinkTable',
 )
+
+
+class WirelessLANGroupTable(BaseTable):
+    pk = ToggleColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
+    wirelesslan_count = LinkedCountColumn(
+        viewname='wireless:wirelesslan_list',
+        url_params={'group_id': 'pk'},
+        verbose_name='Wireless LANs'
+    )
+    actions = ButtonsColumn(WirelessLANGroup)
+
+    class Meta(BaseTable.Meta):
+        model = WirelessLANGroup
+        fields = ('pk', 'name', 'wirelesslan_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'wirelesslan_count', 'description', 'actions')
 
 
 class WirelessLANTable(BaseTable):

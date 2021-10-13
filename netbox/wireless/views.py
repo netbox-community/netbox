@@ -1,6 +1,79 @@
 from netbox.views import generic
+from utilities.tables import paginate_table
 from . import filtersets, forms, tables
 from .models import *
+
+
+#
+# Wireless LAN groups
+#
+
+class WirelessLANGroupListView(generic.ObjectListView):
+    queryset = WirelessLANGroup.objects.add_related_count(
+        WirelessLANGroup.objects.all(),
+        WirelessLAN,
+        'group',
+        'wirelesslan_count',
+        cumulative=True
+    )
+    filterset = filtersets.WirelessLANGroupFilterSet
+    filterset_form = forms.WirelessLANGroupFilterForm
+    table = tables.WirelessLANGroupTable
+
+
+class WirelessLANGroupView(generic.ObjectView):
+    queryset = WirelessLANGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        wirelesslans = WirelessLAN.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+        wirelesslans_table = tables.WirelessLANTable(wirelesslans, exclude=('group',))
+        paginate_table(wirelesslans_table, request)
+
+        return {
+            'wirelesslans_table': wirelesslans_table,
+        }
+
+
+class WirelessLANGroupEditView(generic.ObjectEditView):
+    queryset = WirelessLANGroup.objects.all()
+    model_form = forms.WirelessLANGroupForm
+
+
+class WirelessLANGroupDeleteView(generic.ObjectDeleteView):
+    queryset = WirelessLANGroup.objects.all()
+
+
+class WirelessLANGroupBulkImportView(generic.BulkImportView):
+    queryset = WirelessLANGroup.objects.all()
+    model_form = forms.WirelessLANGroupCSVForm
+    table = tables.WirelessLANGroupTable
+
+
+class WirelessLANGroupBulkEditView(generic.BulkEditView):
+    queryset = WirelessLANGroup.objects.add_related_count(
+        WirelessLANGroup.objects.all(),
+        WirelessLAN,
+        'group',
+        'wirelesslan_count',
+        cumulative=True
+    )
+    filterset = filtersets.WirelessLANGroupFilterSet
+    table = tables.WirelessLANGroupTable
+    form = forms.WirelessLANGroupBulkEditForm
+
+
+class WirelessLANGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = WirelessLANGroup.objects.add_related_count(
+        WirelessLANGroup.objects.all(),
+        WirelessLAN,
+        'group',
+        'wirelesslan_count',
+        cumulative=True
+    )
+    filterset = filtersets.WirelessLANGroupFilterSet
+    table = tables.WirelessLANGroupTable
 
 
 #

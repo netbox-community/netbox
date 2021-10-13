@@ -14,6 +14,16 @@
                         <td>{{ object.ssid }}</td>
                     </tr>
                     <tr>
+                        <td>Group</td>
+                        <td>
+                            {% if object.group %}
+                                <a href="{{ object.group.get_absolute_url }}">{{ object.group }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Description</th>
                         <td>{{ object.description|placeholder }}</td>
                     </tr>

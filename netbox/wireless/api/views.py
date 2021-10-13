@@ -14,6 +14,18 @@ class WirelessRootView(APIRootView):
         return 'Wireless'
 
 
+class WirelessLANGroupViewSet(CustomFieldModelViewSet):
+    queryset = WirelessLANGroup.objects.add_related_count(
+        WirelessLANGroup.objects.all(),
+        WirelessLAN,
+        'group',
+        'wirelesslan_count',
+        cumulative=True
+    )
+    serializer_class = serializers.WirelessLANGroupSerializer
+    filterset_class = filtersets.WirelessLANGroupFilterSet
+
+
 class WirelessLANViewSet(CustomFieldModelViewSet):
     queryset = WirelessLAN.objects.prefetch_related('vlan', 'tags')
     serializer_class = serializers.WirelessLANSerializer

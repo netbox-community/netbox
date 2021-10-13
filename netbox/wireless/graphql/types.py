@@ -3,8 +3,17 @@ from netbox.graphql.types import ObjectType
 
 __all__ = (
     'WirelessLANType',
+    'WirelessLANGroupType',
     'WirelessLinkType',
 )
+
+
+class WirelessLANGroupType(ObjectType):
+
+    class Meta:
+        model = models.WirelessLANGroup
+        fields = '__all__'
+        filterset_class = filtersets.WirelessLANGroupFilterSet
 
 
 class WirelessLANType(ObjectType):

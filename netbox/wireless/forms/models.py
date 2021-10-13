@@ -2,16 +2,37 @@ from dcim.models import Interface
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
+from utilities.forms import (
+    BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, StaticSelect,
+)
 from wireless.models import *
 
 __all__ = (
     'WirelessLANForm',
+    'WirelessLANGroupForm',
     'WirelessLinkForm',
 )
 
 
+class WirelessLANGroupForm(BootstrapMixin, CustomFieldModelForm):
+    parent = DynamicModelChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        required=False
+    )
+    slug = SlugField()
+
+    class Meta:
+        model = WirelessLANGroup
+        fields = [
+            'parent', 'name', 'slug', 'description',
+        ]
+
+
 class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
+    group = DynamicModelChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        required=False
+    )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False
@@ -24,10 +45,10 @@ class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'description', 'vlan', 'tags',
+            'ssid', 'group', 'description', 'vlan', 'tags',
         ]
         fieldsets = (
-            ('Wireless LAN', ('ssid', 'description', 'tags')),
+            ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
             ('VLAN', ('vlan',)),
         )
 

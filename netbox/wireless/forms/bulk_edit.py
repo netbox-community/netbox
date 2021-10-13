@@ -9,14 +9,37 @@ from wireless.models import *
 
 __all__ = (
     'WirelessLANBulkEditForm',
+    'WirelessLANGroupBulkEditForm',
     'WirelessLinkBulkEditForm',
 )
+
+
+class WirelessLANGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    parent = DynamicModelChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['parent', 'description']
 
 
 class WirelessLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLAN.objects.all(),
         widget=forms.MultipleHiddenInput
+    )
+    group = DynamicModelChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        required=False
     )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -31,7 +54,7 @@ class WirelessLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
     )
 
     class Meta:
-        nullable_fields = ['vlan', 'ssid', 'description']
+        nullable_fields = ['ssid', 'group', 'vlan', 'description']
 
 
 class WirelessLinkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
