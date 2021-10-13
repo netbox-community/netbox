@@ -195,8 +195,10 @@ INTERFACE_BUTTONS = """
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
     </a>
 {% endif %}
-{% if record.cable %}
+{% if record.link %}
     <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
+{% endif %}
+{% if record.cable %}
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
