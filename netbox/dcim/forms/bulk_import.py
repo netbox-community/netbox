@@ -807,7 +807,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
 
     # Cable attributes
     status = CSVChoiceField(
-        choices=CableStatusChoices,
+        choices=LinkStatusChoices,
         required=False,
         help_text='Connection status'
     )

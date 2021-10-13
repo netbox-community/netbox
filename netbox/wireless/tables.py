@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from .models import *
-from utilities.tables import BaseTable, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ChoiceFieldColumn, TagColumn, ToggleColumn
 
 __all__ = (
     'WirelessLANTable',
@@ -30,6 +30,7 @@ class WirelessLinkTable(BaseTable):
         linkify=True,
         verbose_name='ID'
     )
+    status = ChoiceFieldColumn()
     interface_a = tables.Column(
         linkify=True
     )
@@ -42,5 +43,5 @@ class WirelessLinkTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WirelessLink
-        fields = ('pk', 'id', 'interface_a', 'interface_b', 'ssid', 'description')
-        default_columns = ('pk', 'id', 'interface_a', 'interface_b', 'ssid', 'description')
+        fields = ('pk', 'id', 'status', 'interface_a', 'interface_b', 'ssid', 'description')
+        default_columns = ('pk', 'id', 'status', 'interface_a', 'interface_b', 'ssid', 'description')

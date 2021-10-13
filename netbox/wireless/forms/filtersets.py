@@ -1,8 +1,9 @@
 from django import forms
 from django.utils.translation import gettext as _
 
+from dcim.choices import LinkStatusChoices
 from extras.forms import CustomFieldModelFilterForm
-from utilities.forms import BootstrapMixin, TagFilterField
+from utilities.forms import add_blank_choice, BootstrapMixin, StaticSelect, TagFilterField
 from wireless.models import *
 
 __all__ = (
@@ -41,5 +42,10 @@ class WirelessLinkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     ssid = forms.CharField(
         required=False,
         label='SSID'
+    )
+    status = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(LinkStatusChoices),
+        widget=StaticSelect()
     )
     tag = TagFilterField(model)

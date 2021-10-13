@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
+from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from extras.utils import extras_features
 from netbox.models import BigIDModel, PrimaryModel
@@ -70,6 +71,11 @@ class WirelessLink(PrimaryModel):
         blank=True,
         verbose_name='SSID'
     )
+    status = models.CharField(
+        max_length=50,
+        choices=LinkStatusChoices,
+        default=LinkStatusChoices.STATUS_CONNECTED
+    )
     description = models.CharField(
         max_length=200,
         blank=True
@@ -94,6 +100,8 @@ class WirelessLink(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
+    clone_fields = ('ssid', 'status')
+
     class Meta:
         ordering = ['pk']
         unique_together = ('interface_a', 'interface_b')
@@ -103,6 +111,9 @@ class WirelessLink(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('wireless:wirelesslink', args=[self.pk])
+
+    def get_status_class(self):
+        return LinkStatusChoices.CSS_CLASSES.get(self.status)
 
     def clean(self):
 

@@ -732,7 +732,7 @@ class CableFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(CableStatusChoices),
+        choices=add_blank_choice(LinkStatusChoices),
         widget=StaticSelect()
     )
     color = ColorField(

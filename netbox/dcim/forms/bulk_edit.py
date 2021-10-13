@@ -453,7 +453,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
         widget=StaticSelect()
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(CableStatusChoices),
+        choices=add_blank_choice(LinkStatusChoices),
         required=False,
         widget=StaticSelect(),
         initial=''

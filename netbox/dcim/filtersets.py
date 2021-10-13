@@ -1205,7 +1205,7 @@ class CableFilterSet(PrimaryModelFilterSet):
         choices=CableTypeChoices
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=CableStatusChoices
+        choices=LinkStatusChoices
     )
     color = django_filters.MultipleChoiceFilter(
         choices=ColorChoices

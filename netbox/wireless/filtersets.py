@@ -1,6 +1,7 @@
 import django_filters
 from django.db.models import Q
 
+from dcim.choices import LinkStatusChoices
 from extras.filters import TagFilter
 from netbox.filtersets import PrimaryModelFilterSet
 from .models import *
@@ -36,6 +37,9 @@ class WirelessLinkFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=LinkStatusChoices
     )
     tag = TagFilter()
 

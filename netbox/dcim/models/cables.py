@@ -64,8 +64,8 @@ class Cable(PrimaryModel):
     )
     status = models.CharField(
         max_length=50,
-        choices=CableStatusChoices,
-        default=CableStatusChoices.STATUS_CONNECTED
+        choices=LinkStatusChoices,
+        default=LinkStatusChoices.STATUS_CONNECTED
     )
     label = models.CharField(
         max_length=100,
@@ -285,7 +285,7 @@ class Cable(PrimaryModel):
         self._pk = self.pk
 
     def get_status_class(self):
-        return CableStatusChoices.CSS_CLASSES.get(self.status)
+        return LinkStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_compatible_types(self):
         """
@@ -390,7 +390,7 @@ class CablePath(BigIDModel):
 
         node = origin
         while node.link is not None:
-            if hasattr(node.link, 'status') and node.link.status != CableStatusChoices.STATUS_CONNECTED:
+            if hasattr(node.link, 'status') and node.link.status != LinkStatusChoices.STATUS_CONNECTED:
                 is_active = False
 
             # Follow the link to its far-end termination

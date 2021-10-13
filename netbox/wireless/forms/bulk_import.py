@@ -1,7 +1,8 @@
+from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from extras.forms import CustomFieldModelCSVForm
 from ipam.models import VLAN
-from utilities.forms import CSVModelChoiceField
+from utilities.forms import CSVChoiceField, CSVModelChoiceField
 from wireless.models import *
 
 __all__ = (
@@ -23,6 +24,10 @@ class WirelessLANCSVForm(CustomFieldModelCSVForm):
 
 
 class WirelessLinkCSVForm(CustomFieldModelCSVForm):
+    status = CSVChoiceField(
+        choices=LinkStatusChoices,
+        help_text='Connection status'
+    )
     interface_a = CSVModelChoiceField(
         queryset=Interface.objects.all()
     )

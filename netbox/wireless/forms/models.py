@@ -2,7 +2,7 @@ from dcim.models import Interface
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
 from wireless.models import *
 
 __all__ = (
@@ -55,5 +55,8 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = WirelessLink
         fields = [
-            'interface_a', 'interface_b', 'ssid', 'description', 'tags',
+            'interface_a', 'interface_b', 'status', 'ssid', 'description', 'tags',
         ]
+        widgets = {
+            'status': StaticSelect,
+        }
