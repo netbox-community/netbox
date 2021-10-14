@@ -385,7 +385,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = DeviceType
     field_groups = [
         ['q', 'tag'],
-        ['manufacturer_id', 'subdevice_role'],
+        ['manufacturer_id', 'subdevice_role', 'airflow'],
         ['console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports'],
     ]
     q = forms.CharField(
@@ -401,6 +401,11 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     )
     subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
+        required=False,
+        widget=StaticSelectMultiple()
+    )
+    airflow = forms.MultipleChoiceField(
+        choices=add_blank_choice(DeviceAirflowChoices),
         required=False,
         widget=StaticSelectMultiple()
     )
@@ -485,7 +490,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id'],
-        ['status', 'role_id', 'serial', 'asset_tag', 'mac_address'],
+        ['status', 'role_id', 'airflow', 'serial', 'asset_tag', 'mac_address'],
         ['manufacturer_id', 'device_type_id', 'platform_id'],
         ['tenant_group_id', 'tenant_id'],
         [
@@ -571,6 +576,11 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     )
     status = forms.MultipleChoiceField(
         choices=DeviceStatusChoices,
+        required=False,
+        widget=StaticSelectMultiple()
+    )
+    airflow = forms.MultipleChoiceField(
+        choices=add_blank_choice(DeviceAirflowChoices),
         required=False,
         widget=StaticSelectMultiple()
     )

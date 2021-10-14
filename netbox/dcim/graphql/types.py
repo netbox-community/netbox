@@ -144,6 +144,9 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, PrimaryObjectType):
     def resolve_face(self, info):
         return self.face or None
 
+    def resolve_airflow(self, info):
+        return self.airflow or None
+
 
 class DeviceBayType(ComponentObjectType):
 
@@ -178,6 +181,9 @@ class DeviceTypeType(PrimaryObjectType):
 
     def resolve_subdevice_role(self, info):
         return self.subdevice_role or None
+
+    def resolve_airflow(self, info):
+        return self.airflow or None
 
 
 class FrontPortType(ComponentObjectType):
