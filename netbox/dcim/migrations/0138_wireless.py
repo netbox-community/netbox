@@ -5,7 +5,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0136_rename_cable_peer'),
+        ('dcim', '0137_rename_cable_peer'),
         ('wireless', '0001_wireless'),
     ]
 

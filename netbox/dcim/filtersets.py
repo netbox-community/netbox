@@ -441,7 +441,7 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
         ]
 
     def search(self, queryset, name, value):
@@ -751,7 +751,7 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
 
     class Meta:
         model = Device
-        fields = ['id', 'name', 'asset_tag', 'face', 'position', 'vc_position', 'vc_priority']
+        fields = ['id', 'name', 'asset_tag', 'face', 'position', 'airflow', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():

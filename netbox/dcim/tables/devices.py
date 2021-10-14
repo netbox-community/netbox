@@ -197,8 +197,8 @@ class DeviceTable(BaseTable):
         model = Device
         fields = (
             'pk', 'name', 'status', 'tenant', 'device_role', 'manufacturer', 'device_type', 'platform', 'serial',
-            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'airflow', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',

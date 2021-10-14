@@ -369,12 +369,17 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         required=False,
         help_text='Mounted rack face'
     )
+    airflow = CSVChoiceField(
+        choices=DeviceAirflowChoices,
+        required=False,
+        help_text='Airflow direction'
+    )
 
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'location', 'rack', 'position', 'face', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster',
-            'comments',
+            'site', 'location', 'rack', 'position', 'face', 'airflow', 'virtual_chassis', 'vc_position', 'vc_priority',
+            'cluster', 'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):

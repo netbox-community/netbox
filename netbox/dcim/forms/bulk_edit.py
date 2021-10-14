@@ -335,9 +335,14 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModel
         widget=BulkEditNullBooleanSelect(),
         label='Is full depth'
     )
+    airflow = forms.ChoiceField(
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False,
+        widget=StaticSelect()
+    )
 
     class Meta:
-        nullable_fields = []
+        nullable_fields = ['airflow']
 
 
 class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
@@ -429,6 +434,11 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
         required=False,
         widget=StaticSelect()
     )
+    airflow = forms.ChoiceField(
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False,
+        widget=StaticSelect()
+    )
     serial = forms.CharField(
         max_length=50,
         required=False,
@@ -437,7 +447,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
 
     class Meta:
         nullable_fields = [
-            'tenant', 'platform', 'serial',
+            'tenant', 'platform', 'serial', 'airflow',
         ]
 
 

@@ -368,12 +368,15 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
             'front_image', 'rear_image', 'comments', 'tags',
         ]
         fieldsets = (
             ('Device Type', (
-                'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'tags',
+                'manufacturer', 'model', 'slug', 'part_number', 'tags',
+            )),
+            ('Chassis', (
+                'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
             )),
             ('Images', ('front_image', 'rear_image')),
         )
@@ -520,8 +523,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
-            'location', 'position', 'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'cluster_group',
-            'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
+            'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
+            'cluster_group', 'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
@@ -532,6 +535,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         widgets = {
             'face': StaticSelect(),
             'status': StaticSelect(),
+            'airflow': StaticSelect(),
             'primary_ip4': StaticSelect(),
             'primary_ip6': StaticSelect(),
         }

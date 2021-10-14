@@ -24,13 +24,46 @@ class CustomFieldTest(TestCase):
 
     def test_simple_fields(self):
         DATA = (
-            {'field_type': CustomFieldTypeChoices.TYPE_TEXT, 'field_value': 'Foobar!', 'empty_value': ''},
-            {'field_type': CustomFieldTypeChoices.TYPE_INTEGER, 'field_value': 0, 'empty_value': None},
-            {'field_type': CustomFieldTypeChoices.TYPE_INTEGER, 'field_value': 42, 'empty_value': None},
-            {'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN, 'field_value': True, 'empty_value': None},
-            {'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN, 'field_value': False, 'empty_value': None},
-            {'field_type': CustomFieldTypeChoices.TYPE_DATE, 'field_value': '2016-06-23', 'empty_value': None},
-            {'field_type': CustomFieldTypeChoices.TYPE_URL, 'field_value': 'http://example.com/', 'empty_value': ''},
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_TEXT,
+                'field_value': 'Foobar!',
+                'empty_value': '',
+            },
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_LONGTEXT,
+                'field_value': 'Text with **Markdown**',
+                'empty_value': '',
+            },
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_INTEGER,
+                'field_value': 0,
+                'empty_value': None,
+            },
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_INTEGER,
+                'field_value': 42,
+                'empty_value': None,
+            },
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN,
+                'field_value': True,
+                'empty_value': None,
+            },
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN,
+                'field_value': False,
+                'empty_value': None,
+            },
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_DATE,
+                'field_value': '2016-06-23',
+                'empty_value': None,
+            },
+            {
+                'field_type': CustomFieldTypeChoices.TYPE_URL,
+                'field_value': 'http://example.com/',
+                'empty_value': '',
+            },
         )
 
         obj_type = ContentType.objects.get_for_model(Site)
@@ -149,6 +182,11 @@ class CustomFieldAPITest(APITestCase):
         cls.cf_text.save()
         cls.cf_text.content_types.set([content_type])
 
+        # Long text custom field
+        cls.cf_longtext = CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC')
+        cls.cf_longtext.save()
+        cls.cf_longtext.content_types.set([content_type])
+
         # Integer custom field
         cls.cf_integer = CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='number_field', default=123)
         cls.cf_integer.save()
@@ -185,6 +223,7 @@ class CustomFieldAPITest(APITestCase):
         # Assign custom field values for site 2
         cls.sites[1].custom_field_data = {
             cls.cf_text.name: 'bar',
+            cls.cf_longtext.name: 'DEF',
             cls.cf_integer.name: 456,
             cls.cf_boolean.name: True,
             cls.cf_date.name: '2020-01-02',
@@ -204,6 +243,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['name'], self.sites[0].name)
         self.assertEqual(response.data['custom_fields'], {
             'text_field': None,
+            'longtext_field': None,
             'number_field': None,
             'boolean_field': None,
             'date_field': None,
@@ -222,6 +262,7 @@ class CustomFieldAPITest(APITestCase):
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data['name'], self.sites[1].name)
         self.assertEqual(response.data['custom_fields']['text_field'], site2_cfvs['text_field'])
+        self.assertEqual(response.data['custom_fields']['longtext_field'], site2_cfvs['longtext_field'])
         self.assertEqual(response.data['custom_fields']['number_field'], site2_cfvs['number_field'])
         self.assertEqual(response.data['custom_fields']['boolean_field'], site2_cfvs['boolean_field'])
         self.assertEqual(response.data['custom_fields']['date_field'], site2_cfvs['date_field'])
@@ -245,6 +286,7 @@ class CustomFieldAPITest(APITestCase):
         # Validate response data
         response_cf = response.data['custom_fields']
         self.assertEqual(response_cf['text_field'], self.cf_text.default)
+        self.assertEqual(response_cf['longtext_field'], self.cf_longtext.default)
         self.assertEqual(response_cf['number_field'], self.cf_integer.default)
         self.assertEqual(response_cf['boolean_field'], self.cf_boolean.default)
         self.assertEqual(response_cf['date_field'], self.cf_date.default)
@@ -254,6 +296,7 @@ class CustomFieldAPITest(APITestCase):
         # Validate database data
         site = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site.custom_field_data['text_field'], self.cf_text.default)
+        self.assertEqual(site.custom_field_data['longtext_field'], self.cf_longtext.default)
         self.assertEqual(site.custom_field_data['number_field'], self.cf_integer.default)
         self.assertEqual(site.custom_field_data['boolean_field'], self.cf_boolean.default)
         self.assertEqual(str(site.custom_field_data['date_field']), self.cf_date.default)
@@ -269,6 +312,7 @@ class CustomFieldAPITest(APITestCase):
             'slug': 'site-3',
             'custom_fields': {
                 'text_field': 'bar',
+                'longtext_field': 'blah blah blah',
                 'number_field': 456,
                 'boolean_field': True,
                 'date_field': '2020-01-02',
@@ -286,6 +330,7 @@ class CustomFieldAPITest(APITestCase):
         response_cf = response.data['custom_fields']
         data_cf = data['custom_fields']
         self.assertEqual(response_cf['text_field'], data_cf['text_field'])
+        self.assertEqual(response_cf['longtext_field'], data_cf['longtext_field'])
         self.assertEqual(response_cf['number_field'], data_cf['number_field'])
         self.assertEqual(response_cf['boolean_field'], data_cf['boolean_field'])
         self.assertEqual(response_cf['date_field'], data_cf['date_field'])
@@ -295,6 +340,7 @@ class CustomFieldAPITest(APITestCase):
         # Validate database data
         site = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site.custom_field_data['text_field'], data_cf['text_field'])
+        self.assertEqual(site.custom_field_data['longtext_field'], data_cf['longtext_field'])
         self.assertEqual(site.custom_field_data['number_field'], data_cf['number_field'])
         self.assertEqual(site.custom_field_data['boolean_field'], data_cf['boolean_field'])
         self.assertEqual(str(site.custom_field_data['date_field']), data_cf['date_field'])
@@ -332,6 +378,7 @@ class CustomFieldAPITest(APITestCase):
             # Validate response data
             response_cf = response.data[i]['custom_fields']
             self.assertEqual(response_cf['text_field'], self.cf_text.default)
+            self.assertEqual(response_cf['longtext_field'], self.cf_longtext.default)
             self.assertEqual(response_cf['number_field'], self.cf_integer.default)
             self.assertEqual(response_cf['boolean_field'], self.cf_boolean.default)
             self.assertEqual(response_cf['date_field'], self.cf_date.default)
@@ -341,6 +388,7 @@ class CustomFieldAPITest(APITestCase):
             # Validate database data
             site = Site.objects.get(pk=response.data[i]['id'])
             self.assertEqual(site.custom_field_data['text_field'], self.cf_text.default)
+            self.assertEqual(site.custom_field_data['longtext_field'], self.cf_longtext.default)
             self.assertEqual(site.custom_field_data['number_field'], self.cf_integer.default)
             self.assertEqual(site.custom_field_data['boolean_field'], self.cf_boolean.default)
             self.assertEqual(str(site.custom_field_data['date_field']), self.cf_date.default)
@@ -353,6 +401,7 @@ class CustomFieldAPITest(APITestCase):
         """
         custom_field_data = {
             'text_field': 'bar',
+            'longtext_field': 'abcdefghij',
             'number_field': 456,
             'boolean_field': True,
             'date_field': '2020-01-02',
@@ -388,6 +437,7 @@ class CustomFieldAPITest(APITestCase):
             # Validate response data
             response_cf = response.data[i]['custom_fields']
             self.assertEqual(response_cf['text_field'], custom_field_data['text_field'])
+            self.assertEqual(response_cf['longtext_field'], custom_field_data['longtext_field'])
             self.assertEqual(response_cf['number_field'], custom_field_data['number_field'])
             self.assertEqual(response_cf['boolean_field'], custom_field_data['boolean_field'])
             self.assertEqual(response_cf['date_field'], custom_field_data['date_field'])
@@ -397,6 +447,7 @@ class CustomFieldAPITest(APITestCase):
             # Validate database data
             site = Site.objects.get(pk=response.data[i]['id'])
             self.assertEqual(site.custom_field_data['text_field'], custom_field_data['text_field'])
+            self.assertEqual(site.custom_field_data['longtext_field'], custom_field_data['longtext_field'])
             self.assertEqual(site.custom_field_data['number_field'], custom_field_data['number_field'])
             self.assertEqual(site.custom_field_data['boolean_field'], custom_field_data['boolean_field'])
             self.assertEqual(str(site.custom_field_data['date_field']), custom_field_data['date_field'])
@@ -426,6 +477,7 @@ class CustomFieldAPITest(APITestCase):
         response_cf = response.data['custom_fields']
         self.assertEqual(response_cf['text_field'], data['custom_fields']['text_field'])
         self.assertEqual(response_cf['number_field'], data['custom_fields']['number_field'])
+        self.assertEqual(response_cf['longtext_field'], original_cfvs['longtext_field'])
         self.assertEqual(response_cf['boolean_field'], original_cfvs['boolean_field'])
         self.assertEqual(response_cf['date_field'], original_cfvs['date_field'])
         self.assertEqual(response_cf['url_field'], original_cfvs['url_field'])
@@ -435,6 +487,7 @@ class CustomFieldAPITest(APITestCase):
         site.refresh_from_db()
         self.assertEqual(site.custom_field_data['text_field'], data['custom_fields']['text_field'])
         self.assertEqual(site.custom_field_data['number_field'], data['custom_fields']['number_field'])
+        self.assertEqual(site.custom_field_data['longtext_field'], original_cfvs['longtext_field'])
         self.assertEqual(site.custom_field_data['boolean_field'], original_cfvs['boolean_field'])
         self.assertEqual(site.custom_field_data['date_field'], original_cfvs['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], original_cfvs['url_field'])
@@ -491,11 +544,14 @@ class CustomFieldImportTest(TestCase):
 
         custom_fields = (
             CustomField(name='text', type=CustomFieldTypeChoices.TYPE_TEXT),
+            CustomField(name='longtext', type=CustomFieldTypeChoices.TYPE_LONGTEXT),
             CustomField(name='integer', type=CustomFieldTypeChoices.TYPE_INTEGER),
             CustomField(name='boolean', type=CustomFieldTypeChoices.TYPE_BOOLEAN),
             CustomField(name='date', type=CustomFieldTypeChoices.TYPE_DATE),
             CustomField(name='url', type=CustomFieldTypeChoices.TYPE_URL),
-            CustomField(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=['Choice A', 'Choice B', 'Choice C']),
+            CustomField(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=[
+                'Choice A', 'Choice B', 'Choice C',
+            ]),
         )
         for cf in custom_fields:
             cf.save()
@@ -506,10 +562,10 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'status', 'cf_text', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_select'),
-            ('Site 1', 'site-1', 'active', 'ABC', '123', 'True', '2020-01-01', 'http://example.com/1', 'Choice A'),
-            ('Site 2', 'site-2', 'active', 'DEF', '456', 'False', '2020-01-02', 'http://example.com/2', 'Choice B'),
-            ('Site 3', 'site-3', 'active', '', '', '', '', '', ''),
+            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_select'),
+            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', 'True', '2020-01-01', 'http://example.com/1', 'Choice A'),
+            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', 'False', '2020-01-02', 'http://example.com/2', 'Choice B'),
+            ('Site 3', 'site-3', 'active', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
@@ -518,8 +574,9 @@ class CustomFieldImportTest(TestCase):
 
         # Validate data for site 1
         site1 = Site.objects.get(name='Site 1')
-        self.assertEqual(len(site1.custom_field_data), 6)
+        self.assertEqual(len(site1.custom_field_data), 7)
         self.assertEqual(site1.custom_field_data['text'], 'ABC')
+        self.assertEqual(site1.custom_field_data['longtext'], 'Foo')
         self.assertEqual(site1.custom_field_data['integer'], 123)
         self.assertEqual(site1.custom_field_data['boolean'], True)
         self.assertEqual(site1.custom_field_data['date'], '2020-01-01')
@@ -528,8 +585,9 @@ class CustomFieldImportTest(TestCase):
 
         # Validate data for site 2
         site2 = Site.objects.get(name='Site 2')
-        self.assertEqual(len(site2.custom_field_data), 6)
+        self.assertEqual(len(site2.custom_field_data), 7)
         self.assertEqual(site2.custom_field_data['text'], 'DEF')
+        self.assertEqual(site2.custom_field_data['longtext'], 'Bar')
         self.assertEqual(site2.custom_field_data['integer'], 456)
         self.assertEqual(site2.custom_field_data['boolean'], False)
         self.assertEqual(site2.custom_field_data['date'], '2020-01-02')

@@ -12,3 +12,5 @@ Some devices house child devices which share physical resources, like space and 
 
 !!! note
     This parent/child relationship is **not** suitable for modeling chassis-based devices, wherein child members share a common control plane. Instead, line cards and similarly non-autonomous hardware should be modeled as inventory items within a device, with any associated interfaces or other components assigned directly to the device.
+
+A device type may optionally specify an airflow direction, such as front-to-rear, rear-to-front, or passive. Airflow direction may also be set separately per device. If it is not defined for a device at the time of its creation, it will inherit the airflow setting of its device type.

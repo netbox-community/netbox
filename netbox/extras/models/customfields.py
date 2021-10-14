@@ -166,7 +166,10 @@ class CustomField(ChangeLoggedModel):
         # Validate the field's default value (if any)
         if self.default is not None:
             try:
-                default_value = str(self.default) if self.type == CustomFieldTypeChoices.TYPE_TEXT else self.default
+                if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
+                    default_value = str(self.default)
+                else:
+                    default_value = self.default
                 self.validate(default_value)
             except ValidationError as err:
                 raise ValidationError({
@@ -184,7 +187,11 @@ class CustomField(ChangeLoggedModel):
             })
 
         # Regex validation can be set only for text fields
-        regex_types = (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_URL)
+        regex_types = (
+            CustomFieldTypeChoices.TYPE_TEXT,
+            CustomFieldTypeChoices.TYPE_LONGTEXT,
+            CustomFieldTypeChoices.TYPE_URL,
+        )
         if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
@@ -275,7 +282,13 @@ class CustomField(ChangeLoggedModel):
 
         # Text
         else:
-            field = forms.CharField(max_length=255, required=required, initial=initial)
+            if self.type == CustomFieldTypeChoices.TYPE_LONGTEXT:
+                max_length = None
+                widget = forms.Textarea
+            else:
+                max_length = 255
+                widget = None
+            field = forms.CharField(max_length=max_length, required=required, initial=initial, widget=widget)
             if self.validation_regex:
                 field.validators = [
                     RegexValidator(
@@ -298,7 +311,7 @@ class CustomField(ChangeLoggedModel):
         if value not in [None, '']:
 
             # Validate text field
-            if self.type == CustomFieldTypeChoices.TYPE_TEXT:
+            if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
                 if type(value) is not str:
                     raise ValidationError(f"Value must be a string.")
                 if self.validation_regex and not re.match(self.validation_regex, value):

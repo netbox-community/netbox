@@ -11,6 +11,7 @@ Within the database, custom fields are stored as JSON data directly alongside ea
 Custom fields may be created by navigating to Customization > Custom Fields. NetBox supports six types of custom field:
 
 * Text: Free-form text (up to 255 characters)
+* Long text: Free-form of any length; supports Markdown rendering
 * Integer: A whole number (positive or negative)
 * Boolean: True or false
 * Date: A date in ISO 8601 format (YYYY-MM-DD)

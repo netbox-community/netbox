@@ -6,6 +6,8 @@
 ### Enhancements
 
 * [#1337](https://github.com/netbox-community/netbox/issues/1337) - Add WWN field to interfaces
+* [#3839](https://github.com/netbox-community/netbox/issues/3839) - Add `airflow` field for devices types and devices
+* [#6711](https://github.com/netbox-community/netbox/issues/6711) - Add `longtext` custom field type with Markdown support
 * [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations
 
 ### Other Changes

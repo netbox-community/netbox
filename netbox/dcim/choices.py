@@ -174,6 +174,25 @@ class DeviceStatusChoices(ChoiceSet):
     }
 
 
+class DeviceAirflowChoices(ChoiceSet):
+
+    AIRFLOW_FRONT_TO_REAR = 'front-to-rear'
+    AIRFLOW_REAR_TO_FRONT = 'rear-to-front'
+    AIRFLOW_LEFT_TO_RIGHT = 'left-to-right'
+    AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
+    AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
+    AIRFLOW_PASSIVE = 'passive'
+
+    CHOICES = (
+        (AIRFLOW_FRONT_TO_REAR, 'Front to rear'),
+        (AIRFLOW_REAR_TO_FRONT, 'Rear to front'),
+        (AIRFLOW_LEFT_TO_RIGHT, 'Left to right'),
+        (AIRFLOW_RIGHT_TO_LEFT, 'Right to left'),
+        (AIRFLOW_SIDE_TO_REAR, 'Side to rear'),
+        (AIRFLOW_PASSIVE, 'Passive'),
+    )
+
+
 #
 # ConsolePorts
 #

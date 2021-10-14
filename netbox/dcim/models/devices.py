@@ -115,6 +115,11 @@ class DeviceType(PrimaryModel):
         help_text='Parent devices house child devices in device bays. Leave blank '
                   'if this device type is neither a parent nor a child.'
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
+    )
     front_image = models.ImageField(
         upload_to='devicetype-images',
         blank=True
@@ -130,7 +135,7 @@ class DeviceType(PrimaryModel):
     objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
     ]
 
     class Meta:
@@ -165,6 +170,7 @@ class DeviceType(PrimaryModel):
             ('u_height', self.u_height),
             ('is_full_depth', self.is_full_depth),
             ('subdevice_role', self.subdevice_role),
+            ('airflow', self.airflow),
             ('comments', self.comments),
         ))
 
@@ -530,6 +536,11 @@ class Device(PrimaryModel, ConfigContextModel):
         choices=DeviceStatusChoices,
         default=DeviceStatusChoices.STATUS_ACTIVE
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
@@ -580,7 +591,7 @@ class Device(PrimaryModel, ConfigContextModel):
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'airflow', 'cluster',
     ]
 
     class Meta:
@@ -741,8 +752,11 @@ class Device(PrimaryModel, ConfigContextModel):
             })
 
     def save(self, *args, **kwargs):
-
         is_new = not bool(self.pk)
+
+        # Inherit airflow attribute from DeviceType if not set
+        if is_new and not self.airflow:
+            self.airflow = self.device_type.airflow
 
         super().save(*args, **kwargs)
 
