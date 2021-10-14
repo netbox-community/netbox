@@ -1,41 +1,43 @@
 {% load django_tables2 %}
 
-<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
+<div class="table-responsive">
+  <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
     {% if table.show_header %}
-        <thead>
-            <tr>
-                {% for column in table.columns %}
-                    {% if column.orderable %}
-                        <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a></th>
-                    {% else %}
-                        <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </thead>
+      <thead>
+        <tr>
+          {% for column in table.columns %}
+            {% if column.orderable %}
+              <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a></th>
+            {% else %}
+              <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      </thead>
     {% endif %}
     <tbody>
-        {% for row in table.page.object_list|default:table.rows %}
-            <tr {{ row.attrs.as_html }}>
-                {% for column, cell in row.items %}
-                    <td {{ column.attrs.td.as_html }}>{{ cell }}</td>
-                {% endfor %}
-            </tr>
-        {% empty %}
-            {% if table.empty_text %}
-                <tr>
-                    <td colspan="{{ table.columns|length }}" class="text-center text-muted">&mdash; {{ table.empty_text }} &mdash;</td>
-                </tr>
-            {% endif %}
-        {% endfor %}
+      {% for row in table.page.object_list|default:table.rows %}
+        <tr {{ row.attrs.as_html }}>
+          {% for column, cell in row.items %}
+            <td {{ column.attrs.td.as_html }}>{{ cell }}</td>
+          {% endfor %}
+        </tr>
+      {% empty %}
+        {% if table.empty_text %}
+          <tr>
+            <td colspan="{{ table.columns|length }}" class="text-center text-muted">&mdash; {{ table.empty_text }} &mdash;</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
     </tbody>
     {% if table.has_footer %}
-        <tfoot>
-            <tr>
-                {% for column in table.columns %}
-                    <td>{{ column.footer }}</td>
-                {% endfor %}
-            </tr>
-        </tfoot>
+      <tfoot>
+        <tr>
+          {% for column in table.columns %}
+            <td>{{ column.footer }}</td>
+          {% endfor %}
+        </tr>
+      </tfoot>
     {% endif %}
-</table>
+  </table>
+</div>
