@@ -74,7 +74,15 @@ class WirelessLinkTable(BaseTable):
         verbose_name='ID'
     )
     status = ChoiceFieldColumn()
+    device_a = tables.Column(
+        accessor=tables.A('interface_a__device'),
+        linkify=True
+    )
     interface_a = tables.Column(
+        linkify=True
+    )
+    device_b = tables.Column(
+        accessor=tables.A('interface_b__device'),
         linkify=True
     )
     interface_b = tables.Column(
@@ -86,5 +94,7 @@ class WirelessLinkTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WirelessLink
-        fields = ('pk', 'id', 'status', 'interface_a', 'interface_b', 'ssid', 'description')
-        default_columns = ('pk', 'id', 'status', 'interface_a', 'interface_b', 'ssid', 'description')
+        fields = ('pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'description')
+        default_columns = (
+            'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'description',
+        )

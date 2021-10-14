@@ -1,4 +1,4 @@
-from dcim.models import Interface
+from dcim.models import Device, Interface
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
@@ -54,18 +54,30 @@ class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
+    device_a = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device A'
+    )
     interface_a = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         query_params={
-            'kind': 'wireless'
+            'kind': 'wireless',
+            'device_id': '$device_a',
         },
+        disabled_indicator='_occupied',
         label='Interface A'
+    )
+    device_b = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device B'
     )
     interface_b = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         query_params={
-            'kind': 'wireless'
+            'kind': 'wireless',
+            'device_id': '$device_b',
         },
+        disabled_indicator='_occupied',
         label='Interface B'
     )
     tags = DynamicModelMultipleChoiceField(
@@ -76,7 +88,7 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = WirelessLink
         fields = [
-            'interface_a', 'interface_b', 'status', 'ssid', 'description', 'tags',
+            'device_a', 'interface_a', 'device_b', 'interface_b', 'status', 'ssid', 'description', 'tags',
         ]
         widgets = {
             'status': StaticSelect,

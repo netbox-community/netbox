@@ -657,6 +657,10 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
             })
 
     @property
+    def _occupied(self):
+        return super()._occupied or bool(self.wireless_link_id)
+
+    @property
     def is_wired(self):
         return not self.is_virtual and not self.is_wireless
 
