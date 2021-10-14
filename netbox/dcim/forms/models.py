@@ -522,8 +522,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'rack',
-            'location', 'position', 'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'cluster_group',
-            'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
+            'location', 'position', 'face', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6',
+            'cluster_group', 'cluster', 'tenant_group', 'tenant', 'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
@@ -534,6 +534,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         widgets = {
             'face': StaticSelect(),
             'status': StaticSelect(),
+            'airflow': StaticSelect(),
             'primary_ip4': StaticSelect(),
             'primary_ip6': StaticSelect(),
         }

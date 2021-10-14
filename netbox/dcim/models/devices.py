@@ -118,8 +118,7 @@ class DeviceType(PrimaryModel):
     airflow = models.CharField(
         max_length=50,
         choices=DeviceAirflowChoices,
-        blank=True,
-        verbose_name='Airflow direction'
+        blank=True
     )
     front_image = models.ImageField(
         upload_to='devicetype-images',
@@ -537,6 +536,11 @@ class Device(PrimaryModel, ConfigContextModel):
         choices=DeviceStatusChoices,
         default=DeviceStatusChoices.STATUS_ACTIVE
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
@@ -587,7 +591,7 @@ class Device(PrimaryModel, ConfigContextModel):
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'airflow', 'cluster',
     ]
 
     class Meta:
@@ -748,8 +752,11 @@ class Device(PrimaryModel, ConfigContextModel):
             })
 
     def save(self, *args, **kwargs):
-
         is_new = not bool(self.pk)
+
+        # Inherit airflow attribute from DeviceType if not set
+        if is_new and not self.airflow:
+            self.airflow = self.device_type.airflow
 
         super().save(*args, **kwargs)
 
