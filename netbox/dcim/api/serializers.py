@@ -632,6 +632,7 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
+    rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_null=True)
     rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False)
     rf_channel_width = ChoiceField(choices=WirelessChannelWidthChoices, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
@@ -648,7 +649,7 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
         model = Interface
         fields = [
             'id', 'url', 'display', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
-            'wwn', 'mgmt_only', 'description', 'mode', 'rf_channel', 'rf_channel_width', 'untagged_vlan',
+            'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_width', 'untagged_vlan',
             'tagged_vlans', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint',
             'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
             'last_updated', 'count_ipaddresses', '_occupied',

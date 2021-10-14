@@ -579,12 +579,17 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
     )
+    rf_role = CSVChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        help_text='Wireless role (AP/station)'
+    )
 
     class Meta:
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'wwn',
-            'mtu', 'mgmt_only', 'description', 'mode', 'rf_channel', 'rf_channel_width',
+            'mtu', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_width',
         )
 
     def __init__(self, *args, **kwargs):

@@ -39,16 +39,6 @@
                             <th scope="row">Type</th>
                             <td>{{ object.get_type_display }}</td>
                         </tr>
-                        {% if object.is_wireless %}
-                            <tr>
-                                <th scope="row">Channel</th>
-                                <td>{{ object.get_rf_channel_display|placeholder }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Channel Width</th>
-                                <td>{{ object.get_rf_channel_width_display|placeholder }}</td>
-                            </tr>
-                        {% endif %}
                         <tr>
                             <th scope="row">Enabled</th>
                             <td>
@@ -274,6 +264,25 @@
                 </div>
             {% endif %}
             {% if object.is_wireless %}
+                <div class="card">
+                    <h5 class="card-header">Wireless</h5>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <tr>
+                                <th scope="row">Role</th>
+                                <td>{{ object.get_rf_role_display|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Channel</th>
+                                <td>{{ object.get_rf_channel_display|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Channel Width</th>
+                                <td>{{ object.get_rf_channel_width_display|placeholder }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
                 <div class="card">
                     <h5 class="card-header">Wireless LANs</h5>
                     <div class="card-body">

@@ -524,6 +524,12 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         verbose_name='WWN',
         help_text='64-bit World Wide Name'
     )
+    rf_role = models.CharField(
+        max_length=30,
+        choices=WirelessRoleChoices,
+        blank=True,
+        verbose_name='Wireless role'
+    )
     rf_channel = models.CharField(
         max_length=50,
         choices=WirelessChannelChoices,
@@ -636,9 +642,11 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
             raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
 
         # RF channel attributes may be set only for wireless interfaces
-        if self.rf_channel and self.type not in WIRELESS_IFACE_TYPES:
+        if self.rf_role and not self.is_wireless:
+            raise ValidationError({'rf_role': "Wireless role may be set only on wireless interfaces."})
+        if self.rf_channel and not self.is_wireless:
             raise ValidationError({'rf_channel': "Channel may be set only on wireless interfaces."})
-        if self.rf_channel_width and self.type not in WIRELESS_IFACE_TYPES:
+        if self.rf_channel_width and not self.is_wireless:
             raise ValidationError({'rf_channel_width': "Channel width may be set only on wireless interfaces."})
 
         # Validate untagged VLAN

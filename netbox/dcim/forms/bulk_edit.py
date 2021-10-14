@@ -926,7 +926,7 @@ class PowerOutletBulkEditForm(
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
         'label', 'type', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description',
-        'mode', 'rf_channel', 'rf_channel_width',
+        'mode', 'rf_role', 'rf_channel', 'rf_channel_width',
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,

@@ -496,8 +496,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
         model = Interface
         fields = (
             'pk', 'name', 'device', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
-            'rf_channel', 'rf_channel_width', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
-            'link_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'rf_role', 'rf_channel', 'rf_channel_width', 'description', 'mark_connected', 'cable', 'cable_color',
+            'wireless_link', 'link_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -528,8 +528,9 @@ class DeviceInterfaceTable(InterfaceTable):
         model = Interface
         fields = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
-            'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'link_peer', 'connection', 'tags',
-            'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'rf_role', 'rf_channel', 'rf_channel_width', 'description', 'mark_connected', 'cable', 'cable_color',
+            'wireless_link', 'link_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'actions',
         )
         order_by = ('name',)
         default_columns = (

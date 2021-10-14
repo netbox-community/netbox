@@ -467,6 +467,12 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         required=False,
         widget=StaticSelect()
     )
+    rf_role = forms.ChoiceField(
+        choices=add_blank_choice(WirelessRoleChoices),
+        required=False,
+        widget=StaticSelect(),
+        label='Wireless role'
+    )
     rf_channel = forms.ChoiceField(
         choices=add_blank_choice(WirelessChannelChoices),
         required=False,
@@ -489,8 +495,8 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     )
     field_order = (
         'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
-        'description', 'mgmt_only', 'mark_connected', 'rf_channel', 'rf_channel_width', 'mode' 'untagged_vlan',
-        'tagged_vlans', 'tags'
+        'description', 'mgmt_only', 'mark_connected', 'rf_role', 'rf_channel', 'rf_channel_width', 'mode',
+        'untagged_vlan', 'tagged_vlans', 'tags'
     )
 
     def __init__(self, *args, **kwargs):

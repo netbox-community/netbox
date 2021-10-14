@@ -1139,6 +1139,16 @@ class CableLengthUnitChoices(ChoiceSet):
 # Wireless
 #
 
+class WirelessRoleChoices(ChoiceSet):
+    ROLE_AP = 'ap'
+    ROLE_STATION = 'station'
+
+    CHOICES = (
+        (ROLE_AP, 'Access point'),
+        (ROLE_STATION, 'Station'),
+    )
+
+
 class WirelessChannelChoices(ChoiceSet):
     CHANNEL_AUTO = 'auto'
 
