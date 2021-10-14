@@ -2,6 +2,10 @@
 
 ## v3.0.8 (FUTURE)
 
+### Bug Fixes
+
+* [#7544](https://github.com/netbox-community/netbox/issues/7544) - Fix multi-value filtering of custom field objects
+
 ---
 
 ## v3.0.7 (2021-10-08)
