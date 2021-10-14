@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('dcim', '0136_wireless'),
+        ('dcim', '0136_rename_cable_peer'),
         ('extras', '0062_clear_secrets_changelog'),
         ('ipam', '0050_iprange'),
     ]
