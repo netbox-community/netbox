@@ -49,8 +49,15 @@
 	</div>
 </div>
 <div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
+  <div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">Attached Interfaces</h5>
+      <div class="card-body">
+        {% include 'inc/table.html' with table=interfaces_table %}
+      </div>
     </div>
+    {% include 'inc/paginator.html' with paginator=interfaces_table.paginator page=interfaces_table.page %}
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

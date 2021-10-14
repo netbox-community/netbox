@@ -1,5 +1,6 @@
 import django_tables2 as tables
 
+from dcim.models import Interface
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
@@ -35,14 +36,35 @@ class WirelessLANTable(BaseTable):
     ssid = tables.Column(
         linkify=True
     )
+    group = tables.Column(
+        linkify=True
+    )
+    interface_count = tables.Column(
+        verbose_name='Interfaces'
+    )
     tags = TagColumn(
         url_name='wireless:wirelesslan_list'
     )
 
     class Meta(BaseTable.Meta):
         model = WirelessLAN
-        fields = ('pk', 'ssid', 'description', 'vlan')
-        default_columns = ('pk', 'ssid', 'description', 'vlan')
+        fields = ('pk', 'ssid', 'group', 'description', 'vlan', 'interface_count', 'tags')
+        default_columns = ('pk', 'ssid', 'group', 'description', 'vlan', 'interface_count')
+
+
+class WirelessLANInterfacesTable(BaseTable):
+    pk = ToggleColumn()
+    device = tables.Column(
+        linkify=True
+    )
+    name = tables.Column(
+        linkify=True
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Interface
+        fields = ('pk', 'device', 'name', 'rf_role', 'rf_channel')
+        default_columns = ('pk', 'device', 'name', 'rf_role', 'rf_channel')
 
 
 class WirelessLinkTable(BaseTable):

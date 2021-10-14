@@ -145,7 +145,7 @@ class WirelessLink(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    clone_fields = ('ssid', 'group', 'status')
+    clone_fields = ('ssid', 'status')
 
     class Meta:
         ordering = ['pk']

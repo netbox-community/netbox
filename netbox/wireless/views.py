@@ -1,5 +1,7 @@
+from dcim.models import Interface
 from netbox.views import generic
 from utilities.tables import paginate_table
+from utilities.utils import count_related
 from . import filtersets, forms, tables
 from .models import *
 
@@ -81,7 +83,9 @@ class WirelessLANGroupBulkDeleteView(generic.BulkDeleteView):
 #
 
 class WirelessLANListView(generic.ObjectListView):
-    queryset = WirelessLAN.objects.all()
+    queryset = WirelessLAN.objects.annotate(
+        interface_count=count_related(Interface, 'wireless_lans')
+    )
     filterset = filtersets.WirelessLANFilterSet
     filterset_form = forms.WirelessLANFilterForm
     table = tables.WirelessLANTable
@@ -89,6 +93,17 @@ class WirelessLANListView(generic.ObjectListView):
 
 class WirelessLANView(generic.ObjectView):
     queryset = WirelessLAN.objects.all()
+
+    def get_extra_context(self, request, instance):
+        attached_interfaces = Interface.objects.restrict(request.user, 'view').filter(
+            wireless_lans=instance
+        )
+        interfaces_table = tables.WirelessLANInterfacesTable(attached_interfaces)
+        paginate_table(interfaces_table, request)
+
+        return {
+            'interfaces_table': interfaces_table,
+        }
 
 
 class WirelessLANEditView(generic.ObjectEditView):
