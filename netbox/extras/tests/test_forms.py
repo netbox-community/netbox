@@ -17,6 +17,9 @@ class CustomFieldModelFormTest(TestCase):
         cf_text = CustomField.objects.create(name='text', type=CustomFieldTypeChoices.TYPE_TEXT)
         cf_text.content_types.set([obj_type])
 
+        cf_longtext = CustomField.objects.create(name='longtext', type=CustomFieldTypeChoices.TYPE_LONGTEXT)
+        cf_longtext.content_types.set([obj_type])
+
         cf_integer = CustomField.objects.create(name='integer', type=CustomFieldTypeChoices.TYPE_INTEGER)
         cf_integer.content_types.set([obj_type])
 

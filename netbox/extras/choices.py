@@ -8,6 +8,7 @@ from utilities.choices import ChoiceSet
 class CustomFieldTypeChoices(ChoiceSet):
 
     TYPE_TEXT = 'text'
+    TYPE_LONGTEXT = 'longtext'
     TYPE_INTEGER = 'integer'
     TYPE_BOOLEAN = 'boolean'
     TYPE_DATE = 'date'
@@ -17,6 +18,7 @@ class CustomFieldTypeChoices(ChoiceSet):
 
     CHOICES = (
         (TYPE_TEXT, 'Text'),
+        (TYPE_LONGTEXT, 'Text (long)'),
         (TYPE_INTEGER, 'Integer'),
         (TYPE_BOOLEAN, 'Boolean (true/false)'),
         (TYPE_DATE, 'Date'),
