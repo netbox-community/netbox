@@ -1200,6 +1200,28 @@ class WirelessChannelChoices(ChoiceSet):
     CHANNEL_5G_124 = '5g-124'
     CHANNEL_5G_126 = '5g-126'
     CHANNEL_5G_128 = '5g-128'
+    CHANNEL_5G_132 = '5g-132'
+    CHANNEL_5G_134 = '5g-134'
+    CHANNEL_5G_136 = '5g-136'
+    CHANNEL_5G_138 = '5g-138'
+    CHANNEL_5G_140 = '5g-140'
+    CHANNEL_5G_142 = '5g-142'
+    CHANNEL_5G_144 = '5g-144'
+    CHANNEL_5G_149 = '5g-149'
+    CHANNEL_5G_151 = '5g-151'
+    CHANNEL_5G_153 = '5g-153'
+    CHANNEL_5G_155 = '5g-155'
+    CHANNEL_5G_157 = '5g-157'
+    CHANNEL_5G_159 = '5g-159'
+    CHANNEL_5G_161 = '5g-161'
+    CHANNEL_5G_163 = '5g-163'
+    CHANNEL_5G_165 = '5g-165'
+    CHANNEL_5G_167 = '5g-167'
+    CHANNEL_5G_169 = '5g-169'
+    CHANNEL_5G_171 = '5g-171'
+    CHANNEL_5G_173 = '5g-173'
+    CHANNEL_5G_175 = '5g-175'
+    CHANNEL_5G_177 = '5g-177'
 
     CHOICES = (
         (CHANNEL_AUTO, 'Auto'),
@@ -1224,38 +1246,60 @@ class WirelessChannelChoices(ChoiceSet):
         (
             '5 GHz (802.11a/n/ac/ax)',
             (
-                (CHANNEL_5G_32, '32 (5160 MHz)'),
-                (CHANNEL_5G_34, '34 (5170 MHz)'),
-                (CHANNEL_5G_36, '36 (5180 MHz)'),
-                (CHANNEL_5G_38, '38 (5190 MHz)'),
-                (CHANNEL_5G_40, '40 (5200 MHz)'),
-                (CHANNEL_5G_42, '42 (5210 MHz)'),
-                (CHANNEL_5G_44, '44 (5220 MHz)'),
-                (CHANNEL_5G_46, '46 (5230 MHz)'),
-                (CHANNEL_5G_48, '48 (5240 MHz)'),
-                (CHANNEL_5G_50, '50 (5250 MHz)'),
-                (CHANNEL_5G_52, '52 (5260 MHz)'),
-                (CHANNEL_5G_54, '54 (5270 MHz)'),
-                (CHANNEL_5G_56, '56 (5280 MHz)'),
-                (CHANNEL_5G_58, '58 (5290 MHz)'),
-                (CHANNEL_5G_60, '60 (5300 MHz)'),
-                (CHANNEL_5G_62, '62 (5310 MHz)'),
-                (CHANNEL_5G_64, '64 (5320 MHz)'),
-                (CHANNEL_5G_100, '100 (5500 MHz)'),
-                (CHANNEL_5G_102, '102 (5510 MHz)'),
-                (CHANNEL_5G_104, '104 (5520 MHz)'),
-                (CHANNEL_5G_106, '106 (5530 MHz)'),
-                (CHANNEL_5G_108, '108 (5540 MHz)'),
-                (CHANNEL_5G_110, '110 (5550 MHz)'),
-                (CHANNEL_5G_112, '112 (5560 MHz)'),
-                (CHANNEL_5G_114, '114 (5570 MHz)'),
-                (CHANNEL_5G_116, '116 (5580 MHz)'),
-                (CHANNEL_5G_118, '118 (5590 MHz)'),
-                (CHANNEL_5G_120, '120 (5600 MHz)'),
-                (CHANNEL_5G_122, '122 (5610 MHz)'),
-                (CHANNEL_5G_124, '124 (5620 MHz)'),
-                (CHANNEL_5G_126, '126 (5630 MHz)'),
-                (CHANNEL_5G_128, '128 (5640 MHz)'),
+                (CHANNEL_5G_32, '32 (5160/20 MHz)'),
+                (CHANNEL_5G_34, '34 (5170/40 MHz)'),
+                (CHANNEL_5G_36, '36 (5180/20 MHz)'),
+                (CHANNEL_5G_38, '38 (5190/40 MHz)'),
+                (CHANNEL_5G_40, '40 (5200/20 MHz)'),
+                (CHANNEL_5G_42, '42 (5210/80 MHz)'),
+                (CHANNEL_5G_44, '44 (5220/20 MHz)'),
+                (CHANNEL_5G_46, '46 (5230/40 MHz)'),
+                (CHANNEL_5G_48, '48 (5240/20 MHz)'),
+                (CHANNEL_5G_50, '50 (5250/160 MHz)'),
+                (CHANNEL_5G_52, '52 (5260/20 MHz)'),
+                (CHANNEL_5G_54, '54 (5270/40 MHz)'),
+                (CHANNEL_5G_56, '56 (5280/20 MHz)'),
+                (CHANNEL_5G_58, '58 (5290/80 MHz)'),
+                (CHANNEL_5G_60, '60 (5300/20 MHz)'),
+                (CHANNEL_5G_62, '62 (5310/40 MHz)'),
+                (CHANNEL_5G_64, '64 (5320/20 MHz)'),
+                (CHANNEL_5G_100, '100 (5500/20 MHz)'),
+                (CHANNEL_5G_102, '102 (5510/40 MHz)'),
+                (CHANNEL_5G_104, '104 (5520/20 MHz)'),
+                (CHANNEL_5G_106, '106 (5530/80 MHz)'),
+                (CHANNEL_5G_108, '108 (5540/20 MHz)'),
+                (CHANNEL_5G_110, '110 (5550/40 MHz)'),
+                (CHANNEL_5G_112, '112 (5560/20 MHz)'),
+                (CHANNEL_5G_114, '114 (5570/160 MHz)'),
+                (CHANNEL_5G_116, '116 (5580/20 MHz)'),
+                (CHANNEL_5G_118, '118 (5590/40 MHz)'),
+                (CHANNEL_5G_120, '120 (5600/20 MHz)'),
+                (CHANNEL_5G_122, '122 (5610/80 MHz)'),
+                (CHANNEL_5G_124, '124 (5620/20 MHz)'),
+                (CHANNEL_5G_126, '126 (5630/40 MHz)'),
+                (CHANNEL_5G_128, '128 (5640/20 MHz)'),
+                (CHANNEL_5G_132, '132 (5660/20 MHz)'),
+                (CHANNEL_5G_134, '134 (5670/40 MHz)'),
+                (CHANNEL_5G_136, '136 (5680/20 MHz)'),
+                (CHANNEL_5G_138, '138 (5690/80 MHz)'),
+                (CHANNEL_5G_140, '140 (5700/20 MHz)'),
+                (CHANNEL_5G_142, '142 (5710/40 MHz)'),
+                (CHANNEL_5G_144, '144 (5720/20 MHz)'),
+                (CHANNEL_5G_149, '149 (5745/20 MHz)'),
+                (CHANNEL_5G_151, '151 (5755/40 MHz)'),
+                (CHANNEL_5G_153, '153 (5765/20 MHz)'),
+                (CHANNEL_5G_155, '155 (5775/80 MHz)'),
+                (CHANNEL_5G_157, '157 (5785/20 MHz)'),
+                (CHANNEL_5G_159, '159 (5795/40 MHz)'),
+                (CHANNEL_5G_161, '161 (5805/20 MHz)'),
+                (CHANNEL_5G_163, '163 (5815/160 MHz)'),
+                (CHANNEL_5G_165, '165 (5825/20 MHz)'),
+                (CHANNEL_5G_167, '167 (5835/40 MHz)'),
+                (CHANNEL_5G_169, '169 (5845/20 MHz)'),
+                (CHANNEL_5G_171, '171 (5855/80 MHz)'),
+                (CHANNEL_5G_173, '173 (5865/20 MHz)'),
+                (CHANNEL_5G_175, '175 (5875/40 MHz)'),
+                (CHANNEL_5G_177, '177 (5885/20 MHz)'),
             )
         ),
     )
