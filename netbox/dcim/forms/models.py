@@ -367,12 +367,15 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
             'front_image', 'rear_image', 'comments', 'tags',
         ]
         fieldsets = (
             ('Device Type', (
-                'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'tags',
+                'manufacturer', 'model', 'slug', 'part_number', 'tags',
+            )),
+            ('Chassis', (
+                'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
             )),
             ('Images', ('front_image', 'rear_image')),
         )

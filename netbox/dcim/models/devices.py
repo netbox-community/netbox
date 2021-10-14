@@ -115,6 +115,12 @@ class DeviceType(PrimaryModel):
         help_text='Parent devices house child devices in device bays. Leave blank '
                   'if this device type is neither a parent nor a child.'
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True,
+        verbose_name='Airflow direction'
+    )
     front_image = models.ImageField(
         upload_to='devicetype-images',
         blank=True
@@ -130,7 +136,7 @@ class DeviceType(PrimaryModel):
     objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
     ]
 
     class Meta:
@@ -165,6 +171,7 @@ class DeviceType(PrimaryModel):
             ('u_height', self.u_height),
             ('is_full_depth', self.is_full_depth),
             ('subdevice_role', self.subdevice_role),
+            ('airflow', self.airflow),
             ('comments', self.comments),
         ))
 

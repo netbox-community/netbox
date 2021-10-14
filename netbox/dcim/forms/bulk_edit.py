@@ -335,6 +335,11 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModel
         widget=BulkEditNullBooleanSelect(),
         label='Is full depth'
     )
+    airflow = forms.ChoiceField(
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False,
+        widget=StaticSelect()
+    )
 
     class Meta:
         nullable_fields = []

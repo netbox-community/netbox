@@ -385,7 +385,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = DeviceType
     field_groups = [
         ['q', 'tag'],
-        ['manufacturer_id', 'subdevice_role'],
+        ['manufacturer_id', 'subdevice_role', 'airflow'],
         ['console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports'],
     ]
     q = forms.CharField(
@@ -401,6 +401,11 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     )
     subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
+        required=False,
+        widget=StaticSelectMultiple()
+    )
+    airflow = forms.MultipleChoiceField(
+        choices=add_blank_choice(DeviceAirflowChoices),
         required=False,
         widget=StaticSelectMultiple()
     )

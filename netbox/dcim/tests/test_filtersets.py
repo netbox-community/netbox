@@ -638,8 +638,8 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         device_types = (
             DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
-            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -702,6 +702,10 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_subdevice_role(self):
         params = {'subdevice_role': SubdeviceRoleChoices.ROLE_PARENT}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_airflow(self):
+        params = {'airflow': DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_manufacturer(self):

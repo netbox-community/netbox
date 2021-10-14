@@ -441,7 +441,7 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
         ]
 
     def search(self, queryset, name, value):

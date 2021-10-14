@@ -288,13 +288,14 @@ class DeviceTypeSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer()
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
+    airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'url', 'display', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
+            'subdevice_role', 'airflow', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated', 'device_count',
         ]
 

@@ -179,6 +179,9 @@ class DeviceTypeType(PrimaryObjectType):
     def resolve_subdevice_role(self, info):
         return self.subdevice_role or None
 
+    def resolve_airflow(self, info):
+        return self.airflow or None
+
 
 class FrontPortType(ComponentObjectType):
 
