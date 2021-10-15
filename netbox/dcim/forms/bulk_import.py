@@ -11,6 +11,7 @@ from extras.forms import CustomFieldModelCSVForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField
 from virtualization.models import Cluster
+from wireless.choices import WirelessRoleChoices
 
 __all__ = (
     'CableCSVForm',

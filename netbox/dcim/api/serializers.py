@@ -19,6 +19,7 @@ from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterSerializer
+from wireless.choices import *
 from .nested_serializers import *
 
 

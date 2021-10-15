@@ -10,6 +10,7 @@ from utilities.forms import (
     add_blank_choice, BootstrapMixin, ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     ExpandableNameField, StaticSelect,
 )
+from wireless.choices import *
 from .common import InterfaceCommonForm
 
 __all__ = (

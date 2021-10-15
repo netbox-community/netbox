@@ -12,6 +12,7 @@ from utilities.forms import (
     APISelectMultiple, add_blank_choice, BootstrapMixin, ColorField, DynamicModelMultipleChoiceField, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
+from wireless.choices import *
 
 __all__ = (
     'CableFilterForm',

@@ -18,6 +18,7 @@ from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
+from wireless.choices import *
 
 
 __all__ = (
