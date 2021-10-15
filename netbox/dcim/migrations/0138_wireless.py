@@ -22,8 +22,13 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='interface',
+            name='rf_channel_frequency',
+            field=models.DecimalField(blank=True, decimal_places=2, max_digits=7, null=True),
+        ),
+        migrations.AddField(
+            model_name='interface',
             name='rf_channel_width',
-            field=models.PositiveSmallIntegerField(blank=True, null=True),
+            field=models.DecimalField(blank=True, decimal_places=3, max_digits=7, null=True),
         ),
         migrations.AddField(
             model_name='interface',

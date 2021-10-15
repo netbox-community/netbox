@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import json
 import re
 from typing import Dict, Any
@@ -144,6 +145,19 @@ def humanize_megabytes(mb):
     if mb >= 1024:
         return f'{int(mb / 1024)} GB'
     return f'{mb} MB'
+
+
+@register.filter()
+def simplify_decimal(value):
+    """
+    Return the simplest expression of a decimal value. Examples:
+      1.00 => '1'
+      1.20 => '1.2'
+      1.23 => '1.23'
+    """
+    if type(value) is not decimal.Decimal:
+        return value
+    return str(value).rstrip('0.')
 
 
 @register.filter()

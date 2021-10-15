@@ -56,7 +56,10 @@ class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
 class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
     device_a = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        label='Device A'
+        label='Device A',
+        initial_params={
+            'interfaces': '$interface_a'
+        }
     )
     interface_a = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
@@ -69,7 +72,10 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
     )
     device_b = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        label='Device B'
+        label='Device B',
+        initial_params={
+            'interfaces': '$interface_b'
+        }
     )
     interface_b = DynamicModelChoiceField(
         queryset=Interface.objects.all(),

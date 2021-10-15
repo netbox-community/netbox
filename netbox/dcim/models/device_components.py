@@ -19,6 +19,7 @@ from utilities.ordering import naturalize_interface
 from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
 from wireless.choices import *
+from wireless.utils import get_channel_attr
 
 
 __all__ = (
@@ -537,10 +538,19 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         blank=True,
         verbose_name='Wireless channel'
     )
-    rf_channel_width = models.PositiveSmallIntegerField(
+    rf_channel_frequency = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
         blank=True,
         null=True,
-        verbose_name='Channel width (kHz)'
+        verbose_name='Channel frequency (MHz)'
+    )
+    rf_channel_width = models.DecimalField(
+        max_digits=7,
+        decimal_places=3,
+        blank=True,
+        null=True,
+        verbose_name='Channel width (MHz)'
     )
     wireless_link = models.ForeignKey(
         to='wireless.WirelessLink',
@@ -641,13 +651,33 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         if self.pk and self.lag_id == self.pk:
             raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
 
-        # RF channel attributes may be set only for wireless interfaces
+        # RF role & channel may only be set for wireless interfaces
         if self.rf_role and not self.is_wireless:
             raise ValidationError({'rf_role': "Wireless role may be set only on wireless interfaces."})
         if self.rf_channel and not self.is_wireless:
             raise ValidationError({'rf_channel': "Channel may be set only on wireless interfaces."})
-        if self.rf_channel_width and not self.is_wireless:
-            raise ValidationError({'rf_channel_width': "Channel width may be set only on wireless interfaces."})
+
+        # Validate channel frequency against interface type and selected channel (if any)
+        if self.rf_channel_frequency:
+            if not self.is_wireless:
+                raise ValidationError({
+                    'rf_channel_frequency': "Channel frequency may be set only on wireless interfaces.",
+                })
+            if self.rf_channel and self.rf_channel_frequency != get_channel_attr(self.rf_channel, 'frequency'):
+                raise ValidationError({
+                    'rf_channel_frequency': "Cannot specify custom frequency with channel selected.",
+                })
+        elif self.rf_channel:
+            self.rf_channel_frequency = get_channel_attr(self.rf_channel, 'frequency')
+
+        # Validate channel width against interface type and selected channel (if any)
+        if self.rf_channel_width:
+            if not self.is_wireless:
+                raise ValidationError({'rf_channel_width': "Channel width may be set only on wireless interfaces."})
+            if self.rf_channel and self.rf_channel_width != get_channel_attr(self.rf_channel, 'width'):
+                raise ValidationError({'rf_channel_width': "Cannot specify custom width with channel selected."})
+        elif self.rf_channel:
+            self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:

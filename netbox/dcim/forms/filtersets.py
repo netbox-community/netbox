@@ -1014,9 +1014,13 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
         widget=StaticSelectMultiple(),
         label='Wireless channel'
     )
+    rf_channel_frequency = forms.IntegerField(
+        required=False,
+        label='Channel frequency (MHz)'
+    )
     rf_channel_width = forms.IntegerField(
         required=False,
-        label='Channel width (kHz)'
+        label='Channel width (MHz)'
     )
     tag = TagFilterField(model)
 

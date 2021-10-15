@@ -31,4 +31,24 @@
       {{ interface.get_rf_channel_display|placeholder }}
     </td>
   </tr>
+  <tr>
+      <th scope="row">Channel Frequency</th>
+      <td>
+        {% if interface.rf_channel_frequency %}
+          {{ interface.rf_channel_frequency|simplify_decimal }} MHz
+        {% else %}
+          <span class="text-muted">&mdash;</span>
+        {% endif %}
+      </td>
+  </tr>
+  <tr>
+      <th scope="row">Channel Width</th>
+      <td>
+        {% if interface.rf_channel_width %}
+          {{ interface.rf_channel_width|simplify_decimal }} MHz
+        {% else %}
+          <span class="text-muted">&mdash;</span>
+        {% endif %}
+      </td>
+  </tr>
 </table>

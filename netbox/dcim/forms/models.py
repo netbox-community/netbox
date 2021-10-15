@@ -1108,8 +1108,8 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         model = Interface
         fields = [
             'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
-            'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_width', 'wireless_lans',
-            'untagged_vlan', 'tagged_vlans', 'tags',
+            'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1123,6 +1123,8 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         }
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
+            'rf_channel_frequency': "Populated by selected channel (if set)",
+            'rf_channel_width': "Populated by selected channel (if set)",
         }
 
     def __init__(self, *args, **kwargs):

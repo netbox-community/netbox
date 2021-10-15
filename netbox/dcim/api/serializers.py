@@ -651,10 +651,10 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
         model = Interface
         fields = [
             'id', 'url', 'display', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
-            'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_width', 'untagged_vlan',
-            'tagged_vlans', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint',
-            'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
-            'last_updated', 'count_ipaddresses', '_occupied',
+            'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'link_peer',
+            'link_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', '_occupied',
         ]
 
     def validate(self, data):
