@@ -165,18 +165,3 @@ class WirelessChannelChoices(ChoiceSet):
             )
         ),
     )
-
-
-class WirelessChannelWidthChoices(ChoiceSet):
-
-    CHANNEL_WIDTH_20 = 20
-    CHANNEL_WIDTH_40 = 40
-    CHANNEL_WIDTH_80 = 80
-    CHANNEL_WIDTH_160 = 160
-
-    CHOICES = (
-        (CHANNEL_WIDTH_20, '20 MHz'),
-        (CHANNEL_WIDTH_40, '40 MHz'),
-        (CHANNEL_WIDTH_80, '80 MHz'),
-        (CHANNEL_WIDTH_160, '160 MHz'),
-    )

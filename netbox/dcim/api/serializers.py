@@ -637,7 +637,6 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_null=True)
     rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False)
-    rf_channel_width = ChoiceField(choices=WirelessChannelWidthChoices, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),

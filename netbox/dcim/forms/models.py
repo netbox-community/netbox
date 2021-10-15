@@ -1117,7 +1117,6 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
             'mode': StaticSelect(),
             'rf_role': StaticSelect(),
             'rf_channel': StaticSelect(),
-            'rf_channel_width': StaticSelect(),
         }
         labels = {
             'mode': '802.1Q Mode',

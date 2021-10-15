@@ -480,10 +480,8 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         widget=StaticSelect(),
         label='Wireless channel'
     )
-    rf_channel_width = forms.ChoiceField(
-        choices=add_blank_choice(WirelessChannelWidthChoices),
+    rf_channel_width = forms.IntegerField(
         required=False,
-        widget=StaticSelect(),
         label='Channel width'
     )
     untagged_vlan = DynamicModelChoiceField(

@@ -538,10 +538,9 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         verbose_name='Wireless channel'
     )
     rf_channel_width = models.PositiveSmallIntegerField(
-        choices=WirelessChannelWidthChoices,
         blank=True,
         null=True,
-        verbose_name='Channel width'
+        verbose_name='Channel width (kHz)'
     )
     wireless_link = models.ForeignKey(
         to='wireless.WirelessLink',
