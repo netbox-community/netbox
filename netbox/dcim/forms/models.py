@@ -16,7 +16,7 @@ from utilities.forms import (
     SlugField, StaticSelect,
 )
 from virtualization.models import Cluster, ClusterGroup
-from wireless.models import WirelessLAN
+from wireless.models import WirelessLAN, WirelessLANGroup
 from .common import InterfaceCommonForm
 
 __all__ = (
@@ -1073,10 +1073,18 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
             'type': 'lag',
         }
     )
+    wireless_lan_group = DynamicModelChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        required=False,
+        label='Wireless LAN group'
+    )
     wireless_lans = DynamicModelMultipleChoiceField(
         queryset=WirelessLAN.objects.all(),
         required=False,
-        label='Wireless LANs'
+        label='Wireless LANs',
+        query_params={
+            'group_id': '$wireless_lan_group',
+        }
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),

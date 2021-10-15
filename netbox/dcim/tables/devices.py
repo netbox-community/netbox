@@ -505,8 +505,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
 
 class DeviceInterfaceTable(InterfaceTable):
     name = tables.TemplateColumn(
-        template_code='<i class="mdi mdi-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}drag-horizontal-variant'
-                      '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}ethernet'
+        template_code='<i class="mdi mdi-{% if record.mgmt_only %}wrench{% elif record.is_lag %}drag-horizontal-variant'
+                      '{% elif record.is_virtual %}circle{% elif record.is_wireless %}wifi{% else %}ethernet'
                       '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}

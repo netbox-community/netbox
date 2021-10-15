@@ -205,6 +205,12 @@ INTERFACE_BUTTONS = """
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
     {% endif %}
+{% elif record.wireless_link %}
+    {% if perms.wireless.delete_wirelesslink %}
+        <a href="{% url 'wireless:wirelesslink_delete' pk=record.wireless_link.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Delete wireless link" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-wifi-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif record.is_wired and perms.dcim.add_cable %}
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
@@ -223,6 +229,10 @@ INTERFACE_BUTTONS = """
     {% else %}
         <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
     {% endif %}
+{% elif record.is_wireless and perms.wireless.add_wirelesslink %}
+    <a href="{% url 'wireless:wirelesslink_add' %}?interface_a={{ record.pk }}" class="btn btn-success btn-sm">
+        <span class="mdi mdi-wifi" aria-hidden="true"></span>
+    </a>
 {% endif %}
 """
 

@@ -217,8 +217,29 @@
                                 <th scope="row">Wireless Link</th>
                                 <td>
                                     <a href="{{ object.wireless_link.get_absolute_url }}">{{ object.wireless_link }}</a>
+                                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
+                                        <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+                                    </a>
                                 </td>
                             </tr>
+                            {% with peer_interface=object.connected_endpoint %}
+                                <tr>
+                                    <th scope="row">Device</th>
+                                    <td>
+                                        <a href="{{ peer_interface.device.get_absolute_url }}">{{ peer_interface.device }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Name</th>
+                                    <td>
+                                        <a href="{{ peer_interface.get_absolute_url }}">{{ peer_interface }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Type</th>
+                                    <td>{{ peer_interface.get_type_display }}</td>
+                                </tr>
+                            {% endwith %}
                         </table>
                     {% else %}
                         <div class="text-muted">
@@ -267,36 +288,73 @@
                 <div class="card">
                     <h5 class="card-header">Wireless</h5>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <tr>
-                                <th scope="row">Role</th>
-                                <td>{{ object.get_rf_role_display|placeholder }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Channel</th>
-                                <td>{{ object.get_rf_channel_display|placeholder }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Channel Frequency</th>
-                                <td>
-                                  {% if object.rf_channel_frequency %}
-                                    {{ object.rf_channel_frequency|simplify_decimal }} MHz
-                                  {% else %}
-                                    <span class="text-muted">&mdash;</span>
-                                  {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Channel Width</th>
-                                <td>
-                                  {% if object.rf_channel_width %}
-                                    {{ object.rf_channel_width|simplify_decimal }} MHz
-                                  {% else %}
-                                    <span class="text-muted">&mdash;</span>
-                                  {% endif %}
-                                </td>
-                            </tr>
-                        </table>
+                        {% with peer=object.connected_endpoint %}
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                      <th></th>
+                                      <th>Local</th>
+                                      {% if peer %}
+                                          <th>Peer</th>
+                                      {% endif %}
+                                    </tr>
+                                </thead>
+                                <tr>
+                                    <th scope="row">Role</th>
+                                    <td>{{ object.get_rf_role_display|placeholder }}</td>
+                                    {% if peer %}
+                                      <td>{{ peer.get_rf_role_display|placeholder }}</td>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <th scope="row">Channel</th>
+                                    <td>{{ object.get_rf_channel_display|placeholder }}</td>
+                                    {% if peer %}
+                                        <td{% if peer.rf_channel != object.rf_channel %} class="text-danger"{% endif %}>
+                                          {{ peer.get_rf_channel_display|placeholder }}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <th scope="row">Channel Frequency</th>
+                                    <td>
+                                      {% if object.rf_channel_frequency %}
+                                        {{ object.rf_channel_frequency|simplify_decimal }} MHz
+                                      {% else %}
+                                        <span class="text-muted">&mdash;</span>
+                                      {% endif %}
+                                    </td>
+                                    {% if peer %}
+                                        <td{% if peer.rf_channel_frequency != object.rf_channel_frequency %} class="text-danger"{% endif %}>
+                                          {% if peer.rf_channel_frequency %}
+                                            {{ peer.rf_channel_frequency|simplify_decimal }} MHz
+                                          {% else %}
+                                            <span class="text-muted">&mdash;</span>
+                                          {% endif %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <th scope="row">Channel Width</th>
+                                    <td>
+                                      {% if object.rf_channel_width %}
+                                        {{ object.rf_channel_width|simplify_decimal }} MHz
+                                      {% else %}
+                                        <span class="text-muted">&mdash;</span>
+                                      {% endif %}
+                                    </td>
+                                    {% if peer %}
+                                        <td{% if peer.rf_channel_width != object.rf_channel_width %} class="text-danger"{% endif %}>
+                                          {% if peer.rf_channel_width %}
+                                            {{ peer.rf_channel_width|simplify_decimal }} MHz
+                                          {% else %}
+                                            <span class="text-muted">&mdash;</span>
+                                          {% endif %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            </table>
+                        {% endwith %}
                     </div>
                 </div>
                 <div class="card">
@@ -305,12 +363,20 @@
                         <table class="table table-hover table-headings">
                             <thead>
                                 <tr>
+                                    <th>Group</th>
                                     <th>SSID</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for wlan in object.wlans.all %}
+                                {% for wlan in object.wireless_lans.all %}
                                     <tr>
+                                        <td>
+                                            {% if wlan.group %}
+                                              <a href="{{ wlan.group.get_absolute_url }}">{{ wlan.group }}</a>
+                                            {% else %}
+                                              &mdash;
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             <a href="{{ wlan.get_absolute_url }}">{{ wlan.ssid }}</a>
                                         </td>

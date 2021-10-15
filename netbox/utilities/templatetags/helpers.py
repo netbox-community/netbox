@@ -157,7 +157,7 @@ def simplify_decimal(value):
     """
     if type(value) is not decimal.Decimal:
         return value
-    return str(value).rstrip('0.')
+    return str(value).rstrip('0').rstrip('.')
 
 
 @register.filter()

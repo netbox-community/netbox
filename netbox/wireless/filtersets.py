@@ -33,6 +33,9 @@ class WirelessLANFilterSet(PrimaryModelFilterSet):
         method='search',
         label='Search',
     )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=WirelessLANGroup.objects.all()
+    )
     tag = TagFilter()
 
     class Meta:
