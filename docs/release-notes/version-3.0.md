@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#7300](https://github.com/netbox-community/netbox/issues/7300) - Fix incorrect Device LLDP interface row coloring
 * [#7495](https://github.com/netbox-community/netbox/issues/7495) - Fix navigation UI issue that caused improper element overlap
 * [#7529](https://github.com/netbox-community/netbox/issues/7529) - Restore horizontal scrolling for tables in narrow viewports
 * [#7534](https://github.com/netbox-community/netbox/issues/7534) - Avoid exception when utilizing "create and add another" twice in succession
