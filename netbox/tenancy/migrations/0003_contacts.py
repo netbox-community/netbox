@@ -15,24 +15,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Contact',
-            fields=[
-                ('created', models.DateField(auto_now_add=True, null=True)),
-                ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
-                ('title', models.CharField(blank=True, max_length=100)),
-                ('phone', models.CharField(blank=True, max_length=50)),
-                ('email', models.EmailField(blank=True, max_length=254)),
-                ('address', models.CharField(blank=True, max_length=200)),
-                ('comments', models.TextField(blank=True)),
-            ],
-            options={
-                'ordering': ['name'],
-            },
-        ),
-        migrations.CreateModel(
             name='ContactRole',
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
@@ -69,6 +51,27 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='Contact',
+            fields=[
+                ('created', models.DateField(auto_now_add=True, null=True)),
+                ('last_updated', models.DateTimeField(auto_now=True, null=True)),
+                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ('id', models.BigAutoField(primary_key=True, serialize=False)),
+                ('name', models.CharField(max_length=100)),
+                ('title', models.CharField(blank=True, max_length=100)),
+                ('phone', models.CharField(blank=True, max_length=50)),
+                ('email', models.EmailField(blank=True, max_length=254)),
+                ('address', models.CharField(blank=True, max_length=200)),
+                ('comments', models.TextField(blank=True)),
+                ('group', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='contacts', to='tenancy.contactgroup')),
+                ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
+            ],
+            options={
+                'ordering': ['name'],
+                'unique_together': {('group', 'name')},
+            },
+        ),
+        migrations.CreateModel(
             name='ContactAssignment',
             fields=[
                 ('created', models.DateField(auto_now_add=True, null=True)),
@@ -82,20 +85,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('priority', 'contact'),
+                'unique_together': {('content_type', 'object_id', 'contact', 'role', 'priority')},
             },
-        ),
-        migrations.AddField(
-            model_name='contact',
-            name='group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='contacts', to='tenancy.contactgroup'),
-        ),
-        migrations.AddField(
-            model_name='contact',
-            name='tags',
-            field=taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag'),
-        ),
-        migrations.AlterUniqueTogether(
-            name='contact',
-            unique_together={('group', 'name')},
         ),
     ]
