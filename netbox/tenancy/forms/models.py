@@ -1,11 +1,15 @@
+from django import forms
+
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from tenancy.models import *
 from utilities.forms import (
     BootstrapMixin, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, SmallTextarea,
+    StaticSelect,
 )
 
 __all__ = (
+    'ContactAssignmentForm',
     'ContactForm',
     'ContactGroupForm',
     'ContactRoleForm',
@@ -99,4 +103,26 @@ class ContactForm(BootstrapMixin, CustomFieldModelForm):
         )
         widgets = {
             'address': SmallTextarea(attrs={'rows': 3}),
+        }
+
+
+class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
+    group = DynamicModelChoiceField(
+        queryset=ContactGroup.objects.all(),
+        required=False
+    )
+    contact = DynamicModelChoiceField(
+        queryset=Contact.objects.all()
+    )
+    role = DynamicModelChoiceField(
+        queryset=ContactRole.objects.all()
+    )
+
+    class Meta:
+        model = ContactAssignment
+        fields = (
+            'group', 'contact', 'role', 'priority',
+        )
+        widgets = {
+            'priority': StaticSelect(),
         }

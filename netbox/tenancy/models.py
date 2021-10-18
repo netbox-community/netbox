@@ -1,4 +1,4 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
@@ -84,6 +84,11 @@ class Tenant(PrimaryModel):
     )
     comments = models.TextField(
         blank=True
+    )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     objects = RestrictedQuerySet.as_manager()

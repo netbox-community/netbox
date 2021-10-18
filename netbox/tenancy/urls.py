@@ -67,4 +67,9 @@ urlpatterns = [
     path('contacts/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='contact_changelog', kwargs={'model': Contact}),
     path('contacts/<int:pk>/journal/', ObjectJournalView.as_view(), name='contact_journal', kwargs={'model': Contact}),
 
+    # Contact assignments
+    path('contact-assignments/add/', views.ContactAssignmentEditView.as_view(), name='contactassignment_add'),
+    path('contact-assignments/<int:pk>/edit/', views.ContactAssignmentEditView.as_view(), name='contactassignment_edit'),
+    path('contact-assignments/<int:pk>/delete/', views.ContactAssignmentDeleteView.as_view(), name='contactassignment_delete'),
+
 ]

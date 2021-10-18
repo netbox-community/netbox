@@ -62,6 +62,7 @@
   <div class="col col-md-6">
     {% include 'inc/custom_fields_panel.html' %}
     {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='virtualization:cluster_list' %}
+    {% include 'inc/contacts_panel.html' %}
     {% plugin_right_page object %}
   </div>
 </div>

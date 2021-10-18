@@ -52,11 +52,16 @@ class Region(NestedGroupModel):
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='region'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     def get_absolute_url(self):
@@ -100,11 +105,16 @@ class SiteGroup(NestedGroupModel):
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='site_group'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     def get_absolute_url(self):
@@ -221,11 +231,16 @@ class Site(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='site'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'
@@ -291,11 +306,16 @@ class Location(NestedGroupModel):
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='location'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'

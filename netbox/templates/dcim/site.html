@@ -77,6 +77,10 @@
                         <td>{{ object.facility|placeholder }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">AS Number</th>
                         <td>{{ object.asn|placeholder }}</td>
                     </tr>
@@ -91,19 +95,6 @@
                             {% endif %}
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row">Description</th>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <div class="card">
-            <h5 class="card-header">
-                Contact Info
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">Physical Address</th>
                         <td>
@@ -138,31 +129,55 @@
                             {% endif %}
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row">Contact Name</th>
-                        <td>{{ object.contact_name|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Contact Phone</th>
-                        <td>
-                            {% if object.contact_phone %}
-                                <a href="tel:{{ object.contact_phone }}">{{ object.contact_phone }}</a>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Contact E-Mail</th>
-                        <td>
-                            {% if object.contact_email %}
-                                <a href="mailto:{{ object.contact_email }}">{{ object.contact_email }}</a>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
                 </table>
+            </div>
+        </div>
+        {% include 'inc/contacts_panel.html' %}
+        <div class="card">
+            <h5 class="card-header">Contact Info</h5>
+            <div class="card-body">
+              {% with deprecation_warning="This field will be removed in a future release. Please migrate this data to contact objects." %}
+                <table class="table table-hover attr-table">
+                  <tr>
+                    <th scope="row">Contact Name</th>
+                    <td>
+                      {% if object.contact_name %}
+                        <div class="float-end text-warning">
+                          <i class="mdi mdi-alert" title="{{ deprecation_warning }}"></i>
+                        </div>
+                      {% endif %}
+                      {{ object.contact_name|placeholder }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Contact Phone</th>
+                    <td>
+                      {% if object.contact_phone %}
+                        <div class="float-end text-warning">
+                          <i class="mdi mdi-alert" title="{{ deprecation_warning }}"></i>
+                        </div>
+                        <a href="tel:{{ object.contact_phone }}">{{ object.contact_phone }}</a>
+                      {% else %}
+                        <span class="text-muted">&mdash;</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Contact E-Mail</th>
+                    <td>
+                      {% if object.contact_email %}
+                        <div class="float-end text-warning">
+                          <i class="mdi mdi-alert" title="{{ deprecation_warning }}"></i>
+                        </div>
+                        <a href="tel:{{ object.contact_
+                        <a href="mailto:{{ object.contact_email }}">{{ object.contact_email }}</a>
+                      {% else %}
+                        <span class="text-muted">&mdash;</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                </table>
+              {% endwith %}
             </div>
         </div>
         {% include 'inc/custom_fields_panel.html' %}

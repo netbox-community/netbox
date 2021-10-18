@@ -1,9 +1,12 @@
+from django.contrib.contenttypes.models import ContentType
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device, RackReservation
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.tables import paginate_table
-from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables
 from .models import *
@@ -309,3 +312,33 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
     queryset = Contact.objects.prefetch_related('group')
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
+
+
+#
+# Contact assignments
+#
+
+class ContactAssignmentEditView(generic.ObjectEditView):
+    queryset = ContactAssignment.objects.all()
+    model_form = forms.ContactAssignmentForm
+
+    def alter_obj(self, instance, request, args, kwargs):
+        if not instance.pk:
+            # Assign the object based on URL kwargs
+            try:
+                app_label, model = request.GET.get('content_type').split('.')
+            except (AttributeError, ValueError):
+                raise Http404("Content type not specified")
+            content_type = get_object_or_404(ContentType, app_label=app_label, model=model)
+            instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
+        return instance
+
+    def get_return_url(self, request, obj=None):
+        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
+
+
+class ContactAssignmentDeleteView(generic.ObjectDeleteView):
+    queryset = ContactAssignment.objects.all()
+
+    def get_return_url(self, request, obj=None):
+        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
