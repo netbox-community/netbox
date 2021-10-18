@@ -3,9 +3,13 @@ import django_tables2 as tables
 from utilities.tables import (
     BaseTable, ButtonsColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
-from .models import Tenant, TenantGroup
+from .models import *
 
 __all__ = (
+    'ContactAssignmentTable',
+    'ContactGroupTable',
+    'ContactRoleTable',
+    'ContactTable',
     'TenantColumn',
     'TenantGroupTable',
     'TenantTable',
@@ -38,7 +42,7 @@ class TenantColumn(tables.TemplateColumn):
 
 
 #
-# Tenant groups
+# Tenants
 #
 
 class TenantGroupTable(BaseTable):
@@ -59,10 +63,6 @@ class TenantGroupTable(BaseTable):
         default_columns = ('pk', 'name', 'tenant_count', 'description', 'actions')
 
 
-#
-# Tenants
-#
-
 class TenantTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(
@@ -80,3 +80,69 @@ class TenantTable(BaseTable):
         model = Tenant
         fields = ('pk', 'name', 'slug', 'group', 'description', 'comments', 'tags')
         default_columns = ('pk', 'name', 'group', 'description')
+
+
+#
+# Contacts
+#
+
+class ContactGroupTable(BaseTable):
+    pk = ToggleColumn()
+    name = MPTTColumn(
+        linkify=True
+    )
+    contact_count = LinkedCountColumn(
+        viewname='tenancy:contact_list',
+        url_params={'role_id': 'pk'},
+        verbose_name='Contacts'
+    )
+    actions = ButtonsColumn(ContactGroup)
+
+    class Meta(BaseTable.Meta):
+        model = ContactGroup
+        fields = ('pk', 'name', 'contact_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'contact_count', 'description', 'actions')
+
+
+class ContactRoleTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    actions = ButtonsColumn(ContactRole)
+
+    class Meta(BaseTable.Meta):
+        model = ContactRole
+        fields = ('pk', 'name', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'description', 'actions')
+
+
+class ContactTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    group = tables.Column(
+        linkify=True
+    )
+    comments = MarkdownColumn()
+    tags = TagColumn(
+        url_name='tenancy:tenant_list'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Contact
+        fields = ('pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'tags')
+        default_columns = ('pk', 'name', 'group', 'title', 'phone', 'email')
+
+
+class ContactAssignmentTable(BaseTable):
+    pk = ToggleColumn()
+    contact = tables.Column(
+        linkify=True
+    )
+
+    class Meta(BaseTable.Meta):
+        model = ContactAssignment
+        fields = ('pk', 'contact', 'role', 'priority')
+        default_columns = ('pk', 'contact', 'role', 'priority')

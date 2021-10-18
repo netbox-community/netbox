@@ -3,9 +3,10 @@ from dcim.models import Site, Rack, Device, RackReservation
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.tables import paginate_table
+from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables
-from .models import Tenant, TenantGroup
+from .models import *
 
 
 #
@@ -140,3 +141,171 @@ class TenantBulkDeleteView(generic.BulkDeleteView):
     queryset = Tenant.objects.prefetch_related('group')
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
+
+
+#
+# Contact groups
+#
+
+class ContactGroupListView(generic.ObjectListView):
+    queryset = ContactGroup.objects.add_related_count(
+        ContactGroup.objects.all(),
+        Contact,
+        'group',
+        'contact_count',
+        cumulative=True
+    )
+    filterset = filtersets.ContactGroupFilterSet
+    filterset_form = forms.ContactGroupFilterForm
+    table = tables.ContactGroupTable
+
+
+class ContactGroupView(generic.ObjectView):
+    queryset = ContactGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        contacts = Contact.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+        contacts_table = tables.ContactTable(contacts, exclude=('group',))
+        paginate_table(contacts_table, request)
+
+        return {
+            'contacts_table': contacts_table,
+        }
+
+
+class ContactGroupEditView(generic.ObjectEditView):
+    queryset = ContactGroup.objects.all()
+    model_form = forms.ContactGroupForm
+
+
+class ContactGroupDeleteView(generic.ObjectDeleteView):
+    queryset = ContactGroup.objects.all()
+
+
+class ContactGroupBulkImportView(generic.BulkImportView):
+    queryset = ContactGroup.objects.all()
+    model_form = forms.ContactGroupCSVForm
+    table = tables.ContactGroupTable
+
+
+class ContactGroupBulkEditView(generic.BulkEditView):
+    queryset = ContactGroup.objects.add_related_count(
+        ContactGroup.objects.all(),
+        Contact,
+        'group',
+        'contact_count',
+        cumulative=True
+    )
+    filterset = filtersets.ContactGroupFilterSet
+    table = tables.ContactGroupTable
+    form = forms.ContactGroupBulkEditForm
+
+
+class ContactGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = ContactGroup.objects.add_related_count(
+        ContactGroup.objects.all(),
+        Contact,
+        'group',
+        'contact_count',
+        cumulative=True
+    )
+    table = tables.ContactGroupTable
+
+
+#
+# Contact roles
+#
+
+class ContactRoleListView(generic.ObjectListView):
+    queryset = ContactRole.objects.all()
+    filterset = filtersets.ContactRoleFilterSet
+    filterset_form = forms.ContactRoleFilterForm
+    table = tables.ContactRoleTable
+
+
+class ContactRoleView(generic.ObjectView):
+    queryset = ContactRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
+            role=instance
+        )
+        contacts_table = tables.ContactAssignmentTable(contact_assignments)
+        paginate_table(contacts_table, request)
+
+        return {
+            'contacts_table': contacts_table,
+            'contact_count': ContactAssignment.objects.filter(role=instance).count(),
+        }
+
+
+class ContactRoleEditView(generic.ObjectEditView):
+    queryset = ContactRole.objects.all()
+    model_form = forms.ContactRoleForm
+
+
+class ContactRoleDeleteView(generic.ObjectDeleteView):
+    queryset = ContactRole.objects.all()
+
+
+class ContactRoleBulkImportView(generic.BulkImportView):
+    queryset = ContactRole.objects.all()
+    model_form = forms.ContactRoleCSVForm
+    table = tables.ContactRoleTable
+
+
+class ContactRoleBulkEditView(generic.BulkEditView):
+    queryset = ContactRole.objects.all()
+    filterset = filtersets.ContactRoleFilterSet
+    table = tables.ContactRoleTable
+    form = forms.ContactRoleBulkEditForm
+
+
+class ContactRoleBulkDeleteView(generic.BulkDeleteView):
+    queryset = ContactRole.objects.all()
+    table = tables.ContactRoleTable
+
+
+#
+# Contacts
+#
+
+class ContactListView(generic.ObjectListView):
+    queryset = Contact.objects.all()
+    filterset = filtersets.ContactFilterSet
+    filterset_form = forms.ContactFilterForm
+    table = tables.ContactTable
+
+
+class ContactView(generic.ObjectView):
+    queryset = Contact.objects.all()
+
+
+class ContactEditView(generic.ObjectEditView):
+    queryset = Contact.objects.all()
+    model_form = forms.ContactForm
+
+
+class ContactDeleteView(generic.ObjectDeleteView):
+    queryset = Contact.objects.all()
+
+
+class ContactBulkImportView(generic.BulkImportView):
+    queryset = Contact.objects.all()
+    model_form = forms.ContactCSVForm
+    table = tables.ContactTable
+
+
+class ContactBulkEditView(generic.BulkEditView):
+    queryset = Contact.objects.prefetch_related('group')
+    filterset = filtersets.ContactFilterSet
+    table = tables.ContactTable
+    form = forms.ContactBulkEditForm
+
+
+class ContactBulkDeleteView(generic.BulkDeleteView):
+    queryset = Contact.objects.prefetch_related('group')
+    filterset = filtersets.ContactFilterSet
+    table = tables.ContactTable

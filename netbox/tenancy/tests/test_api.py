@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from tenancy.models import Tenant, TenantGroup
+from tenancy.models import *
 from utilities.testing import APITestCase, APIViewTestCases
 
 
@@ -90,5 +90,114 @@ class TenantTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Tenant 6',
                 'slug': 'tenant-6',
                 'group': tenant_groups[1].pk,
+            },
+        ]
+
+
+class ContactGroupTest(APIViewTestCases.APIViewTestCase):
+    model = ContactGroup
+    brief_fields = ['_depth', 'contact_count', 'display', 'id', 'name', 'slug', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        parent_contact_groups = (
+            ContactGroup.objects.create(name='Parent Contact Group 1', slug='parent-contact-group-1'),
+            ContactGroup.objects.create(name='Parent Contact Group 2', slug='parent-contact-group-2'),
+        )
+
+        ContactGroup.objects.create(name='Contact Group 1', slug='contact-group-1', parent=parent_contact_groups[0])
+        ContactGroup.objects.create(name='Contact Group 2', slug='contact-group-2', parent=parent_contact_groups[0])
+        ContactGroup.objects.create(name='Contact Group 3', slug='contact-group-3', parent=parent_contact_groups[0])
+
+        cls.create_data = [
+            {
+                'name': 'Contact Group 4',
+                'slug': 'contact-group-4',
+                'parent': parent_contact_groups[1].pk,
+            },
+            {
+                'name': 'Contact Group 5',
+                'slug': 'contact-group-5',
+                'parent': parent_contact_groups[1].pk,
+            },
+            {
+                'name': 'Contact Group 6',
+                'slug': 'contact-group-6',
+                'parent': parent_contact_groups[1].pk,
+            },
+        ]
+
+
+class ContactRoleTest(APIViewTestCases.APIViewTestCase):
+    model = ContactRole
+    brief_fields = ['display', 'id', 'name', 'slug', 'url']
+    create_data = [
+        {
+            'name': 'Contact Role 4',
+            'slug': 'contact-role-4',
+        },
+        {
+            'name': 'Contact Role 5',
+            'slug': 'contact-role-5',
+        },
+        {
+            'name': 'Contact Role 6',
+            'slug': 'contact-role-6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        contact_roles = (
+            ContactRole(name='Contact Role 1', slug='contact-role-1'),
+            ContactRole(name='Contact Role 2', slug='contact-role-2'),
+            ContactRole(name='Contact Role 3', slug='contact-role-3'),
+        )
+        ContactRole.objects.bulk_create(contact_roles)
+
+
+class ContactTest(APIViewTestCases.APIViewTestCase):
+    model = Contact
+    brief_fields = ['display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'group': None,
+        'comments': 'New comments',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        contact_groups = (
+            ContactGroup.objects.create(name='Contact Group 1', slug='contact-group-1'),
+            ContactGroup.objects.create(name='Contact Group 2', slug='contact-group-2'),
+        )
+
+        contacts = (
+            Contact(name='Contact 1', group=contact_groups[0]),
+            Contact(name='Contact 2', group=contact_groups[0]),
+            Contact(name='Contact 3', group=contact_groups[0]),
+        )
+        Contact.objects.bulk_create(contacts)
+
+        cls.create_data = [
+            {
+                'name': 'Contact 4',
+                'group': contact_groups[1].pk,
+            },
+            {
+                'name': 'Contact 5',
+                'group': contact_groups[1].pk,
+            },
+            {
+                'name': 'Contact 6',
+                'group': contact_groups[1].pk,
             },
         ]

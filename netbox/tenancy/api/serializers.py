@@ -1,7 +1,9 @@
+from django.contrib.auth.models import ContentType
 from rest_framework import serializers
 
-from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
-from tenancy.models import Tenant, TenantGroup
+from netbox.api import ContentTypeField
+from netbox.api.serializers import NestedGroupModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
+from tenancy.models import *
 from .nested_serializers import *
 
 
@@ -42,4 +44,58 @@ class TenantSerializer(PrimaryModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'circuit_count', 'device_count', 'ipaddress_count', 'prefix_count', 'rack_count',
             'site_count', 'virtualmachine_count', 'vlan_count', 'vrf_count', 'cluster_count',
+        ]
+
+
+#
+# Contacts
+#
+
+class ContactGroupSerializer(NestedGroupModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactgroup-detail')
+    parent = NestedContactGroupSerializer(required=False, allow_null=True)
+    contact_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = ContactGroup
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
+            'contact_count', '_depth',
+        ]
+
+
+class ContactRoleSerializer(OrganizationalModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactrole-detail')
+
+    class Meta:
+        model = ContactRole
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+        ]
+
+
+class ContactSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contact-detail')
+    group = NestedContactGroupSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = Contact
+        fields = [
+            'id', 'url', 'display', 'group', 'name', 'title', 'phone', 'email', 'address', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
+
+
+class ContactAssignmentSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
+    content_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
+    contact = NestedContactSerializer()
+    role = NestedContactRoleSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = ContactAssignment
+        fields = [
+            'id', 'url', 'display', 'content_type', 'object_id', 'contact', 'role', 'created', 'last_updated',
         ]
