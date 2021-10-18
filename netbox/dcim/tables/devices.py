@@ -11,11 +11,7 @@ from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     MarkdownColumn, TagColumn, TemplateColumn, ToggleColumn,
 )
-from .template_code import (
-    LINKTERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, DEVICEBAY_BUTTONS, DEVICEBAY_STATUS,
-    FRONTPORT_BUTTONS, INTERFACE_BUTTONS, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS,
-    POWERPORT_BUTTONS, REARPORT_BUTTONS,
-)
+from .template_code import *
 
 __all__ = (
     'BaseInterfaceTable',
@@ -488,6 +484,11 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
     wireless_link = tables.Column(
         linkify=True
     )
+    wireless_lans = TemplateColumn(
+        template_code=INTERFACE_WIRELESS_LANS,
+        orderable=False,
+        verbose_name='Wireless LANs'
+    )
     tags = TagColumn(
         url_name='dcim:interface_list'
     )
@@ -497,8 +498,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
         fields = (
             'pk', 'name', 'device', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'description', 'mark_connected',
-            'cable', 'cable_color', 'wireless_link', 'link_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan',
-            'tagged_vlans',
+            'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -530,8 +531,8 @@ class DeviceInterfaceTable(InterfaceTable):
         fields = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
             'rf_role', 'rf_channel', 'rf_channel_width', 'description', 'mark_connected', 'cable', 'cable_color',
-            'wireless_link', 'link_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
-            'actions',
+            'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan',
+            'tagged_vlans', 'actions',
         )
         order_by = ('name',)
         default_columns = (

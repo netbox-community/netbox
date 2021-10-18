@@ -64,6 +64,12 @@ INTERFACE_TAGGED_VLANS = """
 {% endif %}
 """
 
+INTERFACE_WIRELESS_LANS = """
+{% for wlan in record.wireless_lans.all %}
+  <a href="{{ wlan.get_absolute_url }}">{{ wlan }}</a><br />
+{% endfor %}
+"""
+
 POWERFEED_CABLE = """
 <a href="{{ value.get_absolute_url }}">{{ value }}</a>
 <a href="{% url 'dcim:powerfeed_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace">
