@@ -21,6 +21,12 @@
               <th scope="row">Description</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
+            <tr>
+              <th scope="row">Assignments</th>
+              <td>
+                <a href="{% url 'tenancy:contact_list' %}?role={{ object.slug }}">{{ assignment_count }}</a>
+              </td>
+            </tr>
           </table>
         </div>
       </div>

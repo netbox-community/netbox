@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from utilities.tables import (
-    BaseTable, ButtonsColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
+    BaseTable, ButtonsColumn, ContentTypeColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
 )
 from .models import *
 
@@ -126,23 +126,36 @@ class ContactTable(BaseTable):
         linkify=True
     )
     comments = MarkdownColumn()
+    assignment_count = tables.Column(
+        verbose_name='Assignments'
+    )
     tags = TagColumn(
         url_name='tenancy:tenant_list'
     )
 
     class Meta(BaseTable.Meta):
         model = Contact
-        fields = ('pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'tags')
-        default_columns = ('pk', 'name', 'group', 'title', 'phone', 'email')
+        fields = ('pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'comments', 'assignment_count', 'tags')
+        default_columns = ('pk', 'name', 'group', 'assignment_count', 'title', 'phone', 'email')
 
 
 class ContactAssignmentTable(BaseTable):
     pk = ToggleColumn()
+    content_type = ContentTypeColumn(
+        verbose_name='Object Type'
+    )
+    object = tables.Column(
+        linkify=True,
+        orderable=False
+    )
     contact = tables.Column(
+        linkify=True
+    )
+    role = tables.Column(
         linkify=True
     )
 
     class Meta(BaseTable.Meta):
         model = ContactAssignment
-        fields = ('pk', 'contact', 'role', 'priority')
-        default_columns = ('pk', 'contact', 'role', 'priority')
+        fields = ('pk', 'content_type', 'object', 'contact', 'role', 'priority')
+        default_columns = ('pk', 'object', 'contact', 'role', 'priority')

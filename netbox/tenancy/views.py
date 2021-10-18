@@ -7,6 +7,7 @@ from dcim.models import Site, Rack, Device, RackReservation
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.tables import paginate_table
+from utilities.utils import count_related
 from virtualization.models import VirtualMachine, Cluster
 from . import filtersets, forms, tables
 from .models import *
@@ -236,11 +237,12 @@ class ContactRoleView(generic.ObjectView):
             role=instance
         )
         contacts_table = tables.ContactAssignmentTable(contact_assignments)
+        contacts_table.columns.hide('role')
         paginate_table(contacts_table, request)
 
         return {
             'contacts_table': contacts_table,
-            'contact_count': ContactAssignment.objects.filter(role=instance).count(),
+            'assignment_count': ContactAssignment.objects.filter(role=instance).count(),
         }
 
 
@@ -276,7 +278,9 @@ class ContactRoleBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ContactListView(generic.ObjectListView):
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.annotate(
+        assignment_count=count_related(ContactAssignment, 'contact')
+    )
     filterset = filtersets.ContactFilterSet
     filterset_form = forms.ContactFilterForm
     table = tables.ContactTable
@@ -284,6 +288,19 @@ class ContactListView(generic.ObjectListView):
 
 class ContactView(generic.ObjectView):
     queryset = Contact.objects.all()
+
+    def get_extra_context(self, request, instance):
+        contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
+            contact=instance
+        )
+        contacts_table = tables.ContactAssignmentTable(contact_assignments)
+        contacts_table.columns.hide('contact')
+        paginate_table(contacts_table, request)
+
+        return {
+            'contacts_table': contacts_table,
+            'assignment_count': ContactAssignment.objects.filter(contact=instance).count(),
+        }
 
 
 class ContactEditView(generic.ObjectEditView):

@@ -46,6 +46,12 @@
               <td>Address</td>
               <td>{{ object.address|linebreaksbr|placeholder }}</td>
             </tr>
+            <tr>
+              <th scope="row">Assignments</th>
+              <td>
+                <a href="{% url 'tenancy:contact_list' %}?contact_id={{ object.pk }}">{{ assignment_count }}</a>
+              </td>
+            </tr>
           </table>
         </div>
       </div>
@@ -60,6 +66,13 @@
   </div>
   <div class="row">
     <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Assignments</h5>
+        <div class="card-body">
+          {% include 'inc/table.html' with table=contacts_table %}
+        </div>
+      </div>
+      {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
       {% plugin_full_width_page object %}
     </div>
   </div>
