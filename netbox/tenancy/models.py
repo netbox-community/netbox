@@ -117,12 +117,10 @@ class ContactGroup(NestedGroupModel):
     An arbitrary collection of Contacts.
     """
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     slug = models.SlugField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     parent = TreeForeignKey(
         to='self',
@@ -139,6 +137,9 @@ class ContactGroup(NestedGroupModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = (
+            ('parent', 'name')
+        )
 
     def get_absolute_url(self):
         return reverse('tenancy:contactgroup', args=[self.pk])
@@ -216,6 +217,9 @@ class Contact(PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = (
+            ('group', 'name')
+        )
 
     def __str__(self):
         return self.name
