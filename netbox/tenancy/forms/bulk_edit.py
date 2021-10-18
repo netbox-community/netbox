@@ -96,6 +96,21 @@ class ContactBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
         queryset=ContactGroup.objects.all(),
         required=False
     )
+    title = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    phone = forms.CharField(
+        max_length=50,
+        required=False
+    )
+    email = forms.EmailField(
+        required=False
+    )
+    address = forms.CharField(
+        max_length=200,
+        required=False
+    )
 
     class Meta:
         nullable_fields = ['group', 'title', 'phone', 'email', 'address', 'comments']

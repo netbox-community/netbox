@@ -2,8 +2,8 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import TagFilter
-from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
-from utilities.filters import TreeNodeMultipleChoiceFilter
+from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
+from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
 
 
@@ -168,7 +168,8 @@ class ContactFilterSet(PrimaryModelFilterSet):
         )
 
 
-class ContactAssignmentFilterSet(OrganizationalModelFilterSet):
+class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
+    content_type = ContentTypeFilter()
     contact_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Contact.objects.all(),
         label='Contact (ID)',
@@ -186,4 +187,4 @@ class ContactAssignmentFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ContactAssignment
-        fields = ['id', 'priority']
+        fields = ['id', 'content_type_id', 'priority']

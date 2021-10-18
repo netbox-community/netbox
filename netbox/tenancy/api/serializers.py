@@ -1,8 +1,9 @@
 from django.contrib.auth.models import ContentType
 from rest_framework import serializers
 
-from netbox.api import ContentTypeField
+from netbox.api import ChoiceField, ContentTypeField
 from netbox.api.serializers import NestedGroupModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
+from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
 from .nested_serializers import *
 
@@ -93,9 +94,11 @@ class ContactAssignmentSerializer(PrimaryModelSerializer):
     )
     contact = NestedContactSerializer()
     role = NestedContactRoleSerializer(required=False, allow_null=True)
+    priority = ChoiceField(choices=ContactPriorityChoices, required=False)
 
     class Meta:
         model = ContactAssignment
         fields = [
-            'id', 'url', 'display', 'content_type', 'object_id', 'contact', 'role', 'created', 'last_updated',
+            'id', 'url', 'display', 'content_type', 'object_id', 'contact', 'role', 'priority', 'created',
+            'last_updated',
         ]

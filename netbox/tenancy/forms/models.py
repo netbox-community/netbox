@@ -109,10 +109,16 @@ class ContactForm(BootstrapMixin, CustomFieldModelForm):
 class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
     group = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'contacts': '$contact'
+        }
     )
     contact = DynamicModelChoiceField(
-        queryset=Contact.objects.all()
+        queryset=Contact.objects.all(),
+        query_params={
+            'group_id': '$group'
+        }
     )
     role = DynamicModelChoiceField(
         queryset=ContactRole.objects.all()
