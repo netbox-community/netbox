@@ -262,4 +262,6 @@ class ContactAssignment(ChangeLoggedModel):
         unique_together = ('content_type', 'object_id', 'contact', 'role', 'priority')
 
     def __str__(self):
-        return f"{self.contact} ({self.get_priority_display()})" if self.priority else self.name
+        if self.priority:
+            return f"{self.contact} ({self.get_priority_display()})"
+        return str(self.contact)
