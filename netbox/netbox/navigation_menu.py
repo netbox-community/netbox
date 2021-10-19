@@ -120,6 +120,14 @@ ORGANIZATION_MENU = Menu(
                 get_model_item('tenancy', 'tenantgroup', 'Tenant Groups'),
             ),
         ),
+        MenuGroup(
+            label='Contacts',
+            items=(
+                get_model_item('tenancy', 'contact', 'Contacts'),
+                get_model_item('tenancy', 'contactgroup', 'Contact Groups'),
+                get_model_item('tenancy', 'contactrole', 'Contact Roles'),
+            ),
+        ),
     ),
 )
 

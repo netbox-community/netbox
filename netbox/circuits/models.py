@@ -62,6 +62,11 @@ class Provider(PrimaryModel):
         blank=True
     )
 
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
     objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
@@ -202,6 +207,11 @@ class Circuit(PrimaryModel):
     )
     comments = models.TextField(
         blank=True
+    )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'

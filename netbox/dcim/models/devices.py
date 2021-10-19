@@ -54,6 +54,11 @@ class Manufacturer(OrganizationalModel):
         blank=True
     )
 
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
@@ -583,6 +588,11 @@ class Device(PrimaryModel, ConfigContextModel):
     )
     comments = models.TextField(
         blank=True
+    )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'

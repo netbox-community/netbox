@@ -1,0 +1,52 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'tenancy:contactrole_list' %}">Contact Roles</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Contact Role</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Assignments</th>
+              <td>
+                <a href="{% url 'tenancy:contact_list' %}?role={{ object.slug }}">{{ assignment_count }}</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/custom_fields_panel.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Assigned Contacts</h5>
+        <div class="card-body">
+          {% include 'inc/table.html' with table=contacts_table %}
+        </div>
+      </div>
+      {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

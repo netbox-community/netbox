@@ -62,6 +62,7 @@ nav:
         - Circuits: 'core-functionality/circuits.md'
         - Power Tracking: 'core-functionality/power.md'
         - Tenancy: 'core-functionality/tenancy.md'
+        - Contacts: 'core-functionality/contacts.md'
     - Customization:
         - Custom Fields: 'customization/custom-fields.md'
         - Custom Validation: 'customization/custom-validation.md'
