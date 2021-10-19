@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#7551](https://github.com/netbox-community/netbox/issues/7551) - Add UI field to filter interfaces by kind
 * [#7561](https://github.com/netbox-community/netbox/issues/7561) - Add a utilization column to the IP ranges table
 
 ### Bug Fixes
