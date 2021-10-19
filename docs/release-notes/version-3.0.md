@@ -2,6 +2,10 @@
 
 ## v3.0.8 (FUTURE)
 
+### Enhancements
+
+* [#7561](https://github.com/netbox-community/netbox/issues/7561) - Add a utilization column to the IP ranges table
+
 ### Bug Fixes
 
 * [#7300](https://github.com/netbox-community/netbox/issues/7300) - Fix incorrect Device LLDP interface row coloring
