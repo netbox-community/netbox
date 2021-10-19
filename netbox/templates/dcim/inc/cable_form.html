@@ -2,6 +2,8 @@
 
 {% render_field form.status %}
 {% render_field form.type %}
+{% render_field form.tenant_group %}
+{% render_field form.tenant %}
 {% render_field form.label %}
 {% render_field form.color %}
 <div class="row mb-3">
@@ -17,7 +19,7 @@
 {% render_field form.tags %}
 {% if form.custom_fields %}
   <div class="field-group">
-    <div class="row mb-2">
+    <div class="row mb-3">
       <h5 class="offset-sm-3">Custom Fields</h5>
     </div>
     {% render_custom_fields form %}

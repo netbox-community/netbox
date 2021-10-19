@@ -758,14 +758,15 @@ class CableSerializer(PrimaryModelSerializer):
     termination_a = serializers.SerializerMethodField(read_only=True)
     termination_b = serializers.SerializerMethodField(read_only=True)
     status = ChoiceField(choices=CableStatusChoices, required=False)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False)
 
     class Meta:
         model = Cable
         fields = [
             'id', 'url', 'display', 'termination_a_type', 'termination_a_id', 'termination_a', 'termination_b_type',
-            'termination_b_id', 'termination_b', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
-            'custom_fields',
+            'termination_b_id', 'termination_b', 'type', 'status', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'tags', 'custom_fields',
         ]
 
     def _get_termination(self, obj, side):

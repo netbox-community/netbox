@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0135_location_tenant'),
+        ('dcim', '0135_tenancy_extensions'),
     ]
 
     operations = [

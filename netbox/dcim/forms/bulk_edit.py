@@ -468,6 +468,10 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
         widget=StaticSelect(),
         initial=''
     )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
     label = forms.CharField(
         max_length=100,
         required=False
@@ -488,7 +492,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
 
     class Meta:
         nullable_fields = [
-            'type', 'status', 'label', 'color', 'length',
+            'type', 'status', 'tenant', 'label', 'color', 'length',
         ]
 
     def clean(self):

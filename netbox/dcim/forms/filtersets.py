@@ -691,13 +691,13 @@ class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
     tag = TagFilterField(model)
 
 
-class CableFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class CableFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cable
     field_groups = [
         ['q', 'tag'],
         ['site_id', 'rack_id', 'device_id'],
         ['type', 'status', 'color'],
-        ['tenant_id'],
+        ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
         required=False,
@@ -717,12 +717,6 @@ class CableFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
             'region_id': '$region_id'
         },
         label=_('Site'),
-        fetch_trigger='open'
-    )
-    tenant_id = DynamicModelMultipleChoiceField(
-        queryset=Tenant.objects.all(),
-        required=False,
-        label=_('Tenant'),
         fetch_trigger='open'
     )
     rack_id = DynamicModelMultipleChoiceField(

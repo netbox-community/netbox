@@ -601,7 +601,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
-class CableForm(BootstrapMixin, CustomFieldModelForm):
+class CableForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -610,7 +610,7 @@ class CableForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Cable
         fields = [
-            'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
+            'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
             'status': StaticSelect,
