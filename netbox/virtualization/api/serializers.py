@@ -44,9 +44,9 @@ class ClusterGroupSerializer(OrganizationalModelSerializer):
 class ClusterSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
     type = NestedClusterTypeSerializer()
-    group = NestedClusterGroupSerializer(required=False, allow_null=True)
+    group = NestedClusterGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    site = NestedSiteSerializer(required=False, allow_null=True)
+    site = NestedSiteSerializer(required=False, allow_null=True, default=None)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 

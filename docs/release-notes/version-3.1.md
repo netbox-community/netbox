@@ -10,6 +10,7 @@
 ### Enhancements
 
 * [#1337](https://github.com/netbox-community/netbox/issues/1337) - Add WWN field to interfaces
+* [#1943](https://github.com/netbox-community/netbox/issues/1943) - Relax uniqueness constraint on cluster names
 * [#3839](https://github.com/netbox-community/netbox/issues/3839) - Add `airflow` field for devices types and devices
 * [#6711](https://github.com/netbox-community/netbox/issues/6711) - Add `longtext` custom field type with Markdown support
 * [#6715](https://github.com/netbox-community/netbox/issues/6715) - Add tenant assignment for cables

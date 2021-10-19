@@ -115,8 +115,7 @@ class Cluster(PrimaryModel):
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     type = models.ForeignKey(
         to=ClusterType,
@@ -167,6 +166,10 @@ class Cluster(PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = (
+            ('group', 'name'),
+            ('site', 'name'),
+        )
 
     def __str__(self):
         return self.name
