@@ -375,7 +375,7 @@ def badge(value, bg_class='secondary', show_empty=False):
     Display the specified number as a badge.
     """
     return {
-        'value': value,
+        'value': str(value),
         'bg_class': bg_class,
         'show_empty': show_empty,
     }
