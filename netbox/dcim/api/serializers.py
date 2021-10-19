@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from timezone_field.rest_framework import TimeZoneSerializerField
 
 from dcim.choices import *
@@ -170,6 +169,8 @@ class RackSerializer(PrimaryModelSerializer):
     status = ChoiceField(choices=RackStatusChoices, required=False)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False)
+    facility_id = serializers.CharField(max_length=50, allow_blank=True, allow_null=True, label='Facility ID',
+                                        default=None)
     width = ChoiceField(choices=RackWidthChoices, required=False)
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
     device_count = serializers.IntegerField(read_only=True)
@@ -182,23 +183,6 @@ class RackSerializer(PrimaryModelSerializer):
             'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
-        # Omit the UniqueTogetherValidator that would be automatically added to validate (location, facility_id). This
-        # prevents facility_id from being interpreted as a required field.
-        validators = [
-            UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('location', 'name'))
-        ]
-
-    def validate(self, data):
-
-        # Validate uniqueness of (location, facility_id) since we omitted the automatically-created validator from Meta.
-        if data.get('facility_id', None):
-            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('location', 'facility_id'))
-            validator(data, self)
-
-        # Enforce model validation
-        super().validate(data)
-
-        return data
 
 
 class RackUnitSerializer(serializers.Serializer):
@@ -458,12 +442,13 @@ class DeviceSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
     location = NestedLocationSerializer(required=False, allow_null=True, default=None)
-    rack = NestedRackSerializer(required=False, allow_null=True)
-    face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, required=False)
+    rack = NestedRackSerializer(required=False, allow_null=True, default=None)
+    face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, default='')
+    position = serializers.IntegerField(allow_null=True, label='Position (U)', min_value=1, default=None)
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
     primary_ip = NestedIPAddressSerializer(read_only=True)
@@ -471,7 +456,8 @@ class DeviceSerializer(PrimaryModelSerializer):
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer(required=False, allow_null=True)
-    virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True)
+    virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True, default=None)
+    vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
 
     class Meta:
         model = Device
@@ -481,19 +467,6 @@ class DeviceSerializer(PrimaryModelSerializer):
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments',
             'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        validators = []
-
-    def validate(self, data):
-
-        # Validate uniqueness of (rack, position, face) since we omitted the automatically-created validator from Meta.
-        if data.get('rack') and data.get('position') and data.get('face'):
-            validator = UniqueTogetherValidator(queryset=Device.objects.all(), fields=('rack', 'position', 'face'))
-            validator(data, self)
-
-        # Enforce model validation
-        super().validate(data)
-
-        return data
 
     @swagger_serializer_method(serializer_or_field=NestedDeviceSerializer)
     def get_parent_device(self, obj):
@@ -730,7 +703,6 @@ class DeviceBaySerializer(PrimaryModelSerializer):
 class InventoryItemSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitem-detail')
     device = NestedDeviceSerializer()
-    # Provide a default value to satisfy UniqueTogetherValidator
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True, default=None)
     _depth = serializers.IntegerField(source='level', read_only=True)
