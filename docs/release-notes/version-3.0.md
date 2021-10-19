@@ -10,7 +10,8 @@
 * [#7534](https://github.com/netbox-community/netbox/issues/7534) - Avoid exception when utilizing "create and add another" twice in succession
 * [#7544](https://github.com/netbox-community/netbox/issues/7544) - Fix multi-value filtering of custom field objects
 * [#7545](https://github.com/netbox-community/netbox/issues/7545) - Fix incorrect display of update/delete events for webhooks
-* [#7556](https://github.com/netbox-community/netbox/issues/7556) - Fix display of New Version
+* [#7556](https://github.com/netbox-community/netbox/issues/7556) - Fix display of version when new release is available
+* [#7584](https://github.com/netbox-community/netbox/issues/7584) - Fix alignment of object identifier under object view
 
 ---
 
