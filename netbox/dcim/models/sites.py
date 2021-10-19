@@ -41,12 +41,10 @@ class Region(NestedGroupModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     slug = models.SlugField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     description = models.CharField(
         max_length=200,
@@ -63,6 +61,12 @@ class Region(NestedGroupModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
+
+    class Meta:
+        unique_together = (
+            ('parent', 'name'),
+            ('parent', 'slug'),
+        )
 
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
@@ -94,12 +98,10 @@ class SiteGroup(NestedGroupModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     slug = models.SlugField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     description = models.CharField(
         max_length=200,
@@ -116,6 +118,12 @@ class SiteGroup(NestedGroupModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
+
+    class Meta:
+        unique_together = (
+            ('parent', 'name'),
+            ('parent', 'slug'),
+        )
 
     def get_absolute_url(self):
         return reverse('dcim:sitegroup', args=[self.pk])
@@ -325,10 +333,10 @@ class Location(NestedGroupModel):
 
     class Meta:
         ordering = ['site', 'name']
-        unique_together = [
-            ['site', 'name'],
-            ['site', 'slug'],
-        ]
+        unique_together = ([
+            ('site', 'parent', 'name'),
+            ('site', 'parent', 'slug'),
+        ])
 
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])

@@ -1,6 +1,6 @@
 # Racks
 
-The rack model represents a physical two- or four-post equipment rack in which devices can be installed. Each rack must be assigned to a site, and may optionally be assigned to a location and/or tenant. Racks can also be organized by user-defined functional roles.
+The rack model represents a physical two- or four-post equipment rack in which devices can be installed. Each rack must be assigned to a site, and may optionally be assigned to a location and/or tenant. Racks can also be organized by user-defined functional roles. The name and facility ID of each rack within a location must be unique.
 
 Rack height is measured in *rack units* (U); racks are commonly between 42U and 48U tall, but NetBox allows you to define racks of arbitrary height. A toggle is provided to indicate whether rack units are in ascending (from the ground up) or descending order.
 

@@ -15,6 +15,7 @@
 * [#6711](https://github.com/netbox-community/netbox/issues/6711) - Add `longtext` custom field type with Markdown support
 * [#6715](https://github.com/netbox-community/netbox/issues/6715) - Add tenant assignment for cables
 * [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations
+* [#7354](https://github.com/netbox-community/netbox/issues/7354) - Relax uniqueness constraints on region, site group, and location names
 
 ### Other Changes
 
