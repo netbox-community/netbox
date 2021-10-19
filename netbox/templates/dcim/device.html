@@ -220,9 +220,9 @@
                     </table>
                 </div>
             </div>
-            {% include 'inc/custom_fields_panel.html' %}
-            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:device_list' %}
-            {% include 'inc/comments_panel.html' %}
+            {% include 'inc/panels/custom_fields.html' %}
+            {% include 'inc/panels/tags.html' with tags=object.tags.all url='dcim:device_list' %}
+            {% include 'inc/panels/comments.html' %}
             {% plugin_left_page object %}
         </div>
         <div class="col col-md-6">
@@ -296,8 +296,8 @@
                 </div>
                 {% endif %}
             </div>
-            {% include 'inc/contacts_panel.html' %}
-            {% include 'inc/image_attachments_panel.html' %}
+            {% include 'inc/panels/contacts.html' %}
+            {% include 'inc/panels/image_attachments.html' %}
             <div class="card noprint">
                 <h5 class="card-header">
                     Related Devices

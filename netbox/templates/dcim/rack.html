@@ -162,9 +162,9 @@
                 </table>
             </div>
         </div>
-        {% include 'inc/custom_fields_panel.html' %}
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:rack_list' %}
-        {% include 'inc/comments_panel.html' %}
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' with tags=object.tags.all url='dcim:rack_list' %}
+        {% include 'inc/panels/comments.html' %}
         {% if power_feeds %}
             <div class="card">
                 <h5 class="card-header">
@@ -206,7 +206,7 @@
                 </div>
             </div>
         {% endif %}
-        {% include 'inc/image_attachments_panel.html' %}
+        {% include 'inc/panels/image_attachments.html' %}
         <div class="card">
             <h5 class="card-header">
                 Reservations
@@ -332,7 +332,7 @@
                 </div>
             {% endif %}
         </div>
-        {% include 'inc/contacts_panel.html' %}
+        {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>
   </div>

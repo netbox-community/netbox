@@ -107,8 +107,8 @@
                 </table>
             </div>
         </div>
-        {% include 'inc/custom_fields_panel.html' %}
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:powerfeed_list' %}
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' with tags=object.tags.all url='dcim:powerfeed_list' %}
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
@@ -182,7 +182,7 @@
             </div>
             {% endif %}
         </div>
-        {% include 'inc/comments_panel.html' %}
+        {% include 'inc/panels/comments.html' %}
         {% plugin_right_page object %}
     </div>
 </div>

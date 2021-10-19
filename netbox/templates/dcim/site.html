@@ -132,7 +132,7 @@
                 </table>
             </div>
         </div>
-        {% include 'inc/contacts_panel.html' %}
+        {% include 'inc/panels/contacts.html' %}
         <div class="card">
             <h5 class="card-header">Contact Info</h5>
             <div class="card-body">
@@ -180,9 +180,9 @@
               {% endwith %}
             </div>
         </div>
-        {% include 'inc/custom_fields_panel.html' %}
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:site_list' %}
-        {% include 'inc/comments_panel.html' %}
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' with tags=object.tags.all url='dcim:site_list' %}
+        {% include 'inc/panels/comments.html' %}
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-5">
@@ -257,7 +257,7 @@
               {% endif %}
             </div>
         </div>
-        {% include 'inc/image_attachments_panel.html' %}
+        {% include 'inc/panels/image_attachments.html' %}
         {% plugin_right_page object %}
 	</div>
 </div>

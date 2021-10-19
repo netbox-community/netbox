@@ -82,8 +82,8 @@
             {% plugin_left_page object %}
         </div>
         <div class="col col-md-6">
-            {% include 'inc/custom_fields_panel.html' %}
-            {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:vlan_list' %}
+            {% include 'inc/panels/custom_fields.html' %}
+            {% include 'inc/panels/tags.html' with tags=object.tags.all url='ipam:vlan_list' %}
             {% plugin_right_page object %}
         </div>
     </div>
