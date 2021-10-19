@@ -10,6 +10,7 @@
 * [#7534](https://github.com/netbox-community/netbox/issues/7534) - Avoid exception when utilizing "create and add another" twice in succession
 * [#7544](https://github.com/netbox-community/netbox/issues/7544) - Fix multi-value filtering of custom field objects
 * [#7545](https://github.com/netbox-community/netbox/issues/7545) - Fix incorrect display of update/delete events for webhooks
+* [#7564](https://github.com/netbox-community/netbox/issues/7564) - Fix VC position zero at VC creation and VC position zero not being displayed
 
 ---
 
