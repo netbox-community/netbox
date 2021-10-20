@@ -11,6 +11,17 @@ Interfaces may be physical or virtual in nature, but only physical interfaces ma
 
 Physical interfaces may be arranged into a link aggregation group (LAG) and associated with a parent LAG (virtual) interface. LAG interfaces can be recursively nested to model bonding of trunk groups. Like all virtual interfaces, LAG interfaces cannot be connected physically.
 
+### Wireless Interfaces
+
+Wireless interfaces may additionally track the following attributes:
+
+* **Role** - AP or station
+* **Channel** - One of several standard wireless channels
+* **Channel Frequency** - The transmit frequency
+* **Channel Width** - Channel bandwidth
+
+If a predefined channel is selected, the frequency and width attributes will be assigned automatically. If no channel is selected, these attributes may be defined manually.
+
 ### IP Address Assignment
 
 IP addresses can be assigned to interfaces. VLANs can also be assigned to each interface as either tagged or untagged. (An interface may have only one untagged VLAN.)
