@@ -4,6 +4,7 @@ from dcim.choices import LinkStatusChoices
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
 from utilities.forms import BootstrapMixin, DynamicModelChoiceField
+from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
 from wireless.models import *
 
@@ -52,9 +53,20 @@ class WirelessLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
     description = forms.CharField(
         required=False
     )
+    auth_type = forms.ChoiceField(
+        choices=WirelessAuthTypeChoices,
+        required=False
+    )
+    auth_cipher = forms.ChoiceField(
+        choices=WirelessAuthCipherChoices,
+        required=False
+    )
+    auth_psk = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ['ssid', 'group', 'vlan', 'description']
+        nullable_fields = ['ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk']
 
 
 class WirelessLinkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
@@ -73,6 +85,17 @@ class WirelessLinkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMod
     description = forms.CharField(
         required=False
     )
+    auth_type = forms.ChoiceField(
+        choices=WirelessAuthTypeChoices,
+        required=False
+    )
+    auth_cipher = forms.ChoiceField(
+        choices=WirelessAuthCipherChoices,
+        required=False
+    )
+    auth_psk = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ['ssid', 'description']
+        nullable_fields = ['ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk']

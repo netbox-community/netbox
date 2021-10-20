@@ -6,6 +6,7 @@ from extras.forms import CustomFieldModelFilterForm
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, DynamicModelMultipleChoiceField, StaticSelect, TagFilterField,
 )
+from wireless.choices import *
 from wireless.models import *
 
 __all__ = (
@@ -52,6 +53,19 @@ class WirelessLANFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Group'),
         fetch_trigger='open'
     )
+    auth_type = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(WirelessAuthTypeChoices),
+        widget=StaticSelect()
+    )
+    auth_cipher = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(WirelessAuthCipherChoices),
+        widget=StaticSelect()
+    )
+    auth_psk = forms.CharField(
+        required=False
+    )
     tag = TagFilterField(model)
 
 
@@ -73,5 +87,18 @@ class WirelessLinkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         required=False,
         choices=add_blank_choice(LinkStatusChoices),
         widget=StaticSelect()
+    )
+    auth_type = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(WirelessAuthTypeChoices),
+        widget=StaticSelect()
+    )
+    auth_cipher = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(WirelessAuthCipherChoices),
+        widget=StaticSelect()
+    )
+    auth_psk = forms.CharField(
+        required=False
     )
     tag = TagFilterField(model)

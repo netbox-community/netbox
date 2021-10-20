@@ -8,13 +8,38 @@ from dcim.constants import WIRELESS_IFACE_TYPES
 from extras.utils import extras_features
 from netbox.models import BigIDModel, NestedGroupModel, PrimaryModel
 from utilities.querysets import RestrictedQuerySet
-from .constants import SSID_MAX_LENGTH
+from .choices import *
+from .constants import *
 
 __all__ = (
     'WirelessLAN',
     'WirelessLANGroup',
     'WirelessLink',
 )
+
+
+class WirelessAuthenticationBase(models.Model):
+    """
+    Abstract model for attaching attributes related to wireless authentication.
+    """
+    auth_type = models.CharField(
+        max_length=50,
+        choices=WirelessAuthTypeChoices,
+        blank=True
+    )
+    auth_cipher = models.CharField(
+        max_length=50,
+        choices=WirelessAuthCipherChoices,
+        blank=True
+    )
+    auth_psk = models.CharField(
+        max_length=PSK_MAX_LENGTH,
+        blank=True,
+        verbose_name='Pre-shared key'
+    )
+
+    class Meta:
+        abstract = True
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
@@ -49,12 +74,15 @@ class WirelessLANGroup(NestedGroupModel):
             ('parent', 'name')
         )
 
+    def __str__(self):
+        return self.name
+
     def get_absolute_url(self):
         return reverse('wireless:wirelesslangroup', args=[self.pk])
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class WirelessLAN(PrimaryModel):
+class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
     A wireless network formed among an arbitrary number of access point and clients.
     """
@@ -95,7 +123,7 @@ class WirelessLAN(PrimaryModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class WirelessLink(PrimaryModel):
+class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
     """
     A point-to-point connection between two wireless Interfaces.
     """

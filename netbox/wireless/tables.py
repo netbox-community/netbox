@@ -48,8 +48,11 @@ class WirelessLANTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WirelessLAN
-        fields = ('pk', 'ssid', 'group', 'description', 'vlan', 'interface_count', 'tags')
-        default_columns = ('pk', 'ssid', 'group', 'description', 'vlan', 'interface_count')
+        fields = (
+            'pk', 'ssid', 'group', 'description', 'vlan', 'interface_count', 'auth_type', 'auth_cipher', 'auth_psk',
+            'tags',
+        )
+        default_columns = ('pk', 'ssid', 'group', 'description', 'vlan', 'auth_type', 'interface_count')
 
 
 class WirelessLANInterfacesTable(BaseTable):
@@ -94,7 +97,11 @@ class WirelessLinkTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WirelessLink
-        fields = ('pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'description')
-        default_columns = (
+        fields = (
             'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'description',
+            'auth_type', 'auth_cipher', 'auth_psk', 'tags',
+        )
+        default_columns = (
+            'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'auth_type',
+            'description',
         )

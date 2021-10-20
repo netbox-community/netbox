@@ -3,6 +3,7 @@ from dcim.models import Interface
 from extras.forms import CustomFieldModelCSVForm
 from ipam.models import VLAN
 from utilities.forms import CSVChoiceField, CSVModelChoiceField, SlugField
+from wireless.choices import *
 from wireless.models import *
 
 __all__ = (
@@ -38,10 +39,20 @@ class WirelessLANCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Bridged VLAN'
     )
+    auth_type = CSVChoiceField(
+        choices=WirelessAuthTypeChoices,
+        required=False,
+        help_text='Authentication type'
+    )
+    auth_cipher = CSVChoiceField(
+        choices=WirelessAuthCipherChoices,
+        required=False,
+        help_text='Authentication cipher'
+    )
 
     class Meta:
         model = WirelessLAN
-        fields = ('ssid', 'group', 'description', 'vlan')
+        fields = ('ssid', 'group', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk')
 
 
 class WirelessLinkCSVForm(CustomFieldModelCSVForm):
@@ -55,7 +66,17 @@ class WirelessLinkCSVForm(CustomFieldModelCSVForm):
     interface_b = CSVModelChoiceField(
         queryset=Interface.objects.all()
     )
+    auth_type = CSVChoiceField(
+        choices=WirelessAuthTypeChoices,
+        required=False,
+        help_text='Authentication type'
+    )
+    auth_cipher = CSVChoiceField(
+        choices=WirelessAuthCipherChoices,
+        required=False,
+        help_text='Authentication cipher'
+    )
 
     class Meta:
         model = WirelessLink
-        fields = ('interface_a', 'interface_b', 'ssid', 'description')
+        fields = ('interface_a', 'interface_b', 'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk')

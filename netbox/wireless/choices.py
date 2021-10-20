@@ -163,3 +163,29 @@ class WirelessChannelChoices(ChoiceSet):
             )
         ),
     )
+
+
+class WirelessAuthTypeChoices(ChoiceSet):
+    TYPE_OPEN = 'open'
+    TYPE_WEP = 'wep'
+    TYPE_WPA_PERSONAL = 'wpa-personal'
+    TYPE_WPA_ENTERPRISE = 'wpa-enterprise'
+
+    CHOICES = (
+        (TYPE_OPEN, 'Open'),
+        (TYPE_WEP, 'WEP'),
+        (TYPE_WPA_PERSONAL, 'WPA Personal (PSK)'),
+        (TYPE_WPA_ENTERPRISE, 'WPA Enterprise'),
+    )
+
+
+class WirelessAuthCipherChoices(ChoiceSet):
+    CIPHER_AUTO = 'auto'
+    CIPHER_TKIP = 'tkip'
+    CIPHER_AES = 'aes'
+
+    CHOICES = (
+        (CIPHER_AUTO, 'Auto'),
+        (CIPHER_TKIP, 'TKIP'),
+        (CIPHER_AES, 'AES'),
+    )

@@ -4,6 +4,7 @@ from django.db.models import Q
 from dcim.choices import LinkStatusChoices
 from extras.filters import TagFilter
 from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from .choices import *
 from .models import *
 
 __all__ = (
@@ -36,11 +37,17 @@ class WirelessLANFilterSet(PrimaryModelFilterSet):
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=WirelessLANGroup.objects.all()
     )
+    auth_type = django_filters.MultipleChoiceFilter(
+        choices=WirelessAuthTypeChoices
+    )
+    auth_cipher = django_filters.MultipleChoiceFilter(
+        choices=WirelessAuthCipherChoices
+    )
     tag = TagFilter()
 
     class Meta:
         model = WirelessLAN
-        fields = ['id', 'ssid']
+        fields = ['id', 'ssid', 'auth_psk']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -60,11 +67,17 @@ class WirelessLinkFilterSet(PrimaryModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=LinkStatusChoices
     )
+    auth_type = django_filters.MultipleChoiceFilter(
+        choices=WirelessAuthTypeChoices
+    )
+    auth_cipher = django_filters.MultipleChoiceFilter(
+        choices=WirelessAuthCipherChoices
+    )
     tag = TagFilter()
 
     class Meta:
         model = WirelessLink
-        fields = ['id', 'ssid']
+        fields = ['id', 'ssid', 'auth_psk']
 
     def search(self, queryset, name, value):
         if not value.strip():

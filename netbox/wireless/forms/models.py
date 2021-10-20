@@ -35,7 +35,8 @@ class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
     )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        label='VLAN'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -45,12 +46,17 @@ class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'group', 'description', 'vlan', 'tags',
+            'ssid', 'group', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
         fieldsets = (
             ('Wireless LAN', ('ssid', 'group', 'description', 'tags')),
             ('VLAN', ('vlan',)),
+            ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
         )
+        widgets = {
+            'auth_type': StaticSelect,
+            'auth_cipher': StaticSelect,
+        }
 
 
 class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
@@ -94,8 +100,15 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = WirelessLink
         fields = [
-            'device_a', 'interface_a', 'device_b', 'interface_b', 'status', 'ssid', 'description', 'tags',
+            'device_a', 'interface_a', 'device_b', 'interface_b', 'status', 'ssid', 'description', 'auth_type',
+            'auth_cipher', 'auth_psk', 'tags',
         ]
+        fieldsets = (
+            ('Link', ('device_a', 'interface_a', 'device_b', 'interface_b', 'status', 'ssid', 'description', 'tags')),
+            ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+        )
         widgets = {
             'status': StaticSelect,
+            'auth_type': StaticSelect,
+            'auth_cipher': StaticSelect,
         }
