@@ -7,7 +7,6 @@ from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
 from tenancy.forms import TenancyFilterForm
-from tenancy.models import Tenant
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, BootstrapMixin, ColorField, DynamicModelMultipleChoiceField, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
@@ -966,9 +965,14 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
+        ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
+    kind = forms.MultipleChoiceField(
+        choices=InterfaceKindChoices,
+        required=False,
+        widget=StaticSelectMultiple()
+    )
     type = forms.MultipleChoiceField(
         choices=InterfaceTypeChoices,
         required=False,

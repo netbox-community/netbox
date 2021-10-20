@@ -66,7 +66,7 @@ nav:
     - Customization:
         - Custom Fields: 'customization/custom-fields.md'
         - Custom Validation: 'customization/custom-validation.md'
-        - Custom Links: 'customization/custom-links.md'
+        - Custom Links: 'models/extras/customlink.md'
         - Export Templates: 'customization/export-templates.md'
         - Custom Scripts: 'customization/custom-scripts.md'
         - Reports: 'customization/reports.md'

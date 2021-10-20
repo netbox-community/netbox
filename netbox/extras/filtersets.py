@@ -15,6 +15,7 @@ from .models import *
 __all__ = (
     'ConfigContextFilterSet',
     'ContentTypeFilterSet',
+    'CustomFieldFilterSet',
     'CustomLinkFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
@@ -47,7 +48,7 @@ class WebhookFilterSet(BaseFilterSet):
         ]
 
 
-class CustomFieldFilterSet(django_filters.FilterSet):
+class CustomFieldFilterSet(BaseFilterSet):
     content_types = ContentTypeFilter()
 
     class Meta:
