@@ -6,9 +6,17 @@
 {% load plugins %}
 
 {% block header %}
-  {# Breadcrumbs #}
-  <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-    <div class="float-end">
+  <div class="d-flex justify-content-between align-items-center">
+    {# Breadcrumbs #}
+    <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        {% block breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a></li>
+        {% endblock breadcrumbs %}
+      </ol>
+    </nav>
+    {# Object identifier #}
+    <div class="float-end px-3">
         <code class="text-muted">
           {% block object_identifier %}
             {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
@@ -16,12 +24,7 @@
           {% endblock object_identifier %}
         </code>
     </div>
-    <ol class="breadcrumb">
-      {% block breadcrumbs %}
-        <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a></li>
-      {% endblock breadcrumbs %}
-    </ol>
-  </nav>
+  </div>
   {{ block.super }}
 {% endblock %}
 

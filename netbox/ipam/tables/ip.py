@@ -260,11 +260,16 @@ class IPRangeTable(BaseTable):
         linkify=True
     )
     tenant = TenantColumn()
+    utilization = UtilizationColumn(
+        accessor='utilization',
+        orderable=False
+    )
 
     class Meta(BaseTable.Meta):
         model = IPRange
         fields = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
+            'utilization',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',

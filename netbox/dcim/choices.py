@@ -685,6 +685,18 @@ class PowerOutletFeedLegChoices(ChoiceSet):
 # Interfaces
 #
 
+class InterfaceKindChoices(ChoiceSet):
+    KIND_PHYSICAL = 'physical'
+    KIND_VIRTUAL = 'virtual'
+    KIND_WIRELESS = 'wireless'
+
+    CHOICES = (
+        (KIND_PHYSICAL, 'Physical'),
+        (KIND_VIRTUAL, 'Virtual'),
+        (KIND_WIRELESS, 'Wireless'),
+    )
+
+
 class InterfaceTypeChoices(ChoiceSet):
 
     # Virtual
