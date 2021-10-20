@@ -3,7 +3,9 @@ from django.db.models import Q
 
 from dcim.choices import LinkStatusChoices
 from extras.filters import TagFilter
+from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 
@@ -34,8 +36,19 @@ class WirelessLANFilterSet(PrimaryModelFilterSet):
         method='search',
         label='Search',
     )
-    group_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=WirelessLANGroup.objects.all()
+    group_id = TreeNodeMultipleChoiceFilter(
+        queryset=WirelessLANGroup.objects.all(),
+        field_name='group',
+        lookup_expr='in'
+    )
+    group = TreeNodeMultipleChoiceFilter(
+        queryset=WirelessLANGroup.objects.all(),
+        field_name='group',
+        lookup_expr='in',
+        to_field_name='slug'
+    )
+    vlan_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VLAN.objects.all()
     )
     auth_type = django_filters.MultipleChoiceFilter(
         choices=WirelessAuthTypeChoices

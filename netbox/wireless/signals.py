@@ -63,5 +63,4 @@ def nullify_connected_interfaces(instance, **kwargs):
 
     # Delete and retrace any dependent cable paths
     for cablepath in CablePath.objects.filter(path__contains=instance):
-        print(f'Deleting cable path {cablepath.pk}')
         cablepath.delete()

@@ -36,6 +36,7 @@ class WirelessLANCSVForm(CustomFieldModelCSVForm):
     )
     vlan = CSVModelChoiceField(
         queryset=VLAN.objects.all(),
+        required=False,
         to_field_name='name',
         help_text='Bridged VLAN'
     )

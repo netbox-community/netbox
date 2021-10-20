@@ -10,6 +10,7 @@ from wireless.models import *
 from .nested_serializers import *
 
 __all__ = (
+    'WirelessLANGroupSerializer',
     'WirelessLANSerializer',
     'WirelessLinkSerializer',
 )
@@ -17,7 +18,7 @@ __all__ = (
 
 class WirelessLANGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslangroup-detail')
-    parent = NestedWirelessLANGroupSerializer(required=False, allow_null=True)
+    parent = NestedWirelessLANGroupSerializer(required=False, allow_null=True, default=None)
     wirelesslan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -30,6 +31,7 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
 
 class WirelessLANSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslan-detail')
+    group = NestedWirelessLANGroupSerializer(required=False, allow_null=True)
     vlan = NestedVLANSerializer(required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
     auth_cipher = ChoiceField(choices=WirelessAuthCipherChoices, required=False, allow_blank=True)
@@ -37,7 +39,7 @@ class WirelessLANSerializer(PrimaryModelSerializer):
     class Meta:
         model = WirelessLAN
         fields = [
-            'id', 'url', 'display', 'ssid', 'description', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk',
+            'id', 'url', 'display', 'ssid', 'description', 'group', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk',
         ]
 
 

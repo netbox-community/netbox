@@ -5,11 +5,11 @@ from .types import *
 
 
 class WirelessQuery(graphene.ObjectType):
-    wirelesslan = ObjectField(WirelessLANType)
-    wirelesslan_list = ObjectListField(WirelessLANType)
+    wireless_lan = ObjectField(WirelessLANType)
+    wireless_lan_list = ObjectListField(WirelessLANType)
 
-    wirelesslangroup = ObjectField(WirelessLANGroupType)
-    wirelesslangroup_list = ObjectListField(WirelessLANGroupType)
+    wireless_lan_group = ObjectField(WirelessLANGroupType)
+    wireless_lan_group_list = ObjectListField(WirelessLANGroupType)
 
-    wirelesslink = ObjectField(WirelessLinkType)
-    wirelesslink_list = ObjectListField(WirelessLinkType)
+    wireless_link = ObjectField(WirelessLinkType)
+    wireless_link_list = ObjectListField(WirelessLinkType)

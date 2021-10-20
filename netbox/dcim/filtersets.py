@@ -14,6 +14,7 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
+from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
 from .choices import *
 from .constants import *
 from .models import *
@@ -987,12 +988,18 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         choices=InterfaceTypeChoices,
         null_value=None
     )
+    rf_role = django_filters.MultipleChoiceFilter(
+        choices=WirelessRoleChoices
+    )
+    rf_channel = django_filters.MultipleChoiceFilter(
+        choices=WirelessChannelChoices
+    )
 
     class Meta:
         model = Interface
         fields = [
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'rf_role', 'rf_channel',
-            'rf_channel_width', 'description',
+            'rf_channel_frequency', 'rf_channel_width', 'description',
         ]
 
     def filter_device(self, queryset, name, value):
