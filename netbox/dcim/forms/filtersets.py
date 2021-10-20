@@ -957,9 +957,14 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label', 'type', 'enabled', 'mgmt_only', 'mac_address'],
+        ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
+    kind = forms.MultipleChoiceField(
+        choices=InterfaceKindChoices,
+        required=False,
+        widget=StaticSelectMultiple()
+    )
     type = forms.MultipleChoiceField(
         choices=InterfaceTypeChoices,
         required=False,

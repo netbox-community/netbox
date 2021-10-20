@@ -197,9 +197,15 @@ table {
         text-decoration: underline;
       }
     }
+    .dropdown {
+      // Presence of 'overflow: scroll' on a table causes dropdowns to be improperly hidden when
+      // opened. See: https://github.com/twbs/bootstrap/issues/24251
+      position: static;
+    }
   }
   th {
-    a, a:hover {
+    a,
+    a:hover {
       color: $body-color;
       text-decoration: none;
     }

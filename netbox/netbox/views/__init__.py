@@ -137,7 +137,7 @@ class HomeView(View):
                 release_version, release_url = latest_release
                 if release_version > version.parse(settings.VERSION):
                     new_release = {
-                        'version': str(latest_release),
+                        'version': str(release_version),
                         'url': release_url,
                     }
 

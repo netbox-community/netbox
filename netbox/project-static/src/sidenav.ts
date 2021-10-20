@@ -266,10 +266,8 @@ class SideNav {
       for (const link of this.getActiveLinks()) {
         this.activateLink(link, 'collapse');
       }
-      setTimeout(() => {
-        this.bodyRemove('hide');
-        this.bodyAdd('hidden');
-      }, 300);
+      this.bodyRemove('hide');
+      this.bodyAdd('hidden');
     }
   }
 
