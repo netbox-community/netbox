@@ -436,6 +436,116 @@ class DeviceTypeTestCase(
         }
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_consoleports(self):
+        devicetype = DeviceType.objects.first()
+        console_ports = (
+            ConsolePortTemplate(device_type=devicetype, name='Console Port 1'),
+            ConsolePortTemplate(device_type=devicetype, name='Console Port 2'),
+            ConsolePortTemplate(device_type=devicetype, name='Console Port 3'),
+        )
+        ConsolePortTemplate.objects.bulk_create(console_ports)
+
+        url = reverse('dcim:devicetype_consoleports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_consoleserverports(self):
+        devicetype = DeviceType.objects.first()
+        console_server_ports = (
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port 1'),
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port 2'),
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port 3'),
+        )
+        ConsoleServerPortTemplate.objects.bulk_create(console_server_ports)
+
+        url = reverse('dcim:devicetype_consoleserverports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_powerports(self):
+        devicetype = DeviceType.objects.first()
+        power_ports = (
+            PowerPortTemplate(device_type=devicetype, name='Power Port 1'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port 2'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port 3'),
+        )
+        PowerPortTemplate.objects.bulk_create(power_ports)
+
+        url = reverse('dcim:devicetype_powerports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_poweroutlets(self):
+        devicetype = DeviceType.objects.first()
+        power_outlets = (
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet 1'),
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet 2'),
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet 3'),
+        )
+        PowerOutletTemplate.objects.bulk_create(power_outlets)
+
+        url = reverse('dcim:devicetype_poweroutlets', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_interfaces(self):
+        devicetype = DeviceType.objects.first()
+        interfaces = (
+            InterfaceTemplate(device_type=devicetype, name='Interface 1'),
+            InterfaceTemplate(device_type=devicetype, name='Interface 2'),
+            InterfaceTemplate(device_type=devicetype, name='Interface 3'),
+        )
+        InterfaceTemplate.objects.bulk_create(interfaces)
+
+        url = reverse('dcim:devicetype_interfaces', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_rearports(self):
+        devicetype = DeviceType.objects.first()
+        rear_ports = (
+            RearPortTemplate(device_type=devicetype, name='Rear Port 1'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 2'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+
+        url = reverse('dcim:devicetype_rearports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_frontports(self):
+        devicetype = DeviceType.objects.first()
+        rear_ports = (
+            RearPortTemplate(device_type=devicetype, name='Rear Port 1'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 2'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPortTemplate(device_type=devicetype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
+            FrontPortTemplate(device_type=devicetype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
+            FrontPortTemplate(device_type=devicetype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+
+        url = reverse('dcim:devicetype_frontports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_devicebays(self):
+        devicetype = DeviceType.objects.first()
+        device_bays = (
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 1'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 2'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 3'),
+        )
+        DeviceBayTemplate.objects.bulk_create(device_bays)
+
+        url = reverse('dcim:devicetype_devicebays', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
         """
         Custom import test for YAML-based imports (versus CSV)

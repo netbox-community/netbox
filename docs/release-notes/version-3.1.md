@@ -24,6 +24,7 @@ When assigning a contact to an object, the user must select a predefined role (e
 * [#6715](https://github.com/netbox-community/netbox/issues/6715) - Add tenant assignment for cables
 * [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations
 * [#7354](https://github.com/netbox-community/netbox/issues/7354) - Relax uniqueness constraints on region, site group, and location names
+* [#7530](https://github.com/netbox-community/netbox/issues/7530) - Move device type component lists to separate views
 
 ### Other Changes
 

@@ -54,9 +54,17 @@ class DeviceComponentsView(generic.ObjectView):
         paginate_table(table, request)
 
         return {
-            f'{self.model._meta.model_name}_table': table,
+            'table': table,
             'active_tab': f"{self.model._meta.verbose_name_plural.replace(' ', '-')}",
         }
+
+
+class DeviceTypeComponentsView(DeviceComponentsView):
+    queryset = DeviceType.objects.all()
+    template_name = 'dcim/devicetype/component_templates.html'
+
+    def get_components(self, request, instance):
+        return self.model.objects.restrict(request.user, 'view').filter(device_type=instance)
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -782,60 +790,50 @@ class DeviceTypeView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         instance_count = Device.objects.restrict(request.user).filter(device_type=instance).count()
 
-        # Component tables
-        consoleport_table = tables.ConsolePortTemplateTable(
-            ConsolePortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        consoleserverport_table = tables.ConsoleServerPortTemplateTable(
-            ConsoleServerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        powerport_table = tables.PowerPortTemplateTable(
-            PowerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        poweroutlet_table = tables.PowerOutletTemplateTable(
-            PowerOutletTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        interface_table = tables.InterfaceTemplateTable(
-            list(InterfaceTemplate.objects.restrict(request.user, 'view').filter(device_type=instance)),
-            orderable=False
-        )
-        front_port_table = tables.FrontPortTemplateTable(
-            FrontPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        rear_port_table = tables.RearPortTemplateTable(
-            RearPortTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        devicebay_table = tables.DeviceBayTemplateTable(
-            DeviceBayTemplate.objects.restrict(request.user, 'view').filter(device_type=instance),
-            orderable=False
-        )
-        if request.user.has_perm('dcim.change_devicetype'):
-            consoleport_table.columns.show('pk')
-            consoleserverport_table.columns.show('pk')
-            powerport_table.columns.show('pk')
-            poweroutlet_table.columns.show('pk')
-            interface_table.columns.show('pk')
-            front_port_table.columns.show('pk')
-            rear_port_table.columns.show('pk')
-            devicebay_table.columns.show('pk')
-
         return {
             'instance_count': instance_count,
-            'consoleport_table': consoleport_table,
-            'consoleserverport_table': consoleserverport_table,
-            'powerport_table': powerport_table,
-            'poweroutlet_table': poweroutlet_table,
-            'interface_table': interface_table,
-            'front_port_table': front_port_table,
-            'rear_port_table': rear_port_table,
-            'devicebay_table': devicebay_table,
+            'active_tab': 'devicetype',
         }
+
+
+class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
+    model = ConsolePortTemplate
+    table = tables.ConsolePortTemplateTable
+
+
+class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
+    model = ConsoleServerPortTemplate
+    table = tables.ConsoleServerPortTemplateTable
+
+
+class DeviceTypePowerPortsView(DeviceTypeComponentsView):
+    model = PowerPortTemplate
+    table = tables.PowerPortTemplateTable
+
+
+class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
+    model = PowerOutletTemplate
+    table = tables.PowerOutletTemplateTable
+
+
+class DeviceTypeInterfacesView(DeviceTypeComponentsView):
+    model = InterfaceTemplate
+    table = tables.InterfaceTemplateTable
+
+
+class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
+    model = FrontPortTemplate
+    table = tables.FrontPortTemplateTable
+
+
+class DeviceTypeRearPortsView(DeviceTypeComponentsView):
+    model = RearPortTemplate
+    table = tables.RearPortTemplateTable
+
+
+class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
+    model = DeviceBayTemplate
+    table = tables.DeviceBayTemplateTable
 
 
 class DeviceTypeEditView(generic.ObjectEditView):
