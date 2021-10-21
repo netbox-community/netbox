@@ -1,0 +1,33 @@
+{% extends 'generic/object_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+  <div class="row">
+    <div class="col">
+      <div class="field-group">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Side A</h5>
+        </div>
+        {% render_field form.device_a %}
+        {% render_field form.interface_a %}
+      </div>
+    </div>
+    <div class="col">
+      <div class="field-group">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Side B</h5>
+        </div>
+        {% render_field form.device_b %}
+        {% render_field form.interface_b %}
+      </div>
+    </div>
+  </div>
+  {% if form.custom_fields %}
+    <div class="field-group my-5">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Custom Fields</h5>
+      </div>
+      {% render_custom_fields form %}
+    </div>
+  {% endif %}
+{% endblock %}

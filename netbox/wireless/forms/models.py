@@ -1,4 +1,4 @@
-from dcim.models import Device, Interface
+from dcim.models import Device, Interface, Location, Site
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
@@ -64,10 +64,30 @@ class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
+    site_a = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label='Site',
+        initial_params={
+            'devices': '$device_a',
+        }
+    )
+    location_a = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label='Location',
+        initial_params={
+            'devices': '$device_a',
+        }
+    )
     device_a = DynamicModelChoiceField(
         queryset=Device.objects.all(),
+        query_params={
+            'site_id': '$site_a',
+            'location_id': '$location_a',
+        },
         required=False,
-        label='Device A',
+        label='Device',
         initial_params={
             'interfaces': '$interface_a'
         }
@@ -79,12 +99,32 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
             'device_id': '$device_a',
         },
         disabled_indicator='_occupied',
-        label='Interface A'
+        label='Interface'
+    )
+    site_b = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label='Site',
+        initial_params={
+            'devices': '$device_b',
+        }
+    )
+    location_b = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label='Location',
+        initial_params={
+            'devices': '$device_b',
+        }
     )
     device_b = DynamicModelChoiceField(
         queryset=Device.objects.all(),
+        query_params={
+            'site_id': '$site_b',
+            'location_id': '$location_b',
+        },
         required=False,
-        label='Device B',
+        label='Device',
         initial_params={
             'interfaces': '$interface_b'
         }
@@ -96,7 +136,7 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
             'device_id': '$device_b',
         },
         disabled_indicator='_occupied',
-        label='Interface B'
+        label='Interface'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -106,15 +146,21 @@ class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = WirelessLink
         fields = [
-            'device_a', 'interface_a', 'device_b', 'interface_b', 'status', 'ssid', 'description', 'auth_type',
-            'auth_cipher', 'auth_psk', 'tags',
+            'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
+            'status', 'ssid', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
         ]
         fieldsets = (
-            ('Link', ('device_a', 'interface_a', 'device_b', 'interface_b', 'status', 'ssid', 'description', 'tags')),
+            ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
+            ('Side B', ('site_b', 'location_b', 'device_b', 'interface_b')),
+            ('Link', ('status', 'ssid', 'description', 'tags')),
             ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
         )
         widgets = {
             'status': StaticSelect,
             'auth_type': StaticSelect,
             'auth_cipher': StaticSelect,
+        }
+        labels = {
+            'auth_type': 'Type',
+            'auth_cipher': 'Cipher',
         }

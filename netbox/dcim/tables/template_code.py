@@ -236,8 +236,8 @@ INTERFACE_BUTTONS = """
         <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
     {% endif %}
 {% elif record.is_wireless and perms.wireless.add_wirelesslink %}
-    <a href="{% url 'wireless:wirelesslink_add' %}?interface_a={{ record.pk }}" class="btn btn-success btn-sm">
-        <span class="mdi mdi-wifi" aria-hidden="true"></span>
+    <a href="{% url 'wireless:wirelesslink_add' %}?site_a={{ record.device.site.pk }}&location_a={{ record.device.location.pk }}&device_a={{ record.device.pk }}&interface_a={{ record.pk }}&site_b={{ record.device.site.pk }}&location_b={{ record.device.location.pk }}" class="btn btn-success btn-sm">
+        <span class="mdi mdi-wifi-plus" aria-hidden="true"></span>
     </a>
 {% endif %}
 """
