@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('dcim', '0137_rename_cable_peer'),
+        ('dcim', '0139_rename_cable_peer'),
         ('extras', '0062_clear_secrets_changelog'),
         ('ipam', '0050_iprange'),
     ]
@@ -26,6 +26,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
+                ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
                 ('lft', models.PositiveIntegerField(editable=False)),
                 ('rght', models.PositiveIntegerField(editable=False)),
                 ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),

@@ -40,6 +40,11 @@ class PowerPanel(PrimaryModel):
     name = models.CharField(
         max_length=100
     )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )

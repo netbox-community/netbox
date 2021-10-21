@@ -29,11 +29,14 @@ class RegionTable(BaseTable):
         url_params={'region_id': 'pk'},
         verbose_name='Sites'
     )
+    tags = TagColumn(
+        url_name='dcim:region_list'
+    )
     actions = ButtonsColumn(Region)
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'name', 'slug', 'site_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
 
 
@@ -51,11 +54,14 @@ class SiteGroupTable(BaseTable):
         url_params={'group_id': 'pk'},
         verbose_name='Sites'
     )
+    tags = TagColumn(
+        url_name='dcim:sitegroup_list'
+    )
     actions = ButtonsColumn(SiteGroup)
 
     class Meta(BaseTable.Meta):
         model = SiteGroup
-        fields = ('pk', 'name', 'slug', 'site_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'site_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
 
 
@@ -114,6 +120,9 @@ class LocationTable(BaseTable):
         url_params={'location_id': 'pk'},
         verbose_name='Devices'
     )
+    tags = TagColumn(
+        url_name='dcim:location_list'
+    )
     actions = ButtonsColumn(
         model=Location,
         prepend_template=LOCATION_ELEVATIONS
@@ -121,5 +130,7 @@ class LocationTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Location
-        fields = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'actions')
+        fields = (
+            'pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'slug', 'tags', 'actions',
+        )
         default_columns = ('pk', 'name', 'site', 'tenant', 'rack_count', 'device_count', 'description', 'actions')

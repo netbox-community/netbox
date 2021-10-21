@@ -1199,7 +1199,7 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(PrimaryModelFilterSet):
+class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1239,14 +1239,6 @@ class CableFilterSet(PrimaryModelFilterSet):
     site = MultiValueNumberFilter(
         method='filter_device',
         field_name='device__site__slug'
-    )
-    tenant_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__tenant_id'
-    )
-    tenant = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__tenant__slug'
     )
     tag = TagFilter()
 

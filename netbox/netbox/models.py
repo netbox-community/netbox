@@ -143,6 +143,18 @@ class CustomValidationMixin(models.Model):
         post_clean.send(sender=self.__class__, instance=self)
 
 
+class TagsMixin(models.Model):
+    """
+    Enable the assignment of Tags.
+    """
+    tags = TaggableManager(
+        through='extras.TaggedItem'
+    )
+
+    class Meta:
+        abstract = True
+
+
 #
 # Base model classes
 
@@ -166,7 +178,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
         abstract = True
 
 
-class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, BigIDModel):
+class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
@@ -175,15 +187,12 @@ class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin,
         object_id_field='assigned_object_id',
         content_type_field='assigned_object_type'
     )
-    tags = TaggableManager(
-        through='extras.TaggedItem'
-    )
 
     class Meta:
         abstract = True
 
 
-class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, BigIDModel, MPTTModel):
+class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -225,7 +234,7 @@ class NestedGroupModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMi
             })
 
 
-class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, BigIDModel):
+class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin, TagsMixin, BigIDModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational

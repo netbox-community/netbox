@@ -5,9 +5,7 @@ from circuits.models import *
 from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
 from dcim.api.serializers import LinkTerminationSerializer
 from netbox.api import ChoiceField
-from netbox.api.serializers import (
-    OrganizationalModelSerializer, PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
-)
+from netbox.api.serializers import PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from .nested_serializers import *
 
@@ -48,14 +46,14 @@ class ProviderNetworkSerializer(PrimaryModelSerializer):
 # Circuits
 #
 
-class CircuitTypeSerializer(OrganizationalModelSerializer):
+class CircuitTypeSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
     circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CircuitType
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'circuit_count',
         ]
 

@@ -105,6 +105,11 @@
   // Navbar brand
   .sidenav-brand {
     margin-right: 0;
+    transition: opacity 0.1s ease-in-out;
+  }
+
+  .sidenav-brand-icon {
+    transition: opacity 0.1s ease-in-out;
   }
 
   .sidenav-inner {
@@ -141,7 +146,17 @@
   }
 
   .sidenav-toggle {
-    display: none;
+    // The sidenav toggle's default state is "hidden". Because modifying the `display` property
+    // isn't ideal for smooth transitions, combine opacity 0 (transparent) and position absolute
+    // to yield a similar result.
+    position: absolute;
+    display: inline-block;
+    opacity: 0;
+    // The transition itself is largely irrelevant, but CSS needs *something* to transition in
+    // order to apply a delay.
+    transition: opacity 10ms ease-in-out;
+    // Offset the transition delay so the icon isn't visible during the logo transition.
+    transition-delay: 0.1s;
   }
 
   .sidenav-collapse {
@@ -350,11 +365,19 @@
   .sidenav-brand {
     position: absolute;
     opacity: 0;
-    transform: translateX(-150%);
   }
 
   .sidenav-brand-icon {
     opacity: 1;
+  }
+
+  .sidenav-toggle {
+    // Immediately hide the toggle when the sidenav is closed, so it doesn't linger and overlap
+    // with the logo elements.
+    opacity: 0;
+    position: absolute;
+    transition: unset;
+    transition-delay: 0ms;
   }
 
   .navbar-nav > .nav-item {
@@ -402,7 +425,8 @@
 
   @include media-breakpoint-up(lg) {
     .sidenav-toggle {
-      display: inline-block;
+      position: relative;
+      opacity: 1;
     }
   }
 }

@@ -48,7 +48,7 @@ class RouteTargetViewSet(CustomFieldModelViewSet):
 class RIRViewSet(CustomFieldModelViewSet):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.RIRSerializer
     filterset_class = filtersets.RIRFilterSet
 
@@ -71,7 +71,7 @@ class RoleViewSet(CustomFieldModelViewSet):
     queryset = Role.objects.annotate(
         prefix_count=count_related(Prefix, 'role'),
         vlan_count=count_related(VLAN, 'role')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.RoleSerializer
     filterset_class = filtersets.RoleFilterSet
 
@@ -126,7 +126,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 class VLANGroupViewSet(CustomFieldModelViewSet):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filtersets.VLANGroupFilterSet
 

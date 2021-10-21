@@ -36,7 +36,7 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -52,6 +52,11 @@ class Manufacturer(OrganizationalModel):
     description = models.CharField(
         max_length=200,
         blank=True
+    )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     objects = RestrictedQuerySet.as_manager()
@@ -346,7 +351,7 @@ class DeviceType(PrimaryModel):
 # Devices
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -386,7 +391,7 @@ class DeviceRole(OrganizationalModel):
         return reverse('dcim:devicerole', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
@@ -583,6 +588,11 @@ class Device(PrimaryModel, ConfigContextModel):
     )
     comments = models.TextField(
         blank=True
+    )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'

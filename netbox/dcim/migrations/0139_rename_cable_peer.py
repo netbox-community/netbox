@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0136_device_airflow'),
+        ('dcim', '0138_extend_tag_support'),
     ]
 
     operations = [

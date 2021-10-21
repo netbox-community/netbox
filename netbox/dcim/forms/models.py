@@ -71,11 +71,15 @@ class RegionForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug', 'description',
+            'parent', 'name', 'slug', 'description', 'tags',
         )
 
 
@@ -85,11 +89,15 @@ class SiteGroupForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = SiteGroup
         fields = (
-            'parent', 'name', 'slug', 'description',
+            'parent', 'name', 'slug', 'description', 'tags',
         )
 
 
@@ -188,15 +196,19 @@ class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Location
         fields = (
-            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant',
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant', 'tags',
         )
         fieldsets = (
             ('Location', (
-                'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description',
+                'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tags',
             )),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
@@ -204,11 +216,15 @@ class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 class RackRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = RackRole
         fields = [
-            'name', 'slug', 'color', 'description',
+            'name', 'slug', 'color', 'description', 'tags',
         ]
 
 
@@ -344,11 +360,15 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 class ManufacturerForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug', 'description',
+            'name', 'slug', 'description', 'tags',
         ]
 
 
@@ -393,11 +413,15 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
 
 class DeviceRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role', 'description',
+            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
         ]
 
 
@@ -409,11 +433,15 @@ class PlatformForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField(
         max_length=64
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description',
+            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags',
         ]
         widgets = {
             'napalm_args': SmallTextarea(),
@@ -602,7 +630,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
-class CableForm(BootstrapMixin, CustomFieldModelForm):
+class CableForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -611,7 +639,7 @@ class CableForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Cable
         fields = [
-            'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
+            'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
             'status': StaticSelect,

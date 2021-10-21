@@ -42,7 +42,7 @@ class WirelessAuthenticationBase(models.Model):
         abstract = True
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class WirelessLANGroup(NestedGroupModel):
     """
     A nested grouping of WirelessLANs

@@ -28,22 +28,30 @@ __all__ = (
 
 class ClusterTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ClusterType
-        fields = [
-            'name', 'slug', 'description',
-        ]
+        fields = (
+            'name', 'slug', 'description', 'tags',
+        )
 
 
 class ClusterGroupForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ClusterGroup
-        fields = [
-            'name', 'slug', 'description',
-        ]
+        fields = (
+            'name', 'slug', 'description', 'tags',
+        )
 
 
 class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):

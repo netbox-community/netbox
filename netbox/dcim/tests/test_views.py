@@ -31,11 +31,14 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for region in regions:
             region.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Region X',
             'slug': 'region-x',
             'parent': regions[2].pk,
             'description': 'A new region',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -65,11 +68,14 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for sitegroup in sitegroups:
             sitegroup.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Site Group X',
             'slug': 'site-group-x',
             'parent': sitegroups[2].pk,
             'description': 'A new site group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -169,12 +175,15 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for location in locations:
             location.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Location X',
             'slug': 'location-x',
             'site': site.pk,
             'tenant': tenant.pk,
             'description': 'A new location',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -201,11 +210,14 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             RackRole(name='Rack Role 3', slug='rack-role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Rack Role X',
             'slug': 'rack-role-x',
             'color': 'c0c0c0',
             'description': 'New role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -368,10 +380,13 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Manufacturer X',
             'slug': 'manufacturer-x',
             'description': 'A new manufacturer',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -434,6 +449,116 @@ class DeviceTypeTestCase(
             'u_height': 3,
             'is_full_depth': False,
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_consoleports(self):
+        devicetype = DeviceType.objects.first()
+        console_ports = (
+            ConsolePortTemplate(device_type=devicetype, name='Console Port 1'),
+            ConsolePortTemplate(device_type=devicetype, name='Console Port 2'),
+            ConsolePortTemplate(device_type=devicetype, name='Console Port 3'),
+        )
+        ConsolePortTemplate.objects.bulk_create(console_ports)
+
+        url = reverse('dcim:devicetype_consoleports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_consoleserverports(self):
+        devicetype = DeviceType.objects.first()
+        console_server_ports = (
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port 1'),
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port 2'),
+            ConsoleServerPortTemplate(device_type=devicetype, name='Console Server Port 3'),
+        )
+        ConsoleServerPortTemplate.objects.bulk_create(console_server_ports)
+
+        url = reverse('dcim:devicetype_consoleserverports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_powerports(self):
+        devicetype = DeviceType.objects.first()
+        power_ports = (
+            PowerPortTemplate(device_type=devicetype, name='Power Port 1'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port 2'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port 3'),
+        )
+        PowerPortTemplate.objects.bulk_create(power_ports)
+
+        url = reverse('dcim:devicetype_powerports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_poweroutlets(self):
+        devicetype = DeviceType.objects.first()
+        power_outlets = (
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet 1'),
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet 2'),
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet 3'),
+        )
+        PowerOutletTemplate.objects.bulk_create(power_outlets)
+
+        url = reverse('dcim:devicetype_poweroutlets', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_interfaces(self):
+        devicetype = DeviceType.objects.first()
+        interfaces = (
+            InterfaceTemplate(device_type=devicetype, name='Interface 1'),
+            InterfaceTemplate(device_type=devicetype, name='Interface 2'),
+            InterfaceTemplate(device_type=devicetype, name='Interface 3'),
+        )
+        InterfaceTemplate.objects.bulk_create(interfaces)
+
+        url = reverse('dcim:devicetype_interfaces', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_rearports(self):
+        devicetype = DeviceType.objects.first()
+        rear_ports = (
+            RearPortTemplate(device_type=devicetype, name='Rear Port 1'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 2'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+
+        url = reverse('dcim:devicetype_rearports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_frontports(self):
+        devicetype = DeviceType.objects.first()
+        rear_ports = (
+            RearPortTemplate(device_type=devicetype, name='Rear Port 1'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 2'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPortTemplate(device_type=devicetype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
+            FrontPortTemplate(device_type=devicetype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
+            FrontPortTemplate(device_type=devicetype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+
+        url = reverse('dcim:devicetype_frontports', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_devicebays(self):
+        devicetype = DeviceType.objects.first()
+        device_bays = (
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 1'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 2'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 3'),
+        )
+        DeviceBayTemplate.objects.bulk_create(device_bays)
+
+        url = reverse('dcim:devicetype_devicebays', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
@@ -924,12 +1049,15 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Devie Role X',
             'slug': 'device-role-x',
             'color': 'c0c0c0',
             'vm_role': False,
             'description': 'New device role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -959,6 +1087,8 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturer),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Platform X',
             'slug': 'platform-x',
@@ -966,6 +1096,7 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'napalm_driver': 'junos',
             'napalm_args': None,
             'description': 'A new platform',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

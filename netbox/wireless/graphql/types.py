@@ -1,5 +1,5 @@
 from wireless import filtersets, models
-from netbox.graphql.types import ObjectType, PrimaryObjectType
+from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'WirelessLANType',
@@ -8,7 +8,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupType(ObjectType):
+class WirelessLANGroupType(OrganizationalObjectType):
 
     class Meta:
         model = models.WirelessLANGroup

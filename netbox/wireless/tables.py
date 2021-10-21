@@ -23,11 +23,14 @@ class WirelessLANGroupTable(BaseTable):
         url_params={'group_id': 'pk'},
         verbose_name='Wireless LANs'
     )
+    tags = TagColumn(
+        url_name='wireless:wirelesslangroup_list'
+    )
     actions = ButtonsColumn(WirelessLANGroup)
 
     class Meta(BaseTable.Meta):
         model = WirelessLANGroup
-        fields = ('pk', 'name', 'wirelesslan_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'wirelesslan_count', 'description', 'slug', 'tags', 'actions')
         default_columns = ('pk', 'name', 'wirelesslan_count', 'description', 'actions')
 
 

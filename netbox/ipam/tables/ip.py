@@ -85,11 +85,14 @@ class RIRTable(BaseTable):
         url_params={'rir_id': 'pk'},
         verbose_name='Aggregates'
     )
+    tags = TagColumn(
+        url_name='ipam:rir_list'
+    )
     actions = ButtonsColumn(RIR)
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
 
 
@@ -144,11 +147,14 @@ class RoleTable(BaseTable):
         url_params={'role_id': 'pk'},
         verbose_name='VLANs'
     )
+    tags = TagColumn(
+        url_name='ipam:role_list'
+    )
     actions = ButtonsColumn(Role)
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'actions')
+        fields = ('pk', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'actions')
         default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
 
 
@@ -260,11 +266,16 @@ class IPRangeTable(BaseTable):
         linkify=True
     )
     tenant = TenantColumn()
+    utilization = UtilizationColumn(
+        accessor='utilization',
+        orderable=False
+    )
 
     class Meta(BaseTable.Meta):
         model = IPRange
         fields = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
+            'utilization',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',

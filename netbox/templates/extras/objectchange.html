@@ -130,12 +130,12 @@
             </h5>
             <div class="card-body">
                 {% if object.postchange_data %}
-                <pre class="change-data">{% for k, v in object.postchange_data.items %}{% spaceless %}
-                    <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|render_json }}</span>
-                    {% endspaceless %}{% endfor %}
-                </pre>
+                    <pre class="change-data">{% for k, v in object.postchange_data.items %}{% spaceless %}
+                        <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|render_json }}</span>
+                        {% endspaceless %}{% endfor %}
+                    </pre>
                 {% else %}
-                <span class="text-muted">None</span>
+                    <span class="text-muted">None</span>
                 {% endif %}
             </div>
         </div>

@@ -20,11 +20,15 @@ class WirelessLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = WirelessLANGroup
         fields = [
-            'parent', 'name', 'slug', 'description',
+            'parent', 'name', 'slug', 'description', 'tags',
         ]
 
 

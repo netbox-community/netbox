@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0002_squashed_0029'),
+        ('circuits', '0003_extend_tag_support'),
     ]
 
     operations = [

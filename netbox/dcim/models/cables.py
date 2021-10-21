@@ -67,6 +67,13 @@ class Cable(PrimaryModel):
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='cables',
+        blank=True,
+        null=True
+    )
     label = models.CharField(
         max_length=100,
         blank=True

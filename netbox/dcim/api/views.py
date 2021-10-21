@@ -110,7 +110,7 @@ class RegionViewSet(CustomFieldModelViewSet):
         'region',
         'site_count',
         cumulative=True
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.RegionSerializer
     filterset_class = filtersets.RegionFilterSet
 
@@ -126,7 +126,7 @@ class SiteGroupViewSet(CustomFieldModelViewSet):
         'group',
         'site_count',
         cumulative=True
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.SiteGroupSerializer
     filterset_class = filtersets.SiteGroupFilterSet
 
@@ -167,7 +167,7 @@ class LocationViewSet(CustomFieldModelViewSet):
         'location',
         'rack_count',
         cumulative=True
-    ).prefetch_related('site')
+    ).prefetch_related('site', 'tags')
     serializer_class = serializers.LocationSerializer
     filterset_class = filtersets.LocationFilterSet
 
@@ -177,7 +177,7 @@ class LocationViewSet(CustomFieldModelViewSet):
 #
 
 class RackRoleViewSet(CustomFieldModelViewSet):
-    queryset = RackRole.objects.annotate(
+    queryset = RackRole.objects.prefetch_related('tags').annotate(
         rack_count=count_related(Rack, 'role')
     )
     serializer_class = serializers.RackRoleSerializer
@@ -261,7 +261,7 @@ class RackReservationViewSet(ModelViewSet):
 #
 
 class ManufacturerViewSet(CustomFieldModelViewSet):
-    queryset = Manufacturer.objects.annotate(
+    queryset = Manufacturer.objects.prefetch_related('tags').annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
@@ -340,7 +340,7 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 #
 
 class DeviceRoleViewSet(CustomFieldModelViewSet):
-    queryset = DeviceRole.objects.annotate(
+    queryset = DeviceRole.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'device_role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
     )
@@ -353,7 +353,7 @@ class DeviceRoleViewSet(CustomFieldModelViewSet):
 #
 
 class PlatformViewSet(CustomFieldModelViewSet):
-    queryset = Platform.objects.annotate(
+    queryset = Platform.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')
     )

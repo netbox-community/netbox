@@ -68,11 +68,13 @@
         </table>
       </div>
     </div>
+    {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}
   </div>
 	<div class="col col-md-6">
-    {% include 'inc/custom_fields_panel.html' %}
-    {% include 'inc/image_attachments_panel.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
+    {% include 'inc/panels/contacts.html' %}
+    {% include 'inc/panels/image_attachments.html' %}
     {% plugin_right_page object %}
 	</div>
 </div>

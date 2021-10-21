@@ -22,10 +22,13 @@ class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             ClusterGroup(name='Cluster Group 3', slug='cluster-group-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Cluster Group X',
             'slug': 'cluster-group-x',
             'description': 'A new cluster group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -52,10 +55,13 @@ class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             ClusterType(name='Cluster Type 3', slug='cluster-type-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Cluster Type X',
             'slug': 'cluster-type-x',
             'description': 'A new cluster type',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

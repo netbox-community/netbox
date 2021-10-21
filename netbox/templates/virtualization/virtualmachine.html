@@ -89,9 +89,9 @@
                 </table>
             </div>
         </div>
-        {% include 'inc/custom_fields_panel.html' %}
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='virtualization:virtualmachine_list' %}
-        {% include 'inc/comments_panel.html' %}
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' %}
+        {% include 'inc/panels/comments.html' %}
         {% plugin_left_page object %}
     </div>
 	<div class="col col-md-6">
@@ -173,6 +173,7 @@
                 </div>
             {% endif %}
         </div>
+        {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>
 </div>

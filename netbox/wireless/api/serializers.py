@@ -24,8 +24,8 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
     class Meta:
         model = WirelessLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
-            'wirelesslan_count', '_depth',
+            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'wirelesslan_count', '_depth',
         ]
 
 

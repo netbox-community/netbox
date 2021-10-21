@@ -82,6 +82,9 @@ class CircuitTypeTable(BaseTable):
     name = tables.Column(
         linkify=True
     )
+    tags = TagColumn(
+        url_name='circuits:circuittype_list'
+    )
     circuit_count = tables.Column(
         verbose_name='Circuits'
     )
@@ -89,7 +92,7 @@ class CircuitTypeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = CircuitType
-        fields = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'circuit_count', 'description', 'slug', 'tags', 'actions')
         default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
 
 

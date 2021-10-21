@@ -35,7 +35,7 @@ __all__ = (
 # Racks
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
@@ -175,11 +175,16 @@ class Rack(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='rack'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'

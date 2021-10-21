@@ -3,14 +3,12 @@ from collections import OrderedDict
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import *
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
-from netbox.api.serializers import OrganizationalModelSerializer
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
@@ -67,14 +65,14 @@ class RouteTargetSerializer(PrimaryModelSerializer):
 # RIRs/aggregates
 #
 
-class RIRSerializer(OrganizationalModelSerializer):
+class RIRSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
     aggregate_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RIR
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'custom_fields', 'created',
+            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'aggregate_count',
         ]
 
@@ -98,7 +96,7 @@ class AggregateSerializer(PrimaryModelSerializer):
 # VLANs
 #
 
-class RoleSerializer(OrganizationalModelSerializer):
+class RoleSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
     prefix_count = serializers.IntegerField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
@@ -106,42 +104,31 @@ class RoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = Role
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'custom_fields', 'created', 'last_updated',
-            'prefix_count', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'prefix_count', 'vlan_count',
         ]
 
 
-class VLANGroupSerializer(OrganizationalModelSerializer):
+class VLANGroupSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
             model__in=VLANGROUP_SCOPE_TYPES
         ),
-        required=False
+        required=False,
+        default=None
     )
+    scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'custom_fields',
-            'created', 'last_updated', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'vlan_count',
         ]
         validators = []
-
-    def validate(self, data):
-
-        # Validate uniqueness of name and slug if a site has been assigned.
-        if data.get('site', None):
-            for field in ['name', 'slug']:
-                validator = UniqueTogetherValidator(queryset=VLANGroup.objects.all(), fields=('site', field))
-                validator(data, self)
-
-        # Enforce model validation
-        super().validate(data)
-
-        return data
 
     def get_scope(self, obj):
         if obj.scope_id is None:
@@ -155,7 +142,7 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
 class VLANSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
     site = NestedSiteSerializer(required=False, allow_null=True)
-    group = NestedVLANGroupSerializer(required=False, allow_null=True)
+    group = NestedVLANGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
@@ -167,20 +154,6 @@ class VLANSerializer(PrimaryModelSerializer):
             'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags',
             'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
-        validators = []
-
-    def validate(self, data):
-
-        # Validate uniqueness of vid and name if a group has been assigned.
-        if data.get('group', None):
-            for field in ['vid', 'name']:
-                validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('group', field))
-                validator(data, self)
-
-        # Enforce model validation
-        super().validate(data)
-
-        return data
 
 
 #

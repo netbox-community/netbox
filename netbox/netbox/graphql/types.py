@@ -41,6 +41,7 @@ class ObjectType(
 class OrganizationalObjectType(
     ChangelogMixin,
     CustomFieldsMixin,
+    TagsMixin,
     BaseObjectType
 ):
     """

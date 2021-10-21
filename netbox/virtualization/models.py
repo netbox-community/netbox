@@ -30,7 +30,7 @@ __all__ = (
 # Cluster types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
@@ -64,7 +64,7 @@ class ClusterType(OrganizationalModel):
 # Cluster groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterGroup(OrganizationalModel):
     """
     An organizational group of Clusters.
@@ -81,11 +81,16 @@ class ClusterGroup(OrganizationalModel):
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='cluster_group'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     objects = RestrictedQuerySet.as_manager()
@@ -110,8 +115,7 @@ class Cluster(PrimaryModel):
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     type = models.ForeignKey(
         to=ClusterType,
@@ -142,11 +146,16 @@ class Cluster(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='cluster'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     objects = RestrictedQuerySet.as_manager()
@@ -157,6 +166,10 @@ class Cluster(PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = (
+            ('group', 'name'),
+            ('site', 'name'),
+        )
 
     def __str__(self):
         return self.name
@@ -266,6 +279,11 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     )
     comments = models.TextField(
         blank=True
+    )
+
+    # Generic relation
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     objects = ConfigContextModelQuerySet.as_manager()

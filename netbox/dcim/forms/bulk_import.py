@@ -828,6 +828,12 @@ class CableCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Physical medium classification'
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
     length_unit = CSVChoiceField(
         choices=CableLengthUnitChoices,
         required=False,
@@ -838,7 +844,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
         model = Cable
         fields = [
             'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
-            'status', 'label', 'color', 'length', 'length_unit',
+            'status', 'tenant', 'label', 'color', 'length', 'length_unit',
         ]
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),

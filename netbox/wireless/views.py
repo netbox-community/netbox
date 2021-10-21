@@ -17,7 +17,7 @@ class WirelessLANGroupListView(generic.ObjectListView):
         'group',
         'wirelesslan_count',
         cumulative=True
-    )
+    ).prefetch_related('tags')
     filterset = filtersets.WirelessLANGroupFilterSet
     filterset_form = forms.WirelessLANGroupFilterForm
     table = tables.WirelessLANGroupTable

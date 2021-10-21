@@ -19,11 +19,14 @@ class WirelessLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for group in groups:
             group.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Wireless LAN Group X',
             'slug': 'wireless-lan-group-x',
             'parent': groups[2].pk,
             'description': 'A new wireless LAN group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

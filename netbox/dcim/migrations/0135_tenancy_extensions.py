@@ -15,4 +15,9 @@ class Migration(migrations.Migration):
             name='tenant',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='locations', to='tenancy.tenant'),
         ),
+        migrations.AddField(
+            model_name='cable',
+            name='tenant',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='cables', to='tenancy.tenant'),
+        ),
     ]

@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class WirelessLANGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         widget=forms.MultipleHiddenInput

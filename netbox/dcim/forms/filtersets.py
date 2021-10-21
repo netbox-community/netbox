@@ -7,7 +7,6 @@ from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
 from tenancy.forms import TenancyFilterForm
-from tenancy.models import Tenant
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, BootstrapMixin, ColorField, DynamicModelMultipleChoiceField, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
@@ -692,13 +691,13 @@ class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
     tag = TagFilterField(model)
 
 
-class CableFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class CableFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cable
     field_groups = [
         ['q', 'tag'],
         ['site_id', 'rack_id', 'device_id'],
         ['type', 'status', 'color'],
-        ['tenant_id'],
+        ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
         required=False,
@@ -718,12 +717,6 @@ class CableFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
             'region_id': '$region_id'
         },
         label=_('Site'),
-        fetch_trigger='open'
-    )
-    tenant_id = DynamicModelMultipleChoiceField(
-        queryset=Tenant.objects.all(),
-        required=False,
-        label=_('Tenant'),
         fetch_trigger='open'
     )
     rack_id = DynamicModelMultipleChoiceField(
@@ -973,10 +966,15 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
+        ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
         ['rf_role', 'rf_channel', 'rf_channel_width'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
+    kind = forms.MultipleChoiceField(
+        choices=InterfaceKindChoices,
+        required=False,
+        widget=StaticSelectMultiple()
+    )
     type = forms.MultipleChoiceField(
         choices=InterfaceTypeChoices,
         required=False,

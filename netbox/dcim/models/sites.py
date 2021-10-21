@@ -25,7 +25,7 @@ __all__ = (
 # Regions
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Region(NestedGroupModel):
     """
     A region represents a geographic collection of sites. For example, you might create regions representing countries,
@@ -41,23 +41,32 @@ class Region(NestedGroupModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     slug = models.SlugField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     description = models.CharField(
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='region'
     )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
+    class Meta:
+        unique_together = (
+            ('parent', 'name'),
+            ('parent', 'slug'),
+        )
 
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
@@ -73,7 +82,7 @@ class Region(NestedGroupModel):
 # Site groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class SiteGroup(NestedGroupModel):
     """
     A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
@@ -89,23 +98,32 @@ class SiteGroup(NestedGroupModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     slug = models.SlugField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     description = models.CharField(
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='site_group'
     )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
+    class Meta:
+        unique_together = (
+            ('parent', 'name'),
+            ('parent', 'slug'),
+        )
 
     def get_absolute_url(self):
         return reverse('dcim:sitegroup', args=[self.pk])
@@ -221,11 +239,16 @@ class Site(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='site'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'
@@ -255,7 +278,7 @@ class Site(PrimaryModel):
 # Locations
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Location(NestedGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
@@ -291,11 +314,16 @@ class Location(NestedGroupModel):
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='location'
+    )
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'
@@ -305,10 +333,10 @@ class Location(NestedGroupModel):
 
     class Meta:
         ordering = ['site', 'name']
-        unique_together = [
-            ['site', 'name'],
-            ['site', 'slug'],
-        ]
+        unique_together = ([
+            ('site', 'parent', 'name'),
+            ('site', 'parent', 'slug'),
+        ])
 
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])

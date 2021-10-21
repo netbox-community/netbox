@@ -147,13 +147,6 @@ class NestedTagSerializer(WritableNestedSerializer):
 # Base model serializers
 #
 
-class OrganizationalModelSerializer(CustomFieldModelSerializer):
-    """
-    Adds support for custom fields.
-    """
-    pass
-
-
 class PrimaryModelSerializer(CustomFieldModelSerializer):
     """
     Adds support for custom fields and tags.
@@ -189,9 +182,9 @@ class PrimaryModelSerializer(CustomFieldModelSerializer):
         return instance
 
 
-class NestedGroupModelSerializer(CustomFieldModelSerializer):
+class NestedGroupModelSerializer(PrimaryModelSerializer):
     """
-    Extends OrganizationalModelSerializer to include MPTT support.
+    Extends PrimaryModelSerializer to include MPTT support.
     """
     _depth = serializers.IntegerField(source='level', read_only=True)
 

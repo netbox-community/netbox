@@ -2838,6 +2838,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
         )
         Tenant.objects.bulk_create(tenants)
 
@@ -2853,9 +2854,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1, tenant=tenants[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2, tenant=tenants[0]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1, tenant=tenants[1]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1),
             Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
             Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
             Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
@@ -2882,12 +2883,12 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         console_server_port = ConsoleServerPort.objects.create(device=devices[0], name='Console Server Port 1')
 
         # Cables
-        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, status=LinkStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, status=LinkStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
-        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(termination_a=console_port, termination_b=console_server_port, label='Cable 7').save()
 
     def test_label(self):
@@ -2940,9 +2941,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_tenant(self):
         tenant = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenant[0].pk, tenant[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenant[0].slug, tenant[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_termination_types(self):
         params = {'termination_a_type': 'dcim.consoleport'}
