@@ -570,6 +570,12 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Parent interface'
     )
+    bridge = CSVModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Bridged interface'
+    )
     lag = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -594,38 +600,10 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Interface
         fields = (
-            'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'wwn',
-            'mtu', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address',
+            'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width',
         )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit LAG choices to interfaces belonging to this device (or virtual chassis)
-        device = None
-        if self.is_bound and 'device' in self.data:
-            try:
-                device = self.fields['device'].to_python(self.data['device'])
-            except forms.ValidationError:
-                pass
-        if device and device.virtual_chassis:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                Q(device=device) | Q(device__virtual_chassis=device.virtual_chassis),
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
-            self.fields['parent'].queryset = Interface.objects.filter(
-                Q(device=device) | Q(device__virtual_chassis=device.virtual_chassis)
-            )
-        elif device:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device=device,
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
-            self.fields['parent'].queryset = Interface.objects.filter(device=device)
-        else:
-            self.fields['lag'].queryset = Interface.objects.none()
-            self.fields['parent'].queryset = Interface.objects.none()
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data

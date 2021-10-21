@@ -70,6 +70,16 @@
                             </td>
                         </tr>
                         <tr>
+                            <th scope="row">Bridge</th>
+                            <td>
+                                {% if object.bridge %}
+                                    <a href="{{ object.bridge.get_absolute_url }}">{{ object.bridge }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th scope="row">LAG</th>
                             <td>
                                 {% if object.lag%}

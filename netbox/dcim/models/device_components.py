@@ -462,6 +462,22 @@ class BaseInterface(models.Model):
         choices=InterfaceModeChoices,
         blank=True
     )
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='child_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Parent interface'
+    )
+    bridge = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='bridge_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Bridge interface'
+    )
 
     class Meta:
         abstract = True
@@ -494,14 +510,6 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         naturalize_function=naturalize_interface,
         max_length=100,
         blank=True
-    )
-    parent = models.ForeignKey(
-        to='self',
-        on_delete=models.SET_NULL,
-        related_name='child_interfaces',
-        null=True,
-        blank=True,
-        verbose_name='Parent interface'
     )
     lag = models.ForeignKey(
         to='self',
@@ -586,7 +594,7 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         related_query_name='interface'
     )
 
-    clone_fields = ['device', 'parent', 'lag', 'type', 'mgmt_only']
+    clone_fields = ['device', 'parent', 'bridge', 'lag', 'type', 'mgmt_only']
 
     class Meta:
         ordering = ('device', CollateAsChar('_name'))
@@ -610,6 +618,16 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
                 'mark_connected': f"{self.get_type_display()} interfaces cannot be marked as connected."
             })
 
+        # Parent validation
+
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
+
+        # A physical interface cannot have a parent interface
+        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
+            raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
+
         # An interface's parent must belong to the same device or virtual chassis
         if self.parent and self.parent.device != self.device:
             if self.device.virtual_chassis is None:
@@ -623,13 +641,34 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
                               f"is not part of virtual chassis {self.device.virtual_chassis}."
                 })
 
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': "An interface cannot be its own parent."})
+        # Bridge validation
 
-        # A physical interface cannot have a parent interface
-        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
-            raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
+        # An interface cannot be bridged to itself
+        if self.pk and self.bridge_id == self.pk:
+            raise ValidationError({'bridge': "An interface cannot be bridged to itself."})
+
+        # A bridged interface belong to the same device or virtual chassis
+        if self.bridge and self.bridge.device != self.device:
+            if self.device.virtual_chassis is None:
+                raise ValidationError({
+                    'bridge': f"The selected bridge interface ({self.bridge}) belongs to a different device "
+                              f"({self.bridge.device})."
+                })
+            elif self.bridge.device.virtual_chassis != self.device.virtual_chassis:
+                raise ValidationError({
+                    'bridge': f"The selected bridge interface ({self.bridge}) belongs to {self.bridge.device}, which "
+                              f"is not part of virtual chassis {self.device.virtual_chassis}."
+                })
+
+        # LAG validation
+
+        # A virtual interface cannot have a parent LAG
+        if self.type == InterfaceTypeChoices.TYPE_VIRTUAL and self.lag is not None:
+            raise ValidationError({'lag': "Virtual interfaces cannot have a parent LAG interface."})
+
+        # A LAG interface cannot be its own parent
+        if self.pk and self.lag_id == self.pk:
+            raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
 
         # An interface's LAG must belong to the same device or virtual chassis
         if self.lag and self.lag.device != self.device:
@@ -643,13 +682,7 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
                            f"of virtual chassis {self.device.virtual_chassis}."
                 })
 
-        # A virtual interface cannot have a parent LAG
-        if self.type == InterfaceTypeChoices.TYPE_VIRTUAL and self.lag is not None:
-            raise ValidationError({'lag': "Virtual interfaces cannot have a parent LAG interface."})
-
-        # A LAG interface cannot be its own parent
-        if self.pk and self.lag_id == self.pk:
-            raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
+        # Wireless validation
 
         # RF role & channel may only be set for wireless interfaces
         if self.rf_role and not self.is_wireless:
@@ -679,11 +712,13 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         elif self.rf_channel:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
+        # VLAN validation
+
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:
             raise ValidationError({
-                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
-                                 "device, or it must be global".format(self.untagged_vlan)
+                'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
+                                 f"interface's parent device, or it must be global."
             })
 
     @property

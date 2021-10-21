@@ -605,6 +605,7 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=InterfaceTypeChoices)
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
+    bridge = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_null=True)
@@ -622,8 +623,8 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     class Meta:
         model = Interface
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
-            'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mtu',
+            'mac_address', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'link_peer',
             'link_peer_type', 'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
             'custom_fields', 'created', 'last_updated', 'count_ipaddresses', '_occupied',

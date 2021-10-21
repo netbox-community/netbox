@@ -378,14 +378,6 @@ class VMInterface(PrimaryModel, BaseInterface):
         max_length=200,
         blank=True
     )
-    parent = models.ForeignKey(
-        to='self',
-        on_delete=models.SET_NULL,
-        related_name='child_interfaces',
-        null=True,
-        blank=True,
-        verbose_name='Parent interface'
-    )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.SET_NULL,
@@ -423,6 +415,12 @@ class VMInterface(PrimaryModel, BaseInterface):
     def clean(self):
         super().clean()
 
+        # Parent validation
+
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
+
         # An interface's parent must belong to the same virtual machine
         if self.parent and self.parent.virtual_machine != self.virtual_machine:
             raise ValidationError({
@@ -430,15 +428,26 @@ class VMInterface(PrimaryModel, BaseInterface):
                           f"({self.parent.virtual_machine})."
             })
 
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': "An interface cannot be its own parent."})
+        # Bridge validation
+
+        # An interface cannot be bridged to itself
+        if self.pk and self.bridge_id == self.pk:
+            raise ValidationError({'bridge': "An interface cannot be bridged to itself."})
+
+        # A bridged interface belong to the same virtual machine
+        if self.bridge and self.bridge.virtual_machine != self.virtual_machine:
+            raise ValidationError({
+                'bridge': f"The selected bridge interface ({self.bridge}) belongs to a different virtual machine "
+                          f"({self.bridge.virtual_machine})."
+            })
+
+        # VLAN validation
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({
                 'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
-                                 f"interface's parent virtual machine, or it must be global"
+                                 f"interface's parent virtual machine, or it must be global."
             })
 
     def to_objectchange(self, action):

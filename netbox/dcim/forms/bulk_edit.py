@@ -939,8 +939,8 @@ class PowerOutletBulkEditForm(
 
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
-        'label', 'type', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description',
-        'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
+        'label', 'type', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
+        'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
@@ -961,6 +961,10 @@ class InterfaceBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
     parent = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False
+    )
+    bridge = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False
     )
@@ -991,7 +995,7 @@ class InterfaceBulkEditForm(
 
     class Meta:
         nullable_fields = [
-            'label', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'description', 'mode', 'rf_channel',
+            'label', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'description', 'mode', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'untagged_vlan', 'tagged_vlans',
         ]
 
@@ -1000,8 +1004,9 @@ class InterfaceBulkEditForm(
         if 'device' in self.initial:
             device = Device.objects.filter(pk=self.initial['device']).first()
 
-            # Restrict parent/LAG interface assignment by device
+            # Restrict parent/bridge/LAG interface assignment by device
             self.fields['parent'].widget.add_query_param('device_id', device.pk)
+            self.fields['bridge'].widget.add_query_param('device_id', device.pk)
             self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
             # Limit VLAN choices by device
@@ -1029,6 +1034,8 @@ class InterfaceBulkEditForm(
 
             self.fields['parent'].choices = ()
             self.fields['parent'].widget.attrs['disabled'] = True
+            self.fields['bridge'].choices = ()
+            self.fields['bridge'].widget.attrs['disabled'] = True
             self.fields['lag'].choices = ()
             self.fields['lag'].widget.attrs['disabled'] = True
 
