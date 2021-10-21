@@ -1581,6 +1581,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             Interface(device=device, name='Interface 2'),
             Interface(device=device, name='Interface 3'),
             Interface(device=device, name='LAG', type=InterfaceTypeChoices.TYPE_LAG),
+            Interface(device=device, name='_BRIDGE', type=InterfaceTypeChoices.TYPE_VIRTUAL),  # Must be ordered last
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -1596,10 +1597,10 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.form_data = {
             'device': device.pk,
-            'virtual_machine': None,
             'name': 'Interface X',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'enabled': False,
+            'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
@@ -1617,6 +1618,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name_pattern': 'Interface [4-6]',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'enabled': False,
+            'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),

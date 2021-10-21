@@ -2125,6 +2125,19 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'parent_id': [parent_interface.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_bridge(self):
+        # Create bridged interfaces
+        bridge_interface = Interface.objects.first()
+        bridged_interfaces = (
+            Interface(device=bridge_interface.device, name='Bridged 1', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=bridge_interface.device, name='Bridged 2', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=bridge_interface.device, name='Bridged 3', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(bridged_interfaces)
+
+        params = {'bridge_id': [bridge_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
     def test_lag(self):
         # Create LAG members
         device = Device.objects.first()

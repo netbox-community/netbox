@@ -452,6 +452,19 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'parent_id': [parent_interface.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_bridge(self):
+        # Create bridged interfaces
+        bridge_interface = VMInterface.objects.first()
+        bridged_interfaces = (
+            VMInterface(virtual_machine=bridge_interface.virtual_machine, name='Bridged 1', bridge=bridge_interface),
+            VMInterface(virtual_machine=bridge_interface.virtual_machine, name='Bridged 2', bridge=bridge_interface),
+            VMInterface(virtual_machine=bridge_interface.virtual_machine, name='Bridged 3', bridge=bridge_interface),
+        )
+        VMInterface.objects.bulk_create(bridged_interfaces)
+
+        params = {'bridge_id': [bridge_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
     def test_mtu(self):
         params = {'mtu': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
