@@ -13,7 +13,18 @@ A set of new models for tracking contact information has been introduced within 
 
 When assigning a contact to an object, the user must select a predefined role (e.g. "billing" or "technical") and may optionally indicate a priority relative to other contacts associated with the object. There is no limit on how many contacts can be assigned to an object, nor on how many objects to which a contact can be assigned.
 
-#### 
+#### Wireless Networks ([#3979](https://github.com/netbox-community/netbox/issues/3979))
+
+This release introduces two new models to represent wireless networks:
+
+* Wireless LAN - A multi-access wireless segment to which any number of wireless interfaces may be attached
+* Wireless Link - A point-to-point connection between exactly two wireless interfaces
+
+Both types of connection include SSID and authentication attributes. Additionally, the interface model has been extended to include several attributes pertinent to wireless operation:
+
+* Wireless role - Access point or station
+* Channel - A predefined channel within a standardized band
+* Channel frequency & width - Customizable channel attributes (e.g. for licensed bands)
 
 ### Enhancements
 
