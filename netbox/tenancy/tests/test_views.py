@@ -16,10 +16,13 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for tenanantgroup in tenant_groups:
             tenanantgroup.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Tenant Group X',
             'slug': 'tenant-group-x',
             'description': 'A new tenant group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -90,10 +93,13 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for tenanantgroup in contact_groups:
             tenanantgroup.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Contact Group X',
             'slug': 'contact-group-x',
             'description': 'A new contact group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -120,10 +126,13 @@ class ContactRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             ContactRole(name='Contact Role 3', slug='contact-role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Devie Role X',
             'slug': 'contact-role-x',
             'description': 'New contact role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

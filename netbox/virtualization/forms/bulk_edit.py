@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ClusterTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -37,7 +37,7 @@ class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ClusterGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         widget=forms.MultipleHiddenInput

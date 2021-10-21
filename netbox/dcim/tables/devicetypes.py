@@ -41,12 +41,16 @@ class ManufacturerTable(BaseTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
+    tags = TagColumn(
+        url_name='dcim:manufacturer_list'
+    )
     actions = ButtonsColumn(Manufacturer)
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
         fields = (
-            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'tags',
+            'actions',
         )
 
 

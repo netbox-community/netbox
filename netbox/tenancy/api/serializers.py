@@ -2,7 +2,7 @@ from django.contrib.auth.models import ContentType
 from rest_framework import serializers
 
 from netbox.api import ChoiceField, ContentTypeField
-from netbox.api.serializers import NestedGroupModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
+from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
 from .nested_serializers import *
@@ -20,8 +20,8 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
     class Meta:
         model = TenantGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
-            'tenant_count', '_depth',
+            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'tenant_count', '_depth',
         ]
 
 
@@ -60,18 +60,18 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
     class Meta:
         model = ContactGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'custom_fields', 'created', 'last_updated',
-            'contact_count', '_depth',
+            'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'contact_count', '_depth',
         ]
 
 
-class ContactRoleSerializer(OrganizationalModelSerializer):
+class ContactRoleSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactrole-detail')
 
     class Meta:
         model = ContactRole
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 

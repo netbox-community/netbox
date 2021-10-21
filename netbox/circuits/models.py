@@ -128,7 +128,7 @@ class ProviderNetwork(PrimaryModel):
         return reverse('circuits:providernetwork', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class CircuitType(OrganizationalModel):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named

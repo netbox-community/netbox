@@ -74,6 +74,9 @@ class VLANGroupTable(BaseTable):
         url_params={'group_id': 'pk'},
         verbose_name='VLANs'
     )
+    tags = TagColumn(
+        url_name='ipam:vlangroup_list'
+    )
     actions = ButtonsColumn(
         model=VLANGroup,
         prepend_template=VLANGROUP_ADD_VLAN
@@ -81,7 +84,7 @@ class VLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'actions')
+        fields = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description', 'actions')
 
 

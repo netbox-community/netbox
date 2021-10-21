@@ -24,11 +24,14 @@ class RackRoleTable(BaseTable):
     name = tables.Column(linkify=True)
     rack_count = tables.Column(verbose_name='Racks')
     color = ColorColumn()
+    tags = TagColumn(
+        url_name='dcim:rackrole_list'
+    )
     actions = ButtonsColumn(RackRole)
 
     class Meta(BaseTable.Meta):
         model = RackRole
-        fields = ('pk', 'name', 'rack_count', 'color', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'rack_count', 'color', 'description', 'slug', 'tags', 'actions')
         default_columns = ('pk', 'name', 'rack_count', 'color', 'description', 'actions')
 
 

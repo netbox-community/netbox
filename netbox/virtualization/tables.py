@@ -40,11 +40,14 @@ class ClusterTypeTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
+    tags = TagColumn(
+        url_name='virtualization:clustertype_list'
+    )
     actions = ButtonsColumn(ClusterType)
 
     class Meta(BaseTable.Meta):
         model = ClusterType
-        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
@@ -60,11 +63,14 @@ class ClusterGroupTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
+    tags = TagColumn(
+        url_name='virtualization:clustergroup_list'
+    )
     actions = ButtonsColumn(ClusterGroup)
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
-        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 

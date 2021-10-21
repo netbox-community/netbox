@@ -55,11 +55,14 @@ class TenantGroupTable(BaseTable):
         url_params={'group_id': 'pk'},
         verbose_name='Tenants'
     )
+    tags = TagColumn(
+        url_name='tenancy:tenantgroup_list'
+    )
     actions = ButtonsColumn(TenantGroup)
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
-        fields = ('pk', 'name', 'tenant_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'tenant_count', 'description', 'slug', 'tags', 'actions')
         default_columns = ('pk', 'name', 'tenant_count', 'description', 'actions')
 
 
@@ -96,11 +99,14 @@ class ContactGroupTable(BaseTable):
         url_params={'role_id': 'pk'},
         verbose_name='Contacts'
     )
+    tags = TagColumn(
+        url_name='tenancy:contactgroup_list'
+    )
     actions = ButtonsColumn(ContactGroup)
 
     class Meta(BaseTable.Meta):
         model = ContactGroup
-        fields = ('pk', 'name', 'contact_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'actions')
         default_columns = ('pk', 'name', 'contact_count', 'description', 'actions')
 
 

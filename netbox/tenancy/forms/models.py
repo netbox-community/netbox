@@ -28,11 +28,15 @@ class TenantGroupForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = TenantGroup
         fields = [
-            'parent', 'name', 'slug', 'description',
+            'parent', 'name', 'slug', 'description', 'tags',
         ]
 
 
@@ -68,18 +72,26 @@ class ContactGroupForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ContactGroup
-        fields = ['parent', 'name', 'slug', 'description']
+        fields = ('parent', 'name', 'slug', 'description', 'tags')
 
 
 class ContactRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ContactRole
-        fields = ['name', 'slug', 'description']
+        fields = ('name', 'slug', 'description', 'tags')
 
 
 class ContactForm(BootstrapMixin, CustomFieldModelForm):

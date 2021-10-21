@@ -82,11 +82,15 @@ class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 class RIRForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = RIR
         fields = [
-            'name', 'slug', 'is_private', 'description',
+            'name', 'slug', 'is_private', 'description', 'tags',
         ]
 
 
@@ -120,11 +124,15 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 class RoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Role
         fields = [
-            'name', 'slug', 'weight', 'description',
+            'name', 'slug', 'weight', 'description', 'tags',
         ]
 
 
@@ -530,15 +538,19 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         }
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster',
+            'clustergroup', 'cluster', 'tags',
         ]
         fieldsets = (
-            ('VLAN Group', ('name', 'slug', 'description')),
+            ('VLAN Group', ('name', 'slug', 'description', 'tags')),
             ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
         )
         widgets = {

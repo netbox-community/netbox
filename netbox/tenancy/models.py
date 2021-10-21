@@ -24,7 +24,7 @@ __all__ = (
 # Tenants
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class TenantGroup(NestedGroupModel):
     """
     An arbitrary collection of Tenants.
@@ -111,7 +111,7 @@ class Tenant(PrimaryModel):
 # Contacts
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ContactGroup(NestedGroupModel):
     """
     An arbitrary collection of Contacts.
@@ -145,7 +145,7 @@ class ContactGroup(NestedGroupModel):
         return reverse('tenancy:contactgroup', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ContactRole(OrganizationalModel):
     """
     Functional role for a Contact assigned to an object.
