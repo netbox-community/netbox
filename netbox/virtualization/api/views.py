@@ -23,7 +23,7 @@ class VirtualizationRootView(APIRootView):
 class ClusterTypeViewSet(CustomFieldModelViewSet):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.ClusterTypeSerializer
     filterset_class = filtersets.ClusterTypeFilterSet
 
@@ -31,7 +31,7 @@ class ClusterTypeViewSet(CustomFieldModelViewSet):
 class ClusterGroupViewSet(CustomFieldModelViewSet):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.ClusterGroupSerializer
     filterset_class = filtersets.ClusterGroupFilterSet
 

@@ -71,7 +71,7 @@ class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         ]
 
 
-class RIRBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class RIRBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -120,7 +120,7 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         }
 
 
-class RoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class RoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Role.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -280,7 +280,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         ]
 
 
-class VLANGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class VLANGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),
         widget=forms.MultipleHiddenInput

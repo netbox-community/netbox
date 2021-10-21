@@ -51,7 +51,7 @@ __all__ = (
 )
 
 
-class RegionBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class RegionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Region.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -69,7 +69,7 @@ class RegionBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class SiteGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -132,7 +132,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         ]
 
 
-class LocationBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class LocationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Location.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -161,7 +161,7 @@ class LocationBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'tenant', 'description']
 
 
-class RackRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class RackRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -303,7 +303,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         nullable_fields = []
 
 
-class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ManufacturerBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -345,7 +345,7 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModel
         nullable_fields = ['airflow']
 
 
-class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class DeviceRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -367,7 +367,7 @@ class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['color', 'description']
 
 
-class PlatformBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class PlatformBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         widget=forms.MultipleHiddenInput

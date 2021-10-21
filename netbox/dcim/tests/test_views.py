@@ -31,11 +31,14 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for region in regions:
             region.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Region X',
             'slug': 'region-x',
             'parent': regions[2].pk,
             'description': 'A new region',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -65,11 +68,14 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for sitegroup in sitegroups:
             sitegroup.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Site Group X',
             'slug': 'site-group-x',
             'parent': sitegroups[2].pk,
             'description': 'A new site group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -169,12 +175,15 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for location in locations:
             location.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Location X',
             'slug': 'location-x',
             'site': site.pk,
             'tenant': tenant.pk,
             'description': 'A new location',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -201,11 +210,14 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             RackRole(name='Rack Role 3', slug='rack-role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Rack Role X',
             'slug': 'rack-role-x',
             'color': 'c0c0c0',
             'description': 'New role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -368,10 +380,13 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Manufacturer X',
             'slug': 'manufacturer-x',
             'description': 'A new manufacturer',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -1034,12 +1049,15 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Devie Role X',
             'slug': 'device-role-x',
             'color': 'c0c0c0',
             'vm_role': False,
             'description': 'New device role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -1069,6 +1087,8 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturer),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Platform X',
             'slug': 'platform-x',
@@ -1076,6 +1096,7 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'napalm_driver': 'junos',
             'napalm_args': None,
             'description': 'A new platform',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

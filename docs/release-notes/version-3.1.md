@@ -20,6 +20,7 @@ When assigning a contact to an object, the user must select a predefined role (e
 * [#1337](https://github.com/netbox-community/netbox/issues/1337) - Add WWN field to interfaces
 * [#1943](https://github.com/netbox-community/netbox/issues/1943) - Relax uniqueness constraint on cluster names
 * [#3839](https://github.com/netbox-community/netbox/issues/3839) - Add `airflow` field for devices types and devices
+* [#6497](https://github.com/netbox-community/netbox/issues/6497) - Extend tag support to organizational models
 * [#6711](https://github.com/netbox-community/netbox/issues/6711) - Add `longtext` custom field type with Markdown support
 * [#6715](https://github.com/netbox-community/netbox/issues/6715) - Add tenant assignment for cables
 * [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations
@@ -37,6 +38,23 @@ When assigning a contact to an object, the user must select a predefined role (e
     * `/api/tenancy/contact-groups/`
     * `/api/tenancy/contact-roles/`
     * `/api/tenancy/contacts/`
+* Added `tags` field to the following models:
+    * circuits.CircuitType
+    * dcim.DeviceRole
+    * dcim.Location
+    * dcim.Manufacturer
+    * dcim.Platform
+    * dcim.RackRole
+    * dcim.Region
+    * dcim.SiteGroup
+    * ipam.RIR
+    * ipam.Role
+    * ipam.VLANGroup
+    * tenancy.ContactGroup
+    * tenancy.ContactRole
+    * tenancy.TenantGroup
+    * virtualization.ClusterGroup
+    * virtualization.ClusterType
 * dcim.Cable
     * Added `tenant` field
 * dcim.Device

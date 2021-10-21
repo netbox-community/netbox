@@ -30,7 +30,7 @@ __all__ = (
 # Cluster types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
@@ -64,7 +64,7 @@ class ClusterType(OrganizationalModel):
 # Cluster groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterGroup(OrganizationalModel):
     """
     An organizational group of Clusters.

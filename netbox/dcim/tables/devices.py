@@ -84,11 +84,16 @@ class DeviceRoleTable(BaseTable):
     )
     color = ColorColumn()
     vm_role = BooleanColumn()
+    tags = TagColumn(
+        url_name='dcim:devicerole_list'
+    )
     actions = ButtonsColumn(DeviceRole)
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'actions')
+        fields = (
+            'pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'tags', 'actions',
+        )
         default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'actions')
 
 
@@ -111,13 +116,16 @@ class PlatformTable(BaseTable):
         url_params={'platform_id': 'pk'},
         verbose_name='VMs'
     )
+    tags = TagColumn(
+        url_name='dcim:platform_list'
+    )
     actions = ButtonsColumn(Platform)
 
     class Meta(BaseTable.Meta):
         model = Platform
         fields = (
             'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'napalm_args',
-            'description', 'actions',
+            'description', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description', 'actions',

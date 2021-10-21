@@ -104,11 +104,14 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             RIR(name='RIR 3', slug='rir-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'RIR X',
             'slug': 'rir-x',
             'is_private': True,
             'description': 'A new RIR',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -177,11 +180,14 @@ class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Role(name='Role 3', slug='role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Role X',
             'slug': 'role-x',
             'weight': 200,
             'description': 'A new role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -384,10 +390,13 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=sites[0]),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
             'description': 'A new VLAN group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
