@@ -20,6 +20,7 @@ __all__ = (
 
 
 class ClusterTypeFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = ClusterType
@@ -27,6 +28,7 @@ class ClusterTypeFilterSet(OrganizationalModelFilterSet):
 
 
 class ClusterGroupFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = ClusterGroup

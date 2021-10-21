@@ -29,6 +29,7 @@ class WirelessLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Parent group'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class WirelessLANFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
@@ -71,9 +72,6 @@ class WirelessLANFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class WirelessLinkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = WirelessLink
-    field_groups = [
-        ['q', 'tag'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),

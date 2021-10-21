@@ -33,6 +33,7 @@ class TenantGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Tenant group (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = TenantGroup
@@ -118,6 +119,7 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Contact group (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = ContactGroup
@@ -125,6 +127,7 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
 
 
 class ContactRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = ContactRole

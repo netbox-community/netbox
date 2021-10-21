@@ -72,6 +72,7 @@ class RegionFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent region (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Region
@@ -89,6 +90,7 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent site group (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = SiteGroup
@@ -208,6 +210,7 @@ class LocationFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Location (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Location
@@ -223,6 +226,7 @@ class LocationFilterSet(OrganizationalModelFilterSet):
 
 
 class RackRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = RackRole
@@ -388,6 +392,7 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class ManufacturerFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = Manufacturer
@@ -570,6 +575,7 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
 
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = DeviceRole
@@ -588,6 +594,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Platform

@@ -106,10 +106,6 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Region
-    field_groups = [
-        ['q'],
-        ['parent_id'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
@@ -121,14 +117,11 @@ class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Parent region'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = SiteGroup
-    field_groups = [
-        ['q'],
-        ['parent_id'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
@@ -140,6 +133,7 @@ class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Parent group'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
@@ -219,18 +213,17 @@ class LocationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilt
         label=_('Parent'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class RackRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = RackRole
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
@@ -371,14 +364,12 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMo
 
 class ManufacturerFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Manufacturer
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
@@ -456,14 +447,12 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class DeviceRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = DeviceRole
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class PlatformFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
@@ -479,6 +468,7 @@ class PlatformFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Manufacturer'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):

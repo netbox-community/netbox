@@ -25,6 +25,7 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
         queryset=WirelessLANGroup.objects.all(),
         to_field_name='slug'
     )
+    tag = TagFilter()
 
     class Meta:
         model = WirelessLANGroup

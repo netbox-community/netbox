@@ -31,6 +31,7 @@ class TenantGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Parent group'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class TenantFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
@@ -71,18 +72,17 @@ class ContactGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Parent group'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class ContactRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = ContactRole
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class ContactFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
