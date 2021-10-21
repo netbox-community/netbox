@@ -212,6 +212,12 @@ class InterfaceType(IPAddressesMixin, ComponentObjectType):
     def resolve_mode(self, info):
         return self.mode or None
 
+    def resolve_rf_role(self, info):
+        return self.rf_role or None
+
+    def resolve_rf_channel(self, info):
+        return self.rf_channel or None
+
 
 class InterfaceTemplateType(ComponentTemplateObjectType):
 

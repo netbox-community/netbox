@@ -1944,7 +1944,7 @@ class CableTestCase(
             'termination_b_type': interface_ct.pk,
             'termination_b_id': interfaces[3].pk,
             'type': CableTypeChoices.TYPE_CAT6,
-            'status': CableStatusChoices.STATUS_PLANNED,
+            'status': LinkStatusChoices.STATUS_PLANNED,
             'label': 'Label',
             'color': 'c0c0c0',
             'length': 100,
@@ -1961,7 +1961,7 @@ class CableTestCase(
 
         cls.bulk_edit_data = {
             'type': CableTypeChoices.TYPE_CAT5E,
-            'status': CableStatusChoices.STATUS_CONNECTED,
+            'status': LinkStatusChoices.STATUS_CONNECTED,
             'label': 'New label',
             'color': '00ff00',
             'length': 50,

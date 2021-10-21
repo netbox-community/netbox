@@ -11,6 +11,7 @@ from extras.forms import CustomFieldModelCSVForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField
 from virtualization.models import Cluster
+from wireless.choices import WirelessRoleChoices
 
 __all__ = (
     'CableCSVForm',
@@ -584,12 +585,18 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
     )
+    rf_role = CSVChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        help_text='Wireless role (AP/station)'
+    )
 
     class Meta:
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'wwn',
-            'mtu', 'mgmt_only', 'description', 'mode',
+            'mtu', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width',
         )
 
     def __init__(self, *args, **kwargs):
@@ -812,7 +819,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
 
     # Cable attributes
     status = CSVChoiceField(
-        choices=CableStatusChoices,
+        choices=LinkStatusChoices,
         required=False,
         help_text='Connection status'
     )

@@ -11,6 +11,7 @@ from utilities.forms import (
     APISelectMultiple, add_blank_choice, BootstrapMixin, ColorField, DynamicModelMultipleChoiceField, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
+from wireless.choices import *
 
 __all__ = (
     'CableFilterForm',
@@ -735,7 +736,7 @@ class CableFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterF
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(CableStatusChoices),
+        choices=add_blank_choice(LinkStatusChoices),
         widget=StaticSelect()
     )
     color = ColorField(
@@ -966,6 +967,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
+        ['rf_role', 'rf_channel', 'rf_channel_width'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
     kind = forms.MultipleChoiceField(
@@ -997,6 +999,26 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     wwn = forms.CharField(
         required=False,
         label='WWN'
+    )
+    rf_role = forms.MultipleChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        widget=StaticSelectMultiple(),
+        label='Wireless role'
+    )
+    rf_channel = forms.MultipleChoiceField(
+        choices=WirelessChannelChoices,
+        required=False,
+        widget=StaticSelectMultiple(),
+        label='Wireless channel'
+    )
+    rf_channel_frequency = forms.IntegerField(
+        required=False,
+        label='Channel frequency (MHz)'
+    )
+    rf_channel_width = forms.IntegerField(
+        required=False,
+        label='Channel width (MHz)'
     )
     tag = TagFilterField(model)
 

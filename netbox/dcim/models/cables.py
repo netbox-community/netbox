@@ -64,8 +64,8 @@ class Cable(PrimaryModel):
     )
     status = models.CharField(
         max_length=50,
-        choices=CableStatusChoices,
-        default=CableStatusChoices.STATUS_CONNECTED
+        choices=LinkStatusChoices,
+        default=LinkStatusChoices.STATUS_CONNECTED
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -292,7 +292,7 @@ class Cable(PrimaryModel):
         self._pk = self.pk
 
     def get_status_class(self):
-        return CableStatusChoices.CSS_CLASSES.get(self.status)
+        return LinkStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_compatible_types(self):
         """
@@ -386,7 +386,7 @@ class CablePath(BigIDModel):
         """
         from circuits.models import CircuitTermination
 
-        if origin is None or origin.cable is None:
+        if origin is None or origin.link is None:
             return None
 
         destination = None
@@ -396,13 +396,13 @@ class CablePath(BigIDModel):
         is_split = False
 
         node = origin
-        while node.cable is not None:
-            if node.cable.status != CableStatusChoices.STATUS_CONNECTED:
+        while node.link is not None:
+            if hasattr(node.link, 'status') and node.link.status != LinkStatusChoices.STATUS_CONNECTED:
                 is_active = False
 
-            # Follow the cable to its far-end termination
-            path.append(object_to_path_node(node.cable))
-            peer_termination = node.get_cable_peer()
+            # Follow the link to its far-end termination
+            path.append(object_to_path_node(node.link))
+            peer_termination = node.get_link_peer()
 
             # Follow a FrontPort to its corresponding RearPort
             if isinstance(peer_termination, FrontPort):

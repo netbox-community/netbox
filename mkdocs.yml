@@ -60,6 +60,7 @@ nav:
         - Virtualization: 'core-functionality/virtualization.md'
         - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
+        - Wireless: 'core-functionality/wireless.md'
         - Power Tracking: 'core-functionality/power.md'
         - Tenancy: 'core-functionality/tenancy.md'
         - Contacts: 'core-functionality/contacts.md'

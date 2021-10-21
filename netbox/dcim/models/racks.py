@@ -427,13 +427,13 @@ class Rack(PrimaryModel):
             return 0
 
         pf_powerports = PowerPort.objects.filter(
-            _cable_peer_type=ContentType.objects.get_for_model(PowerFeed),
-            _cable_peer_id__in=powerfeeds.values_list('id', flat=True)
+            _link_peer_type=ContentType.objects.get_for_model(PowerFeed),
+            _link_peer_id__in=powerfeeds.values_list('id', flat=True)
         )
         poweroutlets = PowerOutlet.objects.filter(power_port_id__in=pf_powerports)
         allocated_draw_total = PowerPort.objects.filter(
-            _cable_peer_type=ContentType.objects.get_for_model(PowerOutlet),
-            _cable_peer_id__in=poweroutlets.values_list('id', flat=True)
+            _link_peer_type=ContentType.objects.get_for_model(PowerOutlet),
+            _link_peer_id__in=poweroutlets.values_list('id', flat=True)
         ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
 
         return int(allocated_draw_total / available_power_total * 100)

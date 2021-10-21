@@ -29,6 +29,20 @@
         {% render_field form.mark_connected %}
     </div>
 
+    {% if form.instance.is_wireless %}
+        <div class="field-group my-5">
+            <div class="row mb-2">
+              <h5 class="offset-sm-3">Wireless</h5>
+            </div>
+            {% render_field form.rf_role %}
+            {% render_field form.rf_channel %}
+            {% render_field form.rf_channel_frequency %}
+            {% render_field form.rf_channel_width %}
+            {% render_field form.wireless_lan_group %}
+            {% render_field form.wireless_lans %}
+        </div>
+    {% endif %}
+
     <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">802.1Q Switching</h5>

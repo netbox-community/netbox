@@ -398,6 +398,39 @@ class CableTraceSVG:
 
         return group
 
+    def _draw_wirelesslink(self, url, labels):
+        """
+        Draw a line with labels representing a WirelessLink.
+
+        :param url: Hyperlink URL
+        :param labels: Iterable of text labels
+        """
+        group = Group(class_='connector')
+
+        # Draw the wireless link
+        start = (OFFSET + self.center, self.cursor)
+        height = PADDING * 2 + LINE_HEIGHT * len(labels) + PADDING * 2
+        end = (start[0], start[1] + height)
+        line = Line(start=start, end=end, class_='wireless-link')
+        group.add(line)
+
+        self.cursor += PADDING * 2
+
+        # Add link
+        link = Hyperlink(href=f'{self.base_url}{url}', target='_blank')
+
+        # Add text label(s)
+        for i, label in enumerate(labels):
+            self.cursor += LINE_HEIGHT
+            text_coords = (self.center + PADDING * 2, self.cursor - LINE_HEIGHT / 2)
+            text = Text(label, insert=text_coords, class_='bold' if not i else [])
+            link.add(text)
+
+        group.add(link)
+        self.cursor += PADDING * 2
+
+        return group
+
     def _draw_attachment(self):
         """
         Return an SVG group containing a line element and "Attachment" label.
@@ -418,6 +451,9 @@ class CableTraceSVG:
         """
         Return an SVG document representing a cable trace.
         """
+        from dcim.models import Cable
+        from wireless.models import WirelessLink
+
         traced_path = self.origin.trace()
 
         # Prep elements list
@@ -452,24 +488,39 @@ class CableTraceSVG:
             )
             terminations.append(termination)
 
-            # Connector (either a Cable or attachment to a ProviderNetwork)
+            # Connector (a Cable or WirelessLink)
             if connector is not None:
 
                 # Cable
-                cable_labels = [
-                    f'Cable {connector}',
-                    connector.get_status_display()
-                ]
-                if connector.type:
-                    cable_labels.append(connector.get_type_display())
-                if connector.length and connector.length_unit:
-                    cable_labels.append(f'{connector.length} {connector.get_length_unit_display()}')
-                cable = self._draw_cable(
-                    color=connector.color or '000000',
-                    url=connector.get_absolute_url(),
-                    labels=cable_labels
-                )
-                connectors.append(cable)
+                if type(connector) is Cable:
+                    connector_labels = [
+                        f'Cable {connector}',
+                        connector.get_status_display()
+                    ]
+                    if connector.type:
+                        connector_labels.append(connector.get_type_display())
+                    if connector.length and connector.length_unit:
+                        connector_labels.append(f'{connector.length} {connector.get_length_unit_display()}')
+                    cable = self._draw_cable(
+                        color=connector.color or '000000',
+                        url=connector.get_absolute_url(),
+                        labels=connector_labels
+                    )
+                    connectors.append(cable)
+
+                # WirelessLink
+                elif type(connector) is WirelessLink:
+                    connector_labels = [
+                        f'Wireless link {connector}',
+                        connector.get_status_display()
+                    ]
+                    if connector.ssid:
+                        connector_labels.append(connector.ssid)
+                    wirelesslink = self._draw_wirelesslink(
+                        url=connector.get_absolute_url(),
+                        labels=connector_labels
+                    )
+                    connectors.append(wirelesslink)
 
                 # Far end termination
                 termination = self._draw_box(

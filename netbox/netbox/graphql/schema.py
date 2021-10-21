@@ -7,6 +7,7 @@ from ipam.graphql.schema import IPAMQuery
 from tenancy.graphql.schema import TenancyQuery
 from users.graphql.schema import UsersQuery
 from virtualization.graphql.schema import VirtualizationQuery
+from wireless.graphql.schema import WirelessQuery
 
 
 class Query(
@@ -17,6 +18,7 @@ class Query(
     TenancyQuery,
     UsersQuery,
     VirtualizationQuery,
+    WirelessQuery,
     graphene.ObjectType
 ):
     pass

@@ -9,6 +9,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterType
+from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 
 
 class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -2063,6 +2064,8 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
             Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
             Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
             Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False),
+            Interface(device=devices[3], name='Interface 7', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_AP, rf_channel=WirelessChannelChoices.CHANNEL_24G_1, rf_channel_frequency=2412, rf_channel_width=22),
+            Interface(device=devices[3], name='Interface 8', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_STATION, rf_channel=WirelessChannelChoices.CHANNEL_5G_32, rf_channel_frequency=5160, rf_channel_width=20),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -2083,11 +2086,11 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_enabled(self):
         params = {'enabled': 'true'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'enabled': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
@@ -2099,7 +2102,7 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'mgmt_only': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_mode(self):
         params = {'mode': InterfaceModeChoices.MODE_ACCESS}
@@ -2176,7 +2179,7 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_kind(self):
         params = {'kind': 'physical'}
@@ -2190,6 +2193,22 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_role(self):
+        params = {'rf_role': [WirelessRoleChoices.ROLE_AP, WirelessRoleChoices.ROLE_STATION]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_channel(self):
+        params = {'rf_channel': [WirelessChannelChoices.CHANNEL_24G_1, WirelessChannelChoices.CHANNEL_5G_32]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_channel_frequency(self):
+        params = {'rf_channel_frequency': [2412, 5160]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_channel_width(self):
+        params = {'rf_channel_width': [22, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -2864,12 +2883,12 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         console_server_port = ConsoleServerPort.objects.create(device=devices[0], name='Console Server Port 1')
 
         # Cables
-        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=CableStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=CableStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
-        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(termination_a=console_port, termination_b=console_server_port, label='Cable 7').save()
 
     def test_label(self):
@@ -2889,9 +2908,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
-        params = {'status': [CableStatusChoices.STATUS_CONNECTED]}
+        params = {'status': [LinkStatusChoices.STATUS_CONNECTED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'status': [CableStatusChoices.STATUS_PLANNED]}
+        params = {'status': [LinkStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_color(self):
