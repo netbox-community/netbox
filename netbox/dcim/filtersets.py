@@ -975,6 +975,11 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         queryset=Interface.objects.all(),
         label='Parent interface (ID)',
     )
+    bridge_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='bridge',
+        queryset=Interface.objects.all(),
+        label='Bridged interface (ID)',
+    )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
         queryset=Interface.objects.all(),

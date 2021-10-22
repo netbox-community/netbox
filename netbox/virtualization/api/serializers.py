@@ -107,6 +107,7 @@ class VMInterfaceSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer()
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
+    bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
@@ -120,8 +121,8 @@ class VMInterfaceSerializer(PrimaryModelSerializer):
     class Meta:
         model = VMInterface
         fields = [
-            'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'mtu', 'mac_address', 'description',
-            'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu', 'mac_address',
+            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'custom_fields', 'created', 'last_updated',
             'count_ipaddresses',
         ]
 

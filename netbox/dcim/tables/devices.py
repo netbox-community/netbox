@@ -521,8 +521,10 @@ class DeviceInterfaceTable(InterfaceTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     parent = tables.Column(
-        linkify=True,
-        verbose_name='Parent'
+        linkify=True
+    )
+    bridge = tables.Column(
+        linkify=True
     )
     lag = tables.Column(
         linkify=True,
@@ -537,10 +539,10 @@ class DeviceInterfaceTable(InterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
-            'rf_role', 'rf_channel', 'rf_channel_width', 'description', 'mark_connected', 'cable', 'cable_color',
-            'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan',
-            'tagged_vlans', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag', 'mgmt_only', 'mtu', 'mode',
+            'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_width', 'description', 'mark_connected', 'cable',
+            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans', 'actions',
         )
         order_by = ('name',)
         default_columns = (

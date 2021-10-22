@@ -166,9 +166,6 @@ class VMInterfaceTable(BaseInterfaceTable):
     name = tables.Column(
         linkify=True
     )
-    parent = tables.Column(
-        linkify=True
-    )
     tags = TagColumn(
         url_name='virtualization:vminterface_list'
     )
@@ -176,13 +173,19 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'name', 'virtual_machine', 'enabled', 'parent', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'pk', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
             'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
-        default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'parent', 'description')
+        default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
 
 class VirtualMachineVMInterfaceTable(VMInterfaceTable):
+    parent = tables.Column(
+        linkify=True
+    )
+    bridge = tables.Column(
+        linkify=True
+    )
     actions = ButtonsColumn(
         model=VMInterface,
         buttons=('edit', 'delete'),
@@ -192,8 +195,8 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags', 'ip_addresses',
-            'untagged_vlan', 'tagged_vlans', 'actions',
+            'pk', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
             'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses', 'actions',

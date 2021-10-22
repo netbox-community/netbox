@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('tenancy', '0002_tenant_ordering'),
-        ('dcim', '0134_interface_wwn'),
+        ('dcim', '0134_interface_wwn_bridge'),
     ]
 
     operations = [

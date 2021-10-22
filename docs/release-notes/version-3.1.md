@@ -7,6 +7,8 @@
 
 * The `tenant` and `tenant_id` filters for the Cable model now filter on the tenant assigned directly to each cable, rather than on the parent object of either termination.
 
+### New Features
+
 #### Contacts ([#1344](https://github.com/netbox-community/netbox/issues/1344))
 
 A set of new models for tracking contact information has been introduced within the tenancy app. Users may now create individual contact objects to be associated with various models within NetBox. Each contact has a name, title, email address, etc. Contacts can be arranged in hierarchical groups for ease of management.
@@ -25,6 +27,12 @@ Both types of connection include SSID and authentication attributes. Additionall
 * Wireless role - Access point or station
 * Channel - A predefined channel within a standardized band
 * Channel frequency & width - Customizable channel attributes (e.g. for licensed bands)
+
+#### Interface Bridging ([#6346](https://github.com/netbox-community/netbox/issues/6346))
+
+A `bridge` field has been added to the interface model for devices and virtual machines. This can be set to reference another interface on the same parent device/VM to indicate a direct layer two bridging adjacency.
+
+Multiple interfaces can be bridged to a single virtual interface to effect a bridge group. Alternatively, two physical interfaces can be bridged to one another, to effect an internal cross-connect.
 
 ### Enhancements
 
@@ -73,6 +81,9 @@ Both types of connection include SSID and authentication attributes. Additionall
 * dcim.DeviceType
     * Added `airflow` field 
 * dcim.Interface
+    * Added `bridge` field
     * Added `wwn` field
 * dcim.Location
     * Added `tenant` field
+* virtualization.VMInterface
+    * Added `bridge` field

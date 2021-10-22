@@ -1093,6 +1093,11 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         required=False,
         label='Parent interface'
     )
+    bridge = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        label='Bridged interface'
+    )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -1143,8 +1148,8 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
-            'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
+            'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
@@ -1168,13 +1173,14 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
 
         device = Device.objects.get(pk=self.data['device']) if self.is_bound else self.instance.device
 
-        # Restrict parent/LAG interface assignment by device/VC
+        # Restrict parent/bridge/LAG interface assignment by device/VC
         self.fields['parent'].widget.add_query_param('device_id', device.pk)
+        self.fields['bridge'].widget.add_query_param('device_id', device.pk)
+        self.fields['lag'].widget.add_query_param('device_id', device.pk)
         if device.virtual_chassis and device.virtual_chassis.master:
-            # Get available LAG interfaces by VirtualChassis master
+            self.fields['parent'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
+            self.fields['bridge'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
             self.fields['lag'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-        else:
-            self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
         # Limit VLAN choices by device
         self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)

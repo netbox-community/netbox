@@ -446,6 +446,13 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
             'device_id': '$device',
         }
     )
+    bridge = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -497,7 +504,7 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         required=False
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
+        'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mtu', 'mac_address',
         'description', 'mgmt_only', 'mark_connected', 'rf_role', 'rf_channel', 'rf_channel_frequency',
         'rf_channel_width', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
     )

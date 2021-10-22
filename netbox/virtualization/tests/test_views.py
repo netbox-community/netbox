@@ -248,10 +248,11 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         VirtualMachine.objects.bulk_create(virtualmachines)
 
-        VMInterface.objects.bulk_create([
+        interfaces = VMInterface.objects.bulk_create([
             VMInterface(virtual_machine=virtualmachines[0], name='Interface 1'),
             VMInterface(virtual_machine=virtualmachines[0], name='Interface 2'),
             VMInterface(virtual_machine=virtualmachines[0], name='Interface 3'),
+            VMInterface(virtual_machine=virtualmachines[1], name='BRIDGE'),
         ])
 
         vlans = (
@@ -268,6 +269,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'virtual_machine': virtualmachines[1].pk,
             'name': 'Interface X',
             'enabled': False,
+            'bridge': interfaces[3].pk,
             'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 65000,
             'description': 'New description',
@@ -281,6 +283,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'virtual_machine': virtualmachines[1].pk,
             'name_pattern': 'Interface [4-6]',
             'enabled': False,
+            'bridge': interfaces[3].pk,
             'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 2000,
             'description': 'New description',
