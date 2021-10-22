@@ -122,7 +122,7 @@ class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
 
         # Assign VC members
         if instance.pk:
-            initial_position = self.cleaned_data.get('initial_position', 1)
+            initial_position = self.cleaned_data.get('initial_position') if self.cleaned_data.get('initial_position') is not None else 1
             for i, member in enumerate(self.cleaned_data['members'], start=initial_position):
                 member.virtual_chassis = instance
                 member.vc_position = i
