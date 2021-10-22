@@ -9,11 +9,12 @@ from django.db import models
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.formats import date_format, time_format
+from django.utils.formats import date_format
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
 from extras.constants import *
+from extras.conditions import ConditionSet
 from extras.utils import extras_features, FeatureQuery, image_upload
 from netbox.models import BigIDModel, ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
@@ -107,6 +108,11 @@ class Webhook(ChangeLoggedModel):
                   "the secret as the key. The secret is not transmitted in "
                   "the request."
     )
+    conditions = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="A set of conditions which determine whether the webhook will be generated."
+    )
     ssl_verification = models.BooleanField(
         default=True,
         verbose_name='SSL verification',
@@ -138,9 +144,13 @@ class Webhook(ChangeLoggedModel):
 
         # At least one action type must be selected
         if not self.type_create and not self.type_delete and not self.type_update:
-            raise ValidationError(
-                "You must select at least one type: create, update, and/or delete."
-            )
+            raise ValidationError("At least one type must be selected: create, update, and/or delete.")
+
+        if self.conditions:
+            try:
+                ConditionSet(self.conditions)
+            except ValueError as e:
+                raise ValidationError({'conditions': e})
 
         # CA file path requires SSL verification enabled
         if not self.ssl_verification and self.ca_file_path:
