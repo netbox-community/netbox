@@ -53,6 +53,16 @@ def get_cabletermination_row_class(record):
     return ''
 
 
+def get_interface_row_class(record):
+    if not record.enabled:
+        return 'danger'
+    elif not record.is_connectable:
+        return 'primary'
+    else:
+        return get_cabletermination_row_class(record)
+    return ''
+
+
 def get_interface_state_attribute(record):
     """
     Get interface enabled state as string to attach to <tr/> DOM element.
@@ -534,7 +544,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'cable', 'connection', 'actions',
         )
         row_attrs = {
-            'class': get_cabletermination_row_class,
+            'class': get_interface_row_class,
             'data-name': lambda record: record.name,
             'data-enabled': get_interface_state_attribute,
         }
