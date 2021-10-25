@@ -48,8 +48,8 @@ class ConditionTestCase(TestCase):
         self.assertTrue(c.eval({'x': 1}))
         self.assertFalse(c.eval({'x': 2}))
 
-    def test_neq(self):
-        c = Condition('x', 1, 'neq')
+    def test_eq_negated(self):
+        c = Condition('x', 1, 'eq', negate=True)
         self.assertFalse(c.eval({'x': 1}))
         self.assertTrue(c.eval({'x': 2}))
 
@@ -80,10 +80,20 @@ class ConditionTestCase(TestCase):
         self.assertTrue(c.eval({'x': 1}))
         self.assertFalse(c.eval({'x': 9}))
 
+    def test_in_negated(self):
+        c = Condition('x', [1, 2, 3], 'in', negate=True)
+        self.assertFalse(c.eval({'x': 1}))
+        self.assertTrue(c.eval({'x': 9}))
+
     def test_contains(self):
         c = Condition('x', 1, 'contains')
         self.assertTrue(c.eval({'x': [1, 2, 3]}))
         self.assertFalse(c.eval({'x': [2, 3, 4]}))
+
+    def test_contains_negated(self):
+        c = Condition('x', 1, 'contains', negate=True)
+        self.assertFalse(c.eval({'x': [1, 2, 3]}))
+        self.assertTrue(c.eval({'x': [2, 3, 4]}))
 
 
 class ConditionSetTest(TestCase):
@@ -100,11 +110,11 @@ class ConditionSetTest(TestCase):
         cs = ConditionSet({
             'and': [
                 {'attr': 'a', 'value': 1, 'op': 'eq'},
-                {'attr': 'b', 'value': 2, 'op': 'eq'},
+                {'attr': 'b', 'value': 1, 'op': 'eq', 'negate': True},
             ]
         })
         self.assertTrue(cs.eval({'a': 1, 'b': 2}))
-        self.assertFalse(cs.eval({'a': 1, 'b': 3}))
+        self.assertFalse(cs.eval({'a': 1, 'b': 1}))
 
     def test_or_single_depth(self):
         cs = ConditionSet({

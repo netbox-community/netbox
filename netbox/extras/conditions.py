@@ -6,17 +6,15 @@ __all__ = (
 )
 
 
-LOGIC_TYPES = (
-    'and',
-    'or'
-)
+AND = 'and'
+OR = 'or'
 
 
 def is_ruleset(data):
     """
     Determine whether the given dictionary looks like a rule set.
     """
-    return type(data) is dict and len(data) == 1 and list(data.keys())[0] in LOGIC_TYPES
+    return type(data) is dict and len(data) == 1 and list(data.keys())[0] in (AND, OR)
 
 
 class Condition:
@@ -28,7 +26,6 @@ class Condition:
     :param op: The logical operation to use when evaluating the value (default: 'eq')
     """
     EQ = 'eq'
-    NEQ = 'neq'
     GT = 'gt'
     GTE = 'gte'
     LT = 'lt'
@@ -37,18 +34,18 @@ class Condition:
     CONTAINS = 'contains'
 
     OPERATORS = (
-        EQ, NEQ, GT, GTE, LT, LTE, IN, CONTAINS
+        EQ, GT, GTE, LT, LTE, IN, CONTAINS
     )
 
     TYPES = {
-        str: (EQ, NEQ, CONTAINS),
-        bool: (EQ, NEQ, CONTAINS),
-        int: (EQ, NEQ, GT, GTE, LT, LTE, CONTAINS),
-        float: (EQ, NEQ, GT, GTE, LT, LTE, CONTAINS),
-        list: (EQ, NEQ, IN, CONTAINS)
+        str: (EQ, CONTAINS),
+        bool: (EQ, CONTAINS),
+        int: (EQ, GT, GTE, LT, LTE, CONTAINS),
+        float: (EQ, GT, GTE, LT, LTE, CONTAINS),
+        list: (EQ, IN, CONTAINS)
     }
 
-    def __init__(self, attr, value, op=EQ):
+    def __init__(self, attr, value, op=EQ, negate=False):
         if op not in self.OPERATORS:
             raise ValueError(f"Unknown operator: {op}. Must be one of: {', '.join(self.OPERATORS)}")
         if type(value) not in self.TYPES:
@@ -59,13 +56,18 @@ class Condition:
         self.attr = attr
         self.value = value
         self.eval_func = getattr(self, f'eval_{op}')
+        self.negate = negate
 
     def eval(self, data):
         """
         Evaluate the provided data to determine whether it matches the condition.
         """
         value = functools.reduce(dict.get, self.attr.split('.'), data)
-        return self.eval_func(value)
+        result = self.eval_func(value)
+
+        if self.negate:
+            return not result
+        return result
 
     # Equivalency
 
@@ -104,7 +106,7 @@ class ConditionSet:
 
     {"and": [
         {"attr": "foo", "op": "eq", "value": 1},
-        {"attr": "bar", "op": "neq", "value": 2}
+        {"attr": "bar", "op": "eq", "value": 2, "negate": true}
     ]}
 
     :param ruleset: A dictionary mapping a logical operator to a list of conditional rules
@@ -117,8 +119,8 @@ class ConditionSet:
 
         # Determine the logic type
         logic = list(ruleset.keys())[0]
-        if type(logic) is not str or logic.lower() not in LOGIC_TYPES:
-            raise ValueError(f"Invalid logic type: {logic} (must be 'and' or 'or')")
+        if type(logic) is not str or logic.lower() not in (AND, OR):
+            raise ValueError(f"Invalid logic type: {logic} (must be '{AND}' or '{OR}')")
         self.logic = logic.lower()
 
         # Compile the set of Conditions
