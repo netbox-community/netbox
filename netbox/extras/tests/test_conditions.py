@@ -17,6 +17,25 @@ class ConditionTestCase(TestCase):
         self.assertTrue(c.eval({'x': 1}))
 
     #
+    # Validation tests
+    #
+
+    def test_invalid_op(self):
+        with self.assertRaises(ValueError):
+            # 'blah' is not a valid operator
+            Condition('x', 1, 'blah')
+
+    def test_invalid_type(self):
+        with self.assertRaises(ValueError):
+            # dict type is unsupported
+            Condition('x', 1, dict())
+
+    def test_invalid_op_type(self):
+        with self.assertRaises(ValueError):
+            # 'gt' supports only numeric values
+            Condition('x', 'foo', 'gt')
+
+    #
     # Operator tests
     #
 

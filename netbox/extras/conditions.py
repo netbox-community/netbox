@@ -40,11 +40,24 @@ class Condition:
         EQ, NEQ, GT, GTE, LT, LTE, IN, CONTAINS
     )
 
+    TYPES = {
+        str: (EQ, NEQ, CONTAINS),
+        bool: (EQ, NEQ, CONTAINS),
+        int: (EQ, NEQ, GT, GTE, LT, LTE, CONTAINS),
+        float: (EQ, NEQ, GT, GTE, LT, LTE, CONTAINS),
+        list: (EQ, NEQ, IN, CONTAINS)
+    }
+
     def __init__(self, attr, value, op=EQ):
+        if op not in self.OPERATORS:
+            raise ValueError(f"Unknown operator: {op}. Must be one of: {', '.join(self.OPERATORS)}")
+        if type(value) not in self.TYPES:
+            raise ValueError(f"Unsupported value type: {type(value)}")
+        if op not in self.TYPES[type(value)]:
+            raise ValueError(f"Invalid type for {op} operation: {type(value)}")
+
         self.attr = attr
         self.value = value
-        if op not in self.OPERATORS:
-            raise ValueError(f"Unknown operator: {op}")
         self.eval_func = getattr(self, f'eval_{op}')
 
     def eval(self, data):
