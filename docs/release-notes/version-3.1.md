@@ -6,6 +6,7 @@
 ### Breaking Changes
 
 * The `tenant` and `tenant_id` filters for the Cable model now filter on the tenant assigned directly to each cable, rather than on the parent object of either termination.
+* The `cable_peer` and `cable_peer_type` attributes of the interface model has been renamed to `link_peer` and `link_peer_type`, respectively, to accommodate wireless links.
 
 ### New Features
 
@@ -71,6 +72,10 @@ Multiple interfaces can be bridged to a single virtual interface to effect a bri
     * `/api/tenancy/contact-groups/`
     * `/api/tenancy/contact-roles/`
     * `/api/tenancy/contacts/`
+* Added the following endpoints for wireless networks:
+    * `/api/wireless/wireless-lans/`
+    * `/api/wireless/wireless-lan-groups/`
+    * `/api/wireless/wireless-links/`
 * Added `tags` field to the following models:
     * circuits.CircuitType
     * dcim.DeviceRole
@@ -96,7 +101,13 @@ Multiple interfaces can be bridged to a single virtual interface to effect a bri
     * Added `airflow` field 
 * dcim.Interface
     * Added `bridge` field
+    * Added `rf_role` field
+    * Added `rf_channel` field
+    * Added `rf_channel_frequency` field
+    * Added `rf_chanel_width` field
     * Added `wwn` field
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Location
     * Added `tenant` field
 * extras.Webhook
