@@ -17,6 +17,7 @@ A webhook is a mechanism for conveying to some external system a change that too
 * **Additional headers** - Any additional headers to include with the request (optional). Add one header per line in the format `Name: Value`. Jinja2 templating is supported for this field (see below).
 * **Body template** - The content of the request being sent (optional). Jinja2 templating is supported for this field (see below). If blank, NetBox will populate the request body with a raw dump of the webhook context. (If the HTTP cotent type is set to `application/json`, this will be formatted as a JSON object.)
 * **Secret** - A secret string used to prove authenticity of the request (optional). This will append a `X-Hook-Signature` header to the request, consisting of a HMAC (SHA-512) hex digest of the request body using the secret as the key.
+* **Conditions** - An optional set of conditions evaluated to determine whether the webhook fires for a given object.
 * **SSL verification** - Uncheck this option to disable validation of the receiver's SSL certificate. (Disable with caution!)
 * **CA file path** - The file path to a particular certificate authority (CA) file to use when validating the receiver's SSL certificate (optional).
 
@@ -80,3 +81,16 @@ If no body template is specified, the request body will be populated with a JSON
     }
 }
 ```
+
+## Conditional Webhooks
+
+A webhook may include a set of conditional logic expressed in JSON used to control whether a webhook triggers for a specific object. For example, you may wish to trigger a webhook for devices only when the `status` field of an object is "active":
+
+```json
+{
+  "attr": "status",
+  "value": "active"
+}
+```
+
+For more detail, see the reference documentation for NetBox's [conditional logic](../reference/conditions.md).

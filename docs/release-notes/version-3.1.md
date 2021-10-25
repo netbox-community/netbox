@@ -28,6 +28,20 @@ Both types of connection include SSID and authentication attributes. Additionall
 * Channel - A predefined channel within a standardized band
 * Channel frequency & width - Customizable channel attributes (e.g. for licensed bands)
 
+#### Conditional Webhooks ([#6238](https://github.com/netbox-community/netbox/issues/6238))
+
+Webhooks now include a `conditions` field, which may be used to specify conditions under which a webhook triggers. For example, you may wish to generate outgoing requests for a device webhook only when its status is "active" or "staged". This can be done by declaring conditional logic in JSON:
+
+```json
+{
+  "attr": "status",
+  "op": "in",
+  "value": ["active", "staged"]
+}
+```
+
+Multiple conditions may be nested using AND/OR logic as well. For more information, please see the [conditional logic documentation](../reference/conditions.md). 
+
 #### Interface Bridging ([#6346](https://github.com/netbox-community/netbox/issues/6346))
 
 A `bridge` field has been added to the interface model for devices and virtual machines. This can be set to reference another interface on the same parent device/VM to indicate a direct layer two bridging adjacency.
@@ -85,5 +99,7 @@ Multiple interfaces can be bridged to a single virtual interface to effect a bri
     * Added `wwn` field
 * dcim.Location
     * Added `tenant` field
+* extras.Webhook
+    * Added the `conditions` field
 * virtualization.VMInterface
     * Added `bridge` field

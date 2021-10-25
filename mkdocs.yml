@@ -93,6 +93,8 @@ nav:
         - Authentication: 'rest-api/authentication.md'
     - GraphQL API:
         - Overview: 'graphql-api/overview.md'
+    - Reference:
+        - Conditions: 'reference/conditions.md'
     - Development:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'
