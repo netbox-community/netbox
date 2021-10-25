@@ -61,7 +61,7 @@ class WebhookSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url',
             'enabled', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            'ssl_verification', 'ca_file_path',
+            'conditions', 'ssl_verification', 'ca_file_path',
         ]
 
 

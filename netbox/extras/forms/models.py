@@ -102,6 +102,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             ('HTTP Request', (
                 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
             )),
+            ('Conditions', ('conditions',)),
             ('SSL', ('ssl_verification', 'ca_file_path')),
         )
         widgets = {

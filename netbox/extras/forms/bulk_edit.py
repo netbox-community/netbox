@@ -137,7 +137,7 @@ class WebhookBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['secret', 'ca_file_path']
+        nullable_fields = ['secret', 'conditions', 'ca_file_path']
 
 
 class TagBulkEditForm(BootstrapMixin, BulkEditForm):
