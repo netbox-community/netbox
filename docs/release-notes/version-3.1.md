@@ -45,7 +45,7 @@ Multiple conditions may be nested using AND/OR logic as well. For more informati
 
 #### Interface Bridging ([#6346](https://github.com/netbox-community/netbox/issues/6346))
 
-A `bridge` field has been added to the interface model for devices and virtual machines. This can be set to reference another interface on the same parent device/VM to indicate a direct layer two bridging adjacency.
+A `bridge` field has been added to the interface model for devices and virtual machines. This can be set to reference another interface on the same parent device/VM to indicate a direct layer two bridging adjacency. Additionally, "bridge" has been added as an interface type. (However, interfaces of any type may be designated as bridged.)
 
 Multiple interfaces can be bridged to a single virtual interface to effect a bridge group. Alternatively, two physical interfaces can be bridged to one another, to effect an internal cross-connect.
 

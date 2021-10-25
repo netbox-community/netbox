@@ -720,6 +720,7 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Virtual
     TYPE_VIRTUAL = 'virtual'
+    TYPE_BRIDGE = 'bridge'
     TYPE_LAG = 'lag'
 
     # Ethernet
@@ -820,6 +821,7 @@ class InterfaceTypeChoices(ChoiceSet):
             'Virtual interfaces',
             (
                 (TYPE_VIRTUAL, 'Virtual'),
+                (TYPE_BRIDGE, 'Bridge'),
                 (TYPE_LAG, 'Link Aggregation Group (LAG)'),
             ),
         ),

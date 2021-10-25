@@ -34,6 +34,7 @@ INTERFACE_MTU_MAX = 65536
 VIRTUAL_IFACE_TYPES = [
     InterfaceTypeChoices.TYPE_VIRTUAL,
     InterfaceTypeChoices.TYPE_LAG,
+    InterfaceTypeChoices.TYPE_BRIDGE,
 ]
 
 WIRELESS_IFACE_TYPES = [
