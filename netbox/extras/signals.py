@@ -2,13 +2,14 @@ import logging
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
 from netbox.signals import post_clean
 from .choices import ObjectChangeActionChoices
-from .models import CustomField, ObjectChange
+from .models import ConfigRevision, CustomField, ObjectChange
 from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
 
@@ -161,3 +162,16 @@ def run_custom_validators(sender, instance, **kwargs):
     validators = settings.CUSTOM_VALIDATORS.get(model_name, [])
     for validator in validators:
         validator(instance)
+
+
+#
+# Dynamic configuration
+#
+
+@receiver(post_save, sender=ConfigRevision)
+def update_config(sender, instance, **kwargs):
+    """
+    Update the cached NetBox configuration when a new ConfigRevision is created.
+    """
+    cache.set('config', instance.data, None)
+    cache.set('config_version', instance.pk, None)

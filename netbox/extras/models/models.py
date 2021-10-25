@@ -1,9 +1,11 @@
 import json
 import uuid
 
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
@@ -20,8 +22,8 @@ from netbox.models import BigIDModel, ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import render_jinja2
 
-
 __all__ = (
+    'ConfigRevision',
     'CustomLink',
     'ExportTemplate',
     'ImageAttachment',
@@ -32,10 +34,6 @@ __all__ = (
     'Webhook',
 )
 
-
-#
-# Webhooks
-#
 
 @extras_features('webhooks')
 class Webhook(ChangeLoggedModel):
@@ -181,10 +179,6 @@ class Webhook(ChangeLoggedModel):
             return json.dumps(context, cls=JSONEncoder)
 
 
-#
-# Custom links
-#
-
 @extras_features('webhooks')
 class CustomLink(ChangeLoggedModel):
     """
@@ -239,10 +233,6 @@ class CustomLink(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse('extras:customlink', args=[self.pk])
 
-
-#
-# Export templates
-#
 
 @extras_features('webhooks')
 class ExportTemplate(ChangeLoggedModel):
@@ -333,10 +323,6 @@ class ExportTemplate(ChangeLoggedModel):
         return response
 
 
-#
-# Image attachments
-#
-
 class ImageAttachment(BigIDModel):
     """
     An uploaded image which is associated with an object.
@@ -409,11 +395,6 @@ class ImageAttachment(BigIDModel):
             return None
 
 
-#
-# Journal entries
-#
-
-
 @extras_features('webhooks')
 class JournalEntry(ChangeLoggedModel):
     """
@@ -462,36 +443,6 @@ class JournalEntry(ChangeLoggedModel):
     def get_kind_class(self):
         return JournalEntryKindChoices.CSS_CLASSES.get(self.kind)
 
-
-#
-# Custom scripts
-#
-
-@extras_features('job_results')
-class Script(models.Model):
-    """
-    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
-    """
-    class Meta:
-        managed = False
-
-
-#
-# Reports
-#
-
-@extras_features('job_results')
-class Report(models.Model):
-    """
-    Dummy model used to generate permissions for reports. Does not exist in the database.
-    """
-    class Meta:
-        managed = False
-
-
-#
-# Job results
-#
 
 class JobResult(BigIDModel):
     """
@@ -582,3 +533,59 @@ class JobResult(BigIDModel):
         func.delay(*args, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
 
         return job_result
+
+
+class ConfigRevision(models.Model):
+    """
+    An atomic revision of NetBox's configuration.
+    """
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    comment = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    data = models.JSONField(
+        blank=True,
+        null=True,
+        verbose_name='Configuration data'
+    )
+
+    def __str__(self):
+        return f'Config revision #{self.pk} ({self.created})'
+
+    def __getattr__(self, item):
+        if item in self.data:
+            return self.data[item]
+        return super().__getattribute__(item)
+
+    @admin.display(boolean=True)
+    def is_active(self):
+        return cache.get('config_version') == self.pk
+
+
+#
+# Custom scripts & reports
+#
+
+@extras_features('job_results')
+class Script(models.Model):
+    """
+    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
+    """
+    class Meta:
+        managed = False
+
+
+#
+# Reports
+#
+
+@extras_features('job_results')
+class Report(models.Model):
+    """
+    Dummy model used to generate permissions for reports. Does not exist in the database.
+    """
+    class Meta:
+        managed = False

@@ -160,18 +160,11 @@ class DeviceTable(BaseTable):
         linkify=True,
         verbose_name='Type'
     )
-    if settings.PREFER_IPV4:
-        primary_ip = tables.Column(
-            linkify=True,
-            order_by=('primary_ip4', 'primary_ip6'),
-            verbose_name='IP Address'
-        )
-    else:
-        primary_ip = tables.Column(
-            linkify=True,
-            order_by=('primary_ip6', 'primary_ip4'),
-            verbose_name='IP Address'
-        )
+    primary_ip = tables.Column(
+        linkify=True,
+        order_by=('primary_ip4', 'primary_ip6'),
+        verbose_name='IP Address'
+    )
     primary_ip4 = tables.Column(
         linkify=True,
         verbose_name='IPv4 Address'

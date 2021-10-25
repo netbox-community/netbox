@@ -58,9 +58,9 @@
 
         </nav>
 
-        {% if settings.BANNER_TOP %}
+        {% if config.BANNER_TOP %}
           <div class="alert alert-info text-center mx-3" role="alert">
-            {{ settings.BANNER_TOP|safe }}
+            {{ config.BANNER_TOP|safe }}
           </div>
         {% endif %}
 
@@ -98,9 +98,9 @@
           {% endblock %}
         </div>
 
-        {% if settings.BANNER_BOTTOM %}
+        {% if config.BANNER_BOTTOM %}
           <div class="alert alert-info text-center mx-3" role="alert">
-            {{ settings.BANNER_BOTTOM|safe }}
+            {{ config.BANNER_BOTTOM|safe }}
           </div>
         {% endif %}
 

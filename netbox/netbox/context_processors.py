@@ -1,6 +1,7 @@
 from django.conf import settings as django_settings
 
 from extras.registry import registry
+from netbox.config import ConfigResolver
 
 
 def settings_and_registry(request):
@@ -9,6 +10,7 @@ def settings_and_registry(request):
     """
     return {
         'settings': django_settings,
+        'config': ConfigResolver(),
         'registry': registry,
         'preferences': request.user.config if request.user.is_authenticated else {},
     }
