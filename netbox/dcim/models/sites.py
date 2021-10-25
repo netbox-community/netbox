@@ -189,12 +189,6 @@ class Site(PrimaryModel):
         blank=True,
         help_text='Local facility ID or description'
     )
-    asn = ASNField(
-        blank=True,
-        null=True,
-        verbose_name='ASN',
-        help_text='32-bit autonomous system number'
-    )
     time_zone = TimeZoneField(
         blank=True
     )
@@ -257,7 +251,7 @@ class Site(PrimaryModel):
     objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
-        'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
+        'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
     ]
 

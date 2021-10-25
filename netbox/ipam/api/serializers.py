@@ -18,6 +18,24 @@ from .nested_serializers import *
 
 
 #
+# ASNs
+#
+from ..models import ASN
+
+
+class ASNSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = ASN
+        fields = [
+            'id', 'url', 'display', 'asn', 'site_count', 'rir', 'tenant', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated',
+        ]
+
+
+#
 # VRFs
 #
 

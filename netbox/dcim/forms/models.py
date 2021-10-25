@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from timezone_field import TimeZoneFormField
@@ -8,7 +9,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
-from ipam.models import IPAddress, VLAN, VLANGroup
+from ipam.models import IPAddress, VLAN, VLANGroup, ASN
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, DynamicModelChoiceField,
@@ -101,6 +102,11 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=SiteGroup.objects.all(),
         required=False
     )
+    asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('ASNs'),
+        required=False
+    )
     slug = SlugField()
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
@@ -116,13 +122,13 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asn', 'time_zone',
+            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asns', 'time_zone',
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
             'contact_phone', 'contact_email', 'comments', 'tags',
         ]
         fieldsets = (
             ('Site', (
-                'name', 'slug', 'status', 'region', 'group', 'facility', 'asn', 'time_zone', 'description', 'tags',
+                'name', 'slug', 'status', 'region', 'group', 'facility', 'asns', 'time_zone', 'description', 'tags',
             )),
             ('Tenancy', ('tenant_group', 'tenant')),
             ('Contact Info', (
@@ -147,7 +153,6 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         help_texts = {
             'name': "Full name of the site",
             'facility': "Data center provider and facility (e.g. Equinix NY7)",
-            'asn': "BGP autonomous system number",
             'time_zone': "Local time zone",
             'description': "Short description (will appear in sites list)",
             'physical_address': "Physical location of the building (e.g. for GPS)",

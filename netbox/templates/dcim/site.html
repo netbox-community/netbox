@@ -81,10 +81,6 @@
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">AS Number</th>
-                        <td>{{ object.asn|placeholder }}</td>
-                    </tr>
-                    <tr>
                         <th scope="row">Time Zone</th>
                         <td>
                             {% if object.time_zone %}
@@ -215,6 +211,10 @@
                     <div class="col col-md-4 text-center">
                         <h2><a href="{% url 'virtualization:virtualmachine_list' %}?site_id={{ object.pk }}" class="btn {% if stats.vm_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.vm_count }}</a></h2>
                         <p>Virtual Machines</p>
+                    </div>
+                    <div class="col col-md-4 text-center">
+                        <h2><a href="{% url 'ipam:asn_list' %}?site_id={{ object.pk }}" class="btn {% if stats.asn_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.asn_count }}</a></h2>
+                        <p>ASNs</p>
                     </div>
                 </div>
             </div>

@@ -215,6 +215,12 @@ IPAM_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label='ASNs',
+            items=(
+                get_model_item('ipam', 'asn', 'ASNs'),
+            ),
+        ),
+        MenuGroup(
             label='Aggregates',
             items=(
                 get_model_item('ipam', 'aggregate', 'Aggregates'),

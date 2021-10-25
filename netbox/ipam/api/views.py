@@ -1,11 +1,13 @@
 from rest_framework.routers import APIRootView
 
+from dcim.models import Site
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filtersets
 from ipam.models import *
 from netbox.api.views import ModelViewSet
 from utilities.utils import count_related
 from . import mixins, serializers
+from ..models import ASN
 
 
 class IPAMRootView(APIRootView):
@@ -14,6 +16,16 @@ class IPAMRootView(APIRootView):
     """
     def get_view_name(self):
         return 'IPAM'
+
+
+#
+# ASNs
+#
+
+class ASNViewSet(CustomFieldModelViewSet):
+    queryset = ASN.objects.prefetch_related('tenant', 'rir').annotate(site_count=count_related(Site, 'asns'))
+    serializer_class = serializers.ASNSerializer
+    filterset_class = filtersets.ASNFilterSet
 
 
 #

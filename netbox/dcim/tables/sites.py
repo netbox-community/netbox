@@ -75,6 +75,11 @@ class SiteTable(BaseTable):
     group = tables.Column(
         linkify=True
     )
+    asn_count = LinkedCountColumn(
+        viewname='ipam:asn_list',
+        url_params={'site_id': 'pk'},
+        verbose_name='ASNs'
+    )
     tenant = TenantColumn()
     comments = MarkdownColumn()
     tags = TagColumn(
@@ -84,11 +89,11 @@ class SiteTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Site
         fields = (
-            'pk', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn', 'time_zone', 'description',
-            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email', 'comments', 'tags',
+            'pk', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
+            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
+            'contact_phone', 'contact_email', 'comments', 'tags',
         )
-        default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'asn', 'description')
+        default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'description')
 
 
 #

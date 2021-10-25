@@ -4,6 +4,7 @@ from .vlans import *
 from .vrfs import *
 
 __all__ = (
+    'ASN',
     'Aggregate',
     'IPAddress',
     'IPRange',

@@ -5,6 +5,7 @@ from netbox.api import WritableNestedSerializer
 
 __all__ = [
     'NestedAggregateSerializer',
+    'NestedASNSerializer',
     'NestedIPAddressSerializer',
     'NestedIPRangeSerializer',
     'NestedPrefixSerializer',
@@ -16,6 +17,18 @@ __all__ = [
     'NestedVLANSerializer',
     'NestedVRFSerializer',
 ]
+
+
+#
+# ASNs
+#
+
+class NestedASNSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
+
+    class Meta:
+        model = models.ASN
+        fields = ['id', 'url', 'display', 'asn']
 
 
 #

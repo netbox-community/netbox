@@ -20,6 +20,38 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class ASNTest(APIViewTestCases.APIViewTestCase):
+    model = ASN
+    brief_fields = ['display', 'id', 'name', 'prefix_count', 'rd', 'url']
+    create_data = [
+        {
+            'name': 'VRF 4',
+            'rd': '65000:4',
+        },
+        {
+            'name': 'VRF 5',
+            'rd': '65000:5',
+        },
+        {
+            'name': 'VRF 6',
+            'rd': '65000:6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vrfs = (
+            VRF(name='VRF 1', rd='65000:1'),
+            VRF(name='VRF 2', rd='65000:2'),
+            VRF(name='VRF 3'),  # No RD
+        )
+        VRF.objects.bulk_create(vrfs)
+
+
 class VRFTest(APIViewTestCases.APIViewTestCase):
     model = VRF
     brief_fields = ['display', 'id', 'name', 'prefix_count', 'rd', 'url']

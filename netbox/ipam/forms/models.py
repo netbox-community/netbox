@@ -6,6 +6,7 @@ from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.constants import *
 from ipam.models import *
+from ipam.models import ASN
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
@@ -15,6 +16,7 @@ from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInter
 
 __all__ = (
     'AggregateForm',
+    'ASNForm',
     'IPAddressAssignForm',
     'IPAddressBulkAddForm',
     'IPAddressForm',
@@ -111,6 +113,30 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         )
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
+            'rir': "Regional Internet Registry responsible for this prefix",
+        }
+        widgets = {
+            'date_added': DatePicker(),
+        }
+
+
+class ASNForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    rir = DynamicModelChoiceField(
+        queryset=RIR.objects.all(),
+        label='RIR',
+    )
+
+    class Meta:
+        model = ASN
+        fields = [
+            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description'
+        ]
+        fieldsets = (
+            ('ASN', ('asn', 'rir', 'sites', 'description')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
+        help_texts = {
+            'asn': "AS number",
             'rir': "Regional Internet Registry responsible for this prefix",
         }
         widgets = {

@@ -2,6 +2,7 @@ import django_tables2 as tables
 from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
+from ipam.models import ASN
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn,
@@ -11,6 +12,7 @@ from ipam.models import *
 
 __all__ = (
     'AggregateTable',
+    'ASNTable',
     'InterfaceIPAddressTable',
     'IPAddressAssignTable',
     'IPAddressTable',
@@ -91,6 +93,29 @@ class RIRTable(BaseTable):
         model = RIR
         fields = ('pk', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
+
+
+#
+# RIRs
+#
+
+class ASNTable(BaseTable):
+    pk = ToggleColumn()
+    asn = tables.Column(
+        linkify=True
+    )
+    site_count = LinkedCountColumn(
+        viewname='dcim:site_list',
+        url_params={'asn_id': 'pk'},
+        verbose_name='Sites'
+    )
+
+    actions = ButtonsColumn(ASN)
+
+    class Meta(BaseTable.Meta):
+        model = ASN
+        fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'actions')
+        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant', 'actions')
 
 
 #

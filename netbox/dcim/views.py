@@ -14,7 +14,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit
 from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
-from ipam.models import IPAddress, Prefix, Service, VLAN
+from ipam.models import IPAddress, Prefix, Service, VLAN, ASN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -310,6 +310,7 @@ class SiteView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         stats = {
+            'asn_count': ASN.objects.restrict(request.user, 'view').filter(sites=instance).count(),
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
