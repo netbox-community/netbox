@@ -1,4 +1,5 @@
 import functools
+import re
 
 __all__ = (
     'Condition',
@@ -32,13 +33,14 @@ class Condition:
     LTE = 'lte'
     IN = 'in'
     CONTAINS = 'contains'
+    REGEX = 'regex'
 
     OPERATORS = (
-        EQ, GT, GTE, LT, LTE, IN, CONTAINS
+        EQ, GT, GTE, LT, LTE, IN, CONTAINS, REGEX
     )
 
     TYPES = {
-        str: (EQ, CONTAINS),
+        str: (EQ, CONTAINS, REGEX),
         bool: (EQ, CONTAINS),
         int: (EQ, GT, GTE, LT, LTE, CONTAINS),
         float: (EQ, GT, GTE, LT, LTE, CONTAINS),
@@ -98,6 +100,11 @@ class Condition:
 
     def eval_contains(self, value):
         return self.value in value
+
+    # Regular expressions
+
+    def eval_regex(self, value):
+        return re.match(self.value, value) is not None
 
 
 class ConditionSet:

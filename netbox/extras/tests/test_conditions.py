@@ -95,6 +95,16 @@ class ConditionTestCase(TestCase):
         self.assertFalse(c.eval({'x': [1, 2, 3]}))
         self.assertTrue(c.eval({'x': [2, 3, 4]}))
 
+    def test_regex(self):
+        c = Condition('x', '[a-z]+', 'regex')
+        self.assertTrue(c.eval({'x': 'abc'}))
+        self.assertFalse(c.eval({'x': '123'}))
+
+    def test_regex_negated(self):
+        c = Condition('x', '[a-z]+', 'regex', negate=True)
+        self.assertFalse(c.eval({'x': 'abc'}))
+        self.assertTrue(c.eval({'x': '123'}))
+
 
 class ConditionSetTest(TestCase):
 
