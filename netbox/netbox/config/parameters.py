@@ -2,23 +2,6 @@ from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 
 
-class OptionalBooleanSelect(forms.Select):
-    """
-    An optional boolean field (yes/no/default).
-    """
-    def __init__(self, attrs=None):
-        choices = (
-            ('', 'Default'),
-            (True, 'Yes'),
-            (False, 'No'),
-        )
-        super().__init__(attrs, choices)
-
-
-class OptionalBooleanField(forms.NullBooleanField):
-    widget = OptionalBooleanSelect
-
-
 class ConfigParam:
 
     def __init__(self, name, label, default, description=None, field=None, field_kwargs=None):
@@ -43,14 +26,14 @@ PARAMS = (
         label='Globally unique IP space',
         default=False,
         description="Enforce unique IP addressing within the global table",
-        field=OptionalBooleanField
+        field=forms.BooleanField
     ),
     ConfigParam(
         name='PREFER_IPV4',
         label='Prefer IPv4',
         default=False,
         description="Prefer IPv4 addresses over IPv6",
-        field=OptionalBooleanField
+        field=forms.BooleanField
     ),
 
     # Racks
@@ -127,7 +110,7 @@ PARAMS = (
         label='Maintenance mode',
         default=False,
         description="Enable maintenance mode",
-        field=OptionalBooleanField
+        field=forms.BooleanField
     ),
     ConfigParam(
         name='MAPS_URL',
