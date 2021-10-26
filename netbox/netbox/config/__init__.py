@@ -3,6 +3,7 @@ import threading
 
 from django.conf import settings
 from django.core.cache import cache
+from django.db.utils import DatabaseError
 
 from .parameters import PARAMS
 
@@ -73,7 +74,18 @@ class Config:
     def _populate_from_db(self):
         """Cache data from latest ConfigRevision, then populate from cache"""
         from extras.models import ConfigRevision
-        revision = ConfigRevision.objects.last()
+
+        try:
+            revision = ConfigRevision.objects.last()
+        except DatabaseError:
+            # The database may not be available yet (e.g. when running a management command)
+            logger.warning(f"Skipping config initialization (database unavailable)")
+            return
+
+        if revision is None:
+            logger.debug("No previous configuration found in database; proceeding with default values")
+            return
+
         revision.cache()
         logger.debug("Filled cache with data from latest ConfigRevision")
         self._populate_from_cache()
