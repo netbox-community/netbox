@@ -52,4 +52,20 @@ PARAMS = (
         field=OptionalBooleanField
     ),
 
+    # Racks
+    ConfigParam(
+        name='RACK_ELEVATION_DEFAULT_UNIT_HEIGHT',
+        label='Rack Unit Height',
+        default=22,
+        description="Default unit height for rendered rack elevations",
+        field=forms.IntegerField
+    ),
+    ConfigParam(
+        name='RACK_ELEVATION_DEFAULT_UNIT_WIDTH',
+        label='Rack Unit Width',
+        default=220,
+        description="Default unit width for rendered rack elevations",
+        field=forms.IntegerField
+    ),
+
 )

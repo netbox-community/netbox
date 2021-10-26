@@ -10,9 +10,9 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         # ('Authentication', {
         #     'fields': ('LOGIN_REQUIRED', 'LOGIN_PERSISTENCE', 'LOGIN_TIMEOUT'),
         # }),
-        # ('Rack Elevations', {
-        #     'fields': ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH'),
-        # }),
+        ('Rack Elevations', {
+            'fields': ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH'),
+        }),
         ('IPAM', {
             'fields': ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4'),
         }),

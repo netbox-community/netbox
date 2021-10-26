@@ -77,14 +77,6 @@ ALLOWED_URL_SCHEMES = (
     'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
 )
 
-# Optionally display a persistent banner at the top and/or bottom of every page. HTML is allowed. To display the same
-# content in both banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
-BANNER_TOP = ''
-BANNER_BOTTOM = ''
-
-# Text to include on the login page above the login form. HTML is allowed.
-BANNER_LOGIN = ''
-
 # Base URL path if accessing NetBox within a directory. For example, if installed at https://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
@@ -133,10 +125,6 @@ EMAIL = {
     'TIMEOUT': 10,  # seconds
     'FROM_EMAIL': '',
 }
-
-# Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce unique IP space within the global table
-# (all prefixes and IP addresses not assigned to a VRF), set ENFORCE_GLOBAL_UNIQUE to True.
-ENFORCE_GLOBAL_UNIQUE = False
 
 # Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
 # by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
@@ -228,14 +216,6 @@ PLUGINS = []
 #         'buzz': 'bazz'
 #     }
 # }
-
-# When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to
-# prefer IPv4 instead.
-PREFER_IPV4 = False
-
-# Rack elevation size defaults, in pixels. For best results, the ratio of width to height should be roughly 10:1.
-RACK_ELEVATION_DEFAULT_UNIT_HEIGHT = 22
-RACK_ELEVATION_DEFAULT_UNIT_WIDTH = 220
 
 # Remote authentication support
 REMOTE_AUTH_ENABLED = False

@@ -4,18 +4,20 @@ from django.core.cache import cache
 from .parameters import PARAMS
 
 __all__ = (
-    'ConfigResolver',
+    'Config',
+    'ConfigItem',
     'PARAMS',
 )
 
 
-class ConfigResolver:
+class Config:
     """
-    Active NetBox configuration.
+    Fetch and store in memory the current NetBox configuration. This class must be instantiated prior to access, and
+    must be re-instantiated each time it's necessary to check for updates to the cached config.
     """
     def __init__(self):
         self.config = cache.get('config')
-        self.version = self.config.get('config_version')
+        self.version = cache.get('config_version')
         self.defaults = {param.name: param.default for param in PARAMS}
 
     def __getattr__(self, item):
@@ -33,3 +35,16 @@ class ConfigResolver:
             return self.defaults[item]
 
         raise AttributeError(f"Invalid configuration parameter: {item}")
+
+
+class ConfigItem:
+    """
+    A callable to retrieve a configuration parameter from the cache. This can serve as a placeholder to defer
+    referencing a configuration parameter.
+    """
+    def __init__(self, item):
+        self.item = item
+
+    def __call__(self):
+        config = Config()
+        return getattr(config, self.item)
