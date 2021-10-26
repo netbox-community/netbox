@@ -28,9 +28,9 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         # ('Pagination', {
         #     'fields': ('MAX_PAGE_SIZE', 'PAGINATE_COUNT'),
         # }),
-        # ('Miscellaneous', {
-        #     'fields': ('GRAPHQL_ENABLED', 'METRICS_ENABLED', 'MAINTENANCE_MODE', 'MAPS_URL'),
-        # }),
+        ('Miscellaneous', {
+            'fields': ('MAINTENANCE_MODE', 'MAPS_URL'),
+        }),
         ('Config Revision', {
             'fields': ('comment',),
         })

@@ -158,12 +158,6 @@ LOGIN_REQUIRED = False
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None
 
-# Setting this to True will display a "maintenance mode" banner at the top of every page.
-MAINTENANCE_MODE = False
-
-# The URL to use when mapping physical addresses or GPS coordinates
-MAPS_URL = 'https://maps.google.com/?q='
-
 # An API consumer can request an arbitrary number of objects =by appending the "limit" parameter to the URL (e.g.
 # "?limit=1000"). This setting defines the maximum limit. Setting it to 0 or None will allow an API consumer to request
 # all objects by specifying "?limit=0".

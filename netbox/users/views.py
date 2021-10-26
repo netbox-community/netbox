@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,6 +13,7 @@ from django.utils.http import is_safe_url
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 
+from netbox.config import Config
 from utilities.forms import ConfirmationForm
 from .forms import LoginForm, PasswordChangeForm, TokenForm
 from .models import Token
@@ -53,7 +53,7 @@ class LoginView(View):
 
             # If maintenance mode is enabled, assume the database is read-only, and disable updating the user's
             # last_login time upon authentication.
-            if settings.MAINTENANCE_MODE:
+            if Config().MAINTENANCE_MODE:
                 logger.warning("Maintenance mode enabled: disabling update of most recent login time")
                 user_logged_in.disconnect(update_last_login, dispatch_uid='update_last_login')
 

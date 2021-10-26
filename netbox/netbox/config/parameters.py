@@ -56,14 +56,14 @@ PARAMS = (
     # Racks
     ConfigParam(
         name='RACK_ELEVATION_DEFAULT_UNIT_HEIGHT',
-        label='Rack Unit Height',
+        label='Rack unit height',
         default=22,
         description="Default unit height for rendered rack elevations",
         field=forms.IntegerField
     ),
     ConfigParam(
         name='RACK_ELEVATION_DEFAULT_UNIT_WIDTH',
-        label='Rack Unit Width',
+        label='Rack unit width',
         default=220,
         description="Default unit width for rendered rack elevations",
         field=forms.IntegerField
@@ -80,6 +80,21 @@ PARAMS = (
         description="Permitted schemes for URLs in user-provided content",
         field=SimpleArrayField,
         field_kwargs={'base_field': forms.CharField()}
+    ),
+
+    # Miscellaneous
+    ConfigParam(
+        name='MAINTENANCE_MODE',
+        label='Maintenance mode',
+        default=False,
+        description="Enable maintenance mode",
+        field=OptionalBooleanField
+    ),
+    ConfigParam(
+        name='MAPS_URL',
+        label='Maps URL',
+        default='https://maps.google.com/?q=',
+        description="Base URL for mapping geographic locations"
     ),
 
 )
