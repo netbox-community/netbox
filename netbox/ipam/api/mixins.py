@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from ipam.models import *
+from netbox.config import Config
 from utilities.constants import ADVISORY_LOCK_KEYS
 from . import serializers
 
@@ -160,12 +161,15 @@ class AvailableIPsMixin:
 
         # Determine the maximum number of IPs to return
         else:
+            config = Config()
+            PAGINATE_COUNT = config.PAGINATE_COUNT
+            MAX_PAGE_SIZE = config.MAX_PAGE_SIZE
             try:
-                limit = int(request.query_params.get('limit', settings.PAGINATE_COUNT))
+                limit = int(request.query_params.get('limit', PAGINATE_COUNT))
             except ValueError:
-                limit = settings.PAGINATE_COUNT
-            if settings.MAX_PAGE_SIZE:
-                limit = min(limit, settings.MAX_PAGE_SIZE)
+                limit = PAGINATE_COUNT
+            if MAX_PAGE_SIZE:
+                limit = min(limit, MAX_PAGE_SIZE)
 
             # Calculate available IPs within the parent
             ip_list = []

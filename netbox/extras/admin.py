@@ -25,9 +25,9 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         # ('Logging', {
         #     'fields': ('CHANGELOG_RETENTION',),
         # }),
-        # ('Pagination', {
-        #     'fields': ('MAX_PAGE_SIZE', 'PAGINATE_COUNT'),
-        # }),
+        ('Pagination', {
+            'fields': ('PAGINATE_COUNT', 'MAX_PAGE_SIZE'),
+        }),
         ('Miscellaneous', {
             'fields': ('MAINTENANCE_MODE', 'MAPS_URL'),
         }),

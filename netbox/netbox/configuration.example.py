@@ -158,11 +158,6 @@ LOGIN_REQUIRED = False
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None
 
-# An API consumer can request an arbitrary number of objects =by appending the "limit" parameter to the URL (e.g.
-# "?limit=1000"). This setting defines the maximum limit. Setting it to 0 or None will allow an API consumer to request
-# all objects by specifying "?limit=0".
-MAX_PAGE_SIZE = 1000
-
 # The file path where uploaded media such as image attachments are stored. A trailing slash is not needed. Note that
 # the default value of this setting is derived from the installed location.
 # MEDIA_ROOT = '/opt/netbox/netbox/media'
@@ -190,9 +185,6 @@ NAPALM_TIMEOUT = 30
 # NAPALM optional arguments (see https://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
 # be provided as a dictionary.
 NAPALM_ARGS = {}
-
-# Determine how many objects to display per page within a list. (Default: 50)
-PAGINATE_COUNT = 50
 
 # Enable installed plugins. Add the name of each plugin to the list.
 PLUGINS = []

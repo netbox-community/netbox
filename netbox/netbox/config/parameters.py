@@ -82,6 +82,20 @@ PARAMS = (
         field_kwargs={'base_field': forms.CharField()}
     ),
 
+    # Pagination
+    ConfigParam(
+        name='PAGINATE_COUNT',
+        label='Default page size',
+        default=50,
+        field=forms.IntegerField
+    ),
+    ConfigParam(
+        name='MAX_PAGE_SIZE',
+        label='Maximum page size',
+        default=1000,
+        field=forms.IntegerField
+    ),
+
     # Miscellaneous
     ConfigParam(
         name='MAINTENANCE_MODE',
