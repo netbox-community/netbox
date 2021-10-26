@@ -16,11 +16,9 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         ('IPAM', {
             'fields': ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4'),
         }),
-        # ('Security', {
-        #     'fields': (
-        #         'ALLOWED_URL_SCHEMES', 'EXEMPT_VIEW_PERMISSIONS',
-        #     ),
-        # }),
+        ('Security', {
+            'fields': ('ALLOWED_URL_SCHEMES',),
+        }),
         ('Banners', {
             'fields': ('BANNER_LOGIN', 'BANNER_TOP', 'BANNER_BOTTOM'),
         }),

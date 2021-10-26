@@ -122,9 +122,6 @@ for param in PARAMS:
     if hasattr(configuration, param.name):
         globals()[param.name] = getattr(configuration, param.name)
 
-ALLOWED_URL_SCHEMES = getattr(configuration, 'ALLOWED_URL_SCHEMES', (
-    'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
-))
 CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 GRAPHQL_ENABLED = getattr(configuration, 'GRAPHQL_ENABLED', True)

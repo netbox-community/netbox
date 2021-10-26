@@ -14,6 +14,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
+from netbox.config import Config
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.utils import foreground_color
 
@@ -44,7 +45,7 @@ def render_markdown(value):
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
+    schemes = '|'.join(Config().ALLOWED_URL_SCHEMES)
     pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 

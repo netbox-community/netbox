@@ -72,11 +72,6 @@ ADMINS = [
     # ('John Doe', 'jdoe@example.com'),
 ]
 
-# URL schemes that are allowed within links in NetBox
-ALLOWED_URL_SCHEMES = (
-    'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
-)
-
 # Base URL path if accessing NetBox within a directory. For example, if installed at https://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''

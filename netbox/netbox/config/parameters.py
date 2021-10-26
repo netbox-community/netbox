@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.postgres.forms import SimpleArrayField
 
 
 class OptionalBooleanSelect(forms.Select):
@@ -66,6 +67,19 @@ PARAMS = (
         default=220,
         description="Default unit width for rendered rack elevations",
         field=forms.IntegerField
+    ),
+
+    # Security
+    ConfigParam(
+        name='ALLOWED_URL_SCHEMES',
+        label='Allowed URL schemes',
+        default=(
+            'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc',
+            'xmpp',
+        ),
+        description="Permitted schemes for URLs in user-provided content",
+        field=SimpleArrayField,
+        field_kwargs={'base_field': forms.CharField()}
     ),
 
 )
