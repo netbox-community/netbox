@@ -335,6 +335,7 @@ MIDDLEWARE = [
     'netbox.middleware.ExceptionHandlingMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.LoginRequiredMiddleware',
+    'netbox.middleware.DynamicConfigMiddleware',
     'netbox.middleware.APIVersionMiddleware',
     'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',

@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator, Page
 
-from netbox.config import Config
+from netbox.config import get_config
 
 
 class EnhancedPaginator(Paginator):
@@ -14,9 +14,9 @@ class EnhancedPaginator(Paginator):
         try:
             per_page = int(per_page)
             if per_page < 1:
-                per_page = Config().PAGINATE_COUNT
+                per_page = get_config().PAGINATE_COUNT
         except ValueError:
-            per_page = Config().PAGINATE_COUNT
+            per_page = get_config().PAGINATE_COUNT
 
         # Set orphans count based on page size
         if orphans is None and per_page <= 50:
@@ -66,7 +66,7 @@ def get_paginate_count(request):
 
     Return the lesser of the calculated value and MAX_PAGE_SIZE.
     """
-    config = Config()
+    config = get_config()
 
     if 'per_page' in request.GET:
         try:

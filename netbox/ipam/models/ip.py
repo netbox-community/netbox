@@ -16,7 +16,7 @@ from ipam.fields import IPNetworkField, IPAddressField
 from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
-from netbox.config import Config
+from netbox.config import get_config
 from utilities.querysets import RestrictedQuerySet
 from virtualization.models import VirtualMachine
 
@@ -316,7 +316,7 @@ class Prefix(PrimaryModel):
                 })
 
             # Enforce unique IP space (if applicable)
-            if (self.vrf is None and Config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
+            if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_prefixes = self.get_duplicates()
                 if duplicate_prefixes:
                     raise ValidationError({
@@ -811,7 +811,7 @@ class IPAddress(PrimaryModel):
                 })
 
             # Enforce unique IP space (if applicable)
-            if (self.vrf is None and Config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
+            if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_ips = self.get_duplicates()
                 if duplicate_ips and (
                         self.role not in IPADDRESS_ROLES_NONUNIQUE or

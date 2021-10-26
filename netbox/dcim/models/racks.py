@@ -14,7 +14,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
 from extras.utils import extras_features
-from netbox.config import Config
+from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
@@ -394,7 +394,7 @@ class Rack(PrimaryModel):
         """
         elevation = RackElevationSVG(self, user=user, include_images=include_images, base_url=base_url)
         if unit_width is None or unit_height is None:
-            config = Config()
+            config = get_config()
             unit_width = unit_width or config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
             unit_height = unit_height or config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
 

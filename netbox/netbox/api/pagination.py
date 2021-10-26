@@ -1,8 +1,7 @@
-from django.conf import settings
 from django.db.models import QuerySet
 from rest_framework.pagination import LimitOffsetPagination
 
-from netbox.config import Config
+from netbox.config import get_config
 
 
 class OptionalLimitOffsetPagination(LimitOffsetPagination):
@@ -12,7 +11,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
     MAX_PAGE_SIZE has been set to 0 or None.
     """
     def __init__(self):
-        self.default_limit = Config().PAGINATE_COUNT
+        self.default_limit = get_config().PAGINATE_COUNT
 
     def paginate_queryset(self, queryset, request, view=None):
 
@@ -44,7 +43,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
                 if limit < 0:
                     raise ValueError()
                 # Enforce maximum page size, if defined
-                MAX_PAGE_SIZE = Config().MAX_PAGE_SIZE
+                MAX_PAGE_SIZE = get_config().MAX_PAGE_SIZE
                 if MAX_PAGE_SIZE:
                     return MAX_PAGE_SIZE if limit == 0 else min(limit, MAX_PAGE_SIZE)
                 return limit

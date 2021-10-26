@@ -9,7 +9,7 @@ from dcim.models import Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
-from netbox.config import Config
+from netbox.config import get_config
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -137,7 +137,7 @@ class APIPaginationTestCase(APITestCase):
 
     def test_default_page_size(self):
         response = self.client.get(self.url, format='json', **self.header)
-        page_size = Config().PAGINATE_COUNT
+        page_size = get_config().PAGINATE_COUNT
         self.assertLess(page_size, 100, "Default page size not sufficient for data set")
 
         self.assertHttpStatus(response, status.HTTP_200_OK)

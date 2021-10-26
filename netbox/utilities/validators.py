@@ -3,7 +3,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import _lazy_re_compile, BaseValidator, URLValidator
 
-from netbox.config import Config
+from netbox.config import get_config
 
 
 class EnhancedURLValidator(URLValidator):
@@ -24,7 +24,7 @@ class EnhancedURLValidator(URLValidator):
     def __init__(self, schemes=None, **kwargs):
         super().__init__(**kwargs)
         if schemes is not None:
-            self.schemes = Config().ALLOWED_URL_SCHEMES
+            self.schemes = get_config().ALLOWED_URL_SCHEMES
 
 
 class ExclusionValidator(BaseValidator):
