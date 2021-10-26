@@ -560,6 +560,13 @@ class ConfigRevision(models.Model):
             return self.data[item]
         return super().__getattribute__(item)
 
+    def cache(self):
+        """
+        Cache the configuration data.
+        """
+        cache.set('config', self.data, None)
+        cache.set('config_version', self.pk, None)
+
     @admin.display(boolean=True)
     def is_active(self):
         return cache.get('config_version') == self.pk

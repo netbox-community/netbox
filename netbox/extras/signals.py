@@ -2,7 +2,6 @@ import logging
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
 from django_prometheus.models import model_deletes, model_inserts, model_updates
@@ -173,5 +172,4 @@ def update_config(sender, instance, **kwargs):
     """
     Update the cached NetBox configuration when a new ConfigRevision is created.
     """
-    cache.set('config', instance.data, None)
-    cache.set('config_version', instance.pk, None)
+    instance.cache()

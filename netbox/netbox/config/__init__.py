@@ -43,8 +43,9 @@ class Config:
     must be re-instantiated each time it's necessary to check for updates to the cached config.
     """
     def __init__(self):
-        self.config = cache.get('config') or {}
-        self.version = cache.get('config_version')
+        self._populate_from_cache()
+        if not self.config or not self.version:
+            self._populate_from_db()
         self.defaults = {param.name: param.default for param in PARAMS}
         logger.debug("Loaded configuration data from cache")
 
@@ -63,6 +64,19 @@ class Config:
             return self.defaults[item]
 
         raise AttributeError(f"Invalid configuration parameter: {item}")
+
+    def _populate_from_cache(self):
+        """Populate config data from Redis cache"""
+        self.config = cache.get('config') or {}
+        self.version = cache.get('config_version')
+
+    def _populate_from_db(self):
+        """Cache data from latest ConfigRevision, then populate from cache"""
+        from extras.models import ConfigRevision
+        revision = ConfigRevision.objects.last()
+        revision.cache()
+        logger.debug("Filled cache with data from latest ConfigRevision")
+        self._populate_from_cache()
 
 
 class ConfigItem:
