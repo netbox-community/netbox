@@ -43,7 +43,7 @@ class Config:
     must be re-instantiated each time it's necessary to check for updates to the cached config.
     """
     def __init__(self):
-        self.config = cache.get('config')
+        self.config = cache.get('config') or {}
         self.version = cache.get('config_version')
         self.defaults = {param.name: param.default for param in PARAMS}
         logger.debug("Loaded configuration data from cache")
