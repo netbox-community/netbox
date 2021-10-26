@@ -175,17 +175,6 @@ LOGIN_TIMEOUT = None
 # Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
 METRICS_ENABLED = False
 
-# Credentials that NetBox will uses to authenticate to devices when connecting via NAPALM.
-NAPALM_USERNAME = ''
-NAPALM_PASSWORD = ''
-
-# NAPALM timeout (in seconds). (Default: 30)
-NAPALM_TIMEOUT = 30
-
-# NAPALM optional arguments (see https://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
-# be provided as a dictionary.
-NAPALM_ARGS = {}
-
 # Enable installed plugins. Add the name of each plugin to the list.
 PLUGINS = []
 

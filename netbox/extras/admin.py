@@ -7,9 +7,6 @@ from .models import ConfigRevision, JobResult
 @admin.register(ConfigRevision)
 class ConfigRevisionAdmin(admin.ModelAdmin):
     fieldsets = [
-        # ('Authentication', {
-        #     'fields': ('LOGIN_REQUIRED', 'LOGIN_PERSISTENCE', 'LOGIN_TIMEOUT'),
-        # }),
         ('Rack Elevations', {
             'fields': ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH'),
         }),
@@ -22,11 +19,11 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         ('Banners', {
             'fields': ('BANNER_LOGIN', 'BANNER_TOP', 'BANNER_BOTTOM'),
         }),
-        # ('Logging', {
-        #     'fields': ('CHANGELOG_RETENTION',),
-        # }),
         ('Pagination', {
             'fields': ('PAGINATE_COUNT', 'MAX_PAGE_SIZE'),
+        }),
+        ('NAPALM', {
+            'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
         }),
         ('Miscellaneous', {
             'fields': ('MAINTENANCE_MODE', 'MAPS_URL'),

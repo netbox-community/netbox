@@ -130,11 +130,6 @@ for param in PARAMS:
     if hasattr(configuration, param.name):
         globals()[param.name] = getattr(configuration, param.name)
 
-NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
-NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
-NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
-NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
-
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
     validator = URLValidator(

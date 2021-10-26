@@ -96,6 +96,31 @@ PARAMS = (
         field=forms.IntegerField
     ),
 
+    # NAPALM
+    ConfigParam(
+        name='NAPALM_USERNAME',
+        label='NAPALM username',
+        default=''
+    ),
+    ConfigParam(
+        name='NAPALM_PASSWORD',
+        label='NAPALM password',
+        default=''
+    ),
+    ConfigParam(
+        name='NAPALM_TIMEOUT',
+        label='NAPALM timeout',
+        default=30,
+        field=forms.IntegerField
+    ),
+    ConfigParam(
+        name='NAPALM_ARGS',
+        label='NAPALM arguments',
+        default={},
+        description="Additional arguments to pass when invoking NAPALM",
+        field=forms.JSONField
+    ),
+
     # Miscellaneous
     ConfigParam(
         name='MAINTENANCE_MODE',
