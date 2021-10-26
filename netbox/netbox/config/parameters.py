@@ -16,9 +16,24 @@ class ConfigParam:
 PARAMS = (
 
     # Banners
-    ConfigParam('BANNER_LOGIN', 'Login banner', ''),
-    ConfigParam('BANNER_TOP', 'Top banner', ''),
-    ConfigParam('BANNER_BOTTOM', 'Bottom banner', ''),
+    ConfigParam(
+        name='BANNER_LOGIN',
+        label='Login banner',
+        default='',
+        description="Additional content to display on the login page"
+    ),
+    ConfigParam(
+        name='BANNER_TOP',
+        label='Top banner',
+        default='',
+        description="Additional content to display at the top of every page"
+    ),
+    ConfigParam(
+        name='BANNER_BOTTOM',
+        label='Bottom banner',
+        default='',
+        description="Additional content to display at the bottom of every page"
+    ),
 
     # IPAM
     ConfigParam(
@@ -83,24 +98,27 @@ PARAMS = (
     ConfigParam(
         name='NAPALM_USERNAME',
         label='NAPALM username',
-        default=''
+        default='',
+        description="Username to use when connecting to devices via NAPALM"
     ),
     ConfigParam(
         name='NAPALM_PASSWORD',
         label='NAPALM password',
-        default=''
+        default='',
+        description="Password to use when connecting to devices via NAPALM"
     ),
     ConfigParam(
         name='NAPALM_TIMEOUT',
         label='NAPALM timeout',
         default=30,
+        description="NAPALM connection timeout (in seconds)",
         field=forms.IntegerField
     ),
     ConfigParam(
         name='NAPALM_ARGS',
         label='NAPALM arguments',
         default={},
-        description="Additional arguments to pass when invoking NAPALM",
+        description="Additional arguments to pass when invoking a NAPALM driver (as JSON data)",
         field=forms.JSONField
     ),
 
