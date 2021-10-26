@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 
 from netbox.config import get_config, PARAMS
 
@@ -18,10 +19,18 @@ class FormMetaclass(forms.models.ModelFormMetaclass):
         # Emulate a declared field for each supported configuration parameter
         param_fields = {}
         for param in PARAMS:
+            is_static = hasattr(settings, param.name)
             help_text = f'{param.description}<br />' if param.description else ''
-            help_text += f'Current value: <strong>{getattr(config, param.name)}</strong>'
+            value = getattr(config, param.name)
+            if value:
+                help_text += f'Current value: <strong>{value}</strong>'
+                if is_static:
+                    help_text += ' (defined statically)'
+                elif value == param.default:
+                    help_text += ' (default)'
             field_kwargs = {
                 'required': False,
+                'disabled': is_static,
                 'label': param.label,
                 'help_text': help_text,
             }
