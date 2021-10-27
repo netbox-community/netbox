@@ -9,6 +9,7 @@
 * [#7628](https://github.com/netbox-community/netbox/issues/7628) - Fix `load_yaml` method for custom scripts
 * [#7643](https://github.com/netbox-community/netbox/issues/7643) - Fix circuit assignment when creating multiple terminations simultaneously
 * [#7644](https://github.com/netbox-community/netbox/issues/7644) - Prevent inadvertent deletion of prior change records when deleting objects (#7333 revisited)
+* [#7647](https://github.com/netbox-community/netbox/issues/7647) - Require interface assignment when designating IP address as primary for device/VM during CSV import
 
 ---
 
