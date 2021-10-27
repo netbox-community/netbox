@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#7599](https://github.com/netbox-community/netbox/issues/7599) - Improve color mode preference handling
 * [#7601](https://github.com/netbox-community/netbox/issues/7601) - Correct devices count for locations within global search results
 * [#7612](https://github.com/netbox-community/netbox/issues/7612) - Strip HTML from custom field descriptions
 * [#7628](https://github.com/netbox-community/netbox/issues/7628) - Fix `load_yaml` method for custom scripts
