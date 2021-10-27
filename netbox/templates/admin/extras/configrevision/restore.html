@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load static %}
 
 {% block content %}
   <p>Restore configuration #{{ object.pk }} from <strong>{{ object.created }}</strong>?</p>
@@ -9,14 +10,16 @@
         <th>Parameter</th>
         <th>Current Value</th>
         <th>New Value</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       {% for param, current, new in params %}
-        <tr{% if current != new %} style="color: #cc0000"{% endif %}>
+        <tr{% if current != new %} style="color: #d7a50d"{% endif %}>
           <td>{{ param }}</td>
           <td>{{ current }}</td>
           <td>{{ new }}</td>
+          <td>{% if current != new %}<img src="{% static 'admin/img/icon-changelink.svg' %}" alt="*" title="Changed">{% endif %}</td>
         </tr>
       {% endfor %}
     </tbody>
