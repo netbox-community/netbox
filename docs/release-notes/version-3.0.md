@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#7612](https://github.com/netbox-community/netbox/issues/7612) - Strip HTML from custom field descriptions
+* [#7628](https://github.com/netbox-community/netbox/issues/7628) - Fix `load_yaml` method for custom scripts
 
 ---
 
