@@ -2,6 +2,10 @@
 
 ## v3.0.9 (FUTURE)
 
+### Bug Fixes
+
+* [#7612](https://github.com/netbox-community/netbox/issues/7612) - Strip HTML from custom field descriptions
+
 ---
 
 ## v3.0.8 (2021-10-20)
