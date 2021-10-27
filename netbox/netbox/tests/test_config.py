@@ -1,12 +1,19 @@
+from django.conf import settings
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import override_settings, TestCase
 
 from extras.models import ConfigRevision
 from netbox.config import clear_config, get_config
 
 
+# Prefix cache keys to avoid interfering with the local environment
+CACHES = settings.CACHES
+CACHES['default'].update({'KEY_PREFIX': 'TEST-'})
+
+
 class ConfigTestCase(TestCase):
 
+    @override_settings(CACHES=CACHES)
     def test_config_init_empty(self):
         cache.clear()
 
@@ -16,6 +23,7 @@ class ConfigTestCase(TestCase):
 
         clear_config()
 
+    @override_settings(CACHES=CACHES)
     def test_config_init_from_db(self):
         CONFIG_DATA = {'BANNER_TOP': 'A'}
         cache.clear()
@@ -29,6 +37,7 @@ class ConfigTestCase(TestCase):
 
         clear_config()
 
+    @override_settings(CACHES=CACHES)
     def test_config_init_from_cache(self):
         CONFIG_DATA = {'BANNER_TOP': 'B'}
         cache.clear()
