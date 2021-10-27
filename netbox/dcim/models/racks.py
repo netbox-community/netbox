@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -15,6 +14,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
 from extras.utils import extras_features
+from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
@@ -373,8 +373,8 @@ class Rack(PrimaryModel):
             self,
             face=DeviceFaceChoices.FACE_FRONT,
             user=None,
-            unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
-            unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
+            unit_width=None,
+            unit_height=None,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
             include_images=True,
             base_url=None
@@ -393,6 +393,10 @@ class Rack(PrimaryModel):
         :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
         elevation = RackElevationSVG(self, user=user, include_images=include_images, base_url=base_url)
+        if unit_width is None or unit_height is None:
+            config = get_config()
+            unit_width = unit_width or config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
+            unit_height = unit_height or config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
 
         return elevation.render(face, unit_width, unit_height, legend_width)
 

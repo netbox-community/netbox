@@ -17,8 +17,6 @@ __all__ = (
     'VMInterfaceTable',
 )
 
-PRIMARY_IP_ORDERING = ('primary_ip4', 'primary_ip6') if settings.PREFER_IPV4 else ('primary_ip6', 'primary_ip4')
-
 VMINTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress %}
     <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-sm btn-success" title="Add IP Address">
@@ -136,7 +134,7 @@ class VirtualMachineTable(BaseTable):
     )
     primary_ip = tables.Column(
         linkify=True,
-        order_by=PRIMARY_IP_ORDERING,
+        order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
     tags = TagColumn(

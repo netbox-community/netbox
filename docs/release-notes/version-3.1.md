@@ -29,6 +29,14 @@ Both types of connection include SSID and authentication attributes. Additionall
 * Channel - A predefined channel within a standardized band
 * Channel frequency & width - Customizable channel attributes (e.g. for licensed bands)
 
+#### Dynamic Configuration Updates ([#5883](https://github.com/netbox-community/netbox/issues/5883))
+
+Some parameters of NetBox's configuration are now accessible via the admin UI. These parameters can be modified by an administrator and take effect immediately upon application: There is no need to restart NetBox. Additionally, each iteration of the dynamic configuration is preserved in the database, and can be restored by an administrator at any time.
+
+Dynamic configuration parameters may also still be defined within `configuration.py`, and the settings defined here take precedence over those defined via the user interface.
+
+For a complete list of supported parameters, please see the [dynamic configuration documentation](../configuration/dynamic-settings.md). 
+
 #### Conditional Webhooks ([#6238](https://github.com/netbox-community/netbox/issues/6238))
 
 Webhooks now include a `conditions` field, which may be used to specify conditions under which a webhook triggers. For example, you may wish to generate outgoing requests for a device webhook only when its status is "active" or "staged". This can be done by declaring conditional logic in JSON:

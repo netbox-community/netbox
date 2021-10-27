@@ -11,11 +11,12 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 
 from extras.context_managers import change_logging
+from netbox.config import clear_config
 from netbox.views import server_error
 from utilities.api import is_api_request, rest_api_server_error
 
 
-class LoginRequiredMiddleware(object):
+class LoginRequiredMiddleware:
     """
     If LOGIN_REQUIRED is True, redirect all non-authenticated users to the login page.
     """
@@ -114,7 +115,7 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
         return groups
 
 
-class ObjectChangeMiddleware(object):
+class ObjectChangeMiddleware:
     """
     This middleware performs three functions in response to an object being created, updated, or deleted:
 
@@ -144,7 +145,7 @@ class ObjectChangeMiddleware(object):
         return response
 
 
-class APIVersionMiddleware(object):
+class APIVersionMiddleware:
     """
     If the request is for an API endpoint, include the API version as a response header.
     """
@@ -159,7 +160,20 @@ class APIVersionMiddleware(object):
         return response
 
 
-class ExceptionHandlingMiddleware(object):
+class DynamicConfigMiddleware:
+    """
+    Store the cached NetBox configuration in thread-local storage for the duration of the request.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        clear_config()
+        return response
+
+
+class ExceptionHandlingMiddleware:
     """
     Intercept certain exceptions which are likely indicative of installation issues and provide helpful instructions
     to the user.

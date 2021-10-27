@@ -13,6 +13,7 @@ from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import (
     NestedGroupModelSerializer, PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer,
 )
+from netbox.config import ConfigItem
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
@@ -229,10 +230,10 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
         default=RackElevationDetailRenderChoices.RENDER_JSON
     )
     unit_width = serializers.IntegerField(
-        default=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
+        default=ConfigItem('RACK_ELEVATION_DEFAULT_UNIT_WIDTH')
     )
     unit_height = serializers.IntegerField(
-        default=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
+        default=ConfigItem('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT')
     )
     legend_width = serializers.IntegerField(
         default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT

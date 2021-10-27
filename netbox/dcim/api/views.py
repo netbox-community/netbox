@@ -1,7 +1,6 @@
 import socket
 from collections import OrderedDict
 
-from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -21,6 +20,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.views import ModelViewSet
+from netbox.config import get_config
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related, decode_dict
 from virtualization.models import VirtualMachine
@@ -457,9 +457,12 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
 
         napalm_methods = request.GET.getlist('method')
         response = OrderedDict([(m, None) for m in napalm_methods])
-        username = settings.NAPALM_USERNAME
-        password = settings.NAPALM_PASSWORD
-        optional_args = settings.NAPALM_ARGS.copy()
+
+        config = get_config()
+        username = config.NAPALM_USERNAME
+        password = config.NAPALM_PASSWORD
+        timeout = config.NAPALM_TIMEOUT
+        optional_args = config.NAPALM_ARGS.copy()
         if device.platform.napalm_args is not None:
             optional_args.update(device.platform.napalm_args)
 
@@ -481,7 +484,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
             hostname=host,
             username=username,
             password=password,
-            timeout=settings.NAPALM_TIMEOUT,
+            timeout=timeout,
             optional_args=optional_args
         )
         try:
