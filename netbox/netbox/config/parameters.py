@@ -4,7 +4,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 
 class ConfigParam:
 
-    def __init__(self, name, label, default, description=None, field=None, field_kwargs=None):
+    def __init__(self, name, label, default, description='', field=None, field_kwargs=None):
         self.name = name
         self.label = label
         self.default = default

@@ -78,14 +78,13 @@ class Config:
 
         try:
             revision = ConfigRevision.objects.last()
+            if revision is None:
+                logger.debug("No previous configuration found in database; proceeding with default values")
+                return
             logger.debug("Loaded configuration data from database")
         except DatabaseError:
             # The database may not be available yet (e.g. when running a management command)
             logger.warning(f"Skipping config initialization (database unavailable)")
-            return
-
-        if revision is None:
-            logger.debug("No previous configuration found in database; proceeding with default values")
             return
 
         revision.activate()
