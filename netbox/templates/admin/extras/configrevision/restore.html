@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <p>Restore configuration #{{ object.pk }} from <strong>{{ object.created }}</strong>?</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Current Value</th>
+        <th>New Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for param, current, new in params %}
+        <tr{% if current != new %} style="color: #cc0000"{% endif %}>
+          <td>{{ param }}</td>
+          <td>{{ current }}</td>
+          <td>{{ new }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="submit-row" style="margin-top: 20px">
+      <input type="submit" name="restore" value="Restore" class="default" style="float: left" />
+      <a href="{% url 'admin:extras_configrevision_changelist' %}" style="float: left; margin: 2px 0; padding: 10px 15px">Cancel</a>
+    </div>
+  </form>
+{% endblock content %}
+
+

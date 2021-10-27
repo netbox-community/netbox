@@ -48,7 +48,6 @@ class Config:
         if not self.config or not self.version:
             self._populate_from_db()
         self.defaults = {param.name: param.default for param in PARAMS}
-        logger.debug("Loaded configuration data from cache")
 
     def __getattr__(self, item):
 
@@ -70,6 +69,8 @@ class Config:
         """Populate config data from Redis cache"""
         self.config = cache.get('config') or {}
         self.version = cache.get('config_version')
+        if self.config:
+            logger.debug("Loaded configuration data from cache")
 
     def _populate_from_db(self):
         """Cache data from latest ConfigRevision, then populate from cache"""
@@ -77,6 +78,7 @@ class Config:
 
         try:
             revision = ConfigRevision.objects.last()
+            logger.debug("Loaded configuration data from database")
         except DatabaseError:
             # The database may not be available yet (e.g. when running a management command)
             logger.warning(f"Skipping config initialization (database unavailable)")
@@ -86,7 +88,7 @@ class Config:
             logger.debug("No previous configuration found in database; proceeding with default values")
             return
 
-        revision.cache()
+        revision.activate()
         logger.debug("Filled cache with data from latest ConfigRevision")
         self._populate_from_cache()
 

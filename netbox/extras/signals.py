@@ -172,4 +172,4 @@ def update_config(sender, instance, **kwargs):
     """
     Update the cached NetBox configuration when a new ConfigRevision is created.
     """
-    instance.cache()
+    instance.activate()

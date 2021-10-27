@@ -560,7 +560,7 @@ class ConfigRevision(models.Model):
             return self.data[item]
         return super().__getattribute__(item)
 
-    def cache(self):
+    def activate(self):
         """
         Cache the configuration data.
         """
