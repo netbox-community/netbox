@@ -3,7 +3,7 @@ from django import forms
 from django.conf import settings
 from django_filters.constants import EMPTY_VALUES
 
-from dcim.forms import MACAddressField
+from utilities.forms import MACAddressField
 
 
 def multivalue_field_factory(field_class):
