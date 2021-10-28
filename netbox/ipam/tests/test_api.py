@@ -7,6 +7,7 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import *
+from tenancy.models import Tenant
 from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
 
 
@@ -23,20 +24,6 @@ class AppTest(APITestCase):
 class ASNTest(APIViewTestCases.APIViewTestCase):
     model = ASN
     brief_fields = ['display', 'id', 'name', 'prefix_count', 'rd', 'url']
-    create_data = [
-        {
-            'name': 'VRF 4',
-            'rd': '65000:4',
-        },
-        {
-            'name': 'VRF 5',
-            'rd': '65000:5',
-        },
-        {
-            'name': 'VRF 6',
-            'rd': '65000:6',
-        },
-    ]
     bulk_update_data = {
         'description': 'New description',
     }
@@ -44,12 +31,46 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        vrfs = (
-            VRF(name='VRF 1', rd='65000:1'),
-            VRF(name='VRF 2', rd='65000:2'),
-            VRF(name='VRF 3'),  # No RD
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65534, rir=rirs[0], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
         )
-        VRF.objects.bulk_create(vrfs)
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+
+        cls.create_data = [
+            {
+                'asn': 64512,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 65543,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 4294967294,
+                'rir': rirs[0].pk,
+            },
+        ]
 
 
 class VRFTest(APIViewTestCases.APIViewTestCase):

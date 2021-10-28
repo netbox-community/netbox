@@ -9,6 +9,81 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 from tenancy.models import Tenant, TenantGroup
 
 
+class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ASN.objects.all()
+    filterset = ASNFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2'),
+            Site.objects.create(name='Site 3', slug='site-3')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+            Tenant.objects.create(name='Tenant 3', slug='tenant-3'),
+            Tenant.objects.create(name='Tenant 4', slug='tenant-4'),
+            Tenant.objects.create(name='Tenant 5', slug='tenant-5'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=64514, rir=rirs[0], tenant=tenants[1]),
+            ASN(asn=64515, rir=rirs[0], tenant=tenants[2]),
+            ASN(asn=64516, rir=rirs[0], tenant=tenants[3]),
+            ASN(asn=65535, rir=rirs[1], tenant=tenants[5]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200000001, rir=rirs[0], tenant=tenants[1]),
+            ASN(asn=4200000002, rir=rirs[0], tenant=tenants[2]),
+            ASN(asn=4200000003, rir=rirs[0], tenant=tenants[3]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[5]),
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[2]])
+        asns[3].sites.set([sites[0]])
+        asns[4].sites.set([sites[1]])
+        asns[5].sites.set([sites[0]])
+        asns[6].sites.set([sites[1]])
+        asns[7].sites.set([sites[2]])
+        asns[8].sites.set([sites[0]])
+        asns[9].sites.set([sites[1]])
+
+    def test_asn(self):
+        params = {'asn': ['64512', '65535']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_rir(self):
+        rirs = RIR.objects.all()[:1]
+        params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+
+
 class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VRF.objects.all()
     filterset = VRFFilterSet
