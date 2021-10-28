@@ -122,13 +122,14 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asns', 'time_zone',
-            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
+            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asn', 'asns',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
             'contact_phone', 'contact_email', 'comments', 'tags',
         ]
         fieldsets = (
             ('Site', (
-                'name', 'slug', 'status', 'region', 'group', 'facility', 'asns', 'time_zone', 'description', 'tags',
+                'name', 'slug', 'status', 'region', 'group', 'facility', 'asn', 'asns', 'time_zone', 'description',
+                'tags',
             )),
             ('Tenancy', ('tenant_group', 'tenant')),
             ('Contact Info', (
@@ -152,6 +153,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
         help_texts = {
             'name': "Full name of the site",
+            'asn': "BGP autonomous system number.  This field is depreciated in favour of the many-to-many field for ASNs",
             'facility': "Data center provider and facility (e.g. Equinix NY7)",
             'time_zone': "Local time zone",
             'description': "Short description (will appear in sites list)",
@@ -160,6 +162,18 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'latitude': "Latitude in decimal format (xx.yyyyyy)",
             'longitude': "Longitude in decimal format (xx.yyyyyy)"
         }
+
+    def __init__(self, instance, *args, **kwargs):
+        super(SiteForm, self).__init__(instance=instance, *args, **kwargs)
+        if instance is None or (instance and (instance.asn is None or instance.asn == '')):
+            site_fieldset = list(self.Meta.fieldsets[0][1])
+            site_fieldset.pop(6)
+            self.Meta.fieldsets = (
+                ('Site', tuple(site_fieldset)),
+                self.Meta.fieldsets[1],
+                self.Meta.fieldsets[2],
+            )
+            del self.fields['asn']
 
 
 class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):

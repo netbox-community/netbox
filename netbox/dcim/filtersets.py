@@ -163,6 +163,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             Q(comments__icontains=value)
         )
         try:
+            qs_filter |= Q(asn=int(value.strip()))
             qs_filter |= Q(asns=int(value.strip()))
         except ValueError:
             pass
