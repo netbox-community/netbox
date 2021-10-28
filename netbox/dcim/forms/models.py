@@ -172,9 +172,12 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'longitude': "Longitude in decimal format (xx.yyyyyy)"
         }
 
-    def __init__(self, instance, *args, **kwargs):
-        super(SiteForm, self).__init__(instance=instance, *args, **kwargs)
-        if instance is None or (instance and (instance.asn is None or instance.asn == '')):
+    def __init__(self, data=None, instance=None, *args, **kwargs):
+        super().__init__(data=data, instance=instance, *args, **kwargs)
+        if instance is None or \
+                (instance and (instance.asn is None or instance.asn == '')) or \
+                (data and (data.get('asn') is None or instance.get('asn')) == ''):
+            print(f'{instance}')
             if 'asn' in self.Meta.fieldsets[0][1]:
                 site_fieldset = list(self.Meta.fieldsets[0][1])
                 index = site_fieldset.index('asn')
@@ -812,7 +815,6 @@ class VirtualChassisForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class DeviceVCMembershipForm(forms.ModelForm):
-
     class Meta:
         model = Device
         fields = [
@@ -908,7 +910,6 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
 
 
 class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -920,7 +921,6 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -932,7 +932,6 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = PowerPortTemplate
         fields = [
@@ -944,7 +943,6 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = PowerOutletTemplate
         fields = [
@@ -955,7 +953,6 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # Limit power_port choices to current DeviceType
@@ -966,7 +963,6 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = InterfaceTemplate
         fields = [
@@ -979,7 +975,6 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = FrontPortTemplate
         fields = [
@@ -991,7 +986,6 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # Limit rear_port choices to current DeviceType
@@ -1002,7 +996,6 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = RearPortTemplate
         fields = [
@@ -1015,7 +1008,6 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = DeviceBayTemplate
         fields = [
@@ -1278,7 +1270,6 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
     )
 
     def __init__(self, device_bay, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         self.fields['installed_device'].queryset = Device.objects.filter(
