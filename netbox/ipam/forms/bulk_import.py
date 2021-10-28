@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.forms import IntegerField
 
 from dcim.models import Device, Interface, Site
 from extras.forms import CustomFieldModelCSVForm
@@ -83,16 +84,11 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
 
 
 class ASNCSVForm(CustomFieldModelCSVForm):
-    slug = SlugField()
+    asn = IntegerField()
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
         help_text='Assigned RIR'
-    )
-    sites = CSVModelChoiceField(
-        queryset=Site.objects.all(),
-        to_field_name='name',
-        help_text='Assigned site'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
