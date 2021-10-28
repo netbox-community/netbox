@@ -7,7 +7,7 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
+from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedASNSerializer
 from ipam.models import VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import (
@@ -111,6 +111,7 @@ class SiteSerializer(PrimaryModelSerializer):
     region = NestedRegionSerializer(required=False, allow_null=True)
     group = NestedSiteGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    asns = NestedASNSerializer(many=True, required=False, allow_null=True)
     time_zone = TimeZoneSerializerField(required=False)
     circuit_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
