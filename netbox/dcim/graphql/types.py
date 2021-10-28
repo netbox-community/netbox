@@ -1,8 +1,11 @@
+import graphene
+
 from dcim import filtersets, models
 from extras.graphql.mixins import (
     ChangelogMixin, ConfigContextMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
+from ipam.graphql.scalars import ASNField
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
@@ -374,6 +377,7 @@ class RegionType(VLANGroupsMixin, OrganizationalObjectType):
 
 
 class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
+    asn = graphene.Field(ASNField)
 
     class Meta:
         model = models.Site
