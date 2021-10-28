@@ -16,6 +16,7 @@ Custom fields may be created by navigating to Customization > Custom Fields. Net
 * Boolean: True or false
 * Date: A date in ISO 8601 format (YYYY-MM-DD)
 * URL: This will be presented as a link in the web UI
+* JSON: Arbitrary data stored in JSON format
 * Selection: A selection of one of several pre-defined custom choices
 * Multiple selection: A selection field which supports the assignment of multiple values
 

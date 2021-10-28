@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 from extras.choices import *
 from extras.models import *
@@ -115,9 +116,10 @@ class CustomFieldModelFilterForm(forms.Form):
         # Add all applicable CustomFields to the form
         self.custom_field_filters = []
         custom_fields = CustomField.objects.filter(content_types=self.obj_type).exclude(
-            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+            Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |
+            Q(type=CustomFieldTypeChoices.TYPE_JSON)
         )
         for cf in custom_fields:
-            field_name = 'cf_{}'.format(cf.name)
+            field_name = f'cf_{cf.name}'
             self.fields[field_name] = cf.to_form_field(set_initial=True, enforce_required=False)
             self.custom_field_filters.append(field_name)
