@@ -309,13 +309,17 @@ class CustomField(ChangeLoggedModel):
 
         return field
 
-    def to_filter(self):
+    def to_filter(self, lookup_expr=None):
         """
         Return a django_filters Filter instance suitable for this field type.
+
+        :param lookup_expr: Custom lookup expression (optional)
         """
         kwargs = {
             'field_name': f'custom_field_data__{self.name}'
         }
+        if lookup_expr is not None:
+            kwargs['lookup_expr'] = lookup_expr
 
         # Text/URL
         if self.type in (
@@ -354,7 +358,10 @@ class CustomField(ChangeLoggedModel):
         else:
             return None
 
-        return filter_class(**kwargs)
+        filter_instance = filter_class(**kwargs)
+        filter_instance.custom_field = self
+
+        return filter_instance
 
     def validate(self, value):
         """

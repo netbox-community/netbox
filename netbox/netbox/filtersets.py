@@ -84,6 +84,7 @@ class BaseFilterSet(django_filters.FilterSet):
     def _get_filter_lookup_dict(existing_filter):
         # Choose the lookup expression map based on the filter type
         if isinstance(existing_filter, (
+            django_filters.NumberFilter,
             filters.MultiValueDateFilter,
             filters.MultiValueDateTimeFilter,
             filters.MultiValueNumberFilter,
@@ -151,6 +152,10 @@ class BaseFilterSet(django_filters.FilterSet):
                         distinct=existing_filter.distinct,
                         **existing_filter.extra
                     )
+                elif hasattr(existing_filter, 'custom_field'):
+                    # Filter is for a custom field
+                    custom_field = existing_filter.custom_field
+                    new_filter = custom_field.to_filter(lookup_expr=lookup_expr)
                 else:
                     # The filter field is listed in Meta.fields so we can safely rely on default behaviour
                     # Will raise FieldLookupError if the lookup is invalid
@@ -222,9 +227,14 @@ class PrimaryModelFilterSet(ChangeLoggedModelFilterSet):
 
         custom_field_filters = {}
         for custom_field in custom_fields:
-            cf_filter = custom_field.to_filter()
-            if cf_filter:
-                custom_field_filters[f'cf_{custom_field.name}'] = cf_filter
+            filter_name = f'cf_{custom_field.name}'
+            filter_instance = custom_field.to_filter()
+            if filter_instance:
+                custom_field_filters[filter_name] = filter_instance
+
+                # Add relevant additional lookups
+                additional_lookups = self.get_additional_lookups(filter_name, filter_instance)
+                custom_field_filters.update(additional_lookups)
 
         self.filters.update(custom_field_filters)
 
