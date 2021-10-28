@@ -35,6 +35,13 @@ class VMInterfaceCreateForm(BootstrapMixin, CustomFieldsMixin, InterfaceCommonFo
             'virtual_machine_id': '$virtual_machine',
         }
     )
+    bridge = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        query_params={
+            'virtual_machine_id': '$virtual_machine',
+        }
+    )
     mac_address = forms.CharField(
         required=False,
         label='MAC Address'
@@ -61,7 +68,7 @@ class VMInterfaceCreateForm(BootstrapMixin, CustomFieldsMixin, InterfaceCommonFo
         required=False
     )
     field_order = (
-        'virtual_machine', 'name_pattern', 'enabled', 'parent', 'mtu', 'mac_address', 'description', 'mode',
+        'virtual_machine', 'name_pattern', 'enabled', 'parent', 'bridge', 'mtu', 'mac_address', 'description', 'mode',
         'untagged_vlan', 'tagged_vlans', 'tags'
     )
 

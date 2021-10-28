@@ -17,6 +17,7 @@ from utilities.forms import (
     SlugField, StaticSelect,
 )
 from virtualization.models import Cluster, ClusterGroup
+from wireless.models import WirelessLAN, WirelessLANGroup
 from .common import InterfaceCommonForm
 
 __all__ = (
@@ -71,11 +72,15 @@ class RegionForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug', 'description',
+            'parent', 'name', 'slug', 'description', 'tags',
         )
 
 
@@ -85,11 +90,15 @@ class SiteGroupForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = SiteGroup
         fields = (
-            'parent', 'name', 'slug', 'description',
+            'parent', 'name', 'slug', 'description', 'tags',
         )
 
 
@@ -208,15 +217,19 @@ class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Location
         fields = (
-            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant',
+            'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tenant_group', 'tenant', 'tags',
         )
         fieldsets = (
             ('Location', (
-                'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description',
+                'region', 'site_group', 'site', 'parent', 'name', 'slug', 'description', 'tags',
             )),
             ('Tenancy', ('tenant_group', 'tenant')),
         )
@@ -224,11 +237,15 @@ class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 class RackRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = RackRole
         fields = [
-            'name', 'slug', 'color', 'description',
+            'name', 'slug', 'color', 'description', 'tags',
         ]
 
 
@@ -364,11 +381,15 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 class ManufacturerForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug', 'description',
+            'name', 'slug', 'description', 'tags',
         ]
 
 
@@ -413,11 +434,15 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
 
 class DeviceRoleForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role', 'description',
+            'name', 'slug', 'color', 'vm_role', 'description', 'tags',
         ]
 
 
@@ -429,11 +454,15 @@ class PlatformForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField(
         max_length=64
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description',
+            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags',
         ]
         widgets = {
             'napalm_args': SmallTextarea(),
@@ -1085,12 +1114,30 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         required=False,
         label='Parent interface'
     )
+    bridge = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        label='Bridged interface'
+    )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         label='LAG interface',
         query_params={
             'type': 'lag',
+        }
+    )
+    wireless_lan_group = DynamicModelChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        required=False,
+        label='Wireless LAN group'
+    )
+    wireless_lans = DynamicModelMultipleChoiceField(
+        queryset=WirelessLAN.objects.all(),
+        required=False,
+        label='Wireless LANs',
+        query_params={
+            'group_id': '$wireless_lan_group',
         }
     )
     vlan_group = DynamicModelChoiceField(
@@ -1122,19 +1169,24 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'label', 'type', 'enabled', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
-            'mark_connected', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
+            'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
             'mode': StaticSelect(),
+            'rf_role': StaticSelect(),
+            'rf_channel': StaticSelect(),
         }
         labels = {
             'mode': '802.1Q Mode',
         }
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
+            'rf_channel_frequency': "Populated by selected channel (if set)",
+            'rf_channel_width': "Populated by selected channel (if set)",
         }
 
     def __init__(self, *args, **kwargs):
@@ -1142,13 +1194,14 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
 
         device = Device.objects.get(pk=self.data['device']) if self.is_bound else self.instance.device
 
-        # Restrict parent/LAG interface assignment by device/VC
+        # Restrict parent/bridge/LAG interface assignment by device/VC
         self.fields['parent'].widget.add_query_param('device_id', device.pk)
+        self.fields['bridge'].widget.add_query_param('device_id', device.pk)
+        self.fields['lag'].widget.add_query_param('device_id', device.pk)
         if device.virtual_chassis and device.virtual_chassis.master:
-            # Get available LAG interfaces by VirtualChassis master
+            self.fields['parent'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
+            self.fields['bridge'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
             self.fields['lag'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-        else:
-            self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
         # Limit VLAN choices by device
         self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)

@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 
 from dcim.fields import ASNField
-from dcim.models import CableTermination, PathEndpoint
+from dcim.models import LinkTermination, PathEndpoint
 from extras.models import ObjectChange
 from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggedModel, OrganizationalModel, PrimaryModel
@@ -128,7 +128,7 @@ class ProviderNetwork(PrimaryModel):
         return reverse('circuits:providernetwork', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class CircuitType(OrganizationalModel):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
@@ -256,7 +256,7 @@ class Circuit(PrimaryModel):
 
 
 @extras_features('webhooks')
-class CircuitTermination(ChangeLoggedModel, CableTermination):
+class CircuitTermination(ChangeLoggedModel, LinkTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,

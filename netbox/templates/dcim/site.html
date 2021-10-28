@@ -100,7 +100,7 @@
                         <td>
                             {% if object.physical_address %}
                                 <div class="float-end noprint">
-                                    <a href="{{ settings.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
                                         <i class="mdi mdi-map-marker"></i> Map It
                                     </a>
                                 </div>
@@ -119,7 +119,7 @@
                         <td>
                             {% if object.latitude and object.longitude %}
                                 <div class="float-end noprint">
-                                    <a href="{{ settings.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
                                         <i class="mdi mdi-map-marker"></i> Map It
                                     </a>
                                 </div>
@@ -169,7 +169,6 @@
                         <div class="float-end text-warning">
                           <i class="mdi mdi-alert" title="{{ deprecation_warning }}"></i>
                         </div>
-                        <a href="tel:{{ object.contact_
                         <a href="mailto:{{ object.contact_email }}">{{ object.contact_email }}</a>
                       {% else %}
                         <span class="text-muted">&mdash;</span>
@@ -181,7 +180,7 @@
             </div>
         </div>
         {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' with tags=object.tags.all url='dcim:site_list' %}
+        {% include 'inc/panels/tags.html' %}
         {% include 'inc/panels/comments.html' %}
         {% plugin_left_page object %}
     </div>

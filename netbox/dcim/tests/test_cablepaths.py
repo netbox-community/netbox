@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.models import *
-from dcim.choices import CableStatusChoices
+from dcim.choices import LinkStatusChoices
 from dcim.models import *
 from dcim.utils import object_to_path_node
 
@@ -1142,7 +1142,7 @@ class CablePathTestCase(TestCase):
         self.assertEqual(CablePath.objects.count(), 2)
 
         # Change cable 2's status to "planned"
-        cable2.status = CableStatusChoices.STATUS_PLANNED
+        cable2.status = LinkStatusChoices.STATUS_PLANNED
         cable2.save()
         self.assertPathExists(
             origin=interface1,
@@ -1160,7 +1160,7 @@ class CablePathTestCase(TestCase):
 
         # Change cable 2's status to "connected"
         cable2 = Cable.objects.get(pk=cable2.pk)
-        cable2.status = CableStatusChoices.STATUS_CONNECTED
+        cable2.status = LinkStatusChoices.STATUS_CONNECTED
         cable2.save()
         self.assertPathExists(
             origin=interface1,

@@ -15,6 +15,7 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
+from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
 from .choices import *
 from .constants import *
 from .models import *
@@ -72,6 +73,7 @@ class RegionFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent region (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Region
@@ -89,6 +91,7 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent site group (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = SiteGroup
@@ -220,6 +223,7 @@ class LocationFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Location (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Location
@@ -235,6 +239,7 @@ class LocationFilterSet(OrganizationalModelFilterSet):
 
 
 class RackRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = RackRole
@@ -400,6 +405,7 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class ManufacturerFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = Manufacturer
@@ -582,6 +588,7 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
 
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = DeviceRole
@@ -600,6 +607,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Platform
@@ -980,6 +988,11 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         queryset=Interface.objects.all(),
         label='Parent interface (ID)',
     )
+    bridge_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='bridge',
+        queryset=Interface.objects.all(),
+        label='Bridged interface (ID)',
+    )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
         queryset=Interface.objects.all(),
@@ -1000,10 +1013,19 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         choices=InterfaceTypeChoices,
         null_value=None
     )
+    rf_role = django_filters.MultipleChoiceFilter(
+        choices=WirelessRoleChoices
+    )
+    rf_channel = django_filters.MultipleChoiceFilter(
+        choices=WirelessChannelChoices
+    )
 
     class Meta:
         model = Interface
-        fields = ['id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
+        fields = [
+            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'rf_role', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+        ]
 
     def filter_device(self, queryset, name, value):
         try:
@@ -1215,7 +1237,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         choices=CableTypeChoices
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=CableStatusChoices
+        choices=LinkStatusChoices
     )
     color = django_filters.MultipleChoiceFilter(
         choices=ColorChoices

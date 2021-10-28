@@ -122,6 +122,7 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class RIRFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = RIR
@@ -218,6 +219,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
         method='search',
         label='Search',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Role
@@ -675,6 +677,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     cluster = django_filters.NumberFilter(
         method='filter_scope'
     )
+    tag = TagFilter()
 
     class Meta:
         model = VLANGroup

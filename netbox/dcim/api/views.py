@@ -1,7 +1,6 @@
 import socket
 from collections import OrderedDict
 
-from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -21,6 +20,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.views import ModelViewSet
+from netbox.config import get_config
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related, decode_dict
 from virtualization.models import VirtualMachine
@@ -110,7 +110,7 @@ class RegionViewSet(CustomFieldModelViewSet):
         'region',
         'site_count',
         cumulative=True
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.RegionSerializer
     filterset_class = filtersets.RegionFilterSet
 
@@ -126,7 +126,7 @@ class SiteGroupViewSet(CustomFieldModelViewSet):
         'group',
         'site_count',
         cumulative=True
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.SiteGroupSerializer
     filterset_class = filtersets.SiteGroupFilterSet
 
@@ -168,7 +168,7 @@ class LocationViewSet(CustomFieldModelViewSet):
         'location',
         'rack_count',
         cumulative=True
-    ).prefetch_related('site')
+    ).prefetch_related('site', 'tags')
     serializer_class = serializers.LocationSerializer
     filterset_class = filtersets.LocationFilterSet
 
@@ -178,7 +178,7 @@ class LocationViewSet(CustomFieldModelViewSet):
 #
 
 class RackRoleViewSet(CustomFieldModelViewSet):
-    queryset = RackRole.objects.annotate(
+    queryset = RackRole.objects.prefetch_related('tags').annotate(
         rack_count=count_related(Rack, 'role')
     )
     serializer_class = serializers.RackRoleSerializer
@@ -262,7 +262,7 @@ class RackReservationViewSet(ModelViewSet):
 #
 
 class ManufacturerViewSet(CustomFieldModelViewSet):
-    queryset = Manufacturer.objects.annotate(
+    queryset = Manufacturer.objects.prefetch_related('tags').annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
         platform_count=count_related(Platform, 'manufacturer')
@@ -341,7 +341,7 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 #
 
 class DeviceRoleViewSet(CustomFieldModelViewSet):
-    queryset = DeviceRole.objects.annotate(
+    queryset = DeviceRole.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'device_role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
     )
@@ -354,7 +354,7 @@ class DeviceRoleViewSet(CustomFieldModelViewSet):
 #
 
 class PlatformViewSet(CustomFieldModelViewSet):
-    queryset = Platform.objects.annotate(
+    queryset = Platform.objects.prefetch_related('tags').annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')
     )
@@ -458,9 +458,12 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
 
         napalm_methods = request.GET.getlist('method')
         response = OrderedDict([(m, None) for m in napalm_methods])
-        username = settings.NAPALM_USERNAME
-        password = settings.NAPALM_PASSWORD
-        optional_args = settings.NAPALM_ARGS.copy()
+
+        config = get_config()
+        username = config.NAPALM_USERNAME
+        password = config.NAPALM_PASSWORD
+        timeout = config.NAPALM_TIMEOUT
+        optional_args = config.NAPALM_ARGS.copy()
         if device.platform.napalm_args is not None:
             optional_args.update(device.platform.napalm_args)
 
@@ -482,7 +485,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
             hostname=host,
             username=username,
             password=password,
-            timeout=settings.NAPALM_TIMEOUT,
+            timeout=timeout,
             optional_args=optional_args
         )
         try:
@@ -514,7 +517,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
 #
 
 class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
+    queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
     brief_prefetch_fields = ['device']
@@ -522,7 +525,7 @@ class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
 
 class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = ConsoleServerPort.objects.prefetch_related(
-        'device', '_path__destination', 'cable', '_cable_peer', 'tags'
+        'device', '_path__destination', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
@@ -530,14 +533,14 @@ class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
 
 
 class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
+    queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
     brief_prefetch_fields = ['device']
 
 
 class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
+    queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
     brief_prefetch_fields = ['device']
@@ -545,7 +548,7 @@ class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', 'parent', 'lag', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
+        'device', 'parent', 'bridge', 'lag', '_path__destination', 'cable', '_link_peer', 'ip_addresses', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
@@ -626,7 +629,7 @@ class PowerPanelViewSet(ModelViewSet):
 
 class PowerFeedViewSet(PathEndpointMixin, CustomFieldModelViewSet):
     queryset = PowerFeed.objects.prefetch_related(
-        'power_panel', 'rack', '_path__destination', 'cable', '_cable_peer', 'tags'
+        'power_panel', 'rack', '_path__destination', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filtersets.PowerFeedFilterSet

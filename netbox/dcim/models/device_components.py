@@ -18,11 +18,13 @@ from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
+from wireless.choices import *
+from wireless.utils import get_channel_attr
 
 
 __all__ = (
     'BaseInterface',
-    'CableTermination',
+    'LinkTermination',
     'ConsolePort',
     'ConsoleServerPort',
     'DeviceBay',
@@ -87,14 +89,14 @@ class ComponentModel(PrimaryModel):
         return self.device
 
 
-class CableTermination(models.Model):
+class LinkTermination(models.Model):
     """
-    An abstract model inherited by all models to which a Cable can terminate (certain device components, PowerFeed, and
-    CircuitTermination instances). The `cable` field indicates the Cable instance which is terminated to this instance.
+    An abstract model inherited by all models to which a Cable, WirelessLink, or other such link can terminate. Examples
+    include most device components, CircuitTerminations, and PowerFeeds. The `cable` and `wireless_link` fields
+    reference the attached Cable or WirelessLink instance, respectively.
 
-    `_cable_peer` is a GenericForeignKey used to cache the far-end CableTermination on the local instance; this is a
-    shortcut to referencing `cable.termination_b`, for example. `_cable_peer` is set or cleared by the receivers in
-    dcim.signals when a Cable instance is created or deleted, respectively.
+    `_link_peer` is a GenericForeignKey used to cache the far-end LinkTermination on the local instance; this is a
+    shortcut to referencing `instance.link.termination_b`, for example.
     """
     cable = models.ForeignKey(
         to='dcim.Cable',
@@ -103,20 +105,20 @@ class CableTermination(models.Model):
         blank=True,
         null=True
     )
-    _cable_peer_type = models.ForeignKey(
+    _link_peer_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,
         null=True
     )
-    _cable_peer_id = models.PositiveIntegerField(
+    _link_peer_id = models.PositiveIntegerField(
         blank=True,
         null=True
     )
-    _cable_peer = GenericForeignKey(
-        ct_field='_cable_peer_type',
-        fk_field='_cable_peer_id'
+    _link_peer = GenericForeignKey(
+        ct_field='_link_peer_type',
+        fk_field='_link_peer_id'
     )
     mark_connected = models.BooleanField(
         default=False,
@@ -146,8 +148,8 @@ class CableTermination(models.Model):
                 "mark_connected": "Cannot mark as connected with a cable attached."
             })
 
-    def get_cable_peer(self):
-        return self._cable_peer
+    def get_link_peer(self):
+        return self._link_peer
 
     @property
     def _occupied(self):
@@ -156,6 +158,13 @@ class CableTermination(models.Model):
     @property
     def parent_object(self):
         raise NotImplementedError("CableTermination models must implement parent_object()")
+
+    @property
+    def link(self):
+        """
+        Generic wrapper for a Cable, WirelessLink, or some other relation to a connected termination.
+        """
+        return self.cable
 
 
 class PathEndpoint(models.Model):
@@ -219,7 +228,7 @@ class PathEndpoint(models.Model):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
+class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -251,7 +260,7 @@ class ConsolePort(ComponentModel, CableTermination, PathEndpoint):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
+class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -283,7 +292,7 @@ class ConsoleServerPort(ComponentModel, CableTermination, PathEndpoint):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerPort(ComponentModel, CableTermination, PathEndpoint):
+class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -333,8 +342,8 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
             poweroutlet_ct = ContentType.objects.get_for_model(PowerOutlet)
             outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
             utilization = PowerPort.objects.filter(
-                _cable_peer_type=poweroutlet_ct,
-                _cable_peer_id__in=outlet_ids
+                _link_peer_type=poweroutlet_ct,
+                _link_peer_id__in=outlet_ids
             ).aggregate(
                 maximum_draw_total=Sum('maximum_draw'),
                 allocated_draw_total=Sum('allocated_draw'),
@@ -347,12 +356,12 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
             }
 
             # Calculate per-leg aggregates for three-phase feeds
-            if getattr(self._cable_peer, 'phase', None) == PowerFeedPhaseChoices.PHASE_3PHASE:
+            if getattr(self._link_peer, 'phase', None) == PowerFeedPhaseChoices.PHASE_3PHASE:
                 for leg, leg_name in PowerOutletFeedLegChoices:
                     outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
                     utilization = PowerPort.objects.filter(
-                        _cable_peer_type=poweroutlet_ct,
-                        _cable_peer_id__in=outlet_ids
+                        _link_peer_type=poweroutlet_ct,
+                        _link_peer_id__in=outlet_ids
                     ).aggregate(
                         maximum_draw_total=Sum('maximum_draw'),
                         allocated_draw_total=Sum('allocated_draw'),
@@ -380,7 +389,7 @@ class PowerPort(ComponentModel, CableTermination, PathEndpoint):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerOutlet(ComponentModel, CableTermination, PathEndpoint):
+class PowerOutlet(ComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -453,6 +462,22 @@ class BaseInterface(models.Model):
         choices=InterfaceModeChoices,
         blank=True
     )
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='child_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Parent interface'
+    )
+    bridge = models.ForeignKey(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='bridge_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Bridge interface'
+    )
 
     class Meta:
         abstract = True
@@ -475,7 +500,7 @@ class BaseInterface(models.Model):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
+class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -485,14 +510,6 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         naturalize_function=naturalize_interface,
         max_length=100,
         blank=True
-    )
-    parent = models.ForeignKey(
-        to='self',
-        on_delete=models.SET_NULL,
-        related_name='child_interfaces',
-        null=True,
-        blank=True,
-        verbose_name='Parent interface'
     )
     lag = models.ForeignKey(
         to='self',
@@ -517,6 +534,51 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         verbose_name='WWN',
         help_text='64-bit World Wide Name'
     )
+    rf_role = models.CharField(
+        max_length=30,
+        choices=WirelessRoleChoices,
+        blank=True,
+        verbose_name='Wireless role'
+    )
+    rf_channel = models.CharField(
+        max_length=50,
+        choices=WirelessChannelChoices,
+        blank=True,
+        verbose_name='Wireless channel'
+    )
+    rf_channel_frequency = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name='Channel frequency (MHz)'
+    )
+    rf_channel_width = models.DecimalField(
+        max_digits=7,
+        decimal_places=3,
+        blank=True,
+        null=True,
+        verbose_name='Channel width (MHz)'
+    )
+    tx_power = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=(MaxValueValidator(127),),
+        verbose_name='Transmit power (dBm)'
+    )
+    wireless_link = models.ForeignKey(
+        to='wireless.WirelessLink',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    wireless_lans = models.ManyToManyField(
+        to='wireless.WirelessLAN',
+        related_name='interfaces',
+        blank=True,
+        verbose_name='Wireless LANs'
+    )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.SET_NULL,
@@ -538,7 +600,7 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
         related_query_name='interface'
     )
 
-    clone_fields = ['device', 'parent', 'lag', 'type', 'mgmt_only']
+    clone_fields = ['device', 'parent', 'bridge', 'lag', 'type', 'mgmt_only']
 
     class Meta:
         ordering = ('device', CollateAsChar('_name'))
@@ -550,17 +612,27 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     def clean(self):
         super().clean()
 
-        # Virtual interfaces cannot be connected
-        if not self.is_connectable and self.cable:
+        # Virtual Interfaces cannot have a Cable attached
+        if self.is_virtual and self.cable:
             raise ValidationError({
                 'type': f"{self.get_type_display()} interfaces cannot have a cable attached."
             })
 
-        # Non-connectable interfaces cannot be marked as connected
-        if not self.is_connectable and self.mark_connected:
+        # Virtual Interfaces cannot be marked as connected
+        if self.is_virtual and self.mark_connected:
             raise ValidationError({
                 'mark_connected': f"{self.get_type_display()} interfaces cannot be marked as connected."
             })
+
+        # Parent validation
+
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
+
+        # A physical interface cannot have a parent interface
+        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
+            raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
 
         # An interface's parent must belong to the same device or virtual chassis
         if self.parent and self.parent.device != self.device:
@@ -575,13 +647,34 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
                               f"is not part of virtual chassis {self.device.virtual_chassis}."
                 })
 
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': "An interface cannot be its own parent."})
+        # Bridge validation
 
-        # A physical interface cannot have a parent interface
-        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
-            raise ValidationError({'parent': "Only virtual interfaces may be assigned to a parent interface."})
+        # An interface cannot be bridged to itself
+        if self.pk and self.bridge_id == self.pk:
+            raise ValidationError({'bridge': "An interface cannot be bridged to itself."})
+
+        # A bridged interface belong to the same device or virtual chassis
+        if self.bridge and self.bridge.device != self.device:
+            if self.device.virtual_chassis is None:
+                raise ValidationError({
+                    'bridge': f"The selected bridge interface ({self.bridge}) belongs to a different device "
+                              f"({self.bridge.device})."
+                })
+            elif self.bridge.device.virtual_chassis != self.device.virtual_chassis:
+                raise ValidationError({
+                    'bridge': f"The selected bridge interface ({self.bridge}) belongs to {self.bridge.device}, which "
+                              f"is not part of virtual chassis {self.device.virtual_chassis}."
+                })
+
+        # LAG validation
+
+        # A virtual interface cannot have a parent LAG
+        if self.type == InterfaceTypeChoices.TYPE_VIRTUAL and self.lag is not None:
+            raise ValidationError({'lag': "Virtual interfaces cannot have a parent LAG interface."})
+
+        # A LAG interface cannot be its own parent
+        if self.pk and self.lag_id == self.pk:
+            raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
 
         # An interface's LAG must belong to the same device or virtual chassis
         if self.lag and self.lag.device != self.device:
@@ -595,24 +688,52 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
                            f"of virtual chassis {self.device.virtual_chassis}."
                 })
 
-        # A virtual interface cannot have a parent LAG
-        if self.type == InterfaceTypeChoices.TYPE_VIRTUAL and self.lag is not None:
-            raise ValidationError({'lag': "Virtual interfaces cannot have a parent LAG interface."})
+        # Wireless validation
 
-        # A LAG interface cannot be its own parent
-        if self.pk and self.lag_id == self.pk:
-            raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
+        # RF role & channel may only be set for wireless interfaces
+        if self.rf_role and not self.is_wireless:
+            raise ValidationError({'rf_role': "Wireless role may be set only on wireless interfaces."})
+        if self.rf_channel and not self.is_wireless:
+            raise ValidationError({'rf_channel': "Channel may be set only on wireless interfaces."})
+
+        # Validate channel frequency against interface type and selected channel (if any)
+        if self.rf_channel_frequency:
+            if not self.is_wireless:
+                raise ValidationError({
+                    'rf_channel_frequency': "Channel frequency may be set only on wireless interfaces.",
+                })
+            if self.rf_channel and self.rf_channel_frequency != get_channel_attr(self.rf_channel, 'frequency'):
+                raise ValidationError({
+                    'rf_channel_frequency': "Cannot specify custom frequency with channel selected.",
+                })
+        elif self.rf_channel:
+            self.rf_channel_frequency = get_channel_attr(self.rf_channel, 'frequency')
+
+        # Validate channel width against interface type and selected channel (if any)
+        if self.rf_channel_width:
+            if not self.is_wireless:
+                raise ValidationError({'rf_channel_width': "Channel width may be set only on wireless interfaces."})
+            if self.rf_channel and self.rf_channel_width != get_channel_attr(self.rf_channel, 'width'):
+                raise ValidationError({'rf_channel_width': "Cannot specify custom width with channel selected."})
+        elif self.rf_channel:
+            self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
+
+        # VLAN validation
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:
             raise ValidationError({
-                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
-                                 "device, or it must be global".format(self.untagged_vlan)
+                'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
+                                 f"interface's parent device, or it must be global."
             })
 
     @property
-    def is_connectable(self):
-        return self.type not in NONCONNECTABLE_IFACE_TYPES
+    def _occupied(self):
+        return super()._occupied or bool(self.wireless_link_id)
+
+    @property
+    def is_wired(self):
+        return not self.is_virtual and not self.is_wireless
 
     @property
     def is_virtual(self):
@@ -626,13 +747,17 @@ class Interface(ComponentModel, BaseInterface, CableTermination, PathEndpoint):
     def is_lag(self):
         return self.type == InterfaceTypeChoices.TYPE_LAG
 
+    @property
+    def link(self):
+        return self.cable or self.wireless_link
+
 
 #
 # Pass-through ports
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class FrontPort(ComponentModel, CableTermination):
+class FrontPort(ComponentModel, LinkTermination):
     """
     A pass-through port on the front of a Device.
     """
@@ -686,7 +811,7 @@ class FrontPort(ComponentModel, CableTermination):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class RearPort(ComponentModel, CableTermination):
+class RearPort(ComponentModel, LinkTermination):
     """
     A pass-through port on the rear of a Device.
     """

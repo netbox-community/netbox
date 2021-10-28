@@ -79,14 +79,12 @@ class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class CircuitTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = CircuitType
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):

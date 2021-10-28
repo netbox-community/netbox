@@ -720,6 +720,7 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Virtual
     TYPE_VIRTUAL = 'virtual'
+    TYPE_BRIDGE = 'bridge'
     TYPE_LAG = 'lag'
 
     # Ethernet
@@ -820,6 +821,7 @@ class InterfaceTypeChoices(ChoiceSet):
             'Virtual interfaces',
             (
                 (TYPE_VIRTUAL, 'Virtual'),
+                (TYPE_BRIDGE, 'Bridge'),
                 (TYPE_LAG, 'Link Aggregation Group (LAG)'),
             ),
         ),
@@ -1061,7 +1063,7 @@ class PortTypeChoices(ChoiceSet):
 
 
 #
-# Cables
+# Cables/links
 #
 
 class CableTypeChoices(ChoiceSet):
@@ -1125,7 +1127,7 @@ class CableTypeChoices(ChoiceSet):
     )
 
 
-class CableStatusChoices(ChoiceSet):
+class LinkStatusChoices(ChoiceSet):
 
     STATUS_CONNECTED = 'connected'
     STATUS_PLANNED = 'planned'

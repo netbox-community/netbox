@@ -12,6 +12,7 @@ from utilities.forms import (
     APISelectMultiple, add_blank_choice, BootstrapMixin, ColorField, DynamicModelMultipleChoiceField, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
+from wireless.choices import *
 
 __all__ = (
     'CableFilterForm',
@@ -106,10 +107,6 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Region
-    field_groups = [
-        ['q'],
-        ['parent_id'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
@@ -121,14 +118,11 @@ class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Parent region'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = SiteGroup
-    field_groups = [
-        ['q'],
-        ['parent_id'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
@@ -140,6 +134,7 @@ class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Parent group'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
@@ -226,18 +221,17 @@ class LocationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilt
         label=_('Parent'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class RackRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = RackRole
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
@@ -378,14 +372,12 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMo
 
 class ManufacturerFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Manufacturer
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
@@ -463,14 +455,12 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class DeviceRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = DeviceRole
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class PlatformFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
@@ -486,6 +476,7 @@ class PlatformFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Manufacturer'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
@@ -743,7 +734,7 @@ class CableFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterF
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(CableStatusChoices),
+        choices=add_blank_choice(LinkStatusChoices),
         widget=StaticSelect()
     )
     color = ColorField(
@@ -974,6 +965,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
+        ['rf_role', 'rf_channel', 'rf_channel_width', 'tx_power'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
     kind = forms.MultipleChoiceField(
@@ -1005,6 +997,32 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     wwn = forms.CharField(
         required=False,
         label='WWN'
+    )
+    rf_role = forms.MultipleChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        widget=StaticSelectMultiple(),
+        label='Wireless role'
+    )
+    rf_channel = forms.MultipleChoiceField(
+        choices=WirelessChannelChoices,
+        required=False,
+        widget=StaticSelectMultiple(),
+        label='Wireless channel'
+    )
+    rf_channel_frequency = forms.IntegerField(
+        required=False,
+        label='Channel frequency (MHz)'
+    )
+    rf_channel_width = forms.IntegerField(
+        required=False,
+        label='Channel width (MHz)'
+    )
+    tx_power = forms.IntegerField(
+        required=False,
+        label='Transmit power (dBm)',
+        min_value=0,
+        max_value=127
     )
     tag = TagFilterField(model)
 

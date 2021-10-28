@@ -1,8 +1,12 @@
-from django.conf import settings
 from django.core.paginator import Paginator, Page
+
+from netbox.config import get_config
 
 
 class EnhancedPaginator(Paginator):
+    default_page_lengths = (
+        25, 50, 100, 250, 500, 1000
+    )
 
     def __init__(self, object_list, per_page, orphans=None, **kwargs):
 
@@ -10,9 +14,9 @@ class EnhancedPaginator(Paginator):
         try:
             per_page = int(per_page)
             if per_page < 1:
-                per_page = settings.PAGINATE_COUNT
+                per_page = get_config().PAGINATE_COUNT
         except ValueError:
-            per_page = settings.PAGINATE_COUNT
+            per_page = get_config().PAGINATE_COUNT
 
         # Set orphans count based on page size
         if orphans is None and per_page <= 50:
@@ -24,6 +28,11 @@ class EnhancedPaginator(Paginator):
 
     def _get_page(self, *args, **kwargs):
         return EnhancedPage(*args, **kwargs)
+
+    def get_page_lengths(self):
+        if self.per_page not in self.default_page_lengths:
+            return sorted([*self.default_page_lengths, self.per_page])
+        return self.default_page_lengths
 
 
 class EnhancedPage(Page):
@@ -57,17 +66,19 @@ def get_paginate_count(request):
 
     Return the lesser of the calculated value and MAX_PAGE_SIZE.
     """
+    config = get_config()
+
     if 'per_page' in request.GET:
         try:
             per_page = int(request.GET.get('per_page'))
             if request.user.is_authenticated:
                 request.user.config.set('pagination.per_page', per_page, commit=True)
-            return min(per_page, settings.MAX_PAGE_SIZE)
+            return min(per_page, config.MAX_PAGE_SIZE)
         except ValueError:
             pass
 
     if request.user.is_authenticated:
-        per_page = request.user.config.get('pagination.per_page', settings.PAGINATE_COUNT)
-        return min(per_page, settings.MAX_PAGE_SIZE)
+        per_page = request.user.config.get('pagination.per_page', config.PAGINATE_COUNT)
+        return min(per_page, config.MAX_PAGE_SIZE)
 
-    return min(settings.PAGINATE_COUNT, settings.MAX_PAGE_SIZE)
+    return min(config.PAGINATE_COUNT, config.MAX_PAGE_SIZE)

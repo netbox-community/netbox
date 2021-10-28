@@ -20,6 +20,7 @@ __all__ = (
 
 
 class ClusterTypeFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = ClusterType
@@ -27,6 +28,7 @@ class ClusterTypeFilterSet(OrganizationalModelFilterSet):
 
 
 class ClusterGroupFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = ClusterGroup
@@ -261,6 +263,11 @@ class VMInterfaceFilterSet(PrimaryModelFilterSet):
         field_name='parent',
         queryset=VMInterface.objects.all(),
         label='Parent interface (ID)',
+    )
+    bridge_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='bridge',
+        queryset=VMInterface.objects.all(),
+        label='Bridged interface (ID)',
     )
     mac_address = MultiValueMACAddressFilter(
         label='MAC address',

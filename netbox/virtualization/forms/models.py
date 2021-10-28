@@ -28,22 +28,30 @@ __all__ = (
 
 class ClusterTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ClusterType
-        fields = [
-            'name', 'slug', 'description',
-        ]
+        fields = (
+            'name', 'slug', 'description', 'tags',
+        )
 
 
 class ClusterGroupForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ClusterGroup
-        fields = [
-            'name', 'slug', 'description',
-        ]
+        fields = (
+            'name', 'slug', 'description', 'tags',
+        )
 
 
 class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
@@ -269,6 +277,11 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
         required=False,
         label='Parent interface'
     )
+    bridge = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        label='Bridged interface'
+    )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -298,8 +311,8 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
     class Meta:
         model = VMInterface
         fields = [
-            'virtual_machine', 'name', 'enabled', 'parent', 'mac_address', 'mtu', 'description', 'mode', 'tags',
-            'untagged_vlan', 'tagged_vlans',
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'tags', 'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
@@ -318,6 +331,7 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
 
         # Restrict parent interface assignment by VM
         self.fields['parent'].widget.add_query_param('virtual_machine_id', vm_id)
+        self.fields['bridge'].widget.add_query_param('virtual_machine_id', vm_id)
 
         # Limit VLAN choices by virtual machine
         self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)

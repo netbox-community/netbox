@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 import yaml
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -15,6 +14,7 @@ from dcim.constants import *
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
+from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
@@ -36,7 +36,7 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -351,7 +351,7 @@ class DeviceType(PrimaryModel):
 # Devices
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -391,7 +391,7 @@ class DeviceRole(OrganizationalModel):
         return reverse('dcim:devicerole', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
@@ -815,7 +815,7 @@ class Device(PrimaryModel, ConfigContextModel):
 
     @property
     def primary_ip(self):
-        if settings.PREFER_IPV4 and self.primary_ip4:
+        if ConfigItem('PREFER_IPV4')() and self.primary_ip4:
             return self.primary_ip4
         elif self.primary_ip6:
             return self.primary_ip6

@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -15,6 +14,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
 from extras.utils import extras_features
+from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
@@ -35,7 +35,7 @@ __all__ = (
 # Racks
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RackRole(OrganizationalModel):
     """
     Racks can be organized by functional role, similar to Devices.
@@ -373,8 +373,8 @@ class Rack(PrimaryModel):
             self,
             face=DeviceFaceChoices.FACE_FRONT,
             user=None,
-            unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
-            unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
+            unit_width=None,
+            unit_height=None,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
             include_images=True,
             base_url=None
@@ -393,6 +393,10 @@ class Rack(PrimaryModel):
         :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
         elevation = RackElevationSVG(self, user=user, include_images=include_images, base_url=base_url)
+        if unit_width is None or unit_height is None:
+            config = get_config()
+            unit_width = unit_width or config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
+            unit_height = unit_height or config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
 
         return elevation.render(face, unit_width, unit_height, legend_width)
 
@@ -427,13 +431,13 @@ class Rack(PrimaryModel):
             return 0
 
         pf_powerports = PowerPort.objects.filter(
-            _cable_peer_type=ContentType.objects.get_for_model(PowerFeed),
-            _cable_peer_id__in=powerfeeds.values_list('id', flat=True)
+            _link_peer_type=ContentType.objects.get_for_model(PowerFeed),
+            _link_peer_id__in=powerfeeds.values_list('id', flat=True)
         )
         poweroutlets = PowerOutlet.objects.filter(power_port_id__in=pf_powerports)
         allocated_draw_total = PowerPort.objects.filter(
-            _cable_peer_type=ContentType.objects.get_for_model(PowerOutlet),
-            _cable_peer_id__in=poweroutlets.values_list('id', flat=True)
+            _link_peer_type=ContentType.objects.get_for_model(PowerOutlet),
+            _link_peer_id__in=poweroutlets.values_list('id', flat=True)
         ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
 
         return int(allocated_draw_total / available_power_total * 100)

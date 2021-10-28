@@ -48,6 +48,7 @@ _patterns = [
     path('tenancy/', include('tenancy.urls')),
     path('user/', include('users.urls')),
     path('virtualization/', include('virtualization.urls')),
+    path('wireless/', include('wireless.urls')),
 
     # API
     path('api/', APIRootView.as_view(), name='api-root'),
@@ -58,6 +59,7 @@ _patterns = [
     path('api/tenancy/', include('tenancy.api.urls')),
     path('api/users/', include('users.api.urls')),
     path('api/virtualization/', include('virtualization.api.urls')),
+    path('api/wireless/', include('wireless.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=86400), name='api_docs'),
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=86400), name='api_redocs'),

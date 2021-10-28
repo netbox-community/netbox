@@ -51,7 +51,7 @@ __all__ = (
 )
 
 
-class RegionBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class RegionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Region.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -69,7 +69,7 @@ class RegionBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class SiteGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class SiteGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -131,7 +131,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         ]
 
 
-class LocationBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class LocationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Location.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -160,7 +160,7 @@ class LocationBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'tenant', 'description']
 
 
-class RackRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class RackRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -302,7 +302,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         nullable_fields = []
 
 
-class ManufacturerBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ManufacturerBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -344,7 +344,7 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModel
         nullable_fields = ['airflow']
 
 
-class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class DeviceRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -366,7 +366,7 @@ class DeviceRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['color', 'description']
 
 
-class PlatformBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class PlatformBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -462,7 +462,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
         widget=StaticSelect()
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(CableStatusChoices),
+        choices=add_blank_choice(LinkStatusChoices),
         required=False,
         widget=StaticSelect(),
         initial=''
@@ -938,8 +938,8 @@ class PowerOutletBulkEditForm(
 
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
-        'label', 'type', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description',
-        'mode',
+        'label', 'type', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
+        'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
@@ -960,6 +960,10 @@ class InterfaceBulkEditForm(
         widget=BulkEditNullBooleanSelect
     )
     parent = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False
+    )
+    bridge = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False
     )
@@ -990,8 +994,8 @@ class InterfaceBulkEditForm(
 
     class Meta:
         nullable_fields = [
-            'label', 'parent', 'lag', 'mac_address', 'wwn', 'mtu', 'description', 'mode', 'untagged_vlan',
-            'tagged_vlans',
+            'label', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'description', 'mode', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -999,8 +1003,9 @@ class InterfaceBulkEditForm(
         if 'device' in self.initial:
             device = Device.objects.filter(pk=self.initial['device']).first()
 
-            # Restrict parent/LAG interface assignment by device
+            # Restrict parent/bridge/LAG interface assignment by device
             self.fields['parent'].widget.add_query_param('device_id', device.pk)
+            self.fields['bridge'].widget.add_query_param('device_id', device.pk)
             self.fields['lag'].widget.add_query_param('device_id', device.pk)
 
             # Limit VLAN choices by device
@@ -1028,6 +1033,8 @@ class InterfaceBulkEditForm(
 
             self.fields['parent'].choices = ()
             self.fields['parent'].widget.attrs['disabled'] = True
+            self.fields['bridge'].choices = ()
+            self.fields['bridge'].widget.attrs['disabled'] = True
             self.fields['lag'].choices = ()
             self.fields['lag'].widget.attrs['disabled'] = True
 

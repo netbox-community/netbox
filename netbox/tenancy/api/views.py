@@ -30,7 +30,7 @@ class TenantGroupViewSet(CustomFieldModelViewSet):
         'group',
         'tenant_count',
         cumulative=True
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.TenantGroupSerializer
     filterset_class = filtersets.TenantGroupFilterSet
 
@@ -64,28 +64,24 @@ class ContactGroupViewSet(CustomFieldModelViewSet):
         'group',
         'contact_count',
         cumulative=True
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.ContactGroupSerializer
     filterset_class = filtersets.ContactGroupFilterSet
 
 
 class ContactRoleViewSet(CustomFieldModelViewSet):
-    queryset = ContactRole.objects.all()
+    queryset = ContactRole.objects.prefetch_related('tags')
     serializer_class = serializers.ContactRoleSerializer
     filterset_class = filtersets.ContactRoleFilterSet
 
 
 class ContactViewSet(CustomFieldModelViewSet):
-    queryset = Contact.objects.prefetch_related(
-        'group', 'tags'
-    )
+    queryset = Contact.objects.prefetch_related('group', 'tags')
     serializer_class = serializers.ContactSerializer
     filterset_class = filtersets.ContactFilterSet
 
 
 class ContactAssignmentViewSet(CustomFieldModelViewSet):
-    queryset = ContactAssignment.objects.prefetch_related(
-        'contact', 'role'
-    )
+    queryset = ContactAssignment.objects.prefetch_related('contact', 'role')
     serializer_class = serializers.ContactAssignmentSerializer
     filterset_class = filtersets.ContactAssignmentFilterSet

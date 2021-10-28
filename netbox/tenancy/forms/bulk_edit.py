@@ -17,7 +17,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class TenantGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -55,7 +55,7 @@ class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
 # Contacts
 #
 
-class ContactGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ContactGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -73,7 +73,7 @@ class ContactGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['parent', 'description']
 
 
-class ContactRoleBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ContactRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ContactRole.objects.all(),
         widget=forms.MultipleHiddenInput

@@ -48,6 +48,16 @@
                         </td>
                     </tr>
                     <tr>
+                        <th scope="row">Bridge</th>
+                        <td>
+                            {% if object.bridge %}
+                                <a href="{{ object.bridge.get_absolute_url }}">{{ object.bridge }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Description</th>
                         <td>{{ object.description|placeholder }} </td>
                     </tr>
@@ -70,8 +80,8 @@
     </div>
     <div class="col col-md-6">
         {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' with tags=object.tags.all %}
-          {% plugin_right_page object %}
+        {% include 'inc/panels/tags.html' %}
+        {% plugin_right_page object %}
     </div>
 </div>
 <div class="row mb-3">

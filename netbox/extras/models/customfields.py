@@ -280,6 +280,10 @@ class CustomField(ChangeLoggedModel):
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
             field = LaxURLField(required=required, initial=initial)
 
+        # JSON
+        elif self.type == CustomFieldTypeChoices.TYPE_JSON:
+            field = forms.JSONField(required=required, initial=initial)
+
         # Text
         else:
             if self.type == CustomFieldTypeChoices.TYPE_LONGTEXT:

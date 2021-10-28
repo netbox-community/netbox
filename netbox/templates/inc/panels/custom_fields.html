@@ -20,6 +20,8 @@
                                     <i class="mdi mdi-close-thick text-danger" title="False"></i>
                                 {% elif field.type == 'url' and value %}
                                     <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
+                                {% elif field.type == 'json' and value %}
+                                    <pre>{{ value|render_json }}</pre>
                                 {% elif field.type == 'multiselect' and value %}
                                     {{ value|join:", " }}
                                 {% elif value is not None %}

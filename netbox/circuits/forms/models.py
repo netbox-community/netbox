@@ -75,11 +75,15 @@ class ProviderNetworkForm(BootstrapMixin, CustomFieldModelForm):
 
 class CircuitTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = CircuitType
         fields = [
-            'name', 'slug', 'description',
+            'name', 'slug', 'description', 'tags',
         ]
 
 

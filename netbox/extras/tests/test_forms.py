@@ -32,6 +32,9 @@ class CustomFieldModelFormTest(TestCase):
         cf_url = CustomField.objects.create(name='url', type=CustomFieldTypeChoices.TYPE_URL)
         cf_url.content_types.set([obj_type])
 
+        cf_json = CustomField.objects.create(name='json', type=CustomFieldTypeChoices.TYPE_JSON)
+        cf_json.content_types.set([obj_type])
+
         cf_select = CustomField.objects.create(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=CHOICES)
         cf_select.content_types.set([obj_type])
 

@@ -79,7 +79,7 @@ class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         ]
 
 
-class CircuitTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class CircuitTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         widget=forms.MultipleHiddenInput

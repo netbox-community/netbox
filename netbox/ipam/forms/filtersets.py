@@ -94,10 +94,6 @@ class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelF
 
 class RIRFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = RIR
-    field_groups = [
-        ['q'],
-        ['is_private'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
@@ -110,6 +106,7 @@ class RIRFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
@@ -168,14 +165,12 @@ class ASNFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFor
 
 class RoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = Role
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
@@ -393,7 +388,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
 
 class VLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['region', 'sitegroup', 'site', 'location', 'rack']
     ]
     model = VLANGroup
@@ -432,6 +427,7 @@ class VLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Rack'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
 class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):

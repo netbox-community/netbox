@@ -11,12 +11,14 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 
+from netbox.config import PARAMS
+
 
 #
 # Environment setup
 #
 
-VERSION = '3.0.9-dev'
+VERSION = '3.1-beta1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -68,14 +70,8 @@ DATABASE = getattr(configuration, 'DATABASE')
 REDIS = getattr(configuration, 'REDIS')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
-# Set optional parameters
+# Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOWED_URL_SCHEMES = getattr(configuration, 'ALLOWED_URL_SCHEMES', (
-    'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
-))
-BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', '')
-BANNER_LOGIN = getattr(configuration, 'BANNER_LOGIN', '')
-BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
@@ -90,30 +86,19 @@ DEBUG = getattr(configuration, 'DEBUG', False)
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 GRAPHQL_ENABLED = getattr(configuration, 'GRAPHQL_ENABLED', True)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 LOGGING = getattr(configuration, 'LOGGING', {})
+LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
-MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
-MAPS_URL = getattr(configuration, 'MAPS_URL', 'https://maps.google.com/?q=')
-MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
-NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
-NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
-NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
-NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
-PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
-LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
-PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
-RACK_ELEVATION_DEFAULT_UNIT_HEIGHT = getattr(configuration, 'RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 22)
-RACK_ELEVATION_DEFAULT_UNIT_WIDTH = getattr(configuration, 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH', 220)
+RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
 REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
 REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
@@ -127,7 +112,6 @@ REMOTE_AUTH_SUPERUSERS = getattr(configuration, 'REMOTE_AUTH_SUPERUSERS', [])
 REMOTE_AUTH_STAFF_GROUPS = getattr(configuration, 'REMOTE_AUTH_STAFF_GROUPS', [])
 REMOTE_AUTH_STAFF_USERS = getattr(configuration, 'REMOTE_AUTH_STAFF_USERS', [])
 REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATOR', '|')
-RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
@@ -140,6 +124,11 @@ STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+
+# Check for hard-coded dynamic config parameters
+for param in PARAMS:
+    if hasattr(configuration, param.name):
+        globals()[param.name] = getattr(configuration, param.name)
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
@@ -326,6 +315,7 @@ INSTALLED_APPS = [
     'users',
     'utilities',
     'virtualization',
+    'wireless',
     'django_rq',  # Must come after extras to allow overriding management commands
     'drf_yasg',
 ]
@@ -345,6 +335,7 @@ MIDDLEWARE = [
     'netbox.middleware.ExceptionHandlingMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.LoginRequiredMiddleware',
+    'netbox.middleware.DynamicConfigMiddleware',
     'netbox.middleware.APIVersionMiddleware',
     'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
@@ -465,7 +456,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
-    'PAGE_SIZE': PAGINATE_COUNT,
+    # 'PAGE_SIZE': PAGINATE_COUNT,
     'SCHEMA_COERCE_METHOD_NAMES': {
         # Default mappings
         'retrieve': 'read',
@@ -562,23 +553,6 @@ RQ_QUEUES = {
     'default': RQ_PARAMS,
     'low': RQ_PARAMS,
 }
-
-
-#
-# NetBox internal settings
-#
-
-# Pagination
-if MAX_PAGE_SIZE and PAGINATE_COUNT > MAX_PAGE_SIZE:
-    raise ImproperlyConfigured(
-        f"PAGINATE_COUNT ({PAGINATE_COUNT}) must be less than or equal to MAX_PAGE_SIZE ({MAX_PAGE_SIZE}), if set."
-    )
-PER_PAGE_DEFAULTS = [
-    25, 50, 100, 250, 500, 1000
-]
-if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
-    PER_PAGE_DEFAULTS.append(PAGINATE_COUNT)
-    PER_PAGE_DEFAULTS = sorted(PER_PAGE_DEFAULTS)
 
 
 #

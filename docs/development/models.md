@@ -19,8 +19,8 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 | Type               | Change Logging   | Webhooks         | Custom Fields    | Export Templates | Tags             | Journaling       | Nesting          |
 | ------------------ | ---------------- | ---------------- | ---------------- | ---------------- | ---------------- | ---------------- | ---------------- |
 | Primary            | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  |
-| Organizational     | :material-check: | :material-check: | :material-check: | :material-check: |                  |                  |                  |
-| Nested Group       | :material-check: | :material-check: | :material-check: | :material-check: |                  |                  | :material-check: |
+| Organizational     | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  |                  |
+| Nested Group       | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  | :material-check: |
 | Component          | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  |                  |
 | Component Template | :material-check: | :material-check: | :material-check: |                  |                  |                  |                  |
 

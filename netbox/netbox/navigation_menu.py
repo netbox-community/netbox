@@ -176,6 +176,7 @@ CONNECTIONS_MENU = Menu(
             label='Connections',
             items=(
                 get_model_item('dcim', 'cable', 'Cables', actions=['import']),
+                get_model_item('wireless', 'wirelesslink', 'Wirelesss Links', actions=['import']),
                 MenuItem(
                     link='dcim:interface_connections_list',
                     link_text='Interface Connections',
@@ -191,6 +192,20 @@ CONNECTIONS_MENU = Menu(
                     link_text='Power Connections',
                     permissions=['dcim.view_powerport']
                 ),
+            ),
+        ),
+    ),
+)
+
+WIRELESS_MENU = Menu(
+    label='Wireless',
+    icon_class='mdi mdi-wifi',
+    groups=(
+        MenuGroup(
+            label='Wireless',
+            items=(
+                get_model_item('wireless', 'wirelesslan', 'Wireless LANs'),
+                get_model_item('wireless', 'wirelesslangroup', 'Wireless LAN Groups'),
             ),
         ),
     ),
@@ -357,6 +372,7 @@ MENUS = [
     ORGANIZATION_MENU,
     DEVICES_MENU,
     CONNECTIONS_MENU,
+    WIRELESS_MENU,
     IPAM_MENU,
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,

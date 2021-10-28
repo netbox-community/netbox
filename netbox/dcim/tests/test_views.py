@@ -31,11 +31,14 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for region in regions:
             region.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Region X',
             'slug': 'region-x',
             'parent': regions[2].pk,
             'description': 'A new region',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -65,11 +68,14 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for sitegroup in sitegroups:
             sitegroup.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Site Group X',
             'slug': 'site-group-x',
             'parent': sitegroups[2].pk,
             'description': 'A new site group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -194,12 +200,15 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         for location in locations:
             location.save()
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Location X',
             'slug': 'location-x',
             'site': site.pk,
             'tenant': tenant.pk,
             'description': 'A new location',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -226,11 +235,14 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             RackRole(name='Rack Role 3', slug='rack-role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Rack Role X',
             'slug': 'rack-role-x',
             'color': 'c0c0c0',
             'description': 'New role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -393,10 +405,13 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Manufacturer X',
             'slug': 'manufacturer-x',
             'description': 'A new manufacturer',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -1059,12 +1074,15 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Devie Role X',
             'slug': 'device-role-x',
             'color': 'c0c0c0',
             'vm_role': False,
             'description': 'New device role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -1094,6 +1112,8 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturer),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Platform X',
             'slug': 'platform-x',
@@ -1101,6 +1121,7 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'napalm_driver': 'junos',
             'napalm_args': None,
             'description': 'A new platform',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -1585,6 +1606,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             Interface(device=device, name='Interface 2'),
             Interface(device=device, name='Interface 3'),
             Interface(device=device, name='LAG', type=InterfaceTypeChoices.TYPE_LAG),
+            Interface(device=device, name='_BRIDGE', type=InterfaceTypeChoices.TYPE_VIRTUAL),  # Must be ordered last
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -1600,10 +1622,10 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.form_data = {
             'device': device.pk,
-            'virtual_machine': None,
             'name': 'Interface X',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'enabled': False,
+            'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
@@ -1611,6 +1633,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mgmt_only': True,
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
+            'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'tags': [t.pk for t in tags],
@@ -1621,6 +1644,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name_pattern': 'Interface [4-6]',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'enabled': False,
+            'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
@@ -1643,6 +1667,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mgmt_only': True,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
+            'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
         }
@@ -1948,7 +1973,7 @@ class CableTestCase(
             'termination_b_type': interface_ct.pk,
             'termination_b_id': interfaces[3].pk,
             'type': CableTypeChoices.TYPE_CAT6,
-            'status': CableStatusChoices.STATUS_PLANNED,
+            'status': LinkStatusChoices.STATUS_PLANNED,
             'label': 'Label',
             'color': 'c0c0c0',
             'length': 100,
@@ -1965,7 +1990,7 @@ class CableTestCase(
 
         cls.bulk_edit_data = {
             'type': CableTypeChoices.TYPE_CAT5E,
-            'status': CableStatusChoices.STATUS_CONNECTED,
+            'status': LinkStatusChoices.STATUS_CONNECTED,
             'label': 'New label',
             'color': '00ff00',
             'length': 50,

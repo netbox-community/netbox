@@ -22,26 +22,22 @@ __all__ = (
 
 class ClusterTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = ClusterType
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class ClusterGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     model = ClusterGroup
-    field_groups = [
-        ['q'],
-    ]
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
         label=_('Search')
     )
+    tag = TagFilterField(model)
 
 
 class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):

@@ -111,6 +111,7 @@ class ProviderNetworkFilterSet(PrimaryModelFilterSet):
 
 
 class CircuitTypeFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = CircuitType

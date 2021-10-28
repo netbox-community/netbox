@@ -9,7 +9,6 @@ from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import *
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
-from netbox.api.serializers import OrganizationalModelSerializer
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
@@ -86,14 +85,14 @@ class RouteTargetSerializer(PrimaryModelSerializer):
 # RIRs/aggregates
 #
 
-class RIRSerializer(OrganizationalModelSerializer):
+class RIRSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
     aggregate_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RIR
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'custom_fields', 'created',
+            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'aggregate_count',
         ]
 
@@ -117,7 +116,7 @@ class AggregateSerializer(PrimaryModelSerializer):
 # VLANs
 #
 
-class RoleSerializer(OrganizationalModelSerializer):
+class RoleSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
     prefix_count = serializers.IntegerField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
@@ -125,12 +124,12 @@ class RoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = Role
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'custom_fields', 'created', 'last_updated',
-            'prefix_count', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'prefix_count', 'vlan_count',
         ]
 
 
-class VLANGroupSerializer(OrganizationalModelSerializer):
+class VLANGroupSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
@@ -146,8 +145,8 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'custom_fields',
-            'created', 'last_updated', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'vlan_count',
         ]
         validators = []
 

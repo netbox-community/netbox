@@ -51,6 +51,7 @@ nav:
         - Configuring NetBox: 'configuration/index.md'
         - Required Settings: 'configuration/required-settings.md'
         - Optional Settings: 'configuration/optional-settings.md'
+        - Dynamic Settings: 'configuration/dynamic-settings.md'
     - Core Functionality:
         - IP Address Management: 'core-functionality/ipam.md'
         - VLAN Management: 'core-functionality/vlans.md'
@@ -60,6 +61,7 @@ nav:
         - Virtualization: 'core-functionality/virtualization.md'
         - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
+        - Wireless: 'core-functionality/wireless.md'
         - Power Tracking: 'core-functionality/power.md'
         - Tenancy: 'core-functionality/tenancy.md'
         - Contacts: 'core-functionality/contacts.md'
@@ -92,6 +94,8 @@ nav:
         - Authentication: 'rest-api/authentication.md'
     - GraphQL API:
         - Overview: 'graphql-api/overview.md'
+    - Reference:
+        - Conditions: 'reference/conditions.md'
     - Development:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'
