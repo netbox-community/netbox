@@ -175,7 +175,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     def __init__(self, data=None, instance=None, *args, **kwargs):
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
-        self.fields['asns'].initial = self.instance.asns.all().values_list('id', flat=True)
+        if self.instance and self.instance.pk is not None:
+            self.fields['asns'].initial = self.instance.asns.all().values_list('id', flat=True)
 
         # Hide the ASN field if there is nothing there as this is deprecated
         if instance is None or \
