@@ -63,6 +63,10 @@ VLAN_MEMBER_TAGGED = """
 
 class VLANGroupTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(linkify=True)
     scope_type = ContentTypeColumn()
     scope = tables.Column(
@@ -81,7 +85,7 @@ class VLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'actions')
         default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description', 'actions')
 
 
@@ -91,6 +95,10 @@ class VLANGroupTable(BaseTable):
 
 class VLANTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
         verbose_name='ID'
@@ -119,7 +127,7 @@ class VLANTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
+        fields = ('pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, VLAN) else '',

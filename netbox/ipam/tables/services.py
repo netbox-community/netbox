@@ -14,6 +14,10 @@ __all__ = (
 
 class ServiceTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -31,5 +35,5 @@ class ServiceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Service
-        fields = ('pk', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'tags')
+        fields = ('pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'tags')
         default_columns = ('pk', 'name', 'parent', 'protocol', 'ports', 'description')

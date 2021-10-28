@@ -22,6 +22,10 @@ VRF_TARGETS = """
 
 class VRFTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -47,7 +51,7 @@ class VRFTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VRF
         fields = (
-            'pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tags',
+            'pk', 'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tags',
         )
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
 
@@ -58,6 +62,10 @@ class VRFTable(BaseTable):
 
 class RouteTargetTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -68,5 +76,5 @@ class RouteTargetTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RouteTarget
-        fields = ('pk', 'name', 'tenant', 'description', 'tags')
+        fields = ('pk', 'id', 'name', 'tenant', 'description', 'tags')
         default_columns = ('pk', 'name', 'tenant', 'description')

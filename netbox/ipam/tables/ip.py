@@ -74,6 +74,10 @@ VRF_LINK = """
 
 class RIRTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -89,7 +93,7 @@ class RIRTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
 
 
@@ -99,6 +103,10 @@ class RIRTable(BaseTable):
 
 class AggregateTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     prefix = tables.Column(
         linkify=True,
         verbose_name='Aggregate'
@@ -121,7 +129,7 @@ class AggregateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Aggregate
-        fields = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags')
+        fields = ('pk', 'id', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags')
         default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
 
 
@@ -131,6 +139,10 @@ class AggregateTable(BaseTable):
 
 class RoleTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -148,7 +160,7 @@ class RoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'actions')
         default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
 
 
@@ -173,6 +185,10 @@ class PrefixUtilizationColumn(UtilizationColumn):
 
 class PrefixTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     prefix = tables.TemplateColumn(
         template_code=PREFIX_LINK,
         attrs={'td': {'class': 'text-nowrap'}}
@@ -230,7 +246,7 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
             'is_pool', 'mark_utilized', 'description', 'tags',
         )
         default_columns = (
@@ -246,6 +262,10 @@ class PrefixTable(BaseTable):
 #
 class IPRangeTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     start_address = tables.Column(
         linkify=True
     )
@@ -268,7 +288,7 @@ class IPRangeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = IPRange
         fields = (
-            'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
+            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
             'utilization',
         )
         default_columns = (
@@ -285,6 +305,10 @@ class IPRangeTable(BaseTable):
 
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name='IP Address'
@@ -326,7 +350,7 @@ class IPAddressTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
+            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
             'tags',
         )
         default_columns = (
