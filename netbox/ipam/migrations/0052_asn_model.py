@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         ('extras', '0062_clear_secrets_changelog'),
         ('tenancy', '0003_contacts'),
         ('dcim', '0137_relax_uniqueness_constraints'),
-        ('ipam', '0050_iprange'),
+        ('ipam', '0051_extend_tag_support'),
     ]
 
     operations = [
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('asn', dcim.fields.ASNField(blank=True, null=True)),
+                ('asn', dcim.fields.ASNField(blank=True, null=True, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('rir', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='asns', to='ipam.rir')),
                 ('sites', models.ManyToManyField(blank=True, related_name='asns', to='dcim.Site')),
