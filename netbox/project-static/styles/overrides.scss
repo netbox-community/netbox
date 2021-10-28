@@ -7,11 +7,7 @@ body {
 }
 
 pre {
-  padding: $spacer;
   white-space: pre;
-  background-color: var(--nbx-pre-bg);
-  border: 1px solid var(--nbx-pre-border-color);
-  border-radius: $border-radius;
 }
 
 // Force <small/> elements to make text smaller.

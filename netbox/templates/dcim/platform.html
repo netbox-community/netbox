@@ -64,7 +64,7 @@
         NAPALM Arguments
       </h5>
       <div class="card-body">
-        <pre>{{ object.napalm_args }}</pre>
+        <pre>{{ object.napalm_args|render_json }}</pre>
       </div>
     </div>
     {% include 'inc/panels/custom_fields.html' %}
