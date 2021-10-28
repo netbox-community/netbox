@@ -74,6 +74,7 @@ class RIR(OrganizationalModel):
 class ASN(PrimaryModel):
 
     asn = ASNField(
+        unique=True,
         blank=True,
         null=True,
         verbose_name='ASN',
