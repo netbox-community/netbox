@@ -1150,7 +1150,7 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         fields = [
             'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu',
             'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),

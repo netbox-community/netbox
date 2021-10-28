@@ -1,4 +1,5 @@
 from django.db import migrations, models
+import django.core.validators
 import django.db.models.deletion
 
 
@@ -29,6 +30,11 @@ class Migration(migrations.Migration):
             model_name='interface',
             name='rf_channel_width',
             field=models.DecimalField(blank=True, decimal_places=3, max_digits=7, null=True),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='tx_power',
+            field=models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MaxValueValidator(127)]),
         ),
         migrations.AddField(
             model_name='interface',

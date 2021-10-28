@@ -957,7 +957,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address', 'wwn'],
-        ['rf_role', 'rf_channel', 'rf_channel_width'],
+        ['rf_role', 'rf_channel', 'rf_channel_width', 'tx_power'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
     ]
     kind = forms.MultipleChoiceField(
@@ -1009,6 +1009,12 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     rf_channel_width = forms.IntegerField(
         required=False,
         label='Channel width (MHz)'
+    )
+    tx_power = forms.IntegerField(
+        required=False,
+        label='Transmit power (dBm)',
+        min_value=0,
+        max_value=127
     )
     tag = TagFilterField(model)
 

@@ -106,6 +106,10 @@
                             <td><span class="text-monospace">{{ object.wwn|placeholder }}</span></td>
                         </tr>
                         <tr>
+                            <th scope="row">Transmit power (dBm)</th>
+                            <td>{{ object.tx_power|placeholder }}</td>
+                        </tr>
+                        <tr>
                             <th scope="row">802.1Q Mode</th>
                             <td>{{ object.get_mode_display|placeholder }}</td>
                         </tr>

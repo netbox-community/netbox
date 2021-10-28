@@ -560,6 +560,12 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         null=True,
         verbose_name='Channel width (MHz)'
     )
+    tx_power = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=(MaxValueValidator(127),),
+        verbose_name='Transmit power (dBm)'
+    )
     wireless_link = models.ForeignKey(
         to='wireless.WirelessLink',
         on_delete=models.SET_NULL,

@@ -940,7 +940,7 @@ class PowerOutletBulkEditForm(
 class InterfaceBulkEditForm(
     form_from_model(Interface, [
         'label', 'type', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
-        'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
+        'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
     ]),
     BootstrapMixin,
     AddRemoveTagsForm,
@@ -996,7 +996,7 @@ class InterfaceBulkEditForm(
     class Meta:
         nullable_fields = [
             'label', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'description', 'mode', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'untagged_vlan', 'tagged_vlans',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans',
         ]
 
     def __init__(self, *args, **kwargs):

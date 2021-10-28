@@ -602,7 +602,7 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address',
             'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width',
+            'rf_channel_width', 'tx_power',
         )
 
     def clean_enabled(self):

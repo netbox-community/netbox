@@ -2061,9 +2061,9 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
             Interface(device=devices[0], name='Interface 1', label='A', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
             Interface(device=devices[1], name='Interface 2', label='B', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
             Interface(device=devices[2], name='Interface 3', label='C', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
-            Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False),
+            Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40),
+            Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40),
+            Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False, tx_power=40),
             Interface(device=devices[3], name='Interface 7', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_AP, rf_channel=WirelessChannelChoices.CHANNEL_24G_1, rf_channel_frequency=2412, rf_channel_width=22),
             Interface(device=devices[3], name='Interface 8', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_STATION, rf_channel=WirelessChannelChoices.CHANNEL_5G_32, rf_channel_frequency=5160, rf_channel_width=20),
         )
@@ -2223,6 +2223,10 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_rf_channel_width(self):
         params = {'rf_channel_width': [22, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tx_power(self):
+        params = {'tx_power': [40]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):

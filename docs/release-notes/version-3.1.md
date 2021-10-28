@@ -6,7 +6,7 @@
 ### Breaking Changes
 
 * The `tenant` and `tenant_id` filters for the Cable model now filter on the tenant assigned directly to each cable, rather than on the parent object of either termination.
-* The `cable_peer` and `cable_peer_type` attributes of the interface model has been renamed to `link_peer` and `link_peer_type`, respectively, to accommodate wireless links.
+* The `cable_peer` and `cable_peer_type` attributes of cable termination models have been renamed to `link_peer` and `link_peer_type`, respectively, to accommodate wireless links between interfaces.
 
 ### New Features
 
@@ -68,6 +68,7 @@ Multiple interfaces can be bridged to a single virtual interface to effect a bri
 * [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations
 * [#7354](https://github.com/netbox-community/netbox/issues/7354) - Relax uniqueness constraints on region, site group, and location names
 * [#7530](https://github.com/netbox-community/netbox/issues/7530) - Move device type component lists to separate views
+* [#7606](https://github.com/netbox-community/netbox/issues/7606) - Model transmit power for interfaces
 
 ### Other Changes
 
@@ -113,6 +114,7 @@ Multiple interfaces can be bridged to a single virtual interface to effect a bri
     * Added `rf_channel` field
     * Added `rf_channel_frequency` field
     * Added `rf_chanel_width` field
+    * Added `tx_power` field
     * Added `wwn` field
     * `cable_peer` has been renamed to `link_peer`
     * `cable_peer_type` has been renamed to `link_peer_type`

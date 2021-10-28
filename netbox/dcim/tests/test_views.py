@@ -1608,6 +1608,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mgmt_only': True,
             'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
+            'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'tags': [t.pk for t in tags],
@@ -1641,6 +1642,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mgmt_only': True,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
+            'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
         }
