@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, date
 
+import django_filters
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
@@ -8,11 +9,11 @@ from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django_filters import filters
 
 from extras.choices import *
 from extras.utils import FeatureQuery, extras_features
 from netbox.models import ChangeLoggedModel
+from utilities import filters
 from utilities.forms import (
     CSVChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
 )
@@ -327,31 +328,29 @@ class CustomField(ChangeLoggedModel):
                 CustomFieldTypeChoices.TYPE_LONGTEXT,
                 CustomFieldTypeChoices.TYPE_URL,
         ):
-            filter_class = filters.CharFilter
+            filter_class = filters.MultiValueCharFilter
             if self.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
                 kwargs['lookup_expr'] = 'icontains'
 
         # Integer
         elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
-            # TODO: Remove dirty hack to change lookup type from Decimal
-            filter_class = filters.NumberFilter
-            filter_class.field_class = forms.IntegerField
+            filter_class = filters.MultiValueNumberFilter
 
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-            filter_class = filters.BooleanFilter
+            filter_class = django_filters.BooleanFilter
 
         # Date
         elif self.type == CustomFieldTypeChoices.TYPE_DATE:
-            filter_class = filters.DateFilter
+            filter_class = filters.MultiValueDateFilter
 
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
-            filter_class = filters.CharFilter
+            filter_class = filters.MultiValueCharFilter
 
         # Multiselect
         elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            filter_class = filters.CharFilter
+            filter_class = filters.MultiValueCharFilter
             kwargs['lookup_expr'] = 'has_key'
 
         # Unsupported custom field type
