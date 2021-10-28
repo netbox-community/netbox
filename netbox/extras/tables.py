@@ -48,6 +48,10 @@ OBJECTCHANGE_REQUEST_ID = """
 
 class CustomFieldTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -57,8 +61,8 @@ class CustomFieldTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = CustomField
         fields = (
-            'pk', 'name', 'content_types', 'label', 'type', 'required', 'weight', 'default', 'description',
-            'filter_logic', 'choices',
+            'pk', 'id', 'name', 'content_types', 'label', 'type', 'required', 'weight', 'default',
+            'description', 'filter_logic', 'choices',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'type', 'required', 'description')
 
@@ -69,6 +73,10 @@ class CustomFieldTable(BaseTable):
 
 class CustomLinkTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -78,7 +86,8 @@ class CustomLinkTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = CustomLink
         fields = (
-            'pk', 'name', 'content_type', 'link_text', 'link_url', 'weight', 'group_name', 'button_class', 'new_window',
+            'pk', 'id', 'name', 'content_type', 'link_text', 'link_url', 'weight', 'group_name',
+            'button_class', 'new_window',
         )
         default_columns = ('pk', 'name', 'content_type', 'group_name', 'button_class', 'new_window')
 
@@ -89,6 +98,10 @@ class CustomLinkTable(BaseTable):
 
 class ExportTemplateTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -98,7 +111,7 @@ class ExportTemplateTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ExportTemplate
         fields = (
-            'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'id', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
         )
         default_columns = (
             'pk', 'name', 'content_type', 'description', 'mime_type', 'file_extension', 'as_attachment',
@@ -111,6 +124,10 @@ class ExportTemplateTable(BaseTable):
 
 class WebhookTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -132,7 +149,7 @@ class WebhookTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Webhook
         fields = (
-            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
+            'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
             'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
         )
         default_columns = (
@@ -147,6 +164,10 @@ class WebhookTable(BaseTable):
 
 class TagTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -155,7 +176,8 @@ class TagTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ('pk', 'name', 'items', 'slug', 'color', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'actions')
+        default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description', 'actions')
 
 
 class TaggedItemTable(BaseTable):
@@ -175,6 +197,10 @@ class TaggedItemTable(BaseTable):
 
 class ConfigContextTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -185,13 +211,17 @@ class ConfigContextTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles', 'platforms',
-            'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
+            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles',
+            'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
 
 class ObjectChangeTable(BaseTable):
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     time = tables.DateTimeColumn(
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
@@ -211,7 +241,8 @@ class ObjectChangeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
-        fields = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
+        fields = ('id', 'time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
+        default_columns = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
 
 
 class ObjectJournalTable(BaseTable):
@@ -237,6 +268,10 @@ class ObjectJournalTable(BaseTable):
 
 class JournalEntryTable(ObjectJournalTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     assigned_object_type = ContentTypeColumn(
         verbose_name='Object type'
     )
@@ -250,5 +285,10 @@ class JournalEntryTable(ObjectJournalTable):
     class Meta(BaseTable.Meta):
         model = JournalEntry
         fields = (
-            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments', 'actions'
+            'pk', 'id', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind',
+            'comments', 'actions'
+        )
+        default_columns = (
+            'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind',
+            'comments', 'actions'
         )
