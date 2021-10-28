@@ -144,7 +144,7 @@ class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Site
-    field_order = ['q', 'status', 'region_id', 'tenant_group_id', 'tenant_id', 'asns']
+    field_order = ['q', 'status', 'region_id', 'tenant_group_id', 'tenant_id', 'asn_id']
     field_groups = [
         ['q', 'tag'],
         ['status', 'region_id', 'group_id'],
