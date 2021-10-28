@@ -2,6 +2,7 @@ from ipam import filtersets, models
 from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
+    'ASNType',
     'AggregateType',
     'IPAddressType',
     'IPRangeType',
@@ -14,6 +15,14 @@ __all__ = (
     'VLANGroupType',
     'VRFType',
 )
+
+
+class ASNType(PrimaryObjectType):
+
+    class Meta:
+        model = models.ASN
+        fields = '__all__'
+        filterset_class = filtersets.ASNFilterSet
 
 
 class AggregateType(PrimaryObjectType):

@@ -5,6 +5,9 @@ from .types import *
 
 
 class IPAMQuery(graphene.ObjectType):
+    asn = ObjectField(ASNType)
+    asn_list = ObjectListField(ASNType)
+
     aggregate = ObjectField(AggregateType)
     aggregate_list = ObjectListField(AggregateType)
 
