@@ -80,15 +80,18 @@ class SiteTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:site_list'
     )
+    actions = ButtonsColumn(
+        model=Site
+    )
 
     class Meta(BaseTable.Meta):
         model = Site
         fields = (
             'pk', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email', 'comments', 'tags',
+            'contact_email', 'comments', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'asn', 'description')
+        default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'asn', 'description', 'actions')
 
 
 #
