@@ -174,10 +174,13 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
     def __init__(self, data=None, instance=None, *args, **kwargs):
         super().__init__(data=data, instance=instance, *args, **kwargs)
+
+        self.fields['asns'].initial = self.instance.asns.all().values_list('id', flat=True)
+
+        # Hide the ASN field if there is nothing there as this is deprecated
         if instance is None or \
                 (instance and (instance.asn is None or instance.asn == '')) or \
                 (data and (data.get('asn') is None or instance.get('asn')) == ''):
-            print(f'{instance}')
             if 'asn' in self.Meta.fieldsets[0][1]:
                 site_fieldset = list(self.Meta.fieldsets[0][1])
                 index = site_fieldset.index('asn')
@@ -188,6 +191,11 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                     self.Meta.fieldsets[2],
                 )
             del self.fields['asn']
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        instance.asns.set(self.cleaned_data['asns'])
+        return instance
 
 
 class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):

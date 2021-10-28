@@ -129,6 +129,11 @@ class ASNForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=RIR.objects.all(),
         label='RIR',
     )
+    sites = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        label='Sites',
+        required=False
+    )
 
     class Meta:
         model = ASN
