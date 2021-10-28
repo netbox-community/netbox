@@ -11,7 +11,7 @@ from netaddr import EUI
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import VLAN
+from ipam.models import VLAN, ASN, RIR
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 
@@ -104,13 +104,40 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for group in groups:
             group.save()
 
-        Site.objects.bulk_create([
+        sites = Site.objects.bulk_create([
             Site(name='Site 1', slug='site-1', region=regions[0], group=groups[1]),
             Site(name='Site 2', slug='site-2', region=regions[0], group=groups[1]),
             Site(name='Site 3', slug='site-3', region=regions[0], group=groups[1]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+
+        asns = [
+            ASN(asn=65000, rir=rir),
+            ASN(asn=65001, rir=rir),
+            ASN(asn=65002, rir=rir),
+            ASN(asn=65003, rir=rir),
+            ASN(asn=65004, rir=rir),
+            ASN(asn=65005, rir=rir),
+            ASN(asn=65006, rir=rir),
+            ASN(asn=65007, rir=rir),
+            ASN(asn=65008, rir=rir),
+            ASN(asn=65009, rir=rir),
+            ASN(asn=65010, rir=rir),
+        ]
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+        asns[4].sites.set([sites[2]])
+        asns[5].sites.set([sites[1]])
+        asns[6].sites.set([sites[2]])
+        asns[7].sites.set([sites[2]])
+        asns[8].sites.set([sites[2]])
+        asns[10].sites.set([sites[0]])
 
         cls.form_data = {
             'name': 'Site X',
@@ -120,7 +147,6 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'group': groups[1].pk,
             'tenant': None,
             'facility': 'Facility X',
-            'asn': 65001,
             'time_zone': pytz.UTC,
             'description': 'Site description',
             'physical_address': '742 Evergreen Terrace, Springfield, USA',
@@ -146,7 +172,6 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'region': regions[1].pk,
             'group': groups[1].pk,
             'tenant': None,
-            'asn': 65009,
             'time_zone': pytz.timezone('US/Eastern'),
             'description': 'New description',
         }

@@ -34,29 +34,31 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         ]
 
         asns = (
+            ASN(asn=64512, rir=rirs[0], tenant=tenants[0]),
             ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
             ASN(asn=64514, rir=rirs[0], tenant=tenants[1]),
             ASN(asn=64515, rir=rirs[0], tenant=tenants[2]),
             ASN(asn=64516, rir=rirs[0], tenant=tenants[3]),
-            ASN(asn=65535, rir=rirs[1], tenant=tenants[5]),
+            ASN(asn=65535, rir=rirs[1], tenant=tenants[4]),
             ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
             ASN(asn=4200000001, rir=rirs[0], tenant=tenants[1]),
             ASN(asn=4200000002, rir=rirs[0], tenant=tenants[2]),
             ASN(asn=4200000003, rir=rirs[0], tenant=tenants[3]),
-            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[5]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[4]),
         )
         ASN.objects.bulk_create(asns)
 
         asns[0].sites.set([sites[0]])
-        asns[1].sites.set([sites[1]])
-        asns[2].sites.set([sites[2]])
-        asns[3].sites.set([sites[0]])
-        asns[4].sites.set([sites[1]])
-        asns[5].sites.set([sites[0]])
-        asns[6].sites.set([sites[1]])
-        asns[7].sites.set([sites[2]])
-        asns[8].sites.set([sites[0]])
-        asns[9].sites.set([sites[1]])
+        asns[1].sites.set([sites[0]])
+        asns[2].sites.set([sites[1]])
+        asns[3].sites.set([sites[2]])
+        asns[4].sites.set([sites[0]])
+        asns[5].sites.set([sites[1]])
+        asns[6].sites.set([sites[0]])
+        asns[7].sites.set([sites[1]])
+        asns[8].sites.set([sites[2]])
+        asns[9].sites.set([sites[0]])
+        asns[10].sites.set([sites[1]])
 
     def test_asn(self):
         params = {'asn': ['64512', '65535']}
@@ -65,23 +67,23 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_rir(self):
         rirs = RIR.objects.all()[:1]
-        params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'rir': [rirs[0].slug, rirs[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rir_id': [rirs[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
+        params = {'rir': [rirs[0].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
 
 
 class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):

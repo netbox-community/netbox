@@ -46,8 +46,8 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'asn': 64512,
             'rir': rirs[0].pk,
-            'tenant': tenants[0],
-            'site': sites[0],
+            'tenant': tenants[0].pk,
+            'site': sites[0].pk,
             'description': 'A new ASN',
         }
 
@@ -55,7 +55,7 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "asn,rir",
             "64533,RFC 6996",
             "64523,RFC 6996",
-            "64513,RFC 6996",
+            "4200000002,RFC 6996",
         )
 
         cls.bulk_edit_data = {

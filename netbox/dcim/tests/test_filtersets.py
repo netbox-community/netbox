@@ -4,7 +4,7 @@ from django.test import TestCase
 from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
-from ipam.models import IPAddress
+from ipam.models import IPAddress, RIR, ASN
 from tenancy.models import Tenant, TenantGroup
 from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests
@@ -147,6 +147,23 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
         )
         Site.objects.bulk_create(sites)
+
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+
+        asns = (
+            ASN(asn=64512, rir=rir, tenant=tenants[0]),
+            ASN(asn=64513, rir=rir, tenant=tenants[0]),
+            ASN(asn=64514, rir=rir, tenant=tenants[0]),
+            ASN(asn=65001, rir=rir, tenant=tenants[0]),
+            ASN(asn=65002, rir=rir, tenant=tenants[0])
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[2]])
+        asns[3].sites.set([sites[2]])
+        asns[4].sites.set([sites[1]])
 
     def test_name(self):
         params = {'name': ['Site 1', 'Site 2']}

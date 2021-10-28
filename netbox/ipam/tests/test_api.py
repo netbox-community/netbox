@@ -23,7 +23,7 @@ class AppTest(APITestCase):
 
 class ASNTest(APIViewTestCases.APIViewTestCase):
     model = ASN
-    brief_fields = ['display', 'id', 'name', 'prefix_count', 'rd', 'url']
+    brief_fields = ['asn', 'display', 'id', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
