@@ -43,6 +43,10 @@ class TenantColumn(tables.TemplateColumn):
 
 class TenantGroupTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = MPTTColumn(
         linkify=True
     )
@@ -55,7 +59,7 @@ class TenantGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
-        fields = ('pk', 'name', 'tenant_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'actions')
         default_columns = ('pk', 'name', 'tenant_count', 'description', 'actions')
 
 
@@ -65,6 +69,10 @@ class TenantGroupTable(BaseTable):
 
 class TenantTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -78,5 +86,5 @@ class TenantTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'name', 'slug', 'group', 'description', 'comments', 'tags')
+        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags')
         default_columns = ('pk', 'name', 'group', 'description')
