@@ -51,3 +51,18 @@ class ConfigTestCase(TestCase):
         self.assertEqual(config.version, configrevision.pk)
 
         clear_config()
+
+    @override_settings(CACHES=CACHES, BANNER_TOP='Z')
+    def test_settings_override(self):
+        CONFIG_DATA = {'BANNER_TOP': 'A'}
+        cache.clear()
+
+        # Create a config and load it into the cache
+        configrevision = ConfigRevision.objects.create(data=CONFIG_DATA)
+        configrevision.activate()
+
+        config = get_config()
+        self.assertEqual(config.BANNER_TOP, 'Z')
+        self.assertEqual(config.version, configrevision.pk)
+
+        clear_config()
