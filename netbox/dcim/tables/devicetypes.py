@@ -28,6 +28,10 @@ __all__ = (
 
 class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name='ID'
+    )
     name = tables.Column(
         linkify=True
     )
@@ -46,6 +50,9 @@ class ManufacturerTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Manufacturer
         fields = (
+            'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+        )
+        default_columns = (
             'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
         )
 
@@ -56,6 +63,10 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name='ID'
+    )
     model = tables.Column(
         linkify=True,
         verbose_name='Device Type'
@@ -76,7 +87,7 @@ class DeviceTypeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = DeviceType
         fields = (
-            'pk', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
             'comments', 'instance_count', 'tags',
         )
         default_columns = (
