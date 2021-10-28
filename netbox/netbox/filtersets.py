@@ -7,14 +7,13 @@ from django_filters.utils import get_model_field, resolve_field
 
 from dcim.forms import MACAddressField
 from extras.choices import CustomFieldFilterLogicChoices
-from extras.filters import CustomFieldFilter, TagFilter
+from extras.filters import TagFilter
 from extras.models import CustomField
 from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP
 )
 from utilities import filters
-
 
 __all__ = (
     'BaseFilterSet',
@@ -222,8 +221,10 @@ class PrimaryModelFilterSet(ChangeLoggedModelFilterSet):
         )
 
         custom_field_filters = {}
-        for cf in custom_fields:
-            custom_field_filters[f'cf_{cf.name}'] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
+        for custom_field in custom_fields:
+            cf_filter = custom_field.to_filter()
+            if cf_filter:
+                custom_field_filters[f'cf_{custom_field.name}'] = cf_filter
 
         self.filters.update(custom_field_filters)
 

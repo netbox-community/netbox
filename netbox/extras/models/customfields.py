@@ -8,6 +8,7 @@ from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django_filters import filters
 
 from extras.choices import *
 from extras.utils import FeatureQuery, extras_features
@@ -307,6 +308,53 @@ class CustomField(ChangeLoggedModel):
             field.help_text = self.description
 
         return field
+
+    def to_filter(self):
+        """
+        Return a django_filters Filter instance suitable for this field type.
+        """
+        kwargs = {
+            'field_name': f'custom_field_data__{self.name}'
+        }
+
+        # Text/URL
+        if self.type in (
+                CustomFieldTypeChoices.TYPE_TEXT,
+                CustomFieldTypeChoices.TYPE_LONGTEXT,
+                CustomFieldTypeChoices.TYPE_URL,
+        ):
+            filter_class = filters.CharFilter
+            if self.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
+                kwargs['lookup_expr'] = 'icontains'
+
+        # Integer
+        elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            # TODO: Remove dirty hack to change lookup type from Decimal
+            filter_class = filters.NumberFilter
+            filter_class.field_class = forms.IntegerField
+
+        # Boolean
+        elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            filter_class = filters.BooleanFilter
+
+        # Date
+        elif self.type == CustomFieldTypeChoices.TYPE_DATE:
+            filter_class = filters.DateFilter
+
+        # Select
+        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            filter_class = filters.CharFilter
+
+        # Multiselect
+        elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            filter_class = filters.CharFilter
+            kwargs['lookup_expr'] = 'has_key'
+
+        # Unsupported custom field type
+        else:
+            return None
+
+        return filter_class(**kwargs)
 
     def validate(self, value):
         """

@@ -26,13 +26,6 @@ __all__ = (
     'WebhookFilterSet',
 )
 
-EXACT_FILTER_TYPES = (
-    CustomFieldTypeChoices.TYPE_BOOLEAN,
-    CustomFieldTypeChoices.TYPE_DATE,
-    CustomFieldTypeChoices.TYPE_INTEGER,
-    CustomFieldTypeChoices.TYPE_SELECT,
-)
-
 
 class WebhookFilterSet(BaseFilterSet):
     content_types = ContentTypeFilter()
