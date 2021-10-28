@@ -29,6 +29,10 @@ CIRCUITTERMINATION_LINK = """
 
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -44,8 +48,8 @@ class ProviderTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Provider
         fields = (
-            'pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count', 'comments',
-            'tags',
+            'pk', 'id', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count',
+            'comments', 'tags',
         )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 
@@ -56,6 +60,10 @@ class ProviderTable(BaseTable):
 
 class ProviderNetworkTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -69,7 +77,7 @@ class ProviderNetworkTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ProviderNetwork
-        fields = ('pk', 'name', 'provider', 'description', 'comments', 'tags')
+        fields = ('pk', 'id', 'name', 'provider', 'description', 'comments', 'tags')
         default_columns = ('pk', 'name', 'provider', 'description')
 
 
@@ -79,6 +87,10 @@ class ProviderNetworkTable(BaseTable):
 
 class CircuitTypeTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        linkify=True,
+        verbose_name="ID"
+    )
     name = tables.Column(
         linkify=True
     )
@@ -89,7 +101,7 @@ class CircuitTypeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = CircuitType
-        fields = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'id', 'name', 'circuit_count', 'description', 'slug', 'actions')
         default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
 
 
