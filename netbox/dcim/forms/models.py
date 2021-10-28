@@ -166,13 +166,15 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     def __init__(self, instance, *args, **kwargs):
         super(SiteForm, self).__init__(instance=instance, *args, **kwargs)
         if instance is None or (instance and (instance.asn is None or instance.asn == '')):
-            site_fieldset = list(self.Meta.fieldsets[0][1])
-            site_fieldset.pop(6)
-            self.Meta.fieldsets = (
-                ('Site', tuple(site_fieldset)),
-                self.Meta.fieldsets[1],
-                self.Meta.fieldsets[2],
-            )
+            if 'asn' in self.Meta.fieldsets[0][1]:
+                site_fieldset = list(self.Meta.fieldsets[0][1])
+                index = site_fieldset.index('asn')
+                site_fieldset.pop(index)
+                self.Meta.fieldsets = (
+                    ('Site', tuple(site_fieldset)),
+                    self.Meta.fieldsets[1],
+                    self.Meta.fieldsets[2],
+                )
             del self.fields['asn']
 
 
