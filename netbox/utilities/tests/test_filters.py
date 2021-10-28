@@ -5,6 +5,9 @@ from django.test import TestCase
 from mptt.fields import TreeForeignKey
 from taggit.managers import TaggableManager
 
+from circuits.choices import CircuitStatusChoices
+from circuits.filtersets import CircuitFilterSet
+from circuits.models import Circuit, Provider, CircuitType
 from dcim.choices import *
 from dcim.fields import MACAddressField
 from dcim.filtersets import DeviceFilterSet, SiteFilterSet
@@ -13,6 +16,7 @@ from dcim.models import (
 )
 from extras.filters import TagFilter
 from extras.models import TaggedItem
+from ipam.models import RIR, ASN
 from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
     MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueNumberFilter,
@@ -337,9 +341,25 @@ class DynamicFilterLookupExpressionTest(TestCase):
     device_filterset = DeviceFilterSet
     site_queryset = Site.objects.all()
     site_filterset = SiteFilterSet
+    circuit_queryset = Circuit.objects.all()
+    circuit_filterset = CircuitFilterSet
 
     @classmethod
     def setUpTestData(cls):
+
+        provider = Provider.objects.create(name='Test Provider', slug='test-provider')
+        circuit_type = CircuitType.objects.create(name='Test Circuit Type', slug='test-circuit-type')
+
+        circuits = (
+            Circuit(cid='CID12123', provider=provider, type=circuit_type,
+                    status=CircuitStatusChoices.STATUS_ACTIVE, commit_rate=1000),
+            Circuit(cid='CID12124', provider=provider, type=circuit_type,
+                    status=CircuitStatusChoices.STATUS_ACTIVE, commit_rate=10000),
+            Circuit(cid='CID12125', provider=provider, type=circuit_type,
+                    status=CircuitStatusChoices.STATUS_ACTIVE, commit_rate=100000)
+
+        )
+        Circuit.objects.bulk_create(circuits)
 
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
@@ -378,11 +398,24 @@ class DynamicFilterLookupExpressionTest(TestCase):
             region.save()
 
         sites = (
-            Site(name='Site 1', slug='abc-site-1', region=regions[0], asn=65001),
-            Site(name='Site 2', slug='def-site-2', region=regions[1], asn=65101),
-            Site(name='Site 3', slug='ghi-site-3', region=regions[2], asn=65201),
+            Site(name='Site 1', slug='abc-site-1', region=regions[0]),
+            Site(name='Site 2', slug='def-site-2', region=regions[1]),
+            Site(name='Site 3', slug='ghi-site-3', region=regions[2]),
         )
         Site.objects.bulk_create(sites)
+
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+
+        asns = [
+            ASN(asn=65001, rir=rir),
+            ASN(asn=65101, rir=rir),
+            ASN(asn=65201, rir=rir)
+        ]
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.add(sites[0])
+        asns[1].sites.add(sites[1])
+        asns[2].sites.add(sites[2])
 
         racks = (
             Rack(name='Rack 1', site=sites[0]),
@@ -436,21 +469,21 @@ class DynamicFilterLookupExpressionTest(TestCase):
         params = {'slug__niew': ['-1']}
         self.assertEqual(SiteFilterSet(params, self.site_queryset).qs.count(), 2)
 
-    def test_site_asn_lt(self):
-        params = {'asn__lt': [65101]}
-        self.assertEqual(SiteFilterSet(params, self.site_queryset).qs.count(), 1)
+    def test_circuit_commit_lt(self):
+        params = {'commit_rate__lt': [10000]}
+        self.assertEqual(CircuitFilterSet(params, self.circuit_queryset).qs.count(), 1)
 
-    def test_site_asn_lte(self):
-        params = {'asn__lte': [65101]}
-        self.assertEqual(SiteFilterSet(params, self.site_queryset).qs.count(), 2)
+    def test_circuit_commit_lte(self):
+        params = {'commit_rate__lte': [10000]}
+        self.assertEqual(CircuitFilterSet(params, self.circuit_queryset).qs.count(), 2)
 
-    def test_site_asn_gt(self):
-        params = {'asn__lt': [65101]}
-        self.assertEqual(SiteFilterSet(params, self.site_queryset).qs.count(), 1)
+    def test_circuit_commit_gt(self):
+        params = {'commit_rate__gt': [10000]}
+        self.assertEqual(CircuitFilterSet(params, self.circuit_queryset).qs.count(), 1)
 
-    def test_site_asn_gte(self):
-        params = {'asn__gte': [65101]}
-        self.assertEqual(SiteFilterSet(params, self.site_queryset).qs.count(), 2)
+    def test_circuit_commit_gte(self):
+        params = {'commit_rate__gte': [10000]}
+        self.assertEqual(CircuitFilterSet(params, self.circuit_queryset).qs.count(), 2)
 
     def test_site_region_negation(self):
         params = {'region__n': ['region-1']}
