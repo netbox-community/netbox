@@ -7,6 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
+from ipam.constants import BGP_ASN_MIN, BGP_ASN_MAX
 from ipam.models import VLAN, ASN
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -110,6 +111,12 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         queryset=Tenant.objects.all(),
         required=False
     )
+    asn = forms.IntegerField(
+        min_value=BGP_ASN_MIN,
+        max_value=BGP_ASN_MAX,
+        required=False,
+        label='ASN'
+    )
     asns = DynamicModelChoiceField(
         queryset=ASN.objects.all(),
         label=_('ASNs'),
@@ -127,7 +134,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
 
     class Meta:
         nullable_fields = [
-            'region', 'group', 'tenant', 'asns', 'description', 'time_zone',
+            'region', 'group', 'tenant', 'asn', 'asns', 'description', 'time_zone',
         ]
 
 
