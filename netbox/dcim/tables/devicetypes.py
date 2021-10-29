@@ -100,6 +100,9 @@ class ComponentTemplateTable(BaseTable):
         order_by=('_name',)
     )
 
+    class Meta(BaseTable.Meta):
+        exclude = ('id', )
+
 
 class ConsolePortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
@@ -108,7 +111,7 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_consoleports'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = ConsolePortTemplate
         fields = ('pk', 'name', 'label', 'type', 'description', 'actions')
         empty_text = "None"
@@ -121,7 +124,7 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_consoleserverports'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = ConsoleServerPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'description', 'actions')
         empty_text = "None"
@@ -134,7 +137,7 @@ class PowerPortTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_powerports'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = PowerPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'actions')
         empty_text = "None"
@@ -147,7 +150,7 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_poweroutlets'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = PowerOutletTemplate
         fields = ('pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'actions')
         empty_text = "None"
@@ -163,7 +166,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_interfaces'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = InterfaceTemplate
         fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'description', 'actions')
         empty_text = "None"
@@ -180,7 +183,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_frontports'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = FrontPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description', 'actions')
         empty_text = "None"
@@ -194,7 +197,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_rearports'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = RearPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'description', 'actions')
         empty_text = "None"
@@ -207,7 +210,7 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
         return_url_extra='%23tab_devicebays'
     )
 
-    class Meta(BaseTable.Meta):
+    class Meta(ComponentTemplateTable.Meta):
         model = DeviceBayTemplate
         fields = ('pk', 'name', 'label', 'description', 'actions')
         empty_text = "None"
