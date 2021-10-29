@@ -227,7 +227,7 @@ class DeviceImportTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Device
-        fields = ('name', 'status', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
+        fields = ('id', 'name', 'status', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
         empty_text = False
 
 

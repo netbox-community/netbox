@@ -235,7 +235,7 @@ class ObjectJournalTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = JournalEntry
-        fields = ('created', 'created_by', 'kind', 'comments', 'actions')
+        fields = ('id', 'created', 'created_by', 'kind', 'comments', 'actions')
 
 
 class JournalEntryTable(ObjectJournalTable):

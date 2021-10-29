@@ -124,7 +124,7 @@ class CircuitTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Circuit
         fields = (
-            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
+            'pk', 'id', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'install_date',
             'commit_rate', 'description', 'comments', 'tags',
         )
         default_columns = (
