@@ -719,7 +719,7 @@ class CustomFieldModelTest(TestCase):
         site.clean()
 
 
-class CustomFieldFilterTest(TestCase):
+class CustomFieldModelFilterTest(TestCase):
     queryset = Site.objects.all()
     filterset = SiteFilterSet
 
@@ -772,7 +772,7 @@ class CustomFieldFilterTest(TestCase):
         cf.content_types.set([obj_type])
 
         # Multiselect filtering
-        cf = CustomField(name='cf9', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=['A', 'AA', 'B', 'C'])
+        cf = CustomField(name='cf9', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=['A', 'B', 'C', 'X'])
         cf.save()
         cf.content_types.set([obj_type])
 
@@ -783,49 +783,88 @@ class CustomFieldFilterTest(TestCase):
                 'cf3': 'foo',
                 'cf4': 'foo',
                 'cf5': '2016-06-26',
-                'cf6': 'http://foo.example.com/',
-                'cf7': 'http://foo.example.com/',
+                'cf6': 'http://a.example.com',
+                'cf7': 'http://a.example.com',
                 'cf8': 'Foo',
-                'cf9': ['A', 'B'],
+                'cf9': ['A', 'X'],
             }),
             Site(name='Site 2', slug='site-2', custom_field_data={
                 'cf1': 200,
-                'cf2': False,
+                'cf2': True,
                 'cf3': 'foobar',
                 'cf4': 'foobar',
                 'cf5': '2016-06-27',
-                'cf6': 'http://bar.example.com/',
-                'cf7': 'http://bar.example.com/',
+                'cf6': 'http://b.example.com',
+                'cf7': 'http://b.example.com',
                 'cf8': 'Bar',
-                'cf9': ['AA', 'B'],
+                'cf9': ['B', 'X'],
             }),
-            Site(name='Site 3', slug='site-3'),
+            Site(name='Site 3', slug='site-3', custom_field_data={
+                'cf1': 300,
+                'cf2': False,
+                'cf3': 'bar',
+                'cf4': 'bar',
+                'cf5': '2016-06-28',
+                'cf6': 'http://c.example.com',
+                'cf7': 'http://c.example.com',
+                'cf8': 'Baz',
+                'cf9': ['C', 'X'],
+            }),
         ])
 
     def test_filter_integer(self):
-        self.assertEqual(self.filterset({'cf_cf1': 100}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf1': [100, 200]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf1__n': [200]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf1__gt': [200]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf1__gte': [200]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf1__lt': [200]}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
 
     def test_filter_boolean(self):
-        self.assertEqual(self.filterset({'cf_cf2': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf2': True}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf2': False}, self.queryset).qs.count(), 1)
 
-    def test_filter_text(self):
-        self.assertEqual(self.filterset({'cf_cf3': 'foo'}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf4': 'foo'}, self.queryset).qs.count(), 2)
+    def test_filter_text_strict(self):
+        self.assertEqual(self.filterset({'cf_cf3': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3__n': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf3__ic': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf3__nic': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3__isw': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf3__nisw': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3__iew': ['bar']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf3__niew': ['bar']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3__ie': ['FOO']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3__nie': ['FOO']}, self.queryset).qs.count(), 2)
+
+    def test_filter_text_loose(self):
+        self.assertEqual(self.filterset({'cf_cf4': ['foo']}, self.queryset).qs.count(), 2)
 
     def test_filter_date(self):
-        self.assertEqual(self.filterset({'cf_cf5': '2016-06-26'}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf5': ['2016-06-26', '2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf5__n': ['2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf5__gt': ['2016-06-27']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf5__gte': ['2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf5__lt': ['2016-06-27']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf5__lte': ['2016-06-27']}, self.queryset).qs.count(), 2)
 
-    def test_filter_url(self):
-        self.assertEqual(self.filterset({'cf_cf6': 'http://foo.example.com/'}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf7': 'example.com'}, self.queryset).qs.count(), 2)
+    def test_filter_url_strict(self):
+        self.assertEqual(self.filterset({'cf_cf6': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__n': ['http://b.example.com']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__ic': ['b']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf6__nic': ['b']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__isw': ['http://']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf6__nisw': ['http://']}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf6__iew': ['.com']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf6__niew': ['.com']}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf6__ie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf6__nie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 2)
+
+    def test_filter_url_loose(self):
+        self.assertEqual(self.filterset({'cf_cf7': ['example.com']}, self.queryset).qs.count(), 3)
 
     def test_filter_select(self):
-        self.assertEqual(self.filterset({'cf_cf8': 'Foo'}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf8': 'Bar'}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf8': 'Baz'}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf8': ['Foo', 'Bar']}, self.queryset).qs.count(), 2)
 
     def test_filter_multiselect(self):
-        self.assertEqual(self.filterset({'cf_cf9': 'A'}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf9': 'B'}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf9': 'C'}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf9': ['X']}, self.queryset).qs.count(), 3)
