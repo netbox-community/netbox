@@ -21,10 +21,6 @@ __all__ = (
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = MPTTColumn(
         linkify=True
     )
@@ -47,10 +43,6 @@ class RegionTable(BaseTable):
 
 class SiteGroupTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = MPTTColumn(
         linkify=True
     )
@@ -73,10 +65,6 @@ class SiteGroupTable(BaseTable):
 
 class SiteTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -109,10 +97,6 @@ class SiteTable(BaseTable):
 
 class LocationTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = MPTTColumn(
         linkify=True
     )

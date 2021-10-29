@@ -21,10 +21,6 @@ __all__ = (
 
 class RackRoleTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(linkify=True)
     rack_count = tables.Column(verbose_name='Racks')
     color = ColorColumn()
@@ -42,10 +38,6 @@ class RackRoleTable(BaseTable):
 
 class RackTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         order_by=('_name',),
         linkify=True
@@ -99,10 +91,6 @@ class RackTable(BaseTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     reservation = tables.Column(
         accessor='pk',
         linkify=True

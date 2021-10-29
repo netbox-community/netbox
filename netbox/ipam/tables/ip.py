@@ -74,10 +74,6 @@ VRF_LINK = """
 
 class RIRTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -103,10 +99,6 @@ class RIRTable(BaseTable):
 
 class AggregateTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     prefix = tables.Column(
         linkify=True,
         verbose_name='Aggregate'
@@ -139,10 +131,6 @@ class AggregateTable(BaseTable):
 
 class RoleTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -185,10 +173,6 @@ class PrefixUtilizationColumn(UtilizationColumn):
 
 class PrefixTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     prefix = tables.TemplateColumn(
         template_code=PREFIX_LINK,
         attrs={'td': {'class': 'text-nowrap'}}
@@ -262,10 +246,6 @@ class PrefixTable(BaseTable):
 #
 class IPRangeTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     start_address = tables.Column(
         linkify=True
     )
@@ -305,10 +285,6 @@ class IPRangeTable(BaseTable):
 
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name='IP Address'

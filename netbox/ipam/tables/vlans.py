@@ -63,10 +63,6 @@ VLAN_MEMBER_TAGGED = """
 
 class VLANGroupTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(linkify=True)
     scope_type = ContentTypeColumn()
     scope = tables.Column(
@@ -95,10 +91,6 @@ class VLANGroupTable(BaseTable):
 
 class VLANTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
         verbose_name='ID'

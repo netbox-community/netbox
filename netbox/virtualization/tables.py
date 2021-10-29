@@ -34,10 +34,6 @@ VMINTERFACE_BUTTONS = """
 
 class ClusterTypeTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -58,10 +54,6 @@ class ClusterTypeTable(BaseTable):
 
 class ClusterGroupTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -82,10 +74,6 @@ class ClusterGroupTable(BaseTable):
 
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -122,10 +110,6 @@ class ClusterTable(BaseTable):
 
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -170,10 +154,6 @@ class VirtualMachineTable(BaseTable):
 
 class VMInterfaceTable(BaseInterfaceTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     virtual_machine = tables.Column(
         linkify=True
     )

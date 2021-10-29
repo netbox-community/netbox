@@ -29,10 +29,6 @@ CIRCUITTERMINATION_LINK = """
 
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -60,10 +56,6 @@ class ProviderTable(BaseTable):
 
 class ProviderNetworkTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -87,10 +79,6 @@ class ProviderNetworkTable(BaseTable):
 
 class CircuitTypeTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )

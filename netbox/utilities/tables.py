@@ -133,6 +133,11 @@ class BaseTable(tables.Table):
             self._objects_count = sum(1 for obj in self.data if hasattr(obj, 'pk'))
         return self._objects_count
 
+    id = tables.Column(
+        linkify=True,
+        verbose_name='ID'
+    )
+
 
 #
 # Table columns

@@ -16,10 +16,6 @@ __all__ = (
 
 class PowerPanelTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -49,10 +45,6 @@ class PowerPanelTable(BaseTable):
 # cannot traverse pass-through ports.
 class PowerFeedTable(CableTerminationTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )

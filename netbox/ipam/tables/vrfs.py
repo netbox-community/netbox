@@ -22,10 +22,6 @@ VRF_TARGETS = """
 
 class VRFTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -62,10 +58,6 @@ class VRFTable(BaseTable):
 
 class RouteTargetTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )

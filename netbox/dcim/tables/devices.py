@@ -69,10 +69,6 @@ def get_interface_state_attribute(record):
 
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     name = tables.Column(
         linkify=True
     )
@@ -102,10 +98,6 @@ class DeviceRoleTable(BaseTable):
 
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     name = tables.Column(
         linkify=True
     )
@@ -138,10 +130,6 @@ class PlatformTable(BaseTable):
 
 class DeviceTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.TemplateColumn(
         order_by=('_name',),
         template_code=DEVICE_LINK
@@ -249,10 +237,6 @@ class DeviceImportTable(BaseTable):
 
 class DeviceComponentTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     device = tables.Column(
         linkify=True
     )
@@ -762,10 +746,6 @@ class DeviceInventoryItemTable(InventoryItemTable):
 
 class VirtualChassisTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     name = tables.Column(
         linkify=True
     )

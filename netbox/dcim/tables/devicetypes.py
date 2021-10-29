@@ -28,10 +28,6 @@ __all__ = (
 
 class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     name = tables.Column(
         linkify=True
     )
@@ -63,10 +59,6 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     model = tables.Column(
         linkify=True,
         verbose_name='Device Type'

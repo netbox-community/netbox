@@ -48,10 +48,6 @@ OBJECTCHANGE_REQUEST_ID = """
 
 class CustomFieldTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -73,10 +69,6 @@ class CustomFieldTable(BaseTable):
 
 class CustomLinkTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -98,10 +90,6 @@ class CustomLinkTable(BaseTable):
 
 class ExportTemplateTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -124,10 +112,6 @@ class ExportTemplateTable(BaseTable):
 
 class WebhookTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -164,10 +148,6 @@ class WebhookTable(BaseTable):
 
 class TagTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -197,10 +177,6 @@ class TaggedItemTable(BaseTable):
 
 class ConfigContextTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     name = tables.Column(
         linkify=True
     )
@@ -218,10 +194,6 @@ class ConfigContextTable(BaseTable):
 
 
 class ObjectChangeTable(BaseTable):
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     time = tables.DateTimeColumn(
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
@@ -268,10 +240,6 @@ class ObjectJournalTable(BaseTable):
 
 class JournalEntryTable(ObjectJournalTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name="ID"
-    )
     assigned_object_type = ContentTypeColumn(
         verbose_name='Object type'
     )
