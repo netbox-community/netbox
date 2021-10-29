@@ -350,6 +350,7 @@ class IPAddressAssignTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'description')
+        exclude = ('id', )
         orderable = False
 
 
@@ -374,3 +375,4 @@ class InterfaceIPAddressTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = ('address', 'vrf', 'status', 'role', 'tenant', 'description')
+        exclude = ('id', )

@@ -173,6 +173,7 @@ class TaggedItemTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = TaggedItem
         fields = ('content_type', 'content_object')
+        exclude = ('id', )
 
 
 class ConfigContextTable(BaseTable):
