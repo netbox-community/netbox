@@ -215,7 +215,6 @@ class ObjectChangeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ObjectChange
         fields = ('id', 'time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
-        default_columns = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
 
 
 class ObjectJournalTable(BaseTable):
