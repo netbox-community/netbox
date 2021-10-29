@@ -305,6 +305,7 @@ INSTALLED_APPS = [
     'graphene_django',
     'mptt',
     'rest_framework',
+    'social_django',
     'taggit',
     'timezone_field',
     'circuits',
@@ -400,7 +401,8 @@ MESSAGE_TAGS = {
 }
 
 # Authentication URLs
-LOGIN_URL = '/{}login/'.format(BASE_PATH)
+LOGIN_URL = f'/{BASE_PATH}login/'
+LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
@@ -413,6 +415,27 @@ EXEMPT_EXCLUDE_MODELS = (
     ('auth', 'user'),
     ('users', 'objectpermission'),
 )
+
+# All URLs starting with a string listed here are exempt from login enforcement
+EXEMPT_PATHS = (
+    f'/{BASE_PATH}api/',
+    f'/{BASE_PATH}graphql/',
+    f'/{BASE_PATH}login/',
+    f'/{BASE_PATH}oauth/',
+    f'/{BASE_PATH}metrics/',
+)
+
+
+#
+# Django social auth
+#
+
+# Load all SOCIAL_AUTH_* settings from the user configuration
+for param in dir(configuration):
+    if param.startswith('SOCIAL_AUTH_'):
+        globals()[param] = getattr(configuration, param)
+
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 
 #
