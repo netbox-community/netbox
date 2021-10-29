@@ -162,7 +162,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
         help_texts = {
             'name': "Full name of the site",
-            'asn': "BGP autonomous system number.  This field is depreciated in favour of the many-to-many field for ASNs",
+            'asn': "BGP autonomous system number.  This field is depreciated in favour of the ASN model",
             'facility': "Data center provider and facility (e.g. Equinix NY7)",
             'time_zone': "Local time zone",
             'description': "Short description (will appear in sites list)",
@@ -177,21 +177,6 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
         if self.instance and self.instance.pk is not None:
             self.fields['asns'].initial = self.instance.asns.all().values_list('id', flat=True)
-
-        # Hide the ASN field if there is nothing there as this is deprecated
-        if instance is None or \
-                (instance and (instance.asn is None or instance.asn == '')) or \
-                (data and (data.get('asn') is None or instance.get('asn')) == ''):
-            if 'asn' in self.Meta.fieldsets[0][1]:
-                site_fieldset = list(self.Meta.fieldsets[0][1])
-                index = site_fieldset.index('asn')
-                site_fieldset.pop(index)
-                self.Meta.fieldsets = (
-                    ('Site', tuple(site_fieldset)),
-                    self.Meta.fieldsets[1],
-                    self.Meta.fieldsets[2],
-                )
-            del self.fields['asn']
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
