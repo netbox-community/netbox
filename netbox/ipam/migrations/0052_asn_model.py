@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('asn', dcim.fields.ASNField(blank=True, null=True, unique=True)),
+                ('asn', dcim.fields.ASNField(blank=False, null=False, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('rir', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='asns', to='ipam.rir')),
                 ('sites', models.ManyToManyField(blank=True, related_name='asns', to='dcim.Site')),

@@ -75,8 +75,8 @@ class ASN(PrimaryModel):
 
     asn = ASNField(
         unique=True,
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
         verbose_name='ASN',
         help_text='32-bit autonomous system number'
     )
