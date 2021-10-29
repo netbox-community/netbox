@@ -9,6 +9,12 @@
   {% endfor %}
 {% endblock %}
 
+{% block extra_controls %}
+  <a href="{% url 'dcim:rack_elevation_list' %}?site_id={{ object.site.pk }}&location_id={{ object.pk }}" class="btn btn-sm btn-primary" role="button">
+    <i class="mdi mdi-server" aria-hidden="true"></i>&nbsp;View Elevations
+  </a>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
