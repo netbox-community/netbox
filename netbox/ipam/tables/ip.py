@@ -2,7 +2,6 @@ import django_tables2 as tables
 from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
-from ipam.models import ASN
 from tenancy.tables import TenantColumn
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn,
@@ -99,7 +98,7 @@ class RIRTable(BaseTable):
 
 
 #
-# RIRs
+# ASNs
 #
 
 class ASNTable(BaseTable):
@@ -112,7 +111,6 @@ class ASNTable(BaseTable):
         url_params={'asn_id': 'pk'},
         verbose_name='Sites'
     )
-
     actions = ButtonsColumn(ASN)
 
     class Meta(BaseTable.Meta):

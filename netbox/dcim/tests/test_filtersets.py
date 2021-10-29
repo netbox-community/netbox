@@ -4,7 +4,7 @@ from django.test import TestCase
 from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
-from ipam.models import IPAddress, RIR, ASN
+from ipam.models import ASN, IPAddress, RIR
 from tenancy.models import Tenant, TenantGroup
 from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests

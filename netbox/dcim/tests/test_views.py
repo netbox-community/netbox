@@ -11,7 +11,7 @@ from netaddr import EUI
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import VLAN, ASN, RIR
+from ipam.models import ASN, VLAN, RIR
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 

@@ -33,8 +33,6 @@ __all__ = (
     'VRFFilterSet',
 )
 
-from .models import ASN
-
 
 class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(

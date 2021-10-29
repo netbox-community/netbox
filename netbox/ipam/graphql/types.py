@@ -1,7 +1,7 @@
 import graphene
 
 from ipam import filtersets, models
-from ipam.graphql.scalars import ASNField
+from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
@@ -21,7 +21,7 @@ __all__ = (
 
 
 class ASNType(PrimaryObjectType):
-    asn = graphene.Field(ASNField)
+    asn = graphene.Field(BigInt)
 
     class Meta:
         model = models.ASN

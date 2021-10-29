@@ -1,13 +1,11 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.forms import IntegerField
 
 from dcim.models import Device, Interface, Site
 from extras.forms import CustomFieldModelCSVForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
-from ipam.models import ASN
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 from virtualization.models import VirtualMachine, VMInterface
@@ -84,7 +82,6 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
 
 
 class ASNCSVForm(CustomFieldModelCSVForm):
-    asn = IntegerField()
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',

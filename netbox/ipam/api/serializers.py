@@ -19,8 +19,6 @@ from .nested_serializers import *
 #
 # ASNs
 #
-from ..models import ASN
-
 
 class ASNSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')

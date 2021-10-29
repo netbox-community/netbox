@@ -7,7 +7,6 @@ from ipam.models import *
 from netbox.api.views import ModelViewSet
 from utilities.utils import count_related
 from . import mixins, serializers
-from ..models import ASN
 
 
 class IPAMRootView(APIRootView):
