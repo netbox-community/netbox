@@ -153,6 +153,7 @@ class BaseFilterSet(django_filters.FilterSet):
                         # The filter field has been explicity defined on the filterset class so we must manually
                         # create the new filter with the same type because there is no guarantee the defined type
                         # is the same as the default type for the field
+                        resolve_field(field, lookup_expr)
                         new_filter = type(existing_filter)(
                             field_name=field_name,
                             lookup_expr=lookup_expr,
