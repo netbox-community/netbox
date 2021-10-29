@@ -93,6 +93,9 @@ class DeviceTypeTable(BaseTable):
 
 class ComponentTemplateTable(BaseTable):
     pk = ToggleColumn()
+    id = tables.Column(
+        verbose_name='ID'
+    )
     name = tables.Column(
         order_by=('_name',)
     )
