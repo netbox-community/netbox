@@ -63,6 +63,7 @@ Multiple interfaces can be bridged to a single virtual interface to effect a bri
 * [#1943](https://github.com/netbox-community/netbox/issues/1943) - Relax uniqueness constraint on cluster names
 * [#3839](https://github.com/netbox-community/netbox/issues/3839) - Add `airflow` field for devices types and devices
 * [#6497](https://github.com/netbox-community/netbox/issues/6497) - Extend tag support to organizational models
+* [#6615](https://github.com/netbox-community/netbox/issues/6615) - Add filter lookups for custom fields
 * [#6711](https://github.com/netbox-community/netbox/issues/6711) - Add `longtext` custom field type with Markdown support
 * [#6715](https://github.com/netbox-community/netbox/issues/6715) - Add tenant assignment for cables
 * [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations
