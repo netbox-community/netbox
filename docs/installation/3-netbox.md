@@ -18,8 +18,28 @@ Begin by installing all system packages required by NetBox and its dependencies.
 === "CentOS"
 
     ```no-highlight
-    sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
+    sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
     ```
+    Download Python from source (with X indicate the minor release):
+    ```no-highlight
+    wget https://www.python.org/ftp/python/3.9.X/Python-3.9.X.tgz
+    ```
+    Extract the tarball:
+    ```no-highlight
+    tar xzf Python-3.9.X.tgz 
+    ```
+    Enter into directory and compile with altinstall options (in this way you could maintain the old installation):
+    ```no-highlight
+    cd Python-3.9.X
+    sudo ./configure --enable-optimizations 
+    sudo make altinstall
+    ```
+    To check if Python is installed correctly you could perform:
+    ```no-highlight
+    python3.9 -V
+    ```
+    Now you could remove Python extract directory and relative Python tarball
+    
 
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:
 
