@@ -11,7 +11,7 @@ from ipam.models import *
 
 __all__ = (
     'AggregateTable',
-    'InterfaceIPAddressTable',
+    'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
     'IPRangeTable',
@@ -359,9 +359,9 @@ class IPAddressAssignTable(BaseTable):
         orderable = False
 
 
-class InterfaceIPAddressTable(BaseTable):
+class AssignedIPAddressesTable(BaseTable):
     """
-    List IP addresses assigned to a specific Interface.
+    List IP addresses assigned to an object.
     """
     address = tables.Column(
         linkify=True,

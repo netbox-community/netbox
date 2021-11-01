@@ -7,7 +7,7 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import TagFilter
-from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
@@ -19,6 +19,8 @@ from .models import *
 
 __all__ = (
     'AggregateFilterSet',
+    'FHRPGroupAssignmentFilterSet',
+    'FHRPGroupFilterSet',
     'IPAddressFilterSet',
     'IPRangeFilterSet',
     'PrefixFilterSet',
@@ -609,6 +611,39 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     def _assigned_to_interface(self, queryset, name, value):
         return queryset.exclude(assigned_object_id__isnull=value)
+
+
+class FHRPGroupFilterSet(PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=FHRPGroupProtocolChoices
+    )
+    auth_type = django_filters.MultipleChoiceFilter(
+        choices=FHRPGroupAuthTypeChoices
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = FHRPGroup
+        fields = ['id', 'protocol', 'group_id', 'auth_type']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(description__icontains=value)
+        )
+
+
+class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
+    content_type = ContentTypeFilter()
+
+    class Meta:
+        model = FHRPGroupAssignment
+        fields = ['id', 'content_type_id', 'priority']
 
 
 class VLANGroupFilterSet(OrganizationalModelFilterSet):

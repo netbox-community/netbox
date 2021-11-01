@@ -1,10 +1,11 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
 from dcim.models import Device, Interface
 from netbox.views import generic
-from utilities.forms import TableConfigForm
 from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
@@ -823,6 +824,101 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
+
+
+#
+# FHRP groups
+#
+
+class FHRPGroupListView(generic.ObjectListView):
+    queryset = FHRPGroup.objects.annotate(
+        member_count=count_related(FHRPGroupAssignment, 'group')
+    )
+    filterset = filtersets.FHRPGroupFilterSet
+    filterset_form = forms.FHRPGroupFilterForm
+    table = tables.FHRPGroupTable
+
+
+class FHRPGroupView(generic.ObjectView):
+    queryset = FHRPGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        # Get assigned IP addresses
+        ipaddress_table = tables.AssignedIPAddressesTable(
+            data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            orderable=False
+        )
+
+        group_assignments = FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(
+            group=instance
+        )
+        members_table = tables.FHRPGroupAssignmentTable(group_assignments)
+        members_table.columns.hide('group')
+        paginate_table(members_table, request)
+
+        return {
+            'ipaddress_table': ipaddress_table,
+            'members_table': members_table,
+            'member_count': FHRPGroupAssignment.objects.filter(group=instance).count(),
+        }
+
+
+class FHRPGroupEditView(generic.ObjectEditView):
+    queryset = FHRPGroup.objects.all()
+    model_form = forms.FHRPGroupForm
+
+
+class FHRPGroupDeleteView(generic.ObjectDeleteView):
+    queryset = FHRPGroup.objects.all()
+
+
+class FHRPGroupBulkImportView(generic.BulkImportView):
+    queryset = FHRPGroup.objects.all()
+    model_form = forms.FHRPGroupCSVForm
+    table = tables.FHRPGroupTable
+
+
+class FHRPGroupBulkEditView(generic.BulkEditView):
+    queryset = FHRPGroup.objects.all()
+    filterset = filtersets.FHRPGroupFilterSet
+    table = tables.FHRPGroupTable
+    form = forms.FHRPGroupBulkEditForm
+
+
+class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = FHRPGroup.objects.all()
+    filterset = filtersets.FHRPGroupFilterSet
+    table = tables.FHRPGroupTable
+
+
+#
+# FHRP group assignments
+#
+
+class FHRPGroupAssignmentEditView(generic.ObjectEditView):
+    queryset = FHRPGroupAssignment.objects.all()
+    model_form = forms.FHRPGroupAssignmentForm
+
+    def alter_obj(self, instance, request, args, kwargs):
+        if not instance.pk:
+            # Assign the object based on URL kwargs
+            try:
+                app_label, model = request.GET.get('content_type').split('.')
+            except (AttributeError, ValueError):
+                raise Http404("Content type not specified")
+            content_type = get_object_or_404(ContentType, app_label=app_label, model=model)
+            instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
+        return instance
+
+    def get_return_url(self, request, obj=None):
+        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
+
+
+class FHRPGroupAssignmentDeleteView(generic.ObjectDeleteView):
+    queryset = FHRPGroupAssignment.objects.all()
+
+    def get_return_url(self, request, obj=None):
+        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
 
 
 #

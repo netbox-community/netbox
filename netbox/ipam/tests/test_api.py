@@ -491,6 +491,47 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
         IPAddress.objects.bulk_create(ip_addresses)
 
 
+class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
+    model = FHRPGroup
+    brief_fields = ['display', 'group_id', 'id', 'protocol', 'url']
+    bulk_update_data = {
+        'protocol': FHRPGroupProtocolChoices.PROTOCOL_GLBP,
+        'group_id': 200,
+        'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+        'auth_key': 'foobarbaz999',
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
+        cls.create_data = [
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+                'group_id': 110,
+                'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+                'auth_key': 'foobar123',
+            },
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP3,
+                'group_id': 120,
+                'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+                'auth_key': 'barfoo456',
+            },
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_GLBP,
+                'group_id': 130,
+            },
+        ]
+
+
 class VLANGroupTest(APIViewTestCases.APIViewTestCase):
     model = VLANGroup
     brief_fields = ['display', 'id', 'name', 'slug', 'url', 'vlan_count']

@@ -440,6 +440,42 @@
                     </div>
                 </div>
             {% endif %}
+            <div class="card">
+                <h5 class="card-header">NHRP Groups</h5>
+                <div class="card-body">
+                    <table class="table table-hover table-headings">
+                        <thead>
+                            <tr>
+                                <th>Group</th>
+                                <th>Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in object.fhrp_group_assignments.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group }}</a>
+                                    </td>
+                                    <td>
+                                        {{ assignment.priority }}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-muted">None</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if perms.ipam.add_fhrpgroupassignment %}
+                    <div class="card-footer text-end noprint">
+                        <a href="{% url 'ipam:fhrpgroupassignment_add' %}?content_type=dcim.interface&object_id={{ object.pk }}" class="btn btn-sm btn-primary">
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> New Assignment
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
             {% plugin_right_page object %}
         </div>
     </div>

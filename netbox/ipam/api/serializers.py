@@ -93,6 +93,43 @@ class AggregateSerializer(PrimaryModelSerializer):
 
 
 #
+# FHRP Groups
+#
+
+class FHRPGroupSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
+
+    class Meta:
+        model = FHRPGroup
+        fields = [
+            'id', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
+
+
+class FHRPGroupAssignmentSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
+    content_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
+    object = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = FHRPGroupAssignment
+        fields = [
+            'id', 'url', 'display', 'content_type', 'object_id', 'object', 'priority', 'created', 'last_updated',
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_object(self, obj):
+        if obj.object is None:
+            return None
+        serializer = get_serializer_for_model(obj.object, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.object, context=context).data
+
+
+#
 # VLANs
 #
 
