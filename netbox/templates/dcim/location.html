@@ -9,12 +9,6 @@
   {% endfor %}
 {% endblock %}
 
-{% block extra_controls %}
-  <a href="{% url 'dcim:rack_elevation_list' %}?site_id={{ object.site.pk }}&location_id={{ object.pk }}" class="btn btn-sm btn-primary" role="button">
-    <i class="mdi mdi-server" aria-hidden="true"></i>&nbsp;View Elevations
-  </a>
-{% endblock %}
-
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
@@ -27,14 +21,17 @@
           <tr>
             <th scope="row">Name</th>
             <td>{{ object.name }}</td>
+            <td></td>
           </tr>
           <tr>
             <th scope="row">Description</th>
             <td>{{ object.description|placeholder }}</td>
+            <td></td>
           </tr>
           <tr>
             <th scope="row">Site</th>
             <td><a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a></td>
+            <td></td>
           </tr>
           <tr>
             <th scope="row">Parent</th>
@@ -45,11 +42,17 @@
                 <span class="text-muted">&mdash;</span>
               {% endif %}
             </td>
+            <td></td>
           </tr>
           <tr>
             <th scope="row">Racks</th>
             <td>
               <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ rack_count }}</a>
+            </td>
+            <td class="noprint text-end">
+              <a href="{% url 'dcim:rack_elevation_list' %}?location_id={{ object.pk }}" class="btn btn-sm btn-primary" title="View Elevations">
+                <i class="mdi mdi-server"></i>
+              </a>
             </td>
           </tr>
           <tr>
@@ -57,6 +60,7 @@
             <td>
               <a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}">{{ device_count }}</a>
             </td>
+            <td></td>
           </tr>
         </table>
       </div>
