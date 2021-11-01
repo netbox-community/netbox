@@ -161,6 +161,11 @@ class TagTable(BaseTable):
 
 
 class TaggedItemTable(BaseTable):
+    id = tables.Column(
+        verbose_name='ID',
+        linkify=lambda record: record.content_object.get_absolute_url(),
+        accessor='content_object__id'
+    )
     content_type = ContentTypeColumn(
         verbose_name='Type'
     )
@@ -172,8 +177,7 @@ class TaggedItemTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = TaggedItem
-        fields = ('content_type', 'content_object')
-        exclude = ('id', )
+        fields = ('id', 'content_type', 'content_object')
 
 
 class ConfigContextTable(BaseTable):
