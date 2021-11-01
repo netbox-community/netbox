@@ -5,4 +5,4 @@
 
 # Example Power Topology
 
-![Power distribution model](/media/power_distribution.png)
+![Power distribution model](../media/power_distribution.png)
