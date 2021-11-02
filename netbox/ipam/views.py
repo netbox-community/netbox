@@ -3,6 +3,7 @@ from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from dcim.models import Device, Interface
 from netbox.views import generic
@@ -866,6 +867,16 @@ class FHRPGroupView(generic.ObjectView):
 class FHRPGroupEditView(generic.ObjectEditView):
     queryset = FHRPGroup.objects.all()
     model_form = forms.FHRPGroupForm
+
+    def get_return_url(self, request, obj=None):
+        return_url = super().get_return_url(request, obj)
+
+        # If we're redirecting the user to the FHRPGroupAssignment creation form,
+        # initialize the group field with the FHRPGroup we just saved.
+        if return_url.startswith(reverse('ipam:fhrpgroupassignment_add')):
+            return_url += f'&group={obj.pk}'
+
+        return return_url
 
 
 class FHRPGroupDeleteView(generic.ObjectDeleteView):

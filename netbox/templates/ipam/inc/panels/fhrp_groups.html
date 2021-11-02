@@ -35,11 +35,16 @@
       </tbody>
     </table>
   </div>
-  {% if perms.ipam.add_fhrpgroupassignment %}
-    <div class="card-footer text-end noprint">
+  <div class="card-footer text-end noprint">
+    {% if perms.ipam.add_fhrpgroup %}
+      <a href="{% url 'ipam:fhrpgroup_add' %}?return_url={% url 'ipam:fhrpgroupassignment_add' %}%3Fcontent_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}%26object_id={{ object.pk }}" class="btn btn-sm btn-primary">
+        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Create Group
+      </a>
+    {% endif %}
+    {% if perms.ipam.add_fhrpgroupassignment %}
       <a href="{% url 'ipam:fhrpgroupassignment_add' %}?content_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}&object_id={{ object.pk }}" class="btn btn-sm btn-primary">
         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Group
       </a>
-    </div>
-  {% endif %}
+    {% endif %}
+  </div>
 </div>
