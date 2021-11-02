@@ -102,6 +102,14 @@ PyYAML
 # https://github.com/andymccurdy/redis-py
 redis
 
+# Social authentication framework
+# https://github.com/python-social-auth/social-core
+social-auth-core[all]
+
+# Django app for social-auth-core
+# https://github.com/python-social-auth/social-app-django
+social-auth-app-django
+
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite
 svgwrite
