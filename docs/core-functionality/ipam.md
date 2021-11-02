@@ -17,3 +17,7 @@
 
 {!models/ipam/vrf.md!}
 {!models/ipam/routetarget.md!}
+
+__
+
+{!models/ipam/fhrpgroup.md!}
