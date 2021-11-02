@@ -5,6 +5,7 @@ from netbox.api import WritableNestedSerializer
 
 __all__ = [
     'NestedAggregateSerializer',
+    'NestedFHRPGroupSerializer',
     'NestedIPAddressSerializer',
     'NestedIPRangeSerializer',
     'NestedPrefixSerializer',
@@ -63,6 +64,18 @@ class NestedAggregateSerializer(WritableNestedSerializer):
     class Meta:
         model = models.Aggregate
         fields = ['id', 'url', 'display', 'family', 'prefix']
+
+
+#
+# FHRP groups
+#
+
+class NestedFHRPGroupSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
+
+    class Meta:
+        model = models.FHRPGroup
+        fields = ['id', 'url', 'display', 'protocol', 'group_id']
 
 
 #

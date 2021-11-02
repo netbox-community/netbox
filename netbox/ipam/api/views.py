@@ -120,6 +120,22 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 
 
 #
+# FHRP groups
+#
+
+class FHRPGroupViewSet(CustomFieldModelViewSet):
+    queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tags')
+    serializer_class = serializers.FHRPGroupSerializer
+    filterset_class = filtersets.FHRPGroupFilterSet
+
+
+class FHRPGroupAssignmentViewSet(CustomFieldModelViewSet):
+    queryset = FHRPGroupAssignment.objects.prefetch_related('group', 'interface')
+    serializer_class = serializers.FHRPGroupAssignmentSerializer
+    filterset_class = filtersets.FHRPGroupAssignmentFilterSet
+
+
+#
 # VLAN groups
 #
 

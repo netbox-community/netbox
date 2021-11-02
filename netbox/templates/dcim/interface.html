@@ -440,6 +440,7 @@
                     </div>
                 </div>
             {% endif %}
+            {% include 'ipam/inc/panels/fhrp_groups.html' %}
             {% plugin_right_page object %}
         </div>
     </div>
@@ -458,7 +459,7 @@
                 </div>
                 {% if perms.ipam.add_ipaddress %}
                     <div class="card-footer text-end noprint">
-                        <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}" class="btn btn-sm btn-primary">
+                        <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
                             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add IP Address
                         </a>
                     </div>

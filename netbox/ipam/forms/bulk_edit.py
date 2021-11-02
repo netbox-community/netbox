@@ -13,6 +13,7 @@ from utilities.forms import (
 
 __all__ = (
     'AggregateBulkEditForm',
+    'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
     'PrefixBulkEditForm',
@@ -278,6 +279,41 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         nullable_fields = [
             'vrf', 'role', 'tenant', 'dns_name', 'description',
         ]
+
+
+class FHRPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=FHRPGroup.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    protocol = forms.ChoiceField(
+        choices=add_blank_choice(FHRPGroupProtocolChoices),
+        required=False,
+        widget=StaticSelect()
+    )
+    group_id = forms.IntegerField(
+        min_value=0,
+        required=False,
+        label='Group ID'
+    )
+    auth_type = forms.ChoiceField(
+        choices=add_blank_choice(FHRPGroupAuthTypeChoices),
+        required=False,
+        widget=StaticSelect(),
+        label='Authentication type'
+    )
+    auth_key = forms.CharField(
+        max_length=255,
+        required=False,
+        label='Authentication key'
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['auth_type', 'auth_key', 'description']
 
 
 class VLANGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):

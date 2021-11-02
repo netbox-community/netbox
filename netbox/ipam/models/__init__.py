@@ -1,3 +1,4 @@
+from .fhrp import *
 from .ip import *
 from .services import *
 from .vlans import *
@@ -7,6 +8,8 @@ __all__ = (
     'Aggregate',
     'IPAddress',
     'IPRange',
+    'FHRPGroup',
+    'FHRPGroupAssignment',
     'Prefix',
     'RIR',
     'Role',

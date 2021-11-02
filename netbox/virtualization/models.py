@@ -398,6 +398,12 @@ class VMInterface(PrimaryModel, BaseInterface):
         object_id_field='assigned_object_id',
         related_query_name='vminterface'
     )
+    fhrp_group_assignments = GenericRelation(
+        to='ipam.FHRPGroupAssignment',
+        content_type_field='interface_type',
+        object_id_field='interface_id',
+        related_query_name='+'
+    )
 
     objects = RestrictedQuerySet.as_manager()
 

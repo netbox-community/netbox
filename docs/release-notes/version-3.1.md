@@ -37,6 +37,10 @@ Dynamic configuration parameters may also still be defined within `configuration
 
 For a complete list of supported parameters, please see the [dynamic configuration documentation](../configuration/dynamic-settings.md). 
 
+#### First Hop Redundancy Protocol (FHRP) Groups ([#6235](https://github.com/netbox-community/netbox/issues/6235))
+
+A new FHRP group model has been introduced to aid in modeling the configurations of protocols such as HSRP, VRRP, and GLBP. Each FHRP group may be assigned one or more virtual IP addresses, as well as an authentication type and key. Member device and VM interfaces may be associated with one or more FHRP groups, with each assignment receiving a numeric priority designation.
+
 #### Conditional Webhooks ([#6238](https://github.com/netbox-community/netbox/issues/6238))
 
 Webhooks now include a `conditions` field, which may be used to specify conditions under which a webhook triggers. For example, you may wish to generate outgoing requests for a device webhook only when its status is "active" or "staged". This can be done by declaring conditional logic in JSON:

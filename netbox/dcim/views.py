@@ -15,7 +15,7 @@ from django.views.generic import View
 from circuits.models import Circuit
 from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
 from ipam.models import IPAddress, Prefix, Service, VLAN
-from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -1741,7 +1741,7 @@ class InterfaceView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Get assigned IP addresses
-        ipaddress_table = InterfaceIPAddressTable(
+        ipaddress_table = AssignedIPAddressesTable(
             data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
