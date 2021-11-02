@@ -269,7 +269,7 @@ class IPRangeTable(BaseTable):
         model = IPRange
         fields = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
-            'utilization','tags',
+            'utilization', 'tags',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
