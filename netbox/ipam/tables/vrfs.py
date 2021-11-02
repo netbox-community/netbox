@@ -47,7 +47,7 @@ class VRFTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VRF
         fields = (
-            'pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tags',
+            'pk', 'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tags',
         )
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
 
@@ -68,5 +68,5 @@ class RouteTargetTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RouteTarget
-        fields = ('pk', 'name', 'tenant', 'description', 'tags')
+        fields = ('pk', 'id', 'name', 'tenant', 'description', 'tags')
         default_columns = ('pk', 'name', 'tenant', 'description')
