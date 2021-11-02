@@ -131,12 +131,12 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Group (slug)',
     )
-    asn_id = django_filters.ModelMultipleChoiceFilter(
+    asns_id = django_filters.ModelMultipleChoiceFilter(
         field_name='asns',
         queryset=ASN.objects.all(),
         label='AS (ID)',
     )
-    asn = django_filters.ModelMultipleChoiceFilter(
+    asns = django_filters.ModelMultipleChoiceFilter(
         field_name='asns__asn',
         queryset=ASN.objects.all(),
         to_field_name='asn',
@@ -147,7 +147,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'facility', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+            'id', 'name', 'slug', 'facility', 'asn', 'latitude', 'longitude', 'contact_name', 'contact_phone',
             'contact_email',
         ]
 
@@ -167,7 +167,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         )
         try:
             qs_filter |= Q(asn=int(value.strip()))
-            qs_filter |= Q(asns=int(value.strip()))
+            qs_filter |= Q(asns__asn=int(value.strip()))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
