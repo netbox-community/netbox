@@ -1,4 +1,5 @@
 import django.core.serializers.json
+import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
 import taggit.managers
@@ -44,7 +45,7 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('object_id', models.PositiveIntegerField()),
-                ('priority', models.PositiveSmallIntegerField(blank=True, null=True)),
+                ('priority', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(255)])),
                 ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ipam.fhrpgroup')),
             ],

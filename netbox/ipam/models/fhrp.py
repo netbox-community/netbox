@@ -1,11 +1,13 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 
 from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from ipam.choices import *
+from ipam.constants import *
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -81,8 +83,10 @@ class FHRPGroupAssignment(ChangeLoggedModel):
         on_delete=models.CASCADE
     )
     priority = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True
+        validators=(
+            MinValueValidator(FHRPGROUPASSIGNMENT_PRIORITY_MIN),
+            MaxValueValidator(FHRPGROUPASSIGNMENT_PRIORITY_MAX)
+        )
     )
 
     objects = RestrictedQuerySet.as_manager()
