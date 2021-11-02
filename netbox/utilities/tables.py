@@ -23,6 +23,10 @@ class BaseTable(tables.Table):
 
     :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
     """
+    id = tables.Column(
+        linkify=True,
+        verbose_name='ID'
+    )
 
     class Meta:
         attrs = {
@@ -132,11 +136,6 @@ class BaseTable(tables.Table):
         if not hasattr(self, '_objects_count'):
             self._objects_count = sum(1 for obj in self.data if hasattr(obj, 'pk'))
         return self._objects_count
-
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
 
 
 #

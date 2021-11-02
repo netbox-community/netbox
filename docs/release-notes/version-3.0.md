@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#6930](https://github.com/netbox-community/netbox/issues/6930) - Add an optional "ID" column to all tables
 * [#7668](https://github.com/netbox-community/netbox/issues/7668) - Add "view elevations" button to location view
 
 ### Bug Fixes

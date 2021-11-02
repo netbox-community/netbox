@@ -101,7 +101,7 @@ class CircuitTable(BaseTable):
     pk = ToggleColumn()
     cid = tables.Column(
         linkify=True,
-        verbose_name='ID'
+        verbose_name='Circuit ID'
     )
     provider = tables.Column(
         linkify=True
