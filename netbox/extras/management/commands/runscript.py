@@ -28,10 +28,10 @@ class Command(BaseCommand):
             dest='loglevel',
             default='info',
             choices=['debug', 'info', 'warning', 'error', 'critical'])
-        parser.add_argument('--script', help="Script to run", dest='script', required=True)
-        parser.add_argument('--commit', help="Commit this script to database", dest='commit')
-        parser.add_argument('--user', help="User script is running as", dest='user')
-        parser.add_argument('data', help="Data as a JSON blob")
+        parser.add_argument('--script', help="Script to run", required=True)
+        parser.add_argument('--commit', help="Commit this script to database", action='store_true')
+        parser.add_argument('--user', help="User script is running as")
+        parser.add_argument('data', help="Data as a string encapsulated JSON blob")
 
     def handle(self, *args, **options):
         def _run_script():
@@ -68,8 +68,8 @@ class Command(BaseCommand):
         # Params
         script = options['script']
         loglevel = options['loglevel']
+        commit = options['commit']
         data = json.loads(options['data']) if options['data'] is not None else None
-        commit = True if options['commit'] in ['1', 'true', 'True'] else False
 
         module, name = script.split('.', 1)
 
