@@ -6,14 +6,14 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices
 from extras.context_managers import change_logging
 from extras.models import JobResult
-from extras.scripts import get_scripts
+from extras.scripts import get_script
 from utilities.exceptions import AbortTransaction
 from utilities.utils import NetBoxFakeRequest
 
@@ -27,15 +27,11 @@ class Command(BaseCommand):
             help="Logging Level (default: info)",
             dest='loglevel',
             default='info',
-            choices=['debug', 'info', 'warning', 'error'])
-        parser.add_argument('--script', help="Script to run", dest='script')
-        parser.add_argument('--user', help="Data as a json blob", dest='user')
-        parser.add_argument('data', help="Data as a json blob")
-
-    @staticmethod
-    def _get_script(module, name):
-        scripts = get_scripts()
-        return scripts[module][name]()
+            choices=['debug', 'info', 'warning', 'error', 'critical'])
+        parser.add_argument('--script', help="Script to run", dest='script', required=True)
+        parser.add_argument('--commit', help="Commit this script to database", dest='commit')
+        parser.add_argument('--user', help="User script is running as", dest='user')
+        parser.add_argument('data', help="Data as a JSON blob")
 
     def handle(self, *args, **options):
         def _run_script():
@@ -72,7 +68,8 @@ class Command(BaseCommand):
         # Params
         script = options['script']
         loglevel = options['loglevel']
-        data = json.loads(options['data'])
+        data = json.loads(options['data']) if options['data'] is not None else None
+        commit = True if options['commit'] in ['1', 'true', 'True'] else False
 
         module, name = script.split('.', 1)
 
@@ -94,23 +91,31 @@ class Command(BaseCommand):
         logger = logging.getLogger(f"netbox.scripts.{module}.{name}")
         logger.addHandler(stdouthandler)
 
-        if loglevel == 'debug':
-            logger.setLevel(logging.DEBUG)
-        elif loglevel == 'info':
-            logger.setLevel(logging.INFO)
-        elif loglevel == 'warning':
-            logger.setLevel(logging.WARNING)
-        elif loglevel == 'error':
-            logger.setLevel(logging.ERROR)
-        else:
-            logger.setLevel(logging.INFO)
+        try:
+            logger.setLevel({
+                'critical': logging.CRITICAL,
+                'debug': logging.DEBUG,
+                'error': logging.ERROR,
+                'fatal': logging.FATAL,
+                'info': logging.INFO,
+                'warning': logging.WARNING,
+            }[loglevel])
+        except KeyError:
+            raise CommandError(f"Invalid log level: {loglevel}")
 
         # Get the script
-        script = self._get_script(module, name)
+        script = get_script(module, name)()
         # Parse the parameters
         form = script.as_form(data, None)
 
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
+
+        # Delete any previous terminal state results
+        JobResult.objects.filter(
+            obj_type=script_content_type,
+            name=script.full_name,
+            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+        ).delete()
 
         # Create the job result
         job_result = JobResult.objects.create(
@@ -134,27 +139,17 @@ class Command(BaseCommand):
             job_result.status = JobResultStatusChoices.STATUS_RUNNING
             job_result.save()
 
-            commit = form.cleaned_data.pop('_commit')
-
             logger.info(f"Running script (commit={commit})")
             script.request = request
 
             # Execute the script. If commit is True, wrap it with the change_logging context manager to ensure we process
             # change logging, webhooks, etc.
-            if commit:
-                with change_logging(request):
-                    _run_script()
-            else:
+            with change_logging(request):
                 _run_script()
-
-            # Delete any previous terminal state results
-            JobResult.objects.filter(
-                obj_type=job_result.obj_type,
-                name=job_result.name,
-                status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
-            ).exclude(
-                pk=job_result.pk
-            ).delete()
         else:
+            logger.error('Data is not valid:')
+            for field, errors in form.errors.get_json_data().items():
+                for error in errors:
+                    logger.error(f'\t{field}: {error.get("message")}')
             job_result.status = JobResultStatusChoices.STATUS_ERRORED
             job_result.save()
