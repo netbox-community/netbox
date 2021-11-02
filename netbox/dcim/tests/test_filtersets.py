@@ -183,7 +183,7 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_asns(self):
-        params = {'asns': [65001, 65002]}
+        params = {'asns': [64512, 65002]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_latitude(self):

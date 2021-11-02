@@ -195,6 +195,11 @@ class Site(PrimaryModel):
         verbose_name='ASN',
         help_text='32-bit autonomous system number'
     )
+    asns = models.ManyToManyField(
+        to='ipam.ASN',
+        related_name='sites',
+        blank=True
+    )
     time_zone = TimeZoneField(
         blank=True
     )

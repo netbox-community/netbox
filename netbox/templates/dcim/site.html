@@ -260,6 +260,20 @@
               {% endif %}
             </div>
         </div>
+        <div class="card">
+            <h5 class="card-header">
+                ASNs
+            </h5>
+            <div class='card-body'>
+              {% if asns %}
+                {% for asn in asns %}
+                    <a href="{{ asn.get_absolute_url }}"><span class="badge bg-primary">{{ asn }}</span></a>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+        </div>
         {% include 'inc/panels/image_attachments.html' %}
         {% plugin_right_page object %}
 	</div>

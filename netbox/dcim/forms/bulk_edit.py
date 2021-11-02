@@ -117,7 +117,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         required=False,
         label='ASN'
     )
-    asns = DynamicModelChoiceField(
+    asns = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         label=_('ASNs'),
         required=False

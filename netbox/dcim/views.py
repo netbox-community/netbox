@@ -310,7 +310,6 @@ class SiteView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         stats = {
-            'asn_count': ASN.objects.restrict(request.user, 'view').filter(sites=instance).count(),
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
@@ -333,9 +332,15 @@ class SiteView(generic.ObjectView):
             cumulative=True
         ).restrict(request.user, 'view').filter(site=instance)
 
+        asns = ASN.objects.restrict(request.user, 'view').filter(sites=instance)
+        asn_count = asns.count()
+
+        stats.update({'asn_count': asn_count})
+
         return {
             'stats': stats,
             'locations': locations,
+            'asns': asns,
         }
 
 

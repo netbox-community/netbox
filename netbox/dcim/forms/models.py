@@ -172,17 +172,6 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'longitude': "Longitude in decimal format (xx.yyyyyy)"
         }
 
-    def __init__(self, data=None, instance=None, *args, **kwargs):
-        super().__init__(data=data, instance=instance, *args, **kwargs)
-
-        if self.instance and self.instance.pk is not None:
-            self.fields['asns'].initial = self.instance.asns.all().values_list('id', flat=True)
-
-    def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-        instance.asns.set(self.cleaned_data['asns'])
-        return instance
-
 
 class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(

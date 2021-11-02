@@ -71,6 +71,7 @@ class RIR(OrganizationalModel):
         return reverse('ipam:rir', args=[self.pk])
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ASN(PrimaryModel):
 
     asn = ASNField(
@@ -97,11 +98,6 @@ class ASN(PrimaryModel):
         related_name='asns',
         blank=True,
         null=True
-    )
-    sites = models.ManyToManyField(
-        to='dcim.Site',
-        related_name='asns',
-        blank=True
     )
 
     objects = RestrictedQuerySet.as_manager()
