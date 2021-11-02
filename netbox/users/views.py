@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,6 +13,7 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
+from social_core.backends.utils import load_backends
 
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
@@ -42,6 +44,7 @@ class LoginView(View):
 
         return render(request, self.template_name, {
             'form': form,
+            'auth_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
         })
 
     def post(self, request):
@@ -69,13 +72,14 @@ class LoginView(View):
 
         return render(request, self.template_name, {
             'form': form,
+            'auth_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
         })
 
     def redirect_to_next(self, request, logger):
         if request.method == "POST":
-            redirect_to = request.POST.get('next', reverse('home'))
+            redirect_to = request.POST.get('next', settings.LOGIN_REDIRECT_URL)
         else:
-            redirect_to = request.GET.get('next', reverse('home'))
+            redirect_to = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
 
         if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
             logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")

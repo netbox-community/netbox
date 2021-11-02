@@ -84,6 +84,7 @@ nav:
         - Using Plugins: 'plugins/index.md'
         - Developing Plugins: 'plugins/development.md'
     - Administration:
+        - Authentication: 'administration/authentication.md'
         - Permissions: 'administration/permissions.md'
         - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'

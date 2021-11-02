@@ -39,6 +39,14 @@
       </form>
     </div>
 
+    {# TODO: Improve the design & layout #}
+    {% if auth_backends %}
+      <h6 class="mt-4">Or use an SSO provider:</h6>
+      {% for name, backend in auth_backends.items %}
+        <h4><a href="{% url 'social:begin' backend=name %}" class="my-2">{{ name }}</a></h4>
+      {% endfor %}
+    {% endif %}
+
     {# Login form errors #}
     {% if form.non_field_errors %}
       <div class="alert alert-danger" role="alert">

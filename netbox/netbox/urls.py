@@ -39,6 +39,7 @@ _patterns = [
     # Login/logout
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('oauth/', include('social_django.urls', namespace='social')),
 
     # Apps
     path('circuits/', include('circuits.urls')),
