@@ -98,12 +98,13 @@ class AggregateSerializer(PrimaryModelSerializer):
 
 class FHRPGroupSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
+    ip_addresses = NestedIPAddressSerializer(many=True, read_only=True)
 
     class Meta:
         model = FHRPGroup
         fields = [
-            'id', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_addresses',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 

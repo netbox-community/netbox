@@ -124,13 +124,13 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 #
 
 class FHRPGroupViewSet(CustomFieldModelViewSet):
-    queryset = FHRPGroup.objects.prefetch_related('tags')
+    queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tags')
     serializer_class = serializers.FHRPGroupSerializer
     filterset_class = filtersets.FHRPGroupFilterSet
 
 
 class FHRPGroupAssignmentViewSet(CustomFieldModelViewSet):
-    queryset = FHRPGroupAssignment.objects.prefetch_related('group')
+    queryset = FHRPGroupAssignment.objects.prefetch_related('group', 'object')
     serializer_class = serializers.FHRPGroupAssignmentSerializer
     filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 

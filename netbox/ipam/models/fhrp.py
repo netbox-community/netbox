@@ -95,3 +95,6 @@ class FHRPGroupAssignment(ChangeLoggedModel):
         ordering = ('priority', 'pk')
         unique_together = ('content_type', 'object_id', 'group')
         verbose_name = 'FHRP group assignment'
+
+    def __str__(self):
+        return f'{self.object}: {self.group} ({self.priority})'
