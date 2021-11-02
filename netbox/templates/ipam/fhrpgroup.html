@@ -72,10 +72,12 @@
       <div class="card">
         <h5 class="card-header">Members</h5>
         <div class="card-body">
-          {% include 'inc/table.html' with table=members_table %}
+          {% if ipaddress_table.rows %}
+            {% render_table members_table 'inc/table.html' %}
+          {% else %}
+            <div class="text-muted">None</div>
+          {% endif %}
         </div>
-      </div>
-      {% include 'inc/paginator.html' with paginator=members_table.paginator page=members_table.page %}
       {% plugin_full_width_page object %}
     </div>
   </div>

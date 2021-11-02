@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('object_id', models.PositiveIntegerField()),
-                ('priority', models.PositiveSmallIntegerField(blank=True)),
+                ('priority', models.PositiveSmallIntegerField(blank=True, null=True)),
                 ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ipam.fhrpgroup')),
             ],

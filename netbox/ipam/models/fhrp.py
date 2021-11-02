@@ -82,6 +82,7 @@ class FHRPGroupAssignment(ChangeLoggedModel):
     )
     priority = models.PositiveSmallIntegerField(
         blank=True,
+        null=True
     )
 
     objects = RestrictedQuerySet.as_manager()

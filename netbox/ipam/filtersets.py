@@ -624,6 +624,10 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
     auth_type = django_filters.MultipleChoiceFilter(
         choices=FHRPGroupAuthTypeChoices
     )
+    related_ip = django_filters.ModelMultipleChoiceFilter(
+        queryset=IPAddress.objects.all(),
+        method='filter_related_ip'
+    )
     tag = TagFilter()
 
     class Meta:
@@ -636,6 +640,26 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
         return queryset.filter(
             Q(description__icontains=value)
         )
+
+    def filter_related_ip(self, queryset, name, value):
+        """
+        Filter by VRF & prefix of assigned IP addresses.
+        """
+        ip_filter = Q()
+        for ipaddress in value:
+            if ipaddress.vrf:
+                q = Q(
+                    ip_addresses__address__net_contained_or_equal=ipaddress.address,
+                    ip_addresses__vrf=ipaddress.vrf
+                )
+            else:
+                q = Q(
+                    ip_addresses__address__net_contained_or_equal=ipaddress.address,
+                    ip_addresses__vrf__isnull=True
+                )
+            ip_filter |= q
+
+        return queryset.filter(ip_filter)
 
 
 class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):

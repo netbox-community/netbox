@@ -849,12 +849,12 @@ class FHRPGroupView(generic.ObjectView):
             orderable=False
         )
 
-        group_assignments = FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(
-            group=instance
+        # Get assigned interfaces
+        members_table = tables.FHRPGroupAssignmentTable(
+            data=FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(group=instance),
+            orderable=False
         )
-        members_table = tables.FHRPGroupAssignmentTable(group_assignments)
         members_table.columns.hide('group')
-        paginate_table(members_table, request)
 
         return {
             'ipaddress_table': ipaddress_table,

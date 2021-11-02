@@ -1,8 +1,6 @@
 import django_tables2 as tables
 
-from utilities.tables import (
-    BaseTable, ContentTypeColumn, MarkdownColumn, TagColumn, ToggleColumn,
-)
+from utilities.tables import BaseTable, ButtonsColumn, MarkdownColumn, TagColumn, ToggleColumn
 from ipam.models import *
 
 __all__ = (
@@ -47,8 +45,11 @@ class FHRPGroupTable(BaseTable):
 
 class FHRPGroupAssignmentTable(BaseTable):
     pk = ToggleColumn()
-    content_type = ContentTypeColumn(
-        verbose_name='Object Type'
+    object_parent = tables.Column(
+        accessor=tables.A('object.parent_object'),
+        linkify=True,
+        orderable=False,
+        verbose_name='Parent'
     )
     object = tables.Column(
         linkify=True,
@@ -57,8 +58,11 @@ class FHRPGroupAssignmentTable(BaseTable):
     group = tables.Column(
         linkify=True
     )
+    actions = ButtonsColumn(
+        model=FHRPGroupAssignment,
+        buttons=('edit', 'delete', 'foo')
+    )
 
     class Meta(BaseTable.Meta):
         model = FHRPGroupAssignment
-        fields = ('pk', 'content_type', 'object', 'group', 'priority')
-        default_columns = ('pk', 'content_type', 'object', 'group', 'priority')
+        fields = ('pk', 'group', 'object_parent', 'object', 'priority')
