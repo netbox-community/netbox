@@ -57,6 +57,10 @@ A `bridge` field has been added to the interface model for devices and virtual m
 
 Multiple interfaces can be bridged to a single virtual interface to effect a bridge group. Alternatively, two physical interfaces can be bridged to one another, to effect an internal cross-connect.
 
+#### Single Sign-On (SSO) Authentication ([#7649](https://github.com/netbox-community/netbox/issues/7649))
+
+Support for single sign-on (SSO) authentication has been added via the [python-social-auth](https://github.com/python-social-auth) library. NetBox administrators can configure one of the [supported authentication backends](https://python-social-auth.readthedocs.io/en/latest/intro.html#auth-providers) to enable SSO authentication for users.
+
 ### Enhancements
 
 * [#1337](https://github.com/netbox-community/netbox/issues/1337) - Add WWN field to interfaces
