@@ -521,13 +521,7 @@ class FHRPGroupForm(BootstrapMixin, CustomFieldModelForm):
                 status=self.cleaned_data['ip_status'],
                 assigned_object=instance
             )
-            ipaddress.role = {
-                FHRPGroupProtocolChoices.PROTOCOL_VRRP2: IPAddressRoleChoices.ROLE_VRRP,
-                FHRPGroupProtocolChoices.PROTOCOL_VRRP3: IPAddressRoleChoices.ROLE_VRRP,
-                FHRPGroupProtocolChoices.PROTOCOL_HSRP: IPAddressRoleChoices.ROLE_HSRP,
-                FHRPGroupProtocolChoices.PROTOCOL_GLBP: IPAddressRoleChoices.ROLE_GLBP,
-                FHRPGroupProtocolChoices.PROTOCOL_CARP: IPAddressRoleChoices.ROLE_CARP,
-            }[self.cleaned_data['protocol']]
+            ipaddress.role = FHRP_PROTOCOL_ROLE_MAPPINGS[self.cleaned_data['protocol']]
             ipaddress.save()
 
             # Check that the new IPAddress conforms with any assigned object-level permissions

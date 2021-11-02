@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from .choices import IPAddressRoleChoices
+from .choices import FHRPGroupProtocolChoices, IPAddressRoleChoices
 
 # BGP ASN bounds
 BGP_ASN_MIN = 1
@@ -58,6 +58,14 @@ IPADDRESS_ROLES_NONUNIQUE = (
 
 FHRPGROUPASSIGNMENT_PRIORITY_MIN = 0
 FHRPGROUPASSIGNMENT_PRIORITY_MAX = 255
+
+FHRP_PROTOCOL_ROLE_MAPPINGS = {
+    FHRPGroupProtocolChoices.PROTOCOL_VRRP2: IPAddressRoleChoices.ROLE_VRRP,
+    FHRPGroupProtocolChoices.PROTOCOL_VRRP3: IPAddressRoleChoices.ROLE_VRRP,
+    FHRPGroupProtocolChoices.PROTOCOL_HSRP: IPAddressRoleChoices.ROLE_HSRP,
+    FHRPGroupProtocolChoices.PROTOCOL_GLBP: IPAddressRoleChoices.ROLE_GLBP,
+    FHRPGroupProtocolChoices.PROTOCOL_CARP: IPAddressRoleChoices.ROLE_CARP,
+}
 
 
 #

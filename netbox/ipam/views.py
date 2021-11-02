@@ -867,6 +867,7 @@ class FHRPGroupView(generic.ObjectView):
 class FHRPGroupEditView(generic.ObjectEditView):
     queryset = FHRPGroup.objects.all()
     model_form = forms.FHRPGroupForm
+    template_name = 'ipam/fhrpgroup_edit.html'
 
     def get_return_url(self, request, obj=None):
         return_url = super().get_return_url(request, obj)
@@ -909,6 +910,7 @@ class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
 class FHRPGroupAssignmentEditView(generic.ObjectEditView):
     queryset = FHRPGroupAssignment.objects.all()
     model_form = forms.FHRPGroupAssignmentForm
+    template_name = 'ipam/fhrpgroupassignment_edit.html'
 
     def alter_obj(self, instance, request, args, kwargs):
         if not instance.pk:
