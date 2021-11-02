@@ -57,12 +57,17 @@ A `bridge` field has been added to the interface model for devices and virtual m
 
 Multiple interfaces can be bridged to a single virtual interface to effect a bridge group. Alternatively, two physical interfaces can be bridged to one another, to effect an internal cross-connect.
 
+#### Single Sign-On (SSO) Authentication ([#7649](https://github.com/netbox-community/netbox/issues/7649))
+
+Support for single sign-on (SSO) authentication has been added via the [python-social-auth](https://github.com/python-social-auth) library. NetBox administrators can configure one of the [supported authentication backends](https://python-social-auth.readthedocs.io/en/latest/intro.html#auth-providers) to enable SSO authentication for users.
+
 ### Enhancements
 
 * [#1337](https://github.com/netbox-community/netbox/issues/1337) - Add WWN field to interfaces
 * [#1943](https://github.com/netbox-community/netbox/issues/1943) - Relax uniqueness constraint on cluster names
 * [#3839](https://github.com/netbox-community/netbox/issues/3839) - Add `airflow` field for devices types and devices
 * [#6497](https://github.com/netbox-community/netbox/issues/6497) - Extend tag support to organizational models
+* [#6615](https://github.com/netbox-community/netbox/issues/6615) - Add filter lookups for custom fields
 * [#6711](https://github.com/netbox-community/netbox/issues/6711) - Add `longtext` custom field type with Markdown support
 * [#6715](https://github.com/netbox-community/netbox/issues/6715) - Add tenant assignment for cables
 * [#6874](https://github.com/netbox-community/netbox/issues/6874) - Add tenant assignment for locations

@@ -2,6 +2,7 @@ import csv
 import json
 import re
 from io import StringIO
+from netaddr import AddrFormatError, EUI
 
 import django_filters
 from django import forms
@@ -38,6 +39,7 @@ __all__ = (
     'ExpandableNameField',
     'JSONField',
     'LaxURLField',
+    'MACAddressField',
     'SlugField',
     'TagFilterField',
 )
@@ -128,6 +130,28 @@ class JSONField(_JSONField):
             return ''
         return json.dumps(value, sort_keys=True, indent=4)
 
+
+class MACAddressField(forms.Field):
+    widget = forms.CharField
+    default_error_messages = {
+        'invalid': 'MAC address must be in EUI-48 format',
+    }
+
+    def to_python(self, value):
+        value = super().to_python(value)
+
+        # Validate MAC address format
+        try:
+            value = EUI(value.strip())
+        except AddrFormatError:
+            raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
+
+        return value
+
+
+#
+# Content type fields
+#
 
 class ContentTypeChoiceMixin:
 

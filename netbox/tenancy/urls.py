@@ -61,7 +61,6 @@ urlpatterns = [
     path('contacts/edit/', views.ContactBulkEditView.as_view(), name='contact_bulk_edit'),
     path('contacts/delete/', views.ContactBulkDeleteView.as_view(), name='contact_bulk_delete'),
     path('contacts/<int:pk>/', views.ContactView.as_view(), name='contact'),
-    path('contacts/<slug:slug>/', SlugRedirectView.as_view(), kwargs={'model': Contact}),
     path('contacts/<int:pk>/edit/', views.ContactEditView.as_view(), name='contact_edit'),
     path('contacts/<int:pk>/delete/', views.ContactDeleteView.as_view(), name='contact_delete'),
     path('contacts/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='contact_changelog', kwargs={'model': Contact}),
