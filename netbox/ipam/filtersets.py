@@ -663,11 +663,15 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
 
 
 class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
-    content_type = ContentTypeFilter()
+    interface_type = ContentTypeFilter()
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=FHRPGroup.objects.all(),
+        label='Group (ID)',
+    )
 
     class Meta:
         model = FHRPGroupAssignment
-        fields = ['id', 'content_type_id', 'priority']
+        fields = ['id', 'group_id', 'interface_type', 'interface_id', 'priority']
 
 
 class VLANGroupFilterSet(OrganizationalModelFilterSet):

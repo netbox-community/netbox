@@ -100,7 +100,7 @@
             </div>
             {% if perms.ipam.add_ipaddress %}
                 <div class="card-footer text-end noprint">
-                    <a href="{% url 'ipam:ipaddress_add' %}?virtual_machine={{ object.virtual_machine.pk }}&vminterface={{ object.pk }}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'ipam:ipaddress_add' %}?virtual_machine={{ object.virtual_machine.pk }}&vminterface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
                         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add IP Address
                     </a>
                 </div>

@@ -27,8 +27,8 @@ class FHRPGroupTable(BaseTable):
         orderable=False,
         verbose_name='IP Addresses'
     )
-    member_count = tables.Column(
-        verbose_name='Members'
+    interface_count = tables.Column(
+        verbose_name='Interfaces'
     )
     tags = TagColumn(
         url_name='ipam:fhrpgroup_list'
@@ -37,10 +37,10 @@ class FHRPGroupTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = FHRPGroup
         fields = (
-            'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'member_count',
+            'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'interface_count',
             'tags',
         )
-        default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'member_count')
+        default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'interface_count')
 
 
 class FHRPGroupAssignmentTable(BaseTable):
@@ -51,7 +51,7 @@ class FHRPGroupAssignmentTable(BaseTable):
         orderable=False,
         verbose_name='Parent'
     )
-    object = tables.Column(
+    interface = tables.Column(
         linkify=True,
         orderable=False
     )
@@ -65,4 +65,4 @@ class FHRPGroupAssignmentTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = FHRPGroupAssignment
-        fields = ('pk', 'group', 'object_parent', 'object', 'priority')
+        fields = ('pk', 'group', 'object_parent', 'interface', 'priority')

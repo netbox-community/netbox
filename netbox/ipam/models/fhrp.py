@@ -69,14 +69,14 @@ class FHRPGroup(PrimaryModel):
 
 @extras_features('webhooks')
 class FHRPGroupAssignment(ChangeLoggedModel):
-    content_type = models.ForeignKey(
+    interface_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE
     )
-    object_id = models.PositiveIntegerField()
-    object = GenericForeignKey(
-        ct_field='content_type',
-        fk_field='object_id'
+    interface_id = models.PositiveIntegerField()
+    interface = GenericForeignKey(
+        ct_field='interface_type',
+        fk_field='interface_id'
     )
     group = models.ForeignKey(
         to='ipam.FHRPGroup',
@@ -93,8 +93,8 @@ class FHRPGroupAssignment(ChangeLoggedModel):
 
     class Meta:
         ordering = ('priority', 'pk')
-        unique_together = ('content_type', 'object_id', 'group')
+        unique_together = ('interface_type', 'interface_id', 'group')
         verbose_name = 'FHRP group assignment'
 
     def __str__(self):
-        return f'{self.object}: {self.group} ({self.priority})'
+        return f'{self.interface}: {self.group} ({self.priority})'

@@ -914,24 +914,24 @@ class FHRPGroupAssignmentEditView(generic.ObjectEditView):
 
     def alter_obj(self, instance, request, args, kwargs):
         if not instance.pk:
-            # Assign the object based on URL kwargs
+            # Assign the interface based on URL kwargs
             try:
-                app_label, model = request.GET.get('content_type').split('.')
+                app_label, model = request.GET.get('interface_type').split('.')
             except (AttributeError, ValueError):
                 raise Http404("Content type not specified")
             content_type = get_object_or_404(ContentType, app_label=app_label, model=model)
-            instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
+            instance.interface = get_object_or_404(content_type.model_class(), pk=request.GET.get('interface_id'))
         return instance
 
     def get_return_url(self, request, obj=None):
-        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
+        return obj.interface.get_absolute_url() if obj else super().get_return_url(request)
 
 
 class FHRPGroupAssignmentDeleteView(generic.ObjectDeleteView):
     queryset = FHRPGroupAssignment.objects.all()
 
     def get_return_url(self, request, obj=None):
-        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
+        return obj.interface.get_absolute_url() if obj else super().get_return_url(request)
 
 
 #

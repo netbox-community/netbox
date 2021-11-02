@@ -110,24 +110,25 @@ class FHRPGroupSerializer(PrimaryModelSerializer):
 
 class FHRPGroupAssignmentSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
-    content_type = ContentTypeField(
+    interface_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    object = serializers.SerializerMethodField(read_only=True)
+    interface = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = FHRPGroupAssignment
         fields = [
-            'id', 'url', 'display', 'content_type', 'object_id', 'object', 'priority', 'created', 'last_updated',
+            'id', 'url', 'display', 'interface_type', 'interface_id', 'interface', 'priority', 'created',
+            'last_updated',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_object(self, obj):
-        if obj.object is None:
+    def get_interface(self, obj):
+        if obj.interface is None:
             return None
-        serializer = get_serializer_for_model(obj.object, prefix='Nested')
+        serializer = get_serializer_for_model(obj.interface, prefix='Nested')
         context = {'request': self.context['request']}
-        return serializer(obj.object, context=context).data
+        return serializer(obj.interface, context=context).data
 
 
 #

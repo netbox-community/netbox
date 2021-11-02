@@ -130,7 +130,7 @@ class FHRPGroupViewSet(CustomFieldModelViewSet):
 
 
 class FHRPGroupAssignmentViewSet(CustomFieldModelViewSet):
-    queryset = FHRPGroupAssignment.objects.prefetch_related('group', 'object')
+    queryset = FHRPGroupAssignment.objects.prefetch_related('group', 'interface')
     serializer_class = serializers.FHRPGroupAssignmentSerializer
     filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 

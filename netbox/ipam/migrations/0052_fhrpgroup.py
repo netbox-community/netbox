@@ -8,8 +8,8 @@ import taggit.managers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0064_configrevision'),
         ('contenttypes', '0002_remove_content_type_name'),
+        ('extras', '0064_configrevision'),
         ('ipam', '0051_extend_tag_support'),
     ]
 
@@ -44,15 +44,15 @@ class Migration(migrations.Migration):
                 ('created', models.DateField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('object_id', models.PositiveIntegerField()),
+                ('interface_id', models.PositiveIntegerField()),
                 ('priority', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(255)])),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ipam.fhrpgroup')),
+                ('interface_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
             ],
             options={
                 'verbose_name': 'FHRP group assignment',
                 'ordering': ('priority', 'pk'),
-                'unique_together': {('content_type', 'object_id', 'group')},
+                'unique_together': {('interface_type', 'interface_id', 'group')},
             },
         ),
     ]
