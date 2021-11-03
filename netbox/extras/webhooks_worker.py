@@ -12,15 +12,29 @@ from .webhooks import generate_signature
 logger = logging.getLogger('netbox.webhooks_worker')
 
 
+def eval_conditions(webhook, data):
+    """
+    Test whether the given data meets the conditions of the webhook (if any). Return True
+    if met or no conditions are specified.
+    """
+    if not webhook.conditions:
+        return True
+
+    logger.debug(f'Evaluating webhook conditions: {webhook.conditions}')
+    if ConditionSet(webhook.conditions).eval(data):
+        return True
+
+    return False
+
+
 @job('default')
 def process_webhook(webhook, model_name, event, data, snapshots, timestamp, username, request_id):
     """
     Make a POST request to the defined Webhook
     """
     # Evaluate webhook conditions (if any)
-    if webhook.conditions:
-        if not ConditionSet(webhook.conditions).eval(data):
-            return
+    if not eval_conditions(webhook, data):
+        return
 
     # Prepare context data for headers & body templates
     context = {

@@ -9,11 +9,12 @@ from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
+from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
 from extras.models import Tag, Webhook
-from extras.webhooks import enqueue_object, flush_webhooks, generate_signature
-from extras.webhooks_worker import process_webhook
+from extras.webhooks import enqueue_object, flush_webhooks, generate_signature, serialize_for_webhook
+from extras.webhooks_worker import eval_conditions, process_webhook
 from utilities.testing import APITestCase
 
 
@@ -250,6 +251,37 @@ class WebhookTest(APITestCase):
             self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
+
+    def test_webhook_conditions(self):
+        # Create a conditional Webhook
+        webhook = Webhook(
+            name='Conditional Webhook',
+            type_create=True,
+            type_update=True,
+            payload_url='http://localhost/',
+            conditions={
+                'and': [
+                    {
+                        'attr': 'status.value',
+                        'value': 'active',
+                    }
+                ]
+            }
+        )
+
+        # Create a Site to evaluate
+        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_STAGING)
+        data = serialize_for_webhook(site)
+
+        # Evaluate the conditions (status='staging')
+        self.assertFalse(eval_conditions(webhook, data))
+
+        # Change the site's status
+        site.status = SiteStatusChoices.STATUS_ACTIVE
+        data = serialize_for_webhook(site)
+
+        # Evaluate the conditions (status='active')
+        self.assertTrue(eval_conditions(webhook, data))
 
     def test_webhooks_worker(self):
 
