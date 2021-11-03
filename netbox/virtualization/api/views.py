@@ -80,7 +80,7 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet)
 
 class VMInterfaceViewSet(ModelViewSet):
     queryset = VMInterface.objects.prefetch_related(
-        'virtual_machine', 'parent', 'tags', 'tagged_vlans', 'ip_addresses'
+        'virtual_machine', 'parent', 'tags', 'untagged_vlan', 'tagged_vlans', 'ip_addresses'
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filtersets.VMInterfaceFilterSet
