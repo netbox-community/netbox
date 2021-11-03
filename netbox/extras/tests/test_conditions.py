@@ -36,6 +36,16 @@ class ConditionTestCase(TestCase):
             Condition('x', 'foo', 'gt')
 
     #
+    # Nested attrs tests
+    #
+
+    def test_nested(self):
+        c = Condition('x.y.z', 1)
+        self.assertTrue(c.eval({'x': {'y': {'z': 1}}}))
+        self.assertFalse(c.eval({'x': {'y': {'z': 2}}}))
+        self.assertFalse(c.eval({'a': {'b': {'c': 1}}}))
+
+    #
     # Operator tests
     #
 

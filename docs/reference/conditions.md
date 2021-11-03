@@ -23,14 +23,47 @@ A condition is expressed as a JSON object with the following keys:
 * `in`: Is present within a list of values
 * `contains`: Contains the specified value
 
+### Accessing Nested Keys
+
+To access nested keys, use dots to denote the path to the desired attribute. For example, assume the following data:
+
+```json
+{
+  "a": {
+    "b": {
+      "c": 123
+    }
+  }
+}
+```
+
+The following condition will evaluate as true:
+
+```json
+{
+  "attr": "a.b.c",
+  "value": 123
+}
+```
+
 ### Examples
 
-`name` equals "foobar":
+`name` equals "foo":
 
 ```json
 {
   "attr": "name",
-  "value": "foobar"
+  "value": "foo"
+}
+```
+
+`name` does not equal "foo"
+
+```json
+{
+  "attr": "name",
+  "value": "foo",
+  "negate": true
 }
 ```
 

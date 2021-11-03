@@ -64,7 +64,11 @@ class Condition:
         """
         Evaluate the provided data to determine whether it matches the condition.
         """
-        value = functools.reduce(dict.get, self.attr.split('.'), data)
+        try:
+            value = functools.reduce(dict.get, self.attr.split('.'), data)
+        except TypeError:
+            # Invalid key path
+            value = None
         result = self.eval_func(value)
 
         if self.negate:
