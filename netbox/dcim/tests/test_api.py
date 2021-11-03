@@ -9,6 +9,7 @@ from dcim.models import *
 from ipam.models import ASN, RIR, VLAN
 from utilities.testing import APITestCase, APIViewTestCases
 from virtualization.models import Cluster, ClusterType
+from wireless.models import WirelessLAN
 
 
 class AppTest(APITestCase):
@@ -1202,6 +1203,12 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         )
         VLAN.objects.bulk_create(vlans)
 
+        wireless_lans = (
+            WirelessLAN(ssid='WLAN1'),
+            WirelessLAN(ssid='WLAN2'),
+        )
+        WirelessLAN.objects.bulk_create(wireless_lans)
+
         cls.create_data = [
             {
                 'device': device.pk,
@@ -1211,6 +1218,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'tx_power': 10,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             },
             {
                 'device': device.pk,
@@ -1221,6 +1229,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'tx_power': 10,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             },
             {
                 'device': device.pk,
@@ -1231,6 +1240,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'tx_power': 10,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             },
         ]
 

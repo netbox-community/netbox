@@ -14,6 +14,7 @@ from dcim.models import *
 from ipam.models import ASN, RIR, VLAN
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
+from wireless.models import WirelessLAN
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -1602,6 +1603,12 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         VLAN.objects.bulk_create(vlans)
 
+        wireless_lans = (
+            WirelessLAN(ssid='WLAN1'),
+            WirelessLAN(ssid='WLAN2'),
+        )
+        WirelessLAN.objects.bulk_create(wireless_lans)
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -1620,6 +1627,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'tx_power': 10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             'tags': [t.pk for t in tags],
         }
 
@@ -1638,6 +1646,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             'tags': [t.pk for t in tags],
         }
 

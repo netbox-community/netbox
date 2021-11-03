@@ -17,8 +17,9 @@ from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterSerializer
-from wireless.api.nested_serializers import NestedWirelessLinkSerializer
+from wireless.api.nested_serializers import NestedWirelessLANSerializer, NestedWirelessLinkSerializer
 from wireless.choices import *
+from wireless.models import WirelessLAN
 from .nested_serializers import *
 
 
@@ -628,6 +629,12 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     )
     cable = NestedCableSerializer(read_only=True)
     wireless_link = NestedWirelessLinkSerializer(read_only=True)
+    wireless_lans = SerializedPKRelatedField(
+        queryset=WirelessLAN.objects.all(),
+        serializer=NestedWirelessLANSerializer,
+        required=False,
+        many=True
+    )
     count_ipaddresses = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -636,7 +643,7 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
             'id', 'url', 'display', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mtu',
             'mac_address', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'wireless_link',
-            'link_peer', 'link_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'link_peer', 'link_peer_type', 'wireless_lans', 'connected_endpoint', 'connected_endpoint_type',
             'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses',
             '_occupied',
         ]
