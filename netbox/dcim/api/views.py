@@ -137,9 +137,8 @@ class SiteGroupViewSet(CustomFieldModelViewSet):
 
 class SiteViewSet(CustomFieldModelViewSet):
     queryset = Site.objects.prefetch_related(
-        'region', 'tenant', 'tags'
+        'region', 'tenant', 'asns', 'tags'
     ).annotate(
-        asn_count=count_related(ASN, 'sites'),
         device_count=count_related(Device, 'site'),
         rack_count=count_related(Rack, 'site'),
         prefix_count=count_related(Prefix, 'site'),

@@ -73,11 +73,12 @@ class RIR(OrganizationalModel):
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ASN(PrimaryModel):
-
+    """
+    An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
+    one or more ASNs assigned to it.
+    """
     asn = ASNField(
         unique=True,
-        blank=False,
-        null=False,
         verbose_name='ASN',
         help_text='32-bit autonomous system number'
     )
@@ -89,8 +90,7 @@ class ASN(PrimaryModel):
         to='ipam.RIR',
         on_delete=models.PROTECT,
         related_name='asns',
-        blank=False,
-        null=False
+        verbose_name='RIR'
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
