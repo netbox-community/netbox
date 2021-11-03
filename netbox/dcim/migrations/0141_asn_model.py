@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0052_asn_model'),
+        ('ipam', '0053_asn_model'),
         ('dcim', '0140_wireless'),
     ]
 
