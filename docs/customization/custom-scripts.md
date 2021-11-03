@@ -259,6 +259,22 @@ http://netbox/api/extras/scripts/example.MyReport/ \
 --data '{"data": {"foo": "somevalue", "bar": 123}, "commit": true}'
 ```
 
+### Via the CLI
+
+Scripts can be run on the CLI by invoking the management command:
+
+```
+python3 manage.py runscript [--commit] [--loglevel {debug,info,warning,error,critical}] [--data "<data>"] <module>.<script> 
+```
+
+The required ``<module>.<script>`` argument is the script to run where ``<module>`` is the name of the python file in the ``scripts`` directory without the ``.py`` extension and ``<script>`` is the name of the script class in the ``<module>`` to run.
+
+The optional ``--data "<data>"`` argument is the data to send to the script
+
+The optional ``--loglevel`` argument is the desired logging level to output to the console.
+
+The optional ``--commit`` argument will commit any changes in the script to the database.
+
 ## Example
 
 Below is an example script that creates new objects for a planned site. The user is prompted for three variables:
