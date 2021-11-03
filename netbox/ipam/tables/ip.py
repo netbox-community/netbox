@@ -12,7 +12,6 @@ from ipam.models import *
 __all__ = (
     'AggregateTable',
     'ASNTable',
-    'InterfaceIPAddressTable',
     'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
