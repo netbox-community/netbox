@@ -1,6 +1,29 @@
 # NetBox v3.0
 
-## v3.0.9 (FUTURE)
+## v3.0.10 (FUTURE)
+
+---
+
+## v3.0.9 (2021-11-03)
+
+### Enhancements
+
+* [#6529](https://github.com/netbox-community/netbox/issues/6529) - Introduce the `runscript` management command
+* [#6930](https://github.com/netbox-community/netbox/issues/6930) - Add an optional "ID" column to all tables
+* [#7668](https://github.com/netbox-community/netbox/issues/7668) - Add "view elevations" button to location view
+
+### Bug Fixes
+
+* [#7599](https://github.com/netbox-community/netbox/issues/7599) - Improve color mode preference handling
+* [#7601](https://github.com/netbox-community/netbox/issues/7601) - Correct devices count for locations within global search results
+* [#7612](https://github.com/netbox-community/netbox/issues/7612) - Strip HTML from custom field descriptions
+* [#7628](https://github.com/netbox-community/netbox/issues/7628) - Fix `load_yaml` method for custom scripts
+* [#7643](https://github.com/netbox-community/netbox/issues/7643) - Fix circuit assignment when creating multiple terminations simultaneously
+* [#7644](https://github.com/netbox-community/netbox/issues/7644) - Prevent inadvertent deletion of prior change records when deleting objects (#7333 revisited)
+* [#7647](https://github.com/netbox-community/netbox/issues/7647) - Require interface assignment when designating IP address as primary for device/VM during CSV import
+* [#7664](https://github.com/netbox-community/netbox/issues/7664) - Preserve initial form data when bulk edit validation fails
+* [#7717](https://github.com/netbox-community/netbox/issues/7717) - Restore missing tags column on IP range table
+* [#7721](https://github.com/netbox-community/netbox/issues/7721) - Retain pagination preference when `MAX_PAGE_SIZE` is zero
 
 ---
 

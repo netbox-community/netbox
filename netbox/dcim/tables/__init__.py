@@ -43,6 +43,7 @@ class ConsoleConnectionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ConsolePort
         fields = ('device', 'name', 'console_server', 'console_server_port', 'reachable')
+        exclude = ('id', )
 
 
 class PowerConnectionTable(BaseTable):
@@ -73,6 +74,7 @@ class PowerConnectionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = PowerPort
         fields = ('device', 'name', 'pdu', 'outlet', 'reachable')
+        exclude = ('id', )
 
 
 class InterfaceConnectionTable(BaseTable):
@@ -106,3 +108,4 @@ class InterfaceConnectionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b', 'reachable')
+        exclude = ('id', )

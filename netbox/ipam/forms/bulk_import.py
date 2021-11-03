@@ -278,11 +278,18 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
 
         device = self.cleaned_data.get('device')
         virtual_machine = self.cleaned_data.get('virtual_machine')
+        interface = self.cleaned_data.get('interface')
         is_primary = self.cleaned_data.get('is_primary')
 
         # Validate is_primary
         if is_primary and not device and not virtual_machine:
-            raise forms.ValidationError("No device or virtual machine specified; cannot set as primary IP")
+            raise forms.ValidationError({
+                "is_primary": "No device or virtual machine specified; cannot set as primary IP"
+            })
+        if is_primary and not interface:
+            raise forms.ValidationError({
+                "is_primary": "No interface specified; cannot set as primary IP"
+            })
 
     def save(self, *args, **kwargs):
 

@@ -4,7 +4,6 @@ import logging
 import os
 import pkgutil
 import traceback
-import warnings
 from collections import OrderedDict
 
 import yaml
@@ -345,9 +344,14 @@ class BaseScript:
         """
         Return data from a YAML file
         """
+        try:
+            from yaml import CLoader as Loader
+        except ImportError:
+            from yaml import Loader
+
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
         with open(file_path, 'r') as datafile:
-            data = yaml.load(datafile)
+            data = yaml.load(datafile, Loader=Loader)
 
         return data
 

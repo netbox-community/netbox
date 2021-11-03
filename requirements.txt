@@ -1,4 +1,4 @@
-Django==3.2.8
+Django==3.2.9
 django-cors-headers==3.10.0
 django-debug-toolbar==3.2.2
 django-filter==21.1
@@ -18,7 +18,7 @@ gunicorn==20.1.0
 Jinja2==3.0.2
 Markdown==3.3.4
 markdown-include==0.6.0
-mkdocs-material==7.3.4
+mkdocs-material==7.3.6
 netaddr==0.8.0
 Pillow==8.4.0
 psycopg2-binary==2.9.1
@@ -26,7 +26,7 @@ PyYAML==6.0
 social-auth-app-django==5.0.0
 social-auth-core==4.1.0
 svgwrite==1.4.1
-tablib==3.0.0
+tablib==3.1.0
 
 # Workaround for #7401
 jsonschema==3.2.0

@@ -10,7 +10,7 @@
 
 ### New Features
 
-#### Contacts ([#1344](https://github.com/netbox-community/netbox/issues/1344))
+#### Contact Objects ([#1344](https://github.com/netbox-community/netbox/issues/1344))
 
 A set of new models for tracking contact information has been introduced within the tenancy app. Users may now create individual contact objects to be associated with various models within NetBox. Each contact has a name, title, email address, etc. Contacts can be arranged in hierarchical groups for ease of management.
 
