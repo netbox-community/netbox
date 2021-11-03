@@ -84,7 +84,7 @@ class VLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'tags', 'actions')
+        fields = ('pk', 'id', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description', 'actions')
 
 
@@ -122,7 +122,7 @@ class VLANTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
+        fields = ('pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, VLAN) else '',
@@ -152,6 +152,7 @@ class VLANDevicesTable(VLANMembersTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('device', 'name', 'tagged', 'actions')
+        exclude = ('id', )
 
 
 class VLANVirtualMachinesTable(VLANMembersTable):
@@ -163,6 +164,7 @@ class VLANVirtualMachinesTable(VLANMembersTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = ('virtual_machine', 'name', 'tagged', 'actions')
+        exclude = ('id', )
 
 
 class InterfaceVLANTable(BaseTable):
@@ -190,6 +192,7 @@ class InterfaceVLANTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VLAN
         fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
+        exclude = ('id', )
 
     def __init__(self, interface, *args, **kwargs):
         self.interface = interface

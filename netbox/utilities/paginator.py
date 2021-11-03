@@ -68,17 +68,22 @@ def get_paginate_count(request):
     """
     config = get_config()
 
+    def _max_allowed(page_size):
+        if config.MAX_PAGE_SIZE:
+            return min(page_size, config.MAX_PAGE_SIZE)
+        return page_size
+
     if 'per_page' in request.GET:
         try:
             per_page = int(request.GET.get('per_page'))
             if request.user.is_authenticated:
                 request.user.config.set('pagination.per_page', per_page, commit=True)
-            return min(per_page, config.MAX_PAGE_SIZE)
+            return _max_allowed(per_page)
         except ValueError:
             pass
 
     if request.user.is_authenticated:
         per_page = request.user.config.get('pagination.per_page', config.PAGINATE_COUNT)
-        return min(per_page, config.MAX_PAGE_SIZE)
+        return _max_allowed(per_page)
 
-    return min(config.PAGINATE_COUNT, config.MAX_PAGE_SIZE)
+    return _max_allowed(config.PAGINATE_COUNT)

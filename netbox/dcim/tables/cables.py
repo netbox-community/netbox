@@ -17,10 +17,6 @@ __all__ = (
 
 class CableTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.Column(
-        linkify=True,
-        verbose_name='ID'
-    )
     termination_a_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_a'),
