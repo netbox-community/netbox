@@ -82,6 +82,6 @@ class ContactViewSet(CustomFieldModelViewSet):
 
 
 class ContactAssignmentViewSet(CustomFieldModelViewSet):
-    queryset = ContactAssignment.objects.prefetch_related('contact', 'role')
+    queryset = ContactAssignment.objects.prefetch_related('object', 'contact', 'role')
     serializer_class = serializers.ContactAssignmentSerializer
     filterset_class = filtersets.ContactAssignmentFilterSet

@@ -190,4 +190,4 @@ class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = ContactAssignment
-        fields = ['id', 'content_type_id', 'priority']
+        fields = ['id', 'content_type_id', 'object_id', 'priority']
