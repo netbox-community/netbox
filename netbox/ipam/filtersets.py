@@ -9,7 +9,6 @@ from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import TagFilter
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
-from tenancy.models import Tenant
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
@@ -180,7 +179,6 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
-
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
         label='RIR (ID)',
@@ -210,7 +208,7 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(Q(description__icontains=value) | Q(asn__icontains=value))
+        qs_filter = Q(description__icontains=value)
         return queryset.filter(qs_filter)
 
 

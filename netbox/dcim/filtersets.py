@@ -173,7 +173,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         return queryset.filter(qs_filter)
 
 
-class LocationFilterSet(OrganizationalModelFilterSet):
+class LocationFilterSet(TenancyFilterSet, OrganizationalModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',

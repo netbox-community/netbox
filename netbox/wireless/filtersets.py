@@ -5,7 +5,7 @@ from dcim.choices import LinkStatusChoices
 from extras.filters import TagFilter
 from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
-from utilities.filters import TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 
@@ -78,6 +78,8 @@ class WirelessLinkFilterSet(PrimaryModelFilterSet):
         method='search',
         label='Search',
     )
+    interface_a_id = MultiValueNumberFilter()
+    interface_b_id = MultiValueNumberFilter()
     status = django_filters.MultipleChoiceFilter(
         choices=LinkStatusChoices
     )
