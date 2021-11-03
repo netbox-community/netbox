@@ -264,12 +264,15 @@ class IPRangeTable(BaseTable):
         accessor='utilization',
         orderable=False
     )
+    tags = TagColumn(
+        url_name='ipam:iprange_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = IPRange
         fields = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
-            'utilization','tags',
+            'utilization', 'tags',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
