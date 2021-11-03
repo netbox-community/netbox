@@ -74,8 +74,6 @@ class Command(BaseCommand):
         except TypeError:
             data = {}
 
-
-
         module, name = script.split('.', 1)
 
         # Take user from command line if provided and exists, other
