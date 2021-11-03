@@ -264,10 +264,12 @@ http://netbox/api/extras/scripts/example.MyReport/ \
 Scripts can be run on the CLI by invoking the management command:
 
 ```
-python3 manage.py runscript [--commit] [--loglevel {debug,info,warning,error,critical}] --script <module>.<script> <data>
+python3 manage.py runscript [--commit] [--loglevel {debug,info,warning,error,critical}] [--data "<data>"] <module>.<script> 
 ```
 
-The required ``--script <module>.<script>`` argument is the report to run where ``<module>`` is the name of the python file in the ``scripts`` directory without the ``.py`` extension and ``<script>`` is the name of the script class in the ``<module>`` to run.
+The required ``<module>.<script>`` argument is the script to run where ``<module>`` is the name of the python file in the ``scripts`` directory without the ``.py`` extension and ``<script>`` is the name of the script class in the ``<module>`` to run.
+
+The optional ``--data "<data>"`` argument is the data to send to the script
 
 The optional ``--loglevel`` argument is the desired logging level to output to the console.
 
