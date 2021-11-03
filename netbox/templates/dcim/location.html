@@ -43,6 +43,13 @@
           <tr>
             <th scope="row">Racks</th>
             <td>
+              {% if rack_count %}
+                <div class="float-end noprint">
+                  <a href="{% url 'dcim:rack_elevation_list' %}?location_id={{ object.pk }}" class="btn btn-sm btn-primary" title="View elevations">
+                    <i class="mdi mdi-server"></i>
+                  </a>
+                </div>
+              {% endif %}
               <a href="{% url 'dcim:rack_list' %}?location_id={{ object.pk }}">{{ rack_count }}</a>
             </td>
           </tr>

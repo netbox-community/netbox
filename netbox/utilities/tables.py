@@ -23,6 +23,10 @@ class BaseTable(tables.Table):
 
     :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
     """
+    id = tables.Column(
+        linkify=True,
+        verbose_name='ID'
+    )
 
     class Meta:
         attrs = {

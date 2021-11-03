@@ -28,7 +28,7 @@ class RackRoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RackRole
-        fields = ('pk', 'name', 'rack_count', 'color', 'description', 'slug', 'actions')
+        fields = ('pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'actions')
         default_columns = ('pk', 'name', 'rack_count', 'color', 'description', 'actions')
 
 
@@ -76,7 +76,7 @@ class RackTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Rack
         fields = (
-            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
+            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
             'width', 'u_height', 'comments', 'device_count', 'get_utilization', 'get_power_utilization', 'tags',
         )
         default_columns = (
@@ -115,7 +115,7 @@ class RackReservationTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = RackReservation
         fields = (
-            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'tags',
+            'pk', 'id', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'tags',
             'actions',
         )
         default_columns = (

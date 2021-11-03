@@ -2,6 +2,11 @@
 
 ## v3.0.9 (FUTURE)
 
+### Enhancements
+
+* [#6930](https://github.com/netbox-community/netbox/issues/6930) - Add an optional "ID" column to all tables
+* [#7668](https://github.com/netbox-community/netbox/issues/7668) - Add "view elevations" button to location view
+
 ### Bug Fixes
 
 * [#7599](https://github.com/netbox-community/netbox/issues/7599) - Improve color mode preference handling
@@ -11,6 +16,8 @@
 * [#7643](https://github.com/netbox-community/netbox/issues/7643) - Fix circuit assignment when creating multiple terminations simultaneously
 * [#7644](https://github.com/netbox-community/netbox/issues/7644) - Prevent inadvertent deletion of prior change records when deleting objects (#7333 revisited)
 * [#7647](https://github.com/netbox-community/netbox/issues/7647) - Require interface assignment when designating IP address as primary for device/VM during CSV import
+* [#7664](https://github.com/netbox-community/netbox/issues/7664) - Preserve initial form data when bulk edit validation fails
+* [#7717](https://github.com/netbox-community/netbox/issues/7717) - Restore missing tags column on IP range table
 
 ---
 

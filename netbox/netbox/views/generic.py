@@ -777,8 +777,21 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         else:
             pk_list = request.POST.getlist('pk')
 
+        # Include the PK list as initial data for the form
+        initial_data = {'pk': pk_list}
+
+        # Check for other contextual data needed for the form. We avoid passing all of request.GET because the
+        # filter values will conflict with the bulk edit form fields.
+        # TODO: Find a better way to accomplish this
+        if 'device' in request.GET:
+            initial_data['device'] = request.GET.get('device')
+        elif 'device_type' in request.GET:
+            initial_data['device_type'] = request.GET.get('device_type')
+        elif 'virtual_machine' in request.GET:
+            initial_data['virtual_machine'] = request.GET.get('virtual_machine')
+
         if '_apply' in request.POST:
-            form = self.form(model, request.POST)
+            form = self.form(model, request.POST, initial=initial_data)
             restrict_form_fields(form, request.user)
 
             if form.is_valid():
@@ -867,18 +880,6 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 logger.debug("Form validation failed")
 
         else:
-            # Include the PK list as initial data for the form
-            initial_data = {'pk': pk_list}
-
-            # Check for other contextual data needed for the form. We avoid passing all of request.GET because the
-            # filter values will conflict with the bulk edit form fields.
-            # TODO: Find a better way to accomplish this
-            if 'device' in request.GET:
-                initial_data['device'] = request.GET.get('device')
-            elif 'device_type' in request.GET:
-                initial_data['device_type'] = request.GET.get('device_type')
-            elif 'virtual_machine' in request.GET:
-                initial_data['virtual_machine'] = request.GET.get('virtual_machine')
 
             form = self.form(model, initial=initial_data)
             restrict_form_fields(form, request.user)

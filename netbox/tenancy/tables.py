@@ -55,7 +55,7 @@ class TenantGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
-        fields = ('pk', 'name', 'tenant_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'actions')
         default_columns = ('pk', 'name', 'tenant_count', 'description', 'actions')
 
 
@@ -78,5 +78,5 @@ class TenantTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'name', 'slug', 'group', 'description', 'comments', 'tags')
+        fields = ('pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'tags')
         default_columns = ('pk', 'name', 'group', 'description')
