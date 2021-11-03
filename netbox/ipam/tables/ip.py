@@ -264,6 +264,9 @@ class IPRangeTable(BaseTable):
         accessor='utilization',
         orderable=False
     )
+    tags = TagColumn(
+        url_name='ipam:iprange_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = IPRange
