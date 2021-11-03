@@ -73,12 +73,14 @@
                     <tr>
                         <th scope="row">Assignment</th>
                         <td>
-                            {% if object.assigned_object %}
-                                <a href="{{ object.assigned_object.parent_object.get_absolute_url }}">{{ object.assigned_object.parent_object }}</a> /
-                                <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
+                          {% if object.assigned_object %}
+                            {% if object.assigned_object.parent_object %}
+                              <a href="{{ object.assigned_object.parent_object.get_absolute_url }}">{{ object.assigned_object.parent_object }}</a> /
                             {% endif %}
+                            <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}
+                          {% else %}
+                            <span class="text-muted">&mdash;</span>
+                          {% endif %}
                         </td>
                     </tr>
                     <tr>

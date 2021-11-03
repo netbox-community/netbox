@@ -4,19 +4,24 @@ from django.contrib.contenttypes.models import ContentType
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
+from ipam.choices import *
 from ipam.constants import *
+from ipam.formfields import IPNetworkFormField
 from ipam.models import *
 from ipam.models import ASN
 from tenancy.forms import TenancyForm
+from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
-    BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple,
+    add_blank_choice, BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
 __all__ = (
     'AggregateForm',
     'ASNForm',
+    'FHRPGroupForm',
+    'FHRPGroupAssignmentForm',
     'IPAddressAssignForm',
     'IPAddressBulkAddForm',
     'IPAddressForm',
@@ -516,6 +521,77 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search',
     )
+
+
+class FHRPGroupForm(BootstrapMixin, CustomFieldModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    # Optionally create a new IPAddress along with the NHRPGroup
+    ip_vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
+    ip_address = IPNetworkFormField(
+        required=False,
+        label='Address'
+    )
+    ip_status = forms.ChoiceField(
+        choices=add_blank_choice(IPAddressStatusChoices),
+        required=False,
+        label='Status'
+    )
+
+    class Meta:
+        model = FHRPGroup
+        fields = (
+            'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_vrf', 'ip_address', 'ip_status', 'tags',
+        )
+        fieldsets = (
+            ('FHRP Group', ('protocol', 'group_id', 'description', 'tags')),
+            ('Authentication', ('auth_type', 'auth_key')),
+            ('Virtual IP Address', ('ip_vrf', 'ip_address', 'ip_status'))
+        )
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+
+        # Check if we need to create a new IPAddress for the group
+        if self.cleaned_data.get('ip_address'):
+            ipaddress = IPAddress(
+                vrf=self.cleaned_data['ip_vrf'],
+                address=self.cleaned_data['ip_address'],
+                status=self.cleaned_data['ip_status'],
+                assigned_object=instance
+            )
+            ipaddress.role = FHRP_PROTOCOL_ROLE_MAPPINGS[self.cleaned_data['protocol']]
+            ipaddress.save()
+
+            # Check that the new IPAddress conforms with any assigned object-level permissions
+            if not IPAddress.objects.filter(pk=ipaddress.pk).first():
+                raise PermissionsViolation()
+
+        return instance
+
+
+class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
+    group = DynamicModelChoiceField(
+        queryset=FHRPGroup.objects.all()
+    )
+
+    class Meta:
+        model = FHRPGroupAssignment
+        fields = ('group', 'priority')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        ipaddresses = self.instance.interface.ip_addresses.all()
+        for ipaddress in ipaddresses:
+            self.fields['group'].widget.add_query_param('related_ip', ipaddress.pk)
 
 
 class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):

@@ -17,6 +17,7 @@ from utilities.forms import (
 __all__ = (
     'AggregateFilterForm',
     'ASNFilterForm',
+    'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
     'PrefixFilterForm',
@@ -382,6 +383,41 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    tag = TagFilterField(model)
+
+
+class FHRPGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+    model = FHRPGroup
+    field_groups = (
+        ('q', 'tag'),
+        ('protocol', 'group_id'),
+        ('auth_type', 'auth_key'),
+    )
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+    protocol = forms.MultipleChoiceField(
+        choices=FHRPGroupProtocolChoices,
+        required=False,
+        widget=StaticSelectMultiple()
+    )
+    group_id = forms.IntegerField(
+        min_value=0,
+        required=False,
+        label='Group ID'
+    )
+    auth_type = forms.MultipleChoiceField(
+        choices=FHRPGroupAuthTypeChoices,
+        required=False,
+        widget=StaticSelectMultiple(),
+        label='Authentication type'
+    )
+    auth_key = forms.CharField(
+        required=False,
+        label='Authentication key'
     )
     tag = TagFilterField(model)
 

@@ -599,6 +599,12 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
         object_id_field='assigned_object_id',
         related_query_name='interface'
     )
+    fhrp_group_assignments = GenericRelation(
+        to='ipam.FHRPGroupAssignment',
+        content_type_field='interface_type',
+        object_id_field='interface_id',
+        related_query_name='+'
+    )
 
     clone_fields = ['device', 'parent', 'bridge', 'lag', 'type', 'mgmt_only']
 

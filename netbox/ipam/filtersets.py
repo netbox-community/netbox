@@ -7,7 +7,7 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import TagFilter
-from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.filters import (
@@ -21,6 +21,8 @@ from .models import *
 __all__ = (
     'AggregateFilterSet',
     'ASNFilterSet',
+    'FHRPGroupAssignmentFilterSet',
+    'FHRPGroupFilterSet',
     'IPAddressFilterSet',
     'IPRangeFilterSet',
     'PrefixFilterSet',
@@ -646,6 +648,67 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     def _assigned_to_interface(self, queryset, name, value):
         return queryset.exclude(assigned_object_id__isnull=value)
+
+
+class FHRPGroupFilterSet(PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=FHRPGroupProtocolChoices
+    )
+    auth_type = django_filters.MultipleChoiceFilter(
+        choices=FHRPGroupAuthTypeChoices
+    )
+    related_ip = django_filters.ModelMultipleChoiceFilter(
+        queryset=IPAddress.objects.all(),
+        method='filter_related_ip'
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = FHRPGroup
+        fields = ['id', 'protocol', 'group_id', 'auth_type']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(description__icontains=value)
+        )
+
+    def filter_related_ip(self, queryset, name, value):
+        """
+        Filter by VRF & prefix of assigned IP addresses.
+        """
+        ip_filter = Q()
+        for ipaddress in value:
+            if ipaddress.vrf:
+                q = Q(
+                    ip_addresses__address__net_contained_or_equal=ipaddress.address,
+                    ip_addresses__vrf=ipaddress.vrf
+                )
+            else:
+                q = Q(
+                    ip_addresses__address__net_contained_or_equal=ipaddress.address,
+                    ip_addresses__vrf__isnull=True
+                )
+            ip_filter |= q
+
+        return queryset.filter(ip_filter)
+
+
+class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
+    interface_type = ContentTypeFilter()
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=FHRPGroup.objects.all(),
+        label='Group (ID)',
+    )
+
+    class Meta:
+        model = FHRPGroupAssignment
+        fields = ['id', 'group_id', 'interface_type', 'interface_id', 'priority']
 
 
 class VLANGroupFilterSet(OrganizationalModelFilterSet):

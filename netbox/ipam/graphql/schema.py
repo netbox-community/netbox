@@ -32,6 +32,12 @@ class IPAMQuery(graphene.ObjectType):
     service = ObjectField(ServiceType)
     service_list = ObjectListField(ServiceType)
 
+    fhrp_group = ObjectField(FHRPGroupType)
+    fhrp_group_list = ObjectListField(FHRPGroupType)
+
+    fhrp_group_assignment = ObjectField(FHRPGroupAssignmentType)
+    fhrp_group_assignment_list = ObjectListField(FHRPGroupAssignmentType)
+
     vlan = ObjectField(VLANType)
     vlan_list = ObjectListField(VLANType)
 

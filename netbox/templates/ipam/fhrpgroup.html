@@ -1,0 +1,84 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'ipam:fhrpgroup_list' %}?protocol={{ object.protocol }}">{{ object.get_protocol_display }}</a></li>
+{% endblock breadcrumbs %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">FHRP Group</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <td>Protocol</td>
+              <td>{{ object.get_protocol_display }}</td>
+            </tr>
+            <tr>
+              <td>Group ID</td>
+              <td>{{ object.group_id }}</td>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Members</th>
+              <td>{{ member_count }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Authentication</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <td>Authentication Type</td>
+              <td>{{ object.get_auth_type_display|placeholder }}</td>
+            </tr>
+            <tr>
+              <td>Authentication Key</td>
+              <td>{{ object.auth_key|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Virtual IP Addresses</h5>
+        <div class="card-body">
+          {% if ipaddress_table.rows %}
+            {% render_table ipaddress_table 'inc/table.html' %}
+          {% else %}
+            <div class="text-muted">None</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">Members</h5>
+        <div class="card-body">
+          {% if ipaddress_table.rows %}
+            {% render_table members_table 'inc/table.html' %}
+          {% else %}
+            <div class="text-muted">None</div>
+          {% endif %}
+        </div>
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

@@ -427,6 +427,41 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = FHRPGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        FHRPGroup.objects.bulk_create((
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+        ))
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+            'group_id': 99,
+            'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+            'auth_key': 'abc123def456',
+            'description': 'Blah blah blah',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "protocol,group_id,auth_type,auth_key,description",
+            "vrrp2,40,plaintext,foobar123,Foo",
+            "vrrp3,50,md5,foobar123,Bar",
+            "hsrp,60,,,",
+        )
+
+        cls.bulk_edit_data = {
+            'protocol': FHRPGroupProtocolChoices.PROTOCOL_CARP,
+        }
+
+
 class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = VLANGroup
 

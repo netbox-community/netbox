@@ -1,0 +1,54 @@
+{% load helpers %}
+
+<div class="card">
+  <h5 class="card-header">NHRP Groups</h5>
+  <div class="card-body">
+    <table class="table table-hover table-headings">
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th>Protocol</th>
+          <th>Virtual IPs</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assignment in object.fhrp_group_assignments.all %}
+          <tr>
+            <td>
+              <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.group_id }}</a>
+            </td>
+            <td>
+              {{ assignment.group.get_protocol_display }}
+            </td>
+            <td>
+              {% for ipaddress in assignment.group.ip_addresses.all %}
+                <a href="{{ ipaddress.get_absolute_url }}">{{ ipaddress }}</a>
+                {% if not forloop.last %}<br />{% endif %}
+              {% endfor %}
+            </td>
+            <td>
+              {{ assignment.priority }}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" class="text-muted">None</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-end noprint">
+    {% if perms.ipam.add_fhrpgroup %}
+      <a href="{% url 'ipam:fhrpgroup_add' %}?return_url={% url 'ipam:fhrpgroupassignment_add' %}%3Finterface_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}%26interface_id={{ object.pk }}" class="btn btn-sm btn-primary">
+        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Create Group
+      </a>
+    {% endif %}
+    {% if perms.ipam.add_fhrpgroupassignment %}
+      <a href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}&interface_id={{ object.pk }}" class="btn btn-sm btn-primary">
+        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Group
+      </a>
+    {% endif %}
+  </div>
+</div>

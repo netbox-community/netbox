@@ -257,8 +257,9 @@ IPAM_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label='Services',
+            label='Other',
             items=(
+                get_model_item('ipam', 'fhrpgroup', 'FHRP Groups'),
                 get_model_item('ipam', 'service', 'Services', actions=['import']),
             ),
         ),

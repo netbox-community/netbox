@@ -30,6 +30,10 @@ router.register('ip-ranges', views.IPRangeViewSet)
 # IP addresses
 router.register('ip-addresses', views.IPAddressViewSet)
 
+# FHRP groups
+router.register('fhrp-groups', views.FHRPGroupViewSet)
+router.register('fhrp-group-assignments', views.FHRPGroupAssignmentViewSet)
+
 # VLANs
 router.register('vlan-groups', views.VLANGroupViewSet)
 router.register('vlans', views.VLANViewSet)

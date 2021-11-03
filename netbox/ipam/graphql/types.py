@@ -7,6 +7,8 @@ from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 __all__ = (
     'ASNType',
     'AggregateType',
+    'FHRPGroupType',
+    'FHRPGroupAssignmentType',
     'IPAddressType',
     'IPRangeType',
     'PrefixType',
@@ -35,6 +37,25 @@ class AggregateType(PrimaryObjectType):
         model = models.Aggregate
         fields = '__all__'
         filterset_class = filtersets.AggregateFilterSet
+
+
+class FHRPGroupType(PrimaryObjectType):
+
+    class Meta:
+        model = models.FHRPGroup
+        fields = '__all__'
+        filterset_class = filtersets.FHRPGroupFilterSet
+
+    def resolve_auth_type(self, info):
+        return self.auth_type or None
+
+
+class FHRPGroupAssignmentType(PrimaryObjectType):
+
+    class Meta:
+        model = models.FHRPGroupAssignment
+        fields = '__all__'
+        filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
 
 class IPAddressType(PrimaryObjectType):
