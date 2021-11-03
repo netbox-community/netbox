@@ -151,7 +151,7 @@ class OrganizationalModelSerializer(CustomFieldModelSerializer):
     """
     Adds support for custom fields.
     """
-    pass
+    id = serializers.CharField()
 
 
 class PrimaryModelSerializer(CustomFieldModelSerializer):
