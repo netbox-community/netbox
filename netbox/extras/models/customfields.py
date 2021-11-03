@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.html import strip_tags
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from extras.choices import *
@@ -288,7 +288,7 @@ class CustomField(ChangeLoggedModel):
         field.model = self
         field.label = str(self)
         if self.description:
-            field.help_text = strip_tags(self.description)
+            field.help_text = escape(self.description)
 
         return field
 

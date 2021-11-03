@@ -8,7 +8,7 @@
                 <table class="table table-hover attr-table">
                     {% for field, value in custom_fields.items %}
                         <tr>
-                            <td><span title="{{ field.description|striptags }}">{{ field }}</span></td>
+                            <td><span title="{{ field.description|escape }}">{{ field }}</span></td>
                             <td>
                                 {% if field.type == 'boolean' and value == True %}
                                     <i class="mdi mdi-check-bold text-success" title="True"></i>
