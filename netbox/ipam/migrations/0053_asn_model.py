@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('tenancy', '0004_extend_tag_support'),
         ('extras', '0064_configrevision'),
-        ('ipam', '0051_extend_tag_support'),
+        ('ipam', '0052_fhrpgroup'),
     ]
 
     operations = [
