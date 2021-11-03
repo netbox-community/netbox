@@ -15,7 +15,7 @@ from django.views.generic import View
 from circuits.models import Circuit
 from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN
-from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
