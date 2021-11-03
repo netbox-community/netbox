@@ -47,7 +47,7 @@ Webhooks now include a `conditions` field, which may be used to specify conditio
 
 ```json
 {
-  "attr": "status",
+  "attr": "status.value",
   "op": "in",
   "value": ["active", "staged"]
 }
@@ -60,6 +60,12 @@ Multiple conditions may be nested using AND/OR logic as well. For more informati
 A `bridge` field has been added to the interface model for devices and virtual machines. This can be set to reference another interface on the same parent device/VM to indicate a direct layer two bridging adjacency. Additionally, "bridge" has been added as an interface type. (However, interfaces of any type may be designated as bridged.)
 
 Multiple interfaces can be bridged to a single virtual interface to effect a bridge group. Alternatively, two physical interfaces can be bridged to one another, to effect an internal cross-connect.
+
+#### Multiple ASNs per Site ([#6732](https://github.com/netbox-community/netbox/issues/6732))
+
+With the introduction of the new ASN model, NetBox now supports the assignment of multiple ASNs per site. Each ASN instance must have a 32-bit AS number, and may optionally be assigned to a RIR and/or Tenant.
+
+The `asn` integer field on the site model has been preserved to maintain backward compatability until a later release.
 
 #### Single Sign-On (SSO) Authentication ([#7649](https://github.com/netbox-community/netbox/issues/7649))
 
@@ -86,6 +92,8 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
 
 ### REST API Changes
 
+* Added the following endpoints for ASNs:
+    * `/api/ipam/asn/`
 * Added the following endpoints for contacts:
     * `/api/tenancy/contact-assignments/`
     * `/api/tenancy/contact-groups/`
@@ -120,16 +128,19 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * Added `airflow` field 
 * dcim.Interface
     * Added `bridge` field
-    * Added `rf_role` field
     * Added `rf_channel` field
     * Added `rf_channel_frequency` field
-    * Added `rf_chanel_width` field
+    * Added `rf_channel_width` field
+    * Added `rf_role` field
     * Added `tx_power` field
+    * Added `wireless_link` field
     * Added `wwn` field
     * `cable_peer` has been renamed to `link_peer`
     * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Location
     * Added `tenant` field
+* dcim.Site
+    * Added `asns` relationship to ipam.ASN
 * extras.Webhook
     * Added the `conditions` field
 * virtualization.VMInterface
