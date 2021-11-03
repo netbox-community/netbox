@@ -89,7 +89,7 @@ class RIRTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
 
 
@@ -121,7 +121,7 @@ class AggregateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Aggregate
-        fields = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags')
+        fields = ('pk', 'id', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags')
         default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
 
 
@@ -148,7 +148,7 @@ class RoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'actions')
         default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
 
 
@@ -230,7 +230,7 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
             'is_pool', 'mark_utilized', 'description', 'tags',
         )
         default_columns = (
@@ -264,12 +264,15 @@ class IPRangeTable(BaseTable):
         accessor='utilization',
         orderable=False
     )
+    tags = TagColumn(
+        url_name='ipam:iprange_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = IPRange
         fields = (
-            'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
-            'utilization',
+            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
+            'utilization', 'tags',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
@@ -326,7 +329,7 @@ class IPAddressTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
+            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name', 'description',
             'tags',
         )
         default_columns = (
@@ -350,6 +353,7 @@ class IPAddressAssignTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'description')
+        exclude = ('id', )
         orderable = False
 
 
@@ -374,3 +378,4 @@ class InterfaceIPAddressTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = ('address', 'vrf', 'status', 'role', 'tenant', 'description')
+        exclude = ('id', )
