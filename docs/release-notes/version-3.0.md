@@ -19,6 +19,7 @@
 * [#7647](https://github.com/netbox-community/netbox/issues/7647) - Require interface assignment when designating IP address as primary for device/VM during CSV import
 * [#7664](https://github.com/netbox-community/netbox/issues/7664) - Preserve initial form data when bulk edit validation fails
 * [#7717](https://github.com/netbox-community/netbox/issues/7717) - Restore missing tags column on IP range table
+* [#7721](https://github.com/netbox-community/netbox/issues/7721) - Retain pagination preference when `MAX_PAGE_SIZE` is zero
 
 ---
 
