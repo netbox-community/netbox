@@ -5,14 +5,16 @@ from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
+from ipam.models import ASN
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, DatePicker, DynamicModelChoiceField, NumericArrayField,
-    StaticSelect,
+    StaticSelect, DynamicModelMultipleChoiceField,
 )
 
 __all__ = (
     'AggregateBulkEditForm',
+    'ASNBulkEditForm',
     'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
@@ -88,6 +90,38 @@ class RIRBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEdi
 
     class Meta:
         nullable_fields = ['is_private', 'description']
+
+
+class ASNBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    sites = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    rir = DynamicModelChoiceField(
+        queryset=RIR.objects.all(),
+        required=False,
+        label='RIR'
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'date_added', 'description',
+        ]
+        widgets = {
+            'date_added': DatePicker(),
+        }
 
 
 class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):

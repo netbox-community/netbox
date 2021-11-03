@@ -7,7 +7,7 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
+from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedASNSerializer
 from ipam.models import VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import (
@@ -113,21 +113,24 @@ class SiteSerializer(PrimaryModelSerializer):
     region = NestedRegionSerializer(required=False, allow_null=True)
     group = NestedSiteGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    asns = NestedASNSerializer(many=True, required=False, allow_null=True)
     time_zone = TimeZoneSerializerField(required=False)
     circuit_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
     rack_count = serializers.IntegerField(read_only=True)
+    asn_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Site
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn',
+            'id', 'url', 'display', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'asns',
             'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
             'contact_phone', 'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'circuit_count', 'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
+            'asn_count', 'circuit_count', 'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count',
+            'vlan_count',
         ]
 
 

@@ -95,7 +95,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Site
         fields = (
-            'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
             'contact_email', 'comments',
         )

@@ -4,7 +4,7 @@ from django.test import TestCase
 from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
-from ipam.models import IPAddress
+from ipam.models import ASN, IPAddress, RIR
 from tenancy.models import Tenant, TenantGroup
 from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests
@@ -149,6 +149,23 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Site.objects.bulk_create(sites)
 
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+
+        asns = (
+            ASN(asn=64512, rir=rir, tenant=tenants[0]),
+            ASN(asn=64513, rir=rir, tenant=tenants[0]),
+            ASN(asn=64514, rir=rir, tenant=tenants[0]),
+            ASN(asn=65001, rir=rir, tenant=tenants[0]),
+            ASN(asn=65002, rir=rir, tenant=tenants[0])
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[2]])
+        asns[3].sites.set([sites[2]])
+        asns[4].sites.set([sites[1]])
+
     def test_name(self):
         params = {'name': ['Site 1', 'Site 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -163,6 +180,10 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_asn(self):
         params = {'asn': [65001, 65002]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_asns(self):
+        params = {'asns': [64512, 65002]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_latitude(self):

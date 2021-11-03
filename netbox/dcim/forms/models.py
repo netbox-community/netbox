@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from timezone_field import TimeZoneFormField
@@ -8,7 +9,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
-from ipam.models import IPAddress, VLAN, VLANGroup
+from ipam.models import IPAddress, VLAN, VLANGroup, ASN
 from tenancy.forms import TenancyForm
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, DynamicModelChoiceField,
@@ -110,6 +111,11 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=SiteGroup.objects.all(),
         required=False
     )
+    asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('ASNs'),
+        required=False
+    )
     slug = SlugField()
     time_zone = TimeZoneFormField(
         choices=add_blank_choice(TimeZoneFormField().choices),
@@ -125,13 +131,14 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asn', 'time_zone',
-            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
+            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asn', 'asns',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
             'contact_phone', 'contact_email', 'comments', 'tags',
         ]
         fieldsets = (
             ('Site', (
-                'name', 'slug', 'status', 'region', 'group', 'facility', 'asn', 'time_zone', 'description', 'tags',
+                'name', 'slug', 'status', 'region', 'group', 'facility', 'asn', 'asns', 'time_zone', 'description',
+                'tags',
             )),
             ('Tenancy', ('tenant_group', 'tenant')),
             ('Contact Info', (
@@ -155,8 +162,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
         help_texts = {
             'name': "Full name of the site",
+            'asn': "BGP autonomous system number.  This field is depreciated in favour of the ASN model",
             'facility': "Data center provider and facility (e.g. Equinix NY7)",
-            'asn': "BGP autonomous system number",
             'time_zone': "Local time zone",
             'description': "Short description (will appear in sites list)",
             'physical_address': "Physical location of the building (e.g. for GPS)",
@@ -791,7 +798,6 @@ class VirtualChassisForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class DeviceVCMembershipForm(forms.ModelForm):
-
     class Meta:
         model = Device
         fields = [
@@ -887,7 +893,6 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
 
 
 class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -899,7 +904,6 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -911,7 +915,6 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = PowerPortTemplate
         fields = [
@@ -923,7 +926,6 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = PowerOutletTemplate
         fields = [
@@ -934,7 +936,6 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # Limit power_port choices to current DeviceType
@@ -945,7 +946,6 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = InterfaceTemplate
         fields = [
@@ -958,7 +958,6 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = FrontPortTemplate
         fields = [
@@ -970,7 +969,6 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # Limit rear_port choices to current DeviceType
@@ -981,7 +979,6 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = RearPortTemplate
         fields = [
@@ -994,7 +991,6 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = DeviceBayTemplate
         fields = [
@@ -1257,7 +1253,6 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
     )
 
     def __init__(self, device_bay, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         self.fields['installed_device'].queryset = Device.objects.filter(

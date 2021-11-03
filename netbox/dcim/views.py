@@ -14,7 +14,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit
 from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
-from ipam.models import IPAddress, Prefix, Service, VLAN
+from ipam.models import ASN, IPAddress, Prefix, Service, VLAN
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -332,9 +332,15 @@ class SiteView(generic.ObjectView):
             cumulative=True
         ).restrict(request.user, 'view').filter(site=instance)
 
+        asns = ASN.objects.restrict(request.user, 'view').filter(sites=instance)
+        asn_count = asns.count()
+
+        stats.update({'asn_count': asn_count})
+
         return {
             'stats': stats,
             'locations': locations,
+            'asns': asns,
         }
 
 

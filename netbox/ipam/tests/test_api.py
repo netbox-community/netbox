@@ -7,6 +7,7 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import *
+from tenancy.models import Tenant
 from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
 
 
@@ -18,6 +19,58 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
+
+
+class ASNTest(APIViewTestCases.APIViewTestCase):
+    model = ASN
+    brief_fields = ['asn', 'display', 'id', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65534, rir=rirs[0], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+
+        cls.create_data = [
+            {
+                'asn': 64512,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 65543,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 4294967294,
+                'rir': rirs[0].pk,
+            },
+        ]
 
 
 class VRFTest(APIViewTestCases.APIViewTestCase):

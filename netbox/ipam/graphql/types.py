@@ -1,7 +1,11 @@
+import graphene
+
 from ipam import filtersets, models
+from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
+    'ASNType',
     'AggregateType',
     'FHRPGroupType',
     'FHRPGroupAssignmentType',
@@ -16,6 +20,15 @@ __all__ = (
     'VLANGroupType',
     'VRFType',
 )
+
+
+class ASNType(PrimaryObjectType):
+    asn = graphene.Field(BigInt)
+
+    class Meta:
+        model = models.ASN
+        fields = '__all__'
+        filterset_class = filtersets.ASNFilterSet
 
 
 class AggregateType(PrimaryObjectType):

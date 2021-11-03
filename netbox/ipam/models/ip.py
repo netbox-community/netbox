@@ -7,6 +7,7 @@ from django.db.models import F
 from django.urls import reverse
 from django.utils.functional import cached_property
 
+from dcim.fields import ASNField
 from dcim.models import Device
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -23,6 +24,7 @@ from virtualization.models import VirtualMachine
 
 __all__ = (
     'Aggregate',
+    'ASN',
     'IPAddress',
     'IPRange',
     'Prefix',
@@ -67,6 +69,49 @@ class RIR(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('ipam:rir', args=[self.pk])
+
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class ASN(PrimaryModel):
+
+    asn = ASNField(
+        unique=True,
+        blank=False,
+        null=False,
+        verbose_name='ASN',
+        help_text='32-bit autonomous system number'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    rir = models.ForeignKey(
+        to='ipam.RIR',
+        on_delete=models.PROTECT,
+        related_name='asns',
+        blank=False,
+        null=False
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='asns',
+        blank=True,
+        null=True
+    )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['asn']
+        verbose_name = 'ASN'
+        verbose_name_plural = 'ASNs'
+
+    def __str__(self):
+        return f'AS{self.asn}'
+
+    def get_absolute_url(self):
+        return reverse('ipam:asn', args=[self.pk])
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')

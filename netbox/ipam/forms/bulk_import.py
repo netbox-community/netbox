@@ -12,6 +12,7 @@ from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
     'AggregateCSVForm',
+    'ASNCSVForm',
     'FHRPGroupCSVForm',
     'IPAddressCSVForm',
     'IPRangeCSVForm',
@@ -79,6 +80,25 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Aggregate
         fields = ('prefix', 'rir', 'tenant', 'date_added', 'description')
+
+
+class ASNCSVForm(CustomFieldModelCSVForm):
+    rir = CSVModelChoiceField(
+        queryset=RIR.objects.all(),
+        to_field_name='name',
+        help_text='Assigned RIR'
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
+
+    class Meta:
+        model = ASN
+        fields = ('asn', 'rir', 'tenant', 'description')
+        help_texts = {}
 
 
 class RoleCSVForm(CustomFieldModelCSVForm):

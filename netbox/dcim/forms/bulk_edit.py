@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from timezone_field import TimeZoneFormField
 
@@ -6,8 +7,8 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
-from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
-from ipam.models import VLAN
+from ipam.constants import BGP_ASN_MIN, BGP_ASN_MAX
+from ipam.models import VLAN, ASN
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField,
@@ -116,6 +117,11 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         required=False,
         label='ASN'
     )
+    asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('ASNs'),
+        required=False
+    )
     description = forms.CharField(
         max_length=100,
         required=False
@@ -128,7 +134,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
 
     class Meta:
         nullable_fields = [
-            'region', 'group', 'tenant', 'asn', 'description', 'time_zone',
+            'region', 'group', 'tenant', 'asn', 'asns', 'description', 'time_zone',
         ]
 
 

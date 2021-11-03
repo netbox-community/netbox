@@ -215,6 +215,10 @@
                         <h2><a href="{% url 'virtualization:virtualmachine_list' %}?site_id={{ object.pk }}" class="btn {% if stats.vm_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.vm_count }}</a></h2>
                         <p>Virtual Machines</p>
                     </div>
+                    <div class="col col-md-4 text-center">
+                        <h2><a href="{% url 'ipam:asn_list' %}?site_id={{ object.pk }}" class="btn {% if stats.asn_count %}btn-primary{% else %}btn-outline-dark{% endif %} btn-lg">{{ stats.asn_count }}</a></h2>
+                        <p>ASNs</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -251,6 +255,20 @@
                         </tr>
                     {% endfor %}
                 </table>
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+        </div>
+        <div class="card">
+            <h5 class="card-header">
+                ASNs
+            </h5>
+            <div class='card-body'>
+              {% if asns %}
+                {% for asn in asns %}
+                    <a href="{{ asn.get_absolute_url }}"><span class="badge bg-primary">{{ asn }}</span></a>
+                {% endfor %}
               {% else %}
                 <span class="text-muted">None</span>
               {% endif %}

@@ -9,6 +9,7 @@ from dcim.models import Device, Interface, Region, Site, SiteGroup
 from extras.filters import TagFilter
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
+from tenancy.models import Tenant
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
@@ -19,6 +20,7 @@ from .models import *
 
 __all__ = (
     'AggregateFilterSet',
+    'ASNFilterSet',
     'FHRPGroupAssignmentFilterSet',
     'FHRPGroupFilterSet',
     'IPAddressFilterSet',
@@ -175,6 +177,41 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             return queryset.filter(prefix=query)
         except (AddrFormatError, ValueError):
             return queryset.none()
+
+
+class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
+
+    rir_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RIR.objects.all(),
+        label='RIR (ID)',
+    )
+    rir = django_filters.ModelMultipleChoiceFilter(
+        field_name='rir__slug',
+        queryset=RIR.objects.all(),
+        to_field_name='slug',
+        label='RIR (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='sites',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='sites__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
+
+    class Meta:
+        model = ASN
+        fields = ['id', 'asn']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(Q(description__icontains=value) | Q(asn__icontains=value))
+        return queryset.filter(qs_filter)
 
 
 class RoleFilterSet(OrganizationalModelFilterSet):

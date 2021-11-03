@@ -11,6 +11,7 @@ from ipam.models import *
 
 __all__ = (
     'AggregateTable',
+    'ASNTable',
     'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
@@ -94,6 +95,28 @@ class RIRTable(BaseTable):
         model = RIR
         fields = ('pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
+
+
+#
+# ASNs
+#
+
+class ASNTable(BaseTable):
+    pk = ToggleColumn()
+    asn = tables.Column(
+        linkify=True
+    )
+    site_count = LinkedCountColumn(
+        viewname='dcim:site_list',
+        url_params={'asn_id': 'pk'},
+        verbose_name='Sites'
+    )
+    actions = ButtonsColumn(ASN)
+
+    class Meta(BaseTable.Meta):
+        model = ASN
+        fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'actions')
+        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant', 'actions')
 
 
 #

@@ -9,6 +9,61 @@ from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags
 
 
+class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ASN
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65535, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'asn': 64512,
+            'rir': rirs[0].pk,
+            'tenant': tenants[0].pk,
+            'site': sites[0].pk,
+            'description': 'A new ASN',
+        }
+
+        cls.csv_data = (
+            "asn,rir",
+            "64533,RFC 6996",
+            "64523,RFC 6996",
+            "4200000002,RFC 6996",
+        )
+
+        cls.bulk_edit_data = {
+            'rir': rirs[1].pk,
+            'description': 'Next description',
+        }
+
+
 class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VRF
 

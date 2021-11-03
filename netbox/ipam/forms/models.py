@@ -8,6 +8,7 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.models import *
+from ipam.models import ASN
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
@@ -18,6 +19,7 @@ from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInter
 
 __all__ = (
     'AggregateForm',
+    'ASNForm',
     'FHRPGroupForm',
     'FHRPGroupAssignmentForm',
     'IPAddressAssignForm',
@@ -125,6 +127,50 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         widgets = {
             'date_added': DatePicker(),
         }
+
+
+class ASNForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    rir = DynamicModelChoiceField(
+        queryset=RIR.objects.all(),
+        label='RIR',
+    )
+    sites = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        label='Sites',
+        required=False
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ASN
+        fields = [
+            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'tags'
+        ]
+        fieldsets = (
+            ('ASN', ('asn', 'rir', 'sites', 'description', 'tags')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
+        help_texts = {
+            'asn': "AS number",
+            'rir': "Regional Internet Registry responsible for this prefix",
+        }
+        widgets = {
+            'date_added': DatePicker(),
+        }
+
+    def __init__(self, data=None, instance=None, *args, **kwargs):
+        super().__init__(data=data, instance=instance, *args, **kwargs)
+
+        if self.instance and self.instance.pk is not None:
+            self.fields['sites'].initial = self.instance.sites.all().values_list('id', flat=True)
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        instance.sites.set(self.cleaned_data['sites'])
+        return instance
 
 
 class RoleForm(BootstrapMixin, CustomFieldModelForm):

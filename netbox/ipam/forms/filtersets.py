@@ -6,7 +6,9 @@ from extras.forms import CustomFieldModelFilterForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
+from ipam.models import ASN
 from tenancy.forms import TenancyFilterForm
+from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
@@ -14,6 +16,7 @@ from utilities.forms import (
 
 __all__ = (
     'AggregateFilterForm',
+    'ASNFilterForm',
     'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
@@ -132,6 +135,33 @@ class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
         fetch_trigger='open'
     )
     tag = TagFilterField(model)
+
+
+class ASNFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+    model = ASN
+    field_groups = [
+        ['q'],
+        ['rir_id'],
+        ['tenant_group_id', 'tenant_id'],
+        ['site_id'],
+    ]
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
+    rir_id = DynamicModelMultipleChoiceField(
+        queryset=RIR.objects.all(),
+        required=False,
+        label=_('RIR'),
+        fetch_trigger='open'
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label=_('Site'),
+        fetch_trigger='open'
+    )
 
 
 class RoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):

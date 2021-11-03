@@ -5,7 +5,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from dcim.models import Device, Interface
+from dcim.models import Device, Interface, Site
+from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.tables import paginate_table
 from utilities.utils import count_related
@@ -13,6 +14,7 @@ from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
+from .models import ASN
 from .utils import add_available_ipaddresses, add_available_prefixes, add_available_vlans
 
 
@@ -195,6 +197,62 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.RIRFilterSet
     table = tables.RIRTable
+
+
+#
+# ASNs
+#
+
+class ASNListView(generic.ObjectListView):
+    queryset = ASN.objects.annotate(
+        site_count=count_related(Site, 'asns'),
+    )
+    filterset = filtersets.ASNFilterSet
+    filterset_form = forms.ASNFilterForm
+    table = tables.ASNTable
+
+
+class ASNView(generic.ObjectView):
+    queryset = ASN.objects.all()
+
+    def get_extra_context(self, request, instance):
+        sites = instance.sites.restrict(request.user, 'view').all()
+
+        return {
+            'sites': sites,
+        }
+
+
+class ASNEditView(generic.ObjectEditView):
+    queryset = ASN.objects.all()
+    model_form = forms.ASNForm
+
+
+class ASNDeleteView(generic.ObjectDeleteView):
+    queryset = ASN.objects.all()
+
+
+class ASNBulkImportView(generic.BulkImportView):
+    queryset = ASN.objects.all()
+    model_form = forms.ASNCSVForm
+    table = tables.ASNTable
+
+
+class ASNBulkEditView(generic.BulkEditView):
+    queryset = ASN.objects.annotate(
+        site_count=count_related(Site, 'asns')
+    )
+    filterset = filtersets.ASNFilterSet
+    table = tables.ASNTable
+    form = forms.ASNBulkEditForm
+
+
+class ASNBulkDeleteView(generic.BulkDeleteView):
+    queryset = ASN.objects.annotate(
+        site_count=count_related(Site, 'asns')
+    )
+    filterset = filtersets.ASNFilterSet
+    table = tables.ASNTable
 
 
 #

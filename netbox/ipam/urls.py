@@ -7,6 +7,18 @@ from .models import *
 app_name = 'ipam'
 urlpatterns = [
 
+    # ASNs
+    path('asns/', views.ASNListView.as_view(), name='asn_list'),
+    path('asns/add/', views.ASNEditView.as_view(), name='asn_add'),
+    path('asns/import/', views.ASNBulkImportView.as_view(), name='asn_import'),
+    path('asns/edit/', views.ASNBulkEditView.as_view(), name='asn_bulk_edit'),
+    path('asns/delete/', views.ASNBulkDeleteView.as_view(), name='asn_bulk_delete'),
+    path('asns/<int:pk>/', views.ASNView.as_view(), name='asn'),
+    path('asns/<int:pk>/edit/', views.ASNEditView.as_view(), name='asn_edit'),
+    path('asns/<int:pk>/delete/', views.ASNDeleteView.as_view(), name='asn_delete'),
+    path('asns/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='asn_changelog', kwargs={'model': ASN}),
+    path('asns/<int:pk>/journal/', ObjectJournalView.as_view(), name='asn_journal', kwargs={'model': ASN}),
+
     # VRFs
     path('vrfs/', views.VRFListView.as_view(), name='vrf_list'),
     path('vrfs/add/', views.VRFEditView.as_view(), name='vrf_add'),

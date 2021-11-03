@@ -6,6 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
+from ipam.models import ASN
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
     APISelectMultiple, add_blank_choice, BootstrapMixin, ColorField, DynamicModelMultipleChoiceField, StaticSelect,
@@ -138,11 +139,12 @@ class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 
 class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Site
-    field_order = ['q', 'status', 'region_id', 'tenant_group_id', 'tenant_id']
+    field_order = ['q', 'status', 'region_id', 'tenant_group_id', 'tenant_id', 'asn_id']
     field_groups = [
         ['q', 'tag'],
         ['status', 'region_id', 'group_id'],
         ['tenant_group_id', 'tenant_id'],
+        ['asn_id']
     ]
     q = forms.CharField(
         required=False,
@@ -164,6 +166,12 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         queryset=SiteGroup.objects.all(),
         required=False,
         label=_('Site group'),
+        fetch_trigger='open'
+    )
+    asn_id = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        required=False,
+        label=_('ASNs'),
         fetch_trigger='open'
     )
     tag = TagFilterField(model)

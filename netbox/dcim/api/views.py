@@ -15,7 +15,7 @@ from circuits.models import Circuit
 from dcim import filtersets
 from dcim.models import *
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
-from ipam.models import Prefix, VLAN
+from ipam.models import Prefix, VLAN, ASN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
@@ -139,6 +139,7 @@ class SiteViewSet(CustomFieldModelViewSet):
     queryset = Site.objects.prefetch_related(
         'region', 'tenant', 'tags'
     ).annotate(
+        asn_count=count_related(ASN, 'sites'),
         device_count=count_related(Device, 'site'),
         rack_count=count_related(Rack, 'site'),
         prefix_count=count_related(Prefix, 'site'),

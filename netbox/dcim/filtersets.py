@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
+from ipam.models import ASN
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
@@ -130,6 +131,17 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Group (slug)',
     )
+    asns_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='asns',
+        queryset=ASN.objects.all(),
+        label='AS (ID)',
+    )
+    asns = django_filters.ModelMultipleChoiceFilter(
+        field_name='asns__asn',
+        queryset=ASN.objects.all(),
+        to_field_name='asn',
+        label='AS (Number)',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -155,6 +167,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         )
         try:
             qs_filter |= Q(asn=int(value.strip()))
+            qs_filter |= Q(asns__asn=int(value.strip()))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
