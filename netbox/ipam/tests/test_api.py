@@ -4,11 +4,11 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
-from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
 
 
 class AppTest(APITestCase):
@@ -581,6 +581,85 @@ class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
             {
                 'protocol': FHRPGroupProtocolChoices.PROTOCOL_GLBP,
                 'group_id': 130,
+            },
+        ]
+
+
+class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
+    model = FHRPGroupAssignment
+    brief_fields = ['display', 'group_id', 'id', 'interface_id', 'interface_type', 'priority', 'url']
+    bulk_update_data = {
+        'priority': 100,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        device1 = create_test_device('device1')
+        device2 = create_test_device('device2')
+        device3 = create_test_device('device3')
+
+        interfaces = (
+            Interface(device=device1, name='eth0', type='other'),
+            Interface(device=device1, name='eth1', type='other'),
+            Interface(device=device1, name='eth2', type='other'),
+            Interface(device=device2, name='eth0', type='other'),
+            Interface(device=device2, name='eth1', type='other'),
+            Interface(device=device2, name='eth2', type='other'),
+            Interface(device=device3, name='eth0', type='other'),
+            Interface(device=device3, name='eth1', type='other'),
+            Interface(device=device3, name='eth2', type='other'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.2/24'), assigned_object=interfaces[0]),
+            IPAddress(address=IPNetwork('192.168.1.2/24'), assigned_object=interfaces[1]),
+            IPAddress(address=IPNetwork('192.168.2.2/24'), assigned_object=interfaces[2]),
+            IPAddress(address=IPNetwork('192.168.0.3/24'), assigned_object=interfaces[3]),
+            IPAddress(address=IPNetwork('192.168.1.3/24'), assigned_object=interfaces[4]),
+            IPAddress(address=IPNetwork('192.168.2.3/24'), assigned_object=interfaces[5]),
+            IPAddress(address=IPNetwork('192.168.0.4/24'), assigned_object=interfaces[6]),
+            IPAddress(address=IPNetwork('192.168.1.4/24'), assigned_object=interfaces[7]),
+            IPAddress(address=IPNetwork('192.168.2.4/24'), assigned_object=interfaces[8]),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=20),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=30),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
+        fhrp_group_assignments = (
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=interfaces[0], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=interfaces[1], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=interfaces[2], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=interfaces[3], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=interfaces[4], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=interfaces[5], priority=20),
+        )
+        FHRPGroupAssignment.objects.bulk_create(fhrp_group_assignments)
+
+        cls.create_data = [
+            {
+                'group': fhrp_groups[0].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[6].pk,
+                'priority': 30,
+            },
+            {
+                'group': fhrp_groups[1].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[7].pk,
+                'priority': 30,
+            },
+            {
+                'group': fhrp_groups[2].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[8].pk,
+                'priority': 30,
             },
         ]
 

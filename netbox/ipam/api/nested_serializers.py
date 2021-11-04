@@ -7,6 +7,7 @@ __all__ = [
     'NestedAggregateSerializer',
     'NestedASNSerializer',
     'NestedFHRPGroupSerializer',
+    'NestedFHRPGroupAssignmentSerializer',
     'NestedIPAddressSerializer',
     'NestedIPRangeSerializer',
     'NestedPrefixSerializer',
@@ -93,6 +94,10 @@ class NestedFHRPGroupSerializer(WritableNestedSerializer):
 
 class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroupassignment-detail')
+
+    class Meta:
+        model = models.FHRPGroupAssignment
+        fields = ['id', 'url', 'display', 'interface_type', 'interface_id', 'group_id', 'priority']
 
 
 #

@@ -127,6 +127,7 @@ class FHRPGroupSerializer(PrimaryModelSerializer):
 
 class FHRPGroupAssignmentSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
+    group = NestedFHRPGroupSerializer()
     interface_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
@@ -135,7 +136,7 @@ class FHRPGroupAssignmentSerializer(PrimaryModelSerializer):
     class Meta:
         model = FHRPGroupAssignment
         fields = [
-            'id', 'url', 'display', 'interface_type', 'interface_id', 'interface', 'priority', 'created',
+            'id', 'url', 'display', 'group', 'interface_type', 'interface_id', 'interface', 'priority', 'created',
             'last_updated',
         ]
 

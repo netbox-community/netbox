@@ -2,7 +2,7 @@ import graphene
 
 from ipam import filtersets, models
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'ASNType',
@@ -50,7 +50,7 @@ class FHRPGroupType(PrimaryObjectType):
         return self.auth_type or None
 
 
-class FHRPGroupAssignmentType(PrimaryObjectType):
+class FHRPGroupAssignmentType(BaseObjectType):
 
     class Meta:
         model = models.FHRPGroupAssignment
