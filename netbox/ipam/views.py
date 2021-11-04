@@ -216,10 +216,13 @@ class ASNView(generic.ObjectView):
     queryset = ASN.objects.all()
 
     def get_extra_context(self, request, instance):
-        sites = instance.sites.restrict(request.user, 'view').all()
+        sites = instance.sites.restrict(request.user, 'view')
+        sites_table = SiteTable(sites)
+        paginate_table(sites_table, request)
 
         return {
-            'sites': sites,
+            'sites_table': sites_table,
+            'sites_count': sites.count()
         }
 
 
