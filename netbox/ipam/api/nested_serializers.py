@@ -91,6 +91,10 @@ class NestedFHRPGroupSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'protocol', 'group_id']
 
 
+class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroupassignment-detail')
+
+
 #
 # VLANs
 #

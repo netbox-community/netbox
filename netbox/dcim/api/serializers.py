@@ -6,8 +6,10 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.api.nested_serializers import NestedASNSerializer, NestedIPAddressSerializer, NestedVLANSerializer
-from ipam.models import ASN, VLAN
+from ipam.api.nested_serializers import (
+    NestedASNSerializer, NestedFHRPGroupAssignmentSerializer, NestedIPAddressSerializer, NestedVLANSerializer,
+)
+from ipam.models import ASN, FHRPGroupAssignment, VLAN
 from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import (
     NestedGroupModelSerializer, PrimaryModelSerializer, ValidatedModelSerializer, WritableNestedSerializer,
@@ -636,6 +638,7 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
         many=True
     )
     count_ipaddresses = serializers.IntegerField(read_only=True)
+    count_fhrp_groups = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Interface
@@ -645,7 +648,7 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
             'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'wireless_link',
             'link_peer', 'link_peer_type', 'wireless_lans', 'connected_endpoint', 'connected_endpoint_type',
             'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses',
-            '_occupied',
+            'count_fhrp_groups', '_occupied',
         ]
 
     def validate(self, data):

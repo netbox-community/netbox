@@ -94,6 +94,9 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
 
 * Added the following endpoints for ASNs:
     * `/api/ipam/asn/`
+* Added the following endpoints for FHRP groups:
+    * `/api/ipam/fhrp-groups/`
+    * `/api/ipam/fhrp-group-assignments/`
 * Added the following endpoints for contacts:
     * `/api/tenancy/contact-assignments/`
     * `/api/tenancy/contact-groups/`
@@ -127,6 +130,8 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
 * dcim.DeviceType
     * Added `airflow` field 
 * dcim.Interface
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
     * Added `bridge` field
     * Added `rf_channel` field
     * Added `rf_channel_frequency` field
@@ -135,8 +140,7 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * Added `tx_power` field
     * Added `wireless_link` field
     * Added `wwn` field
-    * `cable_peer` has been renamed to `link_peer`
-    * `cable_peer_type` has been renamed to `link_peer_type`
+    * Added `count_fhrp_groups` read-only field
 * dcim.Location
     * Added `tenant` field
 * dcim.Site
@@ -145,3 +149,4 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * Added the `conditions` field
 * virtualization.VMInterface
     * Added `bridge` field
+    * Added `count_fhrp_groups` read-only field

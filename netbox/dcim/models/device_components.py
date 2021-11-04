@@ -498,6 +498,10 @@ class BaseInterface(models.Model):
     def count_ipaddresses(self):
         return self.ip_addresses.count()
 
+    @property
+    def count_fhrp_groups(self):
+        return self.fhrp_group_assignments.count()
+
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
