@@ -31,6 +31,10 @@ if platform.python_version_tuple() < ('3', '7'):
     raise RuntimeError(
         f"NetBox requires Python 3.7 or higher (current: Python {platform.python_version()})"
     )
+if platform.python_version_tuple() < ('3', '8'):
+    warnings.warn(
+        f"NetBox v3.2 will require Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
+    )
 
 
 #
