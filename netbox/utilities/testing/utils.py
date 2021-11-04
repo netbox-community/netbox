@@ -7,6 +7,7 @@ from django.utils.text import slugify
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from extras.models import Tag
+from virtualization.models import Cluster, ClusterType, VirtualMachine
 
 
 def post_data(data):
@@ -44,6 +45,17 @@ def create_test_device(name):
     device = Device.objects.create(name=name, site=site, device_type=devicetype, device_role=devicerole)
 
     return device
+
+
+def create_test_virtualmachine(name):
+    """
+    Convenience method for creating a VirtualMachine.
+    """
+    cluster_type, _ = ClusterType.objects.get_or_create(name='Cluster Type 1', slug='cluster-type-1')
+    cluster, _ = Cluster.objects.get_or_create(name='Cluster 1', type=cluster_type)
+    virtual_machine = VirtualMachine.objects.create(name=name, cluster=cluster)
+
+    return virtual_machine
 
 
 def create_test_user(username='testuser', permissions=None):
