@@ -1,7 +1,7 @@
 import graphene
 
 from tenancy import filtersets, models
-from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
     'ContactAssignmentType',
@@ -68,7 +68,7 @@ class ContactGroupType(OrganizationalObjectType):
         filterset_class = filtersets.ContactGroupFilterSet
 
 
-class ContactAssignmentType(OrganizationalObjectType):
+class ContactAssignmentType(BaseObjectType):
 
     class Meta:
         model = models.ContactAssignment

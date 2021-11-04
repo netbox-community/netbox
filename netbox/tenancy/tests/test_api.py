@@ -1,5 +1,7 @@
 from django.urls import reverse
 
+from dcim.models import Site
+from tenancy.choices import *
 from tenancy.models import *
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -199,5 +201,70 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Contact 6',
                 'group': contact_groups[1].pk,
+            },
+        ]
+
+
+class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
+    model = ContactAssignment
+    brief_fields = ['contact', 'display', 'id', 'priority', 'role', 'url']
+    bulk_update_data = {
+        'priority': ContactPriorityChoices.PRIORITY_INACTIVE,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        contacts = (
+            Contact(name='Contact 1'),
+            Contact(name='Contact 2'),
+            Contact(name='Contact 3'),
+            Contact(name='Contact 4'),
+            Contact(name='Contact 5'),
+            Contact(name='Contact 6'),
+        )
+        Contact.objects.bulk_create(contacts)
+
+        contact_roles = (
+            ContactRole(name='Contact Role 1', slug='contact-role-1'),
+            ContactRole(name='Contact Role 2', slug='contact-role-2'),
+            ContactRole(name='Contact Role 3', slug='contact-role-3'),
+        )
+        ContactRole.objects.bulk_create(contact_roles)
+
+        contact_assignments = (
+            ContactAssignment(object=sites[0], contact=contacts[0], role=contact_roles[0], priority=ContactPriorityChoices.PRIORITY_PRIMARY),
+            ContactAssignment(object=sites[0], contact=contacts[1], role=contact_roles[1], priority=ContactPriorityChoices.PRIORITY_SECONDARY),
+            ContactAssignment(object=sites[0], contact=contacts[2], role=contact_roles[2], priority=ContactPriorityChoices.PRIORITY_TERTIARY),
+        )
+        ContactAssignment.objects.bulk_create(contact_assignments)
+
+        cls.create_data = [
+            {
+                'content_type': 'dcim.site',
+                'object_id': sites[1].pk,
+                'contact': contacts[3].pk,
+                'role': contact_roles[0].pk,
+                'priority': ContactPriorityChoices.PRIORITY_PRIMARY,
+            },
+            {
+                'content_type': 'dcim.site',
+                'object_id': sites[1].pk,
+                'contact': contacts[4].pk,
+                'role': contact_roles[1].pk,
+                'priority': ContactPriorityChoices.PRIORITY_SECONDARY,
+            },
+            {
+                'content_type': 'dcim.site',
+                'object_id': sites[1].pk,
+                'contact': contacts[5].pk,
+                'role': contact_roles[2].pk,
+                'priority': ContactPriorityChoices.PRIORITY_TERTIARY,
             },
         ]

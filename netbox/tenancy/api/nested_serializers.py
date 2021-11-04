@@ -5,6 +5,7 @@ from tenancy.models import *
 
 __all__ = [
     'NestedContactSerializer',
+    'NestedContactAssignmentSerializer',
     'NestedContactGroupSerializer',
     'NestedContactRoleSerializer',
     'NestedTenantGroupSerializer',
@@ -62,3 +63,13 @@ class NestedContactSerializer(WritableNestedSerializer):
     class Meta:
         model = Contact
         fields = ['id', 'url', 'display', 'name']
+
+
+class NestedContactAssignmentSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
+    contact = NestedContactSerializer()
+    role = NestedContactRoleSerializer
+
+    class Meta:
+        model = ContactAssignment
+        fields = ['id', 'url', 'display', 'contact', 'role', 'priority']
