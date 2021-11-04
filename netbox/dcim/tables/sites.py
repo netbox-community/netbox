@@ -82,6 +82,7 @@ class SiteTable(BaseTable):
         linkify=True
     )
     asn_count = LinkedCountColumn(
+        accessor=tables.A('asns.count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
         verbose_name='ASNs'
@@ -99,7 +100,7 @@ class SiteTable(BaseTable):
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
             'contact_phone', 'contact_email', 'comments', 'tags',
         )
-        default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'description')
+        default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 
 
 #
