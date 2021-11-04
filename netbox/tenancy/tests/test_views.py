@@ -176,10 +176,10 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Contact 4,contact-4",
-            "Contact 5,contact-5",
-            "Contact 6,contact-6",
+            "group,name",
+            "Contact Group 1,Contact 4",
+            "Contact Group 1,Contact 5",
+            "Contact Group 1,Contact 6",
         )
 
         cls.bulk_edit_data = {

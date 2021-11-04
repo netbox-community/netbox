@@ -70,7 +70,6 @@ class ContactRoleCSVForm(CustomFieldModelCSVForm):
 
 
 class ContactCSVForm(CustomFieldModelCSVForm):
-    slug = SlugField()
     group = CSVModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
