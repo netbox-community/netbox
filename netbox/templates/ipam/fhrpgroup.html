@@ -72,12 +72,13 @@
       <div class="card">
         <h5 class="card-header">Members</h5>
         <div class="card-body">
-          {% if ipaddress_table.rows %}
+          {% if members_table.rows %}
             {% render_table members_table 'inc/table.html' %}
           {% else %}
             <div class="text-muted">None</div>
           {% endif %}
         </div>
+      </div>
       {% plugin_full_width_page object %}
     </div>
   </div>

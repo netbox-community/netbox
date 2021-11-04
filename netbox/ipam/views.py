@@ -981,15 +981,9 @@ class FHRPGroupAssignmentEditView(generic.ObjectEditView):
             instance.interface = get_object_or_404(content_type.model_class(), pk=request.GET.get('interface_id'))
         return instance
 
-    def get_return_url(self, request, obj=None):
-        return obj.interface.get_absolute_url() if obj else super().get_return_url(request)
-
 
 class FHRPGroupAssignmentDeleteView(generic.ObjectDeleteView):
     queryset = FHRPGroupAssignment.objects.all()
-
-    def get_return_url(self, request, obj=None):
-        return obj.interface.get_absolute_url() if obj else super().get_return_url(request)
 
 
 #

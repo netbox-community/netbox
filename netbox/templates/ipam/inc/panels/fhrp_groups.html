@@ -1,7 +1,7 @@
 {% load helpers %}
 
 <div class="card">
-  <h5 class="card-header">NHRP Groups</h5>
+  <h5 class="card-header">FHRP Groups</h5>
   <div class="card-body">
     <table class="table table-hover table-headings">
       <thead>
@@ -10,6 +10,7 @@
           <th>Protocol</th>
           <th>Virtual IPs</th>
           <th>Priority</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -30,6 +31,18 @@
             <td>
               {{ assignment.priority }}
             </td>
+            <td class="text-end noprint">
+              {% if perms.ipam.change_fhrpgroupassignment %}
+                <a href="{% url 'ipam:fhrpgroupassignment_edit' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">
+                  <i class="mdi mdi-pencil" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              {% if perms.ipam.delete_fhrpgroupassignment %}
+                <a href="{% url 'ipam:fhrpgroupassignment_delete' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="Delete">
+                  <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+            </td>
           </tr>
         {% empty %}
           <tr>
@@ -46,7 +59,7 @@
       </a>
     {% endif %}
     {% if perms.ipam.add_fhrpgroupassignment %}
-      <a href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}&interface_id={{ object.pk }}" class="btn btn-sm btn-primary">
+      <a href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}&interface_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Group
       </a>
     {% endif %}

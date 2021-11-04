@@ -529,7 +529,7 @@ class FHRPGroupForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
 
-    # Optionally create a new IPAddress along with the NHRPGroup
+    # Optionally create a new IPAddress along with the FHRPGroup
     ip_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
