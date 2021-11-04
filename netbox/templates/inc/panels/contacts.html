@@ -21,12 +21,12 @@
               <td>{{ contact.get_priority_display|placeholder }}</td>
               <td class="text-end noprint">
                 {% if perms.tenancy.change_contactassignment %}
-                  <a href="{% url 'tenancy:contactassignment_edit' pk=contact.pk %}" class="btn btn-warning btn-sm lh-1" title="Edit">
+                  <a href="{% url 'tenancy:contactassignment_edit' pk=contact.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="Edit">
                     <i class="mdi mdi-pencil" aria-hidden="true"></i>
                   </a>
                 {% endif %}
                 {% if perms.tenancy.delete_contactassignment %}
-                  <a href="{% url 'extras:imageattachment_delete' pk=contact.pk %}" class="btn btn-danger btn-sm lh-1" title="Delete">
+                  <a href="{% url 'tenancy:contactassignment_delete' pk=contact.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="Delete">
                     <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                   </a>
                 {% endif %}
@@ -41,7 +41,7 @@
   </div>
   {% if perms.tenancy.add_contactassignment %}
     <div class="card-footer text-end noprint">
-      <a href="{% url 'tenancy:contactassignment_add' %}?content_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}&object_id={{ object.pk }}" class="btn btn-primary btn-sm">
+      <a href="{% url 'tenancy:contactassignment_add' %}?content_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}&object_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add a contact
       </a>
     </div>

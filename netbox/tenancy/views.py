@@ -351,12 +351,6 @@ class ContactAssignmentEditView(generic.ObjectEditView):
             instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
         return instance
 
-    def get_return_url(self, request, obj=None):
-        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
-
 
 class ContactAssignmentDeleteView(generic.ObjectDeleteView):
     queryset = ContactAssignment.objects.all()
-
-    def get_return_url(self, request, obj=None):
-        return obj.object.get_absolute_url() if obj else super().get_return_url(request)
