@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'FHRP group assignment',
-                'ordering': ('priority', 'pk'),
+                'ordering': ('-priority', 'pk'),
                 'unique_together': {('interface_type', 'interface_id', 'group')},
             },
         ),

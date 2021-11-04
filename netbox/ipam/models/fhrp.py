@@ -92,7 +92,7 @@ class FHRPGroupAssignment(ChangeLoggedModel):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        ordering = ('priority', 'pk')
+        ordering = ('-priority', 'pk')
         unique_together = ('interface_type', 'interface_id', 'group')
         verbose_name = 'FHRP group assignment'
 
