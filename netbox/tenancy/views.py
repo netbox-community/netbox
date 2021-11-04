@@ -338,6 +338,7 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
     model_form = forms.ContactAssignmentForm
+    template_name = 'tenancy/contactassignment_edit.html'
 
     def alter_obj(self, instance, request, args, kwargs):
         if not instance.pk:
