@@ -45,8 +45,8 @@ class FHRPGroupTable(BaseTable):
 
 class FHRPGroupAssignmentTable(BaseTable):
     pk = ToggleColumn()
-    object_parent = tables.Column(
-        accessor=tables.A('object.parent_object'),
+    interface_parent = tables.Column(
+        accessor=tables.A('interface.parent_object'),
         linkify=True,
         orderable=False,
         verbose_name='Parent'
@@ -65,4 +65,5 @@ class FHRPGroupAssignmentTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = FHRPGroupAssignment
-        fields = ('pk', 'group', 'object_parent', 'interface', 'priority')
+        fields = ('pk', 'group', 'interface_parent', 'interface', 'priority')
+        exclude = ('id',)
