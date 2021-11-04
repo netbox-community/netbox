@@ -293,12 +293,12 @@ class ContactView(generic.ObjectView):
         contact_assignments = ContactAssignment.objects.restrict(request.user, 'view').filter(
             contact=instance
         )
-        contacts_table = tables.ContactAssignmentTable(contact_assignments)
-        contacts_table.columns.hide('contact')
-        paginate_table(contacts_table, request)
+        assignments_table = tables.ContactAssignmentTable(contact_assignments)
+        assignments_table.columns.hide('contact')
+        paginate_table(assignments_table, request)
 
         return {
-            'contacts_table': contacts_table,
+            'assignments_table': assignments_table,
             'assignment_count': ContactAssignment.objects.filter(contact=instance).count(),
         }
 

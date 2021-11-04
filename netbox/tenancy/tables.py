@@ -160,8 +160,12 @@ class ContactAssignmentTable(BaseTable):
     role = tables.Column(
         linkify=True
     )
+    actions = ButtonsColumn(
+        model=ContactAssignment,
+        buttons=('edit', 'delete')
+    )
 
     class Meta(BaseTable.Meta):
         model = ContactAssignment
-        fields = ('pk', 'content_type', 'object', 'contact', 'role', 'priority')
-        default_columns = ('pk', 'object', 'contact', 'role', 'priority')
+        fields = ('pk', 'content_type', 'object', 'contact', 'role', 'priority', 'actions')
+        default_columns = ('pk', 'content_type', 'object', 'contact', 'role', 'priority', 'actions')

@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -69,10 +70,14 @@
       <div class="card">
         <h5 class="card-header">Assignments</h5>
         <div class="card-body">
-          {% include 'inc/table.html' with table=contacts_table %}
+          {% if assignments_table.rows %}
+            {% render_table assignments_table 'inc/table.html' %}
+          {% else %}
+            <div class="text-muted">None</div>
+          {% endif %}
         </div>
       </div>
-      {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
+      {% include 'inc/paginator.html' with paginator=assignments_table.paginator page=assignments_table.page %}
       {% plugin_full_width_page object %}
     </div>
   </div>
