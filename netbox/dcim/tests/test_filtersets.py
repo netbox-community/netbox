@@ -142,29 +142,23 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tenant.objects.bulk_create(tenants)
 
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+        asns = (
+            ASN(asn=64512, rir=rir, tenant=tenants[0]),
+            ASN(asn=64513, rir=rir, tenant=tenants[0]),
+            ASN(asn=64514, rir=rir, tenant=tenants[0]),
+        )
+        ASN.objects.bulk_create(asns)
+
         sites = (
             Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
             Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
             Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
         )
         Site.objects.bulk_create(sites)
-
-        rir = RIR.objects.create(name='RFC 6996', is_private=True)
-
-        asns = (
-            ASN(asn=64512, rir=rir, tenant=tenants[0]),
-            ASN(asn=64513, rir=rir, tenant=tenants[0]),
-            ASN(asn=64514, rir=rir, tenant=tenants[0]),
-            ASN(asn=65001, rir=rir, tenant=tenants[0]),
-            ASN(asn=65002, rir=rir, tenant=tenants[0])
-        )
-        ASN.objects.bulk_create(asns)
-
-        asns[0].sites.set([sites[0]])
-        asns[1].sites.set([sites[1]])
-        asns[2].sites.set([sites[2]])
-        asns[3].sites.set([sites[2]])
-        asns[4].sites.set([sites[1]])
+        sites[0].asns.set([asns[0]])
+        sites[1].asns.set([asns[1]])
+        sites[2].asns.set([asns[2]])
 
     def test_name(self):
         params = {'name': ['Site 1', 'Site 2']}
@@ -182,8 +176,9 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'asn': [65001, 65002]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_asns(self):
-        params = {'asns': [64512, 65002]}
+    def test_asn_id(self):
+        asns = ASN.objects.all()[:2]
+        params = {'asn_id': [asns[0].pk, asns[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_latitude(self):

@@ -131,16 +131,10 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Group (slug)',
     )
-    asns_id = django_filters.ModelMultipleChoiceFilter(
+    asn_id = django_filters.ModelMultipleChoiceFilter(
         field_name='asns',
         queryset=ASN.objects.all(),
         label='AS (ID)',
-    )
-    asns = django_filters.ModelMultipleChoiceFilter(
-        field_name='asns__asn',
-        queryset=ASN.objects.all(),
-        to_field_name='asn',
-        label='AS (Number)',
     )
     tag = TagFilter()
 
