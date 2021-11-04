@@ -6,8 +6,8 @@ This section of the documentation discusses installing and configuring the NetBo
 
 Begin by installing all system packages required by NetBox and its dependencies.
 
-!!! note
-    NetBox v3.0 and later require Python 3.7, 3.8, or 3.9.
+!!! warning "Python 3.7 or later required"
+    NetBox v3.0 and v3.1 require Python 3.7, 3.8, or 3.9. It is recommended to install at least Python v3.8, as this will become the minimum supported Python version in NetBox v3.2.
 
 === "Ubuntu"
 
@@ -21,10 +21,10 @@ Begin by installing all system packages required by NetBox and its dependencies.
     sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
     ```
 
-Before continuing with either platform, update pip (Python's package management tool) to its latest release:
+Before continuing, check that your installed Python version is at least 3.7:
 
 ```no-highlight
-sudo pip3 install --upgrade pip
+python3 -V
 ```
 
 ## Download NetBox
@@ -89,7 +89,7 @@ Resolving deltas: 100% (148/148), done.
 ```
 
 !!! note
-    Installation via git also allows you to easily try out development versions of NetBox. The `develop` branch contains all work underway for the next minor release, and the `feature` branch tracks progress on the next major release. 
+    Installation via git also allows you to easily try out different versions of NetBox. To check out a [specific NetBox release](https://github.com/netbox-community/netbox/releases), use the `git checkout` command with the desired release tag. For example, `git checkout v3.0.8`.
 
 ## Create the NetBox System User
 
@@ -190,7 +190,7 @@ A simple Python script named `generate_secret_key.py` is provided in the parent 
 python3 ../generate_secret_key.py
 ```
 
-!!! warning
+!!! warning "SECRET_KEY values must match"
     In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
 
 When you have finished modifying the configuration, remember to save the file.
@@ -229,7 +229,7 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 sudo /opt/netbox/upgrade.sh
 ```
 
-Note that **Python 3.7 or later is required** for NetBox v3.0 and later releases. If the default Python installation on your server does not meet this requirement, you'll need to install Python 3.7 or later separately, and pass the path to the support installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+Note that **Python 3.7 or later is required** for NetBox v3.0 and later releases. If the default Python installation on your server is set to a lesser version,  pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
 
 ```no-highlight
 sudo PYTHON=/usr/bin/python3.7 /opt/netbox/upgrade.sh
@@ -297,7 +297,7 @@ Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on
     firewall-cmd --zone=public --add-port=8000/tcp
     ```
 
-!!! danger
+!!! danger "Not for production use"
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**
 
 !!! warning
