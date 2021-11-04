@@ -95,49 +95,48 @@
                             {% endif %}
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row">Physical Address</th>
-                        <td>
-                            {% if object.physical_address %}
-                                <div class="float-end noprint">
-                                    <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
-                                        <i class="mdi mdi-map-marker"></i> Map It
-                                    </a>
-                                </div>
-                                <span>{{ object.physical_address|linebreaksbr }}</span>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Shipping Address</th>
-                        <td>{{ object.shipping_address|linebreaksbr|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">GPS Coordinates</th>
-                        <td>
-                            {% if object.latitude and object.longitude %}
-                                <div class="float-end noprint">
-                                    <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
-                                        <i class="mdi mdi-map-marker"></i> Map It
-                                    </a>
-                                </div>
-                                <span>{{ object.latitude }}, {{ object.longitude }}</span>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
-                    </tr>
                 </table>
             </div>
         </div>
-        {% include 'inc/panels/contacts.html' %}
         <div class="card">
             <h5 class="card-header">Contact Info</h5>
             <div class="card-body">
               {% with deprecation_warning="This field will be removed in a future release. Please migrate this data to contact objects." %}
                 <table class="table table-hover attr-table">
+                  <tr>
+                      <th scope="row">Physical Address</th>
+                      <td>
+                          {% if object.physical_address %}
+                              <div class="float-end noprint">
+                                  <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
+                                      <i class="mdi mdi-map-marker"></i> Map It
+                                  </a>
+                              </div>
+                              <span>{{ object.physical_address|linebreaksbr }}</span>
+                          {% else %}
+                              <span class="text-muted">&mdash;</span>
+                          {% endif %}
+                      </td>
+                  </tr>
+                  <tr>
+                      <th scope="row">Shipping Address</th>
+                      <td>{{ object.shipping_address|linebreaksbr|placeholder }}</td>
+                  </tr>
+                  <tr>
+                      <th scope="row">GPS Coordinates</th>
+                      <td>
+                          {% if object.latitude and object.longitude %}
+                              <div class="float-end noprint">
+                                  <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
+                                      <i class="mdi mdi-map-marker"></i> Map It
+                                  </a>
+                              </div>
+                              <span>{{ object.latitude }}, {{ object.longitude }}</span>
+                          {% else %}
+                              <span class="text-muted">&mdash;</span>
+                          {% endif %}
+                      </td>
+                  </tr>
                   <tr>
                     <th scope="row">Contact Name</th>
                     <td>
@@ -180,8 +179,8 @@
             </div>
         </div>
         {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
         {% include 'inc/panels/comments.html' %}
+        {% include 'inc/panels/contacts.html' %}
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-5">
