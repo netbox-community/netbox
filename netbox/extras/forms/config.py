@@ -48,12 +48,15 @@ class ConfigRevisionForm(forms.BaseModelForm, metaclass=FormMetaclass):
             value = getattr(config, param.name)
             is_static = hasattr(settings, param.name)
             if value:
-                help_text = f'<br />Current value: <strong>{value}</strong>'
+                help_text = self.fields[param.name].help_text
+                if help_text:
+                    help_text += '<br />'  # Line break
+                help_text += f'Current value: <strong>{value}</strong>'
                 if is_static:
                     help_text += ' (defined statically)'
                 elif value == param.default:
                     help_text += ' (default)'
-                self.fields[param.name].help_text += help_text
+                self.fields[param.name].help_text = help_text
             if is_static:
                 self.fields[param.name].disabled = True
 
