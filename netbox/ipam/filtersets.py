@@ -667,7 +667,7 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = FHRPGroup
-        fields = ['id', 'protocol', 'group_id', 'auth_type']
+        fields = ['id', 'group_id', 'auth_key']
 
     def search(self, queryset, name, value):
         if not value.strip():

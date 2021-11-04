@@ -1,10 +1,11 @@
 from django.test import TestCase
+from netaddr import IPNetwork
 
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Rack, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.filtersets import *
 from ipam.models import *
-from utilities.testing import ChangeLoggedFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
@@ -879,12 +880,22 @@ class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.1.1/24')),
+            IPAddress(address=IPNetwork('192.168.2.1/24')),
+            IPAddress(address=IPNetwork('192.168.3.1/24')),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
         fhrp_groups = (
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foo123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='bar456'),
             FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
         )
         FHRPGroup.objects.bulk_create(fhrp_groups)
+        fhrp_groups[0].ip_addresses.set([ip_addresses[0]])
+        fhrp_groups[1].ip_addresses.set([ip_addresses[1]])
+        fhrp_groups[2].ip_addresses.set([ip_addresses[2]])
 
     def test_protocol(self):
         params = {'protocol': [FHRPGroupProtocolChoices.PROTOCOL_VRRP2, FHRPGroupProtocolChoices.PROTOCOL_VRRP3]}
@@ -897,6 +908,78 @@ class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_auth_type(self):
         params = {'auth_type': [FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_auth_key(self):
+        params = {'auth_key': ['foo123', 'bar456']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_related_ip(self):
+        # Create some regular IPs to query for related IPs
+        ipaddresses = (
+            IPAddress.objects.create(address=IPNetwork('192.168.1.2/24')),
+            IPAddress.objects.create(address=IPNetwork('192.168.2.2/24')),
+        )
+        params = {'related_ip': [ipaddresses[0].pk, ipaddresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = FHRPGroupAssignment.objects.all()
+    filterset = FHRPGroupAssignmentFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        device = create_test_device('device1')
+        interfaces = (
+            Interface(device=device, name='eth0'),
+            Interface(device=device, name='eth1'),
+            Interface(device=device, name='eth2'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        virtual_machine = create_test_virtualmachine('virtual_machine1')
+        vm_interfaces = (
+            VMInterface(virtual_machine=virtual_machine, name='eth0'),
+            VMInterface(virtual_machine=virtual_machine, name='eth1'),
+            VMInterface(virtual_machine=virtual_machine, name='eth2'),
+        )
+        VMInterface.objects.bulk_create(vm_interfaces)
+
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
+        fhrp_group_assignments = (
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=interfaces[0], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=interfaces[1], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=interfaces[2], priority=30),
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=vm_interfaces[0], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=vm_interfaces[1], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=vm_interfaces[2], priority=30),
+        )
+        FHRPGroupAssignment.objects.bulk_create(fhrp_group_assignments)
+
+    def test_group_id(self):
+        fhrp_groups = FHRPGroup.objects.all()[:2]
+        params = {'group_id': [fhrp_groups[0].pk, fhrp_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_interface_type(self):
+        params = {'interface_type': 'dcim.interface'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_interface(self):
+        interfaces = Interface.objects.all()[:2]
+        params = {'interface_type': 'dcim.interface', 'interface_id': [interfaces[0].pk, interfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_priority(self):
+        params = {'priority': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
