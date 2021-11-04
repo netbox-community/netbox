@@ -9,6 +9,7 @@ Some configuration parameters may alternatively be defined either in `configurat
 * [Required settings](required-settings.md)
 * [Optional settings](optional-settings.md)
 * [Dynamic settings](dynamic-settings.md)
+* [Remote authentication settings](remote-authentication.md)
 
 ## Changing the Configuration
 
