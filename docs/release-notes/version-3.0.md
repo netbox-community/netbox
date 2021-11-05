@@ -2,6 +2,10 @@
 
 ## v3.0.10 (FUTURE)
 
+### Bug Fixes
+
+* [#7752](https://github.com/netbox-community/netbox/issues/7752) - Fix minimum version check under Python v3.10
+
 ---
 
 ## v3.0.9 (2021-11-03)
