@@ -2,6 +2,10 @@
 
 ## v3.0.10 (FUTURE)
 
+### Enhancements
+
+* [#7760](https://github.com/netbox-community/netbox/issues/7760) - Add `vid` filter field to VLANs list
+
 ### Bug Fixes
 
 * [#7752](https://github.com/netbox-community/netbox/issues/7752) - Fix minimum version check under Python v3.10
