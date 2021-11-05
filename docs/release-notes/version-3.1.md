@@ -1,3 +1,11 @@
+## v3.1-beta2 (FUTURE)
+
+### Bug Fixes
+
+* [#7756](https://github.com/netbox-community/netbox/issues/7756) - Fix AttributeError exception when editing an IP address assigned to a FHRPGroup
+
+---
+
 ## v3.1-beta1 (2021-11-05)
 
 !!! warning "PostgreSQL 10 Required"

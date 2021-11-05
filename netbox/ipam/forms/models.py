@@ -444,8 +444,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
         # Initialize primary_for_parent if IP address is already assigned
         if self.instance.pk and self.instance.assigned_object:
-            parent = self.instance.assigned_object.parent_object
-            if (
+            parent = getattr(self.instance.assigned_object, 'parent_object', None)
+            if parent and (
                 self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
                 self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
             ):
