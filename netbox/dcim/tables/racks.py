@@ -73,7 +73,7 @@ class RackTable(BaseTable):
         url_name='dcim:rack_list'
     )
     outer_width = tables.TemplateColumn(
-        template_code="{{ record.outer_width }}",
+        template_code="{{ record.outer_width }} {{ record.outer_unit }}",
         verbose_name='Outer Width'
     )
 
