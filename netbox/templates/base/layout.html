@@ -127,7 +127,7 @@
                 </a>
 
                 {# GraphQL API #}
-                {% if settings.GRAPHQL_ENABLED %}
+                {% if config.GRAPHQL_ENABLED %}
                   <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
                     <i title="GraphQL API" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                   </a>

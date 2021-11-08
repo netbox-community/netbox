@@ -140,6 +140,13 @@ PARAMS = (
         field=forms.BooleanField
     ),
     ConfigParam(
+        name='GRAPHQL_ENABLED',
+        label='GraphQL enabled',
+        default=True,
+        description="Enable the GraphQL API",
+        field=forms.BooleanField
+    ),
+    ConfigParam(
         name='CHANGELOG_RETENTION',
         label='Changelog retention',
         default=90,

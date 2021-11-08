@@ -74,6 +74,14 @@ By default, NetBox will permit users to create duplicate prefixes and IP address
 
 ---
 
+## GRAPHQL_ENABLED
+
+Default: True
+
+Setting this to False will disable the GraphQL API.
+
+---
+
 ## MAINTENANCE_MODE
 
 Default: False
