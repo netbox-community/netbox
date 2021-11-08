@@ -76,9 +76,6 @@ ADMINS = [
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
-# Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
-CHANGELOG_RETENTION = 90
-
 # API Cross-Origin Resource Sharing (CORS) settings. If CORS_ORIGIN_ALLOW_ALL is set to True, all origins will be
 # allowed. Otherwise, define a list of allowed origins using either CORS_ORIGIN_WHITELIST or
 # CORS_ORIGIN_REGEX_WHITELIST. For more information, see https://github.com/ottoyiu/django-cors-headers
@@ -89,20 +86,6 @@ CORS_ORIGIN_WHITELIST = [
 CORS_ORIGIN_REGEX_WHITELIST = [
     # r'^(https?://)?(\w+\.)?example\.com$',
 ]
-
-# Specify any custom validators here, as a mapping of model to a list of validators classes. Validators should be
-# instances of or inherit from CustomValidator.
-# from extras.validators import CustomValidator
-CUSTOM_VALIDATORS = {
-    # 'dcim.site': [
-    #     CustomValidator({
-    #         'name': {
-    #             'min_length': 10,
-    #             'regex': r'\d{3}$',
-    #         }
-    #     })
-    # ],
-}
 
 # Set to True to enable server debugging. WARNING: Debugging introduces a substantial performance penalty and may reveal
 # sensitive information about your installation. Only enable debugging while performing testing. Never enable debugging
@@ -128,9 +111,6 @@ EXEMPT_VIEW_PERMISSIONS = [
     # 'dcim.region',
     # 'ipam.prefix',
 ]
-
-# Enable the GraphQL API
-GRAPHQL_ENABLED = True
 
 # HTTP proxies NetBox should use when sending outbound HTTP requests (e.g. for webhooks).
 # HTTP_PROXIES = {

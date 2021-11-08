@@ -27,11 +27,14 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         ('Pagination', {
             'fields': ('PAGINATE_COUNT', 'MAX_PAGE_SIZE'),
         }),
+        ('Validation', {
+            'fields': ('CUSTOM_VALIDATORS',),
+        }),
         ('NAPALM', {
             'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
         }),
         ('Miscellaneous', {
-            'fields': ('MAINTENANCE_MODE', 'MAPS_URL'),
+            'fields': ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'MAPS_URL'),
         }),
         ('Config Revision', {
             'fields': ('comment',),

@@ -1,13 +1,13 @@
 import importlib
 import logging
 
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
 from extras.validators import CustomValidator
+from netbox.config import get_config
 from netbox.signals import post_clean
 from .choices import ObjectChangeActionChoices
 from .models import ConfigRevision, CustomField, ObjectChange
@@ -159,8 +159,9 @@ m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_type
 
 @receiver(post_clean)
 def run_custom_validators(sender, instance, **kwargs):
+    config = get_config()
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = settings.CUSTOM_VALIDATORS.get(model_name, [])
+    validators = config.CUSTOM_VALIDATORS.get(model_name, [])
 
     for validator in validators:
 

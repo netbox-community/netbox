@@ -31,11 +31,54 @@ This defines custom content to be displayed on the login page above the login fo
 
 ---
 
+## CHANGELOG_RETENTION
+
+Default: 90
+
+The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain
+changes in the database indefinitely.
+
+!!! warning
+    If enabling indefinite changelog retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
+
+---
+
+## CUSTOM_VALIDATORS
+
+This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:
+
+```python
+CUSTOM_VALIDATORS = {
+    "dcim.site": [
+        {
+            "name": {
+                "min_length": 5,
+                "max_length": 30
+            }
+        },
+        "my_plugin.validators.Validator1"
+    ],
+    "dim.device": [
+        "my_plugin.validators.Validator1"
+    ]
+}
+```
+
+---
+
 ## ENFORCE_GLOBAL_UNIQUE
 
 Default: False
 
 By default, NetBox will permit users to create duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This behavior can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to True.
+
+---
+
+## GRAPHQL_ENABLED
+
+Default: True
+
+Setting this to False will disable the GraphQL API.
 
 ---
 

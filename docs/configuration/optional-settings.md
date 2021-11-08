@@ -25,18 +25,6 @@ BASE_PATH = 'netbox/'
 
 ---
 
-## CHANGELOG_RETENTION
-
-Default: 90
-
-The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain
-changes in the database indefinitely.
-
-!!! warning
-    If enabling indefinite changelog retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
-
----
-
 ## CORS_ORIGIN_ALLOW_ALL
 
 Default: False
@@ -57,22 +45,6 @@ expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.)
 CORS_ORIGIN_WHITELIST = [
     'https://example.com',
 ]
-```
-
----
-
-## CUSTOM_VALIDATORS
-
-This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:
-
-```python
-CUSTOM_VALIDATORS = {
-    'dcim.site': (
-        Validator1,
-        Validator2,
-        Validator3
-    )
-}
 ```
 
 ---
@@ -165,14 +137,6 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 !!! note
     Using a wildcard will not affect certain potentially sensitive models, such as user permissions. If there is a need to exempt these models, they must be specified individually.
-
----
-
-## GRAPHQL_ENABLED
-
-Default: True
-
-Setting this to False will disable the GraphQL API.
 
 ---
 

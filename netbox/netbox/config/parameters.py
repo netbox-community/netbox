@@ -94,6 +94,15 @@ PARAMS = (
         field=forms.IntegerField
     ),
 
+    # Validation
+    ConfigParam(
+        name='CUSTOM_VALIDATORS',
+        label='Custom validators',
+        default={},
+        description="Custom validation rules (JSON)",
+        field=forms.JSONField
+    ),
+
     # NAPALM
     ConfigParam(
         name='NAPALM_USERNAME',
@@ -129,6 +138,20 @@ PARAMS = (
         default=False,
         description="Enable maintenance mode",
         field=forms.BooleanField
+    ),
+    ConfigParam(
+        name='GRAPHQL_ENABLED',
+        label='GraphQL enabled',
+        default=True,
+        description="Enable the GraphQL API",
+        field=forms.BooleanField
+    ),
+    ConfigParam(
+        name='CHANGELOG_RETENTION',
+        label='Changelog retention',
+        default=90,
+        description="Days to retain changelog history (set to zero for unlimited)",
+        field=forms.IntegerField
     ),
     ConfigParam(
         name='MAPS_URL',
