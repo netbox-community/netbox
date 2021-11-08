@@ -3,6 +3,7 @@
 ### Enhancements
 
 * [#7619](https://github.com/netbox-community/netbox/issues/7619) - Permit custom validation rules to be defined as plain data or dotted path to class
+* [#7775](https://github.com/netbox-community/netbox/issues/7775) - Enable dynamic config for `CHANGELOG_RETENTION`, `CUSTOM_VALIDATORS`, and `GRAPHQL_ENABLED`
 
 ### Bug Fixes
 
