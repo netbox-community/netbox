@@ -185,6 +185,7 @@ class ConsolePortTypeChoices(ChoiceSet):
     TYPE_RJ11 = 'rj-11'
     TYPE_RJ12 = 'rj-12'
     TYPE_RJ45 = 'rj-45'
+    TYPE_MINI_DIN_8 = 'mini-din-8'
     TYPE_USB_A = 'usb-a'
     TYPE_USB_B = 'usb-b'
     TYPE_USB_C = 'usb-c'
@@ -202,6 +203,7 @@ class ConsolePortTypeChoices(ChoiceSet):
             (TYPE_RJ11, 'RJ-11'),
             (TYPE_RJ12, 'RJ-12'),
             (TYPE_RJ45, 'RJ-45'),
+            (TYPE_MINI_DIN_8, 'Mini-DIN 8'),
         )),
         ('USB', (
             (TYPE_USB_A, 'USB Type A'),
