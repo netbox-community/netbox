@@ -131,6 +131,13 @@ PARAMS = (
         field=forms.BooleanField
     ),
     ConfigParam(
+        name='CHANGELOG_RETENTION',
+        label='Changelog retention',
+        default=90,
+        description="Days to retain changelog history (set to zero for unlimited)",
+        field=forms.IntegerField
+    ),
+    ConfigParam(
         name='MAPS_URL',
         label='Maps URL',
         default='https://maps.google.com/?q=',

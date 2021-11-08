@@ -25,18 +25,6 @@ BASE_PATH = 'netbox/'
 
 ---
 
-## CHANGELOG_RETENTION
-
-Default: 90
-
-The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain
-changes in the database indefinitely.
-
-!!! warning
-    If enabling indefinite changelog retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
-
----
-
 ## CORS_ORIGIN_ALLOW_ALL
 
 Default: False

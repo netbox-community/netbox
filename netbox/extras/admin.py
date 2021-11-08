@@ -31,7 +31,7 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
         }),
         ('Miscellaneous', {
-            'fields': ('MAINTENANCE_MODE', 'MAPS_URL'),
+            'fields': ('MAINTENANCE_MODE', 'CHANGELOG_RETENTION', 'MAPS_URL'),
         }),
         ('Config Revision', {
             'fields': ('comment',),

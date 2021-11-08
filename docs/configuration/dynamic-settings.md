@@ -31,6 +31,18 @@ This defines custom content to be displayed on the login page above the login fo
 
 ---
 
+## CHANGELOG_RETENTION
+
+Default: 90
+
+The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain
+changes in the database indefinitely.
+
+!!! warning
+    If enabling indefinite changelog retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
+
+---
+
 ## ENFORCE_GLOBAL_UNIQUE
 
 Default: False
