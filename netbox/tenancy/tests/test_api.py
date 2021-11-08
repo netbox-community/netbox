@@ -200,7 +200,6 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
             },
             {
                 'name': 'Contact 6',
-                'group': contact_groups[1].pk,
             },
         ]
 

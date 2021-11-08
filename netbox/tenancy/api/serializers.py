@@ -79,7 +79,7 @@ class ContactRoleSerializer(PrimaryModelSerializer):
 
 class ContactSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contact-detail')
-    group = NestedContactGroupSerializer(required=False, allow_null=True)
+    group = NestedContactGroupSerializer(required=False, allow_null=True, default=None)
 
     class Meta:
         model = Contact
