@@ -119,3 +119,38 @@ class CustomValidatorTest(TestCase):
     @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_validator]})
     def test_custom_valid(self):
         Site(name='foo', slug='foo').clean()
+
+
+class CustomValidatorConfigTest(TestCase):
+
+    @override_settings(
+        CUSTOM_VALIDATORS={
+            'dcim.site': [
+                {'name': {'min_length': 5}}
+            ]
+        }
+    )
+    def test_plain_data(self):
+        """
+        Test custom validator configuration using plain data (as opposed to a CustomValidator
+        class)
+        """
+        with self.assertRaises(ValidationError):
+            Site(name='abcd', slug='abcd').clean()
+        Site(name='abcde', slug='abcde').clean()
+
+    @override_settings(
+        CUSTOM_VALIDATORS={
+            'dcim.site': (
+                'extras.tests.test_customvalidator.MyValidator',
+            )
+        }
+    )
+    def test_dotted_path(self):
+        """
+        Test custom validator configuration using a dotted path (string) reference to a
+        CustomValidator class.
+        """
+        Site(name='foo', slug='foo').clean()
+        with self.assertRaises(ValidationError):
+            Site(name='bar', slug='bar').clean()

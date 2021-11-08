@@ -1,5 +1,9 @@
 ## v3.1-beta2 (FUTURE)
 
+### Enhancements
+
+* [#7619](https://github.com/netbox-community/netbox/issues/7619) - Permit custom validation rules to be defined as plain data or dotted path to class
+
 ### Bug Fixes
 
 * [#7756](https://github.com/netbox-community/netbox/issues/7756) - Fix AttributeError exception when editing an IP address assigned to a FHRPGroup
