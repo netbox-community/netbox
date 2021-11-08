@@ -49,22 +49,6 @@ CORS_ORIGIN_WHITELIST = [
 
 ---
 
-## CUSTOM_VALIDATORS
-
-This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:
-
-```python
-CUSTOM_VALIDATORS = {
-    'dcim.site': (
-        Validator1,
-        Validator2,
-        Validator3
-    )
-}
-```
-
----
-
 ## DEBUG
 
 Default: False

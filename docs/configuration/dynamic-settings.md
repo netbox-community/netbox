@@ -43,6 +43,29 @@ changes in the database indefinitely.
 
 ---
 
+## CUSTOM_VALIDATORS
+
+This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:
+
+```python
+CUSTOM_VALIDATORS = {
+    "dcim.site": [
+        {
+            "name": {
+                "min_length": 5,
+                "max_length": 30
+            }
+        },
+        "my_plugin.validators.Validator1"
+    ],
+    "dim.device": [
+        "my_plugin.validators.Validator1"
+    ]
+}
+```
+
+---
+
 ## ENFORCE_GLOBAL_UNIQUE
 
 Default: False

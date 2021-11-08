@@ -27,6 +27,9 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
         ('Pagination', {
             'fields': ('PAGINATE_COUNT', 'MAX_PAGE_SIZE'),
         }),
+        ('Validation', {
+            'fields': ('CUSTOM_VALIDATORS',),
+        }),
         ('NAPALM', {
             'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
         }),

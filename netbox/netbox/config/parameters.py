@@ -94,6 +94,15 @@ PARAMS = (
         field=forms.IntegerField
     ),
 
+    # Validation
+    ConfigParam(
+        name='CUSTOM_VALIDATORS',
+        label='Custom validators',
+        default={},
+        description="Custom validation rules (JSON)",
+        field=forms.JSONField
+    ),
+
     # NAPALM
     ConfigParam(
         name='NAPALM_USERNAME',
