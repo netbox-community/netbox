@@ -52,9 +52,7 @@ class FHRPGroup(PrimaryModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    clone_fields = [
-        'protocol', 'auth_type', 'auth_key'
-    ]
+    clone_fields = ('protocol', 'auth_type', 'auth_key')
 
     class Meta:
         ordering = ['protocol', 'group_id', 'pk']
@@ -90,6 +88,8 @@ class FHRPGroupAssignment(ChangeLoggedModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
+
+    clone_fields = ('interface_type', 'interface_id')
 
     class Meta:
         ordering = ('-priority', 'pk')

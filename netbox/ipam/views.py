@@ -976,11 +976,7 @@ class FHRPGroupAssignmentEditView(generic.ObjectEditView):
     def alter_obj(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the interface based on URL kwargs
-            try:
-                app_label, model = request.GET.get('interface_type').split('.')
-            except (AttributeError, ValueError):
-                raise Http404("Content type not specified")
-            content_type = get_object_or_404(ContentType, app_label=app_label, model=model)
+            content_type = get_object_or_404(ContentType, pk=request.GET.get('interface_type'))
             instance.interface = get_object_or_404(content_type.model_class(), pk=request.GET.get('interface_id'))
         return instance
 

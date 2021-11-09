@@ -163,6 +163,8 @@ class ContactAssignment(ChangeLoggedModel):
 
     objects = RestrictedQuerySet.as_manager()
 
+    clone_fields = ('content_type', 'object_id')
+
     class Meta:
         ordering = ('priority', 'contact')
         unique_together = ('content_type', 'object_id', 'contact', 'role', 'priority')

@@ -8,6 +8,7 @@
 ### Bug Fixes
 
 * [#7756](https://github.com/netbox-community/netbox/issues/7756) - Fix AttributeError exception when editing an IP address assigned to a FHRPGroup
+* [#7757](https://github.com/netbox-community/netbox/issues/7757) - Fix 404 when assigning multiple contacts/FHRP groups in succession
 * [#7768](https://github.com/netbox-community/netbox/issues/7768) - Validate IP address status when creating a new FHRP group
 * [#7771](https://github.com/netbox-community/netbox/issues/7771) - Group assignment should be optional when creating contacts via REST API
 

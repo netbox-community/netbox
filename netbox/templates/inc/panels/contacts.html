@@ -41,7 +41,7 @@
   </div>
   {% if perms.tenancy.add_contactassignment %}
     <div class="card-footer text-end noprint">
-      <a href="{% url 'tenancy:contactassignment_add' %}?content_type={{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}&object_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+      <a href="{% url 'tenancy:contactassignment_add' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add a contact
       </a>
     </div>
