@@ -353,6 +353,8 @@ class ImageAttachment(BigIDModel):
 
     objects = RestrictedQuerySet.as_manager()
 
+    clone_fields = ('content_type', 'object_id')
+
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
 

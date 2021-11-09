@@ -11,6 +11,7 @@ exec 1>&2
 
 EXIT=0
 RED='\033[0;31m'
+YELLOW='\033[0;33m'
 NOCOLOR='\033[0m'
 
 if [ -d ./venv/ ]; then
@@ -20,6 +21,11 @@ if [ -d ./venv/ ]; then
     elif [ -e $VENV/Scripts/python.exe ]; then
         PATH=$VENV/Scripts:$PATH
     fi
+fi
+
+if [ ${NOVALIDATE} ]; then
+  echo "${YELLOW}Skipping validation checks${NOCOLOR}"
+  exit $EXIT
 fi
 
 echo "Validating PEP8 compliance..."

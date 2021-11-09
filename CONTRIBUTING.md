@@ -76,14 +76,10 @@ free to add a comment with any additional justification for the feature.
 (However, note that comments with no substance other than a "+1" will be
 deleted. Please use GitHub's reactions feature to indicate your support.)
 
-* Due to a large backlog of feature requests, we are not currently accepting
-any proposals which substantially extend NetBox's functionality beyond its
-current feature set. This includes the introduction of any new views or models
-which have not already been proposed in an existing feature request.
-
-* Before filing a new feature request, consider raising your idea on the
-mailing list first. Feedback you receive there will help validate and shape the
-proposed feature before filing a formal issue.
+* Before filing a new feature request, consider raising your idea in a
+[GitHub discussion](https://github.com/netbox-community/netbox/discussions)
+first. Feedback you receive there will help validate and shape the proposed
+feature before filing a formal issue.
 
 * Good feature requests are very narrowly defined. Be sure to thoroughly
 describe the functionality and data model(s) being proposed. The more effort

@@ -248,7 +248,7 @@ class CSVFileField(forms.FileField):
             return None
 
         csv_str = file.read().decode('utf-8').strip()
-        reader = csv.reader(csv_str.splitlines())
+        reader = csv.reader(StringIO(csv_str))
         headers, records = parse_csv(reader)
 
         return headers, records
