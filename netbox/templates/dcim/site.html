@@ -219,8 +219,8 @@
                     </tr>
                     {% for location in locations %}
                         <tr>
-                            <td style="padding-left: {{ location.level }}8px">
-                                <i class="mdi mdi-folder-open"></i>
+                            <td>
+                                {% for i in location.level|as_range %}<i class="mdi mdi-circle-small"></i>{% endfor %}
                                 <a href="{{ location.get_absolute_url }}">{{ location }}</a>
                             </td>
                             <td>
