@@ -53,6 +53,14 @@ def get_cabletermination_row_class(record):
     return ''
 
 
+def get_interface_row_class(record):
+    if not record.enabled:
+        return 'danger'
+    elif record.is_virtual:
+        return 'primary'
+    return get_cabletermination_row_class(record)
+
+
 def get_interface_state_attribute(record):
     """
     Get interface enabled state as string to attach to <tr/> DOM element.
@@ -501,8 +509,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
 
 class DeviceInterfaceTable(InterfaceTable):
     name = tables.TemplateColumn(
-        template_code='<i class="mdi mdi-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}drag-horizontal-variant'
-                      '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}ethernet'
+        template_code='<i class="mdi mdi-{% if record.mgmt_only %}wrench{% elif record.is_lag %}reorder-horizontal'
+                      '{% elif record.is_virtual %}circle{% elif record.is_wireless %}wifi{% else %}ethernet'
                       '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
@@ -534,7 +542,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'cable', 'connection', 'actions',
         )
         row_attrs = {
-            'class': get_cabletermination_row_class,
+            'class': get_interface_row_class,
             'data-name': lambda record: record.name,
             'data-enabled': get_interface_state_attribute,
         }
