@@ -11,7 +11,6 @@ from dcim.fields import ASNField
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'Location',
@@ -258,8 +257,6 @@ class Site(PrimaryModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',

@@ -13,7 +13,6 @@ from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
-from utilities.querysets import RestrictedQuerySet
 from .choices import *
 
 
@@ -47,8 +46,6 @@ class ClusterType(OrganizationalModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -92,8 +89,6 @@ class ClusterGroup(OrganizationalModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -157,8 +152,6 @@ class Cluster(PrimaryModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'type', 'group', 'tenant', 'site',
@@ -404,8 +397,6 @@ class VMInterface(PrimaryModel, BaseInterface):
         object_id_field='interface_id',
         related_query_name='+'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'interface'

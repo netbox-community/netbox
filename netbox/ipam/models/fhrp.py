@@ -8,7 +8,6 @@ from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from ipam.choices import *
 from ipam.constants import *
-from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'FHRPGroup',
@@ -50,8 +49,6 @@ class FHRPGroup(PrimaryModel):
         related_query_name='fhrpgroup'
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     clone_fields = ('protocol', 'auth_type', 'auth_key')
 
     class Meta:
@@ -86,8 +83,6 @@ class FHRPGroupAssignment(ChangeLoggedModel):
             MaxValueValidator(FHRPGROUPASSIGNMENT_PRIORITY_MAX)
         )
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = ('interface_type', 'interface_id')
 

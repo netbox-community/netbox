@@ -5,7 +5,6 @@ from mptt.models import TreeForeignKey
 
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'Tenant',
@@ -79,8 +78,6 @@ class Tenant(PrimaryModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'group', 'description',

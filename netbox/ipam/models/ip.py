@@ -18,7 +18,6 @@ from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from netbox.config import get_config
-from utilities.querysets import RestrictedQuerySet
 from virtualization.models import VirtualMachine
 
 
@@ -56,8 +55,6 @@ class RIR(OrganizationalModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -100,8 +97,6 @@ class ASN(PrimaryModel):
         null=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ['asn']
         verbose_name = 'ASN'
@@ -142,8 +137,6 @@ class Aggregate(PrimaryModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'rir', 'tenant', 'date_added', 'description',
@@ -234,8 +227,6 @@ class Role(OrganizationalModel):
         max_length=200,
         blank=True,
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['weight', 'name']
@@ -591,8 +582,6 @@ class IPRange(PrimaryModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'vrf', 'tenant', 'status', 'role', 'description',

@@ -11,6 +11,7 @@ from taggit.managers import TaggableManager
 from extras.choices import ObjectChangeActionChoices
 from netbox.signals import post_clean
 from utilities.mptt import TreeManager
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 
 __all__ = (
@@ -169,6 +170,8 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, BigIDModel):
     """
     Base model for all objects which support change logging.
     """
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         abstract = True
 
@@ -182,6 +185,8 @@ class PrimaryModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidationMixin,
         object_id_field='assigned_object_id',
         content_type_field='assigned_object_type'
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True
@@ -250,6 +255,8 @@ class OrganizationalModel(ChangeLoggingMixin, CustomFieldsMixin, CustomValidatio
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True

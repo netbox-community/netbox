@@ -7,7 +7,6 @@ from circuits.choices import *
 from dcim.models import LinkTermination
 from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'Circuit',
@@ -34,8 +33,6 @@ class CircuitType(OrganizationalModel):
         max_length=200,
         blank=True,
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -123,8 +120,6 @@ class Circuit(PrimaryModel):
         null=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     clone_fields = [
         'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
     ]
@@ -194,8 +189,6 @@ class CircuitTermination(ChangeLoggedModel, LinkTermination):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['circuit', 'term_side']

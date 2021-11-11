@@ -125,8 +125,6 @@ class Webhook(ChangeLoggedModel):
                   'Leave blank to use the system defaults.'
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ('name',)
         unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
@@ -222,8 +220,6 @@ class CustomLink(ChangeLoggedModel):
         help_text="Force link to open in a new window"
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ['group_name', 'weight', 'name']
 
@@ -267,8 +263,6 @@ class ExportTemplate(ChangeLoggedModel):
         default=True,
         help_text="Download file as attachment"
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['content_type', 'name']
@@ -428,8 +422,6 @@ class JournalEntry(ChangeLoggedModel):
         default=JournalEntryKindChoices.KIND_INFO
     )
     comments = models.TextField()
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ('-created',)

@@ -14,7 +14,6 @@ from dcim.utils import decompile_path_node, object_to_path_node, path_node_to_ob
 from extras.utils import extras_features
 from netbox.models import BigIDModel, PrimaryModel
 from utilities.fields import ColorField
-from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
 from .devices import Device
 from .device_components import FrontPort, RearPort
@@ -115,8 +114,6 @@ class Cable(PrimaryModel):
         blank=True,
         null=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['pk']

@@ -59,8 +59,6 @@ class Provider(PrimaryModel):
         to='tenancy.ContactAssignment'
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     clone_fields = [
         'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
     ]
@@ -96,8 +94,6 @@ class ProviderNetwork(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ('provider', 'name')

@@ -7,7 +7,6 @@ from mptt.models import TreeForeignKey
 from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
 from tenancy.choices import *
-from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'ContactAssignment',
@@ -69,8 +68,6 @@ class ContactRole(OrganizationalModel):
         blank=True,
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ['name']
 
@@ -115,8 +112,6 @@ class Contact(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     clone_fields = [
         'group',
     ]
@@ -160,8 +155,6 @@ class ContactAssignment(ChangeLoggedModel):
         choices=ContactPriorityChoices,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = ('content_type', 'object_id')
 

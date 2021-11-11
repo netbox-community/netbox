@@ -7,7 +7,6 @@ from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from extras.utils import extras_features
 from netbox.models import BigIDModel, NestedGroupModel, PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 from .choices import *
 from .constants import *
 
@@ -109,8 +108,6 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ('ssid', 'pk')
         verbose_name = 'Wireless LAN'
@@ -170,8 +167,6 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         blank=True,
         null=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = ('ssid', 'status')
 

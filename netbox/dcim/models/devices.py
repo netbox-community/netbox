@@ -18,7 +18,6 @@ from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 from .device_components import *
 
 
@@ -58,8 +57,6 @@ class Manufacturer(OrganizationalModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -136,8 +133,6 @@ class DeviceType(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
@@ -379,8 +374,6 @@ class DeviceRole(OrganizationalModel):
         blank=True,
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ['name']
 
@@ -430,8 +423,6 @@ class Platform(OrganizationalModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -895,8 +886,6 @@ class VirtualChassis(PrimaryModel):
         max_length=30,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']

@@ -8,7 +8,6 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 from utilities.validators import ExclusionValidator
 from .device_components import LinkTermination, PathEndpoint
 
@@ -48,8 +47,6 @@ class PowerPanel(PrimaryModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['site', 'name']
@@ -130,8 +127,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, LinkTermination):
     comments = models.TextField(
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',

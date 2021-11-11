@@ -16,7 +16,6 @@ from netbox.models import PrimaryModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
-from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
 from wireless.choices import *
 from wireless.utils import get_channel_attr
@@ -64,8 +63,6 @@ class ComponentModel(PrimaryModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True

@@ -7,7 +7,6 @@ from extras.utils import extras_features
 from netbox.models import BigIDModel, ChangeLoggedModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
-from utilities.querysets import RestrictedQuerySet
 
 
 #
@@ -23,8 +22,6 @@ class Tag(ChangeLoggedModel, TagBase):
         max_length=200,
         blank=True,
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']

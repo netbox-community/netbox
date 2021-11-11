@@ -18,7 +18,6 @@ from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 from utilities.utils import array_to_string
 from .device_components import PowerOutlet, PowerPort
 from .devices import Device
@@ -55,8 +54,6 @@ class RackRole(OrganizationalModel):
         max_length=200,
         blank=True,
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -189,8 +186,6 @@ class Rack(PrimaryModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
@@ -470,8 +465,6 @@ class RackReservation(PrimaryModel):
     description = models.CharField(
         max_length=200
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['created', 'pk']
