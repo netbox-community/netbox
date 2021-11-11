@@ -56,11 +56,9 @@ def get_cabletermination_row_class(record):
 def get_interface_row_class(record):
     if not record.enabled:
         return 'danger'
-    elif not record.is_connectable:
+    elif record.is_virtual:
         return 'primary'
-    else:
-        return get_cabletermination_row_class(record)
-    return ''
+    return get_cabletermination_row_class(record)
 
 
 def get_interface_state_attribute(record):
