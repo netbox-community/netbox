@@ -20,6 +20,7 @@
 * [#7788](https://github.com/netbox-community/netbox/issues/7788) - Improve XSS mitigation in Markdown renderer
 * [#7791](https://github.com/netbox-community/netbox/issues/7791) - Enable sorting device bays table by installed device status
 * [#7802](https://github.com/netbox-community/netbox/issues/7802) - Differentiate ID and VID columns in VLANs table
+* [#7808](https://github.com/netbox-community/netbox/issues/7808) - Fix reference values for content type under custom field import form
 * [#7809](https://github.com/netbox-community/netbox/issues/7809) - Add missing export template support for various models
 
 ---
