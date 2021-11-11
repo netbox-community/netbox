@@ -653,7 +653,8 @@ class DeviceBayTable(DeviceComponentTable):
         }
     )
     status = tables.TemplateColumn(
-        template_code=DEVICEBAY_STATUS
+        template_code=DEVICEBAY_STATUS,
+        order_by=Accessor('installed_device__status')
     )
     installed_device = tables.Column(
         linkify=True
