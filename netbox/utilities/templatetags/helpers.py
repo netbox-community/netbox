@@ -40,13 +40,18 @@ def render_markdown(value):
     """
     Render text as Markdown
     """
+    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
+
     # Strip HTML tags
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
-    pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
+    pattern = fr'\[([^\]]+)\]\((?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
+
+    # Sanitize Markdown reference links
+    pattern = fr'\[(.+)\]:\w?(?!({schemes})).*:(.+)'
+    value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
 
     # Render Markdown
     html = markdown(value, extensions=['fenced_code', 'tables'])
