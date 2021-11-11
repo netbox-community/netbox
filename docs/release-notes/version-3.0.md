@@ -9,6 +9,7 @@
 
 ### Bug Fixes
 
+* [#7564](https://github.com/netbox-community/netbox/issues/7564) - Fix assignment of members to virtual chassis with initial position of zero
 * [#7701](https://github.com/netbox-community/netbox/issues/7701) - Fix conflation of assigned IP status & role in interface tables
 * [#7741](https://github.com/netbox-community/netbox/issues/7741) - Fix 404 when attaching multiple images in succession
 * [#7752](https://github.com/netbox-community/netbox/issues/7752) - Fix minimum version check under Python v3.10
