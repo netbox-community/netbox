@@ -6,6 +6,7 @@
 
 * [#7740](https://github.com/netbox-community/netbox/issues/7740) - Add mini-DIN 8 console port type
 * [#7760](https://github.com/netbox-community/netbox/issues/7760) - Add `vid` filter field to VLANs list
+* [#7767](https://github.com/netbox-community/netbox/issues/7767) - Add visual aids to interfaces table for type, enabled status
 
 ### Bug Fixes
 
