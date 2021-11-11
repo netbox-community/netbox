@@ -739,6 +739,12 @@ class IPAddressEditView(generic.ObjectEditView):
             except (ValueError, VMInterface.DoesNotExist):
                 pass
 
+        elif 'fhrpgroup' in request.GET:
+            try:
+                obj.assigned_object = FHRPGroup.objects.get(pk=request.GET['fhrpgroup'])
+            except (ValueError, FHRPGroup.DoesNotExist):
+                pass
+
         return obj
 
 

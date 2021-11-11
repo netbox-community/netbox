@@ -321,6 +321,11 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'virtual_machine_id': '$virtual_machine'
         }
     )
+    fhrpgroup = DynamicModelChoiceField(
+        queryset=FHRPGroup.objects.all(),
+        required=False,
+        label='FHRP Group'
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -428,6 +433,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 initial['interface'] = instance.assigned_object
             elif type(instance.assigned_object) is VMInterface:
                 initial['vminterface'] = instance.assigned_object
+            elif type(instance.assigned_object) is FHRPGroup:
+                initial['fhrpgroup'] = instance.assigned_object
             if instance.nat_inside:
                 nat_inside_parent = instance.nat_inside.assigned_object
                 if type(nat_inside_parent) is Interface:
@@ -454,10 +461,13 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     def clean(self):
         super().clean()
 
-        # Cannot select both a device interface and a VM interface
-        if self.cleaned_data.get('interface') and self.cleaned_data.get('vminterface'):
-            raise forms.ValidationError("Cannot select both a device interface and a virtual machine interface")
-        self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
+        # Handle object assignment
+        if self.cleaned_data['interface']:
+            self.instance.assigned_object = self.cleaned_data['interface']
+        elif self.cleaned_data['vminterface']:
+            self.instance.assigned_object = self.cleaned_data['vminterface']
+        elif self.cleaned_data['fhrpgroup']:
+            self.instance.assigned_object = self.cleaned_data['fhrpgroup']
 
         # Primary IP assignment is only available if an interface has been assigned.
         interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
@@ -471,7 +481,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
         interface = self.instance.assigned_object
-        if interface:
+        if type(interface) in (Interface, VMInterface):
             parent = interface.parent_object
             if self.cleaned_data['primary_for_parent']:
                 if ipaddress.address.version == 4:

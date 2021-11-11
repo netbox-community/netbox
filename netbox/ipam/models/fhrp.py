@@ -47,7 +47,7 @@ class FHRPGroup(PrimaryModel):
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
-        related_query_name='fhrp_group'
+        related_query_name='fhrpgroup'
     )
 
     objects = RestrictedQuerySet.as_manager()
