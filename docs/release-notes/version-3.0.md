@@ -15,6 +15,7 @@
 * [#7766](https://github.com/netbox-community/netbox/issues/7766) - Add missing outer dimension columns to rack table
 * [#7780](https://github.com/netbox-community/netbox/issues/7780) - Preserve multi-line values during CSV file import
 * [#7783](https://github.com/netbox-community/netbox/issues/7783) - Fix indentation of locations under site view
+* [#7791](https://github.com/netbox-community/netbox/issues/7791) - Enable sorting device bays table by installed device status
 * [#7802](https://github.com/netbox-community/netbox/issues/7802) - Differentiate ID and VID columns in VLANs table
 
 ---
