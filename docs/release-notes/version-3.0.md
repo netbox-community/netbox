@@ -22,6 +22,7 @@
 * [#7802](https://github.com/netbox-community/netbox/issues/7802) - Differentiate ID and VID columns in VLANs table
 * [#7808](https://github.com/netbox-community/netbox/issues/7808) - Fix reference values for content type under custom field import form
 * [#7809](https://github.com/netbox-community/netbox/issues/7809) - Add missing export template support for various models
+* [#7814](https://github.com/netbox-community/netbox/issues/7814) - Fix restriction of user & group objects in GraphQL API queries
 
 ---
 
