@@ -2,6 +2,11 @@
 
 ## v3.0.11 (FUTURE)
 
+### Enhancements
+
+* [#7803](https://github.com/netbox-community/netbox/issues/7803) - Improve live reloading of custom scripts
+* [#7810](https://github.com/netbox-community/netbox/issues/7810) - Add IEEE 802.15.1 interface type
+
 ### Bug Fixes
 
 * [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
