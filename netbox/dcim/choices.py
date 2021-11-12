@@ -739,6 +739,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AC = 'ieee802.11ac'
     TYPE_80211AD = 'ieee802.11ad'
     TYPE_80211AX = 'ieee802.11ax'
+    TYPE_802151 = 'ieee802.15.1'
 
     # Cellular
     TYPE_GSM = 'gsm'
@@ -850,6 +851,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_80211AC, 'IEEE 802.11ac'),
                 (TYPE_80211AD, 'IEEE 802.11ad'),
                 (TYPE_80211AX, 'IEEE 802.11ax'),
+                (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
             )
         ),
         (
