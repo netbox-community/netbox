@@ -19,7 +19,7 @@ class GroupType(DjangoObjectType):
 
     @classmethod
     def get_queryset(cls, queryset, info):
-        return RestrictedQuerySet(model=Group)
+        return RestrictedQuerySet(model=Group).restrict(info.context.user, 'view')
 
 
 class UserType(DjangoObjectType):
@@ -34,4 +34,4 @@ class UserType(DjangoObjectType):
 
     @classmethod
     def get_queryset(cls, queryset, info):
-        return RestrictedQuerySet(model=User)
+        return RestrictedQuerySet(model=User).restrict(info.context.user, 'view')

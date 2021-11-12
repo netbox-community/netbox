@@ -17,8 +17,13 @@ Begin by installing all system packages required by NetBox and its dependencies.
 
 === "CentOS"
 
+    !!! warning
+        CentOS 8 does not provide Python 3.7 or later via its native package manager. You will need to install it via some other means. [Here is an example](https://tecadmin.net/install-python-3-7-on-centos-8/) of installing Python 3.7 from source.
+
+    Once you have Python 3.7 or later installed, install the remaining system packages:
+
     ```no-highlight
-    sudo yum install -y gcc python36 python36-devel python3-pip libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
+    sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
     ```
 
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:

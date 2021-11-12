@@ -1,3 +1,4 @@
+import django_filters
 from django import forms
 from django.utils.translation import gettext as _
 
@@ -409,7 +410,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
-        ['group_id', 'status', 'role_id'],
+        ['group_id', 'status', 'role_id', 'vid'],
         ['tenant_group_id', 'tenant_id'],
     ]
     q = forms.CharField(
@@ -460,6 +461,10 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         null_option='None',
         label=_('Role'),
         fetch_trigger='open'
+    )
+    vid = forms.IntegerField(
+        required=False,
+        label='VLAN ID'
     )
     tag = TagFilterField(model)
 

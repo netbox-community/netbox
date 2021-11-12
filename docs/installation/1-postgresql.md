@@ -21,9 +21,6 @@ This section entails the installation and configuration of a local PostgreSQL da
     sudo postgresql-setup --initdb
     ```
 
-    !!! info
-        PostgreSQL 9.6 and later are available natively on CentOS 8.2. If using an earlier CentOS release, you may need to [install it from an RPM](https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/).
-
     CentOS configures ident host-based authentication for PostgreSQL by default. Because NetBox will need to authenticate using a username and password, modify `/var/lib/pgsql/data/pg_hba.conf` to support MD5 authentication by changing `ident` to `md5` for the lines below:
 
     ```no-highlight

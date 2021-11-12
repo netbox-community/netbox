@@ -9,7 +9,7 @@ from django.db import models
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.formats import date_format, time_format
+from django.utils.formats import date_format
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
@@ -36,7 +36,7 @@ __all__ = (
 # Webhooks
 #
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class Webhook(ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -175,7 +175,7 @@ class Webhook(ChangeLoggedModel):
 # Custom links
 #
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class CustomLink(ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
@@ -234,7 +234,7 @@ class CustomLink(ChangeLoggedModel):
 # Export templates
 #
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class ExportTemplate(ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,
@@ -356,6 +356,8 @@ class ImageAttachment(BigIDModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
+
+    clone_fields = ('content_type', 'object_id')
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique

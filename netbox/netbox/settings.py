@@ -4,6 +4,7 @@ import os
 import platform
 import re
 import socket
+import sys
 import warnings
 from urllib.parse import urlsplit
 
@@ -16,7 +17,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '3.0.9'
+VERSION = '3.0.10'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -25,7 +26,7 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if platform.python_version_tuple() < ('3', '7'):
+if sys.version_info < (3, 7):
     raise RuntimeError(
         f"NetBox requires Python 3.7 or higher (current: Python {platform.python_version()})"
     )

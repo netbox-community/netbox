@@ -814,7 +814,7 @@ table .table-badge-group {
     }
 
     &.badge:not(:last-of-type):not(:only-child) {
-      margin-bottom: map.get($spacers, 2);
+      margin-bottom: map.get($spacers, 1);
     }
   }
 }

@@ -224,7 +224,7 @@ class CSVFileField(forms.FileField):
             return None
 
         csv_str = file.read().decode('utf-8').strip()
-        reader = csv.reader(csv_str.splitlines())
+        reader = csv.reader(StringIO(csv_str))
         headers, records = parse_csv(reader)
 
         return headers, records
@@ -304,7 +304,7 @@ class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
                 app_label, model = name.split('.')
                 ct_filter |= Q(app_label=app_label, model=model)
             return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
-        return super().prepare_value(value)
+        return f'{value.app_label}.{value.model}'
 
 
 #

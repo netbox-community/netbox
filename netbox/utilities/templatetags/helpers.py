@@ -6,6 +6,7 @@ from typing import Dict, Any
 import yaml
 from django import template
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
@@ -39,13 +40,18 @@ def render_markdown(value):
     """
     Render text as Markdown
     """
+    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
+
     # Strip HTML tags
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
-    pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
+    pattern = fr'\[([^\]]+)\]\((?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
+
+    # Sanitize Markdown reference links
+    pattern = fr'\[(.+)\]:\w?(?!({schemes})).*:(.+)'
+    value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
 
     # Render Markdown
     html = markdown(value, extensions=['fenced_code', 'tables'])
@@ -76,6 +82,25 @@ def meta(obj, attr):
     to access attributes which begin with an underscore (e.g. _meta).
     """
     return getattr(obj._meta, attr, '')
+
+
+@register.filter()
+def content_type(obj):
+    """
+    Return the ContentType for the given object.
+    """
+    return ContentType.objects.get_for_model(obj)
+
+
+@register.filter()
+def content_type_id(obj):
+    """
+    Return the ContentType ID for the given object.
+    """
+    content_type = ContentType.objects.get_for_model(obj)
+    if content_type:
+        return content_type.pk
+    return None
 
 
 @register.filter()

@@ -14,7 +14,7 @@ from utilities.querysets import RestrictedQuerySet
 # Tags
 #
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class Tag(ChangeLoggedModel, TagBase):
     color = ColorField(
         default=ColorChoices.COLOR_GREY
