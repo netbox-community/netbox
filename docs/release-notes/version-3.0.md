@@ -2,6 +2,10 @@
 
 ## v3.0.11 (FUTURE)
 
+### Bug Fixes
+
+* [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
+
 ---
 
 ## v3.0.10 (2021-11-12)

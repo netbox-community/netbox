@@ -93,6 +93,13 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
+    def get_table(self, request, permissions):
+        table = self.table(self.queryset, user=request.user)
+        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
+            table.columns.show('pk')
+
+        return table
+
     def export_yaml(self):
         """
         Export the queryset of objects as concatenated YAML documents.
@@ -123,8 +130,20 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             filename=f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
         )
 
-    def get(self, request):
+    def export_template(self, template, request):
+        """
+        Render an ExportTemplate using the current queryset.
 
+        :param template: ExportTemplate instance
+        :param request: The current request
+        """
+        try:
+            return template.render_to_response(self.queryset)
+        except Exception as e:
+            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
+            return redirect(request.path)
+
+    def get(self, request):
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
 
@@ -137,42 +156,33 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             perm_name = get_permission_for_model(model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
-        # Export template/YAML rendering
-        if 'export' in request.GET and request.GET['export'] != 'table':
+        if 'export' in request.GET:
 
-            # An export template has been specified
-            if request.GET['export']:
-                et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
-                try:
-                    return et.render_to_response(self.queryset)
-                except Exception as e:
-                    messages.error(
-                        request,
-                        "There was an error rendering the selected export template ({}): {}".format(
-                            et.name, e
-                        )
-                    )
+            # Export the current table view
+            if request.GET['export'] == 'table':
+                table = self.get_table(request, permissions)
+                columns = [name for name, _ in table.selected_columns]
+                return self.export_table(table, columns)
 
-            # Check for YAML export support
+            # Render an ExportTemplate
+            elif request.GET['export']:
+                template = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET['export'])
+                return self.export_template(template, request)
+
+            # Check for YAML export support on the model
             elif hasattr(model, 'to_yaml'):
                 response = HttpResponse(self.export_yaml(), content_type='text/yaml')
                 filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
                 response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
                 return response
 
-        # Construct the objects table
-        table = self.table(self.queryset, user=request.user)
-        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
-            table.columns.show('pk')
+            # Fall back to default table/YAML export
+            else:
+                table = self.get_table(request, permissions)
+                return self.export_table(table)
 
-        # Handle table-based exports (current view or static CSV-based)
-        if request.GET.get('export') == 'table':
-            columns = [name for name, _ in table.selected_columns]
-            return self.export_table(table, columns)
-        elif 'export' in request.GET:
-            return self.export_table(table)
-
-        # Paginate the objects table
+        # Render the objects table
+        table = self.get_table(request, permissions)
         paginate_table(table, request)
 
         context = {
