@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#2101](https://github.com/netbox-community/netbox/issues/2101) - Add missing `q` filters for necessary models
 * [#7803](https://github.com/netbox-community/netbox/issues/7803) - Improve live reloading of custom scripts
 * [#7810](https://github.com/netbox-community/netbox/issues/7810) - Add IEEE 802.15.1 interface type
 
