@@ -118,12 +118,18 @@ class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
             'name', 'domain', 'region', 'site_group', 'site', 'rack', 'members', 'initial_position', 'tags',
         ]
 
+    def clean(self):
+        if self.cleaned_data['members'] and self.cleaned_data['initial_position'] is None:
+            raise forms.ValidationError({
+                'initial_position': "A position must be specified for the first VC member."
+            })
+
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
 
         # Assign VC members
-        if instance.pk:
-            initial_position = self.cleaned_data.get('initial_position') or 1
+        if instance.pk and self.cleaned_data['members']:
+            initial_position = self.cleaned_data.get('initial_position', 1)
             for i, member in enumerate(self.cleaned_data['members'], start=initial_position):
                 member.virtual_chassis = instance
                 member.vc_position = i

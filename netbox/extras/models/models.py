@@ -35,7 +35,7 @@ __all__ = (
 )
 
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class Webhook(ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -177,7 +177,7 @@ class Webhook(ChangeLoggedModel):
             return json.dumps(context, cls=JSONEncoder)
 
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class CustomLink(ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
@@ -230,7 +230,7 @@ class CustomLink(ChangeLoggedModel):
         return reverse('extras:customlink', args=[self.pk])
 
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class ExportTemplate(ChangeLoggedModel):
     content_type = models.ForeignKey(
         to=ContentType,

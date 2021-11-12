@@ -33,7 +33,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class CustomField(ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,

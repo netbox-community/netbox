@@ -70,7 +70,7 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
 class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
+        limit_choices_to=FeatureQuery('export_templates')
     )
 
     class Meta:

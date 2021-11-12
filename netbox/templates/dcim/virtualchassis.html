@@ -61,7 +61,7 @@
                                 <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                             </td>
                             <td>
-                              {% badge vc_member.vc_position %}
+                              {% badge vc_member.vc_position show_empty=True %}
                             </td>
                             <td>
                               {% if object.master == vc_member %}

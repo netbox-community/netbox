@@ -96,7 +96,7 @@ class VLANTable(BaseTable):
     pk = ToggleColumn()
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
-        verbose_name='ID'
+        verbose_name='VID'
     )
     site = tables.Column(
         linkify=True
