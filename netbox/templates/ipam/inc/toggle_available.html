@@ -1,5 +1,16 @@
 {% load helpers %}
 
+{% if show_assigned is not None %}
+  <div class="btn-group" role="group">
+    <a href="{{ request.path }}{% querystring request show_assigned='true' %}" class="btn btn-sm btn-outline-primary{% if show_assigned %} active disabled{% endif %}">
+      <i class="mdi mdi-eye"></i> Show Assigned
+    </a>
+    <a href="{{ request.path }}{% querystring request show_assigned='false' %}" class="btn btn-sm btn-outline-primary{% if not show_assigned %} active disabled{% endif %}">
+      <i class="mdi mdi-eye-off"></i> Hide Assigned
+    </a>
+  </div>
+{% endif %}
+
 {% if show_available is not None %}
   <div class="btn-group" role="group">
     <a href="{{ request.path }}{% querystring request show_available='true' %}" class="btn btn-sm btn-outline-primary{% if show_available %} active disabled{% endif %}">
