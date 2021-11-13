@@ -213,7 +213,7 @@ class AggregateView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Find all child prefixes contained by this aggregate
-        child_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
+        child_prefixes_assigned = Prefix.objects.restrict(request.user, 'view').filter(
             prefix__net_contained_or_equal=str(instance.prefix)
         ).prefetch_related(
             'site', 'role'
@@ -221,9 +221,19 @@ class AggregateView(generic.ObjectView):
             'prefix'
         )
 
+        # List to append filtered prefixes to
+        child_prefixes = []
+
         # Add available prefixes to the table if requested
-        if request.GET.get('show_available', 'true') == 'true':
-            child_prefixes = add_available_prefixes(instance.prefix, child_prefixes)
+        if child_prefixes_assigned and request.GET.get('show_available', 'true') == 'true':
+            child_prefixes = child_prefixes + add_available_prefixes(instance.prefix, child_prefixes_assigned)
+
+        # Add assigned prefixes to the table if requested
+        if child_prefixes_assigned and request.GET.get('show_assigned', 'true') == 'true':
+            child_prefixes = child_prefixes + list(child_prefixes_assigned)
+
+        # Sort child prefixes after additions
+        child_prefixes.sort(key=lambda p: p.prefix)
 
         prefix_table = tables.PrefixTable(child_prefixes, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -242,6 +252,7 @@ class AggregateView(generic.ObjectView):
             'permissions': permissions,
             'bulk_querystring': f'within={instance.prefix}',
             'show_available': request.GET.get('show_available', 'true') == 'true',
+            'show_assigned': request.GET.get('show_assigned', 'true') == 'true',
         }
 
 
