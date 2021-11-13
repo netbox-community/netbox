@@ -15,6 +15,7 @@ def add_available_prefixes(parent, prefix_list):
 
     return available_prefixes
 
+
 def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
     """
     Annotate ranges of available IP addresses within a given prefix. If is_pool is True, the first and last IP will be
