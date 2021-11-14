@@ -104,6 +104,7 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         query_params={
             'site_id': '$site_id',
             'location_id': '$location_id',
+            'virtual_chassis_id': '$virtual_chassis_id'
         },
         label=_('Device'),
         fetch_trigger='open'
