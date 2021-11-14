@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -68,7 +69,7 @@
         VLANs
       </h5>
       <div class="card-body">
-        {% include 'inc/table.html' with table=vlans_table %}
+        {% render_table vlans_table 'inc/table.html' %}
       </div>
       {% if perms.ipam.add_vlan %}
         <div class="card-footer text-end noprint">
