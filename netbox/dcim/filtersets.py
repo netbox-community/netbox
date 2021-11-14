@@ -861,6 +861,17 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label='Device (name)',
     )
+    virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis',
+        queryset=VirtualChassis.objects.all(),
+        label='Virtual Chassis (ID)'
+    )
+    virtual_chassis = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis__name',
+        queryset=VirtualChassis.objects.all(),
+        to_field_name='name',
+        label='Virtual Chassis',
+    )
     tag = TagFilter()
 
     def search(self, queryset, name, value):
