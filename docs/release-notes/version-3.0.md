@@ -12,7 +12,7 @@
 
 ### Bug Fixes
 
-* [#7229](https://github.com/netbox-community/netbox/issues/7229) - Fix permissions evaluation when display VLAN group VLANs table
+* [#7729](https://github.com/netbox-community/netbox/issues/7229) - Fix permissions evaluation when displaying VLAN group VLANs table
 * [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
 
 ---
