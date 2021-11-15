@@ -5,11 +5,14 @@
 ### Enhancements
 
 * [#2101](https://github.com/netbox-community/netbox/issues/2101) - Add missing `q` filters for necessary models
+* [#7424](https://github.com/netbox-community/netbox/issues/7424) - Add virtual chassis filters for device components
+* [#7542](https://github.com/netbox-community/netbox/issues/7542) - Add optional VLAN group column to prefixes table
 * [#7803](https://github.com/netbox-community/netbox/issues/7803) - Improve live reloading of custom scripts
 * [#7810](https://github.com/netbox-community/netbox/issues/7810) - Add IEEE 802.15.1 interface type
 
 ### Bug Fixes
 
+* [#7229](https://github.com/netbox-community/netbox/issues/7229) - Fix permissions evaluation when display VLAN group VLANs table
 * [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
 
 ---
