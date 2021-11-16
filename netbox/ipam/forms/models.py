@@ -587,8 +587,8 @@ class FHRPGroupForm(BootstrapMixin, CustomFieldModelForm):
         return instance
 
     def clean(self):
-        ip_address = self.cleaned_data['ip_address']
-        ip_status = self.cleaned_data['ip_status']
+        ip_address = self.cleaned_data.get('ip_address')
+        ip_status = self.cleaned_data.get('ip_status')
 
         if ip_address and not ip_status:
             raise forms.ValidationError({
