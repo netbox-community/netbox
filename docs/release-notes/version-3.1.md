@@ -11,6 +11,7 @@
 * [#7761](https://github.com/netbox-community/netbox/issues/7761) - Extend cable tracing across bridged interfaces
 * [#7769](https://github.com/netbox-community/netbox/issues/7769) - Enable assignment of IP addresses to an existing FHRP group
 * [#7775](https://github.com/netbox-community/netbox/issues/7775) - Enable dynamic config for `CHANGELOG_RETENTION`, `CUSTOM_VALIDATORS`, and `GRAPHQL_ENABLED`
+* [#7812](https://github.com/netbox-community/netbox/issues/7812) - Enable change logging for image attachments
 * [#7858](https://github.com/netbox-community/netbox/issues/7858) - Standardize the representation of content types across import & export functions
 
 ### Bug Fixes
@@ -21,6 +22,11 @@
 * [#7768](https://github.com/netbox-community/netbox/issues/7768) - Validate IP address status when creating a new FHRP group
 * [#7771](https://github.com/netbox-community/netbox/issues/7771) - Group assignment should be optional when creating contacts via REST API
 * [#7849](https://github.com/netbox-community/netbox/issues/7849) - Fix exception when creating an FHRPGroup with an invalid IP address
+
+### REST API Changes
+
+* extras.ImageAttachment
+    * Added the `last_updated` field
 
 ---
 

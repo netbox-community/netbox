@@ -150,7 +150,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
         model = ImageAttachment
         fields = [
             'id', 'url', 'display', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height',
-            'image_width', 'created',
+            'image_width', 'created', 'last_updated',
         ]
 
     def validate(self, data):

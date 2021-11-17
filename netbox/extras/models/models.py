@@ -317,7 +317,8 @@ class ExportTemplate(ChangeLoggedModel):
         return response
 
 
-class ImageAttachment(BigIDModel):
+@extras_features('webhooks')
+class ImageAttachment(ChangeLoggedModel):
     """
     An uploaded image which is associated with an object.
     """
@@ -341,6 +342,7 @@ class ImageAttachment(BigIDModel):
         max_length=50,
         blank=True
     )
+    # ChangeLoggingMixin.created is a DateField
     created = models.DateTimeField(
         auto_now_add=True
     )
@@ -389,6 +391,9 @@ class ImageAttachment(BigIDModel):
             return self.image.size
         except tuple(expected_exceptions):
             return None
+
+    def to_objectchange(self, action):
+        return super().to_objectchange(action, related_object=self.parent)
 
 
 @extras_features('webhooks')
