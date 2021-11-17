@@ -17,6 +17,7 @@
 * [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
 * [#7851](https://github.com/netbox-community/netbox/issues/7851) - Add missing cluster name filter for virtual machines
 * [#7857](https://github.com/netbox-community/netbox/issues/7857) - Fix ordering IP addresses by assignment status
+* [#7859](https://github.com/netbox-community/netbox/issues/7859) - Fix styling of form widgets under cable connection views
 
 ---
 
