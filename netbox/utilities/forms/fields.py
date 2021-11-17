@@ -15,7 +15,7 @@ from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices
-from utilities.utils import content_type_name
+from utilities.utils import content_type_identifier, content_type_name
 from utilities.validators import EnhancedURLValidator
 from . import widgets
 from .constants import *
@@ -302,7 +302,7 @@ class CSVContentTypeField(CSVModelChoiceField):
     STATIC_CHOICES = True
 
     def prepare_value(self, value):
-        return f'{value.app_label}.{value.model}'
+        return content_type_identifier(value)
 
     def to_python(self, value):
         if not value:
@@ -328,7 +328,7 @@ class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
                 app_label, model = name.split('.')
                 ct_filter |= Q(app_label=app_label, model=model)
             return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
-        return f'{value.app_label}.{value.model}'
+        return content_type_identifier(value)
 
 
 #
