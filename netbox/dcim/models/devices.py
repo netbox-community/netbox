@@ -604,7 +604,9 @@ class Device(PrimaryModel, ConfigContextModel):
         )
 
     def __str__(self):
-        if self.name:
+        if self.name and self.asset_tag:
+            return f'{self.name} ({self.asset_tag})'
+        elif self.name:
             return self.name
         elif self.virtual_chassis:
             return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'

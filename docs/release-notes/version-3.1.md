@@ -7,6 +7,7 @@
 
 ### Enhancements
 
+* [#5143](https://github.com/netbox-community/netbox/issues/5143) - Include a device's asset tag in its display value
 * [#7619](https://github.com/netbox-community/netbox/issues/7619) - Permit custom validation rules to be defined as plain data or dotted path to class
 * [#7761](https://github.com/netbox-community/netbox/issues/7761) - Extend cable tracing across bridged interfaces
 * [#7769](https://github.com/netbox-community/netbox/issues/7769) - Enable assignment of IP addresses to an existing FHRP group
@@ -25,6 +26,8 @@
 
 ### REST API Changes
 
+* dcim.Device
+    * The `display` field now includes the device's asset tag, if set
 * extras.ImageAttachment
     * Added the `last_updated` field
 
