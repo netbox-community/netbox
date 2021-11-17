@@ -3,6 +3,7 @@
 ### Breaking Changes
 
 * Exported webhooks and custom fields now reference associated content types by raw string value (e.g. "dcim.site") rather than by human-friendly name.
+* The 128GFC interface type has been corrected from `128gfc-sfp28` to `128gfc-qsfp28`.
 
 ### Enhancements
 
@@ -14,6 +15,7 @@
 
 ### Bug Fixes
 
+* [#7589](https://github.com/netbox-community/netbox/issues/7589) - Correct 128GFC interface type identifier
 * [#7756](https://github.com/netbox-community/netbox/issues/7756) - Fix AttributeError exception when editing an IP address assigned to a FHRPGroup
 * [#7757](https://github.com/netbox-community/netbox/issues/7757) - Fix 404 when assigning multiple contacts/FHRP groups in succession
 * [#7768](https://github.com/netbox-community/netbox/issues/7768) - Validate IP address status when creating a new FHRP group
