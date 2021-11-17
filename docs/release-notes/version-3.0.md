@@ -12,6 +12,7 @@
 
 ### Bug Fixes
 
+* [#7720](https://github.com/netbox-community/netbox/issues/7720) - Fix initialization of custom script MultiObjectVar field with multiple values
 * [#7729](https://github.com/netbox-community/netbox/issues/7729) - Fix permissions evaluation when displaying VLAN group VLANs table
 * [#7739](https://github.com/netbox-community/netbox/issues/7739) - Fix exception when tracing cable across circuit with no far end termination
 * [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
