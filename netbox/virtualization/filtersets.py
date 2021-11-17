@@ -144,6 +144,12 @@ class VirtualMachineFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConf
         queryset=Cluster.objects.all(),
         label='Cluster (ID)',
     )
+    cluster = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster__name',
+        queryset=Cluster.objects.all(),
+        to_field_name='name',
+        label='Cluster',
+    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='cluster__site__region',
