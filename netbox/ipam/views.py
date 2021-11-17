@@ -523,9 +523,7 @@ class PrefixIPAddressesView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Find all IPAddresses belonging to this Prefix
-        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'primary_ip4_for', 'primary_ip6_for'
-        )
+        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf')
 
         # Add available IP addresses to the table if requested
         if request.GET.get('show_available', 'true') == 'true':
@@ -604,9 +602,7 @@ class IPRangeIPAddressesView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Find all IPAddresses within this range
-        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'primary_ip4_for', 'primary_ip6_for'
-        )
+        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf')
 
         # Add available IP addresses to the table if requested
         # if request.GET.get('show_available', 'true') == 'true':
