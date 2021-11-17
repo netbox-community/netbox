@@ -323,7 +323,7 @@ class IPAddressTable(BaseTable):
         verbose_name='NAT (Inside)'
     )
     assigned = BooleanColumn(
-        accessor='assigned_object',
+        accessor='assigned_object_id',
         linkify=True,
         verbose_name='Assigned'
     )

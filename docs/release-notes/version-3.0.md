@@ -16,6 +16,7 @@
 * [#7739](https://github.com/netbox-community/netbox/issues/7739) - Fix exception when tracing cable across circuit with no far end termination
 * [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
 * [#7851](https://github.com/netbox-community/netbox/issues/7851) - Add missing cluster name filter for virtual machines
+* [#7857](https://github.com/netbox-community/netbox/issues/7857) - Fix ordering IP addresses by assignment status
 
 ---
 
