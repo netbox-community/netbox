@@ -40,7 +40,7 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 ])
 
 
-class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class VRFFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = VRF
     field_groups = [
         ['q', 'tag'],
@@ -67,7 +67,7 @@ class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFor
     tag = TagFilterField(model)
 
 
-class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class RouteTargetFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = RouteTarget
     field_groups = [
         ['q', 'tag'],
@@ -94,7 +94,7 @@ class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelF
     tag = TagFilterField(model)
 
 
-class RIRFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class RIRFilterForm(CustomFieldModelFilterForm):
     model = RIR
     q = forms.CharField(
         required=False,
@@ -111,7 +111,7 @@ class RIRFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class AggregateFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Aggregate
     field_groups = [
         ['q', 'tag'],
@@ -138,7 +138,7 @@ class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
     tag = TagFilterField(model)
 
 
-class ASNFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class ASNFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = ASN
     field_groups = [
         ['q'],
@@ -165,7 +165,7 @@ class ASNFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFor
     )
 
 
-class RoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class RoleFilterForm(CustomFieldModelFilterForm):
     model = Role
     q = forms.CharField(
         required=False,
@@ -175,7 +175,7 @@ class RoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class PrefixFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Prefix
     field_groups = [
         ['q', 'tag'],
@@ -277,7 +277,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
     tag = TagFilterField(model)
 
 
-class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class IPRangeFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = IPRange
     field_groups = [
         ['q', 'tag'],
@@ -317,7 +317,7 @@ class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     tag = TagFilterField(model)
 
 
-class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class IPAddressFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = IPAddress
     field_order = [
         'q', 'parent', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'role',
@@ -388,7 +388,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
     tag = TagFilterField(model)
 
 
-class FHRPGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class FHRPGroupFilterForm(CustomFieldModelFilterForm):
     model = FHRPGroup
     field_groups = (
         ('q', 'tag'),
@@ -423,7 +423,7 @@ class FHRPGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class VLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class VLANGroupFilterForm(CustomFieldModelFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['region', 'sitegroup', 'site', 'location', 'rack']
@@ -467,7 +467,7 @@ class VLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class VLANFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = VLAN
     field_groups = [
         ['q', 'tag'],
@@ -531,7 +531,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     tag = TagFilterField(model)
 
 
-class ServiceFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ServiceFilterForm(CustomFieldModelFilterForm):
     model = Service
     field_groups = (
         ('q', 'tag'),

@@ -105,7 +105,7 @@ class CustomFieldModelBulkEditForm(BulkEditForm):
             self.custom_fields.append(cf.name)
 
 
-class CustomFieldModelFilterForm(forms.Form):
+class CustomFieldModelFilterForm(BootstrapMixin, forms.Form):
 
     def __init__(self, *args, **kwargs):
 

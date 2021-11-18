@@ -16,7 +16,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class WirelessLANGroupFilterForm(CustomFieldModelFilterForm):
     model = WirelessLANGroup
     q = forms.CharField(
         required=False,
@@ -32,7 +32,7 @@ class WirelessLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class WirelessLANFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class WirelessLANFilterForm(CustomFieldModelFilterForm):
     model = WirelessLAN
     field_groups = [
         ('q', 'tag'),
@@ -70,7 +70,7 @@ class WirelessLANFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class WirelessLinkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class WirelessLinkFilterForm(CustomFieldModelFilterForm):
     model = WirelessLink
     q = forms.CharField(
         required=False,

@@ -47,7 +47,7 @@ __all__ = (
 )
 
 
-class DeviceComponentFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class DeviceComponentFilterForm(CustomFieldModelFilterForm):
     field_order = [
         'q', 'name', 'label', 'region_id', 'site_group_id', 'site_id',
     ]
@@ -112,7 +112,7 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     )
 
 
-class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class RegionFilterForm(CustomFieldModelFilterForm):
     model = Region
     q = forms.CharField(
         required=False,
@@ -128,7 +128,7 @@ class RegionFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class SiteGroupFilterForm(CustomFieldModelFilterForm):
     model = SiteGroup
     q = forms.CharField(
         required=False,
@@ -144,7 +144,7 @@ class SiteGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Site
     field_order = ['q', 'status', 'region_id', 'tenant_group_id', 'tenant_id', 'asn_id']
     field_groups = [
@@ -184,7 +184,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
     tag = TagFilterField(model)
 
 
-class LocationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Location
     field_groups = [
         ['q'],
@@ -231,7 +231,7 @@ class LocationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilt
     tag = TagFilterField(model)
 
 
-class RackRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class RackRoleFilterForm(CustomFieldModelFilterForm):
     model = RackRole
     q = forms.CharField(
         required=False,
@@ -241,7 +241,7 @@ class RackRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Rack
     field_order = ['q', 'region_id', 'site_id', 'location_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
@@ -329,7 +329,7 @@ class RackElevationFilterForm(RackFilterForm):
     )
 
 
-class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = RackReservation
     field_order = ['q', 'region_id', 'site_id', 'location_id', 'user_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
@@ -377,7 +377,7 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMo
     tag = TagFilterField(model)
 
 
-class ManufacturerFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ManufacturerFilterForm(CustomFieldModelFilterForm):
     model = Manufacturer
     q = forms.CharField(
         required=False,
@@ -387,7 +387,7 @@ class ManufacturerFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class DeviceTypeFilterForm(CustomFieldModelFilterForm):
     model = DeviceType
     field_groups = [
         ['q', 'tag'],
@@ -460,7 +460,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class DeviceRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class DeviceRoleFilterForm(CustomFieldModelFilterForm):
     model = DeviceRole
     q = forms.CharField(
         required=False,
@@ -470,7 +470,7 @@ class DeviceRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class PlatformFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class PlatformFilterForm(CustomFieldModelFilterForm):
     model = Platform
     q = forms.CharField(
         required=False,
@@ -486,7 +486,7 @@ class PlatformFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Device
     field_order = [
         'q', 'region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id',
@@ -658,7 +658,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     tag = TagFilterField(model)
 
 
-class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class VirtualChassisFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualChassis
     field_order = ['q', 'region_id', 'site_group_id', 'site_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
@@ -696,7 +696,7 @@ class VirtualChassisFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldMod
     tag = TagFilterField(model)
 
 
-class CableFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cable
     field_groups = [
         ['q', 'tag'],
@@ -761,7 +761,7 @@ class CableFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterF
     tag = TagFilterField(model)
 
 
-class PowerPanelFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class PowerPanelFilterForm(CustomFieldModelFilterForm):
     model = PowerPanel
     field_groups = (
         ('q', 'tag'),
@@ -807,7 +807,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerFeedFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class PowerFeedFilterForm(CustomFieldModelFilterForm):
     model = PowerFeed
     field_groups = [
         ['q', 'tag'],

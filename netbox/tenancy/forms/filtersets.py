@@ -18,7 +18,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class TenantGroupFilterForm(CustomFieldModelFilterForm):
     model = TenantGroup
     q = forms.CharField(
         required=False,
@@ -34,7 +34,7 @@ class TenantGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class TenantFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class TenantFilterForm(CustomFieldModelFilterForm):
     model = Tenant
     field_groups = (
         ('q', 'tag'),
@@ -59,7 +59,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
 # Contacts
 #
 
-class ContactGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ContactGroupFilterForm(CustomFieldModelFilterForm):
     model = ContactGroup
     q = forms.CharField(
         required=False,
@@ -75,7 +75,7 @@ class ContactGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ContactRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ContactRoleFilterForm(CustomFieldModelFilterForm):
     model = ContactRole
     q = forms.CharField(
         required=False,
@@ -85,7 +85,7 @@ class ContactRoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ContactFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ContactFilterForm(CustomFieldModelFilterForm):
     model = Contact
     field_groups = (
         ('q', 'tag'),

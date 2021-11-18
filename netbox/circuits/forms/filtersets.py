@@ -16,7 +16,7 @@ __all__ = (
 )
 
 
-class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ProviderFilterForm(CustomFieldModelFilterForm):
     model = Provider
     field_groups = [
         ['q', 'tag'],
@@ -57,7 +57,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
     model = ProviderNetwork
     field_groups = (
         ('q', 'tag'),
@@ -77,7 +77,7 @@ class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class CircuitTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class CircuitTypeFilterForm(CustomFieldModelFilterForm):
     model = CircuitType
     q = forms.CharField(
         required=False,
@@ -87,7 +87,7 @@ class CircuitTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Circuit
     field_groups = [
         ['q', 'tag'],
