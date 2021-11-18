@@ -20,7 +20,8 @@
 * [#7851](https://github.com/netbox-community/netbox/issues/7851) - Add missing cluster name filter for virtual machines
 * [#7857](https://github.com/netbox-community/netbox/issues/7857) - Fix ordering IP addresses by assignment status
 * [#7859](https://github.com/netbox-community/netbox/issues/7859) - Fix styling of form widgets under cable connection views
-* [#7864](https://github.com/netbox-community/netbox/issues/7864) - `power_port` can be null when creating power outlets
+* [#7864](https://github.com/netbox-community/netbox/issues/7864) - `power_port` can be null when creating power outlets via REST API
+* [#7865](https://github.com/netbox-community/netbox/issues/7865) - REST API should support null values for console port speeds
 
 ---
 

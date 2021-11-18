@@ -539,7 +539,7 @@ class ConsoleServerPortSerializer(PrimaryModelSerializer, CableTerminationSerial
     )
     speed = ChoiceField(
         choices=ConsolePortSpeedChoices,
-        allow_blank=True,
+        allow_null=True,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -563,7 +563,7 @@ class ConsolePortSerializer(PrimaryModelSerializer, CableTerminationSerializer, 
     )
     speed = ChoiceField(
         choices=ConsolePortSpeedChoices,
-        allow_blank=True,
+        allow_null=True,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)

@@ -1042,14 +1042,17 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
             {
                 'device': device.pk,
                 'name': 'Console Port 4',
+                'speed': 9600,
             },
             {
                 'device': device.pk,
                 'name': 'Console Port 5',
+                'speed': 115200,
             },
             {
                 'device': device.pk,
                 'name': 'Console Port 6',
+                'speed': None,
             },
         ]
 
@@ -1081,14 +1084,17 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
             {
                 'device': device.pk,
                 'name': 'Console Server Port 4',
+                'speed': 9600,
             },
             {
                 'device': device.pk,
                 'name': 'Console Server Port 5',
+                'speed': 115200,
             },
             {
                 'device': device.pk,
                 'name': 'Console Server Port 6',
+                'speed': None,
             },
         ]
 
