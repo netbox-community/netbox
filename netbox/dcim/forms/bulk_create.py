@@ -23,7 +23,7 @@ __all__ = (
 # Device components
 #
 
-class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldsMixin, ComponentForm):
+class DeviceBulkAddComponentForm(CustomFieldsMixin, ComponentForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
