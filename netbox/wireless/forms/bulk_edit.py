@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class WirelessLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -33,7 +33,7 @@ class WirelessLANGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFiel
         nullable_fields = ['parent', 'description']
 
 
-class WirelessLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class WirelessLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLAN.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -69,7 +69,7 @@ class WirelessLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         nullable_fields = ['ssid', 'group', 'vlan', 'description', 'auth_type', 'auth_cipher', 'auth_psk']
 
 
-class WirelessLinkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class WirelessLinkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=WirelessLink.objects.all(),
         widget=forms.MultipleHiddenInput

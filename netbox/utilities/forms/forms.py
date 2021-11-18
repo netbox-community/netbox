@@ -73,7 +73,7 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
-class BulkEditForm(forms.Form):
+class BulkEditForm(BootstrapMixin, forms.Form):
     """
     Base form for editing multiple objects in bulk
     """

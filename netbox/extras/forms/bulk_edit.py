@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class CustomFieldBulkEditForm(BootstrapMixin, BulkEditForm):
+class CustomFieldBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CustomField.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -39,7 +39,7 @@ class CustomFieldBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = []
 
 
-class CustomLinkBulkEditForm(BootstrapMixin, BulkEditForm):
+class CustomLinkBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CustomLink.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -66,7 +66,7 @@ class CustomLinkBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = []
 
 
-class ExportTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class ExportTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ExportTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -97,7 +97,7 @@ class ExportTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ['description', 'mime_type', 'file_extension']
 
 
-class WebhookBulkEditForm(BootstrapMixin, BulkEditForm):
+class WebhookBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -140,7 +140,7 @@ class WebhookBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ['secret', 'conditions', 'ca_file_path']
 
 
-class TagBulkEditForm(BootstrapMixin, BulkEditForm):
+class TagBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -157,7 +157,7 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ['description']
 
 
-class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
+class ConfigContextBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConfigContext.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -181,7 +181,7 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
         ]
 
 
-class JournalEntryBulkEditForm(BootstrapMixin, BulkEditForm):
+class JournalEntryBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=JournalEntry.objects.all(),
         widget=forms.MultipleHiddenInput

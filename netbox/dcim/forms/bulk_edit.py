@@ -52,7 +52,7 @@ __all__ = (
 )
 
 
-class RegionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RegionBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Region.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -70,7 +70,7 @@ class RegionBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
         nullable_fields = ['parent', 'description']
 
 
-class SiteGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class SiteGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -88,7 +88,7 @@ class SiteGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         nullable_fields = ['parent', 'description']
 
 
-class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class SiteBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Site.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -138,7 +138,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         ]
 
 
-class LocationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class LocationBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Location.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -167,7 +167,7 @@ class LocationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBu
         nullable_fields = ['parent', 'tenant', 'description']
 
 
-class RackRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RackRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -184,7 +184,7 @@ class RackRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBu
         nullable_fields = ['color', 'description']
 
 
-class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RackBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -284,7 +284,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         ]
 
 
-class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RackReservationBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -309,7 +309,7 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         nullable_fields = []
 
 
-class ManufacturerBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ManufacturerBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -323,7 +323,7 @@ class ManufacturerBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMod
         nullable_fields = ['description']
 
 
-class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class DeviceTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -351,7 +351,7 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModel
         nullable_fields = ['airflow']
 
 
-class DeviceRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class DeviceRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -373,7 +373,7 @@ class DeviceRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModel
         nullable_fields = ['color', 'description']
 
 
-class PlatformBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PlatformBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -396,7 +396,7 @@ class PlatformBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBu
         nullable_fields = ['manufacturer', 'napalm_driver', 'description']
 
 
-class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class DeviceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -457,7 +457,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
         ]
 
 
-class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CableBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cable.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -513,7 +513,7 @@ class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkE
             })
 
 
-class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VirtualChassisBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualChassis.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -527,7 +527,7 @@ class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
         nullable_fields = ['domain']
 
 
-class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PowerPanelBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -566,7 +566,7 @@ class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModel
         nullable_fields = ['location']
 
 
-class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PowerFeedBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerFeed.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -631,7 +631,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
 # Device component templates
 #
 
-class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class ConsolePortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsolePortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -650,7 +650,7 @@ class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ('label', 'type', 'description')
 
 
-class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -672,7 +672,7 @@ class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ('label', 'type', 'description')
 
 
-class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class PowerPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -704,7 +704,7 @@ class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ('label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
-class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class PowerOutletTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerOutletTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -752,7 +752,7 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
             self.fields['power_port'].widget.attrs['disabled'] = True
 
 
-class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class InterfaceTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=InterfaceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -779,7 +779,7 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ('label', 'description')
 
 
-class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class FrontPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -804,7 +804,7 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ('description',)
 
 
-class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class RearPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -829,7 +829,7 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ('description',)
 
 
-class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+class DeviceBayTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -852,7 +852,6 @@ class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class ConsolePortBulkEditForm(
     form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -871,7 +870,6 @@ class ConsolePortBulkEditForm(
 
 class ConsoleServerPortBulkEditForm(
     form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -890,7 +888,6 @@ class ConsoleServerPortBulkEditForm(
 
 class PowerPortBulkEditForm(
     form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -909,7 +906,6 @@ class PowerPortBulkEditForm(
 
 class PowerOutletBulkEditForm(
     form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -948,7 +944,6 @@ class InterfaceBulkEditForm(
         'label', 'type', 'parent', 'bridge', 'lag', 'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
         'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
     ]),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -1061,7 +1056,6 @@ class InterfaceBulkEditForm(
 
 class FrontPortBulkEditForm(
     form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -1076,7 +1070,6 @@ class FrontPortBulkEditForm(
 
 class RearPortBulkEditForm(
     form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -1091,7 +1084,6 @@ class RearPortBulkEditForm(
 
 class DeviceBayBulkEditForm(
     form_from_model(DeviceBay, ['label', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -1106,7 +1098,6 @@ class DeviceBayBulkEditForm(
 
 class InventoryItemBulkEditForm(
     form_from_model(InventoryItem, ['label', 'manufacturer', 'part_id', 'description']),
-    BootstrapMixin,
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):

@@ -16,7 +16,7 @@ __all__ = (
 )
 
 
-class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -55,7 +55,7 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBu
         ]
 
 
-class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -79,7 +79,7 @@ class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         ]
 
 
-class CircuitTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -93,7 +93,7 @@ class CircuitTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         nullable_fields = ['description']
 
 
-class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Circuit.objects.all(),
         widget=forms.MultipleHiddenInput
