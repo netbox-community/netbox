@@ -11,7 +11,7 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.tables import paginate_table
-from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
+from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
@@ -754,7 +754,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
 
     def get(self, request, module, name):
         script = self._get_script(name, module)
-        form = script.as_form(initial=request.GET)
+        form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending JobResult (use the latest one by creation timestamp)
         script_content_type = ContentType.objects.get(app_label='extras', model='script')

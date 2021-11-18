@@ -8,7 +8,7 @@ NetBox includes a `housekeeping` management command that should be run nightly. 
 This command can be invoked directly, or by using the shell script provided at `/opt/netbox/contrib/netbox-housekeeping.sh`. This script can be linked from your cron scheduler's daily jobs directory (e.g. `/etc/cron.daily`) or referenced directly within the cron configuration file.
 
 ```shell
-ln -s /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/netbox-housekeeping
+sudo ln -s /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/netbox-housekeeping
 ```
 
 !!! note

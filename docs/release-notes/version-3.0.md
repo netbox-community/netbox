@@ -2,6 +2,28 @@
 
 ## v3.0.11 (FUTURE)
 
+### Enhancements
+
+* [#2101](https://github.com/netbox-community/netbox/issues/2101) - Add missing `q` filters for necessary models
+* [#7424](https://github.com/netbox-community/netbox/issues/7424) - Add virtual chassis filters for device components
+* [#7531](https://github.com/netbox-community/netbox/issues/7531) - Add Markdown support for strikethrough formatting
+* [#7542](https://github.com/netbox-community/netbox/issues/7542) - Add optional VLAN group column to prefixes table
+* [#7803](https://github.com/netbox-community/netbox/issues/7803) - Improve live reloading of custom scripts
+* [#7810](https://github.com/netbox-community/netbox/issues/7810) - Add IEEE 802.15.1 interface type
+
+### Bug Fixes
+
+* [#7399](https://github.com/netbox-community/netbox/issues/7399) - Fix excessive CPU utilization when `AUTH_LDAP_FIND_GROUP_PERMS` is enabled
+* [#7720](https://github.com/netbox-community/netbox/issues/7720) - Fix initialization of custom script MultiObjectVar field with multiple values
+* [#7729](https://github.com/netbox-community/netbox/issues/7729) - Fix permissions evaluation when displaying VLAN group VLANs table
+* [#7739](https://github.com/netbox-community/netbox/issues/7739) - Fix exception when tracing cable across circuit with no far end termination
+* [#7813](https://github.com/netbox-community/netbox/issues/7813) - Fix handling of errors during export template rendering
+* [#7851](https://github.com/netbox-community/netbox/issues/7851) - Add missing cluster name filter for virtual machines
+* [#7857](https://github.com/netbox-community/netbox/issues/7857) - Fix ordering IP addresses by assignment status
+* [#7859](https://github.com/netbox-community/netbox/issues/7859) - Fix styling of form widgets under cable connection views
+* [#7864](https://github.com/netbox-community/netbox/issues/7864) - `power_port` can be null when creating power outlets via REST API
+* [#7865](https://github.com/netbox-community/netbox/issues/7865) - REST API should support null values for console port speeds
+
 ---
 
 ## v3.0.10 (2021-11-12)

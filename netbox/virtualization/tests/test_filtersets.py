@@ -324,9 +324,8 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         clusters = Cluster.objects.all()[:2]
         params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        # TODO: 'cluster' should match on name
-        # params = {'cluster': [clusters[0].name, clusters[1].name]}
-        # self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cluster': [clusters[0].name, clusters[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]

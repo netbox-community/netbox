@@ -99,8 +99,20 @@ class TokenFilterSet(BaseFilterSet):
         model = Token
         fields = ['id', 'key', 'write_enabled']
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(user__username__icontains=value) |
+            Q(description__icontains=value)
+        )
+
 
 class ObjectPermissionFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',
         queryset=User.objects.all(),
@@ -127,3 +139,11 @@ class ObjectPermissionFilterSet(BaseFilterSet):
     class Meta:
         model = ObjectPermission
         fields = ['id', 'name', 'enabled', 'object_types']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )

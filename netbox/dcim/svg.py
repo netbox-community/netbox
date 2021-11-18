@@ -478,15 +478,16 @@ class CableTraceSVG:
                 parent_objects.append(parent_object)
 
             # Near end termination
-            termination = self._draw_box(
-                width=self.width * .8,
-                color=self._get_color(near_end),
-                url=near_end.get_absolute_url(),
-                labels=self._get_labels(near_end),
-                y_indent=PADDING,
-                radius=5
-            )
-            terminations.append(termination)
+            if near_end is not None:
+                termination = self._draw_box(
+                    width=self.width * .8,
+                    color=self._get_color(near_end),
+                    url=near_end.get_absolute_url(),
+                    labels=self._get_labels(near_end),
+                    y_indent=PADDING,
+                    radius=5
+                )
+                terminations.append(termination)
 
             # Connector (a Cable or WirelessLink)
             if connector is not None:

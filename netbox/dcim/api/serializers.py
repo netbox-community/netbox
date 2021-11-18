@@ -352,7 +352,8 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
         required=False
     )
     power_port = NestedPowerPortTemplateSerializer(
-        required=False
+        required=False,
+        allow_null=True
     )
     feed_leg = ChoiceField(
         choices=PowerOutletFeedLegChoices,
@@ -524,7 +525,7 @@ class ConsoleServerPortSerializer(PrimaryModelSerializer, LinkTerminationSeriali
     )
     speed = ChoiceField(
         choices=ConsolePortSpeedChoices,
-        allow_blank=True,
+        allow_null=True,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -548,7 +549,7 @@ class ConsolePortSerializer(PrimaryModelSerializer, LinkTerminationSerializer, C
     )
     speed = ChoiceField(
         choices=ConsolePortSpeedChoices,
-        allow_blank=True,
+        allow_null=True,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -571,7 +572,8 @@ class PowerOutletSerializer(PrimaryModelSerializer, LinkTerminationSerializer, C
         required=False
     )
     power_port = NestedPowerPortSerializer(
-        required=False
+        required=False,
+        allow_null=True
     )
     feed_leg = ChoiceField(
         choices=PowerOutletFeedLegChoices,
