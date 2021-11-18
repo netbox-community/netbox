@@ -1,0 +1,22 @@
+{% load helpers %}
+
+<ul class="nav nav-tabs px-3">
+  <li class="nav-item">
+      <a
+          class="nav-link {% if active_tab == 'add' %}active{% endif %}"
+          href="{% url 'ipam:prefix_add' %}{% querystring request %}"
+      >
+          {% if obj.pk %}Edit{% else %}Create{% endif %}
+      </a>
+  </li>
+  {% if 'vlan' in request.GET %}
+  <li class="nav-item">
+      <a
+          class="nav-link {% if active_tab == 'assign' %}active{% endif %}"
+          href="{% url 'ipam:prefix_assign' %}{% querystring request %}"
+      >
+          Assign Prefix
+      </a>
+  </li>
+  {% endif %}
+</ul>

@@ -71,6 +71,7 @@ urlpatterns = [
     path('prefixes/import/', views.PrefixBulkImportView.as_view(), name='prefix_import'),
     path('prefixes/edit/', views.PrefixBulkEditView.as_view(), name='prefix_bulk_edit'),
     path('prefixes/delete/', views.PrefixBulkDeleteView.as_view(), name='prefix_bulk_delete'),
+    path('prefixes/assign/', views.PrefixAssignView.as_view(), name='prefix_assign'),
     path('prefixes/<int:pk>/', views.PrefixView.as_view(), name='prefix'),
     path('prefixes/<int:pk>/edit/', views.PrefixEditView.as_view(), name='prefix_edit'),
     path('prefixes/<int:pk>/delete/', views.PrefixDeleteView.as_view(), name='prefix_delete'),

@@ -16,6 +16,7 @@ __all__ = (
     'IPAddressTable',
     'IPRangeTable',
     'PrefixTable',
+    'PrefixAssignTable',
     'RIRTable',
     'RoleTable',
 )
@@ -41,6 +42,10 @@ PREFIXFLAT_LINK = """
 {% else %}
     {{ record.prefix }}
 {% endif %}
+"""
+
+PREFIX_ASSIGN_LINK = """
+<a href="{% url 'ipam:prefix_edit' pk=record.pk %}?{% if request.GET.vlan %}vlan={{ request.GET.vlan }}{% endif %}&return_url={{ request.GET.return_url }}">{{ record }}</a>
 """
 
 IPADDRESS_LINK = """
@@ -244,6 +249,23 @@ class PrefixTable(BaseTable):
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
+
+
+class PrefixAssignTable(BaseTable):
+    prefix = tables.TemplateColumn(
+        template_code=PREFIX_ASSIGN_LINK,
+        verbose_name='Prefix'
+    )
+    status = ChoiceFieldColumn()
+    is_pool = BooleanColumn(
+        verbose_name='Pool'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Prefix
+        fields = ('prefix', 'site', 'vrf', 'tenant', 'status', 'role', 'vlan', 'is_pool', 'description')
+        exclude = ('id', )
+        orderable = False
 
 
 #

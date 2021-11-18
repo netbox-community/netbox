@@ -20,6 +20,7 @@ __all__ = (
     'IPAddressForm',
     'IPRangeForm',
     'PrefixForm',
+    'PrefixAssignForm',
     'RIRForm',
     'RoleForm',
     'RouteTargetForm',
@@ -201,6 +202,23 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         widgets = {
             'status': StaticSelect(),
         }
+
+
+class PrefixAssignForm(BootstrapMixin, forms.Form):
+    site_id = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label='Site'
+    )
+    vrf_id = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
+    q = forms.CharField(
+        required=False,
+        label='Search',
+    )
 
 
 class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):

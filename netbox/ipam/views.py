@@ -494,6 +494,47 @@ class PrefixIPAddressesView(generic.ObjectView):
 class PrefixEditView(generic.ObjectEditView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixForm
+    template_name = 'ipam/prefix_edit.html'
+
+
+# TODO: Standardize or remove this view
+class PrefixAssignView(generic.ObjectView):
+    """
+    Search for Prefixes to assign to a VLAN
+    """
+    queryset = Prefix.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+
+        # Redirect the user if a VLAN has not been provided
+        if 'vlan' not in request.GET:
+            return redirect('ipam:prefix_add')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        form = forms.PrefixAssignForm()
+
+        return render(request, 'ipam/prefix_assign.html', {
+            'form': form,
+            'return_url': request.GET.get('return_url', ''),
+        })
+
+    def post(self, request):
+        form = forms.PrefixAssignForm(request.POST)
+        table = None
+
+        if form.is_valid():
+            prefixes = self.queryset.prefetch_related('site', 'vrf', 'tenant')
+            # Limit to 100 results
+            prefixes = filtersets.PrefixFilterSet(request.POST, prefixes).qs[:100]
+            table = tables.PrefixAssignTable(prefixes)
+
+        return render(request, 'ipam/prefix_assign.html', {
+            'form': form,
+            'table': table,
+            'return_url': request.GET.get('return_url'),
+        })
 
 
 class PrefixDeleteView(generic.ObjectDeleteView):

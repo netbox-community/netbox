@@ -1,0 +1,46 @@
+{% extends 'generic/object_edit.html' %}
+{% load static %}
+{% load form_helpers %}
+{% load helpers %}
+
+{% block title %}Assign a Prefix{% endblock title %}
+
+{% block tabs %}
+  {% include 'ipam/inc/prefix_edit_header.html' with active_tab='assign' %}
+{% endblock %}
+
+{% block form %}
+    <form action="{% querystring request %}" method="post" class="form form-horizontal">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        <div class="row mb-3">
+            <div class="col col-md-8 offset-md-2">
+                <div class="field-group">
+                    <h6>Select Prefix</h6>
+                    {% render_field form.site_id %}
+                    {% render_field form.vrf_id %}
+                    {% render_field form.q %}
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col col-md-8 offset-md-2 text-end">
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+    {% if table %}
+        <div class="row mb-3">
+            <div class="col col-md-12">
+                <h3>Search Results</h3>
+                {% include 'utilities/obj_table.html' %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock form %}
+
+{% block buttons %}
+{% endblock buttons%}

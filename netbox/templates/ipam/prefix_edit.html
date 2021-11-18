@@ -1,0 +1,8 @@
+{% extends 'generic/object_edit.html' %}
+{% load static %}
+{% load form_helpers %}
+{% load helpers %}
+
+{% block tabs %}
+  {% include 'ipam/inc/prefix_edit_header.html' with active_tab='add' %}
+{% endblock tabs %}
