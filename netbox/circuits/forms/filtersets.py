@@ -6,7 +6,7 @@ from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from extras.forms import CustomFieldModelFilterForm
 from tenancy.forms import TenancyFilterForm
-from utilities.forms import BootstrapMixin, DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
+from utilities.forms import DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
 
 __all__ = (
     'CircuitFilterForm',

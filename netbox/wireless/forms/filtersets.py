@@ -3,9 +3,7 @@ from django.utils.translation import gettext as _
 
 from dcim.choices import LinkStatusChoices
 from extras.forms import CustomFieldModelFilterForm
-from utilities.forms import (
-    add_blank_choice, BootstrapMixin, DynamicModelMultipleChoiceField, StaticSelect, TagFilterField,
-)
+from utilities.forms import add_blank_choice, DynamicModelMultipleChoiceField, StaticSelect, TagFilterField
 from wireless.choices import *
 from wireless.models import *
 

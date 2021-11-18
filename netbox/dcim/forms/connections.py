@@ -3,7 +3,7 @@ from dcim.models import *
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from tenancy.forms import TenancyForm
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
 
 __all__ = (
     'ConnectCableToCircuitTerminationForm',

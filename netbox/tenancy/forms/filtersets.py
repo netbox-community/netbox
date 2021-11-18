@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from extras.forms import CustomFieldModelFilterForm
 from tenancy.models import *
-from utilities.forms import BootstrapMixin, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms import DynamicModelMultipleChoiceField, TagFilterField
 
 __all__ = (
     'ContactFilterForm',

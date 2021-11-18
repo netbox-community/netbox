@@ -2,9 +2,7 @@ from dcim.models import Device, Interface, Location, Site
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from ipam.models import VLAN
-from utilities.forms import (
-    BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, StaticSelect,
-)
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, StaticSelect
 from wireless.models import *
 
 __all__ = (

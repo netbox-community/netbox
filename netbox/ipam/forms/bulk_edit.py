@@ -8,8 +8,8 @@ from ipam.models import *
 from ipam.models import ASN
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, DatePicker, DynamicModelChoiceField, NumericArrayField,
-    StaticSelect, DynamicModelMultipleChoiceField,
+    add_blank_choice, BulkEditNullBooleanSelect, DatePicker, DynamicModelChoiceField, NumericArrayField, StaticSelect,
+    DynamicModelMultipleChoiceField,
 )
 
 __all__ = (

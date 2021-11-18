@@ -3,7 +3,7 @@ from django import forms
 from dcim.choices import LinkStatusChoices
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField
+from utilities.forms import DynamicModelChoiceField
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
 from wireless.models import *

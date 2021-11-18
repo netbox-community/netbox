@@ -4,9 +4,7 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    add_blank_choice, BootstrapMixin, CommentField, DynamicModelChoiceField, SmallTextarea, StaticSelect,
-)
+from utilities.forms import add_blank_choice, CommentField, DynamicModelChoiceField, SmallTextarea, StaticSelect
 
 __all__ = (
     'CircuitBulkEditForm',

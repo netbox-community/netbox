@@ -2,7 +2,7 @@ from django import forms
 
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from tenancy.models import *
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField
+from utilities.forms import DynamicModelChoiceField
 
 __all__ = (
     'ContactBulkEditForm',

@@ -11,8 +11,8 @@ from ipam.constants import BGP_ASN_MIN, BGP_ASN_MAX
 from ipam.models import VLAN, ASN
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, form_from_model, SmallTextarea, StaticSelect,
+    add_blank_choice, BulkEditForm, BulkEditNullBooleanSelect, ColorField, CommentField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, form_from_model, SmallTextarea, StaticSelect,
 )
 
 __all__ = (

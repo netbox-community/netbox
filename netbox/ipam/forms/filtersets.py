@@ -1,4 +1,3 @@
-import django_filters
 from django import forms
 from django.utils.translation import gettext as _
 
@@ -9,10 +8,9 @@ from ipam.constants import *
 from ipam.models import *
 from ipam.models import ASN
 from tenancy.forms import TenancyFilterForm
-from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect,
-    StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple,
+    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 
 __all__ = (

@@ -4,9 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
-from utilities.forms import (
-    BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorField, ContentTypeChoiceField, StaticSelect,
-)
+from utilities.forms import BulkEditForm, BulkEditNullBooleanSelect, ColorField, ContentTypeChoiceField, StaticSelect
 
 __all__ = (
     'ConfigContextBulkEditForm',

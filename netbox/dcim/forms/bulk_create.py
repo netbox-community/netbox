@@ -3,7 +3,7 @@ from django import forms
 from dcim.models import *
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
-from utilities.forms import BootstrapMixin, DynamicModelMultipleChoiceField, form_from_model
+from utilities.forms import DynamicModelMultipleChoiceField, form_from_model
 from .object_create import ComponentForm
 
 __all__ = (
