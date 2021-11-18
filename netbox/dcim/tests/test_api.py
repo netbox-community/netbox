@@ -584,6 +584,12 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
         )
 
+        power_port_templates = (
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 1'),
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 2'),
+        )
+        PowerPortTemplate.objects.bulk_create(power_port_templates)
+
         power_outlet_templates = (
             PowerOutletTemplate(device_type=devicetype, name='Power Outlet Template 1'),
             PowerOutletTemplate(device_type=devicetype, name='Power Outlet Template 2'),
@@ -595,14 +601,17 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Power Outlet Template 4',
+                'power_port': power_port_templates[0].pk,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Power Outlet Template 5',
+                'power_port': power_port_templates[1].pk,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Power Outlet Template 6',
+                'power_port': None,
             },
         ]
 
@@ -1139,6 +1148,12 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
         devicerole = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, device_role=devicerole, name='Device 1', site=site)
 
+        power_ports = (
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+        )
+        PowerPort.objects.bulk_create(power_ports)
+
         power_outlets = (
             PowerOutlet(device=device, name='Power Outlet 1'),
             PowerOutlet(device=device, name='Power Outlet 2'),
@@ -1150,14 +1165,17 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
             {
                 'device': device.pk,
                 'name': 'Power Outlet 4',
+                'power_port': power_ports[0].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Power Outlet 5',
+                'power_port': power_ports[1].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Power Outlet 6',
+                'power_port': None,
             },
         ]
 
