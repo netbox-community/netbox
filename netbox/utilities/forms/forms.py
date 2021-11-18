@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class BootstrapMixin(forms.BaseForm):
+class BootstrapMixin:
     """
     Add the base Bootstrap CSS classes to form elements.
     """

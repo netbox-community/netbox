@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupForm(BootstrapMixin, CustomFieldModelForm):
+class WirelessLANGroupForm(CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -32,7 +32,7 @@ class WirelessLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
+class WirelessLANForm(CustomFieldModelForm):
     group = DynamicModelChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False
@@ -63,7 +63,7 @@ class WirelessLANForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class WirelessLinkForm(BootstrapMixin, CustomFieldModelForm):
+class WirelessLinkForm(CustomFieldModelForm):
     site_a = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

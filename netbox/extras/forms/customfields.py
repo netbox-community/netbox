@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from extras.choices import *
 from extras.models import *
-from utilities.forms import BulkEditForm, CSVModelForm
+from utilities.forms import BootstrapMixin, BulkEditForm, CSVModelForm
 
 __all__ = (
     'CustomFieldModelCSVForm',
@@ -52,7 +52,7 @@ class CustomFieldsMixin:
             self.custom_fields.append(field_name)
 
 
-class CustomFieldModelForm(CustomFieldsMixin, forms.ModelForm):
+class CustomFieldModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
     """
     Extend ModelForm to include custom field support.
     """

@@ -22,7 +22,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupForm(BootstrapMixin, CustomFieldModelForm):
+class TenantGroupForm(CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False
@@ -40,7 +40,7 @@ class TenantGroupForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class TenantForm(BootstrapMixin, CustomFieldModelForm):
+class TenantForm(CustomFieldModelForm):
     slug = SlugField()
     group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -66,7 +66,7 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
 # Contacts
 #
 
-class ContactGroupForm(BootstrapMixin, CustomFieldModelForm):
+class ContactGroupForm(CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False
@@ -82,7 +82,7 @@ class ContactGroupForm(BootstrapMixin, CustomFieldModelForm):
         fields = ('parent', 'name', 'slug', 'description', 'tags')
 
 
-class ContactRoleForm(BootstrapMixin, CustomFieldModelForm):
+class ContactRoleForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -94,7 +94,7 @@ class ContactRoleForm(BootstrapMixin, CustomFieldModelForm):
         fields = ('name', 'slug', 'description', 'tags')
 
 
-class ContactForm(BootstrapMixin, CustomFieldModelForm):
+class ContactForm(CustomFieldModelForm):
     group = DynamicModelChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False

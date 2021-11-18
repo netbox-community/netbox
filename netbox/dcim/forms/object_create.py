@@ -63,7 +63,7 @@ class ComponentForm(forms.Form):
                 }, code='label_pattern_mismatch')
 
 
-class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
+class VirtualChassisCreateForm(CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,

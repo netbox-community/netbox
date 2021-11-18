@@ -26,7 +26,7 @@ __all__ = (
 )
 
 
-class ClusterTypeForm(BootstrapMixin, CustomFieldModelForm):
+class ClusterTypeForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -40,7 +40,7 @@ class ClusterTypeForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class ClusterGroupForm(BootstrapMixin, CustomFieldModelForm):
+class ClusterGroupForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -54,7 +54,7 @@ class ClusterGroupForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class ClusterForm(TenancyForm, CustomFieldModelForm):
     type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all()
     )
@@ -171,7 +171,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
-class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -271,7 +271,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
+class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
