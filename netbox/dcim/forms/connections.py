@@ -3,7 +3,7 @@ from dcim.models import *
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
 from tenancy.forms import TenancyForm
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
 
 __all__ = (
     'ConnectCableToCircuitTerminationForm',
@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-class ConnectCableToDeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class ConnectCableToDeviceForm(TenancyForm, CustomFieldModelForm):
     """
     Base form for connecting a Cable to a Device component
     """
@@ -171,7 +171,7 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
     )
 
 
-class ConnectCableToCircuitTerminationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
     termination_b_provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
@@ -229,7 +229,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, TenancyForm, CustomFi
         return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
 
 
-class ConnectCableToPowerFeedForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class ConnectCableToPowerFeedForm(TenancyForm, CustomFieldModelForm):
     termination_b_region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         label='Region',

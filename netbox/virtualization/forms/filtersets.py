@@ -20,7 +20,7 @@ __all__ = (
 )
 
 
-class ClusterTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ClusterTypeFilterForm(CustomFieldModelFilterForm):
     model = ClusterType
     q = forms.CharField(
         required=False,
@@ -30,7 +30,7 @@ class ClusterTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ClusterGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ClusterGroupFilterForm(CustomFieldModelFilterForm):
     model = ClusterGroup
     q = forms.CharField(
         required=False,
@@ -40,7 +40,7 @@ class ClusterGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cluster
     field_order = [
         'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
@@ -95,12 +95,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     tag = TagFilterField(model)
 
 
-class VirtualMachineFilterForm(
-    BootstrapMixin,
-    LocalConfigContextFilterForm,
-    TenancyFilterForm,
-    CustomFieldModelFilterForm
-):
+class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualMachine
     field_groups = [
         ['q', 'tag'],

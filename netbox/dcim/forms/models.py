@@ -66,7 +66,7 @@ Tagged (All): Implies all VLANs are available (w/optional untagged VLAN)
 """
 
 
-class RegionForm(BootstrapMixin, CustomFieldModelForm):
+class RegionForm(CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -84,7 +84,7 @@ class RegionForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class SiteGroupForm(BootstrapMixin, CustomFieldModelForm):
+class SiteGroupForm(CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False
@@ -102,7 +102,7 @@ class SiteGroupForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class SiteForm(TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False
@@ -173,7 +173,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class LocationForm(TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -221,7 +221,7 @@ class LocationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         )
 
 
-class RackRoleForm(BootstrapMixin, CustomFieldModelForm):
+class RackRoleForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -235,7 +235,7 @@ class RackRoleForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class RackForm(TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -295,7 +295,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class RackReservationForm(TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -365,7 +365,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         )
 
 
-class ManufacturerForm(BootstrapMixin, CustomFieldModelForm):
+class ManufacturerForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -379,7 +379,7 @@ class ManufacturerForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
+class DeviceTypeForm(CustomFieldModelForm):
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all()
     )
@@ -418,7 +418,7 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class DeviceRoleForm(BootstrapMixin, CustomFieldModelForm):
+class DeviceRoleForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -432,7 +432,7 @@ class DeviceRoleForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class PlatformForm(BootstrapMixin, CustomFieldModelForm):
+class PlatformForm(CustomFieldModelForm):
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -455,7 +455,7 @@ class PlatformForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class DeviceForm(TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -637,7 +637,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
-class CableForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class CableForm(TenancyForm, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -660,7 +660,7 @@ class CableForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
+class PowerPanelForm(CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -704,7 +704,7 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
+class PowerFeedForm(CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -772,7 +772,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
 # Virtual chassis
 #
 
-class VirtualChassisForm(BootstrapMixin, CustomFieldModelForm):
+class VirtualChassisForm(CustomFieldModelForm):
     master = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -1005,7 +1005,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
 # Device components
 #
 
-class ConsolePortForm(BootstrapMixin, CustomFieldModelForm):
+class ConsolePortForm(CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1021,7 +1021,7 @@ class ConsolePortForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class ConsoleServerPortForm(BootstrapMixin, CustomFieldModelForm):
+class ConsoleServerPortForm(CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1037,7 +1037,7 @@ class ConsoleServerPortForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class PowerPortForm(BootstrapMixin, CustomFieldModelForm):
+class PowerPortForm(CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1054,7 +1054,7 @@ class PowerPortForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class PowerOutletForm(BootstrapMixin, CustomFieldModelForm):
+class PowerOutletForm(CustomFieldModelForm):
     power_port = forms.ModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False
@@ -1083,7 +1083,7 @@ class PowerOutletForm(BootstrapMixin, CustomFieldModelForm):
             )
 
 
-class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
+class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -1183,7 +1183,7 @@ class InterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
         self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device.pk)
 
 
-class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
+class FrontPortForm(CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1211,7 +1211,7 @@ class FrontPortForm(BootstrapMixin, CustomFieldModelForm):
             )
 
 
-class RearPortForm(BootstrapMixin, CustomFieldModelForm):
+class RearPortForm(CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1228,7 +1228,7 @@ class RearPortForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class DeviceBayForm(BootstrapMixin, CustomFieldModelForm):
+class DeviceBayForm(CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1264,7 +1264,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
         ).exclude(pk=device_bay.device.pk)
 
 
-class InventoryItemForm(BootstrapMixin, CustomFieldModelForm):
+class InventoryItemForm(CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all()
     )

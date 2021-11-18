@@ -4,9 +4,7 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    add_blank_choice, BootstrapMixin, CommentField, DynamicModelChoiceField, SmallTextarea, StaticSelect,
-)
+from utilities.forms import add_blank_choice, CommentField, DynamicModelChoiceField, SmallTextarea, StaticSelect
 
 __all__ = (
     'CircuitBulkEditForm',
@@ -16,7 +14,7 @@ __all__ = (
 )
 
 
-class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -55,7 +53,7 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBu
         ]
 
 
-class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -79,7 +77,7 @@ class ProviderNetworkBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomField
         ]
 
 
-class CircuitTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -93,7 +91,7 @@ class CircuitTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         nullable_fields = ['description']
 
 
-class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class CircuitBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Circuit.objects.all(),
         widget=forms.MultipleHiddenInput

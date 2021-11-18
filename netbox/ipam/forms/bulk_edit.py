@@ -8,8 +8,8 @@ from ipam.models import *
 from ipam.models import ASN
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, DatePicker, DynamicModelChoiceField, NumericArrayField,
-    StaticSelect, DynamicModelMultipleChoiceField,
+    add_blank_choice, BulkEditNullBooleanSelect, DatePicker, DynamicModelChoiceField, NumericArrayField, StaticSelect,
+    DynamicModelMultipleChoiceField,
 )
 
 __all__ = (
@@ -29,7 +29,7 @@ __all__ = (
 )
 
 
-class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VRFBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -54,7 +54,7 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEdi
         ]
 
 
-class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RouteTargetBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -74,7 +74,7 @@ class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         ]
 
 
-class RIRBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RIRBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -92,7 +92,7 @@ class RIRBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEdi
         nullable_fields = ['is_private', 'description']
 
 
-class ASNBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ASNBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -124,7 +124,7 @@ class ASNBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEdi
         }
 
 
-class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class AggregateBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Aggregate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -155,7 +155,7 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         }
 
 
-class RoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class RoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Role.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -172,7 +172,7 @@ class RoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         nullable_fields = ['description']
 
 
-class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class PrefixBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Prefix.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -237,7 +237,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
         ]
 
 
-class IPRangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class IPRangeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -271,7 +271,7 @@ class IPRangeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
         ]
 
 
-class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class IPAddressBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -315,7 +315,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         ]
 
 
-class FHRPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class FHRPGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FHRPGroup.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -350,7 +350,7 @@ class FHRPGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         nullable_fields = ['auth_type', 'auth_key', 'description']
 
 
-class VLANGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -368,7 +368,7 @@ class VLANGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelB
         nullable_fields = ['site', 'description']
 
 
-class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VLANBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -420,7 +420,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEd
         ]
 
 
-class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ServiceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),
         widget=forms.MultipleHiddenInput()

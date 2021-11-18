@@ -7,7 +7,7 @@ from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
+    add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, SmallTextarea, StaticSelect
 )
 from virtualization.choices import *
@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-class ClusterTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ClusterTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -37,7 +37,7 @@ class ClusterTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         nullable_fields = ['description']
 
 
-class ClusterGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ClusterGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -51,7 +51,7 @@ class ClusterGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMod
         nullable_fields = ['description']
 
 
-class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ClusterBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -95,7 +95,7 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
         ]
 
 
-class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VirtualMachineBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -150,7 +150,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
         ]
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VMInterfaceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()

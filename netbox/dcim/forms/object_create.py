@@ -35,7 +35,7 @@ __all__ = (
 )
 
 
-class ComponentForm(forms.Form):
+class ComponentForm(BootstrapMixin, forms.Form):
     """
     Subclass this form when facilitating the creation of one or more device component or component templates based on
     a name pattern.
@@ -63,7 +63,7 @@ class ComponentForm(forms.Form):
                 }, code='label_pattern_mismatch')
 
 
-class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
+class VirtualChassisCreateForm(CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -142,7 +142,7 @@ class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
 # Component templates
 #
 
-class ComponentTemplateCreateForm(BootstrapMixin, ComponentForm):
+class ComponentTemplateCreateForm(ComponentForm):
     """
     Base form for the creation of device component templates (subclassed from ComponentTemplateModel).
     """
@@ -335,7 +335,7 @@ class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
 # Device components
 #
 
-class ComponentCreateForm(BootstrapMixin, CustomFieldsMixin, ComponentForm):
+class ComponentCreateForm(CustomFieldsMixin, ComponentForm):
     """
     Base form for the creation of device components (models subclassed from ComponentModel).
     """

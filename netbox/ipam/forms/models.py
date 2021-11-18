@@ -37,7 +37,7 @@ __all__ = (
 )
 
 
-class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class VRFForm(TenancyForm, CustomFieldModelForm):
     import_targets = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False
@@ -70,7 +70,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class RouteTargetForm(TenancyForm, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -87,7 +87,7 @@ class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         )
 
 
-class RIRForm(BootstrapMixin, CustomFieldModelForm):
+class RIRForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -101,7 +101,7 @@ class RIRForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class AggregateForm(TenancyForm, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label='RIR'
@@ -129,7 +129,7 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class ASNForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class ASNForm(TenancyForm, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label='RIR',
@@ -173,7 +173,7 @@ class ASNForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         return instance
 
 
-class RoleForm(BootstrapMixin, CustomFieldModelForm):
+class RoleForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -187,7 +187,7 @@ class RoleForm(BootstrapMixin, CustomFieldModelForm):
         ]
 
 
-class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class PrefixForm(TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -262,7 +262,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class IPRangeForm(TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -291,7 +291,7 @@ class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class IPAddressForm(TenancyForm, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -499,7 +499,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         return ipaddress
 
 
-class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class IPAddressBulkAddForm(TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -533,7 +533,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
     )
 
 
-class FHRPGroupForm(BootstrapMixin, CustomFieldModelForm):
+class FHRPGroupForm(CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -613,7 +613,7 @@ class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
             self.fields['group'].widget.add_query_param('related_ip', ipaddress.pk)
 
 
-class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
+class VLANGroupForm(CustomFieldModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
@@ -720,7 +720,7 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             self.instance.scope_id = None
 
 
-class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class VLANForm(TenancyForm, CustomFieldModelForm):
     # VLANGroup assignment fields
     scope_type = forms.ChoiceField(
         choices=(
@@ -801,7 +801,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class ServiceForm(BootstrapMixin, CustomFieldModelForm):
+class ServiceForm(CustomFieldModelForm):
     ports = NumericArrayField(
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN,

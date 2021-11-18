@@ -2,7 +2,7 @@ from django import forms
 
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from tenancy.models import *
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField
+from utilities.forms import DynamicModelChoiceField
 
 __all__ = (
     'ContactBulkEditForm',
@@ -17,7 +17,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class TenantGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -35,7 +35,7 @@ class TenantGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         nullable_fields = ['parent', 'description']
 
 
-class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class TenantBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -55,7 +55,7 @@ class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulk
 # Contacts
 #
 
-class ContactGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ContactGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -73,7 +73,7 @@ class ContactGroupBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMod
         nullable_fields = ['parent', 'description']
 
 
-class ContactRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ContactRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ContactRole.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -87,7 +87,7 @@ class ContactRoleBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         nullable_fields = ['description']
 
 
-class ContactBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ContactBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Contact.objects.all(),
         widget=forms.MultipleHiddenInput()
