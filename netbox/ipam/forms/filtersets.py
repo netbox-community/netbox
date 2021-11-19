@@ -45,11 +45,6 @@ class VRFFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['import_target_id', 'export_target_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     import_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
@@ -72,11 +67,6 @@ class RouteTargetFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['importing_vrf_id', 'exporting_vrf_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     importing_vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -94,11 +84,6 @@ class RouteTargetFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 
 class RIRFilterForm(CustomFieldModelFilterForm):
     model = RIR
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     is_private = forms.NullBooleanField(
         required=False,
         label=_('Private'),
@@ -116,11 +101,6 @@ class AggregateFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['family', 'rir_id'],
         ['tenant_group_id', 'tenant_id']
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
@@ -144,11 +124,6 @@ class ASNFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['tenant_group_id', 'tenant_id'],
         ['site_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     rir_id = DynamicModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         required=False,
@@ -165,11 +140,6 @@ class ASNFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 
 class RoleFilterForm(CustomFieldModelFilterForm):
     model = Role
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
@@ -182,11 +152,6 @@ class PrefixFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id']
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()
     )
@@ -282,11 +247,6 @@ class IPRangeFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['family', 'vrf_id', 'status', 'role_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
@@ -327,11 +287,6 @@ class IPAddressFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['vrf_id', 'present_in_vrf_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     parent = forms.CharField(
         required=False,
         widget=forms.TextInput(
@@ -393,11 +348,6 @@ class FHRPGroupFilterForm(CustomFieldModelFilterForm):
         ('protocol', 'group_id'),
         ('auth_type', 'auth_key'),
     )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     protocol = forms.MultipleChoiceField(
         choices=FHRPGroupProtocolChoices,
         required=False,
@@ -427,11 +377,6 @@ class VLANGroupFilterForm(CustomFieldModelFilterForm):
         ['region', 'sitegroup', 'site', 'location', 'rack']
     ]
     model = VLANGroup
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -473,11 +418,6 @@ class VLANFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['group_id', 'status', 'role_id', 'vid'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -534,11 +474,6 @@ class ServiceFilterForm(CustomFieldModelFilterForm):
     field_groups = (
         ('q', 'tag'),
         ('protocol', 'port'),
-    )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
     )
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),

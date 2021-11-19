@@ -5,8 +5,7 @@ from dcim.models import DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
-    BootstrapMixin, DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple, TagFilterField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.choices import *
 from virtualization.models import *
@@ -22,21 +21,11 @@ __all__ = (
 
 class ClusterTypeFilterForm(CustomFieldModelFilterForm):
     model = ClusterType
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
 class ClusterGroupFilterForm(CustomFieldModelFilterForm):
     model = ClusterGroup
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
@@ -51,11 +40,6 @@ class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
@@ -104,11 +88,6 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
         ['status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -188,18 +167,13 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
     tag = TagFilterField(model)
 
 
-class VMInterfaceFilterForm(BootstrapMixin, forms.Form):
+class VMInterfaceFilterForm(CustomFieldModelFilterForm):
     model = VMInterface
     field_groups = [
         ['q', 'tag'],
         ['cluster_id', 'virtual_machine_id'],
         ['enabled', 'mac_address'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,

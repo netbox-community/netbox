@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from extras.choices import *
 from extras.models import *
-from utilities.forms import BootstrapMixin, BulkEditForm, CSVModelForm
+from utilities.forms import BootstrapMixin, BulkEditForm, CSVModelForm, FilterForm
 
 __all__ = (
     'CustomFieldModelCSVForm',
@@ -105,7 +105,7 @@ class CustomFieldModelBulkEditForm(BulkEditForm):
             self.custom_fields.append(cf.name)
 
 
-class CustomFieldModelFilterForm(BootstrapMixin, forms.Form):
+class CustomFieldModelFilterForm(FilterForm):
 
     def __init__(self, *args, **kwargs):
 

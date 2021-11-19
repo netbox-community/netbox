@@ -3,6 +3,7 @@ import re
 
 import yaml
 from django import forms
+from django.utils.translation import gettext as _
 
 from .widgets import APISelect, APISelectMultiple, ClearableFileInput, StaticSelect
 
@@ -13,6 +14,7 @@ __all__ = (
     'BulkRenameForm',
     'ConfirmationForm',
     'CSVModelForm',
+    'FilterForm',
     'ImportForm',
     'ReturnURLForm',
     'TableConfigForm',
@@ -175,6 +177,19 @@ class ImportForm(BootstrapMixin, forms.Form):
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
                 })
+
+
+class FilterForm(BootstrapMixin, forms.Form):
+    """
+    Base Form class for FilterSet forms.
+    """
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={'placeholder': _('All fields')}
+        ),
+        label=_('Search')
+    )
 
 
 class TableConfigForm(BootstrapMixin, forms.Form):

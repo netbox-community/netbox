@@ -9,7 +9,7 @@ from extras.forms import CustomFieldModelFilterForm, LocalConfigContextFilterFor
 from ipam.models import ASN
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
-    APISelectMultiple, add_blank_choice, BootstrapMixin, ColorField, DynamicModelMultipleChoiceField, StaticSelect,
+    APISelectMultiple, add_blank_choice, ColorField, DynamicModelMultipleChoiceField, FilterForm, StaticSelect,
     StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from wireless.choices import *
@@ -51,11 +51,6 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
     field_order = [
         'q', 'name', 'label', 'region_id', 'site_group_id', 'site_id',
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     name = forms.CharField(
         required=False
     )
@@ -114,11 +109,6 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
 
 class RegionFilterForm(CustomFieldModelFilterForm):
     model = Region
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -130,11 +120,6 @@ class RegionFilterForm(CustomFieldModelFilterForm):
 
 class SiteGroupFilterForm(CustomFieldModelFilterForm):
     model = SiteGroup
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
@@ -153,11 +138,6 @@ class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['tenant_group_id', 'tenant_id'],
         ['asn_id']
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     status = forms.MultipleChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -191,11 +171,6 @@ class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['region_id', 'site_group_id', 'site_id', 'parent_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -233,11 +208,6 @@ class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 
 class RackRoleFilterForm(CustomFieldModelFilterForm):
     model = RackRole
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
@@ -251,11 +221,6 @@ class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['type', 'width', 'serial', 'asset_tag'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -338,11 +303,6 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['region_id', 'site_id', 'location_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -379,11 +339,6 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 
 class ManufacturerFilterForm(CustomFieldModelFilterForm):
     model = Manufacturer
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
@@ -394,11 +349,6 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
         ['manufacturer_id', 'subdevice_role', 'airflow'],
         ['console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
@@ -462,21 +412,11 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
 
 class DeviceRoleFilterForm(CustomFieldModelFilterForm):
     model = DeviceRole
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
 class PlatformFilterForm(CustomFieldModelFilterForm):
     model = Platform
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
@@ -503,11 +443,6 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
             'power_outlets', 'interfaces', 'pass_through_ports', 'local_context_data',
         ],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -666,11 +601,6 @@ class VirtualChassisFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -704,11 +634,6 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['type', 'status', 'color'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -767,11 +692,6 @@ class PowerPanelFilterForm(CustomFieldModelFilterForm):
         ('q', 'tag'),
         ('region_id', 'site_group_id', 'site_id', 'location_id')
     )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -815,11 +735,6 @@ class PowerFeedFilterForm(CustomFieldModelFilterForm):
         ['power_panel_id', 'rack_id'],
         ['status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1112,12 +1027,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
 # Connections
 #
 
-class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
+class ConsoleConnectionFilterForm(FilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1144,12 +1054,7 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
+class PowerConnectionFilterForm(FilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1176,12 +1081,7 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
+class InterfaceConnectionFilterForm(FilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,

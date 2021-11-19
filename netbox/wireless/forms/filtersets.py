@@ -16,11 +16,6 @@ __all__ = (
 
 class WirelessLANGroupFilterForm(CustomFieldModelFilterForm):
     model = WirelessLANGroup
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
@@ -36,11 +31,6 @@ class WirelessLANFilterForm(CustomFieldModelFilterForm):
         ('q', 'tag'),
         ('group_id',),
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     ssid = forms.CharField(
         required=False,
         label='SSID'
@@ -70,11 +60,6 @@ class WirelessLANFilterForm(CustomFieldModelFilterForm):
 
 class WirelessLinkFilterForm(CustomFieldModelFilterForm):
     model = WirelessLink
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     ssid = forms.CharField(
         required=False,
         label='SSID'

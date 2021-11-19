@@ -23,11 +23,6 @@ class ProviderFilterForm(CustomFieldModelFilterForm):
         ['region_id', 'site_group_id', 'site_id'],
         ['asn'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -63,11 +58,6 @@ class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
         ('q', 'tag'),
         ('provider_id',),
     )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
@@ -79,11 +69,6 @@ class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
 
 class CircuitTypeFilterForm(CustomFieldModelFilterForm):
     model = CircuitType
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
@@ -96,11 +81,6 @@ class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,

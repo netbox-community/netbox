@@ -20,11 +20,6 @@ __all__ = (
 
 class TenantGroupFilterForm(CustomFieldModelFilterForm):
     model = TenantGroup
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -39,11 +34,6 @@ class TenantFilterForm(CustomFieldModelFilterForm):
     field_groups = (
         ('q', 'tag'),
         ('group_id',),
-    )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -61,11 +51,6 @@ class TenantFilterForm(CustomFieldModelFilterForm):
 
 class ContactGroupFilterForm(CustomFieldModelFilterForm):
     model = ContactGroup
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
@@ -77,11 +62,6 @@ class ContactGroupFilterForm(CustomFieldModelFilterForm):
 
 class ContactRoleFilterForm(CustomFieldModelFilterForm):
     model = ContactRole
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     tag = TagFilterField(model)
 
 
@@ -90,11 +70,6 @@ class ContactFilterForm(CustomFieldModelFilterForm):
     field_groups = (
         ('q', 'tag'),
         ('group_id',),
-    )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
