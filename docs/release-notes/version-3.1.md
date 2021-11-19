@@ -160,12 +160,24 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * tenancy.TenantGroup
     * virtualization.ClusterGroup
     * virtualization.ClusterType
+* circuits.CircuitTermination
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Cable
     * Added `tenant` field
+* dcim.ConsolePort
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
+* dcim.ConsoleServerPort
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Device
     * Added `airflow` field
 * dcim.DeviceType
     * Added `airflow` field 
+* dcim.FrontPort
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Interface
     * `cable_peer` has been renamed to `link_peer`
     * `cable_peer_type` has been renamed to `link_peer_type`
@@ -180,6 +192,18 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * Added `count_fhrp_groups` read-only field
 * dcim.Location
     * Added `tenant` field
+* dcim.PowerFeed
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
+* dcim.PowerOutlet
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
+* dcim.PowerPort
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
+* dcim.RearPort
+    * `cable_peer` has been renamed to `link_peer`
+    * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Site
     * Added `asns` relationship to ipam.ASN
 * extras.Webhook
