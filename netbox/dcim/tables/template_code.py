@@ -50,6 +50,14 @@ INTERFACE_IPADDRESSES = """
 </div>
 """
 
+INTERFACE_FHRPGROUPS = """
+<div class="table-badge-group">
+  {% for assignment in value.all %}
+    <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.group_id }} ({{ assignment.group.get_protocol_display }})</a>
+  {% endfor %}
+</div>
+"""
+
 INTERFACE_TAGGED_VLANS = """
 {% if record.mode == 'tagged' %}
     {% for vlan in record.tagged_vlans.all %}

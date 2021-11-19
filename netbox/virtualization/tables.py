@@ -171,7 +171,7 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
@@ -193,7 +193,7 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
             'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses', 'actions',

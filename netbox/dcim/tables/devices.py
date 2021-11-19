@@ -475,6 +475,12 @@ class BaseInterfaceTable(BaseTable):
         orderable=False,
         verbose_name='IP Addresses'
     )
+    fhrp_groups = tables.TemplateColumn(
+        accessor=Accessor('fhrp_group_assignments'),
+        template_code=INTERFACE_FHRPGROUPS,
+        orderable=False,
+        verbose_name='FHRP Groups'
+    )
     untagged_vlan = tables.Column(linkify=True)
     tagged_vlans = TemplateColumn(
         template_code=INTERFACE_TAGGED_VLANS,
@@ -509,7 +515,7 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
             'pk', 'id', 'name', 'device', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
             'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
-            'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'tags', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -542,9 +548,9 @@ class DeviceInterfaceTable(InterfaceTable):
         model = Interface
         fields = (
             'pk', 'id', 'name', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag', 'mgmt_only', 'mtu', 'mode',
-            'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', 'description',
-            'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
-            'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+            'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer',
+            'connection', 'tags', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         order_by = ('name',)
         default_columns = (

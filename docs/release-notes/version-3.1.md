@@ -14,6 +14,7 @@
 * [#7775](https://github.com/netbox-community/netbox/issues/7775) - Enable dynamic config for `CHANGELOG_RETENTION`, `CUSTOM_VALIDATORS`, and `GRAPHQL_ENABLED`
 * [#7812](https://github.com/netbox-community/netbox/issues/7812) - Enable change logging for image attachments
 * [#7858](https://github.com/netbox-community/netbox/issues/7858) - Standardize the representation of content types across import & export functions
+* [#7884](https://github.com/netbox-community/netbox/issues/7884) - Add FHRP groups column to interface tables
 
 ### Bug Fixes
 
