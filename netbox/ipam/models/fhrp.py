@@ -93,3 +93,9 @@ class FHRPGroupAssignment(ChangeLoggedModel):
 
     def __str__(self):
         return f'{self.interface}: {self.group} ({self.priority})'
+
+    def get_absolute_url(self):
+        # Used primarily for redirection after creating a new assignment
+        if self.interface:
+            return self.interface.get_absolute_url()
+        return None
