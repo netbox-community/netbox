@@ -53,7 +53,7 @@ INTERFACE_IPADDRESSES = """
 INTERFACE_FHRPGROUPS = """
 <div class="table-badge-group">
   {% for assignment in value.all %}
-    <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.group_id }} ({{ assignment.group.get_protocol_display }})</a>
+    <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.get_protocol_display }}: {{ assignment.group.group_id }}</a>
   {% endfor %}
 </div>
 """

@@ -24,6 +24,7 @@
 * [#7768](https://github.com/netbox-community/netbox/issues/7768) - Validate IP address status when creating a new FHRP group
 * [#7771](https://github.com/netbox-community/netbox/issues/7771) - Group assignment should be optional when creating contacts via REST API
 * [#7849](https://github.com/netbox-community/netbox/issues/7849) - Fix exception when creating an FHRPGroup with an invalid IP address
+* [#7880](https://github.com/netbox-community/netbox/issues/7880) - Include assigned IP addresses in FHRP group object representation
 
 ### REST API Changes
 

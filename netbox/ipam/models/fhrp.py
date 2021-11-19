@@ -56,7 +56,17 @@ class FHRPGroup(PrimaryModel):
         verbose_name = 'FHRP group'
 
     def __str__(self):
-        return f'{self.get_protocol_display()} group {self.group_id}'
+        name = f'{self.get_protocol_display()}: {self.group_id}'
+
+        # Append the list of assigned IP addresses to serve as an additional identifier
+        if self.pk:
+            ip_addresses = [
+                str(ip.address) for ip in self.ip_addresses.all()
+            ]
+            if ip_addresses:
+                return f"{name} ({', '.join(ip_addresses)})"
+
+        return name
 
     def get_absolute_url(self):
         return reverse('ipam:fhrpgroup', args=[self.pk])
