@@ -61,6 +61,8 @@ else
   echo "Skipping local dependencies (local_requirements.txt not found)"
 fi
 
+echo "Line 64 pre DB migration"
+
 # Apply any database migrations
 COMMAND="python3 netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
