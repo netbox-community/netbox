@@ -448,7 +448,7 @@ Note that NetBox's `rqworker` process will _not_ service custom queues by defaul
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
 * [#6328](https://github.com/netbox-community/netbox/issues/6328) - Build and serve documentation locally
 
-### Bug Fixes (from v3.2-beta2)
+### Bug Fixes (from v3.0-beta2)
 
 * [#6977](https://github.com/netbox-community/netbox/issues/6977) - Truncate global search dropdown on small screens
 * [#6979](https://github.com/netbox-community/netbox/issues/6979) - Hide "create & add another" button for circuit terminations
