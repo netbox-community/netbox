@@ -1,6 +1,6 @@
 # NetBox v3.0
 
-## v3.0.11 (FUTURE)
+## v3.0.11 (2021-11-24)
 
 ### Enhancements
 
