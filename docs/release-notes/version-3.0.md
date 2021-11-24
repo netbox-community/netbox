@@ -14,6 +14,7 @@
 ### Bug Fixes
 
 * [#7399](https://github.com/netbox-community/netbox/issues/7399) - Fix excessive CPU utilization when `AUTH_LDAP_FIND_GROUP_PERMS` is enabled
+* [#7657](https://github.com/netbox-community/netbox/issues/7657) - Make change logging middleware thread-safe
 * [#7720](https://github.com/netbox-community/netbox/issues/7720) - Fix initialization of custom script MultiObjectVar field with multiple values
 * [#7729](https://github.com/netbox-community/netbox/issues/7729) - Fix permissions evaluation when displaying VLAN group VLANs table
 * [#7739](https://github.com/netbox-community/netbox/issues/7739) - Fix exception when tracing cable across circuit with no far end termination
