@@ -340,7 +340,7 @@ class NestedVirtualChassisSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VirtualChassis
-        fields = ['id', 'name', 'url', 'master', 'member_count']
+        fields = ['id', 'url', 'display', 'name', 'master', 'member_count']
 
 
 #

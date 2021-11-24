@@ -327,13 +327,6 @@ def decode_dict(encoded_dict: Dict, *, decode_keys: bool = True) -> Dict:
     return {urllib.parse.unquote(k): decode_value(v, decode_keys) for k, v in encoded_dict.items()}
 
 
-# Taken from django.utils.functional (<3.0)
-def curry(_curried_func, *args, **kwargs):
-    def _curried(*moreargs, **morekwargs):
-        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
-    return _curried
-
-
 def array_to_string(array):
     """
     Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.

@@ -7,7 +7,7 @@ django-mptt==0.13.4
 django-pglocks==1.0.4
 django-prometheus==2.1.0
 django-redis==5.0.0
-django-rq==2.4.1
+django-rq==2.5.1
 django-tables2==2.4.1
 django-taggit==1.5.1
 django-timezone-field==4.2.1
@@ -16,7 +16,7 @@ drf-yasg[validation]==1.20.0
 graphene_django==2.15.0
 gunicorn==20.1.0
 Jinja2==3.0.3
-Markdown==3.3.4
+Markdown==3.3.6
 markdown-include==0.6.0
 mkdocs-material==7.3.6
 netaddr==0.8.0

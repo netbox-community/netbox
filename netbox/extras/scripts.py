@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import pkgutil
+import sys
 import traceback
 from collections import OrderedDict
 
@@ -477,6 +478,10 @@ def get_scripts(use_names=False):
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
+        # Remove cached module to ensure consistency with filesystem
+        if module_name in sys.modules:
+            del sys.modules[module_name]
+
         module = importer.find_module(module_name).load_module(module_name)
         if use_names and hasattr(module, 'name'):
             module_name = module.name

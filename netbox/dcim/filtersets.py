@@ -861,6 +861,17 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label='Device (name)',
     )
+    virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis',
+        queryset=VirtualChassis.objects.all(),
+        label='Virtual Chassis (ID)'
+    )
+    virtual_chassis = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis__name',
+        queryset=VirtualChassis.objects.all(),
+        to_field_name='name',
+        label='Virtual Chassis',
+    )
     tag = TagFilter()
 
     def search(self, queryset, name, value):
@@ -1394,6 +1405,10 @@ class PowerFeedFilterSet(PrimaryModelFilterSet, CableTerminationFilterSet, PathE
 #
 
 class ConnectionFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     site_id = MultiValueNumberFilter(
         method='filter_connections',
         field_name='device__site_id'
@@ -1415,6 +1430,15 @@ class ConnectionFilterSet(BaseFilterSet):
         if not value:
             return queryset
         return queryset.filter(**{f'{name}__in': value})
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(device__name__icontains=value) |
+            Q(cable__label__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
 
 class ConsoleConnectionFilterSet(ConnectionFilterSet):

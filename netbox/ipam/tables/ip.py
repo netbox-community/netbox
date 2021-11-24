@@ -206,6 +206,11 @@ class PrefixTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
+    vlan_group = tables.Column(
+        accessor='vlan__group',
+        linkify=True,
+        verbose_name='VLAN Group'
+    )
     vlan = tables.Column(
         linkify=True,
         verbose_name='VLAN'
@@ -230,8 +235,8 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
-            'is_pool', 'mark_utilized', 'description', 'tags',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan_group',
+            'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'tags',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
@@ -318,7 +323,7 @@ class IPAddressTable(BaseTable):
         verbose_name='NAT (Inside)'
     )
     assigned = BooleanColumn(
-        accessor='assigned_object',
+        accessor='assigned_object_id',
         linkify=True,
         verbose_name='Assigned'
     )

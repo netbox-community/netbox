@@ -3,74 +3,66 @@
 
 {% block title %}Scripts{% endblock %}
 
-{% block content %}
-    <div class="row">
-        <div class="col col-md-9">
-            {% if scripts %}
-                {% for module, module_scripts in scripts.items %}
-                    <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
-                    <table class="table table-hover table-headings reports">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Description</th>
-                                <th class="text-end">Last Run</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for class_name, script in module_scripts.items %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'extras:script' module=script.module name=class_name %}" name="script.{{ class_name }}">{{ script }}</a>
-                                    </td>
-                                    <td>
-                                        {% include 'extras/inc/job_label.html' with result=script.result %}
-                                    </td>
-                                    <td>{{ script.Meta.description|render_markdown }}</td>
-                                    {% if script.result %}
-                                        <td class="text-end">
-                                            <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created|annotated_date }}</a>
-                                        </td>
-                                    {% else %}
-                                        <td class="text-end text-muted">Never</td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">Scripts</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    {% if scripts %}
+      {% for module, module_scripts in scripts.items %}
+        <div class="card">
+          <h5 class="card-header">
+            <a name="module.{{ module }}"></a>
+            <i class="mdi mdi-file-document-outline"></i> {{ module|bettertitle }}
+          </h5>
+          <div class="card-body">
+            <table class="table table-hover table-headings reports">
+              <thead>
+                <tr>
+                  <th width="250">Name</th>
+                  <th width="110">Status</th>
+                  <th>Description</th>
+                  <th class="text-end">Last Run</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for class_name, script in module_scripts.items %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'extras:script' module=script.module name=class_name %}" name="script.{{ class_name }}">{{ script }}</a>
+                    </td>
+                    <td>
+                      {% include 'extras/inc/job_label.html' with result=script.result %}
+                    </td>
+                    <td>
+                      {{ script.Meta.description|render_markdown|placeholder }}
+                    </td>
+                    {% if script.result %}
+                      <td class="text-end">
+                        <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created|annotated_date }}</a>
+                      </td>
+                    {% else %}
+                      <td class="text-end text-muted">Never</td>
+                    {% endif %}
+                  </tr>
                 {% endfor %}
-            {% else %}
-                <div class="alert alert-info">
-                    <h4 class="alert-heading">No Scripts Found</h4>
-                    Scripts should be saved to <code>{{ settings.SCRIPTS_ROOT }}</code>.
-                    <hr/>
-                    This path can be changed by setting <code>SCRIPTS_ROOT</code> in NetBox's configuration.
-                </div>
-            {% endif %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="col col-md-3">
-            {% if scripts %}
-                <div class="card">
-                    <div class="card-body">
-                        {% for module, module_scripts in scripts.items %}
-                        <h5>{{ module|bettertitle }}</h5>
-                        <div class="small mb-2">
-                            <ul class="list-group list-group-flush">
-                                {% for class_name, script in module_scripts.items %}
-                                    <a href="#script.{{ class_name }}" class="list-group-item">
-                                        <i class="mdi mdi-file-chart-outline"></i> {{ script.name }}
-                                        <div class="float-end">
-                                            {% include 'extras/inc/job_label.html' with result=script.result %}
-                                        </div>
-                                    </a>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-{% endblock %}
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info">
+        <h4 class="alert-heading">No Scripts Found</h4>
+        Scripts should be saved to <code>{{ settings.SCRIPTS_ROOT }}</code>.
+        <hr/>
+        This path can be changed by setting <code>SCRIPTS_ROOT</code> in NetBox's configuration.
+      </div>
+    {% endif %}
+  </div>
+{% endblock content-wrapper %}

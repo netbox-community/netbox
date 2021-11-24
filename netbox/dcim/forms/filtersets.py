@@ -92,12 +92,19 @@ class DeviceComponentFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Location'),
         fetch_trigger='open'
     )
+    virtual_chassis_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualChassis.objects.all(),
+        required=False,
+        label=_('Virtual Chassis'),
+        fetch_trigger='open'
+    )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         query_params={
             'site_id': '$site_id',
             'location_id': '$location_id',
+            'virtual_chassis_id': '$virtual_chassis_id'
         },
         label=_('Device'),
         fetch_trigger='open'
@@ -888,7 +895,7 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'type', 'speed'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
@@ -908,7 +915,7 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'type', 'speed'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     type = forms.MultipleChoiceField(
         choices=ConsolePortTypeChoices,
@@ -928,7 +935,7 @@ class PowerPortFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'type'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     type = forms.MultipleChoiceField(
         choices=PowerPortTypeChoices,
@@ -943,7 +950,7 @@ class PowerOutletFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'type'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     type = forms.MultipleChoiceField(
         choices=PowerOutletTypeChoices,
@@ -958,7 +965,7 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'kind', 'type', 'enabled', 'mgmt_only', 'mac_address'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     kind = forms.MultipleChoiceField(
         choices=InterfaceKindChoices,
@@ -993,7 +1000,7 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'type', 'color'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     model = FrontPort
     type = forms.MultipleChoiceField(
@@ -1012,7 +1019,7 @@ class RearPortFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'type', 'color'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     type = forms.MultipleChoiceField(
         choices=PortTypeChoices,
@@ -1030,7 +1037,7 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     tag = TagFilterField(model)
 
@@ -1040,7 +1047,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     field_groups = [
         ['q', 'tag'],
         ['name', 'label', 'manufacturer_id', 'serial', 'asset_tag', 'discovered'],
-        ['region_id', 'site_group_id', 'site_id', 'location_id', 'device_id'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -1068,6 +1075,11 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
 #
 
 class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1095,6 +1107,11 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -1122,6 +1139,11 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
+        label=_('Search')
+    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,

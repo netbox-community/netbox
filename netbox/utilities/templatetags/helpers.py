@@ -15,6 +15,7 @@ from django.utils.safestring import mark_safe
 from markdown import markdown
 
 from utilities.forms import get_selected_values, TableConfigForm
+from utilities.markdown import StrikethroughExtension
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -54,7 +55,7 @@ def render_markdown(value):
     value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
 
     # Render Markdown
-    html = markdown(value, extensions=['fenced_code', 'tables'])
+    html = markdown(value, extensions=['fenced_code', 'tables', StrikethroughExtension()])
 
     return mark_safe(html)
 

@@ -137,7 +137,11 @@
         Additional Headers
       </h5>
       <div class="card-body">
-        <pre>{{ object.additional_headers }}</pre>
+        {% if object.additional_headers %}
+          <pre>{{ object.additional_headers }}</pre>
+        {% else %}
+          <span class="text-muted">None</span>
+        {% endif %}
       </div>
     </div>
     <div class="card">
@@ -145,7 +149,11 @@
         Body Template
       </h5>
       <div class="card-body">
-        <pre>{{ object.body_template }}</pre>
+        {% if object.body_template %}
+          <pre>{{ object.body_template }}</pre>
+        {% else %}
+          <span class="text-muted">None</span>
+        {% endif %}
       </div>
     </div>
     {% plugin_right_page object %}

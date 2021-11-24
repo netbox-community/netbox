@@ -215,8 +215,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, CustomFieldModelForm)
         required=False
     )
 
-    class Meta:
-        model = Cable
+    class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
             'termination_b_provider', 'termination_b_region', 'termination_b_site', 'termination_b_circuit',
             'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
@@ -277,8 +276,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
 
-    class Meta:
-        model = Cable
+    class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
             'termination_b_location', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'label',
             'color', 'length', 'length_unit', 'tags',
