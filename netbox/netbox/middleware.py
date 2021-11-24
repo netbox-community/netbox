@@ -1,10 +1,10 @@
+import logging
 import uuid
 from urllib import parse
-import logging
 
 from django.conf import settings
-from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.contrib import auth
+from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect

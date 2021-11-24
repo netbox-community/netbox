@@ -447,7 +447,7 @@ class PowerPortTypeChoices(ChoiceSet):
         )),
         ('International/ITA', (
             (TYPE_ITA_C, 'ITA Type C (CEE 7/16)'),
-            (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
+            (TYPE_ITA_E, 'ITA Type E (CEE 7/6)'),
             (TYPE_ITA_F, 'ITA Type F (CEE 7/4)'),
             (TYPE_ITA_EF, 'ITA Type E/F (CEE 7/7)'),
             (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
@@ -659,8 +659,8 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_CS8464C, 'CS8464C'),
         )),
         ('ITA/International', (
-            (TYPE_ITA_E, 'ITA Type E (CEE7/5)'),
-            (TYPE_ITA_F, 'ITA Type F (CEE7/3)'),
+            (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
+            (TYPE_ITA_F, 'ITA Type F (CEE 7/3)'),
             (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
             (TYPE_ITA_H, 'ITA Type H'),
             (TYPE_ITA_I, 'ITA Type I'),

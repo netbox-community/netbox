@@ -1,6 +1,10 @@
 # NetBox v3.0
 
-## v3.0.11 (FUTURE)
+## v3.0.12 (FUTURE)
+
+---
+
+## v3.0.11 (2021-11-24)
 
 ### Enhancements
 
@@ -14,6 +18,7 @@
 ### Bug Fixes
 
 * [#7399](https://github.com/netbox-community/netbox/issues/7399) - Fix excessive CPU utilization when `AUTH_LDAP_FIND_GROUP_PERMS` is enabled
+* [#7657](https://github.com/netbox-community/netbox/issues/7657) - Make change logging middleware thread-safe
 * [#7720](https://github.com/netbox-community/netbox/issues/7720) - Fix initialization of custom script MultiObjectVar field with multiple values
 * [#7729](https://github.com/netbox-community/netbox/issues/7729) - Fix permissions evaluation when displaying VLAN group VLANs table
 * [#7739](https://github.com/netbox-community/netbox/issues/7739) - Fix exception when tracing cable across circuit with no far end termination
@@ -448,7 +453,7 @@ Note that NetBox's `rqworker` process will _not_ service custom queues by defaul
 * [#6154](https://github.com/netbox-community/netbox/issues/6154) - Allow decimal values for cable lengths
 * [#6328](https://github.com/netbox-community/netbox/issues/6328) - Build and serve documentation locally
 
-### Bug Fixes (from v3.2-beta2)
+### Bug Fixes (from v3.0-beta2)
 
 * [#6977](https://github.com/netbox-community/netbox/issues/6977) - Truncate global search dropdown on small screens
 * [#6979](https://github.com/netbox-community/netbox/issues/6979) - Hide "create & add another" button for circuit terminations
