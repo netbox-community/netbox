@@ -107,6 +107,9 @@ function initTableFilter(): void {
       // Create a regex pattern from the input search text to match against.
       const filter = new RegExp(target.value.toLowerCase().trim());
 
+      // List of which rows which match the query
+      const matchedRows: Array<HTMLTableRowElement> = [];
+
       for (const row of rows) {
         // Find the row's checkbox and deselect it, so that it is not accidentally included in form
         // submissions.
@@ -114,17 +117,24 @@ function initTableFilter(): void {
         if (checkBox !== null) {
           checkBox.checked = false;
         }
+
         // Iterate through each row's cell values
         for (const value of getRowValues(row)) {
           if (filter.test(value.toLowerCase())) {
-            // If this row matches the search pattern, but is already hidden, unhide it and stop
-            // iterating through the rest of the cells.
-            row.classList.remove('d-none');
+            // If this row matches the search pattern, add it to the list.
+            matchedRows.push(row);
             break;
-          } else {
-            // If none of the cells in this row match the search pattern, hide the row.
-            row.classList.add('d-none');
           }
+        }
+      }
+
+      // Iterate the rows again to set visibility.
+      // This results in a single reflow instead of one for each row.
+      for (const row of rows) {
+        if (matchedRows.indexOf(row) >= 0) {
+          row.classList.remove('d-none');
+        } else {
+          row.classList.add('d-none');
         }
       }
     }
