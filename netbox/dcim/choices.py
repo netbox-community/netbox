@@ -552,6 +552,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    TYPE_ITA_MULTISTANDARD = 'ita-multistandard'
     # USB
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
@@ -651,6 +652,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+            (TYPE_ITA_MULTISTANDARD, 'ITA Multistandard'),
         )),
         ('USB', (
             (TYPE_USB_A, 'USB Type A'),
