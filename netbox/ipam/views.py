@@ -11,7 +11,7 @@ from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
-from .utils import add_available_ipaddresses, add_available_prefixes, add_available_vlans
+from .utils import add_available_ipaddresses, add_requested_prefixes, add_available_vlans
 
 
 #
@@ -212,8 +212,8 @@ class AggregateView(generic.ObjectView):
     queryset = Aggregate.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Find all child prefixes contained by this aggregate
-        child_prefixes_assigned = Prefix.objects.restrict(request.user, 'view').filter(
+        # Find all child prefixes contained in this aggregate
+        prefix_list = Prefix.objects.restrict(request.user, 'view').filter(
             prefix__net_contained_or_equal=str(instance.prefix)
         ).prefetch_related(
             'site', 'role'
@@ -221,19 +221,8 @@ class AggregateView(generic.ObjectView):
             'prefix'
         )
 
-        # List to append filtered prefixes to
-        child_prefixes = []
-
-        # Add available prefixes to the table if requested
-        if child_prefixes_assigned and request.GET.get('show_available', 'true') == 'true':
-            child_prefixes = child_prefixes + add_available_prefixes(instance.prefix, child_prefixes_assigned)
-
-        # Add assigned prefixes to the table if requested
-        if child_prefixes_assigned and request.GET.get('show_assigned', 'true') == 'true':
-            child_prefixes = child_prefixes + list(child_prefixes_assigned)
-
-        # Sort child prefixes after additions
-        child_prefixes.sort(key=lambda p: p.prefix)
+        # Return List of requested Prefixes
+        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, request)
 
         prefix_table = tables.PrefixTable(child_prefixes, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -404,24 +393,13 @@ class PrefixPrefixesView(generic.ObjectView):
     template_name = 'ipam/prefix/prefixes.html'
 
     def get_extra_context(self, request, instance):
-        # Initial pull of currently assigned child prefixes
-        child_prefixes_assigned = instance.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
+        # Find all child prefixes contained in this prefix
+        prefix_list = instance.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
             'site', 'vlan', 'role',
         )
 
-        # List to append filtered prefixes to
-        child_prefixes = []
-
-        # Add available prefixes to the table if requested
-        if child_prefixes_assigned and request.GET.get('show_available', 'true') == 'true':
-            child_prefixes = child_prefixes + add_available_prefixes(instance.prefix, child_prefixes_assigned)
-
-        # Add assigned prefixes to the table if requested
-        if child_prefixes_assigned and request.GET.get('show_assigned', 'true') == 'true':
-            child_prefixes = child_prefixes + list(child_prefixes_assigned)
-
-        # Sort child prefixes after additions
-        child_prefixes.sort(key=lambda p: p.prefix)
+        # Return List of requested Prefixes
+        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, request)
 
         table = tables.PrefixTable(child_prefixes, user=request.user, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
