@@ -2,6 +2,11 @@
 
 ## v3.0.12 (FUTURE)
 
+### Enhancements
+
+* [#7932](https://github.com/netbox-community/netbox/issues/7932) - Improve performance of the "quick find" function
+* [#7941](https://github.com/netbox-community/netbox/issues/7941) - Add multi-standard ITA power outlet type
+
 ---
 
 ## v3.0.11 (2021-11-24)
