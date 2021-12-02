@@ -6,7 +6,7 @@ from dcim.models import Device, Interface
 from netbox.views import generic
 from utilities.forms import TableConfigForm
 from utilities.tables import paginate_table
-from utilities.utils import count_related
+from utilities.utils import count_related, normalize_querydict
 from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .constants import *
@@ -503,6 +503,7 @@ class PrefixAssignView(generic.ObjectView):
     Search for Prefixes to assign to a VLAN
     """
     queryset = Prefix.objects.all()
+    template_name = 'ipam/prefix_assign.html'
 
     def dispatch(self, request, *args, **kwargs):
 
@@ -513,9 +514,15 @@ class PrefixAssignView(generic.ObjectView):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        form = forms.PrefixAssignForm()
+        url_params = normalize_querydict(request.GET)
+        initial_data = {}
+        if 'site' in url_params:
+            initial_data['site_id'] = url_params['site']
+        if 'tenant' in url_params:
+            initial_data['tenant_id'] = url_params['tenant']
+        form = forms.PrefixAssignForm(initial=initial_data)
 
-        return render(request, 'ipam/prefix_assign.html', {
+        return render(request, self.template_name, {
             'form': form,
             'return_url': request.GET.get('return_url', ''),
         })
