@@ -7,6 +7,7 @@ from extras.models import Tag
 from ipam.constants import *
 from ipam.models import *
 from tenancy.forms import TenancyForm
+from tenancy.models import Tenant
 from utilities.forms import (
     BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple,
@@ -208,7 +209,12 @@ class PrefixAssignForm(BootstrapMixin, forms.Form):
     site_id = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label='Site'
+        label='Site',
+    )
+    tenant_id = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        label='Tenant',
     )
     vrf_id = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
