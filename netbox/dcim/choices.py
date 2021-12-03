@@ -312,6 +312,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560P = 'nema-l15-60p'
     TYPE_NEMA_L2120P = 'nema-l21-20p'
     TYPE_NEMA_L2130P = 'nema-l21-30p'
+    TYPE_NEMA_L2230P = 'nema-l22-30p'
     # California style
     TYPE_CS6361C = 'cs6361c'
     TYPE_CS6365C = 'cs6365c'
@@ -417,6 +418,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
             (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
             (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
+            (TYPE_NEMA_L2230P, 'NEMA L22-30P'),
         )),
         ('California Style', (
             (TYPE_CS6361C, 'CS6361C'),
@@ -533,6 +535,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560R = 'nema-l15-60r'
     TYPE_NEMA_L2120R = 'nema-l21-20r'
     TYPE_NEMA_L2130R = 'nema-l21-30r'
+    TYPE_NEMA_L2230R = 'nema-l22-30r'
     # California style
     TYPE_CS6360C = 'CS6360C'
     TYPE_CS6364C = 'CS6364C'
@@ -631,6 +634,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
             (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
             (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
+            (TYPE_NEMA_L2230R, 'NEMA L22-30R'),
         )),
         ('California Style', (
             (TYPE_CS6360C, 'CS6360C'),
