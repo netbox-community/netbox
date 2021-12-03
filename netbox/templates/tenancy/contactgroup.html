@@ -50,15 +50,30 @@
     </div>
     <div class="col col-md-6">
       {% include 'inc/panels/custom_fields.html' %}
+      <div class="card">
+        <h5 class="card-header">
+          Child Groups
+        </h5>
+        <div class="card-body">
+          {% include 'inc/table.html' with table=child_groups_table %}
+        </div>
+        {% if perms.tenancy.add_contactgroup %}
+          <div class="card-footer text-end noprint">
+            <a href="{% url 'tenancy:contactgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
+              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Contact Group
+            </a>
+          </div>
+        {% endif %}
+      </div>
       {% plugin_right_page object %}
     </div>
   </div>
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <div class="card-header">
-          Tenants
-        </div>
+        <h5 class="card-header">
+          Contacts
+        </h5>
         <div class="card-body">
           {% include 'inc/table.html' with table=contacts_table %}
         </div>
