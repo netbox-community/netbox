@@ -157,6 +157,7 @@ class RegionView(generic.ObjectView):
             parent__in=instance.get_descendants(include_self=True)
         )
         child_regions_table = tables.RegionTable(child_regions)
+        child_regions_table.columns.hide('actions')
 
         sites = Site.objects.restrict(request.user, 'view').filter(
             region=instance
@@ -241,6 +242,7 @@ class SiteGroupView(generic.ObjectView):
             parent__in=instance.get_descendants(include_self=True)
         )
         child_groups_table = tables.SiteGroupTable(child_groups)
+        child_groups_table.columns.hide('actions')
 
         sites = Site.objects.restrict(request.user, 'view').filter(
             group=instance

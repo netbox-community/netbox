@@ -178,6 +178,7 @@ class ContactGroupView(generic.ObjectView):
             parent__in=instance.get_descendants(include_self=True)
         )
         child_groups_table = tables.ContactGroupTable(child_groups)
+        child_groups_table.columns.hide('actions')
 
         contacts = Contact.objects.restrict(request.user, 'view').filter(
             group=instance
