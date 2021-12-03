@@ -27,6 +27,7 @@
 * [#7771](https://github.com/netbox-community/netbox/issues/7771) - Group assignment should be optional when creating contacts via REST API
 * [#7849](https://github.com/netbox-community/netbox/issues/7849) - Fix exception when creating an FHRPGroup with an invalid IP address
 * [#7880](https://github.com/netbox-community/netbox/issues/7880) - Include assigned IP addresses in FHRP group object representation
+* [#7960](https://github.com/netbox-community/netbox/issues/7960) - Prevent creation of regions/site groups/locations with duplicate names (see #7354)
 
 ### REST API Changes
 
