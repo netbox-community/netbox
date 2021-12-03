@@ -37,11 +37,23 @@
             </tr>
             <tr>
               <td>Phone</td>
-              <td>{{ object.phone|placeholder }}</td>
+              <td>
+                {% if object.phone %}
+                  <a href="tel:{{ object.phone }}">{{ object.phone }}</a>
+                {% else %}
+                  <span class="text-muted">None</span>
+                {% endif %}
+              </td>
             </tr>
             <tr>
               <td>Email</td>
-              <td>{{ object.email|placeholder }}</td>
+              <td>
+                {% if object.phone %}
+                  <a href="mailto:{{ object.email }}">{{ object.email }}</a>
+                {% else %}
+                  <span class="text-muted">None</span>
+                {% endif %}
+              </td>
             </tr>
             <tr>
               <td>Address</td>

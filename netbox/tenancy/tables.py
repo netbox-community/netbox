@@ -1,7 +1,8 @@
 import django_tables2 as tables
 
 from utilities.tables import (
-    BaseTable, ButtonsColumn, ContentTypeColumn, LinkedCountColumn, MarkdownColumn, MPTTColumn, TagColumn, ToggleColumn,
+    BaseTable, ButtonsColumn, ContentTypeColumn, LinkedCountColumn, linkify_phone, MarkdownColumn, MPTTColumn,
+    TagColumn, ToggleColumn,
 )
 from .models import *
 
@@ -130,6 +131,9 @@ class ContactTable(BaseTable):
     )
     group = tables.Column(
         linkify=True
+    )
+    phone = tables.Column(
+        linkify=linkify_phone,
     )
     comments = MarkdownColumn()
     assignment_count = tables.Column(

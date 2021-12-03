@@ -15,7 +15,7 @@
 * [#7812](https://github.com/netbox-community/netbox/issues/7812) - Enable change logging for image attachments
 * [#7858](https://github.com/netbox-community/netbox/issues/7858) - Standardize the representation of content types across import & export functions
 * [#7884](https://github.com/netbox-community/netbox/issues/7884) - Add FHRP groups column to interface tables
-* [#7940](https://github.com/netbox-community/netbox/issues/7940) - Add ITA multistandard outlet
+* [#7925](https://github.com/netbox-community/netbox/issues/7925) - Linkify contact phone and email attributes
 
 ### Bug Fixes
 

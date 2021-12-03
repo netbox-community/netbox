@@ -489,3 +489,19 @@ def paginate_table(table, request):
         'per_page': get_paginate_count(request)
     }
     RequestConfig(request, paginate).configure(table)
+
+
+#
+# Callables
+#
+
+def linkify_email(value):
+    if value is None:
+        return None
+    return f"mailto:{value}"
+
+
+def linkify_phone(value):
+    if value is None:
+        return None
+    return f"tel:{value}"
