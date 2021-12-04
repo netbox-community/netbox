@@ -14,7 +14,7 @@
             <th>Created</th>
             <th></th>
           </tr>
-          {% for attachment in images %}
+          {% for attachment in images|dictsortreversed:"created" %}
             <tr{% if not attachment.size %} class="table-danger"{% endif %}>
               <td>
                 <i class="mdi mdi-file-image-outline"></i>
