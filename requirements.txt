@@ -9,7 +9,7 @@ django-prometheus==2.1.0
 django-redis==5.1.0
 django-rq==2.5.1
 django-tables2==2.4.1
-django-taggit==1.5.1
+django-taggit==2.0.0
 django-timezone-field==4.2.1
 djangorestframework==3.12.4
 drf-yasg[validation]==1.20.0
