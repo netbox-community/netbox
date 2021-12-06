@@ -312,6 +312,7 @@ class SiteView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         stats = {
+            'location_count': Location.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'device_count': Device.objects.restrict(request.user, 'view').filter(site=instance).count(),
             'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=instance).count(),
