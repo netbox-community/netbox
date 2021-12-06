@@ -123,7 +123,7 @@ class WebhookTest(APITestCase):
 
     def test_enqueue_webhook_update(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
-        site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
+        site.tags.set(Tag.objects.filter(name__in=['Foo', 'Bar']))
 
         # Update an object via the REST API
         data = {
@@ -159,7 +159,7 @@ class WebhookTest(APITestCase):
         )
         Site.objects.bulk_create(sites)
         for site in sites:
-            site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
+            site.tags.set(Tag.objects.filter(name__in=['Foo', 'Bar']))
 
         # Update three objects via the REST API
         data = [
@@ -205,7 +205,7 @@ class WebhookTest(APITestCase):
 
     def test_enqueue_webhook_delete(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
-        site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
+        site.tags.set(Tag.objects.filter(name__in=['Foo', 'Bar']))
 
         # Delete an object via the REST API
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
@@ -231,7 +231,7 @@ class WebhookTest(APITestCase):
         )
         Site.objects.bulk_create(sites)
         for site in sites:
-            site.tags.set(*Tag.objects.filter(name__in=['Foo', 'Bar']))
+            site.tags.set(Tag.objects.filter(name__in=['Foo', 'Bar']))
 
         # Delete three objects via the REST API
         data = [
