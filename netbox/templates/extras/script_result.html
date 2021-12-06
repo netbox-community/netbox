@@ -102,11 +102,11 @@
           {% endif %}
       </div>
       <div role="tabpanel" class="tab-pane" id="output">
-          <pre>{{ result.data.output }}</pre>
+          <pre class="block">{{ result.data.output }}</pre>
       </div>
       <div role="tabpanel" class="tab-pane" id="source">
           <p><code>{{ script.filename }}</code></p>
-          <pre>{{ script.source }}</pre>
+          <pre class="block">{{ script.source }}</pre>
       </div>
   </div>
 {% endblock content-wrapper %}

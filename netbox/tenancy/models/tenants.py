@@ -1,12 +1,10 @@
-from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import TreeForeignKey
 
 from extras.utils import extras_features
 from netbox.models import NestedGroupModel, PrimaryModel
-from utilities.querysets import RestrictedQuerySet
-
 
 __all__ = (
     'Tenant',
@@ -14,7 +12,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class TenantGroup(NestedGroupModel):
     """
     An arbitrary collection of Tenants.
@@ -76,7 +74,10 @@ class Tenant(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
 
     clone_fields = [
         'group', 'description',

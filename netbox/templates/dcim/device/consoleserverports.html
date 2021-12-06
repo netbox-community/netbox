@@ -7,7 +7,7 @@
   <form method="post">
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="DeviceConsoleServerPortTable_config" %}
-    {% render_table consoleserverport_table 'inc/table.html' %}
+    {% render_table table 'inc/table.html' %}
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
             {% if perms.dcim.change_consoleserverport %}
@@ -36,6 +36,6 @@
         {% endif %}
     </div>
   </form>
-  {% include 'inc/paginator.html' with paginator=consoleserverport_table.paginator page=consoleserverport_table.page %}
-  {% table_config_form consoleserverport_table %}
+  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+  {% table_config_form table %}
 {% endblock %}

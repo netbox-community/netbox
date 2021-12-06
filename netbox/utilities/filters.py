@@ -3,7 +3,7 @@ from django import forms
 from django.conf import settings
 from django_filters.constants import EMPTY_VALUES
 
-from dcim.forms import MACAddressField
+from utilities.forms import MACAddressField
 
 
 def multivalue_field_factory(field_class):
@@ -54,6 +54,10 @@ class MACAddressFilter(django_filters.CharFilter):
 
 
 class MultiValueMACAddressFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(MACAddressField)
+
+
+class MultiValueWWNFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(MACAddressField)
 
 

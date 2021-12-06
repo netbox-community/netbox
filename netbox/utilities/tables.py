@@ -13,7 +13,7 @@ from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
-from .utils import content_type_name
+from .utils import content_type_identifier, content_type_name
 from .paginator import EnhancedPaginator, get_paginate_count
 
 
@@ -289,15 +289,26 @@ class ContentTypeColumn(tables.Column):
     def value(self, value):
         if value is None:
             return None
-        return f"{value.app_label}.{value.model}"
+        return content_type_identifier(value)
 
 
 class ContentTypesColumn(tables.ManyToManyColumn):
     """
     Display a list of ContentType instances.
     """
+    def __init__(self, separator=None, *args, **kwargs):
+        # Use a line break as the default separator
+        if separator is None:
+            separator = mark_safe('<br />')
+        super().__init__(separator=separator, *args, **kwargs)
+
     def transform(self, obj):
         return content_type_name(obj)
+
+    def value(self, value):
+        return ','.join([
+            content_type_identifier(ct) for ct in self.filter(value)
+        ])
 
 
 class ColorColumn(tables.Column):
@@ -478,3 +489,19 @@ def paginate_table(table, request):
         'per_page': get_paginate_count(request)
     }
     RequestConfig(request, paginate).configure(table)
+
+
+#
+# Callables
+#
+
+def linkify_email(value):
+    if value is None:
+        return None
+    return f"mailto:{value}"
+
+
+def linkify_phone(value):
+    if value is None:
+        return None
+    return f"tel:{value}"

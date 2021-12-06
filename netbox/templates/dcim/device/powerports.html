@@ -7,7 +7,7 @@
   <form method="post">
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="DevicePowerPortTable_config" %}
-    {% render_table powerport_table 'inc/table.html' %}
+    {% render_table table 'inc/table.html' %}
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
             {% if perms.dcim.change_powerport %}
@@ -36,6 +36,6 @@
         {% endif %}
     </div>
   </form>
-  {% include 'inc/paginator.html' with paginator=powerport_table.paginator page=powerport_table.page %}
-  {% table_config_form powerport_table %}
+  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+  {% table_config_form table %}
 {% endblock %}

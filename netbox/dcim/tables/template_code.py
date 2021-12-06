@@ -1,4 +1,4 @@
-CABLETERMINATION = """
+LINKTERMINATION = """
 {% if value %}
   {% if value.parent_object %}
     <a href="{{ value.parent_object.get_absolute_url }}">{{ value.parent_object }}</a>
@@ -50,6 +50,14 @@ INTERFACE_IPADDRESSES = """
 </div>
 """
 
+INTERFACE_FHRPGROUPS = """
+<div class="table-badge-group">
+  {% for assignment in value.all %}
+    <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.get_protocol_display }}: {{ assignment.group.group_id }}</a>
+  {% endfor %}
+</div>
+"""
+
 INTERFACE_TAGGED_VLANS = """
 {% if record.mode == 'tagged' %}
     {% for vlan in record.tagged_vlans.all %}
@@ -58,6 +66,12 @@ INTERFACE_TAGGED_VLANS = """
 {% elif record.mode == 'tagged-all' %}
   All
 {% endif %}
+"""
+
+INTERFACE_WIRELESS_LANS = """
+{% for wlan in record.wireless_lans.all %}
+  <a href="{{ wlan.get_absolute_url }}">{{ wlan }}</a><br />
+{% endfor %}
 """
 
 POWERFEED_CABLE = """
@@ -191,15 +205,23 @@ INTERFACE_BUTTONS = """
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
     </a>
 {% endif %}
-{% if record.cable %}
+{% if record.link %}
     <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
+{% endif %}
+{% if record.cable %}
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
     {% if perms.dcim.delete_cable %}
         <a href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Remove cable" class="btn btn-danger btn-sm">
             <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
         </a>
     {% endif %}
-{% elif record.is_connectable and perms.dcim.add_cable %}
+{% elif record.wireless_link %}
+    {% if perms.wireless.delete_wirelesslink %}
+        <a href="{% url 'wireless:wirelesslink_delete' pk=record.wireless_link.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Delete wireless link" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-wifi-off" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+{% elif record.is_wired and perms.dcim.add_cable %}
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
     {% if not record.mark_connected %}
@@ -217,6 +239,10 @@ INTERFACE_BUTTONS = """
     {% else %}
         <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
     {% endif %}
+{% elif record.is_wireless and perms.wireless.add_wirelesslink %}
+    <a href="{% url 'wireless:wirelesslink_add' %}?site_a={{ record.device.site.pk }}&location_a={{ record.device.location.pk }}&device_a={{ record.device.pk }}&interface_a={{ record.pk }}&site_b={{ record.device.site.pk }}&location_b={{ record.device.location.pk }}" class="btn btn-success btn-sm">
+        <span class="mdi mdi-wifi-plus" aria-hidden="true"></span>
+    </a>
 {% endif %}
 """
 

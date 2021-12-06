@@ -11,7 +11,6 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 from virtualization.models import VMInterface
 
 
@@ -21,7 +20,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class VLANGroup(OrganizationalModel):
     """
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
@@ -51,8 +50,6 @@ class VLANGroup(OrganizationalModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique

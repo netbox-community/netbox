@@ -1,7 +1,9 @@
-{% load helpers %}
+{% extends 'dcim/devicetype/base.html' %}
 {% load render_table from django_tables2 %}
+{% load helpers %}
 
-{% if perms.dcim.change_devicetype %}
+{% block content %}
+  {% if perms.dcim.change_devicetype %}
     <form method="post">
         {% csrf_token %}
         <div class="card">
@@ -33,7 +35,7 @@
             </div>
         </div>
     </form>
-{% else %}
+  {% else %}
     <div class="card">
         <h5 class="card-header">
             {{ title }}
@@ -42,4 +44,5 @@
             {% render_table table 'inc/table.html' %}
         </div>
     </div>
-{% endif %}
+  {% endif %}
+{% endblock content %}

@@ -73,12 +73,14 @@
                     <tr>
                         <th scope="row">Assignment</th>
                         <td>
-                            {% if object.assigned_object %}
-                                <a href="{{ object.assigned_object.parent_object.get_absolute_url }}">{{ object.assigned_object.parent_object }}</a> /
-                                <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
+                          {% if object.assigned_object %}
+                            {% if object.assigned_object.parent_object %}
+                              <a href="{{ object.assigned_object.parent_object.get_absolute_url }}">{{ object.assigned_object.parent_object }}</a> /
                             {% endif %}
+                            <a href="{{ object.assigned_object.get_absolute_url }}">{{ object.assigned_object }}
+                          {% else %}
+                            <span class="text-muted">&mdash;</span>
+                          {% endif %}
                         </td>
                     </tr>
                     <tr>
@@ -107,7 +109,7 @@
                 </table>
             </div>
         </div>
-        {% include 'inc/custom_fields_panel.html' %}
+        {% include 'inc/panels/custom_fields.html' %}
         
         {% plugin_left_page object %}
 	</div>
@@ -145,7 +147,7 @@
 
 <div class="row my-3">
     <div class="col col-md-4">
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='ipam:ipaddress_list' %}
+        {% include 'inc/panels/tags.html' %}
     </div>
     
 </div>

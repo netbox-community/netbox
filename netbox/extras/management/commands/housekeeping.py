@@ -10,12 +10,14 @@ from django.utils import timezone
 from packaging import version
 
 from extras.models import ObjectChange
+from netbox.config import Config
 
 
 class Command(BaseCommand):
     help = "Perform nightly housekeeping tasks. (This command can be run at any time.)"
 
     def handle(self, *args, **options):
+        config = Config()
 
         # Clear expired authentication sessions (essentially replicating the `clearsessions` command)
         if options['verbosity']:
@@ -37,10 +39,10 @@ class Command(BaseCommand):
         # Delete expired ObjectRecords
         if options['verbosity']:
             self.stdout.write("[*] Checking for expired changelog records")
-        if settings.CHANGELOG_RETENTION:
-            cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
+        if config.CHANGELOG_RETENTION:
+            cutoff = timezone.now() - timedelta(days=config.CHANGELOG_RETENTION)
             if options['verbosity'] >= 2:
-                self.stdout.write(f"\tRetention period: {settings.CHANGELOG_RETENTION} days")
+                self.stdout.write(f"\tRetention period: {config.CHANGELOG_RETENTION} days")
                 self.stdout.write(f"\tCut-off time: {cutoff}")
             expired_records = ObjectChange.objects.filter(time__lt=cutoff).count()
             if expired_records:
@@ -58,7 +60,7 @@ class Command(BaseCommand):
                 self.stdout.write("\tNo expired records found.", self.style.SUCCESS)
         elif options['verbosity']:
             self.stdout.write(
-                f"\tSkipping: No retention period specified (CHANGELOG_RETENTION = {settings.CHANGELOG_RETENTION})"
+                f"\tSkipping: No retention period specified (CHANGELOG_RETENTION = {config.CHANGELOG_RETENTION})"
             )
 
         # Check for new releases (if enabled)

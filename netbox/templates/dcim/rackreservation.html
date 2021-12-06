@@ -83,8 +83,8 @@
                 </table>
             </div>
         </div>
-        {% include 'inc/custom_fields_panel.html' %}
-        {% include 'extras/inc/tags_panel.html' with tags=object.tags.all url='dcim:rackreservation_list' %}
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' %}
         {% plugin_left_page object %}
 	</div>
     <div class="col col-12 col-xl-7">

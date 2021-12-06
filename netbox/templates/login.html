@@ -7,9 +7,9 @@
   <main class="login-container text-center">
 
     {# Login banner #}
-    {% if settings.BANNER_LOGIN %}
+    {% if config.BANNER_LOGIN %}
       <div class="alert alert-secondary mw-90 mw-md-75 mw-lg-80 mw-xl-75 mw-xxl-50" role="alert">
-        {{ settings.BANNER_LOGIN|safe }}
+        {{ config.BANNER_LOGIN|safe }}
       </div>
     {% endif %}
 
@@ -38,6 +38,14 @@
         </button>
       </form>
     </div>
+
+    {# TODO: Improve the design & layout #}
+    {% if auth_backends %}
+      <h6 class="mt-4">Or use an SSO provider:</h6>
+      {% for name, backend in auth_backends.items %}
+        <h4><a href="{% url 'social:begin' backend=name %}" class="my-2">{{ name }}</a></h4>
+      {% endfor %}
+    {% endif %}
 
     {# Login form errors #}
     {% if form.non_field_errors %}

@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import json
 import re
 from typing import Dict, Any
@@ -14,6 +15,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
+from netbox.config import get_config
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.markdown import StrikethroughExtension
 from utilities.utils import foreground_color
@@ -41,7 +43,7 @@ def render_markdown(value):
     """
     Render text as Markdown
     """
-    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
+    schemes = '|'.join(get_config().ALLOWED_URL_SCHEMES)
 
     # Strip HTML tags
     value = strip_tags(value)
@@ -170,6 +172,19 @@ def humanize_megabytes(mb):
     if mb >= 1024:
         return f'{int(mb / 1024)} GB'
     return f'{mb} MB'
+
+
+@register.filter()
+def simplify_decimal(value):
+    """
+    Return the simplest expression of a decimal value. Examples:
+      1.00 => '1'
+      1.20 => '1.2'
+      1.23 => '1.23'
+    """
+    if type(value) is not decimal.Decimal:
+        return value
+    return str(value).rstrip('0').rstrip('.')
 
 
 @register.filter()

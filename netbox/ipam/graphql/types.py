@@ -1,8 +1,14 @@
+import graphene
+
 from ipam import filtersets, models
-from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.scalars import BigInt
+from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
+    'ASNType',
     'AggregateType',
+    'FHRPGroupType',
+    'FHRPGroupAssignmentType',
     'IPAddressType',
     'IPRangeType',
     'PrefixType',
@@ -16,12 +22,40 @@ __all__ = (
 )
 
 
+class ASNType(PrimaryObjectType):
+    asn = graphene.Field(BigInt)
+
+    class Meta:
+        model = models.ASN
+        fields = '__all__'
+        filterset_class = filtersets.ASNFilterSet
+
+
 class AggregateType(PrimaryObjectType):
 
     class Meta:
         model = models.Aggregate
         fields = '__all__'
         filterset_class = filtersets.AggregateFilterSet
+
+
+class FHRPGroupType(PrimaryObjectType):
+
+    class Meta:
+        model = models.FHRPGroup
+        fields = '__all__'
+        filterset_class = filtersets.FHRPGroupFilterSet
+
+    def resolve_auth_type(self, info):
+        return self.auth_type or None
+
+
+class FHRPGroupAssignmentType(BaseObjectType):
+
+    class Meta:
+        model = models.FHRPGroupAssignment
+        fields = '__all__'
+        filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
 
 class IPAddressType(PrimaryObjectType):

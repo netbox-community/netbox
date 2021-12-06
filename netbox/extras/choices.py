@@ -8,19 +8,23 @@ from utilities.choices import ChoiceSet
 class CustomFieldTypeChoices(ChoiceSet):
 
     TYPE_TEXT = 'text'
+    TYPE_LONGTEXT = 'longtext'
     TYPE_INTEGER = 'integer'
     TYPE_BOOLEAN = 'boolean'
     TYPE_DATE = 'date'
     TYPE_URL = 'url'
+    TYPE_JSON = 'json'
     TYPE_SELECT = 'select'
     TYPE_MULTISELECT = 'multiselect'
 
     CHOICES = (
         (TYPE_TEXT, 'Text'),
+        (TYPE_LONGTEXT, 'Text (long)'),
         (TYPE_INTEGER, 'Integer'),
         (TYPE_BOOLEAN, 'Boolean (true/false)'),
         (TYPE_DATE, 'Date'),
         (TYPE_URL, 'URL'),
+        (TYPE_JSON, 'JSON'),
         (TYPE_SELECT, 'Selection'),
         (TYPE_MULTISELECT, 'Multiple selection'),
     )

@@ -2,6 +2,7 @@ import csv
 import json
 import re
 from io import StringIO
+from netaddr import AddrFormatError, EUI
 
 import django_filters
 from django import forms
@@ -14,7 +15,7 @@ from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.urls import reverse
 
 from utilities.choices import unpack_grouped_choices
-from utilities.utils import content_type_name
+from utilities.utils import content_type_identifier, content_type_name
 from utilities.validators import EnhancedURLValidator
 from . import widgets
 from .constants import *
@@ -38,6 +39,7 @@ __all__ = (
     'ExpandableNameField',
     'JSONField',
     'LaxURLField',
+    'MACAddressField',
     'SlugField',
     'TagFilterField',
 )
@@ -128,6 +130,28 @@ class JSONField(_JSONField):
             return ''
         return json.dumps(value, sort_keys=True, indent=4)
 
+
+class MACAddressField(forms.Field):
+    widget = forms.CharField
+    default_error_messages = {
+        'invalid': 'MAC address must be in EUI-48 format',
+    }
+
+    def to_python(self, value):
+        value = super().to_python(value)
+
+        # Validate MAC address format
+        try:
+            value = EUI(value.strip())
+        except AddrFormatError:
+            raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
+
+        return value
+
+
+#
+# Content type fields
+#
 
 class ContentTypeChoiceMixin:
 
@@ -278,7 +302,7 @@ class CSVContentTypeField(CSVModelChoiceField):
     STATIC_CHOICES = True
 
     def prepare_value(self, value):
-        return f'{value.app_label}.{value.model}'
+        return content_type_identifier(value)
 
     def to_python(self, value):
         if not value:
@@ -304,7 +328,7 @@ class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
                 app_label, model = name.split('.')
                 ct_filter |= Q(app_label=app_label, model=model)
             return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
-        return f'{value.app_label}.{value.model}'
+        return content_type_identifier(value)
 
 
 #

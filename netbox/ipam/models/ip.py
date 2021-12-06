@@ -1,13 +1,13 @@
 import netaddr
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import F
 from django.urls import reverse
 from django.utils.functional import cached_property
 
+from dcim.fields import ASNField
 from dcim.models import Device
 from extras.utils import extras_features
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -17,12 +17,13 @@ from ipam.fields import IPNetworkField, IPAddressField
 from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
-from utilities.querysets import RestrictedQuerySet
+from netbox.config import get_config
 from virtualization.models import VirtualMachine
 
 
 __all__ = (
     'Aggregate',
+    'ASN',
     'IPAddress',
     'IPRange',
     'Prefix',
@@ -31,7 +32,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RIR(OrganizationalModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
@@ -55,8 +56,6 @@ class RIR(OrganizationalModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ['name']
         verbose_name = 'RIR'
@@ -67,6 +66,47 @@ class RIR(OrganizationalModel):
 
     def get_absolute_url(self):
         return reverse('ipam:rir', args=[self.pk])
+
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class ASN(PrimaryModel):
+    """
+    An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
+    one or more ASNs assigned to it.
+    """
+    asn = ASNField(
+        unique=True,
+        verbose_name='ASN',
+        help_text='32-bit autonomous system number'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    rir = models.ForeignKey(
+        to='ipam.RIR',
+        on_delete=models.PROTECT,
+        related_name='asns',
+        verbose_name='RIR'
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='asns',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        ordering = ['asn']
+        verbose_name = 'ASN'
+        verbose_name_plural = 'ASNs'
+
+    def __str__(self):
+        return f'AS{self.asn}'
+
+    def get_absolute_url(self):
+        return reverse('ipam:asn', args=[self.pk])
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -97,8 +137,6 @@ class Aggregate(PrimaryModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'rir', 'tenant', 'date_added', 'description',
@@ -168,7 +206,7 @@ class Aggregate(PrimaryModel):
         return min(utilization, 100)
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Role(OrganizationalModel):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
@@ -189,8 +227,6 @@ class Role(OrganizationalModel):
         max_length=200,
         blank=True,
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['weight', 'name']
@@ -316,7 +352,7 @@ class Prefix(PrimaryModel):
                 })
 
             # Enforce unique IP space (if applicable)
-            if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
+            if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_prefixes = self.get_duplicates()
                 if duplicate_prefixes:
                     raise ValidationError({
@@ -546,8 +582,6 @@ class IPRange(PrimaryModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'vrf', 'tenant', 'status', 'role', 'description',
@@ -811,7 +845,7 @@ class IPAddress(PrimaryModel):
                 })
 
             # Enforce unique IP space (if applicable)
-            if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
+            if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_ips = self.get_duplicates()
                 if duplicate_ips and (
                         self.role not in IPADDRESS_ROLES_NONUNIQUE or

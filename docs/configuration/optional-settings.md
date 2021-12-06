@@ -13,33 +13,6 @@ ADMINS = [
 
 ---
 
-## ALLOWED_URL_SCHEMES
-
-Default: `('file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp')`
-
-A list of permitted URL schemes referenced when rendering links within NetBox. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate all of the default values as well (excluding those schemes which are not desirable).
-
----
-
-## BANNER_TOP
-
-## BANNER_BOTTOM
-
-Setting these variables will display custom content in a banner at the top and/or bottom of the page, respectively. HTML is allowed. To replicate the content of the top banner in the bottom banner, set:
-
-```python
-BANNER_TOP = 'Your banner text'
-BANNER_BOTTOM = BANNER_TOP
-```
-
----
-
-## BANNER_LOGIN
-
-This defines custom content to be displayed on the login page above the login form. HTML is allowed.
-
----
-
 ## BASE_PATH
 
 Default: None
@@ -49,18 +22,6 @@ The base URL path to use when accessing NetBox. Do not include the scheme or dom
 ```python
 BASE_PATH = 'netbox/'
 ```
-
----
-
-## CHANGELOG_RETENTION
-
-Default: 90
-
-The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain
-changes in the database indefinitely.
-
-!!! warning
-    If enabling indefinite changelog retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.
 
 ---
 
@@ -84,22 +45,6 @@ expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.)
 CORS_ORIGIN_WHITELIST = [
     'https://example.com',
 ]
-```
-
----
-
-## CUSTOM_VALIDATORS
-
-This is a mapping of models to [custom validators](../customization/custom-validation.md) that have been defined locally to enforce custom validation logic. An example is provided below:
-
-```python
-CUSTOM_VALIDATORS = {
-    'dcim.site': (
-        Validator1,
-        Validator2,
-        Validator3
-    )
-}
 ```
 
 ---
@@ -168,14 +113,6 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ---
 
-## ENFORCE_GLOBAL_UNIQUE
-
-Default: False
-
-By default, NetBox will permit users to create duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This behavior can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to True.
-
----
-
 ## EXEMPT_VIEW_PERMISSIONS
 
 Default: Empty list
@@ -200,14 +137,6 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 !!! note
     Using a wildcard will not affect certain potentially sensitive models, such as user permissions. If there is a need to exempt these models, they must be specified individually.
-
----
-
-## GRAPHQL_ENABLED
-
-Default: True
-
-Setting this to False will disable the GraphQL API.
 
 ---
 
@@ -299,30 +228,6 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 
 ---
 
-## MAINTENANCE_MODE
-
-Default: False
-
-Setting this to True will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
-
----
-
-## MAPS_URL
-
-Default: `https://maps.google.com/?q=` (Google Maps)
-
-This specifies the URL to use when presenting a map of a physical location by street address or GPS coordinates. The URL must accept either a free-form street address or a comma-separated pair of numeric coordinates appended to it.
-
----
-
-## MAX_PAGE_SIZE
-
-Default: 1000
-
-A web user or API consumer can request an arbitrary number of objects by appending the "limit" parameter to the URL (e.g. `?limit=1000`). This parameter defines the maximum acceptable limit. Setting this to `0` or `None` will allow a client to retrieve _all_ matching objects at once with no limit by specifying `?limit=0`.
-
----
-
 ## MEDIA_ROOT
 
 Default: $INSTALL_ROOT/netbox/media/
@@ -336,57 +241,6 @@ The file path to the location where media files (such as image attachments) are 
 Default: False
 
 Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics.md) documentation for more details.
-
----
-
-## NAPALM_USERNAME
-
-## NAPALM_PASSWORD
-
-NetBox will use these credentials when authenticating to remote devices via the supported [NAPALM integration](../additional-features/napalm.md), if installed. Both parameters are optional.
-
-!!! note
-    If SSH public key authentication has been set up on the remote device(s) for the system account under which NetBox runs, these parameters are not needed.
-
----
-
-## NAPALM_ARGS
-
-A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](https://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
-
-```python
-NAPALM_ARGS = {
-    'api_key': '472071a93b60a1bd1fafb401d9f8ef41',
-    'port': 2222,
-}
-```
-
-Some platforms (e.g. Cisco IOS) require an argument named `secret` to be passed in addition to the normal password. If desired, you can use the configured `NAPALM_PASSWORD` as the value for this argument:
-
-```python
-NAPALM_USERNAME = 'username'
-NAPALM_PASSWORD = 'MySecretPassword'
-NAPALM_ARGS = {
-    'secret': NAPALM_PASSWORD,
-    # Include any additional args here
-}
-```
-
----
-
-## NAPALM_TIMEOUT
-
-Default: 30 seconds
-
-The amount of time (in seconds) to wait for NAPALM to connect to a device.
-
----
-
-## PAGINATE_COUNT
-
-Default: 50
-
-The default maximum number of objects to display per page within each list of objects.
 
 ---
 
@@ -420,137 +274,6 @@ PLUGINS_CONFIG = {
 ```
 
 Note that a plugin must be listed in `PLUGINS` for its configuration to take effect.
-
----
-
-## PREFER_IPV4
-
-Default: False
-
-When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to prefer IPv4 instead.
-
----
-
-## RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
-
-Default: 22
-
-Default height (in pixels) of a unit within a rack elevation. For best results, this should be approximately one tenth of `RACK_ELEVATION_DEFAULT_UNIT_WIDTH`.
-
----
-
-## RACK_ELEVATION_DEFAULT_UNIT_WIDTH
-
-Default: 220
-
-Default width (in pixels) of a unit within a rack elevation.
-
----
-
-## REMOTE_AUTH_AUTO_CREATE_USER
-
-Default: `False`
-
-If true, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
-
----
-
-## REMOTE_AUTH_BACKEND
-
-Default: `'netbox.authentication.RemoteUserBackend'`
-
-This is the Python path to the custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to use for external user authentication. NetBox provides two built-in backends (listed below), though custom authentication backends may also be provided by other packages or plugins.
-
-* `netbox.authentication.RemoteUserBackend`
-* `netbox.authentication.LDAPBackend`
-
----
-
-## REMOTE_AUTH_DEFAULT_GROUPS
-
-Default: `[]` (Empty list)
-
-The list of groups to assign a new user account when created using remote authentication. (Requires `REMOTE_AUTH_ENABLED`.)
-
----
-
-## REMOTE_AUTH_DEFAULT_PERMISSIONS
-
-Default: `{}` (Empty dictionary)
-
-A mapping of permissions to assign a new user account when created using remote authentication. Each key in the dictionary should be set to a dictionary of the attributes to be applied to the permission, or `None` to allow all objects. (Requires `REMOTE_AUTH_ENABLED`.)
-
----
-
-## REMOTE_AUTH_ENABLED
-
-Default: `False`
-
-NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authentication will still take effect as a fallback.)
-
----
-
-## REMOTE_AUTH_GROUP_SYNC_ENABLED
-
-Default: `False`
-
-NetBox can be configured to sync remote user groups by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authentication will still take effect as a fallback.) (Requires `REMOTE_AUTH_ENABLED`.)
-
----
-
-## REMOTE_AUTH_HEADER
-
-Default: `'HTTP_REMOTE_USER'`
-
-When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. For example, to use the request header `X-Remote-User` it needs to be set to `HTTP_X_REMOTE_USER`. (Requires `REMOTE_AUTH_ENABLED`.)
-
----
-
-## REMOTE_AUTH_GROUP_HEADER
-
-Default: `'HTTP_REMOTE_USER_GROUP'`
-
-When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. For example, to use the request header `X-Remote-User-Groups` it needs to be set to `HTTP_X_REMOTE_USER_GROUPS`. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
-
----
-
-## REMOTE_AUTH_SUPERUSER_GROUPS
-
-Default: `[]` (Empty list)
-
-The list of groups that promote an remote User to Superuser on Login. If group isn't present on next Login, the Role gets revoked. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
-
----
-
-## REMOTE_AUTH_SUPERUSERS
-
-Default: `[]` (Empty list)
-
-The list of users that get promoted to Superuser on Login. If user isn't present in list on next Login, the Role gets revoked. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
-
----
-
-## REMOTE_AUTH_STAFF_GROUPS
-
-Default: `[]` (Empty list)
-
-The list of groups that promote an remote User to Staff on Login. If group isn't present on next Login, the Role gets revoked. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
-
----
-
-## REMOTE_AUTH_STAFF_USERS
-
-Default: `[]` (Empty list)
-
-The list of users that get promoted to Staff on Login. If user isn't present in list on next Login, the Role gets revoked. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
-
----
-
-## REMOTE_AUTH_GROUP_SEPARATOR
-
-Default: `|` (Pipe)
-
-The Seperator upon which `REMOTE_AUTH_GROUP_HEADER` gets split into individual Groups. This needs to be coordinated with your authentication Proxy. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
 
 ---
 

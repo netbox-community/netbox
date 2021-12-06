@@ -11,6 +11,7 @@ from extras.forms import CustomFieldModelCSVForm
 from tenancy.models import Tenant
 from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField
 from virtualization.models import Cluster
+from wireless.choices import WirelessRoleChoices
 
 __all__ = (
     'CableCSVForm',
@@ -94,7 +95,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Site
         fields = (
-            'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
             'contact_email', 'comments',
         )
@@ -120,10 +121,16 @@ class LocationCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Location not found.',
         }
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'description')
+        fields = ('site', 'parent', 'name', 'slug', 'tenant', 'description')
 
 
 class RackRoleCSVForm(CustomFieldModelCSVForm):
@@ -363,12 +370,17 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         required=False,
         help_text='Mounted rack face'
     )
+    airflow = CSVChoiceField(
+        choices=DeviceAirflowChoices,
+        required=False,
+        help_text='Airflow direction'
+    )
 
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'location', 'rack', 'position', 'face', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster',
-            'comments',
+            'site', 'location', 'rack', 'position', 'face', 'airflow', 'virtual_chassis', 'vc_position', 'vc_priority',
+            'cluster', 'comments',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -558,6 +570,12 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Parent interface'
     )
+    bridge = CSVModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Bridged interface'
+    )
     lag = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -573,41 +591,19 @@ class InterfaceCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
     )
+    rf_role = CSVChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        help_text='Wireless role (AP/station)'
+    )
 
     class Meta:
         model = Interface
         fields = (
-            'device', 'name', 'label', 'parent', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address', 'mtu',
-            'mgmt_only', 'description', 'mode',
+            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'enabled', 'mark_connected', 'mac_address',
+            'wwn', 'mtu', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power',
         )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit LAG choices to interfaces belonging to this device (or virtual chassis)
-        device = None
-        if self.is_bound and 'device' in self.data:
-            try:
-                device = self.fields['device'].to_python(self.data['device'])
-            except forms.ValidationError:
-                pass
-        if device and device.virtual_chassis:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                Q(device=device) | Q(device__virtual_chassis=device.virtual_chassis),
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
-            self.fields['parent'].queryset = Interface.objects.filter(
-                Q(device=device) | Q(device__virtual_chassis=device.virtual_chassis)
-            )
-        elif device:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device=device,
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
-            self.fields['parent'].queryset = Interface.objects.filter(device=device)
-        else:
-            self.fields['lag'].queryset = Interface.objects.none()
-            self.fields['parent'].queryset = Interface.objects.none()
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
@@ -801,7 +797,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
 
     # Cable attributes
     status = CSVChoiceField(
-        choices=CableStatusChoices,
+        choices=LinkStatusChoices,
         required=False,
         help_text='Connection status'
     )
@@ -809,6 +805,12 @@ class CableCSVForm(CustomFieldModelCSVForm):
         choices=CableTypeChoices,
         required=False,
         help_text='Physical medium classification'
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
     )
     length_unit = CSVChoiceField(
         choices=CableLengthUnitChoices,
@@ -820,7 +822,7 @@ class CableCSVForm(CustomFieldModelCSVForm):
         model = Cable
         fields = [
             'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
-            'status', 'label', 'color', 'length', 'length_unit',
+            'status', 'tenant', 'label', 'color', 'length', 'length_unit',
         ]
         help_texts = {
             'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),

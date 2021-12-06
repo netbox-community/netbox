@@ -5,6 +5,9 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.IPAMRootView
 
+# ASNs
+router.register('asns', views.ASNViewSet)
+
 # VRFs
 router.register('vrfs', views.VRFViewSet)
 
@@ -26,6 +29,10 @@ router.register('ip-ranges', views.IPRangeViewSet)
 
 # IP addresses
 router.register('ip-addresses', views.IPAddressViewSet)
+
+# FHRP groups
+router.register('fhrp-groups', views.FHRPGroupViewSet)
+router.register('fhrp-group-assignments', views.FHRPGroupAssignmentViewSet)
 
 # VLANs
 router.register('vlan-groups', views.VLANGroupViewSet)

@@ -1,22 +1,18 @@
 # Custom Validation
 
-NetBox validates every object prior to it being written to the database to ensure data integrity. This validation includes things like checking for proper formatting and that references to related objects are valid. However, you may wish to supplement this validation with some rules of your own. For example, perhaps you require that every site's name conforms to a specific pattern.  This can be done using NetBox's `CustomValidator` class.
+NetBox validates every object prior to it being written to the database to ensure data integrity. This validation includes things like checking for proper formatting and that references to related objects are valid. However, you may wish to supplement this validation with some rules of your own. For example, perhaps you require that every site's name conforms to a specific pattern.  This can be done using custom validation rules.
 
-## CustomValidator
+## Custom Validation Rules
 
-### Validation Rules
+Custom validation rules are expressed as a mapping of model attributes to a set of rules to which that attribute must conform. For example:
 
-A custom validator can be instantiated by passing a mapping of attributes to a set of rules to which that attribute must conform. For example:
-
-```python
-from extras.validators import CustomValidator
-
-CustomValidator({
-    'name': {
-        'min_length': 5,
-        'max_length': 30,
-    }
-})
+```json
+{
+  "name": {
+    "min_length": 5,
+    "max_length": 30
+  }
+}
 ```
 
 This defines a custom validator which checks that the length of the `name` attribute for an object is at least five characters long, and no longer than 30 characters. This validation is executed _after_ NetBox has performed its own internal validation.
@@ -38,12 +34,13 @@ The `min` and `max` types should be defined for numeric values, whereas `min_len
 
 ### Custom Validation Logic
 
-There may be instances where the provided validation types are insufficient. The `CustomValidator` class can be extended to enforce arbitrary validation logic by overriding its `validate()` method, and calling `fail()` when an unsatisfactory condition is detected.
+There may be instances where the provided validation types are insufficient. NetBox provides a `CustomValidator` class which can be extended to enforce arbitrary validation logic by overriding its `validate()` method, and calling `fail()` when an unsatisfactory condition is detected.
 
 ```python
 from extras.validators import CustomValidator
 
 class MyValidator(CustomValidator):
+
     def validate(self, instance):
         if instance.status == 'active' and not instance.description:
             self.fail("Active sites must have a description set!", field='status')
@@ -53,34 +50,69 @@ The `fail()` method may optionally specify a field with which to associate the s
 
 ## Assigning Custom Validators
 
-Custom validators are associated with specific NetBox models under the [CUSTOM_VALIDATORS](../configuration/optional-settings.md#custom_validators) configuration parameter, as such:
+Custom validators are associated with specific NetBox models under the [CUSTOM_VALIDATORS](../configuration/optional-settings.md#custom_validators) configuration parameter. There are three manners by which custom validation rules can be defined:
+
+1. Plain JSON mapping (no custom logic)
+2. Dotted path to a custom validator class
+3. Direct reference to a custom validator class
+
+### Plain Data
+
+For cases where custom logic is not needed, it is sufficient to pass validation rules as plain JSON-compatible objects. This approach typically affords the most portability for your configuration. For instance:
+
+```python
+CUSTOM_VALIDATORS = {
+    "dcim.site": [
+        {
+            "name": {
+                "min_length": 5,
+                "max_length": 30,
+            }
+        }
+    ],
+    "dcim.device": [
+        {
+            "platform": {
+                "required": True,
+            }
+        }
+    ]
+}
+```
+
+### Dotted Path
+
+In instances where a custom validator class is needed, it can be referenced by its Python path (relative to NetBox's working directory):
 
 ```python
 CUSTOM_VALIDATORS = {
     'dcim.site': (
+        'my_validators.Validator1',
+        'my_validators.Validator2',
+    ),
+    'dcim.device': (
+        'my_validators.Validator3',
+    )
+}
+```
+
+### Direct Class Reference
+
+This approach requires each class being instantiated to be imported directly within the Python configuration file.
+
+```python
+from my_validators import Validator1, Validator2, Validator3
+
+CUSTOM_VALIDATORS = {
+    'dcim.site': (
         Validator1,
         Validator2,
-        Validator3
+    ),
+    'dcim.device': (
+        Validator3,
     )
 }
 ```
 
 !!! note
     Even if defining only a single validator, it must be passed as an iterable.
-
-When it is not necessary to define a custom `validate()` method, you may opt to pass a `CustomValidator` instance directly:
-
-```python
-from extras.validators import CustomValidator
-
-CUSTOM_VALIDATORS = {
-    'dcim.site': (
-        CustomValidator({
-            'name': {
-                'min_length': 5,
-                'max_length': 30,
-            }
-        }),
-    )
-}
-```

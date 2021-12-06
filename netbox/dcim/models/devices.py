@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 import yaml
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -15,10 +14,10 @@ from dcim.constants import *
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
+from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 from .device_components import *
 
 
@@ -36,7 +35,7 @@ __all__ = (
 # Device Types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Manufacturer(OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -54,7 +53,10 @@ class Manufacturer(OrganizationalModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
 
     class Meta:
         ordering = ['name']
@@ -115,6 +117,11 @@ class DeviceType(PrimaryModel):
         help_text='Parent devices house child devices in device bays. Leave blank '
                   'if this device type is neither a parent nor a child.'
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
+    )
     front_image = models.ImageField(
         upload_to='devicetype-images',
         blank=True
@@ -127,10 +134,8 @@ class DeviceType(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     clone_fields = [
-        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
     ]
 
     class Meta:
@@ -165,6 +170,7 @@ class DeviceType(PrimaryModel):
             ('u_height', self.u_height),
             ('is_full_depth', self.is_full_depth),
             ('subdevice_role', self.subdevice_role),
+            ('airflow', self.airflow),
             ('comments', self.comments),
         ))
 
@@ -340,7 +346,7 @@ class DeviceType(PrimaryModel):
 # Devices
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -368,8 +374,6 @@ class DeviceRole(OrganizationalModel):
         blank=True,
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ['name']
 
@@ -380,7 +384,7 @@ class DeviceRole(OrganizationalModel):
         return reverse('dcim:devicerole', args=[self.pk])
 
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class Platform(OrganizationalModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
@@ -419,8 +423,6 @@ class Platform(OrganizationalModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -530,10 +532,15 @@ class Device(PrimaryModel, ConfigContextModel):
         choices=DeviceStatusChoices,
         default=DeviceStatusChoices.STATUS_ACTIVE
     )
+    airflow = models.CharField(
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
-        related_name='primary_ip4_for',
+        related_name='+',
         blank=True,
         null=True,
         verbose_name='Primary IPv4'
@@ -541,7 +548,7 @@ class Device(PrimaryModel, ConfigContextModel):
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
-        related_name='primary_ip6_for',
+        related_name='+',
         blank=True,
         null=True,
         verbose_name='Primary IPv6'
@@ -573,6 +580,11 @@ class Device(PrimaryModel, ConfigContextModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
@@ -580,7 +592,7 @@ class Device(PrimaryModel, ConfigContextModel):
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'cluster',
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'status', 'airflow', 'cluster',
     ]
 
     class Meta:
@@ -592,7 +604,9 @@ class Device(PrimaryModel, ConfigContextModel):
         )
 
     def __str__(self):
-        if self.name:
+        if self.name and self.asset_tag:
+            return f'{self.name} ({self.asset_tag})'
+        elif self.name:
             return self.name
         elif self.virtual_chassis:
             return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
@@ -741,8 +755,11 @@ class Device(PrimaryModel, ConfigContextModel):
             })
 
     def save(self, *args, **kwargs):
-
         is_new = not bool(self.pk)
+
+        # Inherit airflow attribute from DeviceType if not set
+        if is_new and not self.airflow:
+            self.airflow = self.device_type.airflow
 
         super().save(*args, **kwargs)
 
@@ -791,7 +808,7 @@ class Device(PrimaryModel, ConfigContextModel):
 
     @property
     def primary_ip(self):
-        if settings.PREFER_IPV4 and self.primary_ip4:
+        if ConfigItem('PREFER_IPV4')() and self.primary_ip4:
             return self.primary_ip4
         elif self.primary_ip6:
             return self.primary_ip6
@@ -871,8 +888,6 @@ class VirtualChassis(PrimaryModel):
         max_length=30,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']

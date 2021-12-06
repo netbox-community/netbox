@@ -64,10 +64,13 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             CircuitType(name='Circuit Type 3', slug='circuit-type-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Circuit Type X',
             'slug': 'circuit-type-x',
             'description': 'A new circuit type',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

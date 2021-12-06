@@ -10,6 +10,7 @@ from utilities.forms import (
     add_blank_choice, BootstrapMixin, ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     ExpandableNameField, StaticSelect,
 )
+from wireless.choices import *
 from .common import InterfaceCommonForm
 
 __all__ = (
@@ -34,7 +35,7 @@ __all__ = (
 )
 
 
-class ComponentForm(forms.Form):
+class ComponentForm(BootstrapMixin, forms.Form):
     """
     Subclass this form when facilitating the creation of one or more device component or component templates based on
     a name pattern.
@@ -62,7 +63,7 @@ class ComponentForm(forms.Form):
                 }, code='label_pattern_mismatch')
 
 
-class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
+class VirtualChassisCreateForm(CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -141,7 +142,7 @@ class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
 # Component templates
 #
 
-class ComponentTemplateCreateForm(BootstrapMixin, ComponentForm):
+class ComponentTemplateCreateForm(ComponentForm):
     """
     Base form for the creation of device component templates (subclassed from ComponentTemplateModel).
     """
@@ -334,7 +335,7 @@ class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
 # Device components
 #
 
-class ComponentCreateForm(BootstrapMixin, CustomFieldsMixin, ComponentForm):
+class ComponentCreateForm(CustomFieldsMixin, ComponentForm):
     """
     Base form for the creation of device components (models subclassed from ComponentModel).
     """
@@ -451,6 +452,13 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
             'device_id': '$device',
         }
     )
+    bridge = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -471,7 +479,27 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
+        widget=StaticSelect()
+    )
+    rf_role = forms.ChoiceField(
+        choices=add_blank_choice(WirelessRoleChoices),
+        required=False,
         widget=StaticSelect(),
+        label='Wireless role'
+    )
+    rf_channel = forms.ChoiceField(
+        choices=add_blank_choice(WirelessChannelChoices),
+        required=False,
+        widget=StaticSelect(),
+        label='Wireless channel'
+    )
+    rf_channel_frequency = forms.DecimalField(
+        required=False,
+        label='Channel frequency (MHz)'
+    )
+    rf_channel_width = forms.DecimalField(
+        required=False,
+        label='Channel width (MHz)'
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -482,8 +510,9 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         required=False
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'lag', 'mtu', 'mac_address',
-        'description', 'mgmt_only', 'mark_connected', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
+        'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mtu', 'mac_address',
+        'description', 'mgmt_only', 'mark_connected', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+        'rf_channel_width', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
     )
 
     def __init__(self, *args, **kwargs):

@@ -4,10 +4,11 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import *
-from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
+from tenancy.models import Tenant
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
 
 
 class AppTest(APITestCase):
@@ -18,6 +19,58 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
+
+
+class ASNTest(APIViewTestCases.APIViewTestCase):
+    model = ASN
+    brief_fields = ['asn', 'display', 'id', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65534, rir=rirs[0], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+
+        cls.create_data = [
+            {
+                'asn': 64512,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 65543,
+                'rir': rirs[0].pk,
+            },
+            {
+                'asn': 4294967294,
+                'rir': rirs[0].pk,
+            },
+        ]
 
 
 class VRFTest(APIViewTestCases.APIViewTestCase):
@@ -489,6 +542,126 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
             IPAddress(address=IPNetwork('192.168.0.3/24')),
         )
         IPAddress.objects.bulk_create(ip_addresses)
+
+
+class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
+    model = FHRPGroup
+    brief_fields = ['display', 'group_id', 'id', 'protocol', 'url']
+    bulk_update_data = {
+        'protocol': FHRPGroupProtocolChoices.PROTOCOL_GLBP,
+        'group_id': 200,
+        'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+        'auth_key': 'foobarbaz999',
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
+        cls.create_data = [
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+                'group_id': 110,
+                'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+                'auth_key': 'foobar123',
+            },
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP3,
+                'group_id': 120,
+                'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+                'auth_key': 'barfoo456',
+            },
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_GLBP,
+                'group_id': 130,
+            },
+        ]
+
+
+class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
+    model = FHRPGroupAssignment
+    brief_fields = ['display', 'group_id', 'id', 'interface_id', 'interface_type', 'priority', 'url']
+    bulk_update_data = {
+        'priority': 100,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        device1 = create_test_device('device1')
+        device2 = create_test_device('device2')
+        device3 = create_test_device('device3')
+
+        interfaces = (
+            Interface(device=device1, name='eth0', type='other'),
+            Interface(device=device1, name='eth1', type='other'),
+            Interface(device=device1, name='eth2', type='other'),
+            Interface(device=device2, name='eth0', type='other'),
+            Interface(device=device2, name='eth1', type='other'),
+            Interface(device=device2, name='eth2', type='other'),
+            Interface(device=device3, name='eth0', type='other'),
+            Interface(device=device3, name='eth1', type='other'),
+            Interface(device=device3, name='eth2', type='other'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.2/24'), assigned_object=interfaces[0]),
+            IPAddress(address=IPNetwork('192.168.1.2/24'), assigned_object=interfaces[1]),
+            IPAddress(address=IPNetwork('192.168.2.2/24'), assigned_object=interfaces[2]),
+            IPAddress(address=IPNetwork('192.168.0.3/24'), assigned_object=interfaces[3]),
+            IPAddress(address=IPNetwork('192.168.1.3/24'), assigned_object=interfaces[4]),
+            IPAddress(address=IPNetwork('192.168.2.3/24'), assigned_object=interfaces[5]),
+            IPAddress(address=IPNetwork('192.168.0.4/24'), assigned_object=interfaces[6]),
+            IPAddress(address=IPNetwork('192.168.1.4/24'), assigned_object=interfaces[7]),
+            IPAddress(address=IPNetwork('192.168.2.4/24'), assigned_object=interfaces[8]),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
+        fhrp_groups = (
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=20),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=30),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
+
+        fhrp_group_assignments = (
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=interfaces[0], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=interfaces[1], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=interfaces[2], priority=10),
+            FHRPGroupAssignment(group=fhrp_groups[0], interface=interfaces[3], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[1], interface=interfaces[4], priority=20),
+            FHRPGroupAssignment(group=fhrp_groups[2], interface=interfaces[5], priority=20),
+        )
+        FHRPGroupAssignment.objects.bulk_create(fhrp_group_assignments)
+
+        cls.create_data = [
+            {
+                'group': fhrp_groups[0].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[6].pk,
+                'priority': 30,
+            },
+            {
+                'group': fhrp_groups[1].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[7].pk,
+                'priority': 30,
+            },
+            {
+                'group': fhrp_groups[2].pk,
+                'interface_type': 'dcim.interface',
+                'interface_id': interfaces[8].pk,
+                'priority': 30,
+            },
+        ]
 
 
 class VLANGroupTest(APIViewTestCases.APIViewTestCase):

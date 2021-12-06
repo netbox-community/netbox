@@ -34,7 +34,7 @@
         </div>
       </div>
     </div>
-    {% render_table interface_table 'inc/table.html' %}
+    {% render_table table 'inc/table.html' %}
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
         {% if perms.dcim.change_interface %}
@@ -63,6 +63,6 @@
         {% endif %}
     </div>
   </form>
-  {% include 'inc/paginator.html' with paginator=interface_table.paginator page=interface_table.page %}
-  {% table_config_form interface_table %}
+  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+  {% table_config_form table %}
 {% endblock %}

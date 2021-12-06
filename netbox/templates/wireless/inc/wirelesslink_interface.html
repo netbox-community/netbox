@@ -1,0 +1,54 @@
+{% load helpers %}
+
+<table class="table table-hover panel-body attr-table">
+  <tr>
+    <td>Device</td>
+    <td>
+      <a href="{{ interface.device.get_absolute_url }}">{{ interface.device }}</a>
+    </td>
+  </tr>
+  <tr>
+    <td>Interface</td>
+    <td>
+      <a href="{{ interface.get_absolute_url }}">{{ interface }}</a>
+    </td>
+  </tr>
+  <tr>
+    <td>Type</td>
+    <td>
+      {{ interface.get_type_display }}
+    </td>
+  </tr>
+  <tr>
+    <td>Role</td>
+    <td>
+      {{ interface.get_rf_role_display|placeholder }}
+    </td>
+  </tr>
+  <tr>
+    <td>Channel</td>
+    <td>
+      {{ interface.get_rf_channel_display|placeholder }}
+    </td>
+  </tr>
+  <tr>
+      <th scope="row">Channel Frequency</th>
+      <td>
+        {% if interface.rf_channel_frequency %}
+          {{ interface.rf_channel_frequency|simplify_decimal }} MHz
+        {% else %}
+          <span class="text-muted">&mdash;</span>
+        {% endif %}
+      </td>
+  </tr>
+  <tr>
+      <th scope="row">Channel Width</th>
+      <td>
+        {% if interface.rf_channel_width %}
+          {{ interface.rf_channel_width|simplify_decimal }} MHz
+        {% else %}
+          <span class="text-muted">&mdash;</span>
+        {% endif %}
+      </td>
+  </tr>
+</table>

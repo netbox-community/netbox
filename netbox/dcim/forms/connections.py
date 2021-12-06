@@ -2,7 +2,8 @@ from circuits.models import Circuit, CircuitTermination, Provider
 from dcim.models import *
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
-from utilities.forms import BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
+from tenancy.forms import TenancyForm
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect
 
 __all__ = (
     'ConnectCableToCircuitTerminationForm',
@@ -17,7 +18,7 @@ __all__ = (
 )
 
 
-class ConnectCableToDeviceForm(BootstrapMixin, CustomFieldModelForm):
+class ConnectCableToDeviceForm(TenancyForm, CustomFieldModelForm):
     """
     Base form for connecting a Cable to a Device component
     """
@@ -78,7 +79,8 @@ class ConnectCableToDeviceForm(BootstrapMixin, CustomFieldModelForm):
         model = Cable
         fields = [
             'termination_b_region', 'termination_b_site', 'termination_b_rack', 'termination_b_device',
-            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
+            'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'tags',
         ]
         widgets = {
             'status': StaticSelect,
@@ -169,7 +171,7 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
     )
 
 
-class ConnectCableToCircuitTerminationForm(BootstrapMixin, CustomFieldModelForm):
+class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
     termination_b_provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
@@ -218,7 +220,8 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, CustomFieldModelForm)
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
             'termination_b_provider', 'termination_b_region', 'termination_b_site', 'termination_b_circuit',
-            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
+            'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'tags',
         ]
 
     def clean_termination_b_id(self):
@@ -226,7 +229,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, CustomFieldModelForm)
         return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
 
 
-class ConnectCableToPowerFeedForm(BootstrapMixin, CustomFieldModelForm):
+class ConnectCableToPowerFeedForm(TenancyForm, CustomFieldModelForm):
     termination_b_region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         label='Region',
@@ -278,8 +281,8 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, CustomFieldModelForm):
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
-            'termination_b_location', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'label',
-            'color', 'length', 'length_unit', 'tags',
+            'termination_b_location', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'tenant_group',
+            'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
 
     def clean_termination_b_id(self):

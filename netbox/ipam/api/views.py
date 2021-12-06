@@ -1,5 +1,6 @@
 from rest_framework.routers import APIRootView
 
+from dcim.models import Site
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filtersets
 from ipam.models import *
@@ -14,6 +15,16 @@ class IPAMRootView(APIRootView):
     """
     def get_view_name(self):
         return 'IPAM'
+
+
+#
+# ASNs
+#
+
+class ASNViewSet(CustomFieldModelViewSet):
+    queryset = ASN.objects.prefetch_related('tenant', 'rir').annotate(site_count=count_related(Site, 'asns'))
+    serializer_class = serializers.ASNSerializer
+    filterset_class = filtersets.ASNFilterSet
 
 
 #
@@ -48,7 +59,7 @@ class RouteTargetViewSet(CustomFieldModelViewSet):
 class RIRViewSet(CustomFieldModelViewSet):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.RIRSerializer
     filterset_class = filtersets.RIRFilterSet
 
@@ -71,7 +82,7 @@ class RoleViewSet(CustomFieldModelViewSet):
     queryset = Role.objects.annotate(
         prefix_count=count_related(Prefix, 'role'),
         vlan_count=count_related(VLAN, 'role')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.RoleSerializer
     filterset_class = filtersets.RoleFilterSet
 
@@ -120,13 +131,30 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 
 
 #
+# FHRP groups
+#
+
+class FHRPGroupViewSet(CustomFieldModelViewSet):
+    queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tags')
+    serializer_class = serializers.FHRPGroupSerializer
+    filterset_class = filtersets.FHRPGroupFilterSet
+    brief_prefetch_fields = ('ip_addresses',)
+
+
+class FHRPGroupAssignmentViewSet(CustomFieldModelViewSet):
+    queryset = FHRPGroupAssignment.objects.prefetch_related('group', 'interface')
+    serializer_class = serializers.FHRPGroupAssignmentSerializer
+    filterset_class = filtersets.FHRPGroupAssignmentFilterSet
+
+
+#
 # VLAN groups
 #
 
 class VLANGroupViewSet(CustomFieldModelViewSet):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group')
-    )
+    ).prefetch_related('tags')
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filtersets.VLANGroupFilterSet
 

@@ -1,4 +1,3 @@
-from .fields import *
 from .models import *
 from .filtersets import *
 from .object_create import *

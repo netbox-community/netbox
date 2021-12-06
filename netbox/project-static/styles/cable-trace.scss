@@ -59,8 +59,13 @@ svg {
     stroke: var(--nbx-trace-cable-shadow);
     stroke-width: 7px;
   }
+  line.wireless-link {
+    stroke: var(--nbx-trace-attachment);
+    stroke-dasharray: 4px 12px;
+    stroke-linecap: round;
+  }
   line.attachment {
     stroke: var(--nbx-trace-attachment);
-    stroke-dasharray: 5px, 5px;
+    stroke-dasharray: 5px;
   }
 }

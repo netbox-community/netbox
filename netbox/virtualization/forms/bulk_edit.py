@@ -7,7 +7,7 @@ from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.models import VLAN
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
+    add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, SmallTextarea, StaticSelect
 )
 from virtualization.choices import *
@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ClusterTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -37,7 +37,7 @@ class ClusterTypeBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
+class ClusterGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -51,7 +51,7 @@ class ClusterGroupBulkEditForm(BootstrapMixin, CustomFieldModelBulkEditForm):
         nullable_fields = ['description']
 
 
-class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class ClusterBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -95,7 +95,7 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBul
         ]
 
 
-class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VirtualMachineBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -150,7 +150,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldM
         ]
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class VMInterfaceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -162,6 +162,10 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         widget=forms.HiddenInput()
     )
     parent = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False
+    )
+    bridge = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False
     )
@@ -195,7 +199,7 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
 
     class Meta:
         nullable_fields = [
-            'parent', 'mtu', 'description',
+            'parent', 'bridge', 'mtu', 'description',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -203,8 +207,9 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
         if 'virtual_machine' in self.initial:
             vm_id = self.initial.get('virtual_machine')
 
-            # Restrict parent interface assignment by VM
+            # Restrict parent/bridge interface assignment by VM
             self.fields['parent'].widget.add_query_param('virtual_machine_id', vm_id)
+            self.fields['bridge'].widget.add_query_param('virtual_machine_id', vm_id)
 
             # Limit VLAN choices by virtual machine
             self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
@@ -230,6 +235,11 @@ class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldMode
                 if site is not None:
                     self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
                     self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+
+            self.fields['parent'].choices = ()
+            self.fields['parent'].widget.attrs['disabled'] = True
+            self.fields['bridge'].choices = ()
+            self.fields['bridge'].widget.attrs['disabled'] = True
 
 
 class VMInterfaceBulkRenameForm(BulkRenameForm):

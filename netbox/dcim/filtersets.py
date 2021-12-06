@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 from extras.filters import TagFilter
 from extras.filtersets import LocalConfigContextFilterSet
+from ipam.models import ASN
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
@@ -10,10 +11,11 @@ from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.choices import ColorChoices
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
+from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
 from .choices import *
 from .constants import *
 from .models import *
@@ -71,6 +73,7 @@ class RegionFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent region (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Region
@@ -88,6 +91,7 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Parent site group (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = SiteGroup
@@ -127,6 +131,11 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Group (slug)',
     )
+    asn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='asns',
+        queryset=ASN.objects.all(),
+        label='AS (ID)',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -152,12 +161,13 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         )
         try:
             qs_filter |= Q(asn=int(value.strip()))
+            qs_filter |= Q(asns__asn=int(value.strip()))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
 
 
-class LocationFilterSet(OrganizationalModelFilterSet):
+class LocationFilterSet(TenancyFilterSet, OrganizationalModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -207,6 +217,7 @@ class LocationFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Location (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Location
@@ -222,6 +233,7 @@ class LocationFilterSet(OrganizationalModelFilterSet):
 
 
 class RackRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = RackRole
@@ -387,6 +399,7 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
 
 class ManufacturerFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = Manufacturer
@@ -441,7 +454,7 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
         ]
 
     def search(self, queryset, name, value):
@@ -569,6 +582,7 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
 
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
 
     class Meta:
         model = DeviceRole
@@ -587,6 +601,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Platform
@@ -751,7 +766,7 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
 
     class Meta:
         model = Device
-        fields = ['id', 'name', 'asset_tag', 'face', 'position', 'vc_position', 'vc_priority']
+        fields = ['id', 'name', 'asset_tag', 'face', 'position', 'airflow', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -978,12 +993,18 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         queryset=Interface.objects.all(),
         label='Parent interface (ID)',
     )
+    bridge_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='bridge',
+        queryset=Interface.objects.all(),
+        label='Bridged interface (ID)',
+    )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
         queryset=Interface.objects.all(),
         label='LAG interface (ID)',
     )
     mac_address = MultiValueMACAddressFilter()
+    wwn = MultiValueWWNFilter()
     tag = TagFilter()
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
@@ -997,10 +1018,19 @@ class InterfaceFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableT
         choices=InterfaceTypeChoices,
         null_value=None
     )
+    rf_role = django_filters.MultipleChoiceFilter(
+        choices=WirelessRoleChoices
+    )
+    rf_channel = django_filters.MultipleChoiceFilter(
+        choices=WirelessChannelChoices
+    )
 
     class Meta:
         model = Interface
-        fields = ['id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
+        fields = [
+            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'rf_role', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+        ]
 
     def filter_device(self, queryset, name, value):
         try:
@@ -1199,7 +1229,7 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(PrimaryModelFilterSet):
+class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1212,7 +1242,7 @@ class CableFilterSet(PrimaryModelFilterSet):
         choices=CableTypeChoices
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=CableStatusChoices
+        choices=LinkStatusChoices
     )
     color = django_filters.MultipleChoiceFilter(
         choices=ColorChoices
@@ -1239,14 +1269,6 @@ class CableFilterSet(PrimaryModelFilterSet):
     site = MultiValueNumberFilter(
         method='filter_device',
         field_name='device__site__slug'
-    )
-    tenant_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__tenant_id'
-    )
-    tenant = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='device__tenant__slug'
     )
     tag = TagFilter()
 

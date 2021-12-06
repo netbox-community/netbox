@@ -1,16 +1,20 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
-from dcim.models import Device, Interface
+from dcim.models import Device, Interface, Site
+from dcim.tables import SiteTable
 from netbox.views import generic
-from utilities.forms import TableConfigForm
 from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
+from .models import ASN
 from .utils import add_available_ipaddresses, add_available_prefixes, add_available_vlans
 
 
@@ -193,6 +197,65 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.RIRFilterSet
     table = tables.RIRTable
+
+
+#
+# ASNs
+#
+
+class ASNListView(generic.ObjectListView):
+    queryset = ASN.objects.annotate(
+        site_count=count_related(Site, 'asns'),
+    )
+    filterset = filtersets.ASNFilterSet
+    filterset_form = forms.ASNFilterForm
+    table = tables.ASNTable
+
+
+class ASNView(generic.ObjectView):
+    queryset = ASN.objects.all()
+
+    def get_extra_context(self, request, instance):
+        sites = instance.sites.restrict(request.user, 'view')
+        sites_table = SiteTable(sites)
+        paginate_table(sites_table, request)
+
+        return {
+            'sites_table': sites_table,
+            'sites_count': sites.count()
+        }
+
+
+class ASNEditView(generic.ObjectEditView):
+    queryset = ASN.objects.all()
+    model_form = forms.ASNForm
+
+
+class ASNDeleteView(generic.ObjectDeleteView):
+    queryset = ASN.objects.all()
+
+
+class ASNBulkImportView(generic.BulkImportView):
+    queryset = ASN.objects.all()
+    model_form = forms.ASNCSVForm
+    table = tables.ASNTable
+
+
+class ASNBulkEditView(generic.BulkEditView):
+    queryset = ASN.objects.annotate(
+        site_count=count_related(Site, 'asns')
+    )
+    filterset = filtersets.ASNFilterSet
+    table = tables.ASNTable
+    form = forms.ASNBulkEditForm
+
+
+class ASNBulkDeleteView(generic.BulkDeleteView):
+    queryset = ASN.objects.annotate(
+        site_count=count_related(Site, 'asns')
+    )
+    filterset = filtersets.ASNFilterSet
+    table = tables.ASNTable
 
 
 #
@@ -460,9 +523,7 @@ class PrefixIPAddressesView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Find all IPAddresses belonging to this Prefix
-        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'primary_ip4_for', 'primary_ip6_for'
-        )
+        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf')
 
         # Add available IP addresses to the table if requested
         if request.GET.get('show_available', 'true') == 'true':
@@ -541,9 +602,7 @@ class IPRangeIPAddressesView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Find all IPAddresses within this range
-        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'primary_ip4_for', 'primary_ip6_for'
-        )
+        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf')
 
         # Add available IP addresses to the table if requested
         # if request.GET.get('show_available', 'true') == 'true':
@@ -674,6 +733,12 @@ class IPAddressEditView(generic.ObjectEditView):
             try:
                 obj.assigned_object = VMInterface.objects.get(pk=request.GET['vminterface'])
             except (ValueError, VMInterface.DoesNotExist):
+                pass
+
+        elif 'fhrpgroup' in request.GET:
+            try:
+                obj.assigned_object = FHRPGroup.objects.get(pk=request.GET['fhrpgroup'])
+            except (ValueError, FHRPGroup.DoesNotExist):
                 pass
 
         return obj
@@ -823,6 +888,103 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
+
+
+#
+# FHRP groups
+#
+
+class FHRPGroupListView(generic.ObjectListView):
+    queryset = FHRPGroup.objects.annotate(
+        member_count=count_related(FHRPGroupAssignment, 'group')
+    )
+    filterset = filtersets.FHRPGroupFilterSet
+    filterset_form = forms.FHRPGroupFilterForm
+    table = tables.FHRPGroupTable
+
+
+class FHRPGroupView(generic.ObjectView):
+    queryset = FHRPGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        # Get assigned IP addresses
+        ipaddress_table = tables.AssignedIPAddressesTable(
+            data=instance.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            orderable=False
+        )
+
+        # Get assigned interfaces
+        members_table = tables.FHRPGroupAssignmentTable(
+            data=FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(group=instance),
+            orderable=False
+        )
+        members_table.columns.hide('group')
+
+        return {
+            'ipaddress_table': ipaddress_table,
+            'members_table': members_table,
+            'member_count': FHRPGroupAssignment.objects.filter(group=instance).count(),
+        }
+
+
+class FHRPGroupEditView(generic.ObjectEditView):
+    queryset = FHRPGroup.objects.all()
+    model_form = forms.FHRPGroupForm
+    template_name = 'ipam/fhrpgroup_edit.html'
+
+    def get_return_url(self, request, obj=None):
+        return_url = super().get_return_url(request, obj)
+
+        # If we're redirecting the user to the FHRPGroupAssignment creation form,
+        # initialize the group field with the FHRPGroup we just saved.
+        if return_url.startswith(reverse('ipam:fhrpgroupassignment_add')):
+            return_url += f'&group={obj.pk}'
+
+        return return_url
+
+
+class FHRPGroupDeleteView(generic.ObjectDeleteView):
+    queryset = FHRPGroup.objects.all()
+
+
+class FHRPGroupBulkImportView(generic.BulkImportView):
+    queryset = FHRPGroup.objects.all()
+    model_form = forms.FHRPGroupCSVForm
+    table = tables.FHRPGroupTable
+
+
+class FHRPGroupBulkEditView(generic.BulkEditView):
+    queryset = FHRPGroup.objects.all()
+    filterset = filtersets.FHRPGroupFilterSet
+    table = tables.FHRPGroupTable
+    form = forms.FHRPGroupBulkEditForm
+
+
+class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = FHRPGroup.objects.all()
+    filterset = filtersets.FHRPGroupFilterSet
+    table = tables.FHRPGroupTable
+
+
+#
+# FHRP group assignments
+#
+
+class FHRPGroupAssignmentEditView(generic.ObjectEditView):
+    queryset = FHRPGroupAssignment.objects.all()
+    model_form = forms.FHRPGroupAssignmentForm
+    template_name = 'ipam/fhrpgroupassignment_edit.html'
+
+    def alter_obj(self, instance, request, args, kwargs):
+        if not instance.pk:
+            # Assign the interface based on URL kwargs
+            content_type = get_object_or_404(ContentType, pk=request.GET.get('interface_type'))
+            instance.interface = get_object_or_404(content_type.model_class(), pk=request.GET.get('interface_id'))
+        return instance
+
+
+class FHRPGroupAssignmentDeleteView(generic.ObjectDeleteView):
+    queryset = FHRPGroupAssignment.objects.all()
 
 
 #

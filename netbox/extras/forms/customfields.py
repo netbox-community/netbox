@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 from extras.choices import *
 from extras.models import *
-from utilities.forms import BulkEditForm, CSVModelForm
+from utilities.forms import BootstrapMixin, BulkEditForm, CSVModelForm, FilterForm
 
 __all__ = (
     'CustomFieldModelCSVForm',
@@ -51,7 +52,7 @@ class CustomFieldsMixin:
             self.custom_fields.append(field_name)
 
 
-class CustomFieldModelForm(CustomFieldsMixin, forms.ModelForm):
+class CustomFieldModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
     """
     Extend ModelForm to include custom field support.
     """
@@ -104,7 +105,7 @@ class CustomFieldModelBulkEditForm(BulkEditForm):
             self.custom_fields.append(cf.name)
 
 
-class CustomFieldModelFilterForm(forms.Form):
+class CustomFieldModelFilterForm(FilterForm):
 
     def __init__(self, *args, **kwargs):
 
@@ -115,9 +116,10 @@ class CustomFieldModelFilterForm(forms.Form):
         # Add all applicable CustomFields to the form
         self.custom_field_filters = []
         custom_fields = CustomField.objects.filter(content_types=self.obj_type).exclude(
-            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+            Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |
+            Q(type=CustomFieldTypeChoices.TYPE_JSON)
         )
         for cf in custom_fields:
-            field_name = 'cf_{}'.format(cf.name)
+            field_name = f'cf_{cf.name}'
             self.fields[field_name] = cf.to_form_field(set_initial=True, enforce_required=False)
             self.custom_field_filters.append(field_name)

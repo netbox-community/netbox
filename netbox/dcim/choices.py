@@ -174,6 +174,25 @@ class DeviceStatusChoices(ChoiceSet):
     }
 
 
+class DeviceAirflowChoices(ChoiceSet):
+
+    AIRFLOW_FRONT_TO_REAR = 'front-to-rear'
+    AIRFLOW_REAR_TO_FRONT = 'rear-to-front'
+    AIRFLOW_LEFT_TO_RIGHT = 'left-to-right'
+    AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
+    AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
+    AIRFLOW_PASSIVE = 'passive'
+
+    CHOICES = (
+        (AIRFLOW_FRONT_TO_REAR, 'Front to rear'),
+        (AIRFLOW_REAR_TO_FRONT, 'Rear to front'),
+        (AIRFLOW_LEFT_TO_RIGHT, 'Left to right'),
+        (AIRFLOW_RIGHT_TO_LEFT, 'Right to left'),
+        (AIRFLOW_SIDE_TO_REAR, 'Side to rear'),
+        (AIRFLOW_PASSIVE, 'Passive'),
+    )
+
+
 #
 # ConsolePorts
 #
@@ -709,6 +728,7 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Virtual
     TYPE_VIRTUAL = 'virtual'
+    TYPE_BRIDGE = 'bridge'
     TYPE_LAG = 'lag'
 
     # Ethernet
@@ -769,7 +789,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_16GFC_SFP_PLUS = '16gfc-sfpp'
     TYPE_32GFC_SFP28 = '32gfc-sfp28'
     TYPE_64GFC_QSFP_PLUS = '64gfc-qsfpp'
-    TYPE_128GFC_QSFP28 = '128gfc-sfp28'
+    TYPE_128GFC_QSFP28 = '128gfc-qsfp28'
 
     # InfiniBand
     TYPE_INFINIBAND_SDR = 'infiniband-sdr'
@@ -810,6 +830,7 @@ class InterfaceTypeChoices(ChoiceSet):
             'Virtual interfaces',
             (
                 (TYPE_VIRTUAL, 'Virtual'),
+                (TYPE_BRIDGE, 'Bridge'),
                 (TYPE_LAG, 'Link Aggregation Group (LAG)'),
             ),
         ),
@@ -1052,7 +1073,7 @@ class PortTypeChoices(ChoiceSet):
 
 
 #
-# Cables
+# Cables/links
 #
 
 class CableTypeChoices(ChoiceSet):
@@ -1116,7 +1137,7 @@ class CableTypeChoices(ChoiceSet):
     )
 
 
-class CableStatusChoices(ChoiceSet):
+class LinkStatusChoices(ChoiceSet):
 
     STATUS_CONNECTED = 'connected'
     STATUS_PLANNED = 'planned'

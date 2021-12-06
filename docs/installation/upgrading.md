@@ -11,7 +11,7 @@ NetBox v3.0 and later requires the following:
 | Dependency | Minimum Version |
 |------------|-----------------|
 | Python     | 3.7             |
-| PostgreSQL | 9.6             |
+| PostgreSQL | 10              |
 | Redis      | 4.0             |
 
 ## Install the Latest Release

@@ -25,7 +25,7 @@ ALLOWED_HOSTS = ['*']
 
 ## DATABASE
 
-NetBox requires access to a PostgreSQL 9.6 or later database service to store data. This service can run locally on the NetBox server or on a remote system. The following parameters must be defined within the `DATABASE` dictionary:
+NetBox requires access to a PostgreSQL 10 or later database service to store data. This service can run locally on the NetBox server or on a remote system. The following parameters must be defined within the `DATABASE` dictionary:
 
 * `NAME` - Database name
 * `USER` - PostgreSQL username

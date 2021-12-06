@@ -15,6 +15,3 @@ The `tag` filter can be specified multiple times to match only objects which hav
 ```no-highlight
 GET /api/dcim/devices/?tag=monitored&tag=deprecated
 ```
-
-!!! note
-    Tags have changed substantially in NetBox v2.9. They are no longer created on-demand when editing an object, and their representation in the REST API now includes a complete depiction of the tag rather than only its label.

@@ -6,9 +6,10 @@ from rest_framework import status
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from ipam.models import VLAN
+from ipam.models import ASN, RIR, VLAN
 from utilities.testing import APITestCase, APIViewTestCases
 from virtualization.models import Cluster, ClusterType
+from wireless.models import WirelessLAN
 
 
 class AppTest(APITestCase):
@@ -143,6 +144,13 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+
+        asns = [
+            ASN(asn=65000 + i, rir=rir) for i in range(8)
+        ]
+        ASN.objects.bulk_create(asns)
+
         cls.create_data = [
             {
                 'name': 'Site 4',
@@ -150,6 +158,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'region': regions[1].pk,
                 'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
+                'asns': [asns[0].pk, asns[1].pk],
             },
             {
                 'name': 'Site 5',
@@ -157,6 +166,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'region': regions[1].pk,
                 'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
+                'asns': [asns[2].pk, asns[3].pk],
             },
             {
                 'name': 'Site 6',
@@ -164,6 +174,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'region': regions[1].pk,
                 'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
+                'asns': [asns[4].pk, asns[5].pk],
             },
         ]
 
@@ -1216,31 +1227,44 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         )
         VLAN.objects.bulk_create(vlans)
 
+        wireless_lans = (
+            WirelessLAN(ssid='WLAN1'),
+            WirelessLAN(ssid='WLAN2'),
+        )
+        WirelessLAN.objects.bulk_create(wireless_lans)
+
         cls.create_data = [
             {
                 'device': device.pk,
                 'name': 'Interface 4',
                 'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
+                'tx_power': 10,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             },
             {
                 'device': device.pk,
                 'name': 'Interface 5',
                 'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
+                'bridge': interfaces[0].pk,
+                'tx_power': 10,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             },
             {
                 'device': device.pk,
                 'name': 'Interface 6',
                 'type': 'virtual',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
-                'parent': interfaces[0].pk,
+                'parent': interfaces[1].pk,
+                'tx_power': 10,
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
+                'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
             },
         ]
 

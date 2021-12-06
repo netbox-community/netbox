@@ -10,7 +10,7 @@ __all__ = (
     'BaseInterface',
     'Cable',
     'CablePath',
-    'CableTermination',
+    'LinkTermination',
     'ConsolePort',
     'ConsolePortTemplate',
     'ConsoleServerPort',

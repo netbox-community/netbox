@@ -5,6 +5,9 @@ from django.test import TestCase
 from mptt.fields import TreeForeignKey
 from taggit.managers import TaggableManager
 
+from circuits.choices import CircuitStatusChoices
+from circuits.filtersets import CircuitFilterSet
+from circuits.models import Circuit, Provider, CircuitType
 from dcim.choices import *
 from dcim.fields import MACAddressField
 from dcim.filtersets import DeviceFilterSet, SiteFilterSet
@@ -13,6 +16,7 @@ from dcim.models import (
 )
 from extras.filters import TagFilter
 from extras.models import TaggedItem
+from ipam.models import RIR, ASN
 from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
     MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueNumberFilter,
@@ -337,6 +341,8 @@ class DynamicFilterLookupExpressionTest(TestCase):
     device_filterset = DeviceFilterSet
     site_queryset = Site.objects.all()
     site_filterset = SiteFilterSet
+    circuit_queryset = Circuit.objects.all()
+    circuit_filterset = CircuitFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -383,6 +389,19 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Site(name='Site 3', slug='ghi-site-3', region=regions[2], asn=65201),
         )
         Site.objects.bulk_create(sites)
+
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+
+        asns = [
+            ASN(asn=65001, rir=rir),
+            ASN(asn=65101, rir=rir),
+            ASN(asn=65201, rir=rir)
+        ]
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.add(sites[0])
+        asns[1].sites.add(sites[1])
+        asns[2].sites.add(sites[2])
 
         racks = (
             Rack(name='Rack 1', site=sites[0]),

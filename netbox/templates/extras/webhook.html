@@ -134,6 +134,18 @@
     </div>
     <div class="card">
       <h5 class="card-header">
+        Conditions
+      </h5>
+      <div class="card-body">
+        {% if object.conditions %}
+          <pre>{{ object.conditions|render_json }}</pre>
+        {% else %}
+          <p class="text-muted">None</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">
         Additional Headers
       </h5>
       <div class="card-body">

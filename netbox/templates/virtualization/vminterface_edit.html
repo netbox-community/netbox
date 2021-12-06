@@ -15,12 +15,19 @@
           </div>
       {% endif %}
       {% render_field form.name %}
-      {% render_field form.enabled %}
-      {% render_field form.parent %}
+      {% render_field form.description %}
       {% render_field form.mac_address %}
       {% render_field form.mtu %}
-      {% render_field form.description %}
       {% render_field form.tags %}
+      {% render_field form.enabled %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Related Interfaces</h5>
+        </div>
+        {% render_field form.parent %}
+        {% render_field form.bridge %}
     </div>
 
     <div class="field-group my-5">

@@ -1,0 +1,23 @@
+{% extends 'generic/object_edit.html' %}
+{% load helpers %}
+{% load form_helpers %}
+
+{% block form %}
+  <div class="field-group my-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Contact Assignment</h5>
+    </div>
+    <div class="row mb-3">
+      <label class="col-sm-3 col-form-label text-lg-end">
+        {{ form.instance.object|meta:'verbose_name'|bettertitle }}
+      </label>
+      <div class="col">
+        <input class="form-control" value="{{ form.instance.object }}" disabled />
+      </div>
+    </div>
+    {% render_field form.group %}
+    {% render_field form.contact %}
+    {% render_field form.role %}
+    {% render_field form.priority %}
+  </div>
+{% endblock %}

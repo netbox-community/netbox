@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class ProviderForm(BootstrapMixin, CustomFieldModelForm):
+class ProviderForm(CustomFieldModelForm):
     slug = SlugField()
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -53,7 +53,7 @@ class ProviderForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class ProviderNetworkForm(BootstrapMixin, CustomFieldModelForm):
+class ProviderNetworkForm(CustomFieldModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all()
     )
@@ -73,17 +73,21 @@ class ProviderNetworkForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class CircuitTypeForm(BootstrapMixin, CustomFieldModelForm):
+class CircuitTypeForm(CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = CircuitType
         fields = [
-            'name', 'slug', 'description',
+            'name', 'slug', 'description', 'tags',
         ]
 
 
-class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class CircuitForm(TenancyForm, CustomFieldModelForm):
     provider = DynamicModelChoiceField(
         queryset=Provider.objects.all()
     )
