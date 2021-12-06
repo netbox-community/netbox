@@ -1,44 +1,6 @@
-## v3.1-beta2 (FUTURE)
+# NetBox v3.1
 
-### Breaking Changes
-
-* Exported webhooks and custom fields now reference associated content types by raw string value (e.g. "dcim.site") rather than by human-friendly name.
-* The 128GFC interface type has been corrected from `128gfc-sfp28` to `128gfc-qsfp28`.
-
-### Enhancements
-
-* [#5143](https://github.com/netbox-community/netbox/issues/5143) - Include a device's asset tag in its display value
-* [#7619](https://github.com/netbox-community/netbox/issues/7619) - Permit custom validation rules to be defined as plain data or dotted path to class
-* [#7761](https://github.com/netbox-community/netbox/issues/7761) - Extend cable tracing across bridged interfaces
-* [#7769](https://github.com/netbox-community/netbox/issues/7769) - Enable assignment of IP addresses to an existing FHRP group
-* [#7775](https://github.com/netbox-community/netbox/issues/7775) - Enable dynamic config for `CHANGELOG_RETENTION`, `CUSTOM_VALIDATORS`, and `GRAPHQL_ENABLED`
-* [#7812](https://github.com/netbox-community/netbox/issues/7812) - Enable change logging for image attachments
-* [#7858](https://github.com/netbox-community/netbox/issues/7858) - Standardize the representation of content types across import & export functions
-* [#7884](https://github.com/netbox-community/netbox/issues/7884) - Add FHRP groups column to interface tables
-* [#7924](https://github.com/netbox-community/netbox/issues/7924) - Include child groups on contact group view
-* [#7925](https://github.com/netbox-community/netbox/issues/7925) - Linkify contact phone and email attributes
-
-### Bug Fixes
-
-* [#7589](https://github.com/netbox-community/netbox/issues/7589) - Correct 128GFC interface type identifier
-* [#7756](https://github.com/netbox-community/netbox/issues/7756) - Fix AttributeError exception when editing an IP address assigned to a FHRPGroup
-* [#7757](https://github.com/netbox-community/netbox/issues/7757) - Fix 404 when assigning multiple contacts/FHRP groups in succession
-* [#7768](https://github.com/netbox-community/netbox/issues/7768) - Validate IP address status when creating a new FHRP group
-* [#7771](https://github.com/netbox-community/netbox/issues/7771) - Group assignment should be optional when creating contacts via REST API
-* [#7849](https://github.com/netbox-community/netbox/issues/7849) - Fix exception when creating an FHRPGroup with an invalid IP address
-* [#7880](https://github.com/netbox-community/netbox/issues/7880) - Include assigned IP addresses in FHRP group object representation
-* [#7960](https://github.com/netbox-community/netbox/issues/7960) - Prevent creation of regions/site groups/locations with duplicate names (see #7354)
-
-### REST API Changes
-
-* dcim.Device
-    * The `display` field now includes the device's asset tag, if set
-* extras.ImageAttachment
-    * Added the `last_updated` field
-
----
-
-## v3.1-beta1 (2021-11-05)
+## v3.1.0 (2021-12-06)
 
 !!! warning "PostgreSQL 10 Required"
     NetBox v3.1 requires PostgreSQL 10 or later.
@@ -47,6 +9,8 @@
 
 * The `tenant` and `tenant_id` filters for the Cable model now filter on the tenant assigned directly to each cable, rather than on the parent object of either termination.
 * The `cable_peer` and `cable_peer_type` attributes of cable termination models have been renamed to `link_peer` and `link_peer_type`, respectively, to accommodate wireless links between interfaces.
+* Exported webhooks and custom fields now reference associated content types by raw string value (e.g. "dcim.site") rather than by human-friendly name.
+* The 128GFC interface type has been corrected from `128gfc-sfp28` to `128gfc-qsfp28`.
 
 ### New Features
 
@@ -116,6 +80,7 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
 * [#1337](https://github.com/netbox-community/netbox/issues/1337) - Add WWN field to interfaces
 * [#1943](https://github.com/netbox-community/netbox/issues/1943) - Relax uniqueness constraint on cluster names
 * [#3839](https://github.com/netbox-community/netbox/issues/3839) - Add `airflow` field for devices types and devices
+* [#5143](https://github.com/netbox-community/netbox/issues/5143) - Include a device's asset tag in its display value
 * [#6497](https://github.com/netbox-community/netbox/issues/6497) - Extend tag support to organizational models
 * [#6615](https://github.com/netbox-community/netbox/issues/6615) - Add filter lookups for custom fields
 * [#6711](https://github.com/netbox-community/netbox/issues/6711) - Add `longtext` custom field type with Markdown support
@@ -125,6 +90,14 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
 * [#7452](https://github.com/netbox-community/netbox/issues/7452) - Add `json` custom field type
 * [#7530](https://github.com/netbox-community/netbox/issues/7530) - Move device type component lists to separate views
 * [#7606](https://github.com/netbox-community/netbox/issues/7606) - Model transmit power for interfaces
+* [#7619](https://github.com/netbox-community/netbox/issues/7619) - Permit custom validation rules to be defined as plain data or dotted path to class
+* [#7761](https://github.com/netbox-community/netbox/issues/7761) - Extend cable tracing across bridged interfaces
+* [#7812](https://github.com/netbox-community/netbox/issues/7812) - Enable change logging for image attachments
+* [#7858](https://github.com/netbox-community/netbox/issues/7858) - Standardize the representation of content types across import & export functions
+
+### Bug Fixes
+
+* [#7589](https://github.com/netbox-community/netbox/issues/7589) - Correct 128GFC interface type identifier
 
 ### Other Changes
 
@@ -175,6 +148,7 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * `cable_peer` has been renamed to `link_peer`
     * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Device
+    * The `display` field now includes the device's asset tag, if set
     * Added `airflow` field
 * dcim.DeviceType
     * Added `airflow` field 
@@ -209,6 +183,8 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * `cable_peer_type` has been renamed to `link_peer_type`
 * dcim.Site
     * Added `asns` relationship to ipam.ASN
+* extras.ImageAttachment
+    * Added the `last_updated` field
 * extras.Webhook
     * Added the `conditions` field
 * virtualization.VMInterface
