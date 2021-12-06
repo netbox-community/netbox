@@ -1,5 +1,9 @@
 # NetBox v3.1
 
+## v3.1.1 (FUTURE)
+
+---
+
 ## v3.1.0 (2021-12-06)
 
 !!! warning "PostgreSQL 10 Required"
