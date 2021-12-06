@@ -5,11 +5,15 @@
 ### Enhancements
 
 * [#7751](https://github.com/netbox-community/netbox/issues/7751) - Get API user from LDAP only when `FIND_GROUP_PERMS` is enabled
-* [#7823](https://github.com/netbox-community/netbox/issues/7823) - Fix issue where `return_url` is not honored when 'Save & Continue' button is present
 * [#7885](https://github.com/netbox-community/netbox/issues/7885) - Linkify VLAN name in VLANs table
 * [#7892](https://github.com/netbox-community/netbox/issues/7892) - Add L22-30 power port & outlet types
 * [#7932](https://github.com/netbox-community/netbox/issues/7932) - Improve performance of the "quick find" function
 * [#7941](https://github.com/netbox-community/netbox/issues/7941) - Add multi-standard ITA power outlet type
+
+### Bug Fixes
+
+* [#7823](https://github.com/netbox-community/netbox/issues/7823) - Fix issue where `return_url` is not honored when 'Save & Continue' button is present
+* [#7981](https://github.com/netbox-community/netbox/issues/7981) - Fix Markdown sanitization regex
 
 ---
 

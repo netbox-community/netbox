@@ -51,7 +51,7 @@ def render_markdown(value):
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
     # Sanitize Markdown reference links
-    pattern = fr'\[(.+)\]:\w?(?!({schemes})).*:(.+)'
+    pattern = fr'\[(.+)\]:\s*(?!({schemes}))\w*:(.+)'
     value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
 
     # Render Markdown
