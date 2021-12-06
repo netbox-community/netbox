@@ -98,6 +98,9 @@ class VLANTable(BaseTable):
         template_code=VLAN_LINK,
         verbose_name='VID'
     )
+    name = tables.Column(
+        linkify=True
+    )
     site = tables.Column(
         linkify=True
     )
