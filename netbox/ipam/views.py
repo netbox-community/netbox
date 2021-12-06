@@ -18,7 +18,6 @@ from .models import ASN
 from .utils import add_available_ipaddresses, add_requested_prefixes, add_available_vlans
 
 
-
 #
 # VRFs
 #
