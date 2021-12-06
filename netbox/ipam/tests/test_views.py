@@ -9,6 +9,61 @@ from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags
 
 
+class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ASN
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rirs = [
+            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
+            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+        ]
+        sites = [
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2')
+        ]
+        tenants = [
+            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
+            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        ]
+
+        asns = (
+            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65535, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+        )
+        ASN.objects.bulk_create(asns)
+
+        asns[0].sites.set([sites[0]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[0]])
+        asns[3].sites.set([sites[1]])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'asn': 64512,
+            'rir': rirs[0].pk,
+            'tenant': tenants[0].pk,
+            'site': sites[0].pk,
+            'description': 'A new ASN',
+        }
+
+        cls.csv_data = (
+            "asn,rir",
+            "64533,RFC 6996",
+            "64523,RFC 6996",
+            "4200000002,RFC 6996",
+        )
+
+        cls.bulk_edit_data = {
+            'rir': rirs[1].pk,
+            'description': 'Next description',
+        }
+
+
 class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VRF
 
@@ -104,11 +159,14 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             RIR(name='RIR 3', slug='rir-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'RIR X',
             'slug': 'rir-x',
             'is_private': True,
             'description': 'A new RIR',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -177,11 +235,14 @@ class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Role(name='Role 3', slug='role-3'),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Role X',
             'slug': 'role-x',
             'weight': 200,
             'description': 'A new role',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -366,6 +427,41 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = FHRPGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        FHRPGroup.objects.bulk_create((
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+        ))
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+            'group_id': 99,
+            'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+            'auth_key': 'abc123def456',
+            'description': 'Blah blah blah',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "protocol,group_id,auth_type,auth_key,description",
+            "vrrp2,40,plaintext,foobar123,Foo",
+            "vrrp3,50,md5,foobar123,Bar",
+            "hsrp,60,,,",
+        )
+
+        cls.bulk_edit_data = {
+            'protocol': FHRPGroupProtocolChoices.PROTOCOL_CARP,
+        }
+
+
 class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = VLANGroup
 
@@ -384,10 +480,13 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=sites[0]),
         ])
 
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
             'description': 'A new VLAN group',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

@@ -51,6 +51,8 @@ nav:
         - Configuring NetBox: 'configuration/index.md'
         - Required Settings: 'configuration/required-settings.md'
         - Optional Settings: 'configuration/optional-settings.md'
+        - Dynamic Settings: 'configuration/dynamic-settings.md'
+        - Remote Authentication: 'configuration/remote-authentication.md'
     - Core Functionality:
         - IP Address Management: 'core-functionality/ipam.md'
         - VLAN Management: 'core-functionality/vlans.md'
@@ -60,8 +62,10 @@ nav:
         - Virtualization: 'core-functionality/virtualization.md'
         - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
+        - Wireless: 'core-functionality/wireless.md'
         - Power Tracking: 'core-functionality/power.md'
         - Tenancy: 'core-functionality/tenancy.md'
+        - Contacts: 'core-functionality/contacts.md'
     - Customization:
         - Custom Fields: 'customization/custom-fields.md'
         - Custom Validation: 'customization/custom-validation.md'
@@ -81,6 +85,7 @@ nav:
         - Using Plugins: 'plugins/index.md'
         - Developing Plugins: 'plugins/development.md'
     - Administration:
+        - Authentication: 'administration/authentication.md'
         - Permissions: 'administration/permissions.md'
         - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
@@ -91,6 +96,8 @@ nav:
         - Authentication: 'rest-api/authentication.md'
     - GraphQL API:
         - Overview: 'graphql-api/overview.md'
+    - Reference:
+        - Conditions: 'reference/conditions.md'
     - Development:
         - Introduction: 'development/index.md'
         - Getting Started: 'development/getting-started.md'
@@ -104,6 +111,8 @@ nav:
         - Web UI: 'development/web-ui.md'
         - Release Checklist: 'development/release-checklist.md'
     - Release Notes:
+        - Summary: 'release-notes/index.md'
+        - Version 3.1: 'release-notes/version-3.1.md'
         - Version 3.0: 'release-notes/version-3.0.md'
         - Version 2.11: 'release-notes/version-2.11.md'
         - Version 2.10: 'release-notes/version-2.10.md'

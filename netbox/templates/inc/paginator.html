@@ -36,7 +36,7 @@
         {% endfor %}
         <div class="input-group input-group-sm">
             <select name="per_page" class="form-select per-page">
-            {% for n in settings.PER_PAGE_DEFAULTS %}
+            {% for n in page.paginator.get_page_lengths %}
                 <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
             {% endfor %}
             </select>

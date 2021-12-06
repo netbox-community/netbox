@@ -7,7 +7,7 @@
   <form method="post">
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="DeviceFrontPortTable_config" %}
-    {% render_table frontport_table 'inc/table.html' %}
+    {% render_table table 'inc/table.html' %}
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
             {% if perms.dcim.change_frontport %}
@@ -36,6 +36,6 @@
         {% endif %}
     </div>
   </form>
-  {% include 'inc/paginator.html' with paginator=frontport_table.paginator page=frontport_table.page %}
-  {% table_config_form frontport_table %}
+  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+  {% table_config_form table %}
 {% endblock %}

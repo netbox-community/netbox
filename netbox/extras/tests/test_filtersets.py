@@ -542,8 +542,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         site = Site.objects.create(name='Site 1', slug='site-1')
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
 
-        site.tags.set(tags[0])
-        provider.tags.set(tags[1])
+        site.tags.set([tags[0]])
+        provider.tags.set([tags[1]])
 
     def test_name(self):
         params = {'name': ['Tag 1', 'Tag 2']}

@@ -1,8 +1,11 @@
+import graphene
+
 from dcim import filtersets, models
 from extras.graphql.mixins import (
     ChangelogMixin, ConfigContextMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
+from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, PrimaryObjectType
 
 __all__ = (
@@ -144,6 +147,9 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, PrimaryObjectType):
     def resolve_face(self, info):
         return self.face or None
 
+    def resolve_airflow(self, info):
+        return self.airflow or None
+
 
 class DeviceBayType(ComponentObjectType):
 
@@ -179,6 +185,9 @@ class DeviceTypeType(PrimaryObjectType):
     def resolve_subdevice_role(self, info):
         return self.subdevice_role or None
 
+    def resolve_airflow(self, info):
+        return self.airflow or None
+
 
 class FrontPortType(ComponentObjectType):
 
@@ -205,6 +214,12 @@ class InterfaceType(IPAddressesMixin, ComponentObjectType):
 
     def resolve_mode(self, info):
         return self.mode or None
+
+    def resolve_rf_role(self, info):
+        return self.rf_role or None
+
+    def resolve_rf_channel(self, info):
+        return self.rf_channel or None
 
 
 class InterfaceTemplateType(ComponentTemplateObjectType):
@@ -368,6 +383,7 @@ class RegionType(VLANGroupsMixin, OrganizationalObjectType):
 
 
 class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, PrimaryObjectType):
+    asn = graphene.Field(BigInt)
 
     class Meta:
         model = models.Site

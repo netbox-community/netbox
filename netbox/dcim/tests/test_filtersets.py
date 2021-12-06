@@ -4,11 +4,12 @@ from django.test import TestCase
 from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
-from ipam.models import IPAddress
+from ipam.models import ASN, IPAddress, RIR
 from tenancy.models import Tenant, TenantGroup
 from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests
 from virtualization.models import Cluster, ClusterType
+from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 
 
 class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -141,12 +142,23 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tenant.objects.bulk_create(tenants)
 
+        rir = RIR.objects.create(name='RFC 6996', is_private=True)
+        asns = (
+            ASN(asn=64512, rir=rir, tenant=tenants[0]),
+            ASN(asn=64513, rir=rir, tenant=tenants[0]),
+            ASN(asn=64514, rir=rir, tenant=tenants[0]),
+        )
+        ASN.objects.bulk_create(asns)
+
         sites = (
             Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
             Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
             Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
         )
         Site.objects.bulk_create(sites)
+        sites[0].asns.set([asns[0]])
+        sites[1].asns.set([asns[1]])
+        sites[2].asns.set([asns[2]])
 
     def test_name(self):
         params = {'name': ['Site 1', 'Site 2']}
@@ -162,6 +174,11 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_asn(self):
         params = {'asn': [65001, 65002]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_asn_id(self):
+        asns = ASN.objects.all()[:2]
+        params = {'asn_id': [asns[0].pk, asns[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_latitude(self):
@@ -638,8 +655,8 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         device_types = (
             DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
-            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -702,6 +719,10 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_subdevice_role(self):
         params = {'subdevice_role': SubdeviceRoleChoices.ROLE_PARENT}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_airflow(self):
+        params = {'airflow': DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_manufacturer(self):
@@ -1235,8 +1256,8 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], tenant=tenants[0], serial='ABC', asset_tag='1001', site=sites[0], location=locations[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], location=locations[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED, cluster=clusters[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], location=locations[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED, cluster=clusters[2]),
+            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], location=locations[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, cluster=clusters[1]),
+            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], location=locations[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT, cluster=clusters[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -1388,6 +1409,10 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'is_full_depth': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'is_full_depth': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_airflow(self):
+        params = {'airflow': DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_mac_address(self):
@@ -2048,13 +2073,20 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        # VirtualChassis assignment for filtering
+        virtual_chassis = VirtualChassis.objects.create(master=devices[0])
+        Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=virtual_chassis, vc_position=1, vc_priority=1)
+        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis, vc_position=2, vc_priority=2)
+
         interfaces = (
             Interface(device=devices[0], name='Interface 1', label='A', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
             Interface(device=devices[1], name='Interface 2', label='B', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
             Interface(device=devices[2], name='Interface 3', label='C', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
-            Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False),
+            Interface(device=devices[3], name='Interface 4', label='D', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40),
+            Interface(device=devices[3], name='Interface 5', label='E', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True, tx_power=40),
+            Interface(device=devices[3], name='Interface 6', label='F', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False, tx_power=40),
+            Interface(device=devices[3], name='Interface 7', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_AP, rf_channel=WirelessChannelChoices.CHANNEL_24G_1, rf_channel_frequency=2412, rf_channel_width=22),
+            Interface(device=devices[3], name='Interface 8', type=InterfaceTypeChoices.TYPE_80211AC, rf_role=WirelessRoleChoices.ROLE_STATION, rf_channel=WirelessChannelChoices.CHANNEL_5G_32, rf_channel_frequency=5160, rf_channel_width=20),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -2075,11 +2107,11 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_enabled(self):
         params = {'enabled': 'true'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'enabled': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
@@ -2091,7 +2123,7 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'mgmt_only': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_mode(self):
         params = {'mode': InterfaceModeChoices.MODE_ACCESS}
@@ -2112,6 +2144,19 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Interface.objects.bulk_create(child_interfaces)
 
         params = {'parent_id': [parent_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_bridge(self):
+        # Create bridged interfaces
+        bridge_interface = Interface.objects.first()
+        bridged_interfaces = (
+            Interface(device=bridge_interface.device, name='Bridged 1', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=bridge_interface.device, name='Bridged 2', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=bridge_interface.device, name='Bridged 3', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(bridged_interfaces)
+
+        params = {'bridge_id': [bridge_interface.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_lag(self):
@@ -2157,6 +2202,10 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_virtual_chassis_id(self):
+        params = {'virtual_chassis_id': [VirtualChassis.objects.first().pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -2168,7 +2217,7 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_kind(self):
         params = {'kind': 'physical'}
@@ -2183,6 +2232,26 @@ class InterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_type(self):
         params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_role(self):
+        params = {'rf_role': [WirelessRoleChoices.ROLE_AP, WirelessRoleChoices.ROLE_STATION]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_channel(self):
+        params = {'rf_channel': [WirelessChannelChoices.CHANNEL_24G_1, WirelessChannelChoices.CHANNEL_5G_32]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_channel_frequency(self):
+        params = {'rf_channel_frequency': [2412, 5160]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rf_channel_width(self):
+        params = {'rf_channel_width': [22, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tx_power(self):
+        params = {'tx_power': [40]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class FrontPortTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -2811,6 +2880,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
         )
         Tenant.objects.bulk_create(tenants)
 
@@ -2826,9 +2896,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1, tenant=tenants[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2, tenant=tenants[0]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1, tenant=tenants[1]),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1),
             Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
             Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
             Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
@@ -2855,12 +2925,12 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         console_server_port = ConsoleServerPort.objects.create(device=devices[0], name='Console Server Port 1')
 
         # Cables
-        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
-        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, tenant=tenants[0], status=LinkStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, tenant=tenants[1], status=LinkStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(termination_a=console_port, termination_b=console_server_port, label='Cable 7').save()
 
     def test_label(self):
@@ -2880,9 +2950,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
-        params = {'status': [CableStatusChoices.STATUS_CONNECTED]}
+        params = {'status': [LinkStatusChoices.STATUS_CONNECTED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'status': [CableStatusChoices.STATUS_PLANNED]}
+        params = {'status': [LinkStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_color(self):
@@ -2913,9 +2983,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_tenant(self):
         tenant = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenant[0].pk, tenant[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenant[0].slug, tenant[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_termination_types(self):
         params = {'termination_a_type': 'dcim.consoleport'}

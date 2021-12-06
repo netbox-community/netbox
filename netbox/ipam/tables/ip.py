@@ -11,7 +11,8 @@ from ipam.models import *
 
 __all__ = (
     'AggregateTable',
-    'InterfaceIPAddressTable',
+    'ASNTable',
+    'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
     'IPRangeTable',
@@ -85,12 +86,37 @@ class RIRTable(BaseTable):
         url_params={'rir_id': 'pk'},
         verbose_name='Aggregates'
     )
+    tags = TagColumn(
+        url_name='ipam:rir_list'
+    )
     actions = ButtonsColumn(RIR)
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
+
+
+#
+# ASNs
+#
+
+class ASNTable(BaseTable):
+    pk = ToggleColumn()
+    asn = tables.Column(
+        linkify=True
+    )
+    site_count = LinkedCountColumn(
+        viewname='dcim:site_list',
+        url_params={'asn_id': 'pk'},
+        verbose_name='Sites'
+    )
+    actions = ButtonsColumn(ASN)
+
+    class Meta(BaseTable.Meta):
+        model = ASN
+        fields = ('pk', 'asn', 'rir', 'site_count', 'tenant', 'description', 'actions')
+        default_columns = ('pk', 'asn', 'rir', 'site_count', 'sites', 'tenant', 'actions')
 
 
 #
@@ -144,11 +170,14 @@ class RoleTable(BaseTable):
         url_params={'role_id': 'pk'},
         verbose_name='VLANs'
     )
+    tags = TagColumn(
+        url_name='ipam:role_list'
+    )
     actions = ButtonsColumn(Role)
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'tags', 'actions')
         default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
 
 
@@ -206,6 +235,11 @@ class PrefixTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
+    vlan_group = tables.Column(
+        accessor='vlan__group',
+        linkify=True,
+        verbose_name='VLAN Group'
+    )
     vlan = tables.Column(
         linkify=True,
         verbose_name='VLAN'
@@ -230,8 +264,8 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role',
-            'is_pool', 'mark_utilized', 'description', 'tags',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan_group',
+            'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'tags',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
@@ -318,7 +352,7 @@ class IPAddressTable(BaseTable):
         verbose_name='NAT (Inside)'
     )
     assigned = BooleanColumn(
-        accessor='assigned_object',
+        accessor='assigned_object_id',
         linkify=True,
         verbose_name='Assigned'
     )
@@ -357,9 +391,9 @@ class IPAddressAssignTable(BaseTable):
         orderable = False
 
 
-class InterfaceIPAddressTable(BaseTable):
+class AssignedIPAddressesTable(BaseTable):
     """
-    List IP addresses assigned to a specific Interface.
+    List IP addresses assigned to an object.
     """
     address = tables.Column(
         linkify=True,

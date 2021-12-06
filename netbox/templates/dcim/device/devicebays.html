@@ -7,7 +7,7 @@
   <form method="post">
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="DeviceDeviceBayTable_config" %}
-    {% render_table devicebay_table 'inc/table.html' %}
+    {% render_table table 'inc/table.html' %}
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
             {% if perms.dcim.change_devicebay %}
@@ -33,6 +33,6 @@
         {% endif %}
     </div>
   </form>
-  {% include 'inc/paginator.html' with paginator=devicebay_table.paginator page=devicebay_table.page %}
-  {% table_config_form devicebay_table %}
+  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+  {% table_config_form table %}
 {% endblock %}

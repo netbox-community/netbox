@@ -7,6 +7,18 @@ from .models import *
 app_name = 'ipam'
 urlpatterns = [
 
+    # ASNs
+    path('asns/', views.ASNListView.as_view(), name='asn_list'),
+    path('asns/add/', views.ASNEditView.as_view(), name='asn_add'),
+    path('asns/import/', views.ASNBulkImportView.as_view(), name='asn_import'),
+    path('asns/edit/', views.ASNBulkEditView.as_view(), name='asn_bulk_edit'),
+    path('asns/delete/', views.ASNBulkDeleteView.as_view(), name='asn_bulk_delete'),
+    path('asns/<int:pk>/', views.ASNView.as_view(), name='asn'),
+    path('asns/<int:pk>/edit/', views.ASNEditView.as_view(), name='asn_edit'),
+    path('asns/<int:pk>/delete/', views.ASNDeleteView.as_view(), name='asn_delete'),
+    path('asns/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='asn_changelog', kwargs={'model': ASN}),
+    path('asns/<int:pk>/journal/', ObjectJournalView.as_view(), name='asn_journal', kwargs={'model': ASN}),
+
     # VRFs
     path('vrfs/', views.VRFListView.as_view(), name='vrf_list'),
     path('vrfs/add/', views.VRFEditView.as_view(), name='vrf_add'),
@@ -106,6 +118,23 @@ urlpatterns = [
     path('ip-addresses/<int:pk>/', views.IPAddressView.as_view(), name='ipaddress'),
     path('ip-addresses/<int:pk>/edit/', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
     path('ip-addresses/<int:pk>/delete/', views.IPAddressDeleteView.as_view(), name='ipaddress_delete'),
+
+    # FHRP groups
+    path('fhrp-groups/', views.FHRPGroupListView.as_view(), name='fhrpgroup_list'),
+    path('fhrp-groups/add/', views.FHRPGroupEditView.as_view(), name='fhrpgroup_add'),
+    path('fhrp-groups/import/', views.FHRPGroupBulkImportView.as_view(), name='fhrpgroup_import'),
+    path('fhrp-groups/edit/', views.FHRPGroupBulkEditView.as_view(), name='fhrpgroup_bulk_edit'),
+    path('fhrp-groups/delete/', views.FHRPGroupBulkDeleteView.as_view(), name='fhrpgroup_bulk_delete'),
+    path('fhrp-groups/<int:pk>/', views.FHRPGroupView.as_view(), name='fhrpgroup'),
+    path('fhrp-groups/<int:pk>/edit/', views.FHRPGroupEditView.as_view(), name='fhrpgroup_edit'),
+    path('fhrp-groups/<int:pk>/delete/', views.FHRPGroupDeleteView.as_view(), name='fhrpgroup_delete'),
+    path('fhrp-groups/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='fhrpgroup_changelog', kwargs={'model': FHRPGroup}),
+    path('fhrp-groups/<int:pk>/journal/', ObjectJournalView.as_view(), name='fhrpgroup_journal', kwargs={'model': FHRPGroup}),
+
+    # FHRP group assignments
+    path('fhrp-group-assignments/add/', views.FHRPGroupAssignmentEditView.as_view(), name='fhrpgroupassignment_add'),
+    path('fhrp-group-assignments/<int:pk>/edit/', views.FHRPGroupAssignmentEditView.as_view(), name='fhrpgroupassignment_edit'),
+    path('fhrp-group-assignments/<int:pk>/delete/', views.FHRPGroupAssignmentDeleteView.as_view(), name='fhrpgroupassignment_delete'),
 
     # VLAN groups
     path('vlan-groups/', views.VLANGroupListView.as_view(), name='vlangroup_list'),

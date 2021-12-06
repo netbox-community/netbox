@@ -6,14 +6,17 @@ from extras.forms import CustomFieldModelFilterForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
+from ipam.models import ASN
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect,
-    StaticSelectMultiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, DynamicModelChoiceField, DynamicModelMultipleChoiceField, StaticSelect, StaticSelectMultiple,
+    TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 
 __all__ = (
     'AggregateFilterForm',
+    'ASNFilterForm',
+    'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
     'PrefixFilterForm',
@@ -35,18 +38,13 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 ])
 
 
-class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class VRFFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = VRF
     field_groups = [
         ['q', 'tag'],
         ['import_target_id', 'export_target_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     import_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
@@ -62,18 +60,13 @@ class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFor
     tag = TagFilterField(model)
 
 
-class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class RouteTargetFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = RouteTarget
     field_groups = [
         ['q', 'tag'],
         ['importing_vrf_id', 'exporting_vrf_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     importing_vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -89,17 +82,8 @@ class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelF
     tag = TagFilterField(model)
 
 
-class RIRFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class RIRFilterForm(CustomFieldModelFilterForm):
     model = RIR
-    field_groups = [
-        ['q'],
-        ['is_private'],
-    ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     is_private = forms.NullBooleanField(
         required=False,
         label=_('Private'),
@@ -107,20 +91,16 @@ class RIRFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
-class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class AggregateFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Aggregate
     field_groups = [
         ['q', 'tag'],
         ['family', 'rir_id'],
         ['tenant_group_id', 'tenant_id']
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
@@ -136,19 +116,34 @@ class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
     tag = TagFilterField(model)
 
 
-class RoleFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
-    model = Role
+class ASNFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
+    model = ASN
     field_groups = [
         ['q'],
+        ['rir_id'],
+        ['tenant_group_id', 'tenant_id'],
+        ['site_id'],
     ]
-    q = forms.CharField(
+    rir_id = DynamicModelMultipleChoiceField(
+        queryset=RIR.objects.all(),
         required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
+        label=_('RIR'),
+        fetch_trigger='open'
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label=_('Site'),
+        fetch_trigger='open'
     )
 
 
-class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class RoleFilterForm(CustomFieldModelFilterForm):
+    model = Role
+    tag = TagFilterField(model)
+
+
+class PrefixFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Prefix
     field_groups = [
         ['q', 'tag'],
@@ -157,11 +152,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id']
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()
     )
@@ -250,18 +240,13 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilter
     tag = TagFilterField(model)
 
 
-class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class IPRangeFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = IPRange
     field_groups = [
         ['q', 'tag'],
         ['family', 'vrf_id', 'status', 'role_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
@@ -290,7 +275,7 @@ class IPRangeFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
     tag = TagFilterField(model)
 
 
-class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class IPAddressFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = IPAddress
     field_order = [
         'q', 'parent', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'role',
@@ -302,11 +287,6 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
         ['vrf_id', 'present_in_vrf_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     parent = forms.CharField(
         required=False,
         widget=forms.TextInput(
@@ -361,17 +341,42 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFil
     tag = TagFilterField(model)
 
 
-class VLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class FHRPGroupFilterForm(CustomFieldModelFilterForm):
+    model = FHRPGroup
+    field_groups = (
+        ('q', 'tag'),
+        ('protocol', 'group_id'),
+        ('auth_type', 'auth_key'),
+    )
+    protocol = forms.MultipleChoiceField(
+        choices=FHRPGroupProtocolChoices,
+        required=False,
+        widget=StaticSelectMultiple()
+    )
+    group_id = forms.IntegerField(
+        min_value=0,
+        required=False,
+        label='Group ID'
+    )
+    auth_type = forms.MultipleChoiceField(
+        choices=FHRPGroupAuthTypeChoices,
+        required=False,
+        widget=StaticSelectMultiple(),
+        label='Authentication type'
+    )
+    auth_key = forms.CharField(
+        required=False,
+        label='Authentication key'
+    )
+    tag = TagFilterField(model)
+
+
+class VLANGroupFilterForm(CustomFieldModelFilterForm):
     field_groups = [
-        ['q'],
+        ['q', 'tag'],
         ['region', 'sitegroup', 'site', 'location', 'rack']
     ]
     model = VLANGroup
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -402,21 +407,17 @@ class VLANGroupFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
         label=_('Rack'),
         fetch_trigger='open'
     )
+    tag = TagFilterField(model)
 
 
-class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class VLANFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = VLAN
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
-        ['group_id', 'status', 'role_id'],
+        ['group_id', 'status', 'role_id', 'vid'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -461,19 +462,18 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterFo
         label=_('Role'),
         fetch_trigger='open'
     )
+    vid = forms.IntegerField(
+        required=False,
+        label='VLAN ID'
+    )
     tag = TagFilterField(model)
 
 
-class ServiceFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ServiceFilterForm(CustomFieldModelFilterForm):
     model = Service
     field_groups = (
         ('q', 'tag'),
         ('protocol', 'port'),
-    )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
     )
     protocol = forms.ChoiceField(
         choices=add_blank_choice(ServiceProtocolChoices),

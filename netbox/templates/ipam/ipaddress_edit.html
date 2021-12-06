@@ -33,51 +33,41 @@
       <div class="row mb-2">
         <h5 class="offset-sm-3">Interface Assignment</h5>
       </div>
-      {% with vm_tab_active=form.initial.vminterface %}
-        <div class="row mb-2">
-          <div class="offset-sm-3">
-            <ul class="nav nav-pills" role="tablist">
-              <li role="presentation" class="nav-item">
-                  <button
-                      role="tab"
-                      type="button"
-                      id="device_tab"
-                      data-bs-toggle="tab"
-                      aria-controls="device"
-                      data-bs-target="#device"
-                      class="nav-link {% if not vm_tab_active %}active{% endif %}"
-                  >
-                      Device
-                  </button>
-              </li>
-              <li role="presentation" class="nav-item">
-                  <button
-                      role="tab"
-                      type="button"
-                      id="vm_tab"
-                      data-bs-toggle="tab"
-                      aria-controls="vm"
-                      data-bs-target="#vm"
-                      class="nav-link {% if vm_tab_active %}active{% endif %}"
-                  >
-                      Virtual Machine
-                  </button>
-              </li>
-            </ul>
-          </div>
+      <div class="row mb-2">
+        <div class="offset-sm-3">
+          <ul class="nav nav-pills" role="tablist">
+            <li role="presentation" class="nav-item">
+              <button role="tab" type="button" id="device_tab" data-bs-toggle="tab" aria-controls="device" data-bs-target="#device" class="nav-link {% if not form.initial.vminterface and not form.initial.fhrpgroup %}active{% endif %}">
+                Device
+              </button>
+            </li>
+            <li role="presentation" class="nav-item">
+              <button role="tab" type="button" id="vm_tab" data-bs-toggle="tab" aria-controls="vm" data-bs-target="#vm" class="nav-link {% if form.initial.vminterface %}active{% endif %}">
+                Virtual Machine
+              </button>
+            </li>
+            <li role="presentation" class="nav-item">
+              <button role="tab" type="button" id="fhrpgroup_tab" data-bs-toggle="tab" aria-controls="fhrpgroup" data-bs-target="#fhrpgroup" class="nav-link {% if form.initial.fhrpgroup %}active{% endif %}">
+                FHRP Group
+              </button>
+            </li>
+          </ul>
         </div>
-        <div class="tab-content p-0 border-0">
-          <div class="tab-pane {% if not vm_tab_active %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
-            {% render_field form.device %}
-            {% render_field form.interface %}
-          </div>
-          <div class="tab-pane {% if vm_tab_active %}active{% endif %}" id="vm" role="tabpanel" aria-labeled-by="vm_tab">
-            {% render_field form.virtual_machine %}
-            {% render_field form.vminterface %}
-          </div>
-          {% render_field form.primary_for_parent %}
+      </div>
+      <div class="tab-content p-0 border-0">
+        <div class="tab-pane {% if not form.initial.vminterface and not form.initial.fhrpgroup %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
+          {% render_field form.device %}
+          {% render_field form.interface %}
         </div>
-      {% endwith %}
+        <div class="tab-pane {% if form.initial.vminterface %}active{% endif %}" id="vm" role="tabpanel" aria-labeled-by="vm_tab">
+          {% render_field form.virtual_machine %}
+          {% render_field form.vminterface %}
+        </div>
+        <div class="tab-pane {% if form.initial.fhrpgroup %}active{% endif %}" id="fhrpgroup" role="tabpanel" aria-labeled-by="fhrpgroup_tab">
+          {% render_field form.fhrpgroup %}
+        </div>
+        {% render_field form.primary_for_parent %}
+      </div>
     </div>
 
     <div class="field-group my-5">

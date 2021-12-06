@@ -12,6 +12,8 @@ from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
     'AggregateCSVForm',
+    'ASNCSVForm',
+    'FHRPGroupCSVForm',
     'IPAddressCSVForm',
     'IPRangeCSVForm',
     'PrefixCSVForm',
@@ -78,6 +80,25 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Aggregate
         fields = ('prefix', 'rir', 'tenant', 'date_added', 'description')
+
+
+class ASNCSVForm(CustomFieldModelCSVForm):
+    rir = CSVModelChoiceField(
+        queryset=RIR.objects.all(),
+        to_field_name='name',
+        help_text='Assigned RIR'
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
+
+    class Meta:
+        model = ASN
+        fields = ('asn', 'rir', 'tenant', 'description')
+        help_texts = {}
 
 
 class RoleCSVForm(CustomFieldModelCSVForm):
@@ -288,6 +309,20 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
             parent.save()
 
         return ipaddress
+
+
+class FHRPGroupCSVForm(CustomFieldModelCSVForm):
+    protocol = CSVChoiceField(
+        choices=FHRPGroupProtocolChoices
+    )
+    auth_type = CSVChoiceField(
+        choices=FHRPGroupAuthTypeChoices,
+        required=False
+    )
+
+    class Meta:
+        model = FHRPGroup
+        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'description')
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):

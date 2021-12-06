@@ -45,7 +45,7 @@
                   <span class="text-muted">Marked as connected</span>
                 {% elif termination.cable %}
                   <a class="d-block d-md-inline" href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
-                  {% with peer=termination.get_cable_peer %}
+                  {% with peer=termination.get_link_peer %}
                     to
                     {% if peer.device %}
                       <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a><br/>

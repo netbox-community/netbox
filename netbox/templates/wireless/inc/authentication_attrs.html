@@ -1,0 +1,21 @@
+{% load helpers %}
+
+<div class="card">
+  <h5 class="card-header">Authentication</h5>
+  <div class="card-body">
+    <table class="table table-hover attr-table">
+      <tr>
+          <th scope="row">Type</th>
+          <td>{{ object.get_auth_type_display|placeholder }}</td>
+      </tr>
+      <tr>
+          <th scope="row">Cipher</th>
+          <td>{{ object.get_auth_cipher_display|placeholder }}</td>
+      </tr>
+      <tr>
+          <th scope="row">PSK</th>
+          <td class="font-monospace">{{ object.auth_psk|placeholder }}</td>
+      </tr>
+    </table>
+  </div>
+</div>

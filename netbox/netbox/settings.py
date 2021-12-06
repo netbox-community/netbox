@@ -4,6 +4,7 @@ import os
 import platform
 import re
 import socket
+import sys
 import warnings
 from urllib.parse import urlsplit
 
@@ -11,12 +12,14 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 
+from netbox.config import PARAMS
+
 
 #
 # Environment setup
 #
 
-VERSION = '3.0.10-dev'
+VERSION = '3.1.0'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -25,9 +28,13 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if platform.python_version_tuple() < ('3', '7'):
+if sys.version_info < (3, 7):
     raise RuntimeError(
-        f"NetBox requires Python 3.7 or higher (current: Python {platform.python_version()})"
+        f"NetBox requires Python 3.7 or later. (Currently installed: Python {platform.python_version()})"
+    )
+if sys.version_info < (3, 8):
+    warnings.warn(
+        f"NetBox v3.2 will require Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
     )
 
 
@@ -68,52 +75,32 @@ DATABASE = getattr(configuration, 'DATABASE')
 REDIS = getattr(configuration, 'REDIS')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
-# Set optional parameters
+# Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOWED_URL_SCHEMES = getattr(configuration, 'ALLOWED_URL_SCHEMES', (
-    'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
-))
-BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', '')
-BANNER_LOGIN = getattr(configuration, 'BANNER_LOGIN', '')
-BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
-CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
-CUSTOM_VALIDATORS = getattr(configuration, 'CUSTOM_VALIDATORS', {})
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
-GRAPHQL_ENABLED = getattr(configuration, 'GRAPHQL_ENABLED', True)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 LOGGING = getattr(configuration, 'LOGGING', {})
+LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
-MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
-MAPS_URL = getattr(configuration, 'MAPS_URL', 'https://maps.google.com/?q=')
-MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
-NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
-NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
-NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
-NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
-PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
-LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
-PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
-RACK_ELEVATION_DEFAULT_UNIT_HEIGHT = getattr(configuration, 'RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 22)
-RACK_ELEVATION_DEFAULT_UNIT_WIDTH = getattr(configuration, 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH', 220)
+RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
 REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
 REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
@@ -127,7 +114,6 @@ REMOTE_AUTH_SUPERUSERS = getattr(configuration, 'REMOTE_AUTH_SUPERUSERS', [])
 REMOTE_AUTH_STAFF_GROUPS = getattr(configuration, 'REMOTE_AUTH_STAFF_GROUPS', [])
 REMOTE_AUTH_STAFF_USERS = getattr(configuration, 'REMOTE_AUTH_STAFF_USERS', [])
 REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATOR', '|')
-RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
@@ -140,6 +126,11 @@ STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+
+# Check for hard-coded dynamic config parameters
+for param in PARAMS:
+    if hasattr(configuration, param.name):
+        globals()[param.name] = getattr(configuration, param.name)
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
@@ -316,6 +307,7 @@ INSTALLED_APPS = [
     'graphene_django',
     'mptt',
     'rest_framework',
+    'social_django',
     'taggit',
     'timezone_field',
     'circuits',
@@ -326,6 +318,7 @@ INSTALLED_APPS = [
     'users',
     'utilities',
     'virtualization',
+    'wireless',
     'django_rq',  # Must come after extras to allow overriding management commands
     'drf_yasg',
 ]
@@ -345,6 +338,7 @@ MIDDLEWARE = [
     'netbox.middleware.ExceptionHandlingMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.LoginRequiredMiddleware',
+    'netbox.middleware.DynamicConfigMiddleware',
     'netbox.middleware.APIVersionMiddleware',
     'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
@@ -409,7 +403,8 @@ MESSAGE_TAGS = {
 }
 
 # Authentication URLs
-LOGIN_URL = '/{}login/'.format(BASE_PATH)
+LOGIN_URL = f'/{BASE_PATH}login/'
+LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
@@ -422,6 +417,27 @@ EXEMPT_EXCLUDE_MODELS = (
     ('auth', 'user'),
     ('users', 'objectpermission'),
 )
+
+# All URLs starting with a string listed here are exempt from login enforcement
+EXEMPT_PATHS = (
+    f'/{BASE_PATH}api/',
+    f'/{BASE_PATH}graphql/',
+    f'/{BASE_PATH}login/',
+    f'/{BASE_PATH}oauth/',
+    f'/{BASE_PATH}metrics/',
+)
+
+
+#
+# Django social auth
+#
+
+# Load all SOCIAL_AUTH_* settings from the user configuration
+for param in dir(configuration):
+    if param.startswith('SOCIAL_AUTH_'):
+        globals()[param] = getattr(configuration, param)
+
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 
 #
@@ -443,7 +459,7 @@ FILTERS_NULL_CHOICE_VALUE = 'null'
 # Django REST framework (API)
 #
 
-REST_FRAMEWORK_VERSION = VERSION.rsplit('.', 1)[0]  # Use major.minor as API version
+REST_FRAMEWORK_VERSION = '.'.join(VERSION.split('-')[0].split('.')[:2])  # Use major.minor as API version
 REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'COERCE_DECIMAL_TO_STRING': False,
@@ -465,7 +481,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
-    'PAGE_SIZE': PAGINATE_COUNT,
+    # 'PAGE_SIZE': PAGINATE_COUNT,
     'SCHEMA_COERCE_METHOD_NAMES': {
         # Default mappings
         'retrieve': 'read',
@@ -562,23 +578,6 @@ RQ_QUEUES = {
     'default': RQ_PARAMS,
     'low': RQ_PARAMS,
 }
-
-
-#
-# NetBox internal settings
-#
-
-# Pagination
-if MAX_PAGE_SIZE and PAGINATE_COUNT > MAX_PAGE_SIZE:
-    raise ImproperlyConfigured(
-        f"PAGINATE_COUNT ({PAGINATE_COUNT}) must be less than or equal to MAX_PAGE_SIZE ({MAX_PAGE_SIZE}), if set."
-    )
-PER_PAGE_DEFAULTS = [
-    25, 50, 100, 250, 500, 1000
-]
-if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
-    PER_PAGE_DEFAULTS.append(PAGINATE_COUNT)
-    PER_PAGE_DEFAULTS = sorted(PER_PAGE_DEFAULTS)
 
 
 #

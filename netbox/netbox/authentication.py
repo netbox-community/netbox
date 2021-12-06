@@ -34,7 +34,7 @@ class ObjectPermissionMixin():
         object_permissions = ObjectPermission.objects.filter(
             self.get_permission_filter(user_obj),
             enabled=True
-        ).prefetch_related('object_types')
+        ).order_by('id').distinct('id').prefetch_related('object_types')
 
         # Create a dictionary mapping permissions to their constraints
         perms = defaultdict(list)

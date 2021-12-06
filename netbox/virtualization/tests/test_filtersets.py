@@ -324,9 +324,8 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         clusters = Cluster.objects.all()[:2]
         params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        # TODO: 'cluster' should match on name
-        # params = {'cluster': [clusters[0].name, clusters[1].name]}
-        # self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cluster': [clusters[0].name, clusters[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
@@ -450,6 +449,19 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         VMInterface.objects.bulk_create(child_interfaces)
 
         params = {'parent_id': [parent_interface.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_bridge(self):
+        # Create bridged interfaces
+        bridge_interface = VMInterface.objects.first()
+        bridged_interfaces = (
+            VMInterface(virtual_machine=bridge_interface.virtual_machine, name='Bridged 1', bridge=bridge_interface),
+            VMInterface(virtual_machine=bridge_interface.virtual_machine, name='Bridged 2', bridge=bridge_interface),
+            VMInterface(virtual_machine=bridge_interface.virtual_machine, name='Bridged 3', bridge=bridge_interface),
+        )
+        VMInterface.objects.bulk_create(bridged_interfaces)
+
+        params = {'bridge_id': [bridge_interface.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_mtu(self):

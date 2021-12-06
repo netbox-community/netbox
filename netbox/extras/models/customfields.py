@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, date
 
+import django_filters
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
@@ -13,6 +14,7 @@ from django.utils.safestring import mark_safe
 from extras.choices import *
 from extras.utils import FeatureQuery, extras_features
 from netbox.models import ChangeLoggedModel
+from utilities import filters
 from utilities.forms import (
     CSVChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
 )
@@ -31,7 +33,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         return self.get_queryset().filter(content_types=content_type)
 
 
-@extras_features('webhooks')
+@extras_features('webhooks', 'export_templates')
 class CustomField(ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
@@ -167,7 +169,10 @@ class CustomField(ChangeLoggedModel):
         # Validate the field's default value (if any)
         if self.default is not None:
             try:
-                default_value = str(self.default) if self.type == CustomFieldTypeChoices.TYPE_TEXT else self.default
+                if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
+                    default_value = str(self.default)
+                else:
+                    default_value = self.default
                 self.validate(default_value)
             except ValidationError as err:
                 raise ValidationError({
@@ -185,7 +190,11 @@ class CustomField(ChangeLoggedModel):
             })
 
         # Regex validation can be set only for text fields
-        regex_types = (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_URL)
+        regex_types = (
+            CustomFieldTypeChoices.TYPE_TEXT,
+            CustomFieldTypeChoices.TYPE_LONGTEXT,
+            CustomFieldTypeChoices.TYPE_URL,
+        )
         if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
@@ -274,9 +283,19 @@ class CustomField(ChangeLoggedModel):
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
             field = LaxURLField(required=required, initial=initial)
 
+        # JSON
+        elif self.type == CustomFieldTypeChoices.TYPE_JSON:
+            field = forms.JSONField(required=required, initial=initial)
+
         # Text
         else:
-            field = forms.CharField(max_length=255, required=required, initial=initial)
+            if self.type == CustomFieldTypeChoices.TYPE_LONGTEXT:
+                max_length = None
+                widget = forms.Textarea
+            else:
+                max_length = 255
+                widget = None
+            field = forms.CharField(max_length=max_length, required=required, initial=initial, widget=widget)
             if self.validation_regex:
                 field.validators = [
                     RegexValidator(
@@ -292,6 +311,58 @@ class CustomField(ChangeLoggedModel):
 
         return field
 
+    def to_filter(self, lookup_expr=None):
+        """
+        Return a django_filters Filter instance suitable for this field type.
+
+        :param lookup_expr: Custom lookup expression (optional)
+        """
+        kwargs = {
+            'field_name': f'custom_field_data__{self.name}'
+        }
+        if lookup_expr is not None:
+            kwargs['lookup_expr'] = lookup_expr
+
+        # Text/URL
+        if self.type in (
+                CustomFieldTypeChoices.TYPE_TEXT,
+                CustomFieldTypeChoices.TYPE_LONGTEXT,
+                CustomFieldTypeChoices.TYPE_URL,
+        ):
+            filter_class = filters.MultiValueCharFilter
+            if self.filter_logic == CustomFieldFilterLogicChoices.FILTER_LOOSE:
+                kwargs['lookup_expr'] = 'icontains'
+
+        # Integer
+        elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            filter_class = filters.MultiValueNumberFilter
+
+        # Boolean
+        elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            filter_class = django_filters.BooleanFilter
+
+        # Date
+        elif self.type == CustomFieldTypeChoices.TYPE_DATE:
+            filter_class = filters.MultiValueDateFilter
+
+        # Select
+        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            filter_class = filters.MultiValueCharFilter
+
+        # Multiselect
+        elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            filter_class = filters.MultiValueCharFilter
+            kwargs['lookup_expr'] = 'has_key'
+
+        # Unsupported custom field type
+        else:
+            return None
+
+        filter_instance = filter_class(**kwargs)
+        filter_instance.custom_field = self
+
+        return filter_instance
+
     def validate(self, value):
         """
         Validate a value according to the field's type validation rules.
@@ -299,7 +370,7 @@ class CustomField(ChangeLoggedModel):
         if value not in [None, '']:
 
             # Validate text field
-            if self.type == CustomFieldTypeChoices.TYPE_TEXT:
+            if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
                 if type(value) is not str:
                     raise ValidationError(f"Value must be a string.")
                 if self.validation_regex and not re.match(self.validation_regex, value):

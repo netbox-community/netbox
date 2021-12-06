@@ -29,10 +29,13 @@ class TokenAuthentication(authentication.TokenAuthentication):
         if settings.REMOTE_AUTH_BACKEND == 'netbox.authentication.LDAPBackend':
             from netbox.authentication import LDAPBackend
             ldap_backend = LDAPBackend()
-            user = ldap_backend.populate_user(token.user.username)
-            # If the user is found in the LDAP directory use it, if not fallback to the local user
-            if user:
-                return user, token
+
+            # Load from LDAP if FIND_GROUP_PERMS is active
+            if ldap_backend.settings.FIND_GROUP_PERMS:
+                user = ldap_backend.populate_user(token.user.username)
+                # If the user is found in the LDAP directory use it, if not fallback to the local user
+                if user:
+                    return user, token
 
         return token.user, token
 

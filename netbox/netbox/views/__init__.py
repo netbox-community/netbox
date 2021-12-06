@@ -27,6 +27,7 @@ from netbox.constants import SEARCH_MAX_RESULTS, SEARCH_TYPES
 from netbox.forms import SearchForm
 from tenancy.models import Tenant
 from virtualization.models import Cluster, VirtualMachine
+from wireless.models import WirelessLAN, WirelessLink
 
 
 class HomeView(View):
@@ -92,14 +93,19 @@ class HomeView(View):
                 ("dcim.view_powerpanel", "Power Panels", PowerPanel.objects.restrict(request.user, 'view').count),
                 ("dcim.view_powerfeed", "Power Feeds", PowerFeed.objects.restrict(request.user, 'view').count),
             )
+            wireless = (
+                ("wireless.view_wirelesslan", "Wireless LANs", WirelessLAN.objects.restrict(request.user, 'view').count),
+                ("wireless.view_wirelesslink", "Wireless Links", WirelessLink.objects.restrict(request.user, 'view').count),
+            )
             sections = (
                 ("Organization", org, "domain"),
                 ("IPAM", ipam, "counter"),
                 ("Virtualization", virtualization, "monitor"),
                 ("Inventory", dcim, "server"),
-                ("Connections", connections, "cable-data"),
                 ("Circuits", circuits, "transit-connection-variant"),
+                ("Connections", connections, "cable-data"),
                 ("Power", power, "flash"),
+                ("Wireless", wireless, "wifi"),
             )
 
             stats = []

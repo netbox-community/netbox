@@ -41,12 +41,16 @@ class ManufacturerTable(BaseTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
+    tags = TagColumn(
+        url_name='dcim:manufacturer_list'
+    )
     actions = ButtonsColumn(Manufacturer)
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
         fields = (
-            'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+            'pk', 'id', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug',
+            'actions',
         )
         default_columns = (
             'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
@@ -80,7 +84,7 @@ class DeviceTypeTable(BaseTable):
         model = DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'comments', 'instance_count', 'tags',
+            'airflow', 'comments', 'instance_count', 'tags',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',

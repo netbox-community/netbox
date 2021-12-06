@@ -6,6 +6,7 @@ from graphene_django.views import GraphQLView as GraphQLView_
 from rest_framework.exceptions import AuthenticationFailed
 
 from netbox.api.authentication import TokenAuthentication
+from netbox.config import get_config
 
 
 class GraphQLView(GraphQLView_):
@@ -15,9 +16,10 @@ class GraphQLView(GraphQLView_):
     graphiql_template = 'graphiql.html'
 
     def dispatch(self, request, *args, **kwargs):
+        config = get_config()
 
         # Enforce GRAPHQL_ENABLED
-        if not settings.GRAPHQL_ENABLED:
+        if not config.GRAPHQL_ENABLED:
             return HttpResponseNotFound("The GraphQL API is not enabled.")
 
         # Attempt to authenticate the user using a DRF token, if provided

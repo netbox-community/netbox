@@ -13,11 +13,8 @@ body:
   - type: input
     attributes:
       label: NetBox version
-      description: >
-        What version of NetBox are you currently running? (If you don't have access to the most
-        recent NetBox release, consider testing on our [demo instance](https://demo.netbox.dev/)
-        before opening a bug report to see if your issue has already been addressed.)
-      placeholder: v3.0.9
+      description: What version of NetBox are you currently running?
+      placeholder: v3.1.0
     validations:
       required: true
   - type: dropdown

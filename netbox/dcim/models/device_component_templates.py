@@ -7,7 +7,6 @@ from dcim.constants import *
 from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
 from .device_components import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, PowerOutlet, PowerPort, RearPort,
@@ -49,8 +48,6 @@ class ComponentTemplateModel(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True

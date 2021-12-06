@@ -104,6 +104,18 @@ class VMInterfaceCSVForm(CustomFieldModelCSVForm):
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'
     )
+    parent = CSVModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Parent interface'
+    )
+    bridge = CSVModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Bridged interface'
+    )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
         required=False,
@@ -113,7 +125,7 @@ class VMInterfaceCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = VMInterface
         fields = (
-            'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
         )
 
     def clean_enabled(self):

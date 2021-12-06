@@ -145,6 +145,7 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'payload_url': 'http://example.com/?x',
             'http_method': 'GET',
             'http_content_type': 'application/foo',
+            'conditions': None,
         }
 
         cls.csv_data = (

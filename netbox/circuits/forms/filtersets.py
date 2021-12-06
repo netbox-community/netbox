@@ -6,7 +6,7 @@ from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from extras.forms import CustomFieldModelFilterForm
 from tenancy.forms import TenancyFilterForm
-from utilities.forms import BootstrapMixin, DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
+from utilities.forms import DynamicModelMultipleChoiceField, StaticSelectMultiple, TagFilterField
 
 __all__ = (
     'CircuitFilterForm',
@@ -16,18 +16,13 @@ __all__ = (
 )
 
 
-class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ProviderFilterForm(CustomFieldModelFilterForm):
     model = Provider
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
         ['asn'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -57,16 +52,11 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
     model = ProviderNetwork
     field_groups = (
         ('q', 'tag'),
         ('provider_id',),
-    )
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -77,19 +67,12 @@ class ProviderNetworkFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class CircuitTypeFilterForm(BootstrapMixin, CustomFieldModelFilterForm):
+class CircuitTypeFilterForm(CustomFieldModelFilterForm):
     model = CircuitType
-    field_groups = [
-        ['q'],
-    ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
+    tag = TagFilterField(model)
 
 
-class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilterForm):
+class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Circuit
     field_groups = [
         ['q', 'tag'],
@@ -98,11 +81,6 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldModelFilte
         ['region_id', 'site_group_id', 'site_id'],
         ['tenant_group_id', 'tenant_id'],
     ]
-    q = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('All Fields')}),
-        label=_('Search')
-    )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,

@@ -4,7 +4,6 @@ from django.urls import reverse
 from extras.utils import extras_features
 from ipam.constants import *
 from netbox.models import PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 
 
 __all__ = (
@@ -58,8 +57,6 @@ class VRF(PrimaryModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     clone_fields = [
         'tenant', 'enforce_unique', 'description',
     ]
@@ -99,8 +96,6 @@ class RouteTarget(PrimaryModel):
         blank=True,
         null=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']

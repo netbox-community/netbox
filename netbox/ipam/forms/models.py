@@ -4,17 +4,24 @@ from django.contrib.contenttypes.models import ContentType
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.forms import CustomFieldModelForm
 from extras.models import Tag
+from ipam.choices import *
 from ipam.constants import *
+from ipam.formfields import IPNetworkFormField
 from ipam.models import *
+from ipam.models import ASN
 from tenancy.forms import TenancyForm
+from utilities.exceptions import PermissionsViolation
 from utilities.forms import (
-    BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple,
+    add_blank_choice, BootstrapMixin, ContentTypeChoiceField, DatePicker, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, NumericArrayField, SlugField, StaticSelect, StaticSelectMultiple,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
 __all__ = (
     'AggregateForm',
+    'ASNForm',
+    'FHRPGroupForm',
+    'FHRPGroupAssignmentForm',
     'IPAddressAssignForm',
     'IPAddressBulkAddForm',
     'IPAddressForm',
@@ -30,7 +37,7 @@ __all__ = (
 )
 
 
-class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class VRFForm(TenancyForm, CustomFieldModelForm):
     import_targets = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False
@@ -63,7 +70,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class RouteTargetForm(TenancyForm, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -80,17 +87,21 @@ class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         )
 
 
-class RIRForm(BootstrapMixin, CustomFieldModelForm):
+class RIRForm(CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = RIR
         fields = [
-            'name', 'slug', 'is_private', 'description',
+            'name', 'slug', 'is_private', 'description', 'tags',
         ]
 
 
-class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class AggregateForm(TenancyForm, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label='RIR'
@@ -118,17 +129,65 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class RoleForm(BootstrapMixin, CustomFieldModelForm):
+class ASNForm(TenancyForm, CustomFieldModelForm):
+    rir = DynamicModelChoiceField(
+        queryset=RIR.objects.all(),
+        label='RIR',
+    )
+    sites = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        label='Sites',
+        required=False
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ASN
+        fields = [
+            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'tags'
+        ]
+        fieldsets = (
+            ('ASN', ('asn', 'rir', 'sites', 'description', 'tags')),
+            ('Tenancy', ('tenant_group', 'tenant')),
+        )
+        help_texts = {
+            'asn': "AS number",
+            'rir': "Regional Internet Registry responsible for this prefix",
+        }
+        widgets = {
+            'date_added': DatePicker(),
+        }
+
+    def __init__(self, data=None, instance=None, *args, **kwargs):
+        super().__init__(data=data, instance=instance, *args, **kwargs)
+
+        if self.instance and self.instance.pk is not None:
+            self.fields['sites'].initial = self.instance.sites.all().values_list('id', flat=True)
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        instance.sites.set(self.cleaned_data['sites'])
+        return instance
+
+
+class RoleForm(CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Role
         fields = [
-            'name', 'slug', 'weight', 'description',
+            'name', 'slug', 'weight', 'description', 'tags',
         ]
 
 
-class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class PrefixForm(TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -203,7 +262,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class IPRangeForm(TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -232,7 +291,7 @@ class IPRangeForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class IPAddressForm(TenancyForm, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -261,6 +320,11 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         query_params={
             'virtual_machine_id': '$virtual_machine'
         }
+    )
+    fhrpgroup = DynamicModelChoiceField(
+        queryset=FHRPGroup.objects.all(),
+        required=False,
+        label='FHRP Group'
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -369,6 +433,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 initial['interface'] = instance.assigned_object
             elif type(instance.assigned_object) is VMInterface:
                 initial['vminterface'] = instance.assigned_object
+            elif type(instance.assigned_object) is FHRPGroup:
+                initial['fhrpgroup'] = instance.assigned_object
             if instance.nat_inside:
                 nat_inside_parent = instance.nat_inside.assigned_object
                 if type(nat_inside_parent) is Interface:
@@ -385,8 +451,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
         # Initialize primary_for_parent if IP address is already assigned
         if self.instance.pk and self.instance.assigned_object:
-            parent = self.instance.assigned_object.parent_object
-            if (
+            parent = getattr(self.instance.assigned_object, 'parent_object', None)
+            if parent and (
                 self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
                 self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
             ):
@@ -395,10 +461,13 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     def clean(self):
         super().clean()
 
-        # Cannot select both a device interface and a VM interface
-        if self.cleaned_data.get('interface') and self.cleaned_data.get('vminterface'):
-            raise forms.ValidationError("Cannot select both a device interface and a virtual machine interface")
-        self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
+        # Handle object assignment
+        if self.cleaned_data['interface']:
+            self.instance.assigned_object = self.cleaned_data['interface']
+        elif self.cleaned_data['vminterface']:
+            self.instance.assigned_object = self.cleaned_data['vminterface']
+        elif self.cleaned_data['fhrpgroup']:
+            self.instance.assigned_object = self.cleaned_data['fhrpgroup']
 
         # Primary IP assignment is only available if an interface has been assigned.
         interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
@@ -412,7 +481,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
         interface = self.instance.assigned_object
-        if interface:
+        if type(interface) in (Interface, VMInterface):
             parent = interface.parent_object
             if self.cleaned_data['primary_for_parent']:
                 if ipaddress.address.version == 4:
@@ -430,7 +499,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         return ipaddress
 
 
-class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class IPAddressBulkAddForm(TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -464,7 +533,87 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
     )
 
 
-class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
+class FHRPGroupForm(CustomFieldModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    # Optionally create a new IPAddress along with the FHRPGroup
+    ip_vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF'
+    )
+    ip_address = IPNetworkFormField(
+        required=False,
+        label='Address'
+    )
+    ip_status = forms.ChoiceField(
+        choices=add_blank_choice(IPAddressStatusChoices),
+        required=False,
+        label='Status'
+    )
+
+    class Meta:
+        model = FHRPGroup
+        fields = (
+            'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'ip_vrf', 'ip_address', 'ip_status', 'tags',
+        )
+        fieldsets = (
+            ('FHRP Group', ('protocol', 'group_id', 'description', 'tags')),
+            ('Authentication', ('auth_type', 'auth_key')),
+            ('Virtual IP Address', ('ip_vrf', 'ip_address', 'ip_status'))
+        )
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+
+        # Check if we need to create a new IPAddress for the group
+        if self.cleaned_data.get('ip_address'):
+            ipaddress = IPAddress(
+                vrf=self.cleaned_data['ip_vrf'],
+                address=self.cleaned_data['ip_address'],
+                status=self.cleaned_data['ip_status'],
+                assigned_object=instance
+            )
+            ipaddress.role = FHRP_PROTOCOL_ROLE_MAPPINGS[self.cleaned_data['protocol']]
+            ipaddress.save()
+
+            # Check that the new IPAddress conforms with any assigned object-level permissions
+            if not IPAddress.objects.filter(pk=ipaddress.pk).first():
+                raise PermissionsViolation()
+
+        return instance
+
+    def clean(self):
+        ip_address = self.cleaned_data.get('ip_address')
+        ip_status = self.cleaned_data.get('ip_status')
+
+        if ip_address and not ip_status:
+            raise forms.ValidationError({
+                'ip_status': "Status must be set when creating a new IP address."
+            })
+
+
+class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
+    group = DynamicModelChoiceField(
+        queryset=FHRPGroup.objects.all()
+    )
+
+    class Meta:
+        model = FHRPGroupAssignment
+        fields = ('group', 'priority')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        ipaddresses = self.instance.interface.ip_addresses.all()
+        for ipaddress in ipaddresses:
+            self.fields['group'].widget.add_query_param('related_ip', ipaddress.pk)
+
+
+class VLANGroupForm(CustomFieldModelForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
@@ -530,15 +679,19 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
         }
     )
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster',
+            'clustergroup', 'cluster', 'tags',
         ]
         fieldsets = (
-            ('VLAN Group', ('name', 'slug', 'description')),
+            ('VLAN Group', ('name', 'slug', 'description', 'tags')),
             ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
         )
         widgets = {
@@ -567,7 +720,7 @@ class VLANGroupForm(BootstrapMixin, CustomFieldModelForm):
             self.instance.scope_id = None
 
 
-class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class VLANForm(TenancyForm, CustomFieldModelForm):
     # VLANGroup assignment fields
     scope_type = forms.ChoiceField(
         choices=(
@@ -648,7 +801,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class ServiceForm(BootstrapMixin, CustomFieldModelForm):
+class ServiceForm(CustomFieldModelForm):
     ports = NumericArrayField(
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN,

@@ -8,7 +8,6 @@ from extras.utils import extras_features
 from ipam.choices import *
 from ipam.constants import *
 from netbox.models import PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 from utilities.utils import array_to_string
 
 
@@ -64,8 +63,6 @@ class Service(PrimaryModel):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique

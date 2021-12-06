@@ -1,41 +1,33 @@
+import logging
 import uuid
 from urllib import parse
-import logging
 
 from django.conf import settings
-from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.contrib import auth
+from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect
-from django.urls import reverse
 
 from extras.context_managers import change_logging
+from netbox.config import clear_config
 from netbox.views import server_error
 from utilities.api import is_api_request, rest_api_server_error
 
 
-class LoginRequiredMiddleware(object):
+class LoginRequiredMiddleware:
     """
     If LOGIN_REQUIRED is True, redirect all non-authenticated users to the login page.
     """
-
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         # Redirect unauthenticated requests (except those exempted) to the login page if LOGIN_REQUIRED is true
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
-            # Determine exempt paths
-            exempt_paths = [
-                reverse('api-root'),
-                reverse('graphql'),
-            ]
-            if settings.METRICS_ENABLED:
-                exempt_paths.append(reverse('prometheus-django-metrics'))
 
             # Redirect unauthenticated requests
-            if not request.path_info.startswith(tuple(exempt_paths)) and request.path_info != settings.LOGIN_URL:
+            if not request.path_info.startswith(settings.EXEMPT_PATHS):
                 login_url = f'{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}'
                 return HttpResponseRedirect(login_url)
 
@@ -114,7 +106,7 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
         return groups
 
 
-class ObjectChangeMiddleware(object):
+class ObjectChangeMiddleware:
     """
     This middleware performs three functions in response to an object being created, updated, or deleted:
 
@@ -144,7 +136,7 @@ class ObjectChangeMiddleware(object):
         return response
 
 
-class APIVersionMiddleware(object):
+class APIVersionMiddleware:
     """
     If the request is for an API endpoint, include the API version as a response header.
     """
@@ -159,7 +151,20 @@ class APIVersionMiddleware(object):
         return response
 
 
-class ExceptionHandlingMiddleware(object):
+class DynamicConfigMiddleware:
+    """
+    Store the cached NetBox configuration in thread-local storage for the duration of the request.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        clear_config()
+        return response
+
+
+class ExceptionHandlingMiddleware:
     """
     Intercept certain exceptions which are likely indicative of installation issues and provide helpful instructions
     to the user.

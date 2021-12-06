@@ -26,27 +26,35 @@ __all__ = (
 )
 
 
-class ClusterTypeForm(BootstrapMixin, CustomFieldModelForm):
+class ClusterTypeForm(CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ClusterType
-        fields = [
-            'name', 'slug', 'description',
-        ]
+        fields = (
+            'name', 'slug', 'description', 'tags',
+        )
 
 
-class ClusterGroupForm(BootstrapMixin, CustomFieldModelForm):
+class ClusterGroupForm(CustomFieldModelForm):
     slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ClusterGroup
-        fields = [
-            'name', 'slug', 'description',
-        ]
+        fields = (
+            'name', 'slug', 'description', 'tags',
+        )
 
 
-class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class ClusterForm(TenancyForm, CustomFieldModelForm):
     type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all()
     )
@@ -163,7 +171,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
-class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+class VirtualMachineForm(TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -263,11 +271,16 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm):
+class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
         label='Parent interface'
+    )
+    bridge = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        label='Bridged interface'
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -298,8 +311,8 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
     class Meta:
         model = VMInterface
         fields = [
-            'virtual_machine', 'name', 'enabled', 'parent', 'mac_address', 'mtu', 'description', 'mode', 'tags',
-            'untagged_vlan', 'tagged_vlans',
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'tags', 'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
@@ -318,6 +331,7 @@ class VMInterfaceForm(BootstrapMixin, InterfaceCommonForm, CustomFieldModelForm)
 
         # Restrict parent interface assignment by VM
         self.fields['parent'].widget.add_query_param('virtual_machine_id', vm_id)
+        self.fields['bridge'].widget.add_query_param('virtual_machine_id', vm_id)
 
         # Limit VLAN choices by virtual machine
         self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)

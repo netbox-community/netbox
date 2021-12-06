@@ -327,13 +327,6 @@ def decode_dict(encoded_dict: Dict, *, decode_keys: bool = True) -> Dict:
     return {urllib.parse.unquote(k): decode_value(v, decode_keys) for k, v in encoded_dict.items()}
 
 
-# Taken from django.utils.functional (<3.0)
-def curry(_curried_func, *args, **kwargs):
-    def _curried(*moreargs, **morekwargs):
-        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
-    return _curried
-
-
 def array_to_string(array):
     """
     Generate an efficient, human-friendly string from a set of integers. Intended for use with ArrayField.
@@ -344,16 +337,23 @@ def array_to_string(array):
     return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
 
 
-def content_type_name(contenttype):
+def content_type_name(ct):
     """
-    Return a proper ContentType name.
+    Return a human-friendly ContentType name (e.g. "DCIM > Site").
     """
     try:
-        meta = contenttype.model_class()._meta
+        meta = ct.model_class()._meta
         return f'{meta.app_config.verbose_name} > {meta.verbose_name}'
     except AttributeError:
         # Model no longer exists
-        return f'{contenttype.app_label} > {contenttype.model}'
+        return f'{ct.app_label} > {ct.model}'
+
+
+def content_type_identifier(ct):
+    """
+    Return a "raw" ContentType identifier string suitable for bulk import/export (e.g. "dcim.site").
+    """
+    return f'{ct.app_label}.{ct.model}'
 
 
 #

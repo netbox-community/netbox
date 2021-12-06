@@ -26,15 +26,12 @@ __all__ = (
     'WebhookFilterSet',
 )
 
-EXACT_FILTER_TYPES = (
-    CustomFieldTypeChoices.TYPE_BOOLEAN,
-    CustomFieldTypeChoices.TYPE_DATE,
-    CustomFieldTypeChoices.TYPE_INTEGER,
-    CustomFieldTypeChoices.TYPE_SELECT,
-)
-
 
 class WebhookFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     content_types = ContentTypeFilter()
     http_method = django_filters.MultipleChoiceFilter(
         choices=WebhookHttpMethodChoices
@@ -47,36 +44,92 @@ class WebhookFilterSet(BaseFilterSet):
             'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
         ]
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(payload_url__icontains=value)
+        )
+
 
 class CustomFieldFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     content_types = ContentTypeFilter()
 
     class Meta:
         model = CustomField
         fields = ['id', 'content_types', 'name', 'required', 'filter_logic', 'weight']
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(label__icontains=value) |
+            Q(description__icontains=value)
+        )
+
 
 class CustomLinkFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
 
     class Meta:
         model = CustomLink
         fields = ['id', 'content_type', 'name', 'link_text', 'link_url', 'weight', 'group_name', 'new_window']
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(link_text__icontains=value) |
+            Q(link_url__icontains=value) |
+            Q(group_name__icontains=value)
+        )
+
 
 class ExportTemplateFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
 
     class Meta:
         model = ExportTemplate
         fields = ['id', 'content_type', 'name']
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
 
 class ImageAttachmentFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     created = django_filters.DateTimeFilter()
     content_type = ContentTypeFilter()
 
     class Meta:
         model = ImageAttachment
         fields = ['id', 'content_type_id', 'object_id', 'name']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(name__icontains=value)
 
 
 class JournalEntryFilterSet(ChangeLoggedModelFilterSet):

@@ -17,3 +17,11 @@
 
 {!models/ipam/vrf.md!}
 {!models/ipam/routetarget.md!}
+
+---
+
+{!models/ipam/fhrpgroup.md!}
+
+---
+
+{!models/ipam/asn.md!}

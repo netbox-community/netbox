@@ -2,37 +2,11 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, pre_delete
-from django.db import transaction
 from django.dispatch import receiver
 
-from .choices import CableStatusChoices
+from .choices import LinkStatusChoices
 from .models import Cable, CablePath, Device, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis
-
-
-def create_cablepath(node):
-    """
-    Create CablePaths for all paths originating from the specified node.
-    """
-    cp = CablePath.from_origin(node)
-    if cp:
-        try:
-            cp.save()
-        except Exception as e:
-            print(node, node.pk)
-            raise e
-
-
-def rebuild_paths(obj):
-    """
-    Rebuild all CablePaths which traverse the specified node
-    """
-    cable_paths = CablePath.objects.filter(path__contains=obj)
-
-    with transaction.atomic():
-        for cp in cable_paths:
-            cp.delete()
-            if cp.origin:
-                create_cablepath(cp.origin)
+from .utils import create_cablepath, rebuild_paths
 
 
 #
@@ -109,12 +83,12 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
     if instance.termination_a.cable != instance:
         logger.debug(f"Updating termination A for cable {instance}")
         instance.termination_a.cable = instance
-        instance.termination_a._cable_peer = instance.termination_b
+        instance.termination_a._link_peer = instance.termination_b
         instance.termination_a.save()
     if instance.termination_b.cable != instance:
         logger.debug(f"Updating termination B for cable {instance}")
         instance.termination_b.cable = instance
-        instance.termination_b._cable_peer = instance.termination_a
+        instance.termination_b._link_peer = instance.termination_a
         instance.termination_b.save()
 
     # Create/update cable paths
@@ -128,7 +102,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
         # We currently don't support modifying either termination of an existing Cable. (This
         # may change in the future.) However, we do need to capture status changes and update
         # any CablePaths accordingly.
-        if instance.status != CableStatusChoices.STATUS_CONNECTED:
+        if instance.status != LinkStatusChoices.STATUS_CONNECTED:
             CablePath.objects.filter(path__contains=instance).update(is_active=False)
         else:
             rebuild_paths(instance)
@@ -145,11 +119,11 @@ def nullify_connected_endpoints(instance, **kwargs):
     if instance.termination_a is not None:
         logger.debug(f"Nullifying termination A for cable {instance}")
         model = instance.termination_a._meta.model
-        model.objects.filter(pk=instance.termination_a.pk).update(_cable_peer_type=None, _cable_peer_id=None)
+        model.objects.filter(pk=instance.termination_a.pk).update(_link_peer_type=None, _link_peer_id=None)
     if instance.termination_b is not None:
         logger.debug(f"Nullifying termination B for cable {instance}")
         model = instance.termination_b._meta.model
-        model.objects.filter(pk=instance.termination_b.pk).update(_cable_peer_type=None, _cable_peer_id=None)
+        model.objects.filter(pk=instance.termination_b.pk).update(_link_peer_type=None, _link_peer_id=None)
 
     # Delete and retrace any dependent cable paths
     for cablepath in CablePath.objects.filter(path__contains=instance):

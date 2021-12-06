@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django.conf import settings
 from dcim.tables.devices import BaseInterfaceTable
 from tenancy.tables import TenantColumn
 from utilities.tables import (
@@ -16,8 +15,6 @@ __all__ = (
     'VirtualMachineVMInterfaceTable',
     'VMInterfaceTable',
 )
-
-PRIMARY_IP_ORDERING = ('primary_ip4', 'primary_ip6') if settings.PREFER_IPV4 else ('primary_ip6', 'primary_ip4')
 
 VMINTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress %}
@@ -40,11 +37,14 @@ class ClusterTypeTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
+    tags = TagColumn(
+        url_name='virtualization:clustertype_list'
+    )
     actions = ButtonsColumn(ClusterType)
 
     class Meta(BaseTable.Meta):
         model = ClusterType
-        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
@@ -60,11 +60,14 @@ class ClusterGroupTable(BaseTable):
     cluster_count = tables.Column(
         verbose_name='Clusters'
     )
+    tags = TagColumn(
+        url_name='virtualization:clustergroup_list'
+    )
     actions = ButtonsColumn(ClusterGroup)
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
-        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'tags', 'actions')
         default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
@@ -130,7 +133,7 @@ class VirtualMachineTable(BaseTable):
     )
     primary_ip = tables.Column(
         linkify=True,
-        order_by=PRIMARY_IP_ORDERING,
+        order_by=('primary_ip4', 'primary_ip6'),
         verbose_name='IP Address'
     )
     tags = TagColumn(
@@ -160,9 +163,6 @@ class VMInterfaceTable(BaseInterfaceTable):
     name = tables.Column(
         linkify=True
     )
-    parent = tables.Column(
-        linkify=True
-    )
     tags = TagColumn(
         url_name='virtualization:vminterface_list'
     )
@@ -170,13 +170,19 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'id', 'name', 'virtual_machine', 'enabled', 'parent', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
         )
-        default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'parent', 'description')
+        default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
 
 class VirtualMachineVMInterfaceTable(VMInterfaceTable):
+    parent = tables.Column(
+        linkify=True
+    )
+    bridge = tables.Column(
+        linkify=True
+    )
     actions = ButtonsColumn(
         model=VMInterface,
         buttons=('edit', 'delete'),
@@ -186,8 +192,8 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'id', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags', 'ip_addresses',
-            'untagged_vlan', 'tagged_vlans', 'actions',
+            'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
             'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses', 'actions',

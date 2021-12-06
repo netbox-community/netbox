@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import json
 import re
 from typing import Dict, Any
@@ -6,6 +7,7 @@ from typing import Dict, Any
 import yaml
 from django import template
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
@@ -13,7 +15,9 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
+from netbox.config import get_config
 from utilities.forms import get_selected_values, TableConfigForm
+from utilities.markdown import StrikethroughExtension
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -39,16 +43,21 @@ def render_markdown(value):
     """
     Render text as Markdown
     """
+    schemes = '|'.join(get_config().ALLOWED_URL_SCHEMES)
+
     # Strip HTML tags
     value = strip_tags(value)
 
     # Sanitize Markdown links
-    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
-    pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
+    pattern = fr'\[([^\]]+)\]\((?!({schemes})).*:(.+)\)'
     value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
+    # Sanitize Markdown reference links
+    pattern = fr'\[(.+)\]:\s*(?!({schemes}))\w*:(.+)'
+    value = re.sub(pattern, '[\\1]: \\3', value, flags=re.IGNORECASE)
+
     # Render Markdown
-    html = markdown(value, extensions=['fenced_code', 'tables'])
+    html = markdown(value, extensions=['fenced_code', 'tables', StrikethroughExtension()])
 
     return mark_safe(html)
 
@@ -76,6 +85,25 @@ def meta(obj, attr):
     to access attributes which begin with an underscore (e.g. _meta).
     """
     return getattr(obj._meta, attr, '')
+
+
+@register.filter()
+def content_type(obj):
+    """
+    Return the ContentType for the given object.
+    """
+    return ContentType.objects.get_for_model(obj)
+
+
+@register.filter()
+def content_type_id(obj):
+    """
+    Return the ContentType ID for the given object.
+    """
+    content_type = ContentType.objects.get_for_model(obj)
+    if content_type:
+        return content_type.pk
+    return None
 
 
 @register.filter()
@@ -144,6 +172,19 @@ def humanize_megabytes(mb):
     if mb >= 1024:
         return f'{int(mb / 1024)} GB'
     return f'{mb} MB'
+
+
+@register.filter()
+def simplify_decimal(value):
+    """
+    Return the simplest expression of a decimal value. Examples:
+      1.00 => '1'
+      1.20 => '1.2'
+      1.23 => '1.23'
+    """
+    if type(value) is not decimal.Decimal:
+        return value
+    return str(value).rstrip('0').rstrip('.')
 
 
 @register.filter()

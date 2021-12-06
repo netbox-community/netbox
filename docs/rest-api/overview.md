@@ -308,7 +308,7 @@ Vary: Accept
 }
 ```
 
-The default page is determined by the [`PAGINATE_COUNT`](../configuration/optional-settings.md#paginate_count) configuration parameter, which defaults to 50. However, this can be overridden per request by specifying the desired `offset` and `limit` query parameters. For example, if you wish to retrieve a hundred devices at a time, you would make a request for:
+The default page is determined by the [`PAGINATE_COUNT`](../configuration/dynamic-settings.md#paginate_count) configuration parameter, which defaults to 50. However, this can be overridden per request by specifying the desired `offset` and `limit` query parameters. For example, if you wish to retrieve a hundred devices at a time, you would make a request for:
 
 ```
 http://netbox/api/dcim/devices/?limit=100
@@ -325,7 +325,7 @@ The response will return devices 1 through 100. The URL provided in the `next` a
 }
 ```
 
-The maximum number of objects that can be returned is limited by the [`MAX_PAGE_SIZE`](../configuration/optional-settings.md#max_page_size) configuration parameter, which is 1000 by default. Setting this to `0` or `None` will remove the maximum limit. An API consumer can then pass `?limit=0` to retrieve _all_ matching objects with a single request.
+The maximum number of objects that can be returned is limited by the [`MAX_PAGE_SIZE`](../configuration/dynamic-settings.md#max_page_size) configuration parameter, which is 1000 by default. Setting this to `0` or `None` will remove the maximum limit. An API consumer can then pass `?limit=0` to retrieve _all_ matching objects with a single request.
 
 !!! warning
     Disabling the page size limit introduces a potential for very resource-intensive requests, since one API request can effectively retrieve an entire table from the database.

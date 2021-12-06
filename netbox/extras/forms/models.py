@@ -70,7 +70,7 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
 class ExportTemplateForm(BootstrapMixin, forms.ModelForm):
     content_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
+        limit_choices_to=FeatureQuery('export_templates')
     )
 
     class Meta:
@@ -102,6 +102,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
             ('HTTP Request', (
                 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
             )),
+            ('Conditions', ('conditions',)),
             ('SSL', ('ssl_verification', 'ca_file_path')),
         )
         widgets = {

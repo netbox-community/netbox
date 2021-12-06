@@ -2,6 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Cable
+from tenancy.tables import TenantColumn
 from utilities.tables import BaseTable, ChoiceFieldColumn, ColorColumn, TagColumn, TemplateColumn, ToggleColumn
 from .template_code import CABLE_LENGTH, CABLE_TERMINATION_PARENT
 
@@ -41,6 +42,7 @@ class CableTable(BaseTable):
         verbose_name='Termination B'
     )
     status = ChoiceFieldColumn()
+    tenant = TenantColumn()
     length = TemplateColumn(
         template_code=CABLE_LENGTH,
         order_by='_abs_length'
@@ -54,7 +56,7 @@ class CableTable(BaseTable):
         model = Cable
         fields = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
-            'status', 'type', 'color', 'length', 'tags',
+            'status', 'type', 'tenant', 'color', 'length', 'tags',
         )
         default_columns = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',

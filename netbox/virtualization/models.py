@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
@@ -9,11 +8,11 @@ from dcim.models import BaseInterface, Device
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
+from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
-from utilities.querysets import RestrictedQuerySet
 from .choices import *
 
 
@@ -30,7 +29,7 @@ __all__ = (
 # Cluster types
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
@@ -48,8 +47,6 @@ class ClusterType(OrganizationalModel):
         blank=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
-
     class Meta:
         ordering = ['name']
 
@@ -64,7 +61,7 @@ class ClusterType(OrganizationalModel):
 # Cluster groups
 #
 
-@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ClusterGroup(OrganizationalModel):
     """
     An organizational group of Clusters.
@@ -81,14 +78,17 @@ class ClusterGroup(OrganizationalModel):
         max_length=200,
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='cluster_group'
     )
-
-    objects = RestrictedQuerySet.as_manager()
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
 
     class Meta:
         ordering = ['name']
@@ -110,8 +110,7 @@ class Cluster(PrimaryModel):
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
     name = models.CharField(
-        max_length=100,
-        unique=True
+        max_length=100
     )
     type = models.ForeignKey(
         to=ClusterType,
@@ -142,14 +141,17 @@ class Cluster(PrimaryModel):
     comments = models.TextField(
         blank=True
     )
+
+    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='cluster'
     )
-
-    objects = RestrictedQuerySet.as_manager()
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
 
     clone_fields = [
         'type', 'group', 'tenant', 'site',
@@ -157,6 +159,10 @@ class Cluster(PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = (
+            ('group', 'name'),
+            ('site', 'name'),
+        )
 
     def __str__(self):
         return self.name
@@ -268,6 +274,11 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         blank=True
     )
 
+    # Generic relation
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = [
@@ -322,7 +333,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
 
     @property
     def primary_ip(self):
-        if settings.PREFER_IPV4 and self.primary_ip4:
+        if get_config().PREFER_IPV4 and self.primary_ip4:
             return self.primary_ip4
         elif self.primary_ip6:
             return self.primary_ip6
@@ -360,14 +371,6 @@ class VMInterface(PrimaryModel, BaseInterface):
         max_length=200,
         blank=True
     )
-    parent = models.ForeignKey(
-        to='self',
-        on_delete=models.SET_NULL,
-        related_name='child_interfaces',
-        null=True,
-        blank=True,
-        verbose_name='Parent interface'
-    )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.SET_NULL,
@@ -388,8 +391,12 @@ class VMInterface(PrimaryModel, BaseInterface):
         object_id_field='assigned_object_id',
         related_query_name='vminterface'
     )
-
-    objects = RestrictedQuerySet.as_manager()
+    fhrp_group_assignments = GenericRelation(
+        to='ipam.FHRPGroupAssignment',
+        content_type_field='interface_type',
+        object_id_field='interface_id',
+        related_query_name='+'
+    )
 
     class Meta:
         verbose_name = 'interface'
@@ -405,6 +412,12 @@ class VMInterface(PrimaryModel, BaseInterface):
     def clean(self):
         super().clean()
 
+        # Parent validation
+
+        # An interface cannot be its own parent
+        if self.pk and self.parent_id == self.pk:
+            raise ValidationError({'parent': "An interface cannot be its own parent."})
+
         # An interface's parent must belong to the same virtual machine
         if self.parent and self.parent.virtual_machine != self.virtual_machine:
             raise ValidationError({
@@ -412,15 +425,26 @@ class VMInterface(PrimaryModel, BaseInterface):
                           f"({self.parent.virtual_machine})."
             })
 
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': "An interface cannot be its own parent."})
+        # Bridge validation
+
+        # An interface cannot be bridged to itself
+        if self.pk and self.bridge_id == self.pk:
+            raise ValidationError({'bridge': "An interface cannot be bridged to itself."})
+
+        # A bridged interface belong to the same virtual machine
+        if self.bridge and self.bridge.virtual_machine != self.virtual_machine:
+            raise ValidationError({
+                'bridge': f"The selected bridge interface ({self.bridge}) belongs to a different virtual machine "
+                          f"({self.bridge.virtual_machine})."
+            })
+
+        # VLAN validation
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({
                 'untagged_vlan': f"The untagged VLAN ({self.untagged_vlan}) must belong to the same site as the "
-                                 f"interface's parent virtual machine, or it must be global"
+                                 f"interface's parent virtual machine, or it must be global."
             })
 
     def to_objectchange(self, action):

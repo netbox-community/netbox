@@ -125,6 +125,38 @@ class IPAddressRoleChoices(ChoiceSet):
 
 
 #
+# FHRP
+#
+
+class FHRPGroupProtocolChoices(ChoiceSet):
+
+    PROTOCOL_VRRP2 = 'vrrp2'
+    PROTOCOL_VRRP3 = 'vrrp3'
+    PROTOCOL_HSRP = 'hsrp'
+    PROTOCOL_GLBP = 'glbp'
+    PROTOCOL_CARP = 'carp'
+
+    CHOICES = (
+        (PROTOCOL_VRRP2, 'VRRPv2'),
+        (PROTOCOL_VRRP3, 'VRRPv3'),
+        (PROTOCOL_HSRP, 'HSRP'),
+        (PROTOCOL_GLBP, 'GLBP'),
+        (PROTOCOL_CARP, 'CARP'),
+    )
+
+
+class FHRPGroupAuthTypeChoices(ChoiceSet):
+
+    AUTHENTICATION_PLAINTEXT = 'plaintext'
+    AUTHENTICATION_MD5 = 'md5'
+
+    CHOICES = (
+        (AUTHENTICATION_PLAINTEXT, 'Plaintext'),
+        (AUTHENTICATION_MD5, 'MD5'),
+    )
+
+
+#
 # VLANs
 #
 

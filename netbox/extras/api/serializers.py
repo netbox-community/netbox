@@ -61,7 +61,7 @@ class WebhookSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url',
             'enabled', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            'ssl_verification', 'ca_file_path',
+            'conditions', 'ssl_verification', 'ca_file_path',
         ]
 
 
@@ -150,7 +150,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
         model = ImageAttachment
         fields = [
             'id', 'url', 'display', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height',
-            'image_width', 'created',
+            'image_width', 'created', 'last_updated',
         ]
 
     def validate(self, data):

@@ -15,18 +15,53 @@
             </div>
         {% endif %}
         {% render_field form.name %}
-        {% render_field form.label %}
         {% render_field form.type %}
-        {% render_field form.parent %}
-        {% render_field form.lag %}
-        {% render_field form.mac_address %}
-        {% render_field form.mtu %}
+        {% render_field form.label %}
         {% render_field form.description %}
         {% render_field form.tags %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Addressing</h5>
+        </div>
+        {% render_field form.mac_address %}
+        {% render_field form.wwn %}
+    </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Operation</h5>
+        </div>
+        {% render_field form.mtu %}
+        {% render_field form.tx_power %}
         {% render_field form.enabled %}
         {% render_field form.mgmt_only %}
         {% render_field form.mark_connected %}
     </div>
+
+    <div class="field-group my-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">Related Interfaces</h5>
+        </div>
+        {% render_field form.parent %}
+        {% render_field form.bridge %}
+        {% render_field form.lag %}
+    </div>
+
+    {% if form.instance.is_wireless %}
+        <div class="field-group my-5">
+            <div class="row mb-2">
+              <h5 class="offset-sm-3">Wireless</h5>
+            </div>
+            {% render_field form.rf_role %}
+            {% render_field form.rf_channel %}
+            {% render_field form.rf_channel_frequency %}
+            {% render_field form.rf_channel_width %}
+            {% render_field form.wireless_lan_group %}
+            {% render_field form.wireless_lans %}
+        </div>
+    {% endif %}
 
     <div class="field-group my-5">
         <div class="row mb-2">
@@ -51,7 +86,7 @@
 {% block buttons %}
     <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
     {% if obj.pk %}
-        <button type="submit" formaction="?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-outline-primary">Save & Continue Editing</button>
+        <button type="button" return-url="?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-outline-primary">Save & Continue Editing</button>
         <button type="submit" name="_update" class="btn btn-primary">Save</button>
     {% else %}
         <button type="submit" name="_addanother" class="btn btn-outline-primary">Create & Add Another</button>

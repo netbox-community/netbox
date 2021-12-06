@@ -814,7 +814,7 @@ table .table-badge-group {
     }
 
     &.badge:not(:last-of-type):not(:only-child) {
-      margin-bottom: map.get($spacers, 2);
+      margin-bottom: map.get($spacers, 1);
     }
   }
 }
@@ -965,6 +965,17 @@ div.card-overlay {
 // Remove the max-width from image preview popovers as this is controlled on the image element.
 .popover.image-preview-popover {
   max-width: unset;
+}
+
+// Preformatted text blocks
+td pre {
+  margin-bottom: 0
+}
+pre.block {
+  padding: $spacer;
+  background-color: var(--nbx-pre-bg);
+  border: 1px solid var(--nbx-pre-border-color);
+  border-radius: $border-radius;
 }
 
 #django-messages {

@@ -11,7 +11,7 @@ from rq import Worker
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.tables import paginate_table
-from utilities.utils import copy_safe_request, count_related, shallow_compare_dict
+from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
 from . import filtersets, forms, tables
 from .choices import JobResultStatusChoices
@@ -475,11 +475,7 @@ class ImageAttachmentEditView(generic.ObjectEditView):
     def alter_obj(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the parent object based on URL kwargs
-            try:
-                app_label, model = request.GET.get('content_type').split('.')
-            except (AttributeError, ValueError):
-                raise Http404("Content type not specified")
-            content_type = get_object_or_404(ContentType, app_label=app_label, model=model)
+            content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
             instance.parent = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
         return instance
 
@@ -758,7 +754,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
 
     def get(self, request, module, name):
         script = self._get_script(name, module)
-        form = script.as_form(initial=request.GET)
+        form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending JobResult (use the latest one by creation timestamp)
         script_content_type = ContentType.objects.get(app_label='extras', model='script')
