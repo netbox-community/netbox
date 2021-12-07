@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#7990](https://github.com/netbox-community/netbox/issues/7990) - Fix `title` display on contact detail view
 * [#7996](https://github.com/netbox-community/netbox/issues/7996) - Show WWN field in interface creation form
 
 ---
