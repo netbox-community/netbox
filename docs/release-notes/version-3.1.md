@@ -2,6 +2,10 @@
 
 ## v3.1.1 (FUTURE)
 
+### Bug Fixes
+
+* [#7996](https://github.com/netbox-community/netbox/issues/7996) - Show WWN field in interface creation form
+
 ---
 
 ## v3.1.0 (2021-12-06)
