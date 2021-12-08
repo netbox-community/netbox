@@ -10,6 +10,7 @@
 * [#8003](https://github.com/netbox-community/netbox/issues/8003) - Fix cable tracing across bridged interfaces with no cable
 * [#8005](https://github.com/netbox-community/netbox/issues/8005) - Fix contact email display
 * [#8010](https://github.com/netbox-community/netbox/issues/8010) - Allow filtering devices by multiple serial numbers
+* [#8019](https://github.com/netbox-community/netbox/issues/8019) - Exclude metrics endpoint when `LOGIN_REQUIRED` is true
 
 ---
 
