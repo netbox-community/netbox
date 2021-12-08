@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('name', 'pk'),
                 'unique_together': {('parent', 'name')},
+                'verbose_name': 'Wireless LAN Group',
             },
         ),
         migrations.CreateModel(
