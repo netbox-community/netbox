@@ -1,42 +1,85 @@
 {% extends 'users/base.html' %}
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 {% block title %}User Profile{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-8 offset-md-2">
-      <span class="text-muted">User Login</span>
-      <h5 class="mb-3">{{ request.user.username }}</h5>
-
-      <span class="text-muted">Full Name</span>
-      <h5 class="mb-3">
-        {% if request.user.first_name and request.user.last_name %}
-          {{ request.user.first_name }} {{ request.user.last_name }}
-        {% elif request.user.first_name and not request.user.last_name %}
-          {{ request.user.first_name }}
-        {% else %}
-          {{ request.user.last_name|placeholder }}
-        {% endif %}
-      </h5>
-
-      <span class="text-muted">Email</span>
-      <h5 class="mb-3">{{ request.user.email|placeholder }}</h5>
-
-      <span class="text-muted">Registered</span>
-      <h5 class="mb-3">{{ request.user.date_joined|annotated_date }}</h5>
-
-      <span class="text-muted">Groups</span>
-      <h5 class="mb-3">
-        {% for group in request.user.groups.all %}
-          <span class="badge bg-secondary">{{ group }}</span>
-        {% empty %}
-          <span class="text-muted">None</span>
-        {% endfor %}
-      </h5>
-
-      <span class="text-muted">Admin Access</span>
-      <h5 class="mb-3">{{ request.user.is_staff|yesno|capfirst }}</h5>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">Account Details</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Username</th>
+              <td>{{ request.user.username }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Full Name</th>
+              <td>
+                {% if request.user.first_name or request.user.last_name %}
+                  {{ request.user.first_name }} {{ request.user.last_name }}
+                {% else %}
+                  <span class="text-muted">&mdash;</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Email</th>
+              <td>{{ request.user.email|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Account Created</th>
+              <td>{{ request.user.date_joined|annotated_date }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Superuser</th>
+              <td>
+                {% if request.user.is_superuser %}
+                  <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+                {% else %}
+                  <i class="mdi mdi-close-thick text-danger" title="No"></i>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Admin Access</th>
+              <td>
+                {% if request.user.is_staff %}
+                  <i class="mdi mdi-check-bold text-success" title="Yes"></i>
+                {% else %}
+                  <i class="mdi mdi-close-thick text-danger" title="No"></i>
+                {% endif %}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">Assigned Groups</h5>
+        <ul class="list-group list-group-flush">
+          {% for group in request.user.groups.all %}
+            <li class="list-group-item">{{ group }}</li>
+          {% empty %}
+            <li class="list-group-item text-muted">None</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </div>
+  {% if perms.extras.view_objectchange %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <h5 class="card-header text-center">Recent Activity</h5>
+          <div class="card-body table-responsive">
+            {% render_table changelog_table 'inc/table.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
