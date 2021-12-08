@@ -718,7 +718,7 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
         field_name='interfaces__mac_address',
         label='MAC address',
     )
-    serial = django_filters.CharFilter(
+    serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
     has_primary_ip = django_filters.BooleanFilter(

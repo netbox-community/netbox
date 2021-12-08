@@ -8,6 +8,7 @@
 * [#7996](https://github.com/netbox-community/netbox/issues/7996) - Show WWN field in interface creation form
 * [#8001](https://github.com/netbox-community/netbox/issues/8001) - Correct verbose name for wireless LAN group model
 * [#8005](https://github.com/netbox-community/netbox/issues/8005) - Fix contact email display
+* [#8010](https://github.com/netbox-community/netbox/issues/8010) - Allow filtering devices by multiple serial numbers
 
 ---
 
