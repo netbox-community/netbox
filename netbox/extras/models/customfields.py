@@ -22,6 +22,12 @@ from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
 
+__all__ = (
+    'CustomField',
+    'CustomFieldManager',
+)
+
+
 class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
     use_in_migrations = True
 
@@ -49,7 +55,14 @@ class CustomField(ChangeLoggedModel):
     name = models.CharField(
         max_length=50,
         unique=True,
-        help_text='Internal field name'
+        help_text='Internal field name',
+        validators=(
+            RegexValidator(
+                regex=r'^[a-z0-9_]+$',
+                message="Only alphanumeric characters and underscores are allowed.",
+                flags=re.IGNORECASE
+            ),
+        )
     )
     label = models.CharField(
         max_length=50,

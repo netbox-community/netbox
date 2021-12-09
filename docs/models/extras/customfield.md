@@ -20,7 +20,7 @@ Custom fields may be created by navigating to Customization > Custom Fields. Net
 * Selection: A selection of one of several pre-defined custom choices
 * Multiple selection: A selection field which supports the assignment of multiple values
 
-Each custom field must have a name; this should be a simple database-friendly string, e.g. `tps_report`. You may also assign a corresponding human-friendly label (e.g. "TPS report"); the label will be displayed on web forms. A weight is also required: Higher-weight fields will be ordered lower within a form. (The default weight is 100.) If a description is provided, it will appear beneath the field in a form.
+Each custom field must have a name. This should be a simple database-friendly string (e.g. `tps_report`) and may contain only alphanumeric characters and underscores. You may also assign a corresponding human-friendly label (e.g. "TPS report"); the label will be displayed on web forms. A weight is also required: Higher-weight fields will be ordered lower within a form. (The default weight is 100.) If a description is provided, it will appear beneath the field in a form.
 
 Marking a field as required will force the user to provide a value for the field when creating a new object or when saving an existing object. A default value for the field may also be provided. Use "true" or "false" for boolean fields, or the exact value of a choice for selection fields.
 
