@@ -125,14 +125,3 @@ class GetReturnURLMixin:
 
         # If all else fails, return home. Ideally this should never happen.
         return reverse('home')
-
-
-#
-# Views
-#
-
-class SlugRedirectView(View):
-
-    def get(self, request, model, slug):
-        obj = get_object_or_404(model.objects.restrict(request.user, 'view'), slug=slug)
-        return redirect(obj.get_absolute_url())
