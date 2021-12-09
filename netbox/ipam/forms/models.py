@@ -575,9 +575,9 @@ class FHRPGroupForm(CustomFieldModelForm):
                 vrf=self.cleaned_data['ip_vrf'],
                 address=self.cleaned_data['ip_address'],
                 status=self.cleaned_data['ip_status'],
+                role=FHRP_PROTOCOL_ROLE_MAPPINGS[self.cleaned_data['protocol']],
                 assigned_object=instance
             )
-            ipaddress.role = FHRP_PROTOCOL_ROLE_MAPPINGS[self.cleaned_data['protocol']]
             ipaddress.save()
 
             # Check that the new IPAddress conforms with any assigned object-level permissions
@@ -587,13 +587,20 @@ class FHRPGroupForm(CustomFieldModelForm):
         return instance
 
     def clean(self):
+        ip_vrf = self.cleaned_data.get('ip_vrf')
         ip_address = self.cleaned_data.get('ip_address')
         ip_status = self.cleaned_data.get('ip_status')
 
-        if ip_address and not ip_status:
-            raise forms.ValidationError({
-                'ip_status': "Status must be set when creating a new IP address."
+        if ip_address:
+            ip_form = IPAddressForm({
+                'address': ip_address,
+                'vrf': ip_vrf,
+                'status': ip_status,
             })
+            if not ip_form.is_valid():
+                self.errors.update({
+                    f'ip_{field}': error for field, error in ip_form.errors.items()
+                })
 
 
 class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
