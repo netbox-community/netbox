@@ -133,9 +133,9 @@ class SiteSerializer(PrimaryModelSerializer):
         model = Site
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'asn', 'asns',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'circuit_count', 'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count', 'device_count', 'prefix_count',
+            'rack_count', 'virtualmachine_count', 'vlan_count',
         ]
 
 

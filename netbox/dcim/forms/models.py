@@ -132,8 +132,8 @@ class SiteForm(TenancyForm, CustomFieldModelForm):
         model = Site
         fields = [
             'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asn', 'asns',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'tags',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
+            'tags',
         ]
         fieldsets = (
             ('Site', (
@@ -141,10 +141,7 @@ class SiteForm(TenancyForm, CustomFieldModelForm):
                 'tags',
             )),
             ('Tenancy', ('tenant_group', 'tenant')),
-            ('Contact Info', (
-                'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-                'contact_email',
-            )),
+            ('Contact Info', ('physical_address', 'shipping_address', 'latitude', 'longitude')),
         )
         widgets = {
             'physical_address': SmallTextarea(

@@ -151,9 +151,9 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         ASN.objects.bulk_create(asns)
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
-            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
-            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30),
         )
         Site.objects.bulk_create(sites)
         sites[0].asns.set([asns[0]])
@@ -187,18 +187,6 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_longitude(self):
         params = {'longitude': [10, 20]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_contact_name(self):
-        params = {'contact_name': ['Contact 1', 'Contact 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_contact_phone(self):
-        params = {'contact_phone': ['123-555-0001', '123-555-0002']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_contact_email(self):
-        params = {'contact_email': ['contact1@example.com', 'contact2@example.com']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):

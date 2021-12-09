@@ -288,18 +288,6 @@ class Site(PrimaryModel):
         null=True,
         help_text='GPS coordinate (longitude)'
     )
-    contact_name = models.CharField(
-        max_length=50,
-        blank=True
-    )
-    contact_phone = models.CharField(
-        max_length=20,
-        blank=True
-    )
-    contact_email = models.EmailField(
-        blank=True,
-        verbose_name='Contact E-mail'
-    )
     comments = models.TextField(
         blank=True
     )
@@ -320,7 +308,7 @@ class Site(PrimaryModel):
 
     clone_fields = [
         'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
-        'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
+        'shipping_address', 'latitude', 'longitude',
     ]
 
     class Meta:

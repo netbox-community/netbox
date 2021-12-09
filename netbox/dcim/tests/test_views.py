@@ -144,9 +144,6 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'shipping_address': '742 Evergreen Terrace, Springfield, USA',
             'latitude': Decimal('35.780000'),
             'longitude': Decimal('-78.642000'),
-            'contact_name': 'Hank Hill',
-            'contact_phone': '123-555-9999',
-            'contact_email': 'hank@stricklandpropane.com',
             'comments': 'Test site',
             'tags': [t.pk for t in tags],
         }

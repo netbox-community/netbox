@@ -140,10 +140,9 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Site
-        fields = [
-            'id', 'name', 'slug', 'facility', 'asn', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email',
-        ]
+        fields = (
+            'id', 'name', 'slug', 'facility', 'asn', 'latitude', 'longitude',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -154,9 +153,6 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             Q(description__icontains=value) |
             Q(physical_address__icontains=value) |
             Q(shipping_address__icontains=value) |
-            Q(contact_name__icontains=value) |
-            Q(contact_phone__icontains=value) |
-            Q(contact_email__icontains=value) |
             Q(comments__icontains=value)
         )
         try:

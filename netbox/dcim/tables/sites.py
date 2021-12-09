@@ -97,8 +97,7 @@ class SiteTable(BaseTable):
         model = Site
         fields = (
             'pk', 'id', 'name', 'slug', 'status', 'facility', 'region', 'group', 'tenant', 'asn_count', 'time_zone',
-            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'tags',
+            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'group', 'tenant', 'description')
 

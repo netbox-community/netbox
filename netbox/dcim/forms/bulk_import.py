@@ -96,8 +96,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         model = Site
         fields = (
             'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description',
-            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email', 'comments',
+            'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
         )
         help_texts = {
             'time_zone': mark_safe(
