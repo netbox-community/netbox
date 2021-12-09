@@ -5,8 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10]
-        node-version: [14.x]
+        python-version: ['3.8', '3.9', '3.10']
+        node-version: ['14.x']
     services:
       redis:
         image: redis
