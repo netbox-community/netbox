@@ -12,6 +12,7 @@
 * [#8009](https://github.com/netbox-community/netbox/issues/8009) - Validate IP addresses for uniqueness when creating an FHRP group
 * [#8010](https://github.com/netbox-community/netbox/issues/8010) - Allow filtering devices by multiple serial numbers
 * [#8019](https://github.com/netbox-community/netbox/issues/8019) - Exclude metrics endpoint when `LOGIN_REQUIRED` is true
+* [#8033](https://github.com/netbox-community/netbox/issues/8033) - Fix display of zero values for custom integer fields in tables
 
 ---
 

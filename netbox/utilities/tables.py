@@ -415,7 +415,9 @@ class CustomFieldColumn(tables.Column):
         elif self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
             # Linkify custom URLs
             return mark_safe(f'<a href="{value}">{value}</a>')
-        return value or self.default
+        if value is not None:
+            return value
+        return self.default
 
 
 class MPTTColumn(tables.TemplateColumn):
