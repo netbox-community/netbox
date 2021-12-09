@@ -130,15 +130,13 @@ class SiteForm(TenancyForm, CustomFieldModelForm):
 
     class Meta:
         model = Site
-        fields = [
-            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asn', 'asns',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments',
-            'tags',
-        ]
+        fields = (
+            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asns', 'time_zone',
+            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
+        )
         fieldsets = (
             ('Site', (
-                'name', 'slug', 'status', 'region', 'group', 'facility', 'asn', 'asns', 'time_zone', 'description',
-                'tags',
+                'name', 'slug', 'status', 'region', 'group', 'facility', 'asns', 'time_zone', 'description', 'tags',
             )),
             ('Tenancy', ('tenant_group', 'tenant')),
             ('Contact Info', ('physical_address', 'shipping_address', 'latitude', 'longitude')),
@@ -159,7 +157,6 @@ class SiteForm(TenancyForm, CustomFieldModelForm):
         }
         help_texts = {
             'name': "Full name of the site",
-            'asn': "BGP autonomous system number.  This field is depreciated in favour of the ASN model",
             'facility': "Data center provider and facility (e.g. Equinix NY7)",
             'time_zone': "Local time zone",
             'description': "Short description (will appear in sites list)",

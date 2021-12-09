@@ -111,12 +111,6 @@ class SiteBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    asn = forms.IntegerField(
-        min_value=BGP_ASN_MIN,
-        max_value=BGP_ASN_MAX,
-        required=False,
-        label='ASN'
-    )
     asns = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         label=_('ASNs'),
@@ -134,7 +128,7 @@ class SiteBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'region', 'group', 'tenant', 'asn', 'asns', 'description', 'time_zone',
+            'region', 'group', 'tenant', 'asns', 'description', 'time_zone',
         ]
 
 

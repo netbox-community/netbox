@@ -10,6 +10,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='site',
+            name='asn',
+        ),
+        migrations.RemoveField(
+            model_name='site',
             name='contact_email',
         ),
         migrations.RemoveField(

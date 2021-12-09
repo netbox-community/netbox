@@ -248,12 +248,6 @@ class Site(PrimaryModel):
         blank=True,
         help_text='Local facility ID or description'
     )
-    asn = ASNField(
-        blank=True,
-        null=True,
-        verbose_name='ASN',
-        help_text='32-bit autonomous system number'
-    )
     asns = models.ManyToManyField(
         to='ipam.ASN',
         related_name='sites',
@@ -307,7 +301,7 @@ class Site(PrimaryModel):
     )
 
     clone_fields = [
-        'status', 'region', 'group', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
+        'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude',
     ]
 

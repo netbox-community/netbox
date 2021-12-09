@@ -131,6 +131,12 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Group (slug)',
     )
+    asn = django_filters.ModelMultipleChoiceFilter(
+        field_name='asns__asn',
+        queryset=ASN.objects.all(),
+        to_field_name='asn',
+        label='AS (ID)',
+    )
     asn_id = django_filters.ModelMultipleChoiceFilter(
         field_name='asns',
         queryset=ASN.objects.all(),
@@ -141,7 +147,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     class Meta:
         model = Site
         fields = (
-            'id', 'name', 'slug', 'facility', 'asn', 'latitude', 'longitude',
+            'id', 'name', 'slug', 'facility', 'latitude', 'longitude',
         )
 
     def search(self, queryset, name, value):
