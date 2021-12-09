@@ -10,7 +10,7 @@ NetBox v3.0 and later requires the following:
 
 | Dependency | Minimum Version |
 |------------|-----------------|
-| Python     | 3.7             |
+| Python     | 3.8             |
 | PostgreSQL | 10              |
 | Redis      | 4.0             |
 
@@ -76,10 +76,10 @@ sudo ./upgrade.sh
 ```
 
 !!! warning
-    If the default version of Python is not at least 3.7, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
+    If the default version of Python is not at least 3.8, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
 
     ```no-highlight
-    sudo PYTHON=/usr/bin/python3.7 ./upgrade.sh
+    sudo PYTHON=/usr/bin/python3.8 ./upgrade.sh
     ```
 
 This script performs the following actions:

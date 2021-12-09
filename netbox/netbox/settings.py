@@ -19,7 +19,7 @@ from netbox.config import PARAMS
 # Environment setup
 #
 
-VERSION = '3.1.1-dev'
+VERSION = '3.2.0-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -28,13 +28,9 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if sys.version_info < (3, 7):
-    raise RuntimeError(
-        f"NetBox requires Python 3.7 or later. (Currently installed: Python {platform.python_version()})"
-    )
 if sys.version_info < (3, 8):
-    warnings.warn(
-        f"NetBox v3.2 will require Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
+    raise RuntimeError(
+        f"NetBox requires Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
     )
 
 

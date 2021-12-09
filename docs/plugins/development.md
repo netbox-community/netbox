@@ -48,7 +48,7 @@ The plugin source directory contains all the actual Python code and other resour
 
 ### Create setup.py
 
-`setup.py` is the [setup script](https://docs.python.org/3.7/distutils/setupscript.html) we'll use to install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to inform the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
+`setup.py` is the [setup script](https://docs.python.org/3.8/distutils/setupscript.html) we'll use to install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to inform the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
 
 ```python
 from setuptools import find_packages, setup
@@ -129,7 +129,7 @@ python3 -m venv /path/to/my/venv
 You can make NetBox available within this environment by creating a path file pointing to its location. This will add NetBox to the Python path upon activation. (Be sure to adjust the command below to specify your actual virtual environment path, Python version, and NetBox installation.)
 
 ```shell
-cd $VENV/lib/python3.7/site-packages/
+cd $VENV/lib/python3.8/site-packages/
 echo /opt/netbox/netbox > netbox.pth
 ```
 

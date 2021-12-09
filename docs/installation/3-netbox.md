@@ -6,8 +6,8 @@ This section of the documentation discusses installing and configuring the NetBo
 
 Begin by installing all system packages required by NetBox and its dependencies.
 
-!!! warning "Python 3.7 or later required"
-    NetBox v3.0 and v3.1 require Python 3.7, 3.8, or 3.9. It is recommended to install at least Python v3.8, as this will become the minimum supported Python version in NetBox v3.2.
+!!! warning "Python 3.8 or later required"
+    NetBox v3.2 requires Python 3.8, 3.9, or 3.10.
 
 === "Ubuntu"
 
@@ -17,16 +17,11 @@ Begin by installing all system packages required by NetBox and its dependencies.
 
 === "CentOS"
 
-    !!! warning
-        CentOS 8 does not provide Python 3.7 or later via its native package manager. You will need to install it via some other means. [Here is an example](https://tecadmin.net/install-python-3-7-on-centos-8/) of installing Python 3.7 from source.
-
-    Once you have Python 3.7 or later installed, install the remaining system packages:
-
     ```no-highlight
     sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
     ```
 
-Before continuing, check that your installed Python version is at least 3.7:
+Before continuing, check that your installed Python version is at least 3.8:
 
 ```no-highlight
 python3 -V
@@ -234,10 +229,10 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 sudo /opt/netbox/upgrade.sh
 ```
 
-Note that **Python 3.7 or later is required** for NetBox v3.0 and later releases. If the default Python installation on your server is set to a lesser version,  pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+Note that **Python 3.8 or later is required** for NetBox v3.2 and later releases. If the default Python installation on your server is set to a lesser version,  pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
 
 ```no-highlight
-sudo PYTHON=/usr/bin/python3.7 /opt/netbox/upgrade.sh
+sudo PYTHON=/usr/bin/python3.8 /opt/netbox/upgrade.sh
 ```
 
 !!! note
