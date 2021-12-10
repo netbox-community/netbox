@@ -48,9 +48,6 @@ __all__ = (
 
 
 class DeviceComponentFilterForm(CustomFieldModelFilterForm):
-    field_order = [
-        'q', 'name', 'label', 'region_id', 'site_group_id', 'site_id',
-    ]
     name = forms.CharField(
         required=False
     )
@@ -131,7 +128,6 @@ class SiteGroupFilterForm(CustomFieldModelFilterForm):
 
 class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Site
-    field_order = ['q', 'status', 'region_id', 'tenant_group_id', 'tenant_id', 'asn_id']
     field_groups = [
         ['q', 'tag'],
         ['status', 'region_id', 'group_id'],
@@ -213,7 +209,6 @@ class RackRoleFilterForm(CustomFieldModelFilterForm):
 
 class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Rack
-    field_order = ['q', 'region_id', 'site_id', 'location_id', 'status', 'role_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_id', 'location_id'],
@@ -278,10 +273,6 @@ class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 
 
 class RackElevationFilterForm(RackFilterForm):
-    field_order = [
-        'q', 'region_id', 'site_id', 'location_id', 'id', 'status', 'role_id', 'tenant_group_id',
-        'tenant_id',
-    ]
     id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         label=_('Rack'),
@@ -296,7 +287,6 @@ class RackElevationFilterForm(RackFilterForm):
 
 class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = RackReservation
-    field_order = ['q', 'region_id', 'site_id', 'location_id', 'user_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
         ['q', 'tag'],
         ['user_id'],
@@ -428,10 +418,6 @@ class PlatformFilterForm(CustomFieldModelFilterForm):
 
 class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
     model = Device
-    field_order = [
-        'q', 'region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'status', 'role_id', 'tenant_group_id',
-        'tenant_id', 'manufacturer_id', 'device_type_id', 'asset_tag', 'mac_address', 'has_primary_ip',
-    ]
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id'],
@@ -595,7 +581,6 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
 
 class VirtualChassisFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = VirtualChassis
-    field_order = ['q', 'region_id', 'site_group_id', 'site_id', 'tenant_group_id', 'tenant_id']
     field_groups = [
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
