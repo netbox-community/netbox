@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django_pglocks import advisory_lock
 from django.shortcuts import get_object_or_404
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -154,6 +155,7 @@ class ServiceViewSet(ModelViewSet):
 class AvailablePrefixesView(ObjectValidationMixin, APIView):
     queryset = Prefix.objects.all()
 
+    @swagger_auto_schema(responses={200: serializers.AvailablePrefixSerializer(many=True)})
     def get(self, request, pk):
         prefix = get_object_or_404(Prefix.objects.restrict(request.user), pk=pk)
         available_prefixes = prefix.get_available_prefixes()
@@ -165,6 +167,10 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        request_body=serializers.PrefixLengthSerializer,
+        responses={201: serializers.PrefixSerializer(many=True)}
+    )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -234,6 +240,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
     def get_parent(self, request, pk):
         raise NotImplemented()
 
+    @swagger_auto_schema(responses={200: serializers.AvailableIPSerializer(many=True)})
     def get(self, request, pk):
         parent = self.get_parent(request, pk)
         config = get_config()
@@ -261,6 +268,10 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        request_body=serializers.AvailableIPSerializer,
+        responses={201: serializers.IPAddressSerializer(many=True)}
+    )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
