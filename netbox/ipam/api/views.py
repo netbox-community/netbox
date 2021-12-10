@@ -155,7 +155,7 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
     queryset = Prefix.objects.all()
 
     def get(self, request, pk):
-        prefix = get_object_or_404(self.queryset.restrict(request.user), pk=pk)
+        prefix = get_object_or_404(Prefix.objects.restrict(request.user), pk=pk)
         available_prefixes = prefix.get_available_prefixes()
 
         serializer = serializers.AvailablePrefixSerializer(available_prefixes.iter_cidrs(), many=True, context={
@@ -167,7 +167,8 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
 
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def post(self, request, pk):
-        prefix = get_object_or_404(self.queryset.restrict(request.user), pk=pk)
+        self.queryset = self.queryset.restrict(request.user, 'add')
+        prefix = get_object_or_404(Prefix.objects.restrict(request.user), pk=pk)
         available_prefixes = prefix.get_available_prefixes()
 
         # Validate Requested Prefixes' length
@@ -262,6 +263,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def post(self, request, pk):
+        self.queryset = self.queryset.restrict(request.user, 'add')
         parent = self.get_parent(request, pk)
 
         # Normalize to a list of objects
