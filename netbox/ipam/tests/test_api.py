@@ -289,7 +289,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
-        self.add_permissions('ipam.add_prefix')
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
 
         # Create four available prefixes with individual requests
         prefixes_to_be_created = [
