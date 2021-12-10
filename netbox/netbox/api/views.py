@@ -123,11 +123,28 @@ class BulkDestroyModelMixin:
                 self.perform_destroy(obj)
 
 
+class ObjectValidationMixin:
+
+    def _validate_objects(self, instance):
+        """
+        Check that the provided instance or list of instances are matched by the current queryset. This confirms that
+        any newly created or modified objects abide by the attributes granted by any applicable ObjectPermissions.
+        """
+        if type(instance) is list:
+            # Check that all instances are still included in the view's queryset
+            conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
+            if conforming_count != len(instance):
+                raise ObjectDoesNotExist
+        else:
+            # Check that the instance is matched by the view's queryset
+            self.queryset.get(pk=instance.pk)
+
+
 #
 # Viewsets
 #
 
-class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
+class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ObjectValidationMixin, ModelViewSet_):
     """
     Extend DRF's ModelViewSet to support bulk update and delete functions.
     """
@@ -210,20 +227,6 @@ class ModelViewSet(BulkUpdateModelMixin, BulkDestroyModelMixin, ModelViewSet_):
                 *args,
                 **kwargs
             )
-
-    def _validate_objects(self, instance):
-        """
-        Check that the provided instance or list of instances are matched by the current queryset. This confirms that
-        any newly created or modified objects abide by the attributes granted by any applicable ObjectPermissions.
-        """
-        if type(instance) is list:
-            # Check that all instances are still included in the view's queryset
-            conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
-            if conforming_count != len(instance):
-                raise ObjectDoesNotExist
-        else:
-            # Check that the instance is matched by the view's queryset
-            self.queryset.get(pk=instance.pk)
 
     def list(self, request, *args, **kwargs):
         """
