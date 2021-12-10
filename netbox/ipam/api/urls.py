@@ -1,6 +1,7 @@
 from django.urls import path
 
 from netbox.api import OrderedDefaultRouter
+from ipam.models import IPRange, Prefix
 from . import views
 
 
@@ -46,7 +47,21 @@ router.register('services', views.ServiceViewSet)
 app_name = 'ipam-api'
 
 urlpatterns = [
-    path('prefixes/<int:pk>/available-prefixes/', views.AvailablePrefixesView.as_view(), name='prefix-available-prefixes'),
+    path(
+        'ip-ranges/<int:pk>/available-ips/',
+        views.IPRangeAvailableIPAddressesView.as_view(),
+        name='iprange-available-ips'
+    ),
+    path(
+        'prefixes/<int:pk>/available-prefixes/',
+        views.AvailablePrefixesView.as_view(),
+        name='prefix-available-prefixes'
+    ),
+    path(
+        'prefixes/<int:pk>/available-ips/',
+        views.PrefixAvailableIPAddressesView.as_view(),
+        name='prefix-available-ips'
+    ),
 ]
 
 urlpatterns += router.urls
