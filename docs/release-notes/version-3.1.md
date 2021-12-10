@@ -16,6 +16,7 @@
 * [#8019](https://github.com/netbox-community/netbox/issues/8019) - Exclude metrics endpoint when `LOGIN_REQUIRED` is true
 * [#8030](https://github.com/netbox-community/netbox/issues/8030) - Validate custom field names
 * [#8033](https://github.com/netbox-community/netbox/issues/8033) - Fix display of zero values for custom integer fields in tables
+* [#8035](https://github.com/netbox-community/netbox/issues/8035) - Redirect back to parent prefix after creating IP address(es) where applicable
 
 ---
 
