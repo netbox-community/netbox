@@ -311,7 +311,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Try to create one more prefix
         response = self.client.post(url, {'prefix_length': 30}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
         # Try to create invalid prefix type
@@ -337,7 +337,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
             {'prefix_length': 30, 'description': 'Prefix 5'},
         ]
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
         # Verify that no prefixes were created (the entire /28 is still available)
@@ -391,7 +391,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Try to create one more IP
         response = self.client.post(url, {}, **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
     def test_create_multiple_available_ips(self):
@@ -406,7 +406,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         # Try to create nine IPs (only eight are available)
         data = [{'description': f'Test IP {i}'} for i in range(1, 10)]  # 9 IPs
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
         # Create all eight available IPs in a single request
@@ -488,7 +488,7 @@ class IPRangeTest(APIViewTestCases.APIViewTestCase):
 
         # Try to create one more IP
         response = self.client.post(url, {}, **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
     def test_create_multiple_available_ips(self):
@@ -505,7 +505,7 @@ class IPRangeTest(APIViewTestCases.APIViewTestCase):
         # Try to create nine IPs (only eight are available)
         data = [{'description': f'Test IP #{i}'} for i in range(1, 10)]  # 9 IPs
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
 
         # Create all eight available IPs in a single request
