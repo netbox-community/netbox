@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#5869](https://github.com/netbox-community/netbox/issues/5869) - Fix permissions evaluation under available prefix/IP REST API endpoints
 * [#7990](https://github.com/netbox-community/netbox/issues/7990) - Fix `title` display on contact detail view
 * [#7996](https://github.com/netbox-community/netbox/issues/7996) - Show WWN field in interface creation form
 * [#8001](https://github.com/netbox-community/netbox/issues/8001) - Correct verbose name for wireless LAN group model
