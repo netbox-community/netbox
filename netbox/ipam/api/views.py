@@ -208,7 +208,7 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
                     {
                         "detail": "Insufficient space is available to accommodate the requested prefix size(s)"
                     },
-                    status=status.HTTP_204_NO_CONTENT
+                    status=status.HTTP_409_CONFLICT
                 )
 
             # Remove the allocated prefix from the list of available prefixes
@@ -288,7 +288,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
                     "detail": f"An insufficient number of IP addresses are available within {parent} "
                               f"({len(requested_ips)} requested, {len(available_ips)} available)"
                 },
-                status=status.HTTP_204_NO_CONTENT
+                status=status.HTTP_409_CONFLICT
             )
 
         # Assign addresses from the list of available IPs and copy VRF assignment from the parent
