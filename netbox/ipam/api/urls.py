@@ -1,3 +1,5 @@
+from django.urls import path
+
 from netbox.api import OrderedDefaultRouter
 from . import views
 
@@ -42,4 +44,9 @@ router.register('vlans', views.VLANViewSet)
 router.register('services', views.ServiceViewSet)
 
 app_name = 'ipam-api'
-urlpatterns = router.urls
+
+urlpatterns = [
+    path('prefixes/<int:pk>/available-prefixes/', views.AvailablePrefixesView.as_view(), name='prefix-available-prefixes'),
+]
+
+urlpatterns += router.urls
