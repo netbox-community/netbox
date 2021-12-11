@@ -108,6 +108,7 @@ above and the addition of three new keys.
 of the Redis server and port for each sentinel instance to connect to
 * `SENTINEL_SERVICE`: Name of the master / service to connect to
 * `SENTINEL_TIMEOUT`: Connection timeout, in seconds
+* `SENTINEL_PASSWORD`: Password to connect to sentinel (if set)
 
 Example:
 
@@ -117,6 +118,7 @@ REDIS = {
         'SENTINELS': [('mysentinel.redis.example.com', 6379)],
         'SENTINEL_SERVICE': 'netbox',
         'SENTINEL_TIMEOUT': 10,
+	'SENTINEL_PASSWORD': '',
         'PASSWORD': '',
         'DATABASE': 0,
         'SSL': False,
@@ -127,6 +129,7 @@ REDIS = {
             ('othersentinel.redis.example.com', 6379)
         ],
         'SENTINEL_SERVICE': 'netbox',
+	'SENTINEL_PASSWORD': '',
         'PASSWORD': '',
         'DATABASE': 1,
         'SSL': False,
