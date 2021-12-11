@@ -2,6 +2,10 @@
 
 ## v3.1.1 (FUTURE)
 
+### Enhancements
+
+* [#8047](https://github.com/netbox-community/netbox/issues/8047) - Display sorting indicator in table column headers
+
 ### Bug Fixes
 
 * [#5869](https://github.com/netbox-community/netbox/issues/5869) - Fix permissions evaluation under available prefix/IP REST API endpoints
