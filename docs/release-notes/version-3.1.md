@@ -24,6 +24,7 @@
 * [#8035](https://github.com/netbox-community/netbox/issues/8035) - Redirect back to parent prefix after creating IP address(es) where applicable
 * [#8038](https://github.com/netbox-community/netbox/issues/8038) - Placeholder filter should display zero integer values
 * [#8042](https://github.com/netbox-community/netbox/issues/8042) - Fix filtering cables list by site slug or rack name
+* [#8051](https://github.com/netbox-community/netbox/issues/8051) - Contact group parent assignment should not be required under REST API
 
 ---
 
