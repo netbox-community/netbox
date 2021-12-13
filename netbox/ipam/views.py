@@ -15,7 +15,7 @@ from . import filtersets, forms, tables
 from .constants import *
 from .models import *
 from .models import ASN
-from .utils import add_available_ipaddresses, add_available_prefixes, add_available_vlans
+from .utils import add_available_ipaddresses, add_requested_prefixes, add_available_vlans
 
 
 #
@@ -275,8 +275,8 @@ class AggregateView(generic.ObjectView):
     queryset = Aggregate.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Find all child prefixes contained by this aggregate
-        child_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
+        # Find all child prefixes contained in this aggregate
+        prefix_list = Prefix.objects.restrict(request.user, 'view').filter(
             prefix__net_contained_or_equal=str(instance.prefix)
         ).prefetch_related(
             'site', 'role'
@@ -284,9 +284,8 @@ class AggregateView(generic.ObjectView):
             'prefix'
         )
 
-        # Add available prefixes to the table if requested
-        if request.GET.get('show_available', 'true') == 'true':
-            child_prefixes = add_available_prefixes(instance.prefix, child_prefixes)
+        # Return List of requested Prefixes
+        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, request)
 
         prefix_table = tables.PrefixTable(child_prefixes, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -305,6 +304,7 @@ class AggregateView(generic.ObjectView):
             'permissions': permissions,
             'bulk_querystring': f'within={instance.prefix}',
             'show_available': request.GET.get('show_available', 'true') == 'true',
+            'show_assigned': request.GET.get('show_assigned', 'true') == 'true',
         }
 
 
@@ -456,14 +456,13 @@ class PrefixPrefixesView(generic.ObjectView):
     template_name = 'ipam/prefix/prefixes.html'
 
     def get_extra_context(self, request, instance):
-        # Child prefixes table
-        child_prefixes = instance.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
+        # Find all child prefixes contained in this prefix
+        prefix_list = instance.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
             'site', 'vlan', 'role',
         )
 
-        # Add available prefixes to the table if requested
-        if child_prefixes and request.GET.get('show_available', 'true') == 'true':
-            child_prefixes = add_available_prefixes(instance.prefix, child_prefixes)
+        # Return List of requested Prefixes
+        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, request)
 
         table = tables.PrefixTable(child_prefixes, user=request.user, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -485,6 +484,7 @@ class PrefixPrefixesView(generic.ObjectView):
             'active_tab': 'prefixes',
             'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': request.GET.get('show_available', 'true') == 'true',
+            'show_assigned': request.GET.get('show_assigned', 'true') == 'true',
         }
 
 
