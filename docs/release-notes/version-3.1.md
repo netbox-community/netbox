@@ -1,5 +1,13 @@
 # NetBox v3.1
 
+## v3.1.2 (FUTURE)
+
+### Enhancements
+
+* [#7665](https://github.com/netbox-community/netbox/issues/7665) - Add toggle to show only available child prefixes
+
+---
+
 ## v3.1.1 (2021-12-13)
 
 ### Enhancements
