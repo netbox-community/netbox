@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -91,8 +92,8 @@
       <h5 class="card-header">
         Locations
       </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=child_locations_table %}
+      <div class="card-body table-responsive">
+        {% render_table child_locations_table 'inc/table.html' %}
       </div>
       {% if perms.dcim.add_location %}
         <div class="card-footer text-end noprint">

@@ -34,7 +34,9 @@
         </div>
       </div>
     </div>
-    {% render_table table 'inc/table.html' %}
+    <div class="table-responsive">
+      {% render_table table 'inc/table.html' %}
+    </div>
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
         {% if perms.dcim.change_interface %}

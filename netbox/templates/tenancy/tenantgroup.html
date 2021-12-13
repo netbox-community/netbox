@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -59,8 +60,8 @@
       <div class="card-header">
         Tenants
       </div>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=tenants_table %}
+      <div class="card-body table-responsive">
+        {% render_table tenants_table 'inc/table.html' %}
       </div>
       {% if perms.tenancy.add_tenant %}
         <div class="card-footer text-end noprint">

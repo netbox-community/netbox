@@ -69,7 +69,7 @@
       <h5 class="card-header">
         VLANs
       </h5>
-      <div class="card-body">
+      <div class="card-body table-responsive">
         {% render_table vlans_table 'inc/table.html' %}
       </div>
       {% if perms.ipam.add_vlan %}

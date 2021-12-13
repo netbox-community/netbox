@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -54,8 +55,8 @@
         <h5 class="card-header">
           Child Groups
         </h5>
-        <div class="card-body">
-          {% include 'inc/table.html' with table=child_groups_table %}
+        <div class="card-body table-responsive">
+          {% render_table child_groups_table 'inc/table.html' %}
         </div>
         {% if perms.tenancy.add_contactgroup %}
           <div class="card-footer text-end noprint">
@@ -74,8 +75,8 @@
         <h5 class="card-header">
           Contacts
         </h5>
-        <div class="card-body">
-          {% include 'inc/table.html' with table=contacts_table %}
+        <div class="card-body table-responsive">
+          {% render_table contacts_table 'inc/table.html' %}
         </div>
         {% if perms.tenancy.add_contact %}
           <div class="card-footer text-end noprint">

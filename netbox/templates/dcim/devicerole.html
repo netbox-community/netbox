@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'dcim:devicerole_list' %}">Device Roles</a></li>
@@ -72,8 +73,8 @@
       <h5 class="card-header">
         Devices
       </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=devices_table %}
+      <div class="card-body table-responsive">
+        {% render_table devices_table 'inc/table.html' %}
       </div>
       {% if perms.dcim.add_device %}
         <div class="card-footer text-end noprint">

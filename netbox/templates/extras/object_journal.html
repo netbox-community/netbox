@@ -24,6 +24,8 @@
       </div>
     </form>
   {% endif %}
-  {% render_table table 'inc/table.html' %}
+  <div class="table-responsive">
+    {% render_table table 'inc/table.html' %}
+  </div>
   {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
 {% endblock %}

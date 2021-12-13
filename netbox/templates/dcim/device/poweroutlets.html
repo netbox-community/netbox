@@ -7,7 +7,9 @@
   <form method="post">
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="DevicePowerOutletTable_config" %}
-    {% render_table table 'inc/table.html' %}
+    <div class="table-responsive">
+      {% render_table table 'inc/table.html' %}
+    </div>
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
             {% if perms.dcim.change_powerport %}

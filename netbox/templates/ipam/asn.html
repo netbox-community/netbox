@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -67,8 +68,8 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">Sites</h5>
-        <div class="card-body">
-          {% include 'inc/table.html' with table=sites_table %}
+        <div class="card-body table-responsive">
+          {% render_table sites_table 'inc/table.html' %}
         </div>
       </div>
       {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}

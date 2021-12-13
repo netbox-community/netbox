@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
 <div class="row mb-3">
@@ -48,8 +49,8 @@
       <h5 class="card-header">
         Racks
       </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=racks_table %}
+      <div class="card-body table-responsive">
+        {% render_table racks_table 'inc/table.html' %}
       </div>
       {% if perms.dcim.add_rack %}
         <div class="card-footer text-end noprint">

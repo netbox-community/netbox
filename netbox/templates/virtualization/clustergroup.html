@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
 <div class="row mb-3">
@@ -43,8 +44,8 @@
       <h5 class="card-header">
         Clusters
       </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=clusters_table %}
+      <div class="card-body table-responsive">
+        {% render_table clusters_table 'inc/table.html' %}
       </div>
       {% if perms.virtualization.add_cluster %}
         <div class="card-footer text-end noprint">
