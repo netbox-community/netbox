@@ -23,6 +23,7 @@ from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, ImportForm, restrict_form_fields,
 )
+from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
@@ -184,6 +185,12 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         # Render the objects table
         table = self.get_table(request, permissions)
         paginate_table(table, request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
 
         context = {
             'content_type': content_type,

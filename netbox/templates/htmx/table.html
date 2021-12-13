@@ -1,0 +1,5 @@
+{# Render an HTML table element #}
+{% load render_table from django_tables2 %}
+
+{% render_table table 'inc/table_htmx.html' %}
+{% include 'inc/paginator_htmx.html' with paginator=table.paginator page=table.page %}
