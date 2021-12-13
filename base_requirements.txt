@@ -1,6 +1,6 @@
 # The Python web framework on which NetBox is built
 # https://github.com/django/django
-Django
+Django<4.0
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
