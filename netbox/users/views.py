@@ -15,6 +15,8 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
 
+from extras.models import ObjectChange
+from extras.tables import ObjectChangeTable
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
 from .forms import LoginForm, PasswordChangeForm, TokenForm
@@ -119,7 +121,14 @@ class ProfileView(LoginRequiredMixin, View):
 
     def get(self, request):
 
+        # Compile changelog table
+        changelog = ObjectChange.objects.restrict(request.user, 'view').filter(user=request.user).prefetch_related(
+            'changed_object_type'
+        )[:20]
+        changelog_table = ObjectChangeTable(changelog)
+
         return render(request, self.template_name, {
+            'changelog_table': changelog_table,
             'active_tab': 'profile',
         })
 

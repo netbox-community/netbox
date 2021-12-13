@@ -33,7 +33,7 @@
             </tr>
             <tr>
               <td>Title</td>
-              <td>{{ object.tile|placeholder }}</td>
+              <td>{{ object.title|placeholder }}</td>
             </tr>
             <tr>
               <td>Phone</td>
@@ -48,7 +48,7 @@
             <tr>
               <td>Email</td>
               <td>
-                {% if object.phone %}
+                {% if object.email %}
                   <a href="mailto:{{ object.email }}">{{ object.email }}</a>
                 {% else %}
                   <span class="text-muted">None</span>

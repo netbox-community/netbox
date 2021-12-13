@@ -72,6 +72,7 @@ class WirelessLANGroup(NestedGroupModel):
         unique_together = (
             ('parent', 'name')
         )
+        verbose_name = 'Wireless LAN Group'
 
     def __str__(self):
         return self.name

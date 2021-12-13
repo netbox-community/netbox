@@ -56,7 +56,7 @@ class TenantSerializer(PrimaryModelSerializer):
 
 class ContactGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactgroup-detail')
-    parent = NestedContactGroupSerializer(required=False, allow_null=True)
+    parent = NestedContactGroupSerializer(required=False, allow_null=True, default=None)
     contact_count = serializers.IntegerField(read_only=True)
 
     class Meta:

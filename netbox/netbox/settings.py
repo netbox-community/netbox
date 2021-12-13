@@ -19,7 +19,7 @@ from netbox.config import PARAMS
 # Environment setup
 #
 
-VERSION = '3.1.0'
+VERSION = '3.1.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -424,7 +424,7 @@ EXEMPT_PATHS = (
     f'/{BASE_PATH}graphql/',
     f'/{BASE_PATH}login/',
     f'/{BASE_PATH}oauth/',
-    f'/{BASE_PATH}metrics/',
+    f'/{BASE_PATH}metrics',
 )
 
 

@@ -465,11 +465,16 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         query_params={
             'device_id': '$device',
             'type': 'lag',
-        }
+        },
+        label='LAG'
     )
     mac_address = forms.CharField(
         required=False,
         label='MAC Address'
+    )
+    wwn = forms.CharField(
+        required=False,
+        label='WWN'
     )
     mgmt_only = forms.BooleanField(
         required=False,
@@ -503,15 +508,17 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        label='Untagged VLAN'
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
-        required=False
+        required=False,
+        label='Tagged VLANs'
     )
     field_order = (
         'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mtu', 'mac_address',
-        'description', 'mgmt_only', 'mark_connected', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+        'wwn', 'description', 'mgmt_only', 'mark_connected', 'rf_role', 'rf_channel', 'rf_channel_frequency',
         'rf_channel_width', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
     )
 

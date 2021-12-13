@@ -193,7 +193,7 @@ class PathEndpoint(models.Model):
         while origin is not None:
 
             if origin._path is None:
-                return path
+                break
 
             path.extend([origin, *origin._path.get_path()])
             while (len(path) + 1) % 3:

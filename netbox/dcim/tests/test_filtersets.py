@@ -1420,10 +1420,10 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
-        params = {'serial': 'ABC'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'serial': 'abc'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'serial': ['ABC', 'DEF']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'serial': ['abc', 'def']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_has_primary_ip(self):
         params = {'has_primary_ip': 'true'}
