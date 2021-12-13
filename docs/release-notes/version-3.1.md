@@ -6,6 +6,10 @@
 
 * [#7665](https://github.com/netbox-community/netbox/issues/7665) - Add toggle to show only available child prefixes
 
+### Bug Fixes
+
+* [#7674](https://github.com/netbox-community/netbox/issues/7674) - Fix inadvertent application of device type context to virtual machines
+
 ---
 
 ## v3.1.1 (2021-12-13)
