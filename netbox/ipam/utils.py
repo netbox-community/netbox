@@ -4,16 +4,20 @@ from .constants import *
 from .models import Prefix, VLAN
 
 
-def add_requested_prefixes(parent, prefix_list, request):
+def add_requested_prefixes(parent, prefix_list, show_available=True, show_assigned=True):
     """
-    Return a list of requested prefixes using show_available, show_assigned filters.
-    If avalible prefixes are requested, create fake Prefix objects for all unallocated space within a prefix
-    """
+    Return a list of requested prefixes using show_available, show_assigned filters. If available prefixes are
+    requested, create fake Prefix objects for all unallocated space within a prefix.
 
+    :param parent: Parent Prefix instance
+    :param prefix_list: Child prefixes list
+    :param show_available: Include available prefixes.
+    :param show_assigned: Show assigned prefixes.
+    """
     child_prefixes = []
 
     # Add available prefixes to the table if requested
-    if prefix_list and request.GET.get('show_available', 'true') == 'true':
+    if prefix_list and show_available:
 
         # Find all unallocated space, add fake Prefix objects to child_prefixes.
         available_prefixes = netaddr.IPSet(parent) ^ netaddr.IPSet([p.prefix for p in prefix_list])
@@ -21,7 +25,7 @@ def add_requested_prefixes(parent, prefix_list, request):
         child_prefixes = child_prefixes + available_prefixes
 
     # Add assigned prefixes to the table if requested
-    if prefix_list and request.GET.get('show_assigned', 'true') == 'true':
+    if prefix_list and show_assigned:
         child_prefixes = child_prefixes + list(prefix_list)
 
     # Sort child prefixes after additions

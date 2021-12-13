@@ -285,7 +285,9 @@ class AggregateView(generic.ObjectView):
         )
 
         # Return List of requested Prefixes
-        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, request)
+        show_available = bool(request.GET.get('show_available', 'true') == 'true')
+        show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
+        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, show_available, show_assigned)
 
         prefix_table = tables.PrefixTable(child_prefixes, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -303,8 +305,8 @@ class AggregateView(generic.ObjectView):
             'prefix_table': prefix_table,
             'permissions': permissions,
             'bulk_querystring': f'within={instance.prefix}',
-            'show_available': request.GET.get('show_available', 'true') == 'true',
-            'show_assigned': request.GET.get('show_assigned', 'true') == 'true',
+            'show_available': show_available,
+            'show_assigned': show_assigned,
         }
 
 
@@ -462,7 +464,9 @@ class PrefixPrefixesView(generic.ObjectView):
         )
 
         # Return List of requested Prefixes
-        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, request)
+        show_available = bool(request.GET.get('show_available', 'true') == 'true')
+        show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
+        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, show_available, show_assigned)
 
         table = tables.PrefixTable(child_prefixes, user=request.user, exclude=('utilization',))
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -483,8 +487,8 @@ class PrefixPrefixesView(generic.ObjectView):
             'bulk_querystring': bulk_querystring,
             'active_tab': 'prefixes',
             'first_available_prefix': instance.get_first_available_prefix(),
-            'show_available': request.GET.get('show_available', 'true') == 'true',
-            'show_assigned': request.GET.get('show_assigned', 'true') == 'true',
+            'show_available': show_available,
+            'show_assigned': show_assigned,
         }
 
 
