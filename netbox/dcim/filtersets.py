@@ -1260,7 +1260,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         method='filter_device',
         field_name='device__rack_id'
     )
-    rack = MultiValueNumberFilter(
+    rack = MultiValueCharFilter(
         method='filter_device',
         field_name='device__rack__name'
     )
@@ -1268,7 +1268,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         method='filter_device',
         field_name='device__site_id'
     )
-    site = MultiValueNumberFilter(
+    site = MultiValueCharFilter(
         method='filter_device',
         field_name='device__site__slug'
     )

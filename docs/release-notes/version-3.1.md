@@ -1,9 +1,16 @@
 # NetBox v3.1
 
-## v3.1.1 (FUTURE)
+## v3.1.1 (2021-12-13)
+
+### Enhancements
+
+* [#8047](https://github.com/netbox-community/netbox/issues/8047) - Display sorting indicator in table column headers
 
 ### Bug Fixes
 
+* [#5869](https://github.com/netbox-community/netbox/issues/5869) - Fix permissions evaluation under available prefix/IP REST API endpoints
+* [#7519](https://github.com/netbox-community/netbox/issues/7519) - Return a 409 status for unfulfillable available prefix/IP requests
+* [#7690](https://github.com/netbox-community/netbox/issues/7690) - Fix custom field integer support for MultiValueNumberFilter
 * [#7990](https://github.com/netbox-community/netbox/issues/7990) - Fix `title` display on contact detail view
 * [#7996](https://github.com/netbox-community/netbox/issues/7996) - Show WWN field in interface creation form
 * [#8001](https://github.com/netbox-community/netbox/issues/8001) - Correct verbose name for wireless LAN group model
@@ -14,6 +21,10 @@
 * [#8019](https://github.com/netbox-community/netbox/issues/8019) - Exclude metrics endpoint when `LOGIN_REQUIRED` is true
 * [#8030](https://github.com/netbox-community/netbox/issues/8030) - Validate custom field names
 * [#8033](https://github.com/netbox-community/netbox/issues/8033) - Fix display of zero values for custom integer fields in tables
+* [#8035](https://github.com/netbox-community/netbox/issues/8035) - Redirect back to parent prefix after creating IP address(es) where applicable
+* [#8038](https://github.com/netbox-community/netbox/issues/8038) - Placeholder filter should display zero integer values
+* [#8042](https://github.com/netbox-community/netbox/issues/8042) - Fix filtering cables list by site slug or rack name
+* [#8051](https://github.com/netbox-community/netbox/issues/8051) - Contact group parent assignment should not be required under REST API
 
 ---
 

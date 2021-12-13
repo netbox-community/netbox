@@ -32,7 +32,7 @@ def placeholder(value):
     """
     Render a muted placeholder if value equates to False.
     """
-    if value:
+    if value not in ('', None):
         return value
     placeholder = '<span class="text-muted">&mdash;</span>'
     return mark_safe(placeholder)

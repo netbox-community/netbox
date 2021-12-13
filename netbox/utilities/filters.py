@@ -17,9 +17,10 @@ def multivalue_field_factory(field_class):
         def to_python(self, value):
             if not value:
                 return []
+            field = field_class()
             return [
                 # Only append non-empty values (this avoids e.g. trying to cast '' as an integer)
-                super(field_class, self).to_python(v) for v in value if v
+                field.to_python(v) for v in value if v
             ]
 
     return type('MultiValue{}'.format(field_class.__name__), (NewField,), dict())
@@ -50,15 +51,15 @@ class MultiValueTimeFilter(django_filters.MultipleChoiceFilter):
 
 
 class MACAddressFilter(django_filters.CharFilter):
-    field_class = MACAddressField
+    pass
 
 
 class MultiValueMACAddressFilter(django_filters.MultipleChoiceFilter):
-    field_class = multivalue_field_factory(MACAddressField)
+    field_class = multivalue_field_factory(forms.CharField)
 
 
 class MultiValueWWNFilter(django_filters.MultipleChoiceFilter):
-    field_class = multivalue_field_factory(MACAddressField)
+    field_class = multivalue_field_factory(forms.CharField)
 
 
 class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):

@@ -235,6 +235,16 @@ table {
     }
   }
 
+  th.asc a::after {
+    content: "\f0140";
+    font-family: 'Material Design Icons';
+  }
+
+  th.desc a::after {
+    content: "\f0143";
+    font-family: 'Material Design Icons';
+  }
+
   &.table > :not(caption) > * > * {
     padding-right: $table-cell-padding-x-sm !important;
     padding-left: $table-cell-padding-x-sm !important;

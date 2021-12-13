@@ -31,9 +31,6 @@ class ClusterGroupFilterForm(CustomFieldModelFilterForm):
 
 class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = Cluster
-    field_order = [
-        'q', 'type_id', 'region_id', 'site_id', 'group_id', 'tenant_group_id', 'tenant_id',
-    ]
     field_groups = [
         ['q', 'tag'],
         ['group_id', 'type_id'],

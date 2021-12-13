@@ -277,10 +277,6 @@ class IPRangeFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
 
 class IPAddressFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = IPAddress
-    field_order = [
-        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'role',
-        'assigned_to_interface', 'tenant_group_id', 'tenant_id',
-    ]
     field_groups = [
         ['q', 'tag'],
         ['parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface'],
