@@ -55,14 +55,16 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
         """
         Return any additional context data for the template.
 
-        request: The current request
-        instance: The object being viewed
+        :param request: The current request
+        :param instance: The object being viewed
         """
         return {}
 
     def get(self, request, *args, **kwargs):
         """
-        Generic GET handler for accessing an object by PK or slug
+        GET request handler. *args and **kwargs are passed to identify the object being queried.
+
+        :param request: The current request
         """
         instance = get_object_or_404(self.queryset, **kwargs)
 
@@ -78,10 +80,11 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
     queryset: The queryset of objects to display. Note: Prefetching related objects is not necessary, as the
       table will prefetch objects as needed depending on the columns being displayed.
-    filter: A django-filter FilterSet that is applied to the queryset
-    filter_form: The form used to render filter options
+    filterset: A django-filter FilterSet that is applied to the queryset
+    filterset_form: The form used to render filter options
     table: The django-tables2 Table used to render the objects list
     template_name: The name of the template
+    action_buttons: A list of buttons to include at the top of the page
     """
     queryset = None
     filterset = None
@@ -94,6 +97,13 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         return get_permission_for_model(self.queryset.model, 'view')
 
     def get_table(self, request, permissions):
+        """
+        Return the django-tables2 Table instance to be used for rendering the objects list.
+
+        :param request: The current request
+        :param permissions: A dictionary mapping of the view, add, change, and delete permissions to booleans indicating
+            whether the user has each
+        """
         table = self.table(self.queryset, user=request.user)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
@@ -143,7 +153,20 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
             return redirect(request.path)
 
+    def get_extra_context(self, request):
+        """
+        Return any additional context data for the template.
+
+        :param request: The current request
+        """
+        return {}
+
     def get(self, request):
+        """
+        GET request handler.
+
+        :param request: The current request
+        """
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
 
@@ -192,19 +215,16 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             'action_buttons': self.action_buttons,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
-        context.update(self.extra_context())
+        context.update(self.get_extra_context(request))
 
         return render(request, self.template_name, context)
-
-    def extra_context(self):
-        return {}
 
 
 class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create or edit a single object.
 
-    queryset: The base queryset for the object being modified
+    queryset: The base QuerySet for the object being modified
     model_form: The form used to create or edit the object
     template_name: The name of the template
     """
@@ -217,25 +237,31 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         # we are modifying an existing object or creating a new one.
         return get_permission_for_model(self.queryset.model, self._permission_action)
 
-    def get_object(self, kwargs):
-        # Look up an existing object by slug or PK, if provided.
-        if 'slug' in kwargs:
-            obj = get_object_or_404(self.queryset, slug=kwargs['slug'])
-        elif 'pk' in kwargs:
-            obj = get_object_or_404(self.queryset, pk=kwargs['pk'])
-        # Otherwise, return a new instance.
-        else:
-            return self.queryset.model()
+    def get_object(self, **kwargs):
+        """
+        Return an instance for editing. If a PK has been specified, this will be an existing object.
 
-        # Take a snapshot of change-logged models
-        if hasattr(obj, 'snapshot'):
-            obj.snapshot()
+        :param kwargs: URL path kwargs
+        """
+        if 'pk' in kwargs:
+            obj = get_object_or_404(self.queryset, **kwargs)
+            # Take a snapshot of change-logged models
+            if hasattr(obj, 'snapshot'):
+                obj.snapshot()
+            return obj
 
-        return obj
+        return self.queryset.model()
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
-        # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
-        # given some parameter from the request URL.
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        """
+        Provides a hook for views to modify an object before it is processed. For example, a parent object can be
+        defined given some parameter from the request URL.
+
+        :param obj: The object being edited
+        :param request: The current request
+        :param url_args: URL path args
+        :param url_kwargs: URL path kwargs
+        """
         return obj
 
     def dispatch(self, request, *args, **kwargs):
@@ -245,7 +271,13 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+        """
+        GET request handler.
+
+        :param request: The current request
+        """
+        obj = self.get_object(**kwargs)
+        obj = self.alter_object(obj, request, args, kwargs)
 
         initial_data = normalize_querydict(request.GET)
         form = self.model_form(instance=obj, initial=initial_data)
@@ -259,8 +291,15 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
     def post(self, request, *args, **kwargs):
+        """
+        POST request handler.
+
+        :param request: The current request
+        """
         logger = logging.getLogger('netbox.views.ObjectEditView')
-        obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+        obj = self.get_object(**kwargs)
+        obj = self.alter_object(obj, request, args, kwargs)
+
         form = self.model_form(
             data=request.POST,
             files=request.FILES,
@@ -334,12 +373,13 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
 
-    def get_object(self, kwargs):
-        # Look up object by slug if one has been provided. Otherwise, use PK.
-        if 'slug' in kwargs:
-            obj = get_object_or_404(self.queryset, slug=kwargs['slug'])
-        else:
-            obj = get_object_or_404(self.queryset, pk=kwargs['pk'])
+    def get_object(self, **kwargs):
+        """
+        Return an instance for deletion. If a PK has been specified, this will be an existing object.
+
+        :param kwargs: URL path kwargs
+        """
+        obj = get_object_or_404(self.queryset, **kwargs)
 
         # Take a snapshot of change-logged models
         if hasattr(obj, 'snapshot'):
@@ -347,8 +387,13 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
         return obj
 
-    def get(self, request, **kwargs):
-        obj = self.get_object(kwargs)
+    def get(self, request, *args, **kwargs):
+        """
+        GET request handler.
+
+        :param request: The current request
+        """
+        obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
 
         return render(request, self.template_name, {
@@ -358,9 +403,14 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'return_url': self.get_return_url(request, obj),
         })
 
-    def post(self, request, **kwargs):
+    def post(self, request, *args, **kwargs):
+        """
+        POST request handler.
+
+        :param request: The current request
+        """
         logger = logging.getLogger('netbox.views.ObjectDeleteView')
-        obj = self.get_object(kwargs)
+        obj = self.get_object(**kwargs)
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():

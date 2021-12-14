@@ -353,7 +353,7 @@ class ContactAssignmentEditView(generic.ObjectEditView):
     model_form = forms.ContactAssignmentForm
     template_name = 'tenancy/contactassignment_edit.html'
 
-    def alter_obj(self, instance, request, args, kwargs):
+    def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the object based on URL kwargs
             content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))

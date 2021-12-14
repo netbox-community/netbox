@@ -671,7 +671,7 @@ class RackReservationEditView(generic.ObjectEditView):
     queryset = RackReservation.objects.all()
     model_form = forms.RackReservationForm
 
-    def alter_obj(self, obj, request, args, kwargs):
+    def alter_object(self, obj, request, args, kwargs):
         if not obj.pk:
             if 'rack' in request.GET:
                 obj.rack = get_object_or_404(Rack, pk=request.GET.get('rack'))
@@ -2342,7 +2342,7 @@ class CableCreateView(generic.ObjectEditView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
+    def alter_object(self, obj, request, url_args, url_kwargs):
         termination_a_type = url_kwargs.get('termination_a_type')
         termination_a_id = url_kwargs.get('termination_a_id')
         termination_b_type_name = url_kwargs.get('termination_b_type')
@@ -2355,7 +2355,8 @@ class CableCreateView(generic.ObjectEditView):
         return obj
 
     def get(self, request, *args, **kwargs):
-        obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+        obj = self.get_object(**kwargs)
+        obj = self.alter_object(obj, request, args, kwargs)
 
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
@@ -2423,7 +2424,7 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     template_name = 'dcim/connections_list.html'
     action_buttons = ('export',)
 
-    def extra_context(self):
+    def get_extra_context(self, request):
         return {
             'title': 'Console Connections'
         }
@@ -2437,7 +2438,7 @@ class PowerConnectionsListView(generic.ObjectListView):
     template_name = 'dcim/connections_list.html'
     action_buttons = ('export',)
 
-    def extra_context(self):
+    def get_extra_context(self, request):
         return {
             'title': 'Power Connections'
         }
@@ -2451,7 +2452,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     template_name = 'dcim/connections_list.html'
     action_buttons = ('export',)
 
-    def extra_context(self):
+    def get_extra_context(self, request):
         return {
             'title': 'Interface Connections'
         }

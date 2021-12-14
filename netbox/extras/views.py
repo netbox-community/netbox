@@ -472,7 +472,7 @@ class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
 
-    def alter_obj(self, instance, request, args, kwargs):
+    def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the parent object based on URL kwargs
             content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
@@ -510,7 +510,7 @@ class JournalEntryEditView(generic.ObjectEditView):
     queryset = JournalEntry.objects.all()
     model_form = forms.JournalEntryForm
 
-    def alter_obj(self, obj, request, args, kwargs):
+    def alter_object(self, obj, request, args, kwargs):
         if not obj.pk:
             obj.created_by = request.user
         return obj

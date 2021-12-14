@@ -320,7 +320,7 @@ class CircuitTerminationEditView(generic.ObjectEditView):
     model_form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
+    def alter_object(self, obj, request, url_args, url_kwargs):
         if 'circuit' in url_kwargs:
             obj.circuit = get_object_or_404(Circuit, pk=url_kwargs['circuit'])
         return obj

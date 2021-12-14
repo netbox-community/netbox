@@ -721,7 +721,7 @@ class IPAddressEditView(generic.ObjectEditView):
     model_form = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
+    def alter_object(self, obj, request, url_args, url_kwargs):
 
         if 'interface' in request.GET:
             try:
@@ -975,7 +975,7 @@ class FHRPGroupAssignmentEditView(generic.ObjectEditView):
     model_form = forms.FHRPGroupAssignmentForm
     template_name = 'ipam/fhrpgroupassignment_edit.html'
 
-    def alter_obj(self, instance, request, args, kwargs):
+    def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the interface based on URL kwargs
             content_type = get_object_or_404(ContentType, pk=request.GET.get('interface_type'))
@@ -1092,7 +1092,7 @@ class ServiceEditView(generic.ObjectEditView):
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
+    def alter_object(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:
             obj.device = get_object_or_404(
                 Device.objects.restrict(request.user),
