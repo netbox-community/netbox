@@ -509,7 +509,6 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
             'active_tab': 'ip-addresses',
             'first_available_ip': instance.get_first_available_ip(),
-            'show_available': request.GET.get('show_available', 'true') == 'true',
         }
 
 
@@ -557,35 +556,18 @@ class IPRangeView(generic.ObjectView):
     queryset = IPRange.objects.all()
 
 
-class IPRangeIPAddressesView(generic.ObjectView):
+class IPRangeIPAddressesView(generic.ObjectChildrenView):
     queryset = IPRange.objects.all()
+    child_model = IPAddress
+    table = tables.IPAddressTable
     template_name = 'ipam/iprange/ip_addresses.html'
 
+    def get_children(self, request, parent):
+        return parent.get_child_ips().restrict(request.user, 'view')
+
     def get_extra_context(self, request, instance):
-        # Find all IPAddresses within this range
-        ipaddresses = instance.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf')
-
-        # Add available IP addresses to the table if requested
-        # if request.GET.get('show_available', 'true') == 'true':
-        #     ipaddresses = add_available_ipaddresses(instance.prefix, ipaddresses, instance.is_pool)
-
-        ip_table = tables.IPAddressTable(ipaddresses)
-        if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
-            ip_table.columns.show('pk')
-        paginate_table(ip_table, request)
-
-        # Compile permissions list for rendering the object table
-        permissions = {
-            'add': request.user.has_perm('ipam.add_ipaddress'),
-            'change': request.user.has_perm('ipam.change_ipaddress'),
-            'delete': request.user.has_perm('ipam.delete_ipaddress'),
-        }
-
         return {
-            'ip_table': ip_table,
-            'permissions': permissions,
             'active_tab': 'ip-addresses',
-            'show_available': request.GET.get('show_available', 'true') == 'true',
         }
 
 
