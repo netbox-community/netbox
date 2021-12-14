@@ -5,13 +5,23 @@
     {% if paginator.num_pages > 1 %}
       <div class="btn-group btn-group-sm" role="group" aria-label="Pages">
         {% if page.has_previous %}
-          <a href="#" hx-get="{% querystring request page=page.previous_page_number %}" hx-target="#object_list" class="btn btn-outline-secondary">
+          <a href="#"
+             hx-get="{% querystring request page=page.previous_page_number %}"
+             hx-target="#object_list"
+             hx-push-url="true"
+             class="btn btn-outline-secondary"
+          >
             <i class="mdi mdi-chevron-double-left"></i>
           </a>
         {% endif %}
         {% for p in page.smart_pages %}
           {% if p %}
-            <a href="#" hx-get="{% querystring request page=p %}" hx-target="#object_list" class="btn btn-outline-secondary{% if page.number == p %} active{% endif %}">
+            <a href="#"
+               hx-get="{% querystring request page=p %}"
+               hx-target="#object_list"
+               hx-push-url="true"
+               class="btn btn-outline-secondary{% if page.number == p %} active{% endif %}"
+            >
               {{ p }}
             </a>
           {% else %}
@@ -21,7 +31,12 @@
           {% endif %}
         {% endfor %}
         {% if page.has_next %}
-          <a href="#" hx-get="{% querystring request page=page.next_page_number %}" hx-target="#object_list" class="btn btn-outline-secondary">
+          <a href="#"
+             hx-get="{% querystring request page=page.next_page_number %}"
+             hx-target="#object_list"
+             hx-push-url="true"
+             class="btn btn-outline-secondary"
+          >
             <i class="mdi mdi-chevron-double-right"></i>
           </a>
         {% endif %}
@@ -35,7 +50,14 @@
       </button>
       <ul class="dropdown-menu">
         {% for n in page.paginator.get_page_lengths %}
-          <li><a class="dropdown-item" href="#" hx-get="{% querystring request per_page=n %}" hx-target="#object_list">{{ n }}</a></li>
+          <li>
+            <a href="#"
+               hx-get="{% querystring request per_page=n %}"
+               hx-target="#object_list"
+               hx-push-url="true"
+               class="dropdown-item"
+            >{{ n }}</a>
+          </li>
         {% endfor %}
       </ul>
     </div>

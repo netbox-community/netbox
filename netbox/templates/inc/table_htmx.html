@@ -6,7 +6,13 @@
       <tr>
         {% for column in table.columns %}
           {% if column.orderable %}
-            <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}" hx-get="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}" hx-target="#object_list">{{ column.header }}</a></th>
+            <th {{ column.attrs.th.as_html }}>
+              <a href="#"
+                 hx-get="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
+                 hx-target="#object_list"
+                 hx-push-url="true"
+              >{{ column.header }}</a>
+            </th>
           {% else %}
             <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
           {% endif %}
