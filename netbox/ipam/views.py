@@ -955,32 +955,32 @@ class VLANView(generic.ObjectView):
         }
 
 
-class VLANInterfacesView(generic.ObjectView):
+class VLANInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
+    child_model = Interface
+    table = tables.VLANDevicesTable
     template_name = 'ipam/vlan/interfaces.html'
 
-    def get_extra_context(self, request, instance):
-        interfaces = instance.get_interfaces().prefetch_related('device')
-        members_table = tables.VLANDevicesTable(interfaces)
-        paginate_table(members_table, request)
+    def get_children(self, request, parent):
+        return parent.get_interfaces().restrict(request.user, 'view')
 
+    def get_extra_context(self, request, instance):
         return {
-            'members_table': members_table,
             'active_tab': 'interfaces',
         }
 
 
-class VLANVMInterfacesView(generic.ObjectView):
+class VLANVMInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
+    child_model = VMInterface
+    table = tables.VLANVirtualMachinesTable
     template_name = 'ipam/vlan/vminterfaces.html'
 
-    def get_extra_context(self, request, instance):
-        interfaces = instance.get_vminterfaces().prefetch_related('virtual_machine')
-        members_table = tables.VLANVirtualMachinesTable(interfaces)
-        paginate_table(members_table, request)
+    def get_children(self, request, parent):
+        return parent.get_vminterfaces().restrict(request.user, 'view')
 
+    def get_extra_context(self, request, instance):
         return {
-            'members_table': members_table,
             'active_tab': 'vminterfaces',
         }
 
