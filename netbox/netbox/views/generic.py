@@ -73,6 +73,54 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
         })
 
 
+class ObjectChildrenView(ObjectView):
+    """
+    Display a table of child objects associated with the parent object.
+
+    queryset: The base queryset for retrieving the *parent* object
+    table: Table class used to render child objects list
+    template_name: Name of the template to use
+    """
+    queryset = None
+    child_model = None
+    table = None
+    template_name = None
+
+    def get_children(self, request, parent):
+        """
+        Return a QuerySet or iterable of child objects.
+
+        request: The current request
+        parent: The parent object
+        """
+        raise NotImplementedError(f'{self.__class__.__name__} must implement get_children()')
+
+    def get(self, request, *args, **kwargs):
+        """
+        GET handler for rendering child objects.
+        """
+        instance = get_object_or_404(self.queryset, **kwargs)
+        child_objects = self.get_children(request, instance)
+
+        permissions = {}
+        for action in ('change', 'delete'):
+            perm_name = get_permission_for_model(self.child_model, action)
+            permissions[action] = request.user.has_perm(perm_name)
+
+        table = self.table(child_objects, user=request.user)
+        # Determine whether to display bulk action checkboxes
+        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
+            table.columns.show('pk')
+        paginate_table(table, request)
+
+        return render(request, self.get_template_name(), {
+            'object': instance,
+            'table': table,
+            'permissions': permissions,
+            **self.get_extra_context(request, instance),
+        })
+
+
 class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
     List a series of objects.
