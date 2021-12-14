@@ -275,39 +275,32 @@ class AggregateListView(generic.ObjectListView):
 class AggregateView(generic.ObjectView):
     queryset = Aggregate.objects.all()
 
-    def get_extra_context(self, request, instance):
-        # Find all child prefixes contained in this aggregate
-        prefix_list = Prefix.objects.restrict(request.user, 'view').filter(
-            prefix__net_contained_or_equal=str(instance.prefix)
-        ).prefetch_related(
-            'site', 'role'
-        ).order_by(
-            'prefix'
-        )
 
-        # Return List of requested Prefixes
+class AggregatePrefixesView(generic.ObjectChildrenView):
+    queryset = Aggregate.objects.all()
+    child_model = Prefix
+    table = tables.PrefixTable
+    filterset = filtersets.PrefixFilterSet
+    template_name = 'ipam/aggregate/prefixes.html'
+
+    def get_children(self, request, parent):
+        return Prefix.objects.restrict(request.user, 'view').filter(
+            prefix__net_contained_or_equal=str(parent.prefix)
+        ).prefetch_related('site', 'role', 'tenant', 'vlan')
+
+    def prep_table_data(self, request, queryset, parent):
+        # Determine whether to show assigned prefixes, available prefixes, or both
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
-        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, show_available, show_assigned)
 
-        prefix_table = tables.PrefixTable(child_prefixes, exclude=('utilization',))
-        if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
-            prefix_table.columns.show('pk')
-        paginate_table(prefix_table, request)
+        return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
-        # Compile permissions list for rendering the object table
-        permissions = {
-            'add': request.user.has_perm('ipam.add_prefix'),
-            'change': request.user.has_perm('ipam.change_prefix'),
-            'delete': request.user.has_perm('ipam.delete_prefix'),
-        }
-
+    def get_extra_context(self, request, instance):
         return {
-            'prefix_table': prefix_table,
-            'permissions': permissions,
             'bulk_querystring': f'within={instance.prefix}',
-            'show_available': show_available,
-            'show_assigned': show_assigned,
+            'active_tab': 'prefixes',
+            'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
+            'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
 
 
