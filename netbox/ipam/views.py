@@ -462,14 +462,14 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     template_name = 'ipam/prefix/prefixes.html'
 
     def get_children(self, request, parent):
-        child_prefixes = parent.get_child_prefixes().restrict(request.user, 'view')
+        return parent.get_child_prefixes().restrict(request.user, 'view')
 
-        # Add available prefixes if requested
+    def prep_table_data(self, request, queryset, parent):
+        # Determine whether to show assigned prefixes, available prefixes, or both
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
-        child_prefixes = add_requested_prefixes(parent.prefix, child_prefixes, show_available, show_assigned)
 
-        return child_prefixes
+        return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
         return {

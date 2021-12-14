@@ -96,6 +96,16 @@ class ObjectChildrenView(ObjectView):
         """
         raise NotImplementedError(f'{self.__class__.__name__} must implement get_children()')
 
+    def prep_table_data(self, request, queryset, parent):
+        """
+        Provides a hook for subclassed views to modify data before initializing the table.
+
+        :param request: The current request
+        :param queryset: The filtered queryset of child objects
+        :param parent: The parent object
+        """
+        return queryset
+
     def get(self, request, *args, **kwargs):
         """
         GET handler for rendering child objects.
@@ -111,7 +121,7 @@ class ObjectChildrenView(ObjectView):
             perm_name = get_permission_for_model(self.child_model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
-        table = self.table(child_objects, user=request.user)
+        table = self.table(self.prep_table_data(request, child_objects, instance), user=request.user)
         # Determine whether to display bulk action checkboxes
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
