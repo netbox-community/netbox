@@ -96,10 +96,7 @@
         {# Object table #}
         <div class="card">
           <div class="card-body" id="object_list">
-            <div class="table-responsive">
-              {% render_table table 'inc/table_htmx.html' %}
-            </div>
-            {% include 'inc/paginator_htmx.html' with paginator=table.paginator page=table.page %}
+            {% include 'htmx/table.html' %}
           </div>
         </div>
 
