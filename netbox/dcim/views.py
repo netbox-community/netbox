@@ -797,41 +797,49 @@ class DeviceTypeView(generic.ObjectView):
 class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
     child_model = ConsolePortTemplate
     table = tables.ConsolePortTemplateTable
+    filterset = filtersets.ConsolePortTemplateFilterSet
 
 
 class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
     child_model = ConsoleServerPortTemplate
     table = tables.ConsoleServerPortTemplateTable
+    filterset = filtersets.ConsoleServerPortTemplateFilterSet
 
 
 class DeviceTypePowerPortsView(DeviceTypeComponentsView):
     child_model = PowerPortTemplate
     table = tables.PowerPortTemplateTable
+    filterset = filtersets.PowerPortTemplateFilterSet
 
 
 class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
     child_model = PowerOutletTemplate
     table = tables.PowerOutletTemplateTable
+    filterset = filtersets.PowerOutletTemplateFilterSet
 
 
 class DeviceTypeInterfacesView(DeviceTypeComponentsView):
     child_model = InterfaceTemplate
     table = tables.InterfaceTemplateTable
+    filterset = filtersets.InterfaceTemplateFilterSet
 
 
 class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
     child_model = FrontPortTemplate
     table = tables.FrontPortTemplateTable
+    filterset = filtersets.FrontPortTemplateFilterSet
 
 
 class DeviceTypeRearPortsView(DeviceTypeComponentsView):
     child_model = RearPortTemplate
     table = tables.RearPortTemplateTable
+    filterset = filtersets.RearPortTemplateFilterSet
 
 
 class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
     child_model = DeviceBayTemplate
     table = tables.DeviceBayTemplateTable
+    filterset = filtersets.DeviceBayTemplateFilterSet
 
 
 class DeviceTypeEditView(generic.ObjectEditView):
@@ -1328,30 +1336,35 @@ class DeviceView(generic.ObjectView):
 class DeviceConsolePortsView(DeviceComponentsView):
     child_model = ConsolePort
     table = tables.DeviceConsolePortTable
+    filterset = filtersets.ConsolePortFilterSet
     template_name = 'dcim/device/consoleports.html'
 
 
 class DeviceConsoleServerPortsView(DeviceComponentsView):
     child_model = ConsoleServerPort
     table = tables.DeviceConsoleServerPortTable
+    filterset = filtersets.ConsoleServerPortFilterSet
     template_name = 'dcim/device/consoleserverports.html'
 
 
 class DevicePowerPortsView(DeviceComponentsView):
     child_model = PowerPort
     table = tables.DevicePowerPortTable
+    filterset = filtersets.PowerPortFilterSet
     template_name = 'dcim/device/powerports.html'
 
 
 class DevicePowerOutletsView(DeviceComponentsView):
     child_model = PowerOutlet
     table = tables.DevicePowerOutletTable
+    filterset = filtersets.PowerOutletFilterSet
     template_name = 'dcim/device/poweroutlets.html'
 
 
 class DeviceInterfacesView(DeviceComponentsView):
     child_model = Interface
     table = tables.DeviceInterfaceTable
+    filterset = filtersets.InterfaceFilterSet
     template_name = 'dcim/device/interfaces.html'
 
     def get_children(self, request, parent):
@@ -1364,24 +1377,28 @@ class DeviceInterfacesView(DeviceComponentsView):
 class DeviceFrontPortsView(DeviceComponentsView):
     child_model = FrontPort
     table = tables.DeviceFrontPortTable
+    filterset = filtersets.FrontPortFilterSet
     template_name = 'dcim/device/frontports.html'
 
 
 class DeviceRearPortsView(DeviceComponentsView):
     child_model = RearPort
     table = tables.DeviceRearPortTable
+    filterset = filtersets.RearPortFilterSet
     template_name = 'dcim/device/rearports.html'
 
 
 class DeviceDeviceBaysView(DeviceComponentsView):
     child_model = DeviceBay
     table = tables.DeviceDeviceBayTable
+    filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
 
 
 class DeviceInventoryView(DeviceComponentsView):
     child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
+    filterset = filtersets.InventoryItemFilterSet
     template_name = 'dcim/device/inventory.html'
 
 

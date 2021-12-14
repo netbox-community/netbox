@@ -1,21 +1,22 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
-from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Device, Interface, Site
 from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.tables import paginate_table
 from utilities.utils import count_related
+from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
 from .models import ASN
-from .utils import add_available_ipaddresses, add_requested_prefixes, add_available_vlans
+from .utils import add_requested_prefixes, add_available_vlans
 
 
 #
@@ -457,6 +458,7 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = Prefix
     table = tables.PrefixTable
+    filterset = filtersets.PrefixFilterSet
     template_name = 'ipam/prefix/prefixes.html'
 
     def get_children(self, request, parent):
@@ -483,6 +485,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPRange
     table = tables.IPRangeTable
+    filterset = filtersets.IPRangeFilterSet
     template_name = 'ipam/prefix/ip_ranges.html'
 
     def get_children(self, request, parent):
@@ -499,6 +502,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
     table = tables.IPAddressTable
+    filterset = filtersets.IPAddressFilterSet
     template_name = 'ipam/prefix/ip_addresses.html'
 
     def get_children(self, request, parent):
@@ -560,6 +564,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
     queryset = IPRange.objects.all()
     child_model = IPAddress
     table = tables.IPAddressTable
+    filterset = filtersets.IPAddressFilterSet
     template_name = 'ipam/iprange/ip_addresses.html'
 
     def get_children(self, request, parent):
@@ -959,6 +964,7 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = Interface
     table = tables.VLANDevicesTable
+    filterset = InterfaceFilterSet
     template_name = 'ipam/vlan/interfaces.html'
 
     def get_children(self, request, parent):
@@ -974,6 +980,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
+    filterset = VMInterfaceFilterSet
     template_name = 'ipam/vlan/vminterfaces.html'
 
     def get_children(self, request, parent):

@@ -4,6 +4,7 @@ from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from dcim.filtersets import DeviceFilterSet
 from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
@@ -165,6 +166,7 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
     child_model = VirtualMachine
     table = tables.VirtualMachineTable
+    filterset = filtersets.VirtualMachineFilterSet
     template_name = 'virtualization/cluster/virtual_machines.html'
 
     def get_children(self, request, parent):
@@ -180,6 +182,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
     child_model = Device
     table = DeviceTable
+    filterset = DeviceFilterSet
     template_name = 'virtualization/cluster/devices.html'
 
     def get_children(self, request, parent):
@@ -345,6 +348,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     queryset = VirtualMachine.objects.all()
     child_model = VMInterface
     table = tables.VMInterfaceTable
+    filterset = filtersets.VMInterfaceFilterSet
     template_name = 'virtualization/virtualmachine/interfaces.html'
 
     def get_children(self, request, parent):

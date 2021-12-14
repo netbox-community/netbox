@@ -84,11 +84,12 @@ class ObjectChildrenView(ObjectView):
     queryset = None
     child_model = None
     table = None
+    filterset = None
     template_name = None
 
     def get_children(self, request, parent):
         """
-        Return a QuerySet or iterable of child objects.
+        Return a QuerySet of child objects.
 
         request: The current request
         parent: The parent object
@@ -102,6 +103,9 @@ class ObjectChildrenView(ObjectView):
         instance = get_object_or_404(self.queryset, **kwargs)
         child_objects = self.get_children(request, instance)
 
+        if self.filterset:
+            child_objects = self.filterset(request.GET, child_objects).qs
+
         permissions = {}
         for action in ('change', 'delete'):
             perm_name = get_permission_for_model(self.child_model, action)
@@ -112,6 +116,13 @@ class ObjectChildrenView(ObjectView):
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
         paginate_table(table, request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'object': instance,
+                'table': table,
+            })
 
         return render(request, self.get_template_name(), {
             'object': instance,
