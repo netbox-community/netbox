@@ -8,7 +8,7 @@
     {% csrf_token %}
     {% include 'inc/table_controls.html' with table_modal="VirtualMachineVMInterfaceTable_config" %}
     <div class="table-responsive">
-      {% render_table interface_table 'inc/table.html' %}
+      {% render_table table 'inc/table.html' %}
     </div>
     <div class="noprint">
         {% if perms.virtualization.change_vminterface %}
@@ -34,5 +34,5 @@
         <div class="clearfix"></div>
      </div>
   </form>
-  {% table_config_form interface_table %}
+  {% table_config_form table %}
 {% endblock %}

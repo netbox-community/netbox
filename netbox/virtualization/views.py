@@ -161,38 +161,32 @@ class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
 
-class ClusterVirtualMachinesView(generic.ObjectView):
+class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
+    child_model = VirtualMachine
+    table = tables.VirtualMachineTable
     template_name = 'virtualization/cluster/virtual_machines.html'
 
-    def get_extra_context(self, request, instance):
-        virtualmachines = VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=instance)
-        virtualmachines_table = tables.VirtualMachineTable(
-            virtualmachines,
-            exclude=('cluster',),
-            orderable=False
-        )
+    def get_children(self, request, parent):
+        return VirtualMachine.objects.restrict(request.user, 'view').filter(cluster=parent)
 
+    def get_extra_context(self, request, instance):
         return {
-            'virtualmachines_table': virtualmachines_table,
             'active_tab': 'virtual-machines',
         }
 
 
-class ClusterDevicesView(generic.ObjectView):
+class ClusterDevicesView(generic.ObjectChildrenView):
     queryset = Cluster.objects.all()
+    child_model = Device
+    table = DeviceTable
     template_name = 'virtualization/cluster/devices.html'
 
-    def get_extra_context(self, request, instance):
-        devices = Device.objects.restrict(request.user, 'view').filter(cluster=instance).prefetch_related(
-            'site', 'rack', 'tenant', 'device_type__manufacturer'
-        )
-        devices_table = DeviceTable(list(devices), orderable=False)
-        if request.user.has_perm('virtualization.change_cluster'):
-            devices_table.columns.show('pk')
+    def get_children(self, request, parent):
+        return Device.objects.restrict(request.user, 'view').filter(cluster=parent)
 
+    def get_extra_context(self, request, instance):
         return {
-            'devices_table': devices_table,
             'active_tab': 'devices',
         }
 
@@ -347,26 +341,20 @@ class VirtualMachineView(generic.ObjectView):
         }
 
 
-class VirtualMachineInterfacesView(generic.ObjectView):
+class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     queryset = VirtualMachine.objects.all()
+    child_model = VMInterface
+    table = tables.VMInterfaceTable
     template_name = 'virtualization/virtualmachine/interfaces.html'
 
-    def get_extra_context(self, request, instance):
-        interfaces = instance.interfaces.restrict(request.user, 'view').prefetch_related(
+    def get_children(self, request, parent):
+        return parent.interfaces.restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             'tags',
         )
-        interface_table = tables.VirtualMachineVMInterfaceTable(
-            data=interfaces,
-            user=request.user,
-            orderable=False
-        )
-        if request.user.has_perm('virtualization.change_vminterface') or \
-                request.user.has_perm('virtualization.delete_vminterface'):
-            interface_table.columns.show('pk')
 
+    def get_extra_context(self, request, instance):
         return {
-            'interface_table': interface_table,
             'active_tab': 'interfaces',
         }
 
