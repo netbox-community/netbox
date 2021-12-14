@@ -87,7 +87,7 @@
       {% endif %}
 
       {# Object table controls #}
-      {% include 'inc/table_controls.html' with table_modal="ObjectTable_config" %}
+      {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
 
       <form method="post" class="form form-horizontal">
         {% csrf_token %}
