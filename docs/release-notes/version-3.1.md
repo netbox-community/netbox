@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#7674](https://github.com/netbox-community/netbox/issues/7674) - Fix inadvertent application of device type context to virtual machines
+* [#8074](https://github.com/netbox-community/netbox/issues/8074) - Ordering VMs by name should reference naturalized value
 
 ---
 

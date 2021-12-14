@@ -114,6 +114,7 @@ class ClusterTable(BaseTable):
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(
+        order_by=('_name',),
         linkify=True
     )
     status = ChoiceFieldColumn()
