@@ -488,6 +488,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
             'active_tab': 'ip-ranges',
+            'first_available_ip': instance.get_first_available_ip(),
         }
 
 
@@ -1034,19 +1035,6 @@ class ServiceEditView(generic.ObjectEditView):
     queryset = Service.objects.prefetch_related('ipaddresses')
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
-
-    def alter_object(self, obj, request, url_args, url_kwargs):
-        if 'device' in url_kwargs:
-            obj.device = get_object_or_404(
-                Device.objects.restrict(request.user),
-                pk=url_kwargs['device']
-            )
-        elif 'virtualmachine' in url_kwargs:
-            obj.virtual_machine = get_object_or_404(
-                VirtualMachine.objects.restrict(request.user),
-                pk=url_kwargs['virtualmachine']
-            )
-        return obj
 
 
 class ServiceBulkImportView(generic.BulkImportView):

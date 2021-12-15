@@ -6,21 +6,33 @@
     <div class="row mb-2">
       <h5 class="offset-sm-3">Service</h5>
     </div>
-    {% if obj.device %}
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label text-lg-end">Device</label>
-            <div class="col">
-                <input class="form-control" value="{{ obj.device }}" disabled />
-            </div>
-        </div>
-    {% else %}
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label text-lg-end">Virtual Machine</label>
-            <div class="col">
-                <input class="form-control" value="{{ obj.virtual_machine }}" disabled />
-            </div>
-        </div>
-    {% endif %}
+
+    <div class="row mb-2">
+      <div class="offset-sm-3">
+        <ul class="nav nav-pills" role="tablist">
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="device_tab" data-bs-toggle="tab" aria-controls="device" data-bs-target="#device" class="nav-link {% if not form.initial.virtual_machine %}active{% endif %}">
+              Device
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="vm_tab" data-bs-toggle="tab" aria-controls="vm" data-bs-target="#vm" class="nav-link {% if form.initial.virtual_machine %}active{% endif %}">
+              Virtual Machine
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="tab-content p-0 border-0">
+    {{ form.initial.device }}
+    {{ form.initial.virtual_machine }}
+      <div class="tab-pane {% if not form.initial.virtual_machine %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
+        {% render_field form.device %}
+      </div>
+      <div class="tab-pane {% if form.initial.virtual_machine %}active{% endif %}" id="vm" role="tabpanel" aria-labeled-by="vm_tab">
+        {% render_field form.virtual_machine %}
+      </div>
+    </div>
     {% render_field form.name %}
     <div class="row">
         <label class="col-sm-3 col-form-label text-lg-end">Port(s)</label>

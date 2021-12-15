@@ -347,7 +347,7 @@ class VirtualMachineView(generic.ObjectView):
 class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     queryset = VirtualMachine.objects.all()
     child_model = VMInterface
-    table = tables.VMInterfaceTable
+    table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
     template_name = 'virtualization/virtualmachine/interfaces.html'
 
