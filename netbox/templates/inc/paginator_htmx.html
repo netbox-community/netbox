@@ -2,6 +2,7 @@
 
 <div class="row">
   <div class="col col-md-6 mb-0">
+    {# Page number carousel #}
     {% if paginator.num_pages > 1 %}
       <div class="btn-group btn-group-sm" role="group" aria-label="Pages">
         {% if page.has_previous %}
@@ -44,6 +45,7 @@
     {% endif %}
   </div>
   <div class="col col-md-6 mb-0 text-end">
+    {# Per-page count selector #}
     <div class="dropdown dropup">
       <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
         Per Page
@@ -61,5 +63,10 @@
         {% endfor %}
       </ul>
     </div>
+    {% if page %}
+      <small class="text-end text-muted">
+        Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
+      </small>
+    {% endif %}
   </div>
 </div>
