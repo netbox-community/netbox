@@ -1036,19 +1036,6 @@ class ServiceEditView(generic.ObjectEditView):
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
-        if 'device' in url_kwargs:
-            obj.device = get_object_or_404(
-                Device.objects.restrict(request.user),
-                pk=url_kwargs['device']
-            )
-        elif 'virtualmachine' in url_kwargs:
-            obj.virtual_machine = get_object_or_404(
-                VirtualMachine.objects.restrict(request.user),
-                pk=url_kwargs['virtualmachine']
-            )
-        return obj
-
 
 class ServiceBulkImportView(generic.BulkImportView):
     queryset = Service.objects.all()

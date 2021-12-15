@@ -164,6 +164,7 @@ urlpatterns = [
 
     # Services
     path('services/', views.ServiceListView.as_view(), name='service_list'),
+    path('services/add/', views.ServiceEditView.as_view(), name='service_add'),
     path('services/import/', views.ServiceBulkImportView.as_view(), name='service_import'),
     path('services/edit/', views.ServiceBulkEditView.as_view(), name='service_bulk_edit'),
     path('services/delete/', views.ServiceBulkDeleteView.as_view(), name='service_bulk_delete'),

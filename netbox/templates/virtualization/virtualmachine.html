@@ -167,7 +167,7 @@
             </div>
             {% if perms.ipam.add_service %}
                 <div class="card-footer text-end noprint">
-                    <a href="{% url 'virtualization:virtualmachine_service_assign' virtualmachine=object.pk %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-sm btn-primary">
                         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Service
                     </a>
                 </div>
