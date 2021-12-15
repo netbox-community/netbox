@@ -6,10 +6,14 @@
 {% block content %}
   <form method="post">
     {% csrf_token %}
-    {% include 'inc/table_controls.html' with table_modal="DeviceConsolePortTable_config" %}
-    <div class="table-responsive">
-      {% render_table table 'inc/table.html' %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="DeviceConsolePortTable_config" %}
+
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
     </div>
+
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
             {% if perms.dcim.change_consoleport %}
@@ -38,6 +42,5 @@
         {% endif %}
     </div>
   </form>
-  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
   {% table_config_form table %}
 {% endblock %}

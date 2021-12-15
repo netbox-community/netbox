@@ -1,4 +1,5 @@
 {% extends 'ipam/iprange/base.html' %}
+{% load helpers %}
 
 {% block extra_controls %}
   {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and object.first_available_ip %}
@@ -9,9 +10,30 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col col-md-12">
-      {% include 'utilities/obj_table.html' with heading='IP Addresses' bulk_edit_url='ipam:ipaddress_bulk_edit' bulk_delete_url='ipam:ipaddress_bulk_delete' %}
+  <form method="post">
+    {% csrf_token %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="IPAddressTable_config" %}
+
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
     </div>
-  </div>
+
+    <div class="noprint bulk-buttons">
+      <div class="bulk-button-group">
+        {% if perms.ipam.change_ipaddress %}
+          <button type="submit" name="_edit" formaction="{% url 'ipam:ipaddress_bulk_edit' %}?return_url={% url 'ipam:iprange_ipaddresses' pk=object.pk %}" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+          </button>
+        {% endif %}
+        {% if perms.ipam.delete_ipaddress %}
+          <button type="submit" name="_delete" formaction="{% url 'ipam:ipaddress_bulk_delete' %}?return_url={% url 'ipam:iprange_ipaddresses' pk=object.pk %}" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+  {% table_config_form table %}
 {% endblock %}

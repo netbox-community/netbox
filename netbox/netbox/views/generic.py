@@ -23,6 +23,7 @@ from utilities.exceptions import AbortTransaction, PermissionsViolation
 from utilities.forms import (
     BootstrapMixin, BulkRenameForm, ConfirmationForm, CSVDataField, CSVFileField, ImportForm, restrict_form_fields,
 )
+from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.tables import paginate_table
 from utilities.utils import normalize_querydict, prepare_cloned_fields
@@ -83,16 +84,27 @@ class ObjectChildrenView(ObjectView):
     queryset = None
     child_model = None
     table = None
+    filterset = None
     template_name = None
 
     def get_children(self, request, parent):
         """
-        Return a QuerySet or iterable of child objects.
+        Return a QuerySet of child objects.
 
         request: The current request
         parent: The parent object
         """
         raise NotImplementedError(f'{self.__class__.__name__} must implement get_children()')
+
+    def prep_table_data(self, request, queryset, parent):
+        """
+        Provides a hook for subclassed views to modify data before initializing the table.
+
+        :param request: The current request
+        :param queryset: The filtered queryset of child objects
+        :param parent: The parent object
+        """
+        return queryset
 
     def get(self, request, *args, **kwargs):
         """
@@ -101,16 +113,26 @@ class ObjectChildrenView(ObjectView):
         instance = get_object_or_404(self.queryset, **kwargs)
         child_objects = self.get_children(request, instance)
 
+        if self.filterset:
+            child_objects = self.filterset(request.GET, child_objects).qs
+
         permissions = {}
         for action in ('change', 'delete'):
             perm_name = get_permission_for_model(self.child_model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
-        table = self.table(child_objects, user=request.user)
+        table = self.table(self.prep_table_data(request, child_objects, instance), user=request.user)
         # Determine whether to display bulk action checkboxes
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
         paginate_table(table, request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'object': instance,
+                'table': table,
+            })
 
         return render(request, self.get_template_name(), {
             'object': instance,
@@ -232,6 +254,12 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         # Render the objects table
         table = self.get_table(request, permissions)
         paginate_table(table, request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
 
         context = {
             'content_type': content_type,

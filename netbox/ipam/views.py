@@ -1,21 +1,22 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
-from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Device, Interface, Site
 from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.tables import paginate_table
 from utilities.utils import count_related
+from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
 from .models import ASN
-from .utils import add_available_ipaddresses, add_requested_prefixes, add_available_vlans
+from .utils import add_requested_prefixes, add_available_vlans
 
 
 #
@@ -274,39 +275,32 @@ class AggregateListView(generic.ObjectListView):
 class AggregateView(generic.ObjectView):
     queryset = Aggregate.objects.all()
 
-    def get_extra_context(self, request, instance):
-        # Find all child prefixes contained in this aggregate
-        prefix_list = Prefix.objects.restrict(request.user, 'view').filter(
-            prefix__net_contained_or_equal=str(instance.prefix)
-        ).prefetch_related(
-            'site', 'role'
-        ).order_by(
-            'prefix'
-        )
 
-        # Return List of requested Prefixes
+class AggregatePrefixesView(generic.ObjectChildrenView):
+    queryset = Aggregate.objects.all()
+    child_model = Prefix
+    table = tables.PrefixTable
+    filterset = filtersets.PrefixFilterSet
+    template_name = 'ipam/aggregate/prefixes.html'
+
+    def get_children(self, request, parent):
+        return Prefix.objects.restrict(request.user, 'view').filter(
+            prefix__net_contained_or_equal=str(parent.prefix)
+        ).prefetch_related('site', 'role', 'tenant', 'vlan')
+
+    def prep_table_data(self, request, queryset, parent):
+        # Determine whether to show assigned prefixes, available prefixes, or both
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
-        child_prefixes = add_requested_prefixes(instance.prefix, prefix_list, show_available, show_assigned)
 
-        prefix_table = tables.PrefixTable(child_prefixes, exclude=('utilization',))
-        if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
-            prefix_table.columns.show('pk')
-        paginate_table(prefix_table, request)
+        return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
-        # Compile permissions list for rendering the object table
-        permissions = {
-            'add': request.user.has_perm('ipam.add_prefix'),
-            'change': request.user.has_perm('ipam.change_prefix'),
-            'delete': request.user.has_perm('ipam.delete_prefix'),
-        }
-
+    def get_extra_context(self, request, instance):
         return {
-            'prefix_table': prefix_table,
-            'permissions': permissions,
             'bulk_querystring': f'within={instance.prefix}',
-            'show_available': show_available,
-            'show_assigned': show_assigned,
+            'active_tab': 'prefixes',
+            'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
+            'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
 
 
@@ -457,17 +451,18 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = Prefix
     table = tables.PrefixTable
+    filterset = filtersets.PrefixFilterSet
     template_name = 'ipam/prefix/prefixes.html'
 
     def get_children(self, request, parent):
-        child_prefixes = parent.get_child_prefixes().restrict(request.user, 'view')
+        return parent.get_child_prefixes().restrict(request.user, 'view')
 
-        # Add available prefixes if requested
+    def prep_table_data(self, request, queryset, parent):
+        # Determine whether to show assigned prefixes, available prefixes, or both
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
-        child_prefixes = add_requested_prefixes(parent.prefix, child_prefixes, show_available, show_assigned)
 
-        return child_prefixes
+        return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
         return {
@@ -483,6 +478,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPRange
     table = tables.IPRangeTable
+    filterset = filtersets.IPRangeFilterSet
     template_name = 'ipam/prefix/ip_ranges.html'
 
     def get_children(self, request, parent):
@@ -499,6 +495,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
     table = tables.IPAddressTable
+    filterset = filtersets.IPAddressFilterSet
     template_name = 'ipam/prefix/ip_addresses.html'
 
     def get_children(self, request, parent):
@@ -560,6 +557,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
     queryset = IPRange.objects.all()
     child_model = IPAddress
     table = tables.IPAddressTable
+    filterset = filtersets.IPAddressFilterSet
     template_name = 'ipam/iprange/ip_addresses.html'
 
     def get_children(self, request, parent):
@@ -959,6 +957,7 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = Interface
     table = tables.VLANDevicesTable
+    filterset = InterfaceFilterSet
     template_name = 'ipam/vlan/interfaces.html'
 
     def get_children(self, request, parent):
@@ -974,6 +973,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     queryset = VLAN.objects.all()
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
+    filterset = VMInterfaceFilterSet
     template_name = 'ipam/vlan/vminterfaces.html'
 
     def get_children(self, request, parent):

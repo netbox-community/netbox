@@ -1688,6 +1688,11 @@ hosted-git-info@^2.1.4, hosted-git-info@^2.8.9:
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
   integrity sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==
 
+htmx.org@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/htmx.org/-/htmx.org-1.6.1.tgz#6f0d59a93fa61cbaa15316c134a2f179045a5778"
+  integrity sha512-i+1k5ee2eFWaZbomjckyrDjUpa3FMDZWufatUSBmmsjXVksn89nsXvr1KLGIdAajiz+ZSL7TE4U/QaZVd2U2sA==
+
 ignore@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"

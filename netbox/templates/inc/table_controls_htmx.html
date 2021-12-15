@@ -1,11 +1,16 @@
+{% load helpers %}
+
 <div class="row mb-3 justify-content-between">
   <div class="table-controls noprint col col-12 col-md-8 col-lg-4">
     <div class="input-group input-group-sm">
       <input
         type="text"
-        class="form-control object-filter"
-        placeholder="Quick find"
-        title="Find in the results below (regular expressions supported)"
+        name="q"
+        class="form-control"
+        placeholder="Quick search"
+        hx-get="{{ request.full_path }}"
+        hx-target="#object_list"
+        hx-trigger="keyup changed delay:500ms"
       />
     </div>
   </div>

@@ -30,6 +30,7 @@
     "cookie": "^0.4.1",
     "dayjs": "^1.10.4",
     "flatpickr": "4.6.3",
+    "htmx.org": "^1.6.1",
     "just-debounce-it": "^1.4.0",
     "masonry-layout": "^4.2.2",
     "query-string": "^6.14.1",

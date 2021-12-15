@@ -3,16 +3,30 @@
 {% load render_table from django_tables2 %}
 
 {% block content %}
-<div class="row">
-  <div class="col col-md-12">
+  <form method="post">
+    {% csrf_token %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="VirtualMachineTable_config" %}
+
     <div class="card">
-      <h5 class="card-header">
-        Virtual Machines
-      </h5>
-      <div class="card-body table-responsive">
-        {% render_table table 'inc/table.html' %}
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
       </div>
     </div>
-  </div>
-</div>
+
+    <div class="noprint bulk-buttons">
+      <div class="bulk-button-group">
+        {% if perms.virtualization.change_virtualmachine %}
+          <button type="submit" name="_edit" formaction="{% url 'virtualization:virtualmachine_bulk_edit' %}?return_url={% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+          </button>
+        {% endif %}
+        {% if perms.virtualization.delete_virtualmachine %}
+          <button type="submit" name="_delete" formaction="{% url 'virtualization:virtualmachine_bulk_delete' %}?return_url={% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+  {% table_config_form table %}
 {% endblock %}

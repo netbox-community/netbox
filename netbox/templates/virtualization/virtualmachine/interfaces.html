@@ -1,15 +1,18 @@
 {% extends 'virtualization/virtualmachine/base.html' %}
 {% load render_table from django_tables2 %}
 {% load helpers %}
-{% load static %}
 
 {% block content %}
   <form method="post">
     {% csrf_token %}
-    {% include 'inc/table_controls.html' with table_modal="VirtualMachineVMInterfaceTable_config" %}
-    <div class="table-responsive">
-      {% render_table table 'inc/table.html' %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="VMInterfaceTable_config" %}
+
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
     </div>
+
     <div class="noprint">
         {% if perms.virtualization.change_vminterface %}
             <button type="submit" name="_rename" formaction="{% url 'virtualization:vminterface_bulk_rename' %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-warning btn-sm">
