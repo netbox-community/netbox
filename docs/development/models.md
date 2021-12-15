@@ -17,12 +17,12 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 * Nesting - These models can be nested recursively to create a hierarchy
 
 | Type               | Change Logging   | Webhooks         | Custom Fields    | Export Templates | Tags             | Journaling       | Nesting          |
-| ------------------ | ---------------- | ---------------- | ---------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| ------------------ | ---------------- | ---------------- |------------------| ---------------- | ---------------- | ---------------- | ---------------- |
 | Primary            | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  |
 | Organizational     | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  |                  |
 | Nested Group       | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  | :material-check: |
 | Component          | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: |                  |                  |
-| Component Template | :material-check: | :material-check: | :material-check: |                  |                  |                  |                  |
+| Component Template | :material-check: | :material-check: |                  |                  |                  |                  |                  |
 
 ## Models Index
 
@@ -44,6 +44,7 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 * [ipam.ASN](../models/ipam/asn.md)
 * [ipam.FHRPGroup](../models/ipam/fhrpgroup.md)
 * [ipam.IPAddress](../models/ipam/ipaddress.md)
+* [ipam.IPRange](../models/ipam/iprange.md)
 * [ipam.Prefix](../models/ipam/prefix.md)
 * [ipam.RouteTarget](../models/ipam/routetarget.md)
 * [ipam.Service](../models/ipam/service.md)

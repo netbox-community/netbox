@@ -6,9 +6,9 @@ Models within each app are stored in either `models.py` or within a submodule un
 
 Each model should define, at a minimum:
 
+* A `Meta` class specifying a deterministic ordering (if ordered by fields other than the primary ID)
 * A `__str__()` method returning a user-friendly string representation of the instance
 * A `get_absolute_url()` method returning an instance's direct URL (using `reverse()`)
-* A `Meta` class specifying a deterministic ordering (if ordered by fields other than the primary ID)
 
 ## 2. Define field choices
 
@@ -16,9 +16,9 @@ If the model has one or more fields with static choices, define those choices in
 
 ## 3. Generate database migrations
 
-Once your model definition is complete, generate database migrations by running `manage.py -n $NAME --no-header`. Always specify a short unique name when generating migrations.
+Once your model definition is complete, generate database migrations by running `manage.py makemigrations -n $NAME --no-header`. Always specify a short unique name when generating migrations.
 
-!!! info
+!!! info "Configuration Required"
     Set `DEVELOPER = True` in your NetBox configuration to enable the creation of new migrations.
 
 ## 4. Add all standard views
@@ -41,9 +41,7 @@ Add the relevant URL path for each view created in the previous step to `urls.py
 
 Each model should have a corresponding FilterSet class defined. This is used to filter UI and API queries. Subclass the appropriate class from `netbox.filtersets` that matches the model's parent class.
 
-Every model FilterSet should define a `q` filter to support general search queries.
-
-## 7. Create the table
+## 7. Create the table class
 
 Create a table class for the model in `tables.py` by subclassing `utilities.tables.BaseTable`. Under the table's `Meta` class, be sure to list both the fields and default columns.
 
@@ -53,7 +51,7 @@ Create the HTML template for the object view. (The other views each typically em
 
 ## 9. Add the model to the navigation menu
 
-For NetBox releases prior to v3.0, add the relevant link(s) to the navigation menu template. For later releases, add the relevant items in `netbox/netbox/navigation_menu.py`.
+Add the relevant navigation menu items in `netbox/netbox/navigation_menu.py`.
 
 ## 10. REST API components
 
@@ -64,7 +62,7 @@ Create the following for each model:
 * API view in `api/views.py`
 * Endpoint route in `api/urls.py`
 
-## 11. GraphQL API components (v3.0+)
+## 11. GraphQL API components
 
 Create a Graphene object type for the model in `graphql/types.py` by subclassing the appropriate class from `netbox.graphql.types`.
 
