@@ -45,9 +45,9 @@
         <h5 class="card-header">Assigned Contacts</h5>
         <div class="card-body table-responsive">
           {% render_table contacts_table 'inc/table.html' %}
+          {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
         </div>
       </div>
-      {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
       {% plugin_full_width_page object %}
     </div>
   </div>

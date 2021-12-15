@@ -3,6 +3,14 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
+{% block extra_controls %}
+  {% if perms.ipam.add_prefix %}
+    <a href="{% url 'ipam:prefix_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Prefix
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
@@ -44,21 +52,12 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Prefixes
-      </h5>
+      <h5 class="card-header">Prefixes</h5>
       <div class="card-body table-responsive">
         {% render_table prefixes_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=prefixes_table.paginator page=prefixes_table.page %}
       </div>
-      {% if perms.ipam.add_prefix %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'ipam:prefix_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Prefix
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=prefixes_table.paginator page=prefixes_table.page %}
     {% plugin_full_width_page object %}
   </div>
 </div>

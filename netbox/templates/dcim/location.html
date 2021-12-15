@@ -10,6 +10,14 @@
   {% endfor %}
 {% endblock %}
 
+{% block extra_controls %}
+  {% if perms.dcim.add_location %}
+    <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Child Location
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
@@ -89,22 +97,13 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Locations
-      </h5>
+      <h5 class="card-header">Locations</h5>
       <div class="card-body table-responsive">
         {% render_table child_locations_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=child_locations_table.paginator page=child_locations_table.page %}
       </div>
-      {% if perms.dcim.add_location %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Location
-          </a>
-        </div>
-      {% endif %}
-      </div>
-      {% include 'inc/paginator.html' with paginator=child_locations_table.paginator page=child_locations_table.page %}
-      {% plugin_full_width_page object %}
+    </div>
+    {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}

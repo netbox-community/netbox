@@ -10,6 +10,14 @@
   {% endfor %}
 {% endblock %}
 
+{% block extra_controls %}
+  {% if perms.wireless.add_wirelesslan %}
+    <a href="{% url 'wireless:wirelesslan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Wireless LAN
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
@@ -58,17 +66,10 @@
       <div class="card-header">Wireless LANs</div>
       <div class="card-body table-responsive">
         {% render_table wirelesslans_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=wirelesslans_table.paginator page=wirelesslans_table.page %}
       </div>
-      {% if perms.wireless.add_wirelesslan %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'wireless:wirelesslan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Wireless LAN
-          </a>
-        </div>
-      {% endif %}
-      </div>
-      {% include 'inc/paginator.html' with paginator=wirelesslans_table.paginator page=wirelesslans_table.page %}
-      {% plugin_full_width_page object %}
+    </div>
+    {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}

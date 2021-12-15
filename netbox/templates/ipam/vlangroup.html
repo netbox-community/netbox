@@ -11,13 +11,12 @@
   {% endif %}
 {% endblock %}
 
-{% block buttons %}
+{% block extra_controls %}
   {% if perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-success">
+    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
     </a>
   {% endif %}
-  {{ block.super }}
 {% endblock %}
 
 {% block content %}
@@ -66,22 +65,12 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        VLANs
-      </h5>
+      <h5 class="card-header">VLANs</h5>
       <div class="card-body table-responsive">
         {% render_table vlans_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=vlans_table.paginator page=vlans_table.page %}
       </div>
-      {% if perms.ipam.add_vlan %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=vlans_table.paginator page=vlans_table.page %}
-    </div>
+  </div>
 </div>
 {% endblock %}
-

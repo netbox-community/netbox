@@ -4,8 +4,16 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
+{% block extra_controls %}
+  {% if perms.circuits.add_circuit %}
+    <a href="{% url 'circuits:circuit_add' %}?provider={{ object.pk }}" class="btn btn-sm btn-primary">
+      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add circuit
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
 {% block content %}
-<div class="row">
+<div class="row mb-3">
 	  <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
@@ -57,28 +65,17 @@
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>
-    <div class="col col-md-12">
-        <div class="card">
-            <h5 class="card-header">
-                Circuits
-            </h5>
-            <div class="card-body table-responsive">
-              {% render_table circuits_table 'inc/table.html' %}
-            </div>
-            {% if perms.circuits.add_circuit %}
-            <div class="card-footer text-end noprint">
-                <a href="{% url 'circuits:circuit_add' %}?provider={{ object.pk }}" class="btn btn-sm btn-primary">
-                    <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add circuit
-                </a>
-            </div>
-            {% endif %}
-        </div>
-        {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
-    </div>
 </div>
-<div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
+<div class="row mb-3">
+  <div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">Circuits</h5>
+      <div class="card-body table-responsive">
+        {% render_table circuits_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
+      </div>
     </div>
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

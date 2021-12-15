@@ -72,22 +72,13 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">
-          Contacts
-        </h5>
+        <h5 class="card-header">Contacts</h5>
         <div class="card-body table-responsive">
           {% render_table contacts_table 'inc/table.html' %}
+          {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
         </div>
-        {% if perms.tenancy.add_contact %}
-          <div class="card-footer text-end noprint">
-            <a href="{% url 'tenancy:contact_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
-              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Contact
-            </a>
-          </div>
-        {% endif %}
-        </div>
-        {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
-        {% plugin_full_width_page object %}
+      </div>
+      {% plugin_full_width_page object %}
     </div>
   </div>
 {% endblock %}

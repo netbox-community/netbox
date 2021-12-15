@@ -3,6 +3,14 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
+{% block extra_controls %}
+  {% if perms.dcim.add_rack %}
+    <a href="{% url 'dcim:rack_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Rack
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
@@ -46,21 +54,12 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Racks
-      </h5>
+      <h5 class="card-header">Racks</h5>
       <div class="card-body table-responsive">
         {% render_table racks_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=racks_table.paginator page=racks_table.page %}
       </div>
-      {% if perms.dcim.add_rack %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:rack_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Rack
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=racks_table.paginator page=racks_table.page %}
     {% plugin_full_width_page object %}
   </div>
 </div>

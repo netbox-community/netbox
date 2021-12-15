@@ -3,6 +3,14 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
+{% block extra_controls %}
+  {% if perms.ipam.add_aggregate %}
+    <a href="{% url 'ipam:aggregate_add' %}?rir={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Aggregate
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
@@ -50,21 +58,12 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Aggregates
-      </h5>
+      <h5 class="card-header">Aggregates</h5>
       <div class="card-body table-responsive">
         {% render_table aggregates_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=aggregates_table.paginator page=aggregates_table.page %}
       </div>
-      {% if perms.ipam.add_aggregate %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'ipam:aggregate_add' %}?rir={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Aggregate
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=aggregates_table.paginator page=aggregates_table.page %}
     {% plugin_full_width_page object %}
   </div>
 </div>
