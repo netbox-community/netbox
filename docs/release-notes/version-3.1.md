@@ -1,5 +1,23 @@
 # NetBox v3.1
 
+## v3.1.2 (FUTURE)
+
+### Enhancements
+
+* [#7665](https://github.com/netbox-community/netbox/issues/7665) - Add toggle to show only available child prefixes
+* [#8057](https://github.com/netbox-community/netbox/issues/8057) - Dynamic object tables using HTMX
+* [#8080](https://github.com/netbox-community/netbox/issues/8080) - Link to NAT IPs for device/VM primary IPs
+
+### Bug Fixes
+
+* [#7674](https://github.com/netbox-community/netbox/issues/7674) - Fix inadvertent application of device type context to virtual machines
+* [#8074](https://github.com/netbox-community/netbox/issues/8074) - Ordering VMs by name should reference naturalized value
+* [#8077](https://github.com/netbox-community/netbox/issues/8077) - Fix exception when attaching image to location, circuit, or power panel
+* [#8078](https://github.com/netbox-community/netbox/issues/8078) - Add missing wireless models to `lsmodels()` in `nbshell`
+* [#8079](https://github.com/netbox-community/netbox/issues/8079) - Fix validation of LLDP neighbors when connected device has an asset tag
+
+---
+
 ## v3.1.1 (2021-12-13)
 
 ### Enhancements

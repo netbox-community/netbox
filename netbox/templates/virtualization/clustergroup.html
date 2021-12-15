@@ -1,6 +1,15 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block extra_controls %}
+  {% if perms.virtualization.add_cluster %}
+    <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Cluster
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
 
 {% block content %}
 <div class="row mb-3">
@@ -40,21 +49,12 @@
 <div class="row">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Clusters
-      </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=clusters_table %}
+      <h5 class="card-header">Clusters</h5>
+      <div class="card-body table-responsive">
+        {% render_table clusters_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=clusters_table.paginator page=clusters_table.page %}
       </div>
-      {% if perms.virtualization.add_cluster %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Cluster
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=clusters_table.paginator page=clusters_table.page %}
     {% plugin_full_width_page object %}
   </div>
 </div>

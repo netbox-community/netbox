@@ -61,6 +61,7 @@ urlpatterns = [
     path('aggregates/edit/', views.AggregateBulkEditView.as_view(), name='aggregate_bulk_edit'),
     path('aggregates/delete/', views.AggregateBulkDeleteView.as_view(), name='aggregate_bulk_delete'),
     path('aggregates/<int:pk>/', views.AggregateView.as_view(), name='aggregate'),
+    path('aggregates/<int:pk>/prefixes/', views.AggregatePrefixesView.as_view(), name='aggregate_prefixes'),
     path('aggregates/<int:pk>/edit/', views.AggregateEditView.as_view(), name='aggregate_edit'),
     path('aggregates/<int:pk>/delete/', views.AggregateDeleteView.as_view(), name='aggregate_delete'),
     path('aggregates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='aggregate_changelog', kwargs={'model': Aggregate}),

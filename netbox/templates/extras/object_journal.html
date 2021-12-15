@@ -24,6 +24,10 @@
       </div>
     </form>
   {% endif %}
-  {% render_table table 'inc/table.html' %}
-  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+  <div class="card">
+    <div class="card-body table-responsive">
+      {% render_table table 'inc/table.html' %}
+      {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+    </div>
+  </div>
 {% endblock %}

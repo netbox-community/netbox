@@ -170,17 +170,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_parent(self, obj):
-
-        # Static mapping of models to their nested serializers
-        if isinstance(obj.parent, Device):
-            serializer = NestedDeviceSerializer
-        elif isinstance(obj.parent, Rack):
-            serializer = NestedRackSerializer
-        elif isinstance(obj.parent, Site):
-            serializer = NestedSiteSerializer
-        else:
-            raise Exception("Unexpected type of parent object for ImageAttachment")
-
+        serializer = get_serializer_for_model(obj.parent, prefix='Nested')
         return serializer(obj.parent, context={'request': self.context['request']}).data
 
 

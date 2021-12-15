@@ -7,11 +7,9 @@
     <form method="post">
         {% csrf_token %}
         <div class="card">
-            <h5 class="card-header">
-                {{ title }}
-            </h5>
-            <div class="card-body table-responsive">
-                {% render_table table 'inc/table.html' %}
+            <h5 class="card-header">{{ title }}</h5>
+            <div class="card-body" id="object_list">
+              {% include 'htmx/table.html' %}
             </div>
             <div class="card-footer noprint">
                 {% if table.rows %}
@@ -37,12 +35,10 @@
     </form>
   {% else %}
     <div class="card">
-        <h5 class="card-header">
-            {{ title }}
-        </h5>
-        <div class="card-body table-responsive">
-            {% render_table table 'inc/table.html' %}
-        </div>
+      <h5 class="card-header">{{ title }}</h5>
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
     </div>
   {% endif %}
 {% endblock content %}

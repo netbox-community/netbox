@@ -195,6 +195,12 @@ class Aggregate(PrimaryModel):
             return self.prefix.version
         return None
 
+    def get_child_prefixes(self):
+        """
+        Return all Prefixes within this Aggregate
+        """
+        return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
+
     def get_utilization(self):
         """
         Determine the prefix utilization of the aggregate and return it as a percentage.

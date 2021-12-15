@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'tenancy:contactrole_list' %}">Contact Roles</a></li>
@@ -42,11 +43,11 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">Assigned Contacts</h5>
-        <div class="card-body">
-          {% include 'inc/table.html' with table=contacts_table %}
+        <div class="card-body table-responsive">
+          {% render_table contacts_table 'inc/table.html' %}
+          {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
         </div>
       </div>
-      {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
       {% plugin_full_width_page object %}
     </div>
   </div>

@@ -1,6 +1,15 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block extra_controls %}
+  {% if perms.dcim.add_devicetype %}
+    <a href="{% url 'dcim:devicetype_add' %}?manufacturer={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Device Type
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
 
 {% block content %}
 <div class="row mb-3">
@@ -46,21 +55,12 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Device Types
-      </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=devicetypes_table %}
+      <h5 class="card-header">Device Types</h5>
+      <div class="card-body table-responsive">
+        {% render_table devicetypes_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=devicetypes_table.paginator page=devicetypes_table.page %}
       </div>
-      {% if perms.dcim.add_devicetype %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:devicetype_add' %}?manufacturer={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add device type
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=devicetypes_table.paginator page=devicetypes_table.page %}
     {% plugin_full_width_page object %}
   </div>
 </div>

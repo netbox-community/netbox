@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -8,6 +9,14 @@
     <li class="breadcrumb-item"><a href="{% url 'dcim:region_list' %}?parent_id={{ region.pk }}">{{ region }}</a></li>
   {% endfor %}
 {% endblock %}
+
+{% block extra_controls %}
+  {% if perms.dcim.add_site %}
+    <a href="{% url 'dcim:site_add' %}?region={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Site
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
 
 {% block content %}
 <div class="row mb-3">
@@ -55,8 +64,8 @@
       <h5 class="card-header">
         Child Regions
       </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=child_regions_table %}
+      <div class="card-body table-responsive">
+        {% render_table child_regions_table 'inc/table.html' %}
       </div>
       {% if perms.dcim.add_region %}
         <div class="card-footer text-end noprint">
@@ -69,25 +78,16 @@
     {% plugin_right_page object %}
 	</div>
 </div>
-<div class="row">
+<div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Sites
-      </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=sites_table %}
+      <h5 class="card-header">Sites</h5>
+      <div class="card-body table-responsive">
+        {% render_table sites_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
       </div>
-      {% if perms.dcim.add_site %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:site_add' %}?region={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Site
-          </a>
-        </div>
-      {% endif %}
-      </div>
-      {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
-      {% plugin_full_width_page object %}
+    </div>
+    {% plugin_full_width_page object %}
   </div>
 </div>
 {% endblock %}

@@ -9,7 +9,15 @@
     <div class="row mb-3 justify-content-between">
       <div class="col col-12 col-lg-4 my-3 my-lg-0 d-flex noprint table-controls">
         <div class="input-group input-group-sm">
-          <input type="text" class="form-control interface-filter" placeholder="Filter" title="Filter text (regular expressions supported)" />
+          <input
+              type="text"
+              name="q"
+              class="form-control"
+              placeholder="Quick search"
+              hx-get="{{ request.full_path }}"
+              hx-target="#object_list"
+              hx-trigger="keyup changed delay:500ms"
+          />
         </div>
       </div>
       <div class="col col-md-3 mb-0 d-flex noprint table-controls">
@@ -34,7 +42,13 @@
         </div>
       </div>
     </div>
-    {% render_table table 'inc/table.html' %}
+
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
+    </div>
+
     <div class="noprint bulk-buttons">
         <div class="bulk-button-group">
         {% if perms.dcim.change_interface %}
@@ -63,6 +77,5 @@
         {% endif %}
     </div>
   </form>
-  {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
   {% table_config_form table %}
 {% endblock %}

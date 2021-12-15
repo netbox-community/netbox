@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -8,6 +9,14 @@
     <li class="breadcrumb-item"><a href="{% url 'dcim:sitegroup_list' %}?parent_id={{ sitegroup.pk }}">{{ sitegroup }}</a></li>
   {% endfor %}
 {% endblock %}
+
+{% block extra_controls %}
+  {% if perms.dcim.add_site %}
+    <a href="{% url 'dcim:site_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Site
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
 
 {% block content %}
 <div class="row mb-3">
@@ -55,8 +64,8 @@
       <h5 class="card-header">
         Child Groups
       </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=child_groups_table %}
+      <div class="card-body table-responsive">
+        {% render_table child_groups_table 'inc/table.html' %}
       </div>
       {% if perms.dcim.add_sitegroup %}
         <div class="card-footer text-end noprint">
@@ -72,21 +81,12 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Sites
-      </h5>
-      <div class="card-body">
-        {% include 'inc/table.html' with table=sites_table %}
+      <h5 class="card-header">Sites</h5>
+      <div class="card-body table-responsive">
+        {% render_table sites_table 'inc/table.html' %}
+        {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
       </div>
-      {% if perms.dcim.add_site %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:site_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Site
-          </a>
-        </div>
-      {% endif %}
     </div>
-    {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
     {% plugin_full_width_page object %}
   </div>
 </div>

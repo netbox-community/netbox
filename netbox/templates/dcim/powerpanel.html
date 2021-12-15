@@ -54,7 +54,7 @@
         <form method="post">
             {% csrf_token %}
             <div class="card">
-                <div class="card-body">
+                <div class="card-body table-responsive">
                     {% render_table powerfeed_table 'inc/table.html' %}
                 </div>
                 <div class="card-footer noprint">

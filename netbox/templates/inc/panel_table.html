@@ -6,11 +6,11 @@
         {{ heading }}
     </h5>
     {% endif %}
-    <div class="card-body">
-    {% if table.rows %}
+    <div class="card-body table-responsive">
+      {% if table.rows %}
         {% render_table table 'inc/table.html' %}
-    {% else %}
+      {% else %}
         <div class="text-muted">None</div>
-    {% endif %}
+      {% endif %}
     </div>
 </div>
