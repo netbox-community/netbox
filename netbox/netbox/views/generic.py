@@ -1305,7 +1305,7 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
         if not selected_objects:
             messages.warning(request, "No {} were selected.".format(self.parent_model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))
-        table = self.table(selected_objects)
+        table = self.table(selected_objects, orderable=False)
 
         if '_create' in request.POST:
             form = self.form(request.POST)
