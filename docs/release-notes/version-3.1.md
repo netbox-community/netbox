@@ -11,6 +11,7 @@
 
 * [#7674](https://github.com/netbox-community/netbox/issues/7674) - Fix inadvertent application of device type context to virtual machines
 * [#8074](https://github.com/netbox-community/netbox/issues/8074) - Ordering VMs by name should reference naturalized value
+* [#8077](https://github.com/netbox-community/netbox/issues/8077) - Fix exception when attaching image to location, circuit, or power panel
 * [#8078](https://github.com/netbox-community/netbox/issues/8078) - Add missing wireless models to `lsmodels()` in `nbshell`
 * [#8079](https://github.com/netbox-community/netbox/issues/8079) - Fix validation of LLDP neighbors when connected device has an asset tag
 
