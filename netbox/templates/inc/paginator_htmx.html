@@ -46,24 +46,24 @@
   </div>
   <div class="col col-md-6 mb-0 text-end">
     {# Per-page count selector #}
-    <div class="dropdown dropup">
-      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-        Per Page
-      </button>
-      <ul class="dropdown-menu">
-        {% for n in page.paginator.get_page_lengths %}
-          <li>
-            <a href="#"
-               hx-get="{% querystring request per_page=n %}"
-               hx-target="#object_list"
-               hx-push-url="true"
-               class="dropdown-item"
-            >{{ n }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
     {% if page %}
+      <div class="dropdown dropup">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          Per Page
+        </button>
+        <ul class="dropdown-menu">
+          {% for n in page.paginator.get_page_lengths %}
+            <li>
+              <a href="#"
+                 hx-get="{% querystring request per_page=n %}"
+                 hx-target="#object_list"
+                 hx-push-url="true"
+                 class="dropdown-item"
+              >{{ n }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
       <small class="text-end text-muted">
         Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
       </small>
