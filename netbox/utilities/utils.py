@@ -53,9 +53,10 @@ def foreground_color(bg_color, dark='000000', light='ffffff'):
     :param dark: RBG color code for dark text
     :param light: RBG color code for light text
     """
+    THRESHOLD = 150
     bg_color = bg_color.strip('#')
     r, g, b = [int(bg_color[c:c + 2], 16) for c in (0, 2, 4)]
-    if r * 0.299 + g * 0.587 + b * 0.114 > 186:
+    if r * 0.299 + g * 0.587 + b * 0.114 > THRESHOLD:
         return dark
     else:
         return light
