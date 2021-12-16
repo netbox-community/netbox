@@ -12,6 +12,22 @@
 * The `asn` query filter for sites now matches against the AS number of assigned ASNs.
 * The `contact_name`, `contact_phone`, and `contact_email` fields have been removed from the site model. Please use the new contact model introduced in NetBox v3.1 to store contact information for sites.
 
+### New Features
+
+#### Custom Status Choices ([#8054](https://github.com/netbox-community/netbox/issues/8054))
+
+Custom choices can be now added to most status fields in NetBox. This is done by defining the `FIELD_CHOICES` configuration parameter to map field identifiers to an iterable of custom choices. These choices are populated automatically when NetBox initializes. For example, the following will add three custom choices for the site status field:
+
+```python
+FIELD_CHOICES = {
+    'dcim.Site.status': (
+        ('foo', 'Foo'),
+        ('bar', 'Bar'),
+        ('baz', 'Baz'),
+    )
+}
+```
+
 ### Enhancements
 
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
