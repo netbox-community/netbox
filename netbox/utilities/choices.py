@@ -1,7 +1,21 @@
+from django.conf import settings
+
+
 class ChoiceSetMeta(type):
     """
     Metaclass for ChoiceSet
     """
+    def __new__(mcs, name, bases, attrs):
+
+        # Extend static choices with any configured choices
+        if 'key' in attrs:
+            try:
+                attrs['CHOICES'].extend(settings.FIELD_CHOICES[attrs['key']])
+            except KeyError:
+                pass
+
+        return super().__new__(mcs, name, bases, attrs)
+
     def __call__(cls, *args, **kwargs):
         # Django will check if a 'choices' value is callable, and if so assume that it returns an iterable
         return getattr(cls, 'CHOICES', ())

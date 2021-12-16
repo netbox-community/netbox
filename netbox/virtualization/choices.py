@@ -6,6 +6,7 @@ from utilities.choices import ChoiceSet
 #
 
 class VirtualMachineStatusChoices(ChoiceSet):
+    key = 'virtualization.VirtualMachine.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
@@ -14,14 +15,14 @@ class VirtualMachineStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
     STATUS_DECOMMISSIONING = 'decommissioning'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_OFFLINE, 'Offline'),
         (STATUS_ACTIVE, 'Active'),
         (STATUS_PLANNED, 'Planned'),
         (STATUS_STAGED, 'Staged'),
         (STATUS_FAILED, 'Failed'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_OFFLINE: 'warning',

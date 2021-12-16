@@ -140,6 +140,41 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 ---
 
+## FIELD_CHOICES
+
+Default: Empty dictionary
+
+Some static choice fields on models can be configured with custom values. This is done by defining `FIELD_CHOICES` as a dictionary mapping model fields to their choices list. Each choice in the list must have a database value and a human-friendly label, and may optionally specify a color.
+
+For example, to specify a custom set of choices for the site status field:
+
+```python
+FIELD_CHOICES = {
+    'dcim.Site.status': (
+        ('foo', 'Foo'),
+        ('bar', 'Bar'),
+        ('baz', 'Baz'),
+    )
+}
+```
+
+These will be appended to the stock choices for the field.
+
+The following model field support configurable choices:
+
+* `circuits.Circuit.status`
+* `dcim.Device.status`
+* `dcim.PowerFeed.status`
+* `dcim.Rack.status`
+* `dcim.Site.status`
+* `ipam.IPAddress.status`
+* `ipam.IPRange.status`
+* `ipam.Prefix.status`
+* `ipam.VLAN.status`
+* `virtualization.VirtualMachine.status`
+
+---
+
 ## HTTP_PROXIES
 
 Default: None

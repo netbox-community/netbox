@@ -17,18 +17,19 @@ class IPAddressFamilyChoices(ChoiceSet):
 #
 
 class PrefixStatusChoices(ChoiceSet):
+    key = 'ipam.Prefix.status'
 
     STATUS_CONTAINER = 'container'
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_CONTAINER, 'Container'),
         (STATUS_ACTIVE, 'Active'),
         (STATUS_RESERVED, 'Reserved'),
         (STATUS_DEPRECATED, 'Deprecated'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_CONTAINER: 'secondary',
@@ -43,16 +44,17 @@ class PrefixStatusChoices(ChoiceSet):
 #
 
 class IPRangeStatusChoices(ChoiceSet):
+    key = 'ipam.IPRange.status'
 
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_ACTIVE, 'Active'),
         (STATUS_RESERVED, 'Reserved'),
         (STATUS_DEPRECATED, 'Deprecated'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_ACTIVE: 'primary',
@@ -66,6 +68,7 @@ class IPRangeStatusChoices(ChoiceSet):
 #
 
 class IPAddressStatusChoices(ChoiceSet):
+    key = 'ipam.IPAddress.status'
 
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
@@ -73,13 +76,13 @@ class IPAddressStatusChoices(ChoiceSet):
     STATUS_DHCP = 'dhcp'
     STATUS_SLAAC = 'slaac'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_ACTIVE, 'Active'),
         (STATUS_RESERVED, 'Reserved'),
         (STATUS_DEPRECATED, 'Deprecated'),
         (STATUS_DHCP, 'DHCP'),
         (STATUS_SLAAC, 'SLAAC'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_ACTIVE: 'primary',
@@ -161,16 +164,17 @@ class FHRPGroupAuthTypeChoices(ChoiceSet):
 #
 
 class VLANStatusChoices(ChoiceSet):
+    key = 'ipam.VLAN.status'
 
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_ACTIVE, 'Active'),
         (STATUS_RESERVED, 'Reserved'),
         (STATUS_DEPRECATED, 'Deprecated'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_ACTIVE: 'primary',

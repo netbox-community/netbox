@@ -6,6 +6,7 @@ from utilities.choices import ChoiceSet
 #
 
 class SiteStatusChoices(ChoiceSet):
+    key = 'dcim.Site.status'
 
     STATUS_PLANNED = 'planned'
     STATUS_STAGING = 'staging'
@@ -13,13 +14,13 @@ class SiteStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
     STATUS_RETIRED = 'retired'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_PLANNED, 'Planned'),
         (STATUS_STAGING, 'Staging'),
         (STATUS_ACTIVE, 'Active'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
         (STATUS_RETIRED, 'Retired'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_PLANNED: 'info',
@@ -67,6 +68,7 @@ class RackWidthChoices(ChoiceSet):
 
 
 class RackStatusChoices(ChoiceSet):
+    key = 'dcim.Rack.status'
 
     STATUS_RESERVED = 'reserved'
     STATUS_AVAILABLE = 'available'
@@ -74,13 +76,13 @@ class RackStatusChoices(ChoiceSet):
     STATUS_ACTIVE = 'active'
     STATUS_DEPRECATED = 'deprecated'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_RESERVED, 'Reserved'),
         (STATUS_AVAILABLE, 'Available'),
         (STATUS_PLANNED, 'Planned'),
         (STATUS_ACTIVE, 'Active'),
         (STATUS_DEPRECATED, 'Deprecated'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_RESERVED: 'warning',
@@ -144,6 +146,7 @@ class DeviceFaceChoices(ChoiceSet):
 
 
 class DeviceStatusChoices(ChoiceSet):
+    key = 'dcim.Device.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
@@ -153,7 +156,7 @@ class DeviceStatusChoices(ChoiceSet):
     STATUS_INVENTORY = 'inventory'
     STATUS_DECOMMISSIONING = 'decommissioning'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_OFFLINE, 'Offline'),
         (STATUS_ACTIVE, 'Active'),
         (STATUS_PLANNED, 'Planned'),
@@ -161,7 +164,7 @@ class DeviceStatusChoices(ChoiceSet):
         (STATUS_FAILED, 'Failed'),
         (STATUS_INVENTORY, 'Inventory'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_OFFLINE: 'warning',
@@ -1183,18 +1186,19 @@ class CableLengthUnitChoices(ChoiceSet):
 #
 
 class PowerFeedStatusChoices(ChoiceSet):
+    key = 'dcim.PowerFeed.status'
 
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
     STATUS_FAILED = 'failed'
 
-    CHOICES = (
+    CHOICES = [
         (STATUS_OFFLINE, 'Offline'),
         (STATUS_ACTIVE, 'Active'),
         (STATUS_PLANNED, 'Planned'),
         (STATUS_FAILED, 'Failed'),
-    )
+    ]
 
     CSS_CLASSES = {
         STATUS_OFFLINE: 'warning',
