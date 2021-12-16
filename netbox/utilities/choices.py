@@ -1,28 +1,56 @@
+from django.conf import settings
+
+
 class ChoiceSetMeta(type):
     """
     Metaclass for ChoiceSet
     """
+    def __new__(mcs, name, bases, attrs):
+
+        # Extend static choices with any configured choices
+        key = attrs.get('key')
+        if key:
+            try:
+                attrs['CHOICES'].extend(settings.FIELD_CHOICES[key])
+            except KeyError:
+                pass
+
+        # Define choice tuples and color maps
+        attrs['_choices'] = []
+        attrs['colors'] = {}
+        for choice in attrs['CHOICES']:
+            if isinstance(choice[1], (list, tuple)):
+                grouped_choices = []
+                for c in choice[1]:
+                    grouped_choices.append((c[0], c[1]))
+                    if len(c) == 3:
+                        attrs['colors'][c[0]] = c[2]
+                attrs['_choices'].append((choice[0], grouped_choices))
+            else:
+                attrs['_choices'].append((choice[0], choice[1]))
+                if len(choice) == 3:
+                    attrs['colors'][choice[0]] = choice[2]
+
+        return super().__new__(mcs, name, bases, attrs)
+
     def __call__(cls, *args, **kwargs):
-        # Django will check if a 'choices' value is callable, and if so assume that it returns an iterable
-        return getattr(cls, 'CHOICES', ())
+        # django-filters will check if a 'choices' value is callable, and if so assume that it returns an iterable
+        return getattr(cls, '_choices', ())
 
     def __iter__(cls):
-        choices = getattr(cls, 'CHOICES', ())
-        return iter(choices)
+        return iter(getattr(cls, '_choices', ()))
 
 
 class ChoiceSet(metaclass=ChoiceSetMeta):
-
+    """
+    Holds an interable of choice tuples suitable for passing to a Django model or form field. Choices can be defined
+    statically within the class as CHOICES and/or gleaned from the FIELD_CHOICES configuration parameter.
+    """
     CHOICES = list()
 
     @classmethod
     def values(cls):
-        return [c[0] for c in unpack_grouped_choices(cls.CHOICES)]
-
-    @classmethod
-    def as_dict(cls):
-        # Unpack grouped choices before casting as a dict
-        return dict(unpack_grouped_choices(cls.CHOICES))
+        return [c[0] for c in unpack_grouped_choices(cls._choices)]
 
 
 def unpack_grouped_choices(choices):

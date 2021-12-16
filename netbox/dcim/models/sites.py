@@ -315,7 +315,7 @@ class Site(PrimaryModel):
         return reverse('dcim:site', args=[self.pk])
 
     def get_status_class(self):
-        return SiteStatusChoices.CSS_CLASSES.get(self.status)
+        return SiteStatusChoices.colors.get(self.status, 'secondary')
 
 
 #

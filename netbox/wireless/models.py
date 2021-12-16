@@ -182,7 +182,7 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         return reverse('wireless:wirelesslink', args=[self.pk])
 
     def get_status_class(self):
-        return LinkStatusChoices.CSS_CLASSES.get(self.status)
+        return LinkStatusChoices.colors.get(self.status)
 
     def clean(self):
 

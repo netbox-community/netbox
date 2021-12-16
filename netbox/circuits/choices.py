@@ -6,6 +6,7 @@ from utilities.choices import ChoiceSet
 #
 
 class CircuitStatusChoices(ChoiceSet):
+    key = 'circuits.Circuit.status'
 
     STATUS_DEPROVISIONING = 'deprovisioning'
     STATUS_ACTIVE = 'active'
@@ -14,23 +15,14 @@ class CircuitStatusChoices(ChoiceSet):
     STATUS_OFFLINE = 'offline'
     STATUS_DECOMMISSIONED = 'decommissioned'
 
-    CHOICES = (
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_PROVISIONING, 'Provisioning'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_OFFLINE, 'Offline'),
-        (STATUS_DEPROVISIONING, 'Deprovisioning'),
-        (STATUS_DECOMMISSIONED, 'Decommissioned'),
-    )
-
-    CSS_CLASSES = {
-        STATUS_DEPROVISIONING: 'warning',
-        STATUS_ACTIVE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_PROVISIONING: 'primary',
-        STATUS_OFFLINE: 'danger',
-        STATUS_DECOMMISSIONED: 'secondary',
-    }
+    CHOICES = [
+        (STATUS_PLANNED, 'Planned', 'info'),
+        (STATUS_PROVISIONING, 'Provisioning', 'primary'),
+        (STATUS_ACTIVE, 'Active', 'success'),
+        (STATUS_OFFLINE, 'Offline', 'danger'),
+        (STATUS_DEPROVISIONING, 'Deprovisioning', 'warning'),
+        (STATUS_DECOMMISSIONED, 'Decommissioned', 'secondary'),
+    ]
 
 
 #

@@ -91,16 +91,10 @@ class ObjectChangeActionChoices(ChoiceSet):
     ACTION_DELETE = 'delete'
 
     CHOICES = (
-        (ACTION_CREATE, 'Created'),
-        (ACTION_UPDATE, 'Updated'),
-        (ACTION_DELETE, 'Deleted'),
+        (ACTION_CREATE, 'Created', 'success'),
+        (ACTION_UPDATE, 'Updated', 'primary'),
+        (ACTION_DELETE, 'Deleted', 'danger'),
     )
-
-    CSS_CLASSES = {
-        ACTION_CREATE: 'success',
-        ACTION_UPDATE: 'primary',
-        ACTION_DELETE: 'danger',
-    }
 
 
 #
@@ -115,18 +109,11 @@ class JournalEntryKindChoices(ChoiceSet):
     KIND_DANGER = 'danger'
 
     CHOICES = (
-        (KIND_INFO, 'Info'),
-        (KIND_SUCCESS, 'Success'),
-        (KIND_WARNING, 'Warning'),
-        (KIND_DANGER, 'Danger'),
+        (KIND_INFO, 'Info', 'info'),
+        (KIND_SUCCESS, 'Success', 'success'),
+        (KIND_WARNING, 'Warning', 'warning'),
+        (KIND_DANGER, 'Danger', 'danger'),
     )
-
-    CSS_CLASSES = {
-        KIND_INFO: 'info',
-        KIND_SUCCESS: 'success',
-        KIND_WARNING: 'warning',
-        KIND_DANGER: 'danger',
-    }
 
 
 #
@@ -142,20 +129,12 @@ class LogLevelChoices(ChoiceSet):
     LOG_FAILURE = 'failure'
 
     CHOICES = (
-        (LOG_DEFAULT, 'Default'),
-        (LOG_SUCCESS, 'Success'),
-        (LOG_INFO, 'Info'),
-        (LOG_WARNING, 'Warning'),
-        (LOG_FAILURE, 'Failure'),
+        (LOG_DEFAULT, 'Default', 'secondary'),
+        (LOG_SUCCESS, 'Success', 'success'),
+        (LOG_INFO, 'Info', 'info'),
+        (LOG_WARNING, 'Warning', 'warning'),
+        (LOG_FAILURE, 'Failure', 'danger'),
     )
-
-    CSS_CLASSES = {
-        LOG_DEFAULT: 'secondary',
-        LOG_SUCCESS: 'success',
-        LOG_INFO: 'info',
-        LOG_WARNING: 'warning',
-        LOG_FAILURE: 'danger',
-    }
 
 
 #

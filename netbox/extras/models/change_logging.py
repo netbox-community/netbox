@@ -105,4 +105,4 @@ class ObjectChange(BigIDModel):
         return reverse('extras:objectchange', args=[self.pk])
 
     def get_action_class(self):
-        return ObjectChangeActionChoices.CSS_CLASSES.get(self.action)
+        return ObjectChangeActionChoices.colors.get(self.action)

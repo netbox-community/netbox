@@ -403,7 +403,7 @@ class Prefix(PrimaryModel):
     prefix_length = property(fset=_set_prefix_length)
 
     def get_status_class(self):
-        return PrefixStatusChoices.CSS_CLASSES.get(self.status)
+        return PrefixStatusChoices.colors.get(self.status, 'secondary')
 
     def get_parents(self, include_self=False):
         """
@@ -692,7 +692,7 @@ class IPRange(PrimaryModel):
     prefix_length = property(fset=_set_prefix_length)
 
     def get_status_class(self):
-        return IPRangeStatusChoices.CSS_CLASSES.get(self.status)
+        return IPRangeStatusChoices.colors.get(self.status, 'secondary')
 
     def get_child_ips(self):
         """
@@ -909,7 +909,7 @@ class IPAddress(PrimaryModel):
     mask_length = property(fset=_set_mask_length)
 
     def get_status_class(self):
-        return IPAddressStatusChoices.CSS_CLASSES.get(self.status)
+        return IPAddressStatusChoices.colors.get(self.status, 'secondary')
 
     def get_role_class(self):
-        return IPAddressRoleChoices.CSS_CLASSES.get(self.role)
+        return IPAddressRoleChoices.colors.get(self.role)

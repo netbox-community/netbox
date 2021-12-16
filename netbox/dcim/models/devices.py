@@ -862,7 +862,7 @@ class Device(PrimaryModel, ConfigContextModel):
         return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
-        return DeviceStatusChoices.CSS_CLASSES.get(self.status)
+        return DeviceStatusChoices.colors.get(self.status, 'secondary')
 
 
 #

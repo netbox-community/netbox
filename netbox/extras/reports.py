@@ -167,8 +167,8 @@ class Report(object):
         """
         Log a message from a test method. Do not call this method directly; use one of the log_* wrappers below.
         """
-        if level not in LogLevelChoices.as_dict():
-            raise Exception("Unknown logging level: {}".format(level))
+        if level not in LogLevelChoices.values():
+            raise Exception(f"Unknown logging level: {level}")
         self._results[self.active_test]['log'].append((
             timezone.now().isoformat(),
             level,
