@@ -34,16 +34,18 @@ class ChoiceSetMeta(type):
         return super().__new__(mcs, name, bases, attrs)
 
     def __call__(cls, *args, **kwargs):
-        # Django will check if a 'choices' value is callable, and if so assume that it returns an iterable
+        # django-filters will check if a 'choices' value is callable, and if so assume that it returns an iterable
         return getattr(cls, '_choices', ())
 
     def __iter__(cls):
-        choices = getattr(cls, '_choices', ())
-        return iter(choices)
+        return iter(getattr(cls, '_choices', ()))
 
 
 class ChoiceSet(metaclass=ChoiceSetMeta):
-
+    """
+    Holds an interable of choice tuples suitable for passing to a Django model or form field. Choices can be defined
+    statically within the class as CHOICES and/or gleaned from the FIELD_CHOICES configuration parameter.
+    """
     CHOICES = list()
 
     @classmethod
