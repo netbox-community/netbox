@@ -16,19 +16,10 @@ class VirtualMachineStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_STAGED, 'Staged'),
-        (STATUS_FAILED, 'Failed'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning'),
+        (STATUS_OFFLINE, 'Offline', 'warning'),
+        (STATUS_ACTIVE, 'Active', 'success'),
+        (STATUS_PLANNED, 'Planned', 'info'),
+        (STATUS_STAGED, 'Staged', 'primary'),
+        (STATUS_FAILED, 'Failed', 'danger'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'warning'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_OFFLINE: 'warning',
-        STATUS_ACTIVE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_STAGED: 'primary',
-        STATUS_FAILED: 'danger',
-        STATUS_DECOMMISSIONING: 'warning',
-    }

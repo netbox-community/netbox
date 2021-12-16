@@ -329,7 +329,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
                     })
 
     def get_status_class(self):
-        return VirtualMachineStatusChoices.CSS_CLASSES.get(self.status)
+        return VirtualMachineStatusChoices.colors.get(self.status, 'secondary')
 
     @property
     def primary_ip(self):

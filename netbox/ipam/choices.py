@@ -25,18 +25,11 @@ class PrefixStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_CONTAINER, 'Container'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_RESERVED, 'Reserved'),
-        (STATUS_DEPRECATED, 'Deprecated'),
+        (STATUS_CONTAINER, 'Container', 'secondary'),
+        (STATUS_ACTIVE, 'Active', 'primary'),
+        (STATUS_RESERVED, 'Reserved', 'info'),
+        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_CONTAINER: 'secondary',
-        STATUS_ACTIVE: 'primary',
-        STATUS_RESERVED: 'info',
-        STATUS_DEPRECATED: 'danger',
-    }
 
 
 #
@@ -51,16 +44,10 @@ class IPRangeStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_RESERVED, 'Reserved'),
-        (STATUS_DEPRECATED, 'Deprecated'),
+        (STATUS_ACTIVE, 'Active', 'primary'),
+        (STATUS_RESERVED, 'Reserved', 'info'),
+        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_ACTIVE: 'primary',
-        STATUS_RESERVED: 'info',
-        STATUS_DEPRECATED: 'danger',
-    }
 
 
 #
@@ -77,20 +64,12 @@ class IPAddressStatusChoices(ChoiceSet):
     STATUS_SLAAC = 'slaac'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_RESERVED, 'Reserved'),
-        (STATUS_DEPRECATED, 'Deprecated'),
-        (STATUS_DHCP, 'DHCP'),
-        (STATUS_SLAAC, 'SLAAC'),
+        (STATUS_ACTIVE, 'Active', 'primary'),
+        (STATUS_RESERVED, 'Reserved', 'info'),
+        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
+        (STATUS_DHCP, 'DHCP', 'success'),
+        (STATUS_SLAAC, 'SLAAC', 'success'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_ACTIVE: 'primary',
-        STATUS_RESERVED: 'info',
-        STATUS_DEPRECATED: 'danger',
-        STATUS_DHCP: 'success',
-        STATUS_SLAAC: 'success',
-    }
 
 
 class IPAddressRoleChoices(ChoiceSet):
@@ -105,26 +84,15 @@ class IPAddressRoleChoices(ChoiceSet):
     ROLE_CARP = 'carp'
 
     CHOICES = (
-        (ROLE_LOOPBACK, 'Loopback'),
-        (ROLE_SECONDARY, 'Secondary'),
-        (ROLE_ANYCAST, 'Anycast'),
+        (ROLE_LOOPBACK, 'Loopback', 'secondary'),
+        (ROLE_SECONDARY, 'Secondary', 'primary'),
+        (ROLE_ANYCAST, 'Anycast', 'warning'),
         (ROLE_VIP, 'VIP'),
-        (ROLE_VRRP, 'VRRP'),
-        (ROLE_HSRP, 'HSRP'),
-        (ROLE_GLBP, 'GLBP'),
-        (ROLE_CARP, 'CARP'),
+        (ROLE_VRRP, 'VRRP', 'success'),
+        (ROLE_HSRP, 'HSRP', 'success'),
+        (ROLE_GLBP, 'GLBP', 'success'),
+        (ROLE_CARP, 'CARP'), 'success',
     )
-
-    CSS_CLASSES = {
-        ROLE_LOOPBACK: 'secondary',
-        ROLE_SECONDARY: 'primary',
-        ROLE_ANYCAST: 'warning',
-        ROLE_VIP: 'success',
-        ROLE_VRRP: 'success',
-        ROLE_HSRP: 'success',
-        ROLE_GLBP: 'success',
-        ROLE_CARP: 'success',
-    }
 
 
 #
@@ -171,16 +139,10 @@ class VLANStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_RESERVED, 'Reserved'),
-        (STATUS_DEPRECATED, 'Deprecated'),
+        (STATUS_ACTIVE, 'Active', 'primary'),
+        (STATUS_RESERVED, 'Reserved', 'info'),
+        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_ACTIVE: 'primary',
-        STATUS_RESERVED: 'info',
-        STATUS_DEPRECATED: 'danger',
-    }
 
 
 #

@@ -15,20 +15,12 @@ class SiteStatusChoices(ChoiceSet):
     STATUS_RETIRED = 'retired'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_STAGING, 'Staging'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning'),
-        (STATUS_RETIRED, 'Retired'),
+        (STATUS_PLANNED, 'Planned', 'info'),
+        (STATUS_STAGING, 'Staging', 'primary'),
+        (STATUS_ACTIVE, 'Active', 'primary'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'warning'),
+        (STATUS_RETIRED, 'Retired', 'danger'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_PLANNED: 'info',
-        STATUS_STAGING: 'primary',
-        STATUS_ACTIVE: 'success',
-        STATUS_DECOMMISSIONING: 'warning',
-        STATUS_RETIRED: 'danger',
-    }
 
 
 #
@@ -77,20 +69,12 @@ class RackStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_RESERVED, 'Reserved'),
-        (STATUS_AVAILABLE, 'Available'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_DEPRECATED, 'Deprecated'),
+        (STATUS_RESERVED, 'Reserved', 'warning'),
+        (STATUS_AVAILABLE, 'Available', 'success'),
+        (STATUS_PLANNED, 'Planned', 'info'),
+        (STATUS_ACTIVE, 'Active', 'primary'),
+        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_RESERVED: 'warning',
-        STATUS_AVAILABLE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_ACTIVE: 'primary',
-        STATUS_DEPRECATED: 'danger',
-    }
 
 
 class RackDimensionUnitChoices(ChoiceSet):
@@ -157,24 +141,14 @@ class DeviceStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_STAGED, 'Staged'),
-        (STATUS_FAILED, 'Failed'),
-        (STATUS_INVENTORY, 'Inventory'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning'),
+        (STATUS_OFFLINE, 'Offline', 'warning'),
+        (STATUS_ACTIVE, 'Active', 'success'),
+        (STATUS_PLANNED, 'Planned', 'info'),
+        (STATUS_STAGED, 'Staged', 'primary'),
+        (STATUS_FAILED, 'Failed', 'danger'),
+        (STATUS_INVENTORY, 'Inventory', 'secondary'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'warning'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_OFFLINE: 'warning',
-        STATUS_ACTIVE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_STAGED: 'primary',
-        STATUS_FAILED: 'danger',
-        STATUS_INVENTORY: 'secondary',
-        STATUS_DECOMMISSIONING: 'warning',
-    }
 
 
 class DeviceAirflowChoices(ChoiceSet):
@@ -1147,16 +1121,10 @@ class LinkStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = (
-        (STATUS_CONNECTED, 'Connected'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning'),
+        (STATUS_CONNECTED, 'Connected', 'success'),
+        (STATUS_PLANNED, 'Planned', 'info'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'warning'),
     )
-
-    CSS_CLASSES = {
-        STATUS_CONNECTED: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_DECOMMISSIONING: 'warning',
-    }
 
 
 class CableLengthUnitChoices(ChoiceSet):
@@ -1194,18 +1162,11 @@ class PowerFeedStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline'),
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_PLANNED, 'Planned'),
-        (STATUS_FAILED, 'Failed'),
+        (STATUS_OFFLINE, 'Offline', 'warning'),
+        (STATUS_ACTIVE, 'Active', 'success'),
+        (STATUS_PLANNED, 'Planned', 'info'),
+        (STATUS_FAILED, 'Failed', 'danger'),
     ]
-
-    CSS_CLASSES = {
-        STATUS_OFFLINE: 'warning',
-        STATUS_ACTIVE: 'success',
-        STATUS_PLANNED: 'info',
-        STATUS_FAILED: 'danger',
-    }
 
 
 class PowerFeedTypeChoices(ChoiceSet):
@@ -1214,14 +1175,9 @@ class PowerFeedTypeChoices(ChoiceSet):
     TYPE_REDUNDANT = 'redundant'
 
     CHOICES = (
-        (TYPE_PRIMARY, 'Primary'),
-        (TYPE_REDUNDANT, 'Redundant'),
+        (TYPE_PRIMARY, 'Primary', 'success'),
+        (TYPE_REDUNDANT, 'Redundant', 'info'),
     )
-
-    CSS_CLASSES = {
-        TYPE_PRIMARY: 'success',
-        TYPE_REDUNDANT: 'info',
-    }
 
 
 class PowerFeedSupplyChoices(ChoiceSet):

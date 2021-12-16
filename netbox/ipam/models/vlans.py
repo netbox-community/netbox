@@ -173,7 +173,7 @@ class VLAN(PrimaryModel):
             })
 
     def get_status_class(self):
-        return VLANStatusChoices.CSS_CLASSES.get(self.status)
+        return VLANStatusChoices.colors.get(self.status, 'secondary')
 
     def get_interfaces(self):
         # Return all device interfaces assigned to this VLAN

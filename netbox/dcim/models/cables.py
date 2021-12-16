@@ -289,7 +289,7 @@ class Cable(PrimaryModel):
         self._pk = self.pk
 
     def get_status_class(self):
-        return LinkStatusChoices.CSS_CLASSES.get(self.status)
+        return LinkStatusChoices.colors.get(self.status)
 
     def get_compatible_types(self):
         """

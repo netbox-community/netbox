@@ -8,20 +8,37 @@ class ChoiceSetMeta(type):
     def __new__(mcs, name, bases, attrs):
 
         # Extend static choices with any configured choices
-        if 'key' in attrs:
+        key = attrs.get('key')
+        if key:
             try:
-                attrs['CHOICES'].extend(settings.FIELD_CHOICES[attrs['key']])
+                attrs['CHOICES'].extend(settings.FIELD_CHOICES[key])
             except KeyError:
                 pass
+
+        # Define choice tuples
+        # TODO: Support optgroup nesting
+        attrs['_choices'] = [
+            (c[0], c[1]) for c in attrs['CHOICES']
+        ]
+
+        # Define color maps
+        # TODO: Support optgroup nesting
+        colors = {}
+        for c in attrs['CHOICES']:
+            try:
+                colors[c[0]] = c[2]
+            except IndexError:
+                pass
+        attrs['colors'] = colors
 
         return super().__new__(mcs, name, bases, attrs)
 
     def __call__(cls, *args, **kwargs):
         # Django will check if a 'choices' value is callable, and if so assume that it returns an iterable
-        return getattr(cls, 'CHOICES', ())
+        return getattr(cls, '_choices', ())
 
     def __iter__(cls):
-        choices = getattr(cls, 'CHOICES', ())
+        choices = getattr(cls, '_choices', ())
         return iter(choices)
 
 

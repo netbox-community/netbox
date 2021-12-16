@@ -440,7 +440,7 @@ class JournalEntry(ChangeLoggedModel):
         return reverse('extras:journalentry', args=[self.pk])
 
     def get_kind_class(self):
-        return JournalEntryKindChoices.CSS_CLASSES.get(self.kind)
+        return JournalEntryKindChoices.colors.get(self.kind)
 
 
 class JobResult(BigIDModel):

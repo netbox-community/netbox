@@ -251,7 +251,7 @@ class Rack(PrimaryModel):
             return reversed(range(1, self.u_height + 1))
 
     def get_status_class(self):
-        return RackStatusChoices.CSS_CLASSES.get(self.status)
+        return RackStatusChoices.colors.get(self.status, 'secondary')
 
     def get_rack_units(self, user=None, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
         """

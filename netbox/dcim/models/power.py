@@ -174,7 +174,7 @@ class PowerFeed(PrimaryModel, PathEndpoint, LinkTermination):
         return self.power_panel
 
     def get_type_class(self):
-        return PowerFeedTypeChoices.CSS_CLASSES.get(self.type)
+        return PowerFeedTypeChoices.colors.get(self.type)
 
     def get_status_class(self):
-        return PowerFeedStatusChoices.CSS_CLASSES.get(self.status)
+        return PowerFeedStatusChoices.colors.get(self.status, 'secondary')

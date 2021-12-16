@@ -135,7 +135,7 @@ class Circuit(PrimaryModel):
         return reverse('circuits:circuit', args=[self.pk])
 
     def get_status_class(self):
-        return CircuitStatusChoices.CSS_CLASSES.get(self.status)
+        return CircuitStatusChoices.colors.get(self.status, 'secondary')
 
 
 @extras_features('webhooks')
