@@ -15,21 +15,21 @@ class ChoiceSetMeta(type):
             except KeyError:
                 pass
 
-        # Define choice tuples
-        # TODO: Support optgroup nesting
-        attrs['_choices'] = [
-            (c[0], c[1]) for c in attrs['CHOICES']
-        ]
-
-        # Define color maps
-        # TODO: Support optgroup nesting
-        colors = {}
-        for c in attrs['CHOICES']:
-            try:
-                colors[c[0]] = c[2]
-            except IndexError:
-                pass
-        attrs['colors'] = colors
+        # Define choice tuples and color maps
+        attrs['_choices'] = []
+        attrs['colors'] = {}
+        for choice in attrs['CHOICES']:
+            if isinstance(choice[1], (list, tuple)):
+                grouped_choices = []
+                for c in choice[1]:
+                    grouped_choices.append((c[0], c[1]))
+                    if len(c) == 3:
+                        attrs['colors'][c[0]] = c[2]
+                attrs['_choices'].append((choice[0], grouped_choices))
+            else:
+                attrs['_choices'].append((choice[0], choice[1]))
+                if len(choice) == 3:
+                    attrs['colors'][choice[0]] = choice[2]
 
         return super().__new__(mcs, name, bases, attrs)
 
@@ -48,12 +48,12 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
 
     @classmethod
     def values(cls):
-        return [c[0] for c in unpack_grouped_choices(cls.CHOICES)]
+        return [c[0] for c in unpack_grouped_choices(cls._choices)]
 
     @classmethod
     def as_dict(cls):
         # Unpack grouped choices before casting as a dict
-        return dict(unpack_grouped_choices(cls.CHOICES))
+        return dict(unpack_grouped_choices(cls._choices))
 
 
 def unpack_grouped_choices(choices):
