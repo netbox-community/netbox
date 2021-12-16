@@ -12,6 +12,10 @@
 * The `asn` query filter for sites now matches against the AS number of assigned ASNs.
 * The `contact_name`, `contact_phone`, and `contact_email` fields have been removed from the site model. Please use the new contact model introduced in NetBox v3.1 to store contact information for sites.
 
+### Enhancements
+
+* [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
+
 ### Other Changes
 
 * [#7731](https://github.com/netbox-community/netbox/issues/7731) - Require Python 3.8 or later

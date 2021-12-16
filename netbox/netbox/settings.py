@@ -73,6 +73,7 @@ SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
+AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only

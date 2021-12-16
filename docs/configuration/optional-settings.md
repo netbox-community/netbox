@@ -13,6 +13,23 @@ ADMINS = [
 
 ---
 
+## AUTH_PASSWORD_VALIDATORS
+
+This parameter acts as a pass-through for configuring Django's built-in password validators for local user accounts. If configured, these will be applied whenever a user's password is updated to ensure that it meets minimum criteria such as length or complexity. An example is provided below. For more detail on the available options, please see [the Django documentation](https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation).
+
+```python
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 10,
+        }
+    },
+]
+```
+
+---
+
 ## BASE_PATH
 
 Default: None

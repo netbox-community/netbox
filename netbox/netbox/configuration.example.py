@@ -72,6 +72,17 @@ ADMINS = [
     # ('John Doe', 'jdoe@example.com'),
 ]
 
+# Enable any desired validators for local account passwords below. For a list of included validators, please see the
+# Django documentation at https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation.
+AUTH_PASSWORD_VALIDATORS = [
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    #     'OPTIONS': {
+    #         'min_length': 10,
+    #     }
+    # },
+]
+
 # Base URL path if accessing NetBox within a directory. For example, if installed at https://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
