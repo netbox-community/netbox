@@ -50,11 +50,6 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
     def values(cls):
         return [c[0] for c in unpack_grouped_choices(cls._choices)]
 
-    @classmethod
-    def as_dict(cls):
-        # Unpack grouped choices before casting as a dict
-        return dict(unpack_grouped_choices(cls._choices))
-
 
 def unpack_grouped_choices(choices):
     """

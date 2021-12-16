@@ -30,8 +30,3 @@ class ChoiceSetTestCase(TestCase):
 
     def test_values(self):
         self.assertListEqual(ExampleChoices.values(), ['a', 'b', 'c', 1, 2, 3])
-
-    def test_as_dict(self):
-        self.assertEqual(ExampleChoices.as_dict(), {
-            'a': 'A', 'b': 'B', 'c': 'C', 1: 'One', 2: 'Two', 3: 'Three'
-        })

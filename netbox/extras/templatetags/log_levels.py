@@ -12,6 +12,6 @@ def log_level(level):
     Display a label indicating a syslog severity (e.g. info, warning, etc.).
     """
     return {
-        'name': LogLevelChoices.as_dict()[level],
+        'name': dict(LogLevelChoices)[level],
         'class': LogLevelChoices.colors.get(level)
     }
