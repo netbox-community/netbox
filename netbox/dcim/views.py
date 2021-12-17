@@ -892,6 +892,10 @@ class DeviceTypeImportView(generic.ObjectImportView):
         ('device-bays', forms.DeviceBayTemplateImportForm),
     ))
 
+    def prep_related_object_data(self, parent, data):
+        data.update({'device_type': parent})
+        return data
+
 
 class DeviceTypeBulkEditView(generic.BulkEditView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
@@ -1008,6 +1012,10 @@ class ModuleTypeImportView(generic.ObjectImportView):
         ('rear-ports', forms.RearPortTemplateImportForm),
         ('front-ports', forms.FrontPortTemplateImportForm),
     ))
+
+    def prep_related_object_data(self, parent, data):
+        data.update({'module_type': parent})
+        return data
 
 
 class ModuleTypeBulkEditView(generic.BulkEditView):
