@@ -2200,7 +2200,7 @@ class RearPortBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ModuleBayListView(generic.ObjectListView):
-    queryset = ModuleBay.objects.all()
+    queryset = ModuleBay.objects.select_related('installed_module__module_type')
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
     table = tables.ModuleBayTable

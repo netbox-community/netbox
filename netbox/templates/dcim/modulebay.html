@@ -12,7 +12,7 @@
             <tr>
               <th scope="row">Device</th>
               <td>
-                <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
+                <a href="{% url 'dcim:device_modulebays' pk=object.device.pk %}">{{ object.device }}</a>
               </td>
             </tr>
             <tr>
@@ -30,26 +30,28 @@
           </table>
         </div>
       </div>
-    {% include 'inc/panels/custom_fields.html' %}
-    {% include 'inc/panels/tags.html' %}
-    {% plugin_left_page object %}
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
       <div class="card">
         <h5 class="card-header">Installed Module</h5>
         <div class="card-body">
-        {% if object.module %}
-          {% with module=object.module %}
+        {% if object.installed_module %}
+          {% with module=object.installed_module %}
             <table class="table table-hover attr-table">
               <tr>
-                <th scope="row">Module</th>
+                <th scope="row">Manufacturer</th>
                 <td>
-                  <a href="{{ module.get_absolute_url }}">{{ module }}</a>
+                  <a href="{{ module.module_type.manufacturer.get_absolute_url }}">{{ module.module_type.manufacturer }}</a>
                 </td>
               </tr>
               <tr>
                 <th scope="row">Module Type</th>
-                <td>{{ module.module_type }}</td>
+                <td>
+                  <a href="{{ module.get_absolute_url }}">{{ module.module_type }}</a>
+                </td>
               </tr>
             </table>
           {% endwith %}
