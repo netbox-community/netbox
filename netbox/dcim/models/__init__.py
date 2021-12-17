@@ -27,6 +27,8 @@ __all__ = (
     'InventoryItem',
     'Location',
     'Manufacturer',
+    'ModuleBay',
+    'ModuleBayTemplate',
     'Platform',
     'PowerFeed',
     'PowerOutlet',

@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
-    Manufacturer, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
+    Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
@@ -16,6 +16,7 @@ __all__ = (
     'FrontPortTemplateTable',
     'InterfaceTemplateTable',
     'ManufacturerTable',
+    'ModuleBayTemplateTable',
     'PowerOutletTemplateTable',
     'PowerPortTemplateTable',
     'RearPortTemplateTable',
@@ -204,6 +205,19 @@ class RearPortTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = RearPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'description', 'actions')
+        empty_text = "None"
+
+
+class ModuleBayTemplateTable(ComponentTemplateTable):
+    actions = ButtonsColumn(
+        model=ModuleBayTemplate,
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_modulebays'
+    )
+
+    class Meta(ComponentTemplateTable.Meta):
+        model = ModuleBayTemplate
+        fields = ('pk', 'name', 'label', 'description', 'actions')
         empty_text = "None"
 
 

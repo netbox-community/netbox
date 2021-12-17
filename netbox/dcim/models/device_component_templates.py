@@ -9,7 +9,7 @@ from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from .device_components import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, PowerOutlet, PowerPort, RearPort,
+    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, ModuleBay, PowerOutlet, PowerPort, RearPort,
 )
 
 
@@ -19,6 +19,7 @@ __all__ = (
     'DeviceBayTemplate',
     'FrontPortTemplate',
     'InterfaceTemplate',
+    'ModuleBayTemplate',
     'PowerOutletTemplate',
     'PowerPortTemplate',
     'RearPortTemplate',
@@ -357,6 +358,23 @@ class RearPortTemplate(ComponentTemplateModel):
             type=self.type,
             color=self.color,
             positions=self.positions
+        )
+
+
+@extras_features('webhooks')
+class ModuleBayTemplate(ComponentTemplateModel):
+    """
+    A template for a ModuleBay to be created for a new parent Device.
+    """
+    class Meta:
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
+
+    def instantiate(self, device):
+        return ModuleBay(
+            device=device,
+            name=self.name,
+            label=self.label
         )
 
 

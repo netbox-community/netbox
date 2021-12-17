@@ -2,8 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem, Platform,
-    PowerOutlet, PowerPort, RearPort, VirtualChassis,
+    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem, ModuleBay,
+    Platform, PowerOutlet, PowerPort, RearPort, VirtualChassis,
 )
 from tenancy.tables import TenantColumn
 from utilities.tables import (
@@ -25,6 +25,7 @@ __all__ = (
     'DeviceImportTable',
     'DeviceInterfaceTable',
     'DeviceInventoryItemTable',
+    'DeviceModuleBayTable',
     'DevicePowerPortTable',
     'DevicePowerOutletTable',
     'DeviceRearPortTable',
@@ -33,6 +34,7 @@ __all__ = (
     'FrontPortTable',
     'InterfaceTable',
     'InventoryItemTable',
+    'ModuleBayTable',
     'PlatformTable',
     'PowerOutletTable',
     'PowerPortTable',
@@ -714,6 +716,35 @@ class DeviceDeviceBayTable(DeviceBayTable):
         default_columns = (
             'pk', 'name', 'label', 'status', 'installed_device', 'description', 'actions',
         )
+
+
+class ModuleBayTable(DeviceComponentTable):
+    device = tables.Column(
+        linkify={
+            'viewname': 'dcim:device_modulebays',
+            'args': [Accessor('device_id')],
+        }
+    )
+    tags = TagColumn(
+        url_name='dcim:modulebay_list'
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = ModuleBay
+        fields = ('pk', 'id', 'name', 'device', 'label', 'description', 'tags')
+        default_columns = ('pk', 'name', 'device', 'label', 'description')
+
+
+class DeviceModuleBayTable(ModuleBayTable):
+    actions = ButtonsColumn(
+        model=ModuleBay,
+        buttons=('edit', 'delete')
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = ModuleBay
+        fields = ('pk', 'id', 'name', 'label', 'description', 'tags', 'actions')
+        default_columns = ('pk', 'name', 'label', 'description', 'actions')
 
 
 class InventoryItemTable(DeviceComponentTable):

@@ -20,6 +20,8 @@ __all__ = [
     'NestedInterfaceTemplateSerializer',
     'NestedInventoryItemSerializer',
     'NestedManufacturerSerializer',
+    'NestedModuleBaySerializer',
+    'NestedModuleBayTemplateSerializer',
     'NestedPlatformSerializer',
     'NestedPowerFeedSerializer',
     'NestedPowerOutletSerializer',
@@ -195,6 +197,14 @@ class NestedFrontPortTemplateSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name']
 
 
+class NestedModuleBayTemplateSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebaytemplate-detail')
+
+    class Meta:
+        model = models.ModuleBayTemplate
+        fields = ['id', 'url', 'display', 'name']
+
+
 class NestedDeviceBayTemplateSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebaytemplate-detail')
 
@@ -296,6 +306,15 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
     class Meta:
         model = models.FrontPort
         fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
+
+
+class NestedModuleBaySerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
+    # module = NestedModuleSerializer(read_only=True)
+
+    class Meta:
+        model = models.DeviceBay
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):

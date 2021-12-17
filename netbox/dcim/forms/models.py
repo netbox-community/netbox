@@ -39,6 +39,8 @@ __all__ = (
     'InventoryItemForm',
     'LocationForm',
     'ManufacturerForm',
+    'ModuleBayForm',
+    'ModuleBayTemplateForm',
     'PlatformForm',
     'PopulateDeviceBayForm',
     'PowerFeedForm',
@@ -984,6 +986,17 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class ModuleBayTemplateForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model = ModuleBayTemplate
+        fields = [
+            'device_type', 'name', 'label', 'description',
+        ]
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceBayTemplate
@@ -1219,6 +1232,22 @@ class RearPortForm(CustomFieldModelForm):
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
+        }
+
+
+class ModuleBayForm(CustomFieldModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ModuleBay
+        fields = [
+            'device', 'name', 'label', 'description', 'tags',
+        ]
+        widgets = {
+            'device': forms.HiddenInput(),
         }
 
 

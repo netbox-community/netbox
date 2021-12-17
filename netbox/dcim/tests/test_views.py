@@ -555,6 +555,19 @@ class DeviceTypeTestCase(
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_modulebays(self):
+        devicetype = DeviceType.objects.first()
+        module_bays = (
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay 1'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay 2'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay 3'),
+        )
+        ModuleBayTemplate.objects.bulk_create(module_bays)
+
+        url = reverse('dcim:devicetype_modulebays', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_devicetype_devicebays(self):
         devicetype = DeviceType.objects.first()
         device_bays = (
@@ -638,6 +651,10 @@ front-ports:
   - name: Front Port 3
     type: 8p8c
     rear_port: Rear Port 3
+module-bays:
+  - name: Module Bay 1
+  - name: Module Bay 2
+  - name: Module Bay 3
 device-bays:
   - name: Device Bay 1
   - name: Device Bay 2
@@ -658,6 +675,7 @@ device-bays:
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
             'dcim.add_devicebaytemplate',
         )
 
@@ -709,6 +727,10 @@ device-bays:
         self.assertEqual(fp1.name, 'Front Port 1')
         self.assertEqual(fp1.rear_port, rp1)
         self.assertEqual(fp1.rear_port_position, 1)
+
+        self.assertEqual(dt.modulebaytemplates.count(), 3)
+        db1 = ModuleBayTemplate.objects.first()
+        self.assertEqual(db1.name, 'Module Bay 1')
 
         self.assertEqual(dt.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
@@ -1011,6 +1033,39 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
         }
 
 
+class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = ModuleBayTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        ModuleBayTemplate.objects.bulk_create((
+            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 1'),
+            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 2'),
+            ModuleBayTemplate(device_type=devicetypes[0], name='Module Bay Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Module Bay Template X',
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Module Bay Template [4-6]',
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'Foo bar',
+        }
+
+
 class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = DeviceBayTemplate
 
@@ -1305,6 +1360,19 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         FrontPort.objects.bulk_create(front_ports)
 
         url = reverse('dcim:device_frontports', kwargs={'pk': device.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_device_modulebays(self):
+        device = Device.objects.first()
+        device_bays = (
+            ModuleBay(device=device, name='Module Bay 1'),
+            ModuleBay(device=device, name='Module Bay 2'),
+            ModuleBay(device=device, name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(device_bays)
+
+        url = reverse('dcim:device_modulebays', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -1805,6 +1873,47 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         response = self.client.get(reverse('dcim:rearport_trace', kwargs={'pk': rearport.pk}))
         self.assertHttpStatus(response, 200)
+
+
+class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = ModuleBay
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        ModuleBay.objects.bulk_create([
+            ModuleBay(device=device, name='Module Bay 1'),
+            ModuleBay(device=device, name='Module Bay 2'),
+            ModuleBay(device=device, name='Module Bay 3'),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Module Bay X',
+            'description': 'A device bay',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Module Bay [4-6]',
+            'description': 'A module bay',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Module Bay 4",
+            "Device 1,Module Bay 5",
+            "Device 1,Module Bay 6",
+        )
 
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):

@@ -25,6 +25,8 @@ __all__ = (
     'InterfaceCreateForm',
     'InterfaceTemplateCreateForm',
     'InventoryItemCreateForm',
+    'ModuleBayCreateForm',
+    'ModuleBayTemplateCreateForm',
     'PowerOutletCreateForm',
     'PowerOutletTemplateCreateForm',
     'PowerPortCreateForm',
@@ -327,6 +329,10 @@ class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
     )
 
 
+class ModuleBayTemplateCreateForm(ComponentTemplateCreateForm):
+    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'description')
+
+
 class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
     field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'description')
 
@@ -617,6 +623,11 @@ class RearPortCreateForm(ComponentCreateForm):
         'device', 'name_pattern', 'label_pattern', 'type', 'color', 'positions', 'mark_connected', 'description',
         'tags',
     )
+
+
+class ModuleBayCreateForm(ComponentCreateForm):
+    model = ModuleBay
+    field_order = ('device', 'name_pattern', 'label_pattern', 'description', 'tags')
 
 
 class DeviceBayCreateForm(ComponentCreateForm):

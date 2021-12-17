@@ -778,6 +778,46 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
+    model = ModuleBayTemplate
+    brief_fields = ['display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
+        )
+
+        module_bay_templates = (
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 1'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 2'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 3'),
+        )
+        ModuleBayTemplate.objects.bulk_create(module_bay_templates)
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Module Bay Template 4',
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Module Bay Template 5',
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Module Bay Template 6',
+            },
+        ]
+
+
 class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBayTemplate
     brief_fields = ['display', 'id', 'name', 'url']
@@ -1365,6 +1405,45 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 'device': device.pk,
                 'name': 'Rear Port 6',
                 'type': PortTypeChoices.TYPE_8P8C,
+            },
+        ]
+
+
+class ModuleBayTest(APIViewTestCases.APIViewTestCase):
+    model = ModuleBay
+    brief_fields = ['display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        devicerole = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
+
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        device = Device.objects.create(device_type=device_type, device_role=devicerole, name='Device 1', site=site)
+
+        device_bays = (
+            ModuleBay(device=device, name='Device Bay 1'),
+            ModuleBay(device=device, name='Device Bay 2'),
+            ModuleBay(device=device, name='Device Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(device_bays)
+
+        cls.create_data = [
+            {
+                'device': device.pk,
+                'name': 'Device Bay 4',
+            },
+            {
+                'device': device.pk,
+                'name': 'Device Bay 5',
+            },
+            {
+                'device': device.pk,
+                'name': 'Device Bay 6',
             },
         ]
 

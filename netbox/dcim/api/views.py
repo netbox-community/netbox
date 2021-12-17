@@ -329,6 +329,12 @@ class RearPortTemplateViewSet(ModelViewSet):
     filterset_class = filtersets.RearPortTemplateFilterSet
 
 
+class ModuleBayTemplateViewSet(ModelViewSet):
+    queryset = ModuleBayTemplate.objects.prefetch_related('device_type__manufacturer')
+    serializer_class = serializers.ModuleBayTemplateSerializer
+    filterset_class = filtersets.ModuleBayTemplateFilterSet
+
+
 class DeviceBayTemplateViewSet(ModelViewSet):
     queryset = DeviceBayTemplate.objects.prefetch_related('device_type__manufacturer')
     serializer_class = serializers.DeviceBayTemplateSerializer
@@ -569,15 +575,22 @@ class RearPortViewSet(PassThroughPortMixin, ModelViewSet):
     brief_prefetch_fields = ['device']
 
 
+class ModuleBayViewSet(ModelViewSet):
+    queryset = ModuleBay.objects.prefetch_related('tags')
+    serializer_class = serializers.ModuleBaySerializer
+    filterset_class = filtersets.ModuleBayFilterSet
+    brief_prefetch_fields = ['device']
+
+
 class DeviceBayViewSet(ModelViewSet):
-    queryset = DeviceBay.objects.prefetch_related('installed_device').prefetch_related('tags')
+    queryset = DeviceBay.objects.prefetch_related('installed_device', 'tags')
     serializer_class = serializers.DeviceBaySerializer
     filterset_class = filtersets.DeviceBayFilterSet
     brief_prefetch_fields = ['device']
 
 
 class InventoryItemViewSet(ModelViewSet):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer').prefetch_related('tags')
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'tags')
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filtersets.InventoryItemFilterSet
     brief_prefetch_fields = ['device']

@@ -161,6 +161,7 @@ DEVICES_MENU = Menu(
                 get_model_item('dcim', 'consoleserverport', 'Console Server Ports', actions=['import']),
                 get_model_item('dcim', 'powerport', 'Power Ports', actions=['import']),
                 get_model_item('dcim', 'poweroutlet', 'Power Outlets', actions=['import']),
+                get_model_item('dcim', 'modulebay', 'Module Bays', actions=['import']),
                 get_model_item('dcim', 'devicebay', 'Device Bays', actions=['import']),
                 get_model_item('dcim', 'inventoryitem', 'Inventory Items', actions=['import']),
             ),

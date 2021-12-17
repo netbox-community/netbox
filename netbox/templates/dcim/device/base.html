@@ -71,6 +71,13 @@
                 {% endif %}
                 {% if perms.dcim.add_devicebay %}
                     <li>
+                        <a class="dropdown-item" href="{% url 'dcim:modulebay_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_modulebays' pk=object.pk %}">
+                            Module Bays
+                        </a>
+                    </li>
+                {% endif %}
+                {% if perms.dcim.add_devicebay %}
+                    <li>
                         <a class="dropdown-item" href="{% url 'dcim:devicebay_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_devicebays' pk=object.pk %}">
                             Device Bays
                         </a>
@@ -147,6 +154,14 @@
         {% if poweroutlet_count %}
             <li role="presentation" class="nav-item">
                 <a class="nav-link {% if active_tab == 'power-outlets' %} active{% endif %}" href="{% url 'dcim:device_poweroutlets' pk=object.pk %}">Power Outlets {% badge poweroutlet_count %}</a>
+            </li>
+        {% endif %}
+    {% endwith %}
+
+    {% with modulebay_count=object.modulebays.count %}
+        {% if modulebay_count %}
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if active_tab == 'module-bays' %} active{% endif %}" href="{% url 'dcim:device_modulebays' pk=object.pk %}">Module Bays {% badge modulebay_count %}</a>
             </li>
         {% endif %}
     {% endwith %}

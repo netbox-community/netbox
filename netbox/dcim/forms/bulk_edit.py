@@ -7,7 +7,6 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
-from ipam.constants import BGP_ASN_MIN, BGP_ASN_MAX
 from ipam.models import VLAN, ASN
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -33,6 +32,8 @@ __all__ = (
     'InventoryItemBulkEditForm',
     'LocationBulkEditForm',
     'ManufacturerBulkEditForm',
+    'ModuleBayBulkEditForm',
+    'ModuleBayTemplateBulkEditForm',
     'PlatformBulkEditForm',
     'PowerFeedBulkEditForm',
     'PowerOutletBulkEditForm',
@@ -823,6 +824,23 @@ class RearPortTemplateBulkEditForm(BulkEditForm):
         nullable_fields = ('description',)
 
 
+class ModuleBayTemplateBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ModuleBayTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
+    description = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ('label', 'description')
+
+
 class DeviceBayTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBayTemplate.objects.all(),
@@ -1069,6 +1087,20 @@ class RearPortBulkEditForm(
 ):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+
+    class Meta:
+        nullable_fields = ['label', 'description']
+
+
+class ModuleBayBulkEditForm(
+    form_from_model(DeviceBay, ['label', 'description']),
+    AddRemoveTagsForm,
+    CustomFieldModelBulkEditForm
+):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ModuleBay.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
 

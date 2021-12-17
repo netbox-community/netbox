@@ -1,0 +1,43 @@
+{% extends 'dcim/device/base.html' %}
+{% load render_table from django_tables2 %}
+{% load helpers %}
+{% load static %}
+
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="DeviceModuleBayTable_config" %}
+
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
+    </div>
+
+    <div class="noprint bulk-buttons">
+        <div class="bulk-button-group">
+            {% if perms.dcim.change_modulebay %}
+                <button type="submit" name="_rename" formaction="{% url 'dcim:modulebay_bulk_rename' %}?return_url={{ object.get_absolute_url }}%23tab_modulebays" class="btn btn-outline-warning btn-sm">
+                    <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+                </button>
+                <button type="submit" name="_edit" formaction="{% url 'dcim:modulebay_bulk_edit' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_modulebays" class="btn btn-warning btn-sm">
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+                </button>
+            {% endif %}
+            {% if perms.dcim.delete_modulebay %}
+                <button type="submit" formaction="{% url 'dcim:modulebay_bulk_delete' %}?return_url={{ object.get_absolute_url }}%23tab_modulebays" class="btn btn-outline-danger btn-sm">
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete selected
+                </button>
+            {% endif %}
+        </div>
+        {% if perms.dcim.add_modulebay %}
+            <div class="bulk-button-group">
+                <a href="{% url 'dcim:modulebay_add' %}?device={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_modulebays" class="btn btn-primary btn-sm">
+                    <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Module Bays
+                </a>
+            </div>
+        {% endif %}
+    </div>
+  </form>
+  {% table_config_form table %}
+{% endblock %}

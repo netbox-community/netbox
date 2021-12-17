@@ -26,6 +26,7 @@ __all__ = (
     'InventoryItemCSVForm',
     'LocationCSVForm',
     'ManufacturerCSVForm',
+    'ModuleBayCSVForm',
     'PlatformCSVForm',
     'PowerFeedCSVForm',
     'PowerOutletCSVForm',
@@ -676,6 +677,17 @@ class RearPortCSVForm(CustomFieldModelCSVForm):
         help_texts = {
             'positions': 'Number of front ports which may be mapped'
         }
+
+
+class ModuleBayCSVForm(CustomFieldModelCSVForm):
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name'
+    )
+
+    class Meta:
+        model = ModuleBay
+        fields = ('device', 'name', 'label', 'description')
 
 
 class DeviceBayCSVForm(CustomFieldModelCSVForm):

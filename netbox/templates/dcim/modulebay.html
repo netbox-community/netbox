@@ -1,0 +1,69 @@
+{% extends 'dcim/device_component.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Module Bay</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Device</th>
+              <td>
+                <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Label</th>
+              <td>{{ object.label|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    {% include 'inc/panels/custom_fields.html' %}
+    {% include 'inc/panels/tags.html' %}
+    {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Installed Module</h5>
+        <div class="card-body">
+        {% if object.module %}
+          {% with module=object.module %}
+            <table class="table table-hover attr-table">
+              <tr>
+                <th scope="row">Module</th>
+                <td>
+                  <a href="{{ module.get_absolute_url }}">{{ module }}</a>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Module Type</th>
+                <td>{{ module.module_type }}</td>
+              </tr>
+            </table>
+          {% endwith %}
+        {% else %}
+          <div class="text-muted">None</div>
+        {% endif %}
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

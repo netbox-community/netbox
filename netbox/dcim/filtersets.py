@@ -41,6 +41,8 @@ __all__ = (
     'InventoryItemFilterSet',
     'LocationFilterSet',
     'ManufacturerFilterSet',
+    'ModuleBayFilterSet',
+    'ModuleBayTemplateFilterSet',
     'PathEndpointFilterSet',
     'PlatformFilterSet',
     'PowerConnectionFilterSet',
@@ -447,6 +449,10 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    module_bays = django_filters.BooleanFilter(
+        method='_module_bays',
+        label='Has module bays',
+    )
     device_bays = django_filters.BooleanFilter(
         method='_device_bays',
         label='Has device bays',
@@ -489,6 +495,9 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
             frontporttemplates__isnull=value,
             rearporttemplates__isnull=value
         )
+
+    def _module_bays(self, queryset, name, value):
+        return queryset.exclude(modulebaytemplates__isnull=value)
 
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebaytemplates__isnull=value)
@@ -574,6 +583,13 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentF
     class Meta:
         model = RearPortTemplate
         fields = ['id', 'name', 'type', 'color', 'positions']
+
+
+class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = ModuleBayTemplate
+        fields = ['id', 'name']
 
 
 class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
@@ -760,6 +776,10 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    module_bays = django_filters.BooleanFilter(
+        method='_module_bays',
+        label='Has module bays',
+    )
     device_bays = django_filters.BooleanFilter(
         method='_device_bays',
         label='Has device bays',
@@ -810,6 +830,9 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
             frontports__isnull=value,
             rearports__isnull=value
         )
+
+    def _module_bays(self, queryset, name, value):
+        return queryset.exclude(modulebays__isnull=value)
 
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebays__isnull=value)
@@ -1102,6 +1125,13 @@ class RearPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTe
     class Meta:
         model = RearPort
         fields = ['id', 'name', 'label', 'type', 'color', 'positions', 'description']
+
+
+class ModuleBayFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
+
+    class Meta:
+        model = ModuleBay
+        fields = ['id', 'name', 'label', 'description']
 
 
 class DeviceBayFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):

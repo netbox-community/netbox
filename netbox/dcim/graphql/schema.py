@@ -56,6 +56,12 @@ class DCIMQuery(graphene.ObjectType):
     manufacturer = ObjectField(ManufacturerType)
     manufacturer_list = ObjectListField(ManufacturerType)
 
+    module_bay = ObjectField(ModuleBayType)
+    module_bay_list = ObjectListField(ModuleBayType)
+
+    module_bay_template = ObjectField(ModuleBayTemplateType)
+    module_bay_template_list = ObjectListField(ModuleBayTemplateType)
+
     platform = ObjectField(PlatformType)
     platform_list = ObjectListField(PlatformType)
 

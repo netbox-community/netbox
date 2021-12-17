@@ -678,6 +678,10 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
             FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
         ))
+        ModuleBayTemplate.objects.bulk_create((
+            ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1'),
+            ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2'),
+        ))
         DeviceBayTemplate.objects.bulk_create((
             DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1'),
             DeviceBayTemplate(device_type=device_types[1], name='Device Bay 2'),
@@ -760,6 +764,12 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_bays': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device_bays': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_module_bays(self):
+        params = {'module_bays': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'module_bays': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
@@ -1036,6 +1046,38 @@ class RearPortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class ModuleBayTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ModuleBayTemplate.objects.all()
+    filterset = ModuleBayTemplateFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        ModuleBayTemplate.objects.bulk_create((
+            ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1'),
+            ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2'),
+            ModuleBayTemplate(device_type=device_types[2], name='Module Bay 3'),
+        ))
+
+    def test_name(self):
+        params = {'name': ['Module Bay 1', 'Module Bay 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class DeviceBayTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DeviceBayTemplate.objects.all()
     filterset = DeviceBayTemplateFilterSet
@@ -1280,6 +1322,10 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
             FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
         ))
+        ModuleBay.objects.bulk_create((
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+        ))
         DeviceBay.objects.bulk_create((
             DeviceBay(device=devices[0], name='Device Bay 1'),
             DeviceBay(device=devices[1], name='Device Bay 2'),
@@ -1463,6 +1509,12 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'pass_through_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_module_bays(self):
+        params = {'module_bays': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'module_bays': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_device_bays(self):
@@ -2505,6 +2557,109 @@ class RearPortTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'cabled': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ModuleBayTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ModuleBay.objects.all()
+    filterset = ModuleBayFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], location=locations[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1], location=locations[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2], location=locations[2]),
+        )
+        Device.objects.bulk_create(devices)
+
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1', label='A', description='First'),
+            ModuleBay(device=devices[1], name='Module Bay 2', label='B', description='Second'),
+            ModuleBay(device=devices[2], name='Module Bay 3', label='C', description='Third'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+    def test_name(self):
+        params = {'name': ['Module Bay 1', 'Module Bay 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

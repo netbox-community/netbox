@@ -27,6 +27,8 @@ __all__ = (
     'InventoryItemType',
     'LocationType',
     'ManufacturerType',
+    'ModuleBayType',
+    'ModuleBayTemplateType',
     'PlatformType',
     'PowerFeedType',
     'PowerOutletType',
@@ -252,6 +254,22 @@ class ManufacturerType(OrganizationalObjectType):
         model = models.Manufacturer
         fields = '__all__'
         filterset_class = filtersets.ManufacturerFilterSet
+
+
+class ModuleBayType(ComponentObjectType):
+
+    class Meta:
+        model = models.ModuleBay
+        fields = '__all__'
+        filterset_class = filtersets.ModuleBayFilterSet
+
+
+class ModuleBayTemplateType(ComponentTemplateObjectType):
+
+    class Meta:
+        model = models.ModuleBayTemplate
+        fields = '__all__'
+        filterset_class = filtersets.ModuleBayTemplateFilterSet
 
 
 class PlatformType(OrganizationalObjectType):

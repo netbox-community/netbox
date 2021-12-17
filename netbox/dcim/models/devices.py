@@ -786,6 +786,9 @@ class Device(PrimaryModel, ConfigContextModel):
             FrontPort.objects.bulk_create(
                 [x.instantiate(self) for x in self.device_type.frontporttemplates.all()]
             )
+            ModuleBay.objects.bulk_create(
+                [x.instantiate(self) for x in self.device_type.modulebaytemplates.all()]
+            )
             DeviceBay.objects.bulk_create(
                 [x.instantiate(self) for x in self.device_type.devicebaytemplates.all()]
             )

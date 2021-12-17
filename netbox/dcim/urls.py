@@ -113,6 +113,7 @@ urlpatterns = [
     path('device-types/<int:pk>/interfaces/', views.DeviceTypeInterfacesView.as_view(), name='devicetype_interfaces'),
     path('device-types/<int:pk>/front-ports/', views.DeviceTypeFrontPortsView.as_view(), name='devicetype_frontports'),
     path('device-types/<int:pk>/rear-ports/', views.DeviceTypeRearPortsView.as_view(), name='devicetype_rearports'),
+    path('device-types/<int:pk>/module-bays/', views.DeviceTypeModuleBaysView.as_view(), name='devicetype_modulebays'),
     path('device-types/<int:pk>/device-bays/', views.DeviceTypeDeviceBaysView.as_view(), name='devicetype_devicebays'),
     path('device-types/<int:pk>/edit/', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     path('device-types/<int:pk>/delete/', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
@@ -183,6 +184,14 @@ urlpatterns = [
     path('device-bay-templates/<int:pk>/edit/', views.DeviceBayTemplateEditView.as_view(), name='devicebaytemplate_edit'),
     path('device-bay-templates/<int:pk>/delete/', views.DeviceBayTemplateDeleteView.as_view(), name='devicebaytemplate_delete'),
 
+    # Device bay templates
+    path('module-bay-templates/add/', views.ModuleBayTemplateCreateView.as_view(), name='modulebaytemplate_add'),
+    path('module-bay-templates/edit/', views.ModuleBayTemplateBulkEditView.as_view(), name='modulebaytemplate_bulk_edit'),
+    path('module-bay-templates/rename/', views.ModuleBayTemplateBulkRenameView.as_view(), name='modulebaytemplate_bulk_rename'),
+    path('module-bay-templates/delete/', views.ModuleBayTemplateBulkDeleteView.as_view(), name='modulebaytemplate_bulk_delete'),
+    path('module-bay-templates/<int:pk>/edit/', views.ModuleBayTemplateEditView.as_view(), name='modulebaytemplate_edit'),
+    path('module-bay-templates/<int:pk>/delete/', views.ModuleBayTemplateDeleteView.as_view(), name='modulebaytemplate_delete'),
+
     # Device roles
     path('device-roles/', views.DeviceRoleListView.as_view(), name='devicerole_list'),
     path('device-roles/add/', views.DeviceRoleEditView.as_view(), name='devicerole_add'),
@@ -222,6 +231,7 @@ urlpatterns = [
     path('devices/<int:pk>/interfaces/', views.DeviceInterfacesView.as_view(), name='device_interfaces'),
     path('devices/<int:pk>/front-ports/', views.DeviceFrontPortsView.as_view(), name='device_frontports'),
     path('devices/<int:pk>/rear-ports/', views.DeviceRearPortsView.as_view(), name='device_rearports'),
+    path('devices/<int:pk>/module-bays/', views.DeviceModuleBaysView.as_view(), name='device_modulebays'),
     path('devices/<int:pk>/device-bays/', views.DeviceDeviceBaysView.as_view(), name='device_devicebays'),
     path('devices/<int:pk>/inventory/', views.DeviceInventoryView.as_view(), name='device_inventory'),
     path('devices/<int:pk>/config-context/', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
@@ -342,6 +352,19 @@ urlpatterns = [
     path('rear-ports/<int:pk>/trace/', views.PathTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
     path('rear-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='rearport_connect', kwargs={'termination_a_type': RearPort}),
     path('devices/rear-ports/add/', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
+
+    # Module bays
+    path('module-bays/', views.ModuleBayListView.as_view(), name='modulebay_list'),
+    path('module-bays/add/', views.ModuleBayCreateView.as_view(), name='modulebay_add'),
+    path('module-bays/import/', views.ModuleBayBulkImportView.as_view(), name='modulebay_import'),
+    path('module-bays/edit/', views.ModuleBayBulkEditView.as_view(), name='modulebay_bulk_edit'),
+    path('module-bays/rename/', views.ModuleBayBulkRenameView.as_view(), name='modulebay_bulk_rename'),
+    path('module-bays/delete/', views.ModuleBayBulkDeleteView.as_view(), name='modulebay_bulk_delete'),
+    path('module-bays/<int:pk>/', views.ModuleBayView.as_view(), name='modulebay'),
+    path('module-bays/<int:pk>/edit/', views.ModuleBayEditView.as_view(), name='modulebay_edit'),
+    path('module-bays/<int:pk>/delete/', views.ModuleBayDeleteView.as_view(), name='modulebay_delete'),
+    path('module-bays/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='modulebay_changelog', kwargs={'model': ModuleBay}),
+    path('devices/module-bays/add/', views.DeviceBulkAddModuleBayView.as_view(), name='device_bulk_add_modulebay'),
 
     # Device bays
     path('device-bays/', views.DeviceBayListView.as_view(), name='devicebay_list'),

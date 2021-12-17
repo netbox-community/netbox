@@ -11,6 +11,7 @@ __all__ = (
     'DeviceTypeImportForm',
     'FrontPortTemplateImportForm',
     'InterfaceTemplateImportForm',
+    'ModuleBayTemplateImportForm',
     'PowerOutletTemplateImportForm',
     'PowerPortTemplateImportForm',
     'RearPortTemplateImportForm',
@@ -136,6 +137,15 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
         model = RearPortTemplate
         fields = [
             'device_type', 'name', 'type', 'positions', 'label', 'description',
+        ]
+
+
+class ModuleBayTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = ModuleBayTemplate
+        fields = [
+            'device_type', 'name', 'label', 'description',
         ]
 
 

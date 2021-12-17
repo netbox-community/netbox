@@ -30,6 +30,7 @@ __all__ = (
     'FrontPort',
     'Interface',
     'InventoryItem',
+    'ModuleBay',
     'PathEndpoint',
     'PowerOutlet',
     'PowerPort',
@@ -229,7 +230,7 @@ class PathEndpoint(models.Model):
 
 
 #
-# Console ports
+# Console components
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -260,10 +261,6 @@ class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
 
-#
-# Console server ports
-#
-
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
     """
@@ -293,7 +290,7 @@ class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
 
 
 #
-# Power ports
+# Power components
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
@@ -388,10 +385,6 @@ class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
             'legs': [],
         }
 
-
-#
-# Power outlets
-#
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class PowerOutlet(ComponentModel, LinkTermination, PathEndpoint):
@@ -866,8 +859,23 @@ class RearPort(ComponentModel, LinkTermination):
 
 
 #
-# Device bays
+# Bays
 #
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class ModuleBay(ComponentModel):
+    """
+    An empty space within a Device which can house a child device
+    """
+    clone_fields = ['device']
+
+    class Meta:
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
+
+    def get_absolute_url(self):
+        return reverse('dcim:modulebay', kwargs={'pk': self.pk})
+
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceBay(ComponentModel):

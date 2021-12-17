@@ -28,6 +28,7 @@ router.register('power-outlet-templates', views.PowerOutletTemplateViewSet)
 router.register('interface-templates', views.InterfaceTemplateViewSet)
 router.register('front-port-templates', views.FrontPortTemplateViewSet)
 router.register('rear-port-templates', views.RearPortTemplateViewSet)
+router.register('module-bay-templates', views.ModuleBayTemplateViewSet)
 router.register('device-bay-templates', views.DeviceBayTemplateViewSet)
 
 # Devices
@@ -43,6 +44,7 @@ router.register('power-outlets', views.PowerOutletViewSet)
 router.register('interfaces', views.InterfaceViewSet)
 router.register('front-ports', views.FrontPortViewSet)
 router.register('rear-ports', views.RearPortViewSet)
+router.register('module-bays', views.ModuleBayViewSet)
 router.register('device-bays', views.DeviceBayViewSet)
 router.register('inventory-items', views.InventoryItemViewSet)
 

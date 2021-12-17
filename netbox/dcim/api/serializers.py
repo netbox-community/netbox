@@ -409,6 +409,15 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
         ]
 
 
+class ModuleBayTemplateSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebaytemplate-detail')
+    device_type = NestedDeviceTypeSerializer()
+
+    class Meta:
+        model = ModuleBayTemplate
+        fields = ['id', 'url', 'display', 'device_type', 'name', 'label', 'description', 'created', 'last_updated']
+
+
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebaytemplate-detail')
     device_type = NestedDeviceTypeSerializer()
@@ -704,6 +713,19 @@ class FrontPortSerializer(PrimaryModelSerializer, LinkTerminationSerializer):
             'id', 'url', 'display', 'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
             'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
+        ]
+
+
+class ModuleBaySerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
+    device = NestedDeviceSerializer()
+    # installed_module = NestedModuleSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = ModuleBay
+        fields = [
+            'id', 'url', 'display', 'device', 'name', 'label', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
 
 
