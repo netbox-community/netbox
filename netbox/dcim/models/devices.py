@@ -26,6 +26,7 @@ __all__ = (
     'DeviceRole',
     'DeviceType',
     'Manufacturer',
+    'ModuleType',
     'Platform',
     'VirtualChassis',
 )
@@ -253,6 +254,15 @@ class DeviceType(PrimaryModel):
                 }
                 for c in self.rearporttemplates.all()
             ]
+        if self.modulebaytemplates.exists():
+            data['module-bays'] = [
+                {
+                    'name': c.name,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.modulebaytemplates.all()
+            ]
         if self.devicebaytemplates.exists():
             data['device-bays'] = [
                 {
@@ -340,6 +350,136 @@ class DeviceType(PrimaryModel):
     @property
     def is_child_device(self):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
+
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class ModuleType(PrimaryModel):
+    """
+    A ModuleType represents a hardware element that can be installed within a device and which houses additional
+    components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
+    DeviceType, each ModuleType can have console, power, interface, and pass-through port templates assigned to it. It
+    cannot, however house device bays or module bays.
+    """
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='module_types'
+    )
+    model = models.CharField(
+        max_length=100
+    )
+    part_number = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text='Discrete part number (optional)'
+    )
+    comments = models.TextField(
+        blank=True
+    )
+
+    clone_fields = ('manufacturer',)
+
+    class Meta:
+        ordering = ('manufacturer', 'model')
+        unique_together = (
+            ('manufacturer', 'model'),
+        )
+
+    def __str__(self):
+        return self.model
+
+    def get_absolute_url(self):
+        return reverse('dcim:moduletype', args=[self.pk])
+
+    def to_yaml(self):
+        data = OrderedDict((
+            ('manufacturer', self.manufacturer.name),
+            ('model', self.model),
+            ('part_number', self.part_number),
+            ('comments', self.comments),
+        ))
+
+        # Component templates
+        if self.consoleporttemplates.exists():
+            data['console-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.consoleporttemplates.all()
+            ]
+        if self.consoleserverporttemplates.exists():
+            data['console-server-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.consoleserverporttemplates.all()
+            ]
+        if self.powerporttemplates.exists():
+            data['power-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'maximum_draw': c.maximum_draw,
+                    'allocated_draw': c.allocated_draw,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.powerporttemplates.all()
+            ]
+        if self.poweroutlettemplates.exists():
+            data['power-outlets'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'power_port': c.power_port.name if c.power_port else None,
+                    'feed_leg': c.feed_leg,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.poweroutlettemplates.all()
+            ]
+        if self.interfacetemplates.exists():
+            data['interfaces'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'mgmt_only': c.mgmt_only,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.interfacetemplates.all()
+            ]
+        if self.frontporttemplates.exists():
+            data['front-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'rear_port': c.rear_port.name,
+                    'rear_port_position': c.rear_port_position,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.frontporttemplates.all()
+            ]
+        if self.rearporttemplates.exists():
+            data['rear-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'positions': c.positions,
+                    'label': c.label,
+                    'description': c.description,
+                }
+                for c in self.rearporttemplates.all()
+            ]
+
+        return yaml.dump(dict(data), sort_keys=False)
 
 
 #

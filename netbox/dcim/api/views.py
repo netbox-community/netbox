@@ -271,7 +271,7 @@ class ManufacturerViewSet(CustomFieldModelViewSet):
 
 
 #
-# Device types
+# Device/module types
 #
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
@@ -280,6 +280,15 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
     )
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filtersets.DeviceTypeFilterSet
+    brief_prefetch_fields = ['manufacturer']
+
+
+class ModuleTypeViewSet(CustomFieldModelViewSet):
+    queryset = ModuleType.objects.prefetch_related('manufacturer', 'tags').annotate(
+        # module_count=count_related(Module, 'module_type')
+    )
+    serializer_class = serializers.ModuleTypeSerializer
+    filterset_class = filtersets.ModuleTypeFilterSet
     brief_prefetch_fields = ['manufacturer']
 
 

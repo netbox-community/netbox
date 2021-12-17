@@ -120,6 +120,25 @@ urlpatterns = [
     path('device-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
     path('device-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='devicetype_journal', kwargs={'model': DeviceType}),
 
+    # Module types
+    path('module-types/', views.ModuleTypeListView.as_view(), name='moduletype_list'),
+    path('module-types/add/', views.ModuleTypeEditView.as_view(), name='moduletype_add'),
+    path('module-types/import/', views.ModuleTypeImportView.as_view(), name='moduletype_import'),
+    path('module-types/edit/', views.ModuleTypeBulkEditView.as_view(), name='moduletype_bulk_edit'),
+    path('module-types/delete/', views.ModuleTypeBulkDeleteView.as_view(), name='moduletype_bulk_delete'),
+    path('module-types/<int:pk>/', views.ModuleTypeView.as_view(), name='moduletype'),
+    path('module-types/<int:pk>/console-ports/', views.ModuleTypeConsolePortsView.as_view(), name='moduletype_consoleports'),
+    path('module-types/<int:pk>/console-server-ports/', views.ModuleTypeConsoleServerPortsView.as_view(), name='moduletype_consoleserverports'),
+    path('module-types/<int:pk>/power-ports/', views.ModuleTypePowerPortsView.as_view(), name='moduletype_powerports'),
+    path('module-types/<int:pk>/power-outlets/', views.ModuleTypePowerOutletsView.as_view(), name='moduletype_poweroutlets'),
+    path('module-types/<int:pk>/interfaces/', views.ModuleTypeInterfacesView.as_view(), name='moduletype_interfaces'),
+    path('module-types/<int:pk>/front-ports/', views.ModuleTypeFrontPortsView.as_view(), name='moduletype_frontports'),
+    path('module-types/<int:pk>/rear-ports/', views.ModuleTypeRearPortsView.as_view(), name='moduletype_rearports'),
+    path('module-types/<int:pk>/edit/', views.ModuleTypeEditView.as_view(), name='moduletype_edit'),
+    path('module-types/<int:pk>/delete/', views.ModuleTypeDeleteView.as_view(), name='moduletype_delete'),
+    path('module-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='moduletype_changelog', kwargs={'model': ModuleType}),
+    path('module-types/<int:pk>/journal/', ObjectJournalView.as_view(), name='moduletype_journal', kwargs={'model': ModuleType}),
+
     # Console port templates
     path('console-port-templates/add/', views.ConsolePortTemplateCreateView.as_view(), name='consoleporttemplate_add'),
     path('console-port-templates/edit/', views.ConsolePortTemplateBulkEditView.as_view(), name='consoleporttemplate_bulk_edit'),

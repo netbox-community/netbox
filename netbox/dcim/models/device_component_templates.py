@@ -64,7 +64,7 @@ class ComponentTemplateModel(ChangeLoggedModel):
         """
         raise NotImplementedError()
 
-    def to_objectchange(self, action):
+    def to_objectchange(self, action, related_object=None):
         # Annotate the parent DeviceType
         try:
             device_type = self.device_type
@@ -74,8 +74,58 @@ class ComponentTemplateModel(ChangeLoggedModel):
         return super().to_objectchange(action, related_object=device_type)
 
 
+class ModularComponentTemplateModel(ComponentTemplateModel):
+    """
+    A ComponentTemplateModel which supports optional assignment to a ModuleType.
+    """
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss',
+        blank=True,
+        null=True
+    )
+    module_type = models.ForeignKey(
+        to='dcim.ModuleType',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    def to_objectchange(self, action, related_object=None):
+        # Annotate the parent DeviceType or ModuleType
+        try:
+            if getattr(self, 'device_type'):
+                return super().to_objectchange(action, related_object=self.device_type)
+        except ObjectDoesNotExist:
+            pass
+        try:
+            if getattr(self, 'module_type'):
+                return super().to_objectchange(action, related_object=self.module_type)
+        except ObjectDoesNotExist:
+            pass
+        return super().to_objectchange(action)
+
+    def clean(self):
+        super().clean()
+
+        # A component template must belong to a DeviceType *or* to a ModuleType
+        if self.device_type and self.module_type:
+            raise ValidationError(
+                "A component template cannot be associated with both a device type and a module type."
+            )
+        if not self.device_type and not self.module_type:
+            raise ValidationError(
+                "A component template must be associated with either a device type or a module type."
+            )
+
+
 @extras_features('webhooks')
-class ConsolePortTemplate(ComponentTemplateModel):
+class ConsolePortTemplate(ModularComponentTemplateModel):
     """
     A template for a ConsolePort to be created for a new Device.
     """
@@ -86,8 +136,11 @@ class ConsolePortTemplate(ComponentTemplateModel):
     )
 
     class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
+        ordering = ('device_type', 'module_type', '_name')
+        unique_together = (
+            ('device_type', 'name'),
+            ('module_type', 'name'),
+        )
 
     def instantiate(self, device):
         return ConsolePort(
@@ -99,7 +152,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
 
 
 @extras_features('webhooks')
-class ConsoleServerPortTemplate(ComponentTemplateModel):
+class ConsoleServerPortTemplate(ModularComponentTemplateModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
     """
@@ -110,8 +163,11 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     )
 
     class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
+        ordering = ('device_type', 'module_type', '_name')
+        unique_together = (
+            ('device_type', 'name'),
+            ('module_type', 'name'),
+        )
 
     def instantiate(self, device):
         return ConsoleServerPort(
@@ -123,7 +179,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
 
 
 @extras_features('webhooks')
-class PowerPortTemplate(ComponentTemplateModel):
+class PowerPortTemplate(ModularComponentTemplateModel):
     """
     A template for a PowerPort to be created for a new Device.
     """
@@ -146,8 +202,11 @@ class PowerPortTemplate(ComponentTemplateModel):
     )
 
     class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
+        ordering = ('device_type', 'module_type', '_name')
+        unique_together = (
+            ('device_type', 'name'),
+            ('module_type', 'name'),
+        )
 
     def instantiate(self, device):
         return PowerPort(
@@ -170,7 +229,7 @@ class PowerPortTemplate(ComponentTemplateModel):
 
 
 @extras_features('webhooks')
-class PowerOutletTemplate(ComponentTemplateModel):
+class PowerOutletTemplate(ModularComponentTemplateModel):
     """
     A template for a PowerOutlet to be created for a new Device.
     """
@@ -194,17 +253,25 @@ class PowerOutletTemplate(ComponentTemplateModel):
     )
 
     class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
+        ordering = ('device_type', 'module_type', '_name')
+        unique_together = (
+            ('device_type', 'name'),
+            ('module_type', 'name'),
+        )
 
     def clean(self):
         super().clean()
 
         # Validate power port assignment
-        if self.power_port and self.power_port.device_type != self.device_type:
-            raise ValidationError(
-                "Parent power port ({}) must belong to the same device type".format(self.power_port)
-            )
+        if self.power_port:
+            if self.device_type and self.power_port.device_type != self.device_type:
+                raise ValidationError(
+                    f"Parent power port ({self.power_port}) must belong to the same device type"
+                )
+            if self.module_type and self.power_port.module_type != self.module_type:
+                raise ValidationError(
+                    f"Parent power port ({self.power_port}) must belong to the same module type"
+                )
 
     def instantiate(self, device):
         if self.power_port:
@@ -222,7 +289,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
 
 
 @extras_features('webhooks')
-class InterfaceTemplate(ComponentTemplateModel):
+class InterfaceTemplate(ModularComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -243,8 +310,11 @@ class InterfaceTemplate(ComponentTemplateModel):
     )
 
     class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
+        ordering = ('device_type', 'module_type', '_name')
+        unique_together = (
+            ('device_type', 'name'),
+            ('module_type', 'name'),
+        )
 
     def instantiate(self, device):
         return Interface(
@@ -257,7 +327,7 @@ class InterfaceTemplate(ComponentTemplateModel):
 
 
 @extras_features('webhooks')
-class FrontPortTemplate(ComponentTemplateModel):
+class FrontPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
     """
@@ -282,9 +352,10 @@ class FrontPortTemplate(ComponentTemplateModel):
     )
 
     class Meta:
-        ordering = ('device_type', '_name')
+        ordering = ('device_type', 'module_type', '_name')
         unique_together = (
             ('device_type', 'name'),
+            ('module_type', 'name'),
             ('rear_port', 'rear_port_position'),
         )
 
@@ -327,7 +398,7 @@ class FrontPortTemplate(ComponentTemplateModel):
 
 
 @extras_features('webhooks')
-class RearPortTemplate(ComponentTemplateModel):
+class RearPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the rear of a new Device.
     """
@@ -347,8 +418,11 @@ class RearPortTemplate(ComponentTemplateModel):
     )
 
     class Meta:
-        ordering = ('device_type', '_name')
-        unique_together = ('device_type', 'name')
+        ordering = ('device_type', 'module_type', '_name')
+        unique_together = (
+            ('device_type', 'name'),
+            ('module_type', 'name'),
+        )
 
     def instantiate(self, device):
         return RearPort(

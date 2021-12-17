@@ -34,6 +34,7 @@ __all__ = (
     'ManufacturerBulkEditForm',
     'ModuleBayBulkEditForm',
     'ModuleBayTemplateBulkEditForm',
+    'ModuleTypeBulkEditForm',
     'PlatformBulkEditForm',
     'PowerFeedBulkEditForm',
     'PowerOutletBulkEditForm',
@@ -327,6 +328,9 @@ class DeviceTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    part_number = forms.CharField(
+        required=False
+    )
     u_height = forms.IntegerField(
         min_value=1,
         required=False
@@ -343,7 +347,24 @@ class DeviceTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['airflow']
+        nullable_fields = ['part_number', 'airflow']
+
+
+class ModuleTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ModuleType.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    part_number = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['part_number']
 
 
 class DeviceRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):

@@ -591,7 +591,7 @@ model: TEST-1000
 slug: test-1000
 u_height: 2
 subdevice_role: parent
-comments: test comment
+comments: Test comment
 console-ports:
   - name: Console Port 1
     type: de-9
@@ -686,53 +686,53 @@ device-bays:
         response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
-        dt = DeviceType.objects.get(model='TEST-1000')
-        self.assertEqual(dt.comments, 'test comment')
+        device_type = DeviceType.objects.get(model='TEST-1000')
+        self.assertEqual(device_type.comments, 'Test comment')
 
         # Verify all of the components were created
-        self.assertEqual(dt.consoleporttemplates.count(), 3)
+        self.assertEqual(device_type.consoleporttemplates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
         self.assertEqual(cp1.type, ConsolePortTypeChoices.TYPE_DE9)
 
-        self.assertEqual(dt.consoleserverporttemplates.count(), 3)
+        self.assertEqual(device_type.consoleserverporttemplates.count(), 3)
         csp1 = ConsoleServerPortTemplate.objects.first()
         self.assertEqual(csp1.name, 'Console Server Port 1')
         self.assertEqual(csp1.type, ConsolePortTypeChoices.TYPE_RJ45)
 
-        self.assertEqual(dt.powerporttemplates.count(), 3)
+        self.assertEqual(device_type.powerporttemplates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()
         self.assertEqual(pp1.name, 'Power Port 1')
         self.assertEqual(pp1.type, PowerPortTypeChoices.TYPE_IEC_C14)
 
-        self.assertEqual(dt.poweroutlettemplates.count(), 3)
+        self.assertEqual(device_type.poweroutlettemplates.count(), 3)
         po1 = PowerOutletTemplate.objects.first()
         self.assertEqual(po1.name, 'Power Outlet 1')
         self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
-        self.assertEqual(dt.interfacetemplates.count(), 3)
+        self.assertEqual(device_type.interfacetemplates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
         self.assertEqual(iface1.name, 'Interface 1')
         self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
 
-        self.assertEqual(dt.rearporttemplates.count(), 3)
+        self.assertEqual(device_type.rearporttemplates.count(), 3)
         rp1 = RearPortTemplate.objects.first()
         self.assertEqual(rp1.name, 'Rear Port 1')
 
-        self.assertEqual(dt.frontporttemplates.count(), 3)
+        self.assertEqual(device_type.frontporttemplates.count(), 3)
         fp1 = FrontPortTemplate.objects.first()
         self.assertEqual(fp1.name, 'Front Port 1')
         self.assertEqual(fp1.rear_port, rp1)
         self.assertEqual(fp1.rear_port_position, 1)
 
-        self.assertEqual(dt.modulebaytemplates.count(), 3)
+        self.assertEqual(device_type.modulebaytemplates.count(), 3)
         db1 = ModuleBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Module Bay 1')
 
-        self.assertEqual(dt.devicebaytemplates.count(), 3)
+        self.assertEqual(device_type.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
 
@@ -741,12 +741,306 @@ device-bays:
         self.add_permissions('dcim.view_devicetype')
 
         # Test default YAML export
-        response = self.client.get('{}?export'.format(url))
+        response = self.client.get(f'{url}?export')
         self.assertEqual(response.status_code, 200)
         data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
         self.assertEqual(len(data), 3)
         self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
         self.assertEqual(data[0]['model'], 'Device Type 1')
+
+        # Test table-based export
+        response = self.client.get(f'{url}?export=table')
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+
+
+# TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by absence of bulk import view for ModuleTypes
+class ModuleTypeTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = ModuleType
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2')
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        ModuleType.objects.bulk_create([
+            ModuleType(model='Module Type 1', manufacturer=manufacturers[0]),
+            ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
+            ModuleType(model='Module Type 3', manufacturer=manufacturers[0]),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'model': 'Device Type X',
+            'part_number': '123ABC',
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'part_number': '456DEF',
+        }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_consoleports(self):
+        moduletype = ModuleType.objects.first()
+        console_ports = (
+            ConsolePortTemplate(module_type=moduletype, name='Console Port 1'),
+            ConsolePortTemplate(module_type=moduletype, name='Console Port 2'),
+            ConsolePortTemplate(module_type=moduletype, name='Console Port 3'),
+        )
+        ConsolePortTemplate.objects.bulk_create(console_ports)
+
+        url = reverse('dcim:moduletype_consoleports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_consoleserverports(self):
+        moduletype = ModuleType.objects.first()
+        console_server_ports = (
+            ConsoleServerPortTemplate(module_type=moduletype, name='Console Server Port 1'),
+            ConsoleServerPortTemplate(module_type=moduletype, name='Console Server Port 2'),
+            ConsoleServerPortTemplate(module_type=moduletype, name='Console Server Port 3'),
+        )
+        ConsoleServerPortTemplate.objects.bulk_create(console_server_ports)
+
+        url = reverse('dcim:moduletype_consoleserverports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_powerports(self):
+        moduletype = ModuleType.objects.first()
+        power_ports = (
+            PowerPortTemplate(module_type=moduletype, name='Power Port 1'),
+            PowerPortTemplate(module_type=moduletype, name='Power Port 2'),
+            PowerPortTemplate(module_type=moduletype, name='Power Port 3'),
+        )
+        PowerPortTemplate.objects.bulk_create(power_ports)
+
+        url = reverse('dcim:moduletype_powerports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_poweroutlets(self):
+        moduletype = ModuleType.objects.first()
+        power_outlets = (
+            PowerOutletTemplate(module_type=moduletype, name='Power Outlet 1'),
+            PowerOutletTemplate(module_type=moduletype, name='Power Outlet 2'),
+            PowerOutletTemplate(module_type=moduletype, name='Power Outlet 3'),
+        )
+        PowerOutletTemplate.objects.bulk_create(power_outlets)
+
+        url = reverse('dcim:moduletype_poweroutlets', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_interfaces(self):
+        moduletype = ModuleType.objects.first()
+        interfaces = (
+            InterfaceTemplate(module_type=moduletype, name='Interface 1'),
+            InterfaceTemplate(module_type=moduletype, name='Interface 2'),
+            InterfaceTemplate(module_type=moduletype, name='Interface 3'),
+        )
+        InterfaceTemplate.objects.bulk_create(interfaces)
+
+        url = reverse('dcim:moduletype_interfaces', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_rearports(self):
+        moduletype = ModuleType.objects.first()
+        rear_ports = (
+            RearPortTemplate(module_type=moduletype, name='Rear Port 1'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 2'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+
+        url = reverse('dcim:moduletype_rearports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_moduletype_frontports(self):
+        moduletype = ModuleType.objects.first()
+        rear_ports = (
+            RearPortTemplate(module_type=moduletype, name='Rear Port 1'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 2'),
+            RearPortTemplate(module_type=moduletype, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPortTemplate(module_type=moduletype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
+            FrontPortTemplate(module_type=moduletype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
+            FrontPortTemplate(module_type=moduletype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+
+        url = reverse('dcim:moduletype_frontports', kwargs={'pk': moduletype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_import_objects(self):
+        """
+        Custom import test for YAML-based imports (versus CSV)
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-1000
+comments: Test comment
+console-ports:
+  - name: Console Port 1
+    type: de-9
+  - name: Console Port 2
+    type: de-9
+  - name: Console Port 3
+    type: de-9
+console-server-ports:
+  - name: Console Server Port 1
+    type: rj-45
+  - name: Console Server Port 2
+    type: rj-45
+  - name: Console Server Port 3
+    type: rj-45
+power-ports:
+  - name: Power Port 1
+    type: iec-60320-c14
+  - name: Power Port 2
+    type: iec-60320-c14
+  - name: Power Port 3
+    type: iec-60320-c14
+power-outlets:
+  - name: Power Outlet 1
+    type: iec-60320-c13
+    power_port: Power Port 1
+    feed_leg: A
+  - name: Power Outlet 2
+    type: iec-60320-c13
+    power_port: Power Port 1
+    feed_leg: A
+  - name: Power Outlet 3
+    type: iec-60320-c13
+    power_port: Power Port 1
+    feed_leg: A
+interfaces:
+  - name: Interface 1
+    type: 1000base-t
+    mgmt_only: true
+  - name: Interface 2
+    type: 1000base-t
+  - name: Interface 3
+    type: 1000base-t
+rear-ports:
+  - name: Rear Port 1
+    type: 8p8c
+  - name: Rear Port 2
+    type: 8p8c
+  - name: Rear Port 3
+    type: 8p8c
+front-ports:
+  - name: Front Port 1
+    type: 8p8c
+    rear_port: Rear Port 1
+  - name: Front Port 2
+    type: 8p8c
+    rear_port: Rear Port 2
+  - name: Front Port 3
+    type: 8p8c
+    rear_port: Rear Port 3
+"""
+
+        # Create the manufacturer
+        Manufacturer(name='Generic', slug='generic').save()
+
+        # Add all required permissions to the test user
+        self.add_permissions(
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        module_type = ModuleType.objects.get(model='TEST-1000')
+        self.assertEqual(module_type.comments, 'Test comment')
+
+        # Verify all the components were created
+        self.assertEqual(module_type.consoleporttemplates.count(), 3)
+        cp1 = ConsolePortTemplate.objects.first()
+        self.assertEqual(cp1.name, 'Console Port 1')
+        self.assertEqual(cp1.type, ConsolePortTypeChoices.TYPE_DE9)
+
+        self.assertEqual(module_type.consoleserverporttemplates.count(), 3)
+        csp1 = ConsoleServerPortTemplate.objects.first()
+        self.assertEqual(csp1.name, 'Console Server Port 1')
+        self.assertEqual(csp1.type, ConsolePortTypeChoices.TYPE_RJ45)
+
+        self.assertEqual(module_type.powerporttemplates.count(), 3)
+        pp1 = PowerPortTemplate.objects.first()
+        self.assertEqual(pp1.name, 'Power Port 1')
+        self.assertEqual(pp1.type, PowerPortTypeChoices.TYPE_IEC_C14)
+
+        self.assertEqual(module_type.poweroutlettemplates.count(), 3)
+        po1 = PowerOutletTemplate.objects.first()
+        self.assertEqual(po1.name, 'Power Outlet 1')
+        self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
+        self.assertEqual(po1.power_port, pp1)
+        self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
+
+        self.assertEqual(module_type.interfacetemplates.count(), 3)
+        iface1 = InterfaceTemplate.objects.first()
+        self.assertEqual(iface1.name, 'Interface 1')
+        self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
+        self.assertTrue(iface1.mgmt_only)
+
+        self.assertEqual(module_type.rearporttemplates.count(), 3)
+        rp1 = RearPortTemplate.objects.first()
+        self.assertEqual(rp1.name, 'Rear Port 1')
+
+        self.assertEqual(module_type.frontporttemplates.count(), 3)
+        fp1 = FrontPortTemplate.objects.first()
+        self.assertEqual(fp1.name, 'Front Port 1')
+        self.assertEqual(fp1.rear_port, rp1)
+        self.assertEqual(fp1.rear_port_position, 1)
+
+    def test_export_objects(self):
+        url = reverse('dcim:moduletype_list')
+        self.add_permissions('dcim.view_moduletype')
+
+        # Test default YAML export
+        response = self.client.get(f'{url}?export')
+        self.assertEqual(response.status_code, 200)
+        data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
+        self.assertEqual(data[0]['model'], 'Module Type 1')
 
         # Test table-based export
         response = self.client.get(f'{url}?export=table')

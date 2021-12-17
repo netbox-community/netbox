@@ -22,6 +22,7 @@ __all__ = [
     'NestedManufacturerSerializer',
     'NestedModuleBaySerializer',
     'NestedModuleBayTemplateSerializer',
+    'NestedModuleTypeSerializer',
     'NestedPlatformSerializer',
     'NestedPowerFeedSerializer',
     'NestedPowerOutletSerializer',
@@ -119,7 +120,7 @@ class NestedRackReservationSerializer(WritableNestedSerializer):
 
 
 #
-# Device types
+# Device/module types
 #
 
 class NestedManufacturerSerializer(WritableNestedSerializer):
@@ -140,6 +141,20 @@ class NestedDeviceTypeSerializer(WritableNestedSerializer):
         model = models.DeviceType
         fields = ['id', 'url', 'display', 'manufacturer', 'model', 'slug', 'device_count']
 
+
+class NestedModuleTypeSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:moduletype-detail')
+    manufacturer = NestedManufacturerSerializer(read_only=True)
+    # module_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = models.ModuleType
+        fields = ['id', 'url', 'display', 'manufacturer', 'model']
+
+
+#
+# Component templates
+#
 
 class NestedConsolePortTemplateSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleporttemplate-detail')

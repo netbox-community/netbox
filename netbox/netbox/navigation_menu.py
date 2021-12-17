@@ -148,6 +148,7 @@ DEVICES_MENU = Menu(
             label='Device Types',
             items=(
                 get_model_item('dcim', 'devicetype', 'Device Types'),
+                get_model_item('dcim', 'moduletype', 'Module Types'),
                 get_model_item('dcim', 'manufacturer', 'Manufacturers'),
             ),
         ),

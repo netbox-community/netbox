@@ -773,6 +773,110 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
+class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ModuleType.objects.all()
+    filterset = ModuleTypeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        module_types = (
+            ModuleType(manufacturer=manufacturers[0], model='Model 1', part_number='Part Number 1'),
+            ModuleType(manufacturer=manufacturers[1], model='Model 2', part_number='Part Number 2'),
+            ModuleType(manufacturer=manufacturers[2], model='Model 3', part_number='Part Number 3'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
+        # Add component templates for filtering
+        ConsolePortTemplate.objects.bulk_create((
+            ConsolePortTemplate(module_type=module_types[0], name='Console Port 1'),
+            ConsolePortTemplate(module_type=module_types[1], name='Console Port 2'),
+        ))
+        ConsoleServerPortTemplate.objects.bulk_create((
+            ConsoleServerPortTemplate(module_type=module_types[0], name='Console Server Port 1'),
+            ConsoleServerPortTemplate(module_type=module_types[1], name='Console Server Port 2'),
+        ))
+        PowerPortTemplate.objects.bulk_create((
+            PowerPortTemplate(module_type=module_types[0], name='Power Port 1'),
+            PowerPortTemplate(module_type=module_types[1], name='Power Port 2'),
+        ))
+        PowerOutletTemplate.objects.bulk_create((
+            PowerOutletTemplate(module_type=module_types[0], name='Power Outlet 1'),
+            PowerOutletTemplate(module_type=module_types[1], name='Power Outlet 2'),
+        ))
+        InterfaceTemplate.objects.bulk_create((
+            InterfaceTemplate(module_type=module_types[0], name='Interface 1'),
+            InterfaceTemplate(module_type=module_types[1], name='Interface 2'),
+        ))
+        rear_ports = (
+            RearPortTemplate(module_type=module_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(module_type=module_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        FrontPortTemplate.objects.bulk_create((
+            FrontPortTemplate(module_type=module_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
+            FrontPortTemplate(module_type=module_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
+        ))
+
+    def test_model(self):
+        params = {'model': ['Model 1', 'Model 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_part_number(self):
+        params = {'part_number': ['Part Number 1', 'Part Number 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_console_ports(self):
+        params = {'console_ports': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'console_ports': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_console_server_ports(self):
+        params = {'console_server_ports': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'console_server_ports': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_power_ports(self):
+        params = {'power_ports': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'power_ports': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_power_outlets(self):
+        params = {'power_outlets': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'power_outlets': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_interfaces(self):
+        params = {'interfaces': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'interfaces': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_pass_through_ports(self):
+        params = {'pass_through_ports': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'pass_through_ports': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
 class ConsolePortTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConsolePortTemplate.objects.all()
     filterset = ConsolePortTemplateFilterSet

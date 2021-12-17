@@ -470,6 +470,45 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
+    model = ModuleType
+    brief_fields = ['display', 'id', 'manufacturer', 'model', 'url']
+    bulk_update_data = {
+        'part_number': 'ABC123',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        module_types = (
+            ModuleType(manufacturer=manufacturers[0], model='Module Type 1'),
+            ModuleType(manufacturer=manufacturers[0], model='Module Type 2'),
+            ModuleType(manufacturer=manufacturers[0], model='Module Type 3'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
+        cls.create_data = [
+            {
+                'manufacturer': manufacturers[1].pk,
+                'model': 'Module Type 4',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'model': 'Module Type 5',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'model': 'Module Type 6',
+            },
+        ]
+
+
 class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConsolePortTemplate
     brief_fields = ['display', 'id', 'name', 'url']

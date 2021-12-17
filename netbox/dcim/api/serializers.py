@@ -261,7 +261,7 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
 
 
 #
-# Device types
+# Device/module types
 #
 
 class ManufacturerSerializer(PrimaryModelSerializer):
@@ -293,6 +293,23 @@ class DeviceTypeSerializer(PrimaryModelSerializer):
             'last_updated', 'device_count',
         ]
 
+
+class ModuleTypeSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:moduletype-detail')
+    manufacturer = NestedManufacturerSerializer()
+    # module_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = ModuleType
+        fields = [
+            'id', 'url', 'display', 'manufacturer', 'model', 'part_number', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
+        ]
+
+
+#
+# Component templates
+#
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleporttemplate-detail')

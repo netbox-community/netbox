@@ -6,6 +6,7 @@ from dcim.models import ConsolePort, Interface, PowerPort
 from .cables import *
 from .devices import *
 from .devicetypes import *
+from .moduletypes import *
 from .power import *
 from .racks import *
 from .sites import *

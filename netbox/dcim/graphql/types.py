@@ -29,6 +29,7 @@ __all__ = (
     'ManufacturerType',
     'ModuleBayType',
     'ModuleBayTemplateType',
+    'ModuleTypeType',
     'PlatformType',
     'PowerFeedType',
     'PowerOutletType',
@@ -270,6 +271,14 @@ class ModuleBayTemplateType(ComponentTemplateObjectType):
         model = models.ModuleBayTemplate
         fields = '__all__'
         filterset_class = filtersets.ModuleBayTemplateFilterSet
+
+
+class ModuleTypeType(PrimaryObjectType):
+
+    class Meta:
+        model = models.ModuleType
+        fields = '__all__'
+        filterset_class = filtersets.ModuleTypeFilterSet
 
 
 class PlatformType(OrganizationalObjectType):

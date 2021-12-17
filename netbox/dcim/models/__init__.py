@@ -29,6 +29,7 @@ __all__ = (
     'Manufacturer',
     'ModuleBay',
     'ModuleBayTemplate',
+    'ModuleType',
     'Platform',
     'PowerFeed',
     'PowerOutlet',

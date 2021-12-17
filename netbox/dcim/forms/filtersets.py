@@ -30,6 +30,7 @@ __all__ = (
     'LocationFilterForm',
     'ManufacturerFilterForm',
     'ModuleBayFilterForm',
+    'ModuleTypeFilterForm',
     'PlatformFilterForm',
     'PowerConnectionFilterForm',
     'PowerFeedFilterForm',
@@ -337,7 +338,7 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
     model = DeviceType
     field_groups = [
         ['q', 'tag'],
-        ['manufacturer_id', 'subdevice_role', 'airflow'],
+        ['manufacturer_id', 'part_number', 'subdevice_role', 'airflow'],
         ['console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports'],
     ]
     manufacturer_id = DynamicModelMultipleChoiceField(
@@ -345,6 +346,9 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
         required=False,
         label=_('Manufacturer'),
         fetch_trigger='open'
+    )
+    part_number = forms.CharField(
+        required=False
     )
     subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
@@ -355,6 +359,67 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
         choices=add_blank_choice(DeviceAirflowChoices),
         required=False,
         widget=StaticSelectMultiple()
+    )
+    console_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    console_server_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console server ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    power_ports = forms.NullBooleanField(
+        required=False,
+        label='Has power ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    power_outlets = forms.NullBooleanField(
+        required=False,
+        label='Has power outlets',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    interfaces = forms.NullBooleanField(
+        required=False,
+        label='Has interfaces',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    pass_through_ports = forms.NullBooleanField(
+        required=False,
+        label='Has pass-through ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    tag = TagFilterField(model)
+
+
+class ModuleTypeFilterForm(CustomFieldModelFilterForm):
+    model = ModuleType
+    field_groups = [
+        ['q', 'tag'],
+        ['manufacturer_id', 'part_number'],
+        ['console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports'],
+    ]
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer'),
+        fetch_trigger='open'
+    )
+    part_number = forms.CharField(
+        required=False
     )
     console_ports = forms.NullBooleanField(
         required=False,
