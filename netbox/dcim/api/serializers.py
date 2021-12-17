@@ -517,6 +517,20 @@ class DeviceSerializer(PrimaryModelSerializer):
         return data
 
 
+class ModuleSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
+    device = NestedDeviceSerializer()
+    module_bay = NestedModuleBaySerializer()
+    module_type = NestedModuleTypeSerializer()
+
+    class Meta:
+        model = Module
+        fields = [
+            'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
+
+
 class DeviceWithConfigContextSerializer(DeviceSerializer):
     config_context = serializers.SerializerMethodField()
 

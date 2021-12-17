@@ -26,6 +26,7 @@ __all__ = (
     'DeviceRole',
     'DeviceType',
     'Manufacturer',
+    'Module',
     'ModuleType',
     'Platform',
     'VirtualChassis',
@@ -906,31 +907,31 @@ class Device(PrimaryModel, ConfigContextModel):
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
             ConsolePort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleporttemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.consoleporttemplates.all()]
             )
             ConsoleServerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleserverporttemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.consoleserverporttemplates.all()]
             )
             PowerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.powerporttemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.powerporttemplates.all()]
             )
             PowerOutlet.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.poweroutlettemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.poweroutlettemplates.all()]
             )
             Interface.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.interfacetemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.interfacetemplates.all()]
             )
             RearPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.rearporttemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.rearporttemplates.all()]
             )
             FrontPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.frontporttemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.frontporttemplates.all()]
             )
             ModuleBay.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.modulebaytemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.modulebaytemplates.all()]
             )
             DeviceBay.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.devicebaytemplates.all()]
+                [x.instantiate(device=self) for x in self.device_type.devicebaytemplates.all()]
             )
 
         # Update Site and Rack assignment for any child Devices
@@ -1006,6 +1007,85 @@ class Device(PrimaryModel, ConfigContextModel):
 
     def get_status_class(self):
         return DeviceStatusChoices.colors.get(self.status, 'secondary')
+
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class Module(PrimaryModel, ConfigContextModel):
+    """
+    A Module represents a field-installable component within a Device which may itself hold multiple device components
+    (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.
+    """
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='modules'
+    )
+    module_bay = models.OneToOneField(
+        to='dcim.ModuleBay',
+        on_delete=models.CASCADE,
+        related_name='installed_module'
+    )
+    module_type = models.ForeignKey(
+        to='dcim.ModuleType',
+        on_delete=models.PROTECT,
+        related_name='instances'
+    )
+    serial = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='Serial number'
+    )
+    asset_tag = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name='Asset tag',
+        help_text='A unique tag used to identify this device'
+    )
+    comments = models.TextField(
+        blank=True
+    )
+
+    clone_fields = ('device', 'module_type')
+
+    class Meta:
+        ordering = ('module_bay',)
+
+    def __str__(self):
+        return str(self.module_type)
+
+    def get_absolute_url(self):
+        return reverse('dcim:module', args=[self.pk])
+
+    def save(self, *args, **kwargs):
+        is_new = not bool(self.pk)
+
+        super().save(*args, **kwargs)
+
+        # If this is a new Module, instantiate all its related components per the ModuleType definition
+        if is_new:
+            ConsolePort.objects.bulk_create(
+                [x.instantiate(device=self.device, module=self) for x in self.module_type.consoleporttemplates.all()]
+            )
+            ConsoleServerPort.objects.bulk_create(
+                [x.instantiate(device=self.device, module=self) for x in self.module_type.consoleserverporttemplates.all()]
+            )
+            PowerPort.objects.bulk_create(
+                [x.instantiate(device=self.device, module=self) for x in self.module_type.powerporttemplates.all()]
+            )
+            PowerOutlet.objects.bulk_create(
+                [x.instantiate(device=self.device, module=self) for x in self.module_type.poweroutlettemplates.all()]
+            )
+            Interface.objects.bulk_create(
+                [x.instantiate(device=self.device, module=self) for x in self.module_type.interfacetemplates.all()]
+            )
+            RearPort.objects.bulk_create(
+                [x.instantiate(device=self.device, module=self) for x in self.module_type.rearporttemplates.all()]
+            )
+            FrontPort.objects.bulk_create(
+                [x.instantiate(device=self.device, module=self) for x in self.module_type.frontporttemplates.all()]
+            )
 
 
 #

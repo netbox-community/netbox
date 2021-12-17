@@ -7,7 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN
-from utilities.testing import APITestCase, APIViewTestCases
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
 
@@ -1103,6 +1103,67 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+
+class ModuleTest(APIViewTestCases.APIViewTestCase):
+    model = Module
+    brief_fields = ['device', 'display', 'id', 'module_bay', 'module_type', 'url']
+    bulk_update_data = {
+        'serial': '1234ABCD',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        device = create_test_device('Test Device 1')
+
+        module_types = (
+            ModuleType(manufacturer=manufacturer, model='Module Type 1'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 2'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 3'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
+        module_bays = (
+            ModuleBay(device=device, name='Module Bay 1'),
+            ModuleBay(device=device, name='Module Bay 2'),
+            ModuleBay(device=device, name='Module Bay 3'),
+            ModuleBay(device=device, name='Module Bay 4'),
+            ModuleBay(device=device, name='Module Bay 5'),
+            ModuleBay(device=device, name='Module Bay 6'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=device, module_bay=module_bays[0], module_type=module_types[0]),
+            Module(device=device, module_bay=module_bays[1], module_type=module_types[1]),
+            Module(device=device, module_bay=module_bays[2], module_type=module_types[2]),
+        )
+        Module.objects.bulk_create(modules)
+
+        cls.create_data = [
+            {
+                'device': device.pk,
+                'module_bay': module_bays[3].pk,
+                'module_type': module_types[0].pk,
+                'serial': 'ABC123',
+                'asset_tag': 'Foo1',
+            },
+            {
+                'device': device.pk,
+                'module_bay': module_bays[4].pk,
+                'module_type': module_types[1].pk,
+                'serial': 'DEF456',
+                'asset_tag': 'Foo2',
+            },
+            {
+                'device': device.pk,
+                'module_bay': module_bays[5].pk,
+                'module_type': module_types[2].pk,
+                'serial': 'GHI789',
+                'asset_tag': 'Foo3',
+            },
+        ]
 
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):

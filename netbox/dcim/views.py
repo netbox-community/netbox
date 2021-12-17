@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
+from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
@@ -30,7 +30,7 @@ from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import (
     Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, ModuleBay, ModuleBayTemplate, ModuleType, PathEndpoint, Platform, PowerFeed,
+    InventoryItem, Manufacturer, Module, ModuleBay, ModuleBayTemplate, ModuleType, PathEndpoint, Platform, PowerFeed,
     PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate, Rack, Location, RackReservation,
     RackRole, RearPort, RearPortTemplate, Region, Site, SiteGroup, VirtualChassis,
 )
@@ -1629,14 +1629,6 @@ class DeviceConfigContextView(ObjectConfigContextView):
     base_template = 'dcim/device/base.html'
 
 
-class DeviceChangeLogView(ObjectChangeLogView):
-    base_template = 'dcim/device/base.html'
-
-
-class DeviceJournalView(ObjectJournalView):
-    base_template = 'dcim/device/base.html'
-
-
 class DeviceEditView(generic.ObjectEditView):
     queryset = Device.objects.all()
     model_form = forms.DeviceForm
@@ -1683,6 +1675,49 @@ class DeviceBulkDeleteView(generic.BulkDeleteView):
     queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
+
+
+#
+# Devices
+#
+
+class ModuleListView(generic.ObjectListView):
+    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    filterset = filtersets.ModuleFilterSet
+    filterset_form = forms.ModuleFilterForm
+    table = tables.ModuleTable
+
+
+class ModuleView(generic.ObjectView):
+    queryset = Module.objects.all()
+
+
+class ModuleEditView(generic.ObjectEditView):
+    queryset = Module.objects.all()
+    model_form = forms.ModuleForm
+
+
+class ModuleDeleteView(generic.ObjectDeleteView):
+    queryset = Module.objects.all()
+
+
+class ModuleBulkImportView(generic.BulkImportView):
+    queryset = Module.objects.all()
+    model_form = forms.ModuleCSVForm
+    table = tables.ModuleTable
+
+
+class ModuleBulkEditView(generic.BulkEditView):
+    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    filterset = filtersets.ModuleFilterSet
+    table = tables.ModuleTable
+    form = forms.ModuleBulkEditForm
+
+
+class ModuleBulkDeleteView(generic.BulkDeleteView):
+    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    filterset = filtersets.ModuleFilterSet
+    table = tables.ModuleTable
 
 
 #

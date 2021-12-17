@@ -27,6 +27,7 @@ __all__ = (
     'InventoryItem',
     'Location',
     'Manufacturer',
+    'Module',
     'ModuleBay',
     'ModuleBayTemplate',
     'ModuleType',

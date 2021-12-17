@@ -725,26 +725,31 @@ class ModuleBayTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
+    installed_module = tables.Column(
+        linkify=True,
+        verbose_name='Installed module'
+    )
     tags = TagColumn(
         url_name='dcim:modulebay_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ModuleBay
-        fields = ('pk', 'id', 'name', 'device', 'label', 'description', 'tags')
-        default_columns = ('pk', 'name', 'device', 'label', 'description')
+        fields = ('pk', 'id', 'name', 'device', 'label', 'installed_module', 'description', 'tags')
+        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'description')
 
 
 class DeviceModuleBayTable(ModuleBayTable):
     actions = ButtonsColumn(
-        model=ModuleBay,
-        buttons=('edit', 'delete')
+        model=DeviceBay,
+        buttons=('edit', 'delete'),
+        prepend_template=MODULEBAY_BUTTONS
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ModuleBay
-        fields = ('pk', 'id', 'name', 'label', 'description', 'tags', 'actions')
-        default_columns = ('pk', 'name', 'label', 'description', 'actions')
+        fields = ('pk', 'id', 'name', 'label', 'description', 'installed_module', 'tags', 'actions')
+        default_columns = ('pk', 'name', 'label', 'description', 'installed_module', 'actions')
 
 
 class InventoryItemTable(DeviceComponentTable):

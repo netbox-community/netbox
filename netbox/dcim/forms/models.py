@@ -39,6 +39,7 @@ __all__ = (
     'InventoryItemForm',
     'LocationForm',
     'ManufacturerForm',
+    'ModuleForm',
     'ModuleBayForm',
     'ModuleBayTemplateForm',
     'ModuleTypeForm',
@@ -649,6 +650,46 @@ class DeviceForm(TenancyForm, CustomFieldModelForm):
         position = self.data.get('position') or self.initial.get('position')
         if position:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
+
+
+class ModuleForm(CustomFieldModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        initial_params={
+            'modulebays': '$module_bay'
+        }
+    )
+    module_bay = DynamicModelChoiceField(
+        queryset=ModuleBay.objects.all(),
+        query_params={
+            'device_id': '$device'
+        }
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        initial_params={
+            'device_types': '$device_type'
+        }
+    )
+    module_type = DynamicModelChoiceField(
+        queryset=ModuleType.objects.all(),
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
+    )
+    comments = CommentField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = Module
+        fields = [
+            'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags', 'comments',
+        ]
 
 
 class CableForm(TenancyForm, CustomFieldModelForm):

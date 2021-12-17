@@ -139,6 +139,7 @@ DEVICES_MENU = Menu(
             label='Devices',
             items=(
                 get_model_item('dcim', 'device', 'Devices'),
+                get_model_item('dcim', 'module', 'Modules'),
                 get_model_item('dcim', 'devicerole', 'Device Roles'),
                 get_model_item('dcim', 'platform', 'Platforms'),
                 get_model_item('dcim', 'virtualchassis', 'Virtual Chassis'),

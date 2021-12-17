@@ -32,6 +32,7 @@ __all__ = (
     'InventoryItemBulkEditForm',
     'LocationBulkEditForm',
     'ManufacturerBulkEditForm',
+    'ModuleBulkEditForm',
     'ModuleBayBulkEditForm',
     'ModuleBayTemplateBulkEditForm',
     'ModuleTypeBulkEditForm',
@@ -471,6 +472,32 @@ class DeviceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = [
             'tenant', 'platform', 'serial', 'airflow',
         ]
+
+
+class ModuleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Module.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    module_type = DynamicModelChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
+    )
+    serial = forms.CharField(
+        max_length=50,
+        required=False,
+        label='Serial Number'
+    )
+
+    class Meta:
+        nullable_fields = ['serial']
 
 
 class CableBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):

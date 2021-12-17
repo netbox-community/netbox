@@ -56,6 +56,22 @@
         </a>
     </li>
 
+    {% with devicebay_count=object.devicebaytemplates.count %}
+        {% if devicebay_count %}
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if active_tab == 'device-bay-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_devicebays' pk=object.pk %}">Device Bays {% badge devicebay_count %}</a>
+            </li>
+        {% endif %}
+    {% endwith %}
+
+    {% with modulebay_count=object.modulebaytemplates.count %}
+        {% if modulebay_count %}
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if active_tab == 'module-bay-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_modulebays' pk=object.pk %}">Module Bays {% badge modulebay_count %}</a>
+            </li>
+        {% endif %}
+    {% endwith %}
+
     {% with interface_count=object.interfacetemplates.count %}
         {% if interface_count %}
             <li role="presentation" class="nav-item">
@@ -108,22 +124,6 @@
         {% if poweroutlet_count %}
             <li role="presentation" class="nav-item">
                 <a class="nav-link {% if active_tab == 'power-outlet-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_poweroutlets' pk=object.pk %}">Power Outlets {% badge poweroutlet_count %}</a>
-            </li>
-        {% endif %}
-    {% endwith %}
-
-    {% with modulebay_count=object.modulebaytemplates.count %}
-        {% if modulebay_count %}
-            <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'module-bay-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_modulebays' pk=object.pk %}">Module Bays {% badge modulebay_count %}</a>
-            </li>
-        {% endif %}
-    {% endwith %}
-
-    {% with devicebay_count=object.devicebaytemplates.count %}
-        {% if devicebay_count %}
-            <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'device-bay-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_devicebays' pk=object.pk %}">Device Bays {% badge devicebay_count %}</a>
             </li>
         {% endif %}
     {% endwith %}

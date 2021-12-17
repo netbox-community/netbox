@@ -32,10 +32,11 @@ router.register('rear-port-templates', views.RearPortTemplateViewSet)
 router.register('module-bay-templates', views.ModuleBayTemplateViewSet)
 router.register('device-bay-templates', views.DeviceBayTemplateViewSet)
 
-# Devices
+# Device/modules
 router.register('device-roles', views.DeviceRoleViewSet)
 router.register('platforms', views.PlatformViewSet)
 router.register('devices', views.DeviceViewSet)
+router.register('modules', views.ModuleViewSet)
 
 # Device components
 router.register('console-ports', views.ConsolePortViewSet)

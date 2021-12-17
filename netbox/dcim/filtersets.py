@@ -43,6 +43,7 @@ __all__ = (
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
     'ModuleBayTemplateFilterSet',
+    'ModuleFilterSet',
     'ModuleTypeFilterSet',
     'PathEndpointFilterSet',
     'PlatformFilterSet',
@@ -922,6 +923,42 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
 
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebays__isnull=value)
+
+
+class ModuleFilterSet(PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type__manufacturer',
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer (ID)',
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type__manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label='Manufacturer (slug)',
+    )
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = Module
+        fields = ['id', 'serial', 'asset_tag']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(serial__icontains=value.strip()) |
+            Q(asset_tag__icontains=value.strip()) |
+            Q(comments__icontains=value)
+        ).distinct()
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):

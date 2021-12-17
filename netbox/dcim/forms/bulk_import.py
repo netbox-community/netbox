@@ -26,6 +26,7 @@ __all__ = (
     'InventoryItemCSVForm',
     'LocationCSVForm',
     'ManufacturerCSVForm',
+    'ModuleCSVForm',
     'ModuleBayCSVForm',
     'PlatformCSVForm',
     'PowerFeedCSVForm',
@@ -398,6 +399,35 @@ class DeviceCSVForm(BaseDeviceCSVForm):
                 f"location__{self.fields['location'].to_field_name}": data.get('location'),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
+
+
+class ModuleCSVForm(CustomFieldModelCSVForm):
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name'
+    )
+    module_bay = CSVModelChoiceField(
+        queryset=ModuleBay.objects.all(),
+        to_field_name='name'
+    )
+    module_type = CSVModelChoiceField(
+        queryset=ModuleType.objects.all(),
+        to_field_name='model'
+    )
+
+    class Meta:
+        model = Module
+        fields = (
+            'device', 'module_bay', 'module_type', 'serial', 'asset_tag', 'comments',
+        )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+            # Limit module_bay queryset by assigned device
+            params = {f"device__{self.fields['device'].to_field_name}": data.get('device')}
+            self.fields['module_bay'].queryset = self.fields['module_bay'].queryset.filter(**params)
 
 
 class ChildDeviceCSVForm(BaseDeviceCSVForm):

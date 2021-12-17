@@ -142,12 +142,12 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
             ('module_type', 'name'),
         )
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return ConsolePort(
-            device=device,
             name=self.name,
             label=self.label,
-            type=self.type
+            type=self.type,
+            **kwargs
         )
 
 
@@ -169,12 +169,12 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
             ('module_type', 'name'),
         )
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return ConsoleServerPort(
-            device=device,
             name=self.name,
             label=self.label,
-            type=self.type
+            type=self.type,
+            **kwargs
         )
 
 
@@ -208,14 +208,14 @@ class PowerPortTemplate(ModularComponentTemplateModel):
             ('module_type', 'name'),
         )
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return PowerPort(
-            device=device,
             name=self.name,
             label=self.label,
             type=self.type,
             maximum_draw=self.maximum_draw,
-            allocated_draw=self.allocated_draw
+            allocated_draw=self.allocated_draw,
+            **kwargs
         )
 
     def clean(self):
@@ -273,18 +273,18 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
                     f"Parent power port ({self.power_port}) must belong to the same module type"
                 )
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         if self.power_port:
-            power_port = PowerPort.objects.get(device=device, name=self.power_port.name)
+            power_port = PowerPort.objects.get(name=self.power_port.name, **kwargs)
         else:
             power_port = None
         return PowerOutlet(
-            device=device,
             name=self.name,
             label=self.label,
             type=self.type,
             power_port=power_port,
-            feed_leg=self.feed_leg
+            feed_leg=self.feed_leg,
+            **kwargs
         )
 
 
@@ -316,13 +316,13 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             ('module_type', 'name'),
         )
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return Interface(
-            device=device,
             name=self.name,
             label=self.label,
             type=self.type,
-            mgmt_only=self.mgmt_only
+            mgmt_only=self.mgmt_only,
+            **kwargs
         )
 
 
@@ -381,19 +381,19 @@ class FrontPortTemplate(ModularComponentTemplateModel):
         except RearPortTemplate.DoesNotExist:
             pass
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         if self.rear_port:
-            rear_port = RearPort.objects.get(device=device, name=self.rear_port.name)
+            rear_port = RearPort.objects.get(name=self.rear_port.name, **kwargs)
         else:
             rear_port = None
         return FrontPort(
-            device=device,
             name=self.name,
             label=self.label,
             type=self.type,
             color=self.color,
             rear_port=rear_port,
-            rear_port_position=self.rear_port_position
+            rear_port_position=self.rear_port_position,
+            **kwargs
         )
 
 
@@ -424,14 +424,14 @@ class RearPortTemplate(ModularComponentTemplateModel):
             ('module_type', 'name'),
         )
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return RearPort(
-            device=device,
             name=self.name,
             label=self.label,
             type=self.type,
             color=self.color,
-            positions=self.positions
+            positions=self.positions,
+            **kwargs
         )
 
 

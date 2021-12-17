@@ -7,7 +7,7 @@ from dcim.models import *
 from ipam.models import ASN, IPAddress, RIR
 from tenancy.models import Tenant, TenantGroup
 from utilities.choices import ColorChoices
-from utilities.testing import ChangeLoggedFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 
@@ -1645,6 +1645,79 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = Module.objects.all()
+    filterset = ModuleFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        devices = (
+            create_test_device('Test Device 1'),
+            create_test_device('Test Device 2'),
+            create_test_device('Test Device 3'),
+        )
+
+        module_types = (
+            ModuleType(manufacturer=manufacturers[0], model='Module Type 1'),
+            ModuleType(manufacturer=manufacturers[1], model='Module Type 2'),
+            ModuleType(manufacturer=manufacturers[2], model='Module Type 3'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[0], name='Module Bay 2'),
+            ModuleBay(device=devices[0], name='Module Bay 3'),
+            ModuleBay(device=devices[1], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[1], name='Module Bay 3'),
+            ModuleBay(device=devices[2], name='Module Bay 1'),
+            ModuleBay(device=devices[2], name='Module Bay 2'),
+            ModuleBay(device=devices[2], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0], serial='A', asset_tag='A'),
+            Module(device=devices[0], module_bay=module_bays[1], module_type=module_types[1], serial='B', asset_tag='B'),
+            Module(device=devices[0], module_bay=module_bays[2], module_type=module_types[2], serial='C', asset_tag='C'),
+            Module(device=devices[1], module_bay=module_bays[3], module_type=module_types[0], serial='D', asset_tag='D'),
+            Module(device=devices[1], module_bay=module_bays[4], module_type=module_types[1], serial='E', asset_tag='E'),
+            Module(device=devices[1], module_bay=module_bays[5], module_type=module_types[2], serial='F', asset_tag='F'),
+            Module(device=devices[2], module_bay=module_bays[6], module_type=module_types[0], serial='G', asset_tag='G'),
+            Module(device=devices[2], module_bay=module_bays[7], module_type=module_types[1], serial='H', asset_tag='H'),
+            Module(device=devices[2], module_bay=module_bays[8], module_type=module_types[2], serial='I', asset_tag='I'),
+        )
+        Module.objects.bulk_create(modules)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_device(self):
+        device_types = Device.objects.all()[:2]
+        params = {'device_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_serial(self):
+        params = {'asset_tag': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_asset_tag(self):
+        params = {'asset_tag': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

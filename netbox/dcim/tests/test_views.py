@@ -1697,6 +1697,75 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.get(url), 200)
 
 
+class ModuleTestCase(
+    # Module does not support bulk renaming (no name field) or
+    # bulk creation (need to specify module bays)
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    model = Module
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        devices = (
+            create_test_device('Device 1'),
+            create_test_device('Device 2'),
+        )
+
+        module_types = (
+            ModuleType(manufacturer=manufacturer, model='Module Type 1'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 2'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 3'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 4'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
+        module_bays = (
+            ModuleBay(device=devices[0], name='Module Bay 1'),
+            ModuleBay(device=devices[0], name='Module Bay 2'),
+            ModuleBay(device=devices[0], name='Module Bay 3'),
+            ModuleBay(device=devices[1], name='Module Bay 1'),
+            ModuleBay(device=devices[1], name='Module Bay 2'),
+            ModuleBay(device=devices[1], name='Module Bay 3'),
+        )
+        ModuleBay.objects.bulk_create(module_bays)
+
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0]),
+            Module(device=devices[0], module_bay=module_bays[1], module_type=module_types[1]),
+            Module(device=devices[0], module_bay=module_bays[2], module_type=module_types[2]),
+        )
+        Module.objects.bulk_create(modules)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': devices[1].pk,
+            'module_bay': module_bays[3].pk,
+            'module_type': module_types[0].pk,
+            'serial': 'A',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'module_type': module_types[3].pk,
+        }
+
+        cls.csv_data = (
+            "device,module_bay,module_type,serial,asset_tag",
+            "Device 2,Module Bay 1,Module Type 1,A,A",
+            "Device 2,Module Bay 2,Module Type 2,B,B",
+            "Device 2,Module Bay 3,Module Type 3,C,C",
+        )
+
+
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsolePort
 

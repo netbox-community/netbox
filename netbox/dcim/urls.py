@@ -254,11 +254,23 @@ urlpatterns = [
     path('devices/<int:pk>/device-bays/', views.DeviceDeviceBaysView.as_view(), name='device_devicebays'),
     path('devices/<int:pk>/inventory/', views.DeviceInventoryView.as_view(), name='device_inventory'),
     path('devices/<int:pk>/config-context/', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
-    path('devices/<int:pk>/changelog/', views.DeviceChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
-    path('devices/<int:pk>/journal/', views.DeviceJournalView.as_view(), name='device_journal', kwargs={'model': Device}),
+    path('devices/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
+    path('devices/<int:pk>/journal/', ObjectJournalView.as_view(), name='device_journal', kwargs={'model': Device}),
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
+
+    # Modules
+    path('modules/', views.ModuleListView.as_view(), name='module_list'),
+    path('modules/add/', views.ModuleEditView.as_view(), name='module_add'),
+    path('modules/import/', views.ModuleBulkImportView.as_view(), name='module_import'),
+    path('modules/edit/', views.ModuleBulkEditView.as_view(), name='module_bulk_edit'),
+    path('modules/delete/', views.ModuleBulkDeleteView.as_view(), name='module_bulk_delete'),
+    path('modules/<int:pk>/', views.ModuleView.as_view(), name='module'),
+    path('modules/<int:pk>/edit/', views.ModuleEditView.as_view(), name='module_edit'),
+    path('modules/<int:pk>/delete/', views.ModuleDeleteView.as_view(), name='module_delete'),
+    path('modules/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='module_changelog', kwargs={'model': Module}),
+    path('modules/<int:pk>/journal/', ObjectJournalView.as_view(), name='module_journal', kwargs={'model': Module}),
 
     # Console ports
     path('console-ports/', views.ConsolePortListView.as_view(), name='consoleport_list'),

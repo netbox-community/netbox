@@ -87,6 +87,19 @@ class ComponentModel(PrimaryModel):
         return self.device
 
 
+class ModularComponentModel(ComponentModel):
+    module = models.ForeignKey(
+        to='dcim.Module',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+
 class LinkTermination(models.Model):
     """
     An abstract model inherited by all models to which a Cable, WirelessLink, or other such link can terminate. Examples
@@ -234,7 +247,7 @@ class PathEndpoint(models.Model):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
+class ConsolePort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -262,7 +275,7 @@ class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
+class ConsoleServerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -294,7 +307,7 @@ class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
+class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -387,7 +400,7 @@ class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerOutlet(ComponentModel, LinkTermination, PathEndpoint):
+class PowerOutlet(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -502,7 +515,7 @@ class BaseInterface(models.Model):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
+class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -765,7 +778,7 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class FrontPort(ComponentModel, LinkTermination):
+class FrontPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the front of a Device.
     """
@@ -819,7 +832,7 @@ class FrontPort(ComponentModel, LinkTermination):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class RearPort(ComponentModel, LinkTermination):
+class RearPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the rear of a Device.
     """

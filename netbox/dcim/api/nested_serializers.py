@@ -22,6 +22,7 @@ __all__ = [
     'NestedManufacturerSerializer',
     'NestedModuleBaySerializer',
     'NestedModuleBayTemplateSerializer',
+    'NestedModuleSerializer',
     'NestedModuleTypeSerializer',
     'NestedPlatformSerializer',
     'NestedPowerFeedSerializer',
@@ -260,6 +261,18 @@ class NestedDeviceSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name']
 
 
+class NestedModuleSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
+    device = NestedDeviceSerializer(read_only=True)
+    # TODO: Solve circular dependency
+    # module_bay = NestedModuleBaySerializer(read_only=True)
+    module_type = NestedModuleTypeSerializer(read_only=True)
+
+    class Meta:
+        model = models.Module
+        fields = ['id', 'url', 'display', 'device', 'module_bay', 'module_type']
+
+
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverport-detail')
     device = NestedDeviceSerializer(read_only=True)
@@ -325,11 +338,11 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
 
 class NestedModuleBaySerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
-    # module = NestedModuleSerializer(read_only=True)
+    module = NestedModuleSerializer(read_only=True)
 
     class Meta:
-        model = models.DeviceBay
-        fields = ['id', 'url', 'display', 'name']
+        model = models.ModuleBay
+        fields = ['id', 'url', 'display', 'module', 'name']
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):

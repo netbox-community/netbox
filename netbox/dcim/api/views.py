@@ -377,7 +377,7 @@ class PlatformViewSet(CustomFieldModelViewSet):
 
 
 #
-# Devices
+# Devices/modules
 #
 
 class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
@@ -524,6 +524,14 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
         d.close()
 
         return Response(response)
+
+
+class ModuleViewSet(CustomFieldModelViewSet):
+    queryset = Module.objects.prefetch_related(
+        'device', 'module_bay', 'module_type__manufacturer', 'tags',
+    )
+    serializer_class = serializers.ModuleSerializer
+    filterset_class = filtersets.ModuleFilterSet
 
 
 #

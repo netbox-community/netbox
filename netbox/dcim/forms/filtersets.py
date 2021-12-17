@@ -29,6 +29,8 @@ __all__ = (
     'InventoryItemFilterForm',
     'LocationFilterForm',
     'ManufacturerFilterForm',
+    'ModuleFilterForm',
+    'ModuleFilterForm',
     'ModuleBayFilterForm',
     'ModuleTypeFilterForm',
     'PlatformFilterForm',
@@ -641,6 +643,37 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    tag = TagFilterField(model)
+
+
+class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+    model = Module
+    field_groups = [
+        ['q', 'tag'],
+        ['manufacturer_id', 'module_type_id'],
+        ['serial', 'asset_tag'],
+    ]
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer'),
+        fetch_trigger='open'
+    )
+    module_type_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer_id'
+        },
+        label=_('Type'),
+        fetch_trigger='open'
+    )
+    serial = forms.CharField(
+        required=False
+    )
+    asset_tag = forms.CharField(
+        required=False
     )
     tag = TagFilterField(model)
 
