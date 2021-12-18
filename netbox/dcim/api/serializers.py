@@ -558,6 +558,10 @@ class DeviceNAPALMSerializer(serializers.Serializer):
 class ConsoleServerPortSerializer(PrimaryModelSerializer, LinkTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverport-detail')
     device = NestedDeviceSerializer()
+    module = ComponentNestedModuleSerializer(
+        required=False,
+        allow_null=True
+    )
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
         allow_blank=True,
@@ -573,8 +577,8 @@ class ConsoleServerPortSerializer(PrimaryModelSerializer, LinkTerminationSeriali
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected',
-            'cable', 'link_peer', 'link_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'speed', 'description',
+            'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint', 'connected_endpoint_type',
             'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
@@ -582,6 +586,10 @@ class ConsoleServerPortSerializer(PrimaryModelSerializer, LinkTerminationSeriali
 class ConsolePortSerializer(PrimaryModelSerializer, LinkTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleport-detail')
     device = NestedDeviceSerializer()
+    module = ComponentNestedModuleSerializer(
+        required=False,
+        allow_null=True
+    )
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
         allow_blank=True,
@@ -597,8 +605,8 @@ class ConsolePortSerializer(PrimaryModelSerializer, LinkTerminationSerializer, C
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'speed', 'description', 'mark_connected',
-            'cable', 'link_peer', 'link_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'speed', 'description',
+            'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint', 'connected_endpoint_type',
             'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
@@ -606,6 +614,10 @@ class ConsolePortSerializer(PrimaryModelSerializer, LinkTerminationSerializer, C
 class PowerOutletSerializer(PrimaryModelSerializer, LinkTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:poweroutlet-detail')
     device = NestedDeviceSerializer()
+    module = ComponentNestedModuleSerializer(
+        required=False,
+        allow_null=True
+    )
     type = ChoiceField(
         choices=PowerOutletTypeChoices,
         allow_blank=True,
@@ -627,15 +639,20 @@ class PowerOutletSerializer(PrimaryModelSerializer, LinkTerminationSerializer, C
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
-            'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg',
+            'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint',
+            'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
+            'last_updated', '_occupied',
         ]
 
 
 class PowerPortSerializer(PrimaryModelSerializer, LinkTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerport-detail')
     device = NestedDeviceSerializer()
+    module = ComponentNestedModuleSerializer(
+        required=False,
+        allow_null=True
+    )
     type = ChoiceField(
         choices=PowerPortTypeChoices,
         allow_blank=True,
@@ -646,15 +663,20 @@ class PowerPortSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
-            'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
+            'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'connected_endpoint',
+            'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
+            'last_updated', '_occupied',
         ]
 
 
 class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, ConnectedEndpointSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     device = NestedDeviceSerializer()
+    module = ComponentNestedModuleSerializer(
+        required=False,
+        allow_null=True
+    )
     type = ChoiceField(choices=InterfaceTypeChoices)
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedInterfaceSerializer(required=False, allow_null=True)
@@ -683,12 +705,12 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
     class Meta:
         model = Interface
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag', 'mtu',
-            'mac_address', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'wireless_link',
-            'link_peer', 'link_peer_type', 'wireless_lans', 'connected_endpoint', 'connected_endpoint_type',
-            'connected_endpoint_reachable', 'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses',
-            'count_fhrp_groups', '_occupied',
+            'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'enabled', 'parent', 'bridge', 'lag',
+            'mtu', 'mac_address', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'mark_connected',
+            'cable', 'wireless_link', 'link_peer', 'link_peer_type', 'wireless_lans', 'connected_endpoint',
+            'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
+            'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
 
     def validate(self, data):
@@ -708,13 +730,17 @@ class InterfaceSerializer(PrimaryModelSerializer, LinkTerminationSerializer, Con
 class RearPortSerializer(PrimaryModelSerializer, LinkTerminationSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearport-detail')
     device = NestedDeviceSerializer()
+    module = ComponentNestedModuleSerializer(
+        required=False,
+        allow_null=True
+    )
     type = ChoiceField(choices=PortTypeChoices)
     cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = RearPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'color', 'positions', 'description',
+            'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'description',
             'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
@@ -734,6 +760,10 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
 class FrontPortSerializer(PrimaryModelSerializer, LinkTerminationSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontport-detail')
     device = NestedDeviceSerializer()
+    module = ComponentNestedModuleSerializer(
+        required=False,
+        allow_null=True
+    )
     type = ChoiceField(choices=PortTypeChoices)
     rear_port = FrontPortRearPortSerializer()
     cable = NestedCableSerializer(read_only=True)
@@ -741,9 +771,9 @@ class FrontPortSerializer(PrimaryModelSerializer, LinkTerminationSerializer):
     class Meta:
         model = FrontPort
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
-            'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'tags', 'custom_fields',
-            'created', 'last_updated', '_occupied',
+            'id', 'url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'rear_port',
+            'rear_port_position', 'description', 'mark_connected', 'cable', 'link_peer', 'link_peer_type', 'tags',
+            'custom_fields', 'created', 'last_updated', '_occupied',
         ]
 
 

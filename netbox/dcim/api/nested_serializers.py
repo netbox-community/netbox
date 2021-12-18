@@ -4,6 +4,7 @@ from dcim import models
 from netbox.api.serializers import BaseModelSerializer, WritableNestedSerializer
 
 __all__ = [
+    'ComponentNestedModuleSerializer',
     'NestedCableSerializer',
     'NestedConsolePortSerializer',
     'NestedConsolePortTemplateSerializer',
@@ -261,11 +262,30 @@ class NestedDeviceSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name']
 
 
+class ModuleNestedModuleBaySerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebay-detail')
+
+    class Meta:
+        model = models.ModuleBay
+        fields = ['id', 'url', 'display', 'name']
+
+
+class ComponentNestedModuleSerializer(WritableNestedSerializer):
+    """
+    Used by device component serializers.
+    """
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
+    module_bay = ModuleNestedModuleBaySerializer(read_only=True)
+
+    class Meta:
+        model = models.Module
+        fields = ['id', 'url', 'display', 'device', 'module_bay']
+
+
 class NestedModuleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
     device = NestedDeviceSerializer(read_only=True)
-    # TODO: Solve circular dependency
-    # module_bay = NestedModuleBaySerializer(read_only=True)
+    module_bay = ModuleNestedModuleBaySerializer(read_only=True)
     module_type = NestedModuleTypeSerializer(read_only=True)
 
     class Meta:

@@ -539,7 +539,9 @@ class ModuleViewSet(CustomFieldModelViewSet):
 #
 
 class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
+    queryset = ConsolePort.objects.prefetch_related(
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+    )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
     brief_prefetch_fields = ['device']
@@ -547,7 +549,7 @@ class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
 
 class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = ConsoleServerPort.objects.prefetch_related(
-        'device', '_path__destination', 'cable', '_link_peer', 'tags'
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
@@ -555,14 +557,18 @@ class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
 
 
 class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
+    queryset = PowerPort.objects.prefetch_related(
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+    )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
     brief_prefetch_fields = ['device']
 
 
 class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_link_peer', 'tags')
+    queryset = PowerOutlet.objects.prefetch_related(
+        'device', 'module__module_bay', '_path__destination', 'cable', '_link_peer', 'tags'
+    )
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
     brief_prefetch_fields = ['device']
@@ -570,8 +576,8 @@ class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', 'parent', 'bridge', 'lag', '_path__destination', 'cable', '_link_peer', 'wireless_lans',
-        'untagged_vlan', 'tagged_vlans', 'ip_addresses', 'fhrp_group_assignments', 'tags'
+        'device', 'module__module_bay', 'parent', 'bridge', 'lag', '_path__destination', 'cable', '_link_peer',
+        'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'ip_addresses', 'fhrp_group_assignments', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
@@ -579,14 +585,18 @@ class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
 
 
 class FrontPortViewSet(PassThroughPortMixin, ModelViewSet):
-    queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
+    queryset = FrontPort.objects.prefetch_related(
+        'device__device_type__manufacturer', 'module__module_bay', 'rear_port', 'cable', 'tags'
+    )
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filtersets.FrontPortFilterSet
     brief_prefetch_fields = ['device']
 
 
 class RearPortViewSet(PassThroughPortMixin, ModelViewSet):
-    queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
+    queryset = RearPort.objects.prefetch_related(
+        'device__device_type__manufacturer', 'module__module_bay', 'cable', 'tags'
+    )
     serializer_class = serializers.RearPortSerializer
     filterset_class = filtersets.RearPortFilterSet
     brief_prefetch_fields = ['device']
