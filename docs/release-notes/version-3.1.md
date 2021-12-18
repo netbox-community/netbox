@@ -18,6 +18,7 @@
 * [#8078](https://github.com/netbox-community/netbox/issues/8078) - Add missing wireless models to `lsmodels()` in `nbshell`
 * [#8079](https://github.com/netbox-community/netbox/issues/8079) - Fix validation of LLDP neighbors when connected device has an asset tag
 * [#8088](https://github.com/netbox-community/netbox/issues/8088) - Improve legibility of text in labels with light-colored backgrounds
+* [#8092](https://github.com/netbox-community/netbox/issues/8092) - Rack elevations should not include device asset tags
 * [#8096](https://github.com/netbox-community/netbox/issues/8096) - Fix DataError during change logging of objects with very long string representations
 
 ---
