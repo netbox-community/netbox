@@ -1,6 +1,13 @@
-{% extends 'dcim/device_component.html' %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item">
+    <a href="{% url 'dcim:device_consoleports' pk=object.device.pk %}">{{ object.device }}</a>
+  </li>
+{% endblock %}
 
 {% block content %}
     <div class="row">
