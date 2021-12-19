@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#7661](https://github.com/netbox-community/netbox/issues/7661) - Remove forced styling of custom banners
 * [#7665](https://github.com/netbox-community/netbox/issues/7665) - Add toggle to show only available child prefixes
 * [#8057](https://github.com/netbox-community/netbox/issues/8057) - Dynamic object tables using HTMX
 * [#8080](https://github.com/netbox-community/netbox/issues/8080) - Link to NAT IPs for device/VM primary IPs
