@@ -717,7 +717,7 @@ class ModuleBayCSVForm(CustomFieldModelCSVForm):
 
     class Meta:
         model = ModuleBay
-        fields = ('device', 'name', 'label', 'description')
+        fields = ('device', 'name', 'label', 'position', 'description')
 
 
 class DeviceBayCSVForm(CustomFieldModelCSVForm):

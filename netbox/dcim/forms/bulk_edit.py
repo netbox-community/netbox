@@ -886,7 +886,7 @@ class ModuleBayTemplateBulkEditForm(BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('label', 'description')
+        nullable_fields = ('label', 'position', 'description')
 
 
 class DeviceBayTemplateBulkEditForm(BulkEditForm):
@@ -1153,7 +1153,7 @@ class ModuleBayBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = ['label', 'description']
+        nullable_fields = ['label', 'position', 'description']
 
 
 class DeviceBayBulkEditForm(

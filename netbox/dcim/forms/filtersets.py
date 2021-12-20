@@ -1073,10 +1073,13 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
     model = ModuleBay
     field_groups = [
         ['q', 'tag'],
-        ['name', 'label'],
+        ['name', 'label', 'position'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
     tag = TagFilterField(model)
+    position = forms.CharField(
+        required=False
+    )
 
 
 class DeviceBayFilterForm(DeviceComponentFilterForm):

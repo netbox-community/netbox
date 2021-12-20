@@ -45,7 +45,7 @@
 
 {% block tab_items %}
     <li role="presentation" class="nav-item">
-        <a href="{% url 'dcim:devicetype' pk=object.pk %}" class="nav-link{% if active_tab == 'moduletype' %} active{% endif %}">
+        <a href="{% url 'dcim:moduletype' pk=object.pk %}" class="nav-link{% if active_tab == 'moduletype' %} active{% endif %}">
             Module Type
         </a>
     </li>

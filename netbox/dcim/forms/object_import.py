@@ -155,7 +155,7 @@ class ModuleBayTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'device_type', 'name', 'label', 'description',
+            'device_type', 'name', 'label', 'position', 'description',
         ]
 
 

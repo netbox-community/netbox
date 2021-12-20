@@ -217,7 +217,7 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = ModuleBayTemplate
-        fields = ('pk', 'name', 'label', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'position', 'description', 'actions')
         empty_text = "None"
 
 

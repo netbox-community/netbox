@@ -123,6 +123,11 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
                 "A component template must be associated with either a device type or a module type."
             )
 
+    def resolve_name(self, module):
+        if module:
+            return self.name.replace('{module}', module.module_bay.position)
+        return self.name
+
 
 @extras_features('webhooks')
 class ConsolePortTemplate(ModularComponentTemplateModel):
@@ -144,7 +149,7 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return ConsolePort(
-            name=self.name,
+            name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
             **kwargs
@@ -171,7 +176,7 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return ConsoleServerPort(
-            name=self.name,
+            name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
             **kwargs
@@ -210,7 +215,7 @@ class PowerPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return PowerPort(
-            name=self.name,
+            name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
             maximum_draw=self.maximum_draw,
@@ -279,7 +284,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         else:
             power_port = None
         return PowerOutlet(
-            name=self.name,
+            name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
             power_port=power_port,
@@ -318,7 +323,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return Interface(
-            name=self.name,
+            name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
             mgmt_only=self.mgmt_only,
@@ -387,7 +392,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
         else:
             rear_port = None
         return FrontPort(
-            name=self.name,
+            name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
             color=self.color,
@@ -426,7 +431,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return RearPort(
-            name=self.name,
+            name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
             color=self.color,
@@ -440,6 +445,12 @@ class ModuleBayTemplate(ComponentTemplateModel):
     """
     A template for a ModuleBay to be created for a new parent Device.
     """
+    position = models.CharField(
+        max_length=30,
+        blank=True,
+        help_text='Identifier to reference when renaming installed components'
+    )
+
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
@@ -448,7 +459,8 @@ class ModuleBayTemplate(ComponentTemplateModel):
         return ModuleBay(
             device=device,
             name=self.name,
-            label=self.label
+            label=self.label,
+            position=self.position
         )
 
 

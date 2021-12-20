@@ -432,7 +432,10 @@ class ModuleBayTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ModuleBayTemplate
-        fields = ['id', 'url', 'display', 'device_type', 'name', 'label', 'description', 'created', 'last_updated']
+        fields = [
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'position', 'description', 'created',
+            'last_updated',
+        ]
 
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
@@ -785,8 +788,8 @@ class ModuleBaySerializer(PrimaryModelSerializer):
     class Meta:
         model = ModuleBay
         fields = [
-            'id', 'url', 'display', 'device', 'name', 'label', 'description', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'device', 'name', 'label', 'position', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
 
 

@@ -163,6 +163,12 @@ class ComponentTemplateCreateForm(ComponentForm):
             'manufacturer_id': '$manufacturer'
         }
     )
+    description = forms.CharField(
+        required=False
+    )
+
+
+class ModularComponentTemplateCreateForm(ComponentTemplateCreateForm):
     module_type = DynamicModelChoiceField(
         queryset=ModuleType.objects.all(),
         required=False,
@@ -170,12 +176,9 @@ class ComponentTemplateCreateForm(ComponentForm):
             'manufacturer_id': '$manufacturer'
         }
     )
-    description = forms.CharField(
-        required=False
-    )
 
 
-class ConsolePortTemplateCreateForm(ComponentTemplateCreateForm):
+class ConsolePortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect()
@@ -185,7 +188,7 @@ class ConsolePortTemplateCreateForm(ComponentTemplateCreateForm):
     )
 
 
-class ConsoleServerPortTemplateCreateForm(ComponentTemplateCreateForm):
+class ConsoleServerPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect()
@@ -195,7 +198,7 @@ class ConsoleServerPortTemplateCreateForm(ComponentTemplateCreateForm):
     )
 
 
-class PowerPortTemplateCreateForm(ComponentTemplateCreateForm):
+class PowerPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False
@@ -216,7 +219,7 @@ class PowerPortTemplateCreateForm(ComponentTemplateCreateForm):
     )
 
 
-class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
+class PowerOutletTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
@@ -240,7 +243,7 @@ class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
     )
 
 
-class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
+class InterfaceTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect()
@@ -255,7 +258,7 @@ class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
     )
 
 
-class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
+class FrontPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect()
@@ -320,7 +323,7 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         }
 
 
-class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
+class RearPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect(),
@@ -341,6 +344,7 @@ class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
 
 
 class ModuleBayTemplateCreateForm(ComponentTemplateCreateForm):
+    # TODO: Support patterned position assignment
     field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'description')
 
 

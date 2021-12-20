@@ -1059,7 +1059,7 @@ class ModuleBayTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'device_type', 'name', 'label', 'description',
+            'device_type', 'name', 'label', 'position', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1313,7 +1313,7 @@ class ModuleBayForm(CustomFieldModelForm):
     class Meta:
         model = ModuleBay
         fields = [
-            'device', 'name', 'label', 'description', 'tags',
+            'device', 'name', 'label', 'position', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),

@@ -880,6 +880,12 @@ class ModuleBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
     """
+    position = models.CharField(
+        max_length=30,
+        blank=True,
+        help_text='Identifier to reference when renaming installed components'
+    )
+
     clone_fields = ['device']
 
     class Meta:
