@@ -83,7 +83,7 @@ class WirelessChannelChoices(ChoiceSet):
     CHANNEL_5G_173 = '5g-173-5865-20'
     CHANNEL_5G_175 = '5g-175-5875-40'
     CHANNEL_5G_177 = '5g-177-5885-20'
-    
+
     # 6 GHz
     CHANNEL_6G_1 = '6g-1-5955-20'
     CHANNEL_6G_3 = '6g-3-5965-40'
@@ -217,7 +217,7 @@ class WirelessChannelChoices(ChoiceSet):
     CHANNEL_60G_25 = '60g-25-61560-6480'
     CHANNEL_60G_26 = '60g-26-63720-6480'
     CHANNEL_60G_27 = '60g-27-65880-6480'
-    
+
     CHOICES = (
         (
             '2.4 GHz (802.11b/g/n/ax)',
