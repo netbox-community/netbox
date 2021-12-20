@@ -14,6 +14,12 @@
 
 ### New Features
 
+#### Modules & Module Types ([#7844](https://github.com/netbox-community/netbox/issues/7844))
+
+Several new models have been added to support field-replaceable device modules, such as those within a chassis-based switch or router. Similar to devices, each module is instantiated from a user-defined module type, and can have components associated with it. These components become available to the parent device once the module has been installed within a module bay. This makes it very convenient to replicate the addition and deletion of device components as modules are installed and removed. 
+
+Automatic renaming of module components is also supported. When a new module is created, any occurrence of the string `{module}` in a component name will be replaced with the position of the module bay into which the module is being installed.
+
 #### Custom Status Choices ([#8054](https://github.com/netbox-community/netbox/issues/8054))
 
 Custom choices can be now added to most status fields in NetBox. This is done by defining the `FIELD_CHOICES` configuration parameter to map field identifiers to an iterable of custom choices. These choices are populated automatically when NetBox initializes. For example, the following will add three custom choices for the site status field:
