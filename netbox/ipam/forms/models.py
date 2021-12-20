@@ -461,27 +461,16 @@ class IPAddressForm(TenancyForm, CustomFieldModelForm):
     def clean(self):
         super().clean()
 
-        if self.cleaned_data['interface'] and self.cleaned_data['vminterface'] and self.cleaned_data['fhrpgroup']:
-            self.add_error('interface', "Can only assign an interface, VM interface or FHRP group")
-            self.add_error('vminterface', "Can only assign an interface, VM interface or FHRP group")
-            self.add_error('fhrpgroup', "Can only assign an interface, VM interface or FHRP group")
-        elif self.cleaned_data['interface'] and self.cleaned_data['vminterface']:
-            self.add_error('interface', "Can only assign an interface or VM interface")
-            self.add_error('vminterface', "Can only assign an interface or VM interface")
-        elif self.cleaned_data['interface'] and self.cleaned_data['fhrpgroup']:
-            self.add_error('interface', "Can only assign an interface or FHRP group")
-            self.add_error('fhrpgroup', "Can only assign an interface or FHRP group")
-        elif self.cleaned_data['vminterface'] and self.cleaned_data['fhrpgroup']:
-            self.add_error('vminterface', "Can only assign an VM interface or FHRP group")
-            self.add_error('fhrpgroup', "Can only assign an VM interface or FHRP group")
-
         # Handle object assignment
-        if self.cleaned_data['interface']:
-            self.instance.assigned_object = self.cleaned_data['interface']
-        elif self.cleaned_data['vminterface']:
-            self.instance.assigned_object = self.cleaned_data['vminterface']
-        elif self.cleaned_data['fhrpgroup']:
-            self.instance.assigned_object = self.cleaned_data['fhrpgroup']
+        selected_objects = [
+            field for field in ('interface', 'vminterface', 'fhrpgroup') if self.cleaned_data[field]
+        ]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError({
+                selected_objects[1]: "An IP address can only be assigned to a single object."
+            })
+        elif selected_objects:
+            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
 
         # Primary IP assignment is only available if an interface has been assigned.
         interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
