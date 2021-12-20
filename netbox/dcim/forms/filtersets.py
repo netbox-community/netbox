@@ -29,6 +29,10 @@ __all__ = (
     'InventoryItemFilterForm',
     'LocationFilterForm',
     'ManufacturerFilterForm',
+    'ModuleFilterForm',
+    'ModuleFilterForm',
+    'ModuleBayFilterForm',
+    'ModuleTypeFilterForm',
     'PlatformFilterForm',
     'PowerConnectionFilterForm',
     'PowerFeedFilterForm',
@@ -336,7 +340,7 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
     model = DeviceType
     field_groups = [
         ['q', 'tag'],
-        ['manufacturer_id', 'subdevice_role', 'airflow'],
+        ['manufacturer_id', 'part_number', 'subdevice_role', 'airflow'],
         ['console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports'],
     ]
     manufacturer_id = DynamicModelMultipleChoiceField(
@@ -344,6 +348,9 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
         required=False,
         label=_('Manufacturer'),
         fetch_trigger='open'
+    )
+    part_number = forms.CharField(
+        required=False
     )
     subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
@@ -354,6 +361,67 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
         choices=add_blank_choice(DeviceAirflowChoices),
         required=False,
         widget=StaticSelectMultiple()
+    )
+    console_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    console_server_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console server ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    power_ports = forms.NullBooleanField(
+        required=False,
+        label='Has power ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    power_outlets = forms.NullBooleanField(
+        required=False,
+        label='Has power outlets',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    interfaces = forms.NullBooleanField(
+        required=False,
+        label='Has interfaces',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    pass_through_ports = forms.NullBooleanField(
+        required=False,
+        label='Has pass-through ports',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    tag = TagFilterField(model)
+
+
+class ModuleTypeFilterForm(CustomFieldModelFilterForm):
+    model = ModuleType
+    field_groups = [
+        ['q', 'tag'],
+        ['manufacturer_id', 'part_number'],
+        ['console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports'],
+    ]
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer'),
+        fetch_trigger='open'
+    )
+    part_number = forms.CharField(
+        required=False
     )
     console_ports = forms.NullBooleanField(
         required=False,
@@ -575,6 +643,37 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    tag = TagFilterField(model)
+
+
+class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldModelFilterForm):
+    model = Module
+    field_groups = [
+        ['q', 'tag'],
+        ['manufacturer_id', 'module_type_id'],
+        ['serial', 'asset_tag'],
+    ]
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer'),
+        fetch_trigger='open'
+    )
+    module_type_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer_id'
+        },
+        label=_('Type'),
+        fetch_trigger='open'
+    )
+    serial = forms.CharField(
+        required=False
+    )
+    asset_tag = forms.CharField(
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -968,6 +1067,19 @@ class RearPortFilterForm(DeviceComponentFilterForm):
         required=False
     )
     tag = TagFilterField(model)
+
+
+class ModuleBayFilterForm(DeviceComponentFilterForm):
+    model = ModuleBay
+    field_groups = [
+        ['q', 'tag'],
+        ['name', 'label', 'position'],
+        ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
+    ]
+    tag = TagFilterField(model)
+    position = forms.CharField(
+        required=False
+    )
 
 
 class DeviceBayFilterForm(DeviceComponentFilterForm):

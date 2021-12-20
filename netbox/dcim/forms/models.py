@@ -39,6 +39,10 @@ __all__ = (
     'InventoryItemForm',
     'LocationForm',
     'ManufacturerForm',
+    'ModuleForm',
+    'ModuleBayForm',
+    'ModuleBayTemplateForm',
+    'ModuleTypeForm',
     'PlatformForm',
     'PopulateDeviceBayForm',
     'PowerFeedForm',
@@ -412,6 +416,23 @@ class DeviceTypeForm(CustomFieldModelForm):
         }
 
 
+class ModuleTypeForm(CustomFieldModelForm):
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all()
+    )
+    comments = CommentField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ModuleType
+        fields = [
+            'manufacturer', 'model', 'part_number', 'comments', 'tags',
+        ]
+
+
 class DeviceRoleForm(CustomFieldModelForm):
     slug = SlugField()
     tags = DynamicModelMultipleChoiceField(
@@ -629,6 +650,46 @@ class DeviceForm(TenancyForm, CustomFieldModelForm):
         position = self.data.get('position') or self.initial.get('position')
         if position:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
+
+
+class ModuleForm(CustomFieldModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        initial_params={
+            'modulebays': '$module_bay'
+        }
+    )
+    module_bay = DynamicModelChoiceField(
+        queryset=ModuleBay.objects.all(),
+        query_params={
+            'device_id': '$device'
+        }
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        initial_params={
+            'device_types': '$device_type'
+        }
+    )
+    module_type = DynamicModelChoiceField(
+        queryset=ModuleType.objects.all(),
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
+    )
+    comments = CommentField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = Module
+        fields = [
+            'device', 'module_bay', 'manufacturer', 'module_type', 'serial', 'asset_tag', 'tags', 'comments',
+        ]
 
 
 class CableForm(TenancyForm, CustomFieldModelForm):
@@ -890,10 +951,11 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
+            'module_type': forms.HiddenInput(),
         }
 
 
@@ -901,10 +963,11 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
+            'module_type': forms.HiddenInput(),
         }
 
 
@@ -912,10 +975,11 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
+            'module_type': forms.HiddenInput(),
         }
 
 
@@ -923,19 +987,21 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
+            'module_type': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit power_port choices to current DeviceType
-        if hasattr(self.instance, 'device_type'):
+        # Limit power_port choices to current DeviceType/ModuleType
+        if self.instance.pk:
             self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
-                device_type=self.instance.device_type
+                device_type=self.instance.device_type,
+                module_type=self.instance.module_type
             )
 
 
@@ -943,10 +1009,11 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'mgmt_only', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
+            'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
         }
 
@@ -955,20 +1022,23 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
+            'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
+            'module_type': forms.HiddenInput(),
             'rear_port': StaticSelect(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit rear_port choices to current DeviceType
-        if hasattr(self.instance, 'device_type'):
+        # Limit rear_port choices to current DeviceType/ModuleType
+        if self.instance.pk:
             self.fields['rear_port'].queryset = RearPortTemplate.objects.filter(
-                device_type=self.instance.device_type
+                device_type=self.instance.device_type,
+                module_type=self.instance.module_type
             )
 
 
@@ -976,11 +1046,23 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'color', 'positions', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
+            'module_type': forms.HiddenInput(),
             'type': StaticSelect(),
+        }
+
+
+class ModuleBayTemplateForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model = ModuleBayTemplate
+        fields = [
+            'device_type', 'name', 'label', 'position', 'description',
+        ]
+        widgets = {
+            'device_type': forms.HiddenInput(),
         }
 
 
@@ -1219,6 +1301,22 @@ class RearPortForm(CustomFieldModelForm):
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
+        }
+
+
+class ModuleBayForm(CustomFieldModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ModuleBay
+        fields = [
+            'device', 'name', 'label', 'position', 'description', 'tags',
+        ]
+        widgets = {
+            'device': forms.HiddenInput(),
         }
 
 

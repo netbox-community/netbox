@@ -56,6 +56,13 @@
             </button>
           </li>
         {% endif %}
+        {% if perms.dcim.add_modulebay %}
+          <li>
+            <button type="submit" formaction="{% url 'dcim:device_bulk_add_modulebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              Module Bays
+            </button>
+          </li>
+        {% endif %}
         {% if perms.dcim.add_inventoryitem %}
           <li>
             <button type="submit" formaction="{% url 'dcim:device_bulk_add_inventoryitem' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">

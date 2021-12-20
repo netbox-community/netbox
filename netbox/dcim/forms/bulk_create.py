@@ -13,6 +13,7 @@ __all__ = (
     # 'FrontPortBulkCreateForm',
     'InterfaceBulkCreateForm',
     'InventoryItemBulkCreateForm',
+    'ModuleBayBulkCreateForm',
     'PowerOutletBulkCreateForm',
     'PowerPortBulkCreateForm',
     'RearPortBulkCreateForm',
@@ -93,6 +94,11 @@ class RearPortBulkCreateForm(
 ):
     model = RearPort
     field_order = ('name_pattern', 'label_pattern', 'type', 'positions', 'mark_connected', 'description', 'tags')
+
+
+class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
+    model = ModuleBay
+    field_order = ('name_pattern', 'label_pattern', 'description', 'tags')
 
 
 class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):

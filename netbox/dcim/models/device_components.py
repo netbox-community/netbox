@@ -30,6 +30,7 @@ __all__ = (
     'FrontPort',
     'Interface',
     'InventoryItem',
+    'ModuleBay',
     'PathEndpoint',
     'PowerOutlet',
     'PowerPort',
@@ -84,6 +85,19 @@ class ComponentModel(PrimaryModel):
     @property
     def parent_object(self):
         return self.device
+
+
+class ModularComponentModel(ComponentModel):
+    module = models.ForeignKey(
+        to='dcim.Module',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
 
 
 class LinkTermination(models.Model):
@@ -229,11 +243,11 @@ class PathEndpoint(models.Model):
 
 
 #
-# Console ports
+# Console components
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
+class ConsolePort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -260,12 +274,8 @@ class ConsolePort(ComponentModel, LinkTermination, PathEndpoint):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
 
-#
-# Console server ports
-#
-
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
+class ConsoleServerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -293,11 +303,11 @@ class ConsoleServerPort(ComponentModel, LinkTermination, PathEndpoint):
 
 
 #
-# Power ports
+# Power components
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
+class PowerPort(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -389,12 +399,8 @@ class PowerPort(ComponentModel, LinkTermination, PathEndpoint):
         }
 
 
-#
-# Power outlets
-#
-
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class PowerOutlet(ComponentModel, LinkTermination, PathEndpoint):
+class PowerOutlet(ModularComponentModel, LinkTermination, PathEndpoint):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -509,7 +515,7 @@ class BaseInterface(models.Model):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
+class Interface(ModularComponentModel, BaseInterface, LinkTermination, PathEndpoint):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -772,7 +778,7 @@ class Interface(ComponentModel, BaseInterface, LinkTermination, PathEndpoint):
 #
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class FrontPort(ComponentModel, LinkTermination):
+class FrontPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the front of a Device.
     """
@@ -826,7 +832,7 @@ class FrontPort(ComponentModel, LinkTermination):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class RearPort(ComponentModel, LinkTermination):
+class RearPort(ModularComponentModel, LinkTermination):
     """
     A pass-through port on the rear of a Device.
     """
@@ -866,8 +872,29 @@ class RearPort(ComponentModel, LinkTermination):
 
 
 #
-# Device bays
+# Bays
 #
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class ModuleBay(ComponentModel):
+    """
+    An empty space within a Device which can house a child device
+    """
+    position = models.CharField(
+        max_length=30,
+        blank=True,
+        help_text='Identifier to reference when renaming installed components'
+    )
+
+    clone_fields = ['device']
+
+    class Meta:
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
+
+    def get_absolute_url(self):
+        return reverse('dcim:modulebay', kwargs={'pk': self.pk})
+
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class DeviceBay(ComponentModel):

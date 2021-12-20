@@ -16,9 +16,10 @@ router.register('rack-roles', views.RackRoleViewSet)
 router.register('racks', views.RackViewSet)
 router.register('rack-reservations', views.RackReservationViewSet)
 
-# Device types
+# Device/module types
 router.register('manufacturers', views.ManufacturerViewSet)
 router.register('device-types', views.DeviceTypeViewSet)
+router.register('module-types', views.ModuleTypeViewSet)
 
 # Device type components
 router.register('console-port-templates', views.ConsolePortTemplateViewSet)
@@ -28,12 +29,14 @@ router.register('power-outlet-templates', views.PowerOutletTemplateViewSet)
 router.register('interface-templates', views.InterfaceTemplateViewSet)
 router.register('front-port-templates', views.FrontPortTemplateViewSet)
 router.register('rear-port-templates', views.RearPortTemplateViewSet)
+router.register('module-bay-templates', views.ModuleBayTemplateViewSet)
 router.register('device-bay-templates', views.DeviceBayTemplateViewSet)
 
-# Devices
+# Device/modules
 router.register('device-roles', views.DeviceRoleViewSet)
 router.register('platforms', views.PlatformViewSet)
 router.register('devices', views.DeviceViewSet)
+router.register('modules', views.ModuleViewSet)
 
 # Device components
 router.register('console-ports', views.ConsolePortViewSet)
@@ -43,6 +46,7 @@ router.register('power-outlets', views.PowerOutletViewSet)
 router.register('interfaces', views.InterfaceViewSet)
 router.register('front-ports', views.FrontPortViewSet)
 router.register('rear-ports', views.RearPortViewSet)
+router.register('module-bays', views.ModuleBayViewSet)
 router.register('device-bays', views.DeviceBayViewSet)
 router.register('inventory-items', views.InventoryItemViewSet)
 

@@ -7,7 +7,6 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
-from ipam.constants import BGP_ASN_MIN, BGP_ASN_MAX
 from ipam.models import VLAN, ASN
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -33,6 +32,10 @@ __all__ = (
     'InventoryItemBulkEditForm',
     'LocationBulkEditForm',
     'ManufacturerBulkEditForm',
+    'ModuleBulkEditForm',
+    'ModuleBayBulkEditForm',
+    'ModuleBayTemplateBulkEditForm',
+    'ModuleTypeBulkEditForm',
     'PlatformBulkEditForm',
     'PowerFeedBulkEditForm',
     'PowerOutletBulkEditForm',
@@ -326,6 +329,9 @@ class DeviceTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    part_number = forms.CharField(
+        required=False
+    )
     u_height = forms.IntegerField(
         min_value=1,
         required=False
@@ -342,7 +348,24 @@ class DeviceTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['airflow']
+        nullable_fields = ['part_number', 'airflow']
+
+
+class ModuleTypeBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ModuleType.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    part_number = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['part_number']
 
 
 class DeviceRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
@@ -449,6 +472,32 @@ class DeviceBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         nullable_fields = [
             'tenant', 'platform', 'serial', 'airflow',
         ]
+
+
+class ModuleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Module.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    module_type = DynamicModelChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
+    )
+    serial = forms.CharField(
+        max_length=50,
+        required=False,
+        label='Serial Number'
+    )
+
+    class Meta:
+        nullable_fields = ['serial']
 
 
 class CableBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
@@ -823,6 +872,23 @@ class RearPortTemplateBulkEditForm(BulkEditForm):
         nullable_fields = ('description',)
 
 
+class ModuleBayTemplateBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ModuleBayTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
+    description = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ('label', 'position', 'description')
+
+
 class DeviceBayTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBayTemplate.objects.all(),
@@ -1074,6 +1140,20 @@ class RearPortBulkEditForm(
 
     class Meta:
         nullable_fields = ['label', 'description']
+
+
+class ModuleBayBulkEditForm(
+    form_from_model(DeviceBay, ['label', 'description']),
+    AddRemoveTagsForm,
+    CustomFieldModelBulkEditForm
+):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ModuleBay.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+
+    class Meta:
+        nullable_fields = ['label', 'position', 'description']
 
 
 class DeviceBayBulkEditForm(

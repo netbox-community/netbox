@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.views import ObjectChangeLogView, ObjectConfigContextView, ObjectJournalView
+from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, Service, VLAN
 from ipam.tables import AssignedIPAddressesTable, InterfaceVLANTable
 from netbox.views import generic
@@ -30,9 +30,9 @@ from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import (
     Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, PathEndpoint, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    PowerPort, PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    SiteGroup, VirtualChassis,
+    InventoryItem, Manufacturer, Module, ModuleBay, ModuleBayTemplate, ModuleType, PathEndpoint, Platform, PowerFeed,
+    PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate, Rack, Location, RackReservation,
+    RackRole, RearPort, RearPortTemplate, Region, Site, SiteGroup, VirtualChassis,
 )
 
 
@@ -54,6 +54,14 @@ class DeviceTypeComponentsView(DeviceComponentsView):
 
     def get_children(self, request, parent):
         return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
+
+
+class ModuleTypeComponentsView(DeviceComponentsView):
+    queryset = ModuleType.objects.all()
+    template_name = 'dcim/moduletype/component_templates.html'
+
+    def get_children(self, request, parent):
+        return self.child_model.objects.restrict(request.user, 'view').filter(module_type=parent)
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -836,6 +844,12 @@ class DeviceTypeRearPortsView(DeviceTypeComponentsView):
     filterset = filtersets.RearPortTemplateFilterSet
 
 
+class DeviceTypeModuleBaysView(DeviceTypeComponentsView):
+    child_model = ModuleBayTemplate
+    table = tables.ModuleBayTemplateTable
+    filterset = filtersets.ModuleBayTemplateFilterSet
+
+
 class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
     child_model = DeviceBayTemplate
     table = tables.DeviceBayTemplateTable
@@ -861,6 +875,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
         'dcim.add_interfacetemplate',
         'dcim.add_frontporttemplate',
         'dcim.add_rearporttemplate',
+        'dcim.add_modulebaytemplate',
         'dcim.add_devicebaytemplate',
     ]
     queryset = DeviceType.objects.all()
@@ -873,8 +888,13 @@ class DeviceTypeImportView(generic.ObjectImportView):
         ('interfaces', forms.InterfaceTemplateImportForm),
         ('rear-ports', forms.RearPortTemplateImportForm),
         ('front-ports', forms.FrontPortTemplateImportForm),
+        ('module-bays', forms.ModuleBayTemplateImportForm),
         ('device-bays', forms.DeviceBayTemplateImportForm),
     ))
+
+    def prep_related_object_data(self, parent, data):
+        data.update({'device_type': parent})
+        return data
 
 
 class DeviceTypeBulkEditView(generic.BulkEditView):
@@ -892,6 +912,127 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
+
+
+#
+# Module types
+#
+
+class ModuleTypeListView(generic.ObjectListView):
+    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+        # instance_count=count_related(Module, 'module_type')
+    )
+    filterset = filtersets.ModuleTypeFilterSet
+    filterset_form = forms.ModuleTypeFilterForm
+    table = tables.ModuleTypeTable
+
+
+class ModuleTypeView(generic.ObjectView):
+    queryset = ModuleType.objects.prefetch_related('manufacturer')
+
+    def get_extra_context(self, request, instance):
+        # instance_count = Module.objects.restrict(request.user).filter(device_type=instance).count()
+
+        return {
+            # 'instance_count': instance_count,
+            'active_tab': 'moduletype',
+        }
+
+
+class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
+    child_model = ConsolePortTemplate
+    table = tables.ConsolePortTemplateTable
+    filterset = filtersets.ConsolePortTemplateFilterSet
+
+
+class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
+    child_model = ConsoleServerPortTemplate
+    table = tables.ConsoleServerPortTemplateTable
+    filterset = filtersets.ConsoleServerPortTemplateFilterSet
+
+
+class ModuleTypePowerPortsView(ModuleTypeComponentsView):
+    child_model = PowerPortTemplate
+    table = tables.PowerPortTemplateTable
+    filterset = filtersets.PowerPortTemplateFilterSet
+
+
+class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
+    child_model = PowerOutletTemplate
+    table = tables.PowerOutletTemplateTable
+    filterset = filtersets.PowerOutletTemplateFilterSet
+
+
+class ModuleTypeInterfacesView(ModuleTypeComponentsView):
+    child_model = InterfaceTemplate
+    table = tables.InterfaceTemplateTable
+    filterset = filtersets.InterfaceTemplateFilterSet
+
+
+class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
+    child_model = FrontPortTemplate
+    table = tables.FrontPortTemplateTable
+    filterset = filtersets.FrontPortTemplateFilterSet
+
+
+class ModuleTypeRearPortsView(ModuleTypeComponentsView):
+    child_model = RearPortTemplate
+    table = tables.RearPortTemplateTable
+    filterset = filtersets.RearPortTemplateFilterSet
+
+
+class ModuleTypeEditView(generic.ObjectEditView):
+    queryset = ModuleType.objects.all()
+    model_form = forms.ModuleTypeForm
+
+
+class ModuleTypeDeleteView(generic.ObjectDeleteView):
+    queryset = ModuleType.objects.all()
+
+
+class ModuleTypeImportView(generic.ObjectImportView):
+    additional_permissions = [
+        'dcim.add_moduletype',
+        'dcim.add_consoleporttemplate',
+        'dcim.add_consoleserverporttemplate',
+        'dcim.add_powerporttemplate',
+        'dcim.add_poweroutlettemplate',
+        'dcim.add_interfacetemplate',
+        'dcim.add_frontporttemplate',
+        'dcim.add_rearporttemplate',
+    ]
+    queryset = ModuleType.objects.all()
+    model_form = forms.ModuleTypeImportForm
+    related_object_forms = OrderedDict((
+        ('console-ports', forms.ConsolePortTemplateImportForm),
+        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
+        ('power-ports', forms.PowerPortTemplateImportForm),
+        ('power-outlets', forms.PowerOutletTemplateImportForm),
+        ('interfaces', forms.InterfaceTemplateImportForm),
+        ('rear-ports', forms.RearPortTemplateImportForm),
+        ('front-ports', forms.FrontPortTemplateImportForm),
+    ))
+
+    def prep_related_object_data(self, parent, data):
+        data.update({'module_type': parent})
+        return data
+
+
+class ModuleTypeBulkEditView(generic.BulkEditView):
+    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+        # instance_count=count_related(Module, 'module_type')
+    )
+    filterset = filtersets.ModuleTypeFilterSet
+    table = tables.ModuleTypeTable
+    form = forms.ModuleTypeBulkEditForm
+
+
+class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
+    queryset = ModuleType.objects.prefetch_related('manufacturer').annotate(
+        # instance_count=count_related(Module, 'module_type')
+    )
+    filterset = filtersets.ModuleTypeFilterSet
+    table = tables.ModuleTypeTable
 
 
 #
@@ -1130,6 +1271,40 @@ class RearPortTemplateBulkRenameView(generic.BulkRenameView):
 class RearPortTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = RearPortTemplate.objects.all()
     table = tables.RearPortTemplateTable
+
+
+#
+# Module bay templates
+#
+
+class ModuleBayTemplateCreateView(generic.ComponentCreateView):
+    queryset = ModuleBayTemplate.objects.all()
+    form = forms.ModuleBayTemplateCreateForm
+    model_form = forms.ModuleBayTemplateForm
+
+
+class ModuleBayTemplateEditView(generic.ObjectEditView):
+    queryset = ModuleBayTemplate.objects.all()
+    model_form = forms.ModuleBayTemplateForm
+
+
+class ModuleBayTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = ModuleBayTemplate.objects.all()
+
+
+class ModuleBayTemplateBulkEditView(generic.BulkEditView):
+    queryset = ModuleBayTemplate.objects.all()
+    table = tables.ModuleBayTemplateTable
+    form = forms.ModuleBayTemplateBulkEditForm
+
+
+class ModuleBayTemplateBulkRenameView(generic.BulkRenameView):
+    queryset = ModuleBayTemplate.objects.all()
+
+
+class ModuleBayTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = ModuleBayTemplate.objects.all()
+    table = tables.ModuleBayTemplateTable
 
 
 #
@@ -1388,6 +1563,13 @@ class DeviceRearPortsView(DeviceComponentsView):
     template_name = 'dcim/device/rearports.html'
 
 
+class DeviceModuleBaysView(DeviceComponentsView):
+    child_model = ModuleBay
+    table = tables.DeviceModuleBayTable
+    filterset = filtersets.ModuleBayFilterSet
+    template_name = 'dcim/device/modulebays.html'
+
+
 class DeviceDeviceBaysView(DeviceComponentsView):
     child_model = DeviceBay
     table = tables.DeviceDeviceBayTable
@@ -1447,14 +1629,6 @@ class DeviceConfigContextView(ObjectConfigContextView):
     base_template = 'dcim/device/base.html'
 
 
-class DeviceChangeLogView(ObjectChangeLogView):
-    base_template = 'dcim/device/base.html'
-
-
-class DeviceJournalView(ObjectJournalView):
-    base_template = 'dcim/device/base.html'
-
-
 class DeviceEditView(generic.ObjectEditView):
     queryset = Device.objects.all()
     model_form = forms.DeviceForm
@@ -1501,6 +1675,49 @@ class DeviceBulkDeleteView(generic.BulkDeleteView):
     queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
+
+
+#
+# Devices
+#
+
+class ModuleListView(generic.ObjectListView):
+    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    filterset = filtersets.ModuleFilterSet
+    filterset_form = forms.ModuleFilterForm
+    table = tables.ModuleTable
+
+
+class ModuleView(generic.ObjectView):
+    queryset = Module.objects.all()
+
+
+class ModuleEditView(generic.ObjectEditView):
+    queryset = Module.objects.all()
+    model_form = forms.ModuleForm
+
+
+class ModuleDeleteView(generic.ObjectDeleteView):
+    queryset = Module.objects.all()
+
+
+class ModuleBulkImportView(generic.BulkImportView):
+    queryset = Module.objects.all()
+    model_form = forms.ModuleCSVForm
+    table = tables.ModuleTable
+
+
+class ModuleBulkEditView(generic.BulkEditView):
+    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    filterset = filtersets.ModuleFilterSet
+    table = tables.ModuleTable
+    form = forms.ModuleBulkEditForm
+
+
+class ModuleBulkDeleteView(generic.BulkDeleteView):
+    queryset = Module.objects.prefetch_related('device', 'module_type__manufacturer')
+    filterset = filtersets.ModuleFilterSet
+    table = tables.ModuleTable
 
 
 #
@@ -1979,6 +2196,61 @@ class RearPortBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Module bays
+#
+
+class ModuleBayListView(generic.ObjectListView):
+    queryset = ModuleBay.objects.select_related('installed_module__module_type')
+    filterset = filtersets.ModuleBayFilterSet
+    filterset_form = forms.ModuleBayFilterForm
+    table = tables.ModuleBayTable
+    action_buttons = ('import', 'export')
+
+
+class ModuleBayView(generic.ObjectView):
+    queryset = ModuleBay.objects.all()
+
+
+class ModuleBayCreateView(generic.ComponentCreateView):
+    queryset = ModuleBay.objects.all()
+    form = forms.ModuleBayCreateForm
+    model_form = forms.ModuleBayForm
+
+
+class ModuleBayEditView(generic.ObjectEditView):
+    queryset = ModuleBay.objects.all()
+    model_form = forms.ModuleBayForm
+    template_name = 'dcim/device_component_edit.html'
+
+
+class ModuleBayDeleteView(generic.ObjectDeleteView):
+    queryset = ModuleBay.objects.all()
+
+
+class ModuleBayBulkImportView(generic.BulkImportView):
+    queryset = ModuleBay.objects.all()
+    model_form = forms.ModuleBayCSVForm
+    table = tables.ModuleBayTable
+
+
+class ModuleBayBulkEditView(generic.BulkEditView):
+    queryset = ModuleBay.objects.all()
+    filterset = filtersets.ModuleBayFilterSet
+    table = tables.ModuleBayTable
+    form = forms.ModuleBayBulkEditForm
+
+
+class ModuleBayBulkRenameView(generic.BulkRenameView):
+    queryset = ModuleBay.objects.all()
+
+
+class ModuleBayBulkDeleteView(generic.BulkDeleteView):
+    queryset = ModuleBay.objects.all()
+    filterset = filtersets.ModuleBayFilterSet
+    table = tables.ModuleBayTable
+
+
+#
 # Device bays
 #
 
@@ -2229,6 +2501,17 @@ class DeviceBulkAddRearPortView(generic.BulkComponentCreateView):
     form = forms.RearPortBulkCreateForm
     queryset = RearPort.objects.all()
     model_form = forms.RearPortForm
+    filterset = filtersets.DeviceFilterSet
+    table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
+
+
+class DeviceBulkAddModuleBayView(generic.BulkComponentCreateView):
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.ModuleBayBulkCreateForm
+    queryset = ModuleBay.objects.all()
+    model_form = forms.ModuleBayForm
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'

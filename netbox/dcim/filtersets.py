@@ -41,6 +41,10 @@ __all__ = (
     'InventoryItemFilterSet',
     'LocationFilterSet',
     'ManufacturerFilterSet',
+    'ModuleBayFilterSet',
+    'ModuleBayTemplateFilterSet',
+    'ModuleFilterSet',
+    'ModuleTypeFilterSet',
     'PathEndpointFilterSet',
     'PlatformFilterSet',
     'PowerConnectionFilterSet',
@@ -447,6 +451,10 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    module_bays = django_filters.BooleanFilter(
+        method='_module_bays',
+        label='Has module bays',
+    )
     device_bays = django_filters.BooleanFilter(
         method='_device_bays',
         label='Has device bays',
@@ -490,8 +498,88 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
             rearporttemplates__isnull=value
         )
 
+    def _module_bays(self, queryset, name, value):
+        return queryset.exclude(modulebaytemplates__isnull=value)
+
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebaytemplates__isnull=value)
+
+
+class ModuleTypeFilterSet(PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer (ID)',
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label='Manufacturer (slug)',
+    )
+    console_ports = django_filters.BooleanFilter(
+        method='_console_ports',
+        label='Has console ports',
+    )
+    console_server_ports = django_filters.BooleanFilter(
+        method='_console_server_ports',
+        label='Has console server ports',
+    )
+    power_ports = django_filters.BooleanFilter(
+        method='_power_ports',
+        label='Has power ports',
+    )
+    power_outlets = django_filters.BooleanFilter(
+        method='_power_outlets',
+        label='Has power outlets',
+    )
+    interfaces = django_filters.BooleanFilter(
+        method='_interfaces',
+        label='Has interfaces',
+    )
+    pass_through_ports = django_filters.BooleanFilter(
+        method='_pass_through_ports',
+        label='Has pass-through ports',
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = ModuleType
+        fields = ['id', 'model', 'part_number']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(manufacturer__name__icontains=value) |
+            Q(model__icontains=value) |
+            Q(part_number__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+    def _console_ports(self, queryset, name, value):
+        return queryset.exclude(consoleporttemplates__isnull=value)
+
+    def _console_server_ports(self, queryset, name, value):
+        return queryset.exclude(consoleserverporttemplates__isnull=value)
+
+    def _power_ports(self, queryset, name, value):
+        return queryset.exclude(powerporttemplates__isnull=value)
+
+    def _power_outlets(self, queryset, name, value):
+        return queryset.exclude(poweroutlettemplates__isnull=value)
+
+    def _interfaces(self, queryset, name, value):
+        return queryset.exclude(interfacetemplates__isnull=value)
+
+    def _pass_through_ports(self, queryset, name, value):
+        return queryset.exclude(
+            frontporttemplates__isnull=value,
+            rearporttemplates__isnull=value
+        )
 
 
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):
@@ -511,28 +599,36 @@ class DeviceTypeComponentFilterSet(django_filters.FilterSet):
         return queryset.filter(name__icontains=value)
 
 
-class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class ModularDeviceTypeComponentFilterSet(DeviceTypeComponentFilterSet):
+    moduletype_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ModuleType.objects.all(),
+        field_name='module_type_id',
+        label='Module type (ID)',
+    )
+
+
+class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsolePortTemplate
         fields = ['id', 'name', 'type']
 
 
-class ConsoleServerPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class ConsoleServerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPortTemplate
         fields = ['id', 'name', 'type']
 
 
-class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerPortTemplate
         fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw']
 
 
-class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     feed_leg = django_filters.MultipleChoiceFilter(
         choices=PowerOutletFeedLegChoices,
         null_value=None
@@ -543,7 +639,7 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompone
         fields = ['id', 'name', 'type', 'feed_leg']
 
 
-class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
         null_value=None
@@ -554,7 +650,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
         fields = ['id', 'name', 'type', 'mgmt_only']
 
 
-class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -565,7 +661,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
         fields = ['id', 'name', 'type', 'color']
 
 
-class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -574,6 +670,13 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentF
     class Meta:
         model = RearPortTemplate
         fields = ['id', 'name', 'type', 'color', 'positions']
+
+
+class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = ModuleBayTemplate
+        fields = ['id', 'name']
 
 
 class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
@@ -760,6 +863,10 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    module_bays = django_filters.BooleanFilter(
+        method='_module_bays',
+        label='Has module bays',
+    )
     device_bays = django_filters.BooleanFilter(
         method='_device_bays',
         label='Has device bays',
@@ -811,8 +918,47 @@ class DeviceFilterSet(PrimaryModelFilterSet, TenancyFilterSet, LocalConfigContex
             rearports__isnull=value
         )
 
+    def _module_bays(self, queryset, name, value):
+        return queryset.exclude(modulebays__isnull=value)
+
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebays__isnull=value)
+
+
+class ModuleFilterSet(PrimaryModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type__manufacturer',
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer (ID)',
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type__manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label='Manufacturer (slug)',
+    )
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = Module
+        fields = ['id', 'serial', 'asset_tag']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(serial__icontains=value.strip()) |
+            Q(asset_tag__icontains=value.strip()) |
+            Q(comments__icontains=value)
+        ).distinct()
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):
@@ -1102,6 +1248,13 @@ class RearPortFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet, CableTe
     class Meta:
         model = RearPort
         fields = ['id', 'name', 'label', 'type', 'color', 'positions', 'description']
+
+
+class ModuleBayFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
+
+    class Meta:
+        model = ModuleBay
+        fields = ['id', 'name', 'label', 'description']
 
 
 class DeviceBayFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):

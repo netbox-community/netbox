@@ -25,6 +25,8 @@ __all__ = (
     'InterfaceCreateForm',
     'InterfaceTemplateCreateForm',
     'InventoryItemCreateForm',
+    'ModuleBayCreateForm',
+    'ModuleBayTemplateCreateForm',
     'PowerOutletCreateForm',
     'PowerOutletTemplateCreateForm',
     'PowerPortCreateForm',
@@ -150,11 +152,13 @@ class ComponentTemplateCreateForm(ComponentForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         initial_params={
-            'device_types': 'device_type'
+            'device_types': 'device_type',
+            'module_types': 'module_type',
         }
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
+        required=False,
         query_params={
             'manufacturer_id': '$manufacturer'
         }
@@ -164,23 +168,37 @@ class ComponentTemplateCreateForm(ComponentForm):
     )
 
 
-class ConsolePortTemplateCreateForm(ComponentTemplateCreateForm):
+class ModularComponentTemplateCreateForm(ComponentTemplateCreateForm):
+    module_type = DynamicModelChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
+    )
+
+
+class ConsolePortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect()
     )
-    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'description')
+    field_order = (
+        'manufacturer', 'device_type', 'module_type', 'name_pattern', 'label_pattern', 'type', 'description',
+    )
 
 
-class ConsoleServerPortTemplateCreateForm(ComponentTemplateCreateForm):
+class ConsoleServerPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect()
     )
-    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'description')
+    field_order = (
+        'manufacturer', 'device_type', 'module_type', 'name_pattern', 'label_pattern', 'type', 'description',
+    )
 
 
-class PowerPortTemplateCreateForm(ComponentTemplateCreateForm):
+class PowerPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False
@@ -196,19 +214,23 @@ class PowerPortTemplateCreateForm(ComponentTemplateCreateForm):
         help_text="Allocated power draw (watts)"
     )
     field_order = (
-        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'maximum_draw', 'allocated_draw',
-        'description',
+        'manufacturer', 'device_type', 'module_type', 'name_pattern', 'label_pattern', 'type', 'maximum_draw',
+        'allocated_draw', 'description',
     )
 
 
-class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
+class PowerOutletTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
     )
-    power_port = forms.ModelChoiceField(
+    power_port = DynamicModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'devicetype_id': '$device_type',
+            'moduletype_id': '$module_type',
+        }
     )
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletFeedLegChoices),
@@ -216,23 +238,12 @@ class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
         widget=StaticSelect()
     )
     field_order = (
-        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'power_port', 'feed_leg',
+        'manufacturer', 'device_type', 'module_type', 'name_pattern', 'label_pattern', 'type', 'power_port', 'feed_leg',
         'description',
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        # Limit power_port choices to current DeviceType
-        device_type = DeviceType.objects.get(
-            pk=self.initial.get('device_type') or self.data.get('device_type')
-        )
-        self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
-            device_type=device_type
-        )
-
-
-class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
+class InterfaceTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect()
@@ -241,10 +252,13 @@ class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
         required=False,
         label='Management only'
     )
-    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'mgmt_only', 'description')
+    field_order = (
+        'manufacturer', 'device_type', 'module_type', 'name_pattern', 'label_pattern', 'type', 'mgmt_only',
+        'description',
+    )
 
 
-class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
+class FrontPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect()
@@ -258,7 +272,8 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         help_text='Select one rear port assignment for each front port being created.',
     )
     field_order = (
-        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'color', 'rear_port_set', 'description',
+        'manufacturer', 'device_type', 'module_type', 'name_pattern', 'label_pattern', 'type', 'color', 'rear_port_set',
+        'description',
     )
 
     def __init__(self, *args, **kwargs):
@@ -308,7 +323,7 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         }
 
 
-class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
+class RearPortTemplateCreateForm(ModularComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect(),
@@ -323,8 +338,14 @@ class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
         help_text='The number of front ports which may be mapped to each rear port'
     )
     field_order = (
-        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'color', 'positions', 'description',
+        'manufacturer', 'device_type', 'module_type', 'name_pattern', 'label_pattern', 'type', 'color', 'positions',
+        'description',
     )
+
+
+class ModuleBayTemplateCreateForm(ComponentTemplateCreateForm):
+    # TODO: Support patterned position assignment
+    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'description')
 
 
 class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
@@ -617,6 +638,11 @@ class RearPortCreateForm(ComponentCreateForm):
         'device', 'name_pattern', 'label_pattern', 'type', 'color', 'positions', 'mark_connected', 'description',
         'tags',
     )
+
+
+class ModuleBayCreateForm(ComponentCreateForm):
+    model = ModuleBay
+    field_order = ('device', 'name_pattern', 'label_pattern', 'description', 'tags')
 
 
 class DeviceBayCreateForm(ComponentCreateForm):

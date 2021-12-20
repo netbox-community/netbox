@@ -319,6 +319,13 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
 
+    def prep_related_object_data(self, parent, data):
+        """
+        Hook to modify the data for related objects before it's passed to the related object form (for example, to
+        assign a parent object).
+        """
+        return data
+
     def _create_object(self, model_form):
 
         # Save the primary object
@@ -333,8 +340,8 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
             related_obj_pks = []
             for i, rel_obj_data in enumerate(model_form.data.get(field_name, list())):
-
-                f = related_object_form(obj, rel_obj_data)
+                rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
+                f = related_object_form(rel_obj_data)
 
                 for subfield_name, field in f.fields.items():
                     if subfield_name not in rel_obj_data and hasattr(field, 'initial'):
