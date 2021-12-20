@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Tuple
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
+from django.http import QueryDict
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -249,10 +250,8 @@ def prepare_cloned_fields(instance):
         for tag in instance.tags.all():
             params.append(('tags', tag.pk))
 
-    # Concatenate parameters into a URL query string
-    param_string = '&'.join([f'{k}={v}' for k, v in params])
-
-    return param_string
+    # Return a QueryDict with the parameters
+    return QueryDict('&'.join([f'{k}={v}' for k, v in params]), mutable=True)
 
 
 def shallow_compare_dict(source_dict, destination_dict, exclude=None):
