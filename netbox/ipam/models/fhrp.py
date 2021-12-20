@@ -58,13 +58,11 @@ class FHRPGroup(PrimaryModel):
     def __str__(self):
         name = f'{self.get_protocol_display()}: {self.group_id}'
 
-        # Append the list of assigned IP addresses to serve as an additional identifier
+        # Append the first assigned IP addresses (if any) to serve as an additional identifier
         if self.pk:
-            ip_addresses = [
-                str(ip.address) for ip in self.ip_addresses.all()
-            ]
-            if ip_addresses:
-                return f"{name} ({', '.join(ip_addresses)})"
+            ip_address = self.ip_addresses.first()
+            if ip_address:
+                return f"{name} ({ip_address})"
 
         return name
 

@@ -148,6 +148,12 @@
                     </div>
                 </div>
             {% endif %}
+            {% include 'inc/panels/custom_fields.html' %}
+            {% include 'inc/panels/tags.html' %}
+            {% include 'inc/panels/comments.html' %}
+            {% plugin_left_page object %}
+        </div>
+        <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
                     Management
@@ -220,12 +226,6 @@
                     </table>
                 </div>
             </div>
-            {% include 'inc/panels/custom_fields.html' %}
-            {% include 'inc/panels/tags.html' %}
-            {% include 'inc/panels/comments.html' %}
-            {% plugin_left_page object %}
-        </div>
-        <div class="col col-md-6">
             {% if object.powerports.exists and object.poweroutlets.exists %}
                 <div class="card">
                     <h5 class="card-header">
@@ -298,39 +298,6 @@
             </div>
             {% include 'inc/panels/contacts.html' %}
             {% include 'inc/panels/image_attachments.html' %}
-            <div class="card noprint">
-                <h5 class="card-header">
-                    Related Devices
-                </h5>
-                <div class="card-body">
-                    {% if related_devices %}
-                    <table class="table table-hover">
-                        <tr>
-                            <th>Device</th>
-                            <th>Rack</th>
-                            <th>Type</th>
-                        </tr>
-                        {% for rd in related_devices %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'dcim:device' pk=rd.pk %}">{{ rd }}</a>
-                            </td>
-                            <td>
-                                {% if rd.rack %}
-                                    <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">{{ rd.rack }}</a>
-                                {% else %}
-                                    <span class="text-muted">&mdash;</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ rd.device_type }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                    {% else %}
-                    <div class="text-muted">None</div>
-                    {% endif %}
-                </div>
-            </div>
             {% plugin_right_page object %}
         </div>
     </div>

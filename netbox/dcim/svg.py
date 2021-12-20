@@ -18,6 +18,10 @@ __all__ = (
 )
 
 
+def get_device_name(device):
+    return device.name or str(device.device_type)
+
+
 class RackElevationSVG:
     """
     Use this class to render a rack elevation as an SVG image.
@@ -85,7 +89,7 @@ class RackElevationSVG:
         return drawing
 
     def _draw_device_front(self, drawing, device, start, end, text):
-        name = str(device)
+        name = get_device_name(device)
         if device.devicebay_count:
             name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
 
@@ -120,7 +124,7 @@ class RackElevationSVG:
         rect = drawing.rect(start, end, class_="slot blocked")
         rect.set_desc(self._get_device_description(device))
         drawing.add(rect)
-        drawing.add(drawing.text(str(device), insert=text))
+        drawing.add(drawing.text(get_device_name(device), insert=text))
 
         # Embed rear device type image if one exists
         if self.include_images and device.device_type.rear_image:
@@ -132,9 +136,9 @@ class RackElevationSVG:
             )
             image.fit(scale='slice')
             drawing.add(image)
-            drawing.add(drawing.text(str(device), insert=text, stroke='black',
+            drawing.add(drawing.text(get_device_name(device), insert=text, stroke='black',
                         stroke_width='0.2em', stroke_linejoin='round', class_='device-image-label'))
-            drawing.add(drawing.text(str(device), insert=text, fill='white', class_='device-image-label'))
+            drawing.add(drawing.text(get_device_name(device), insert=text, fill='white', class_='device-image-label'))
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):

@@ -5,7 +5,9 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'virtualization:vminterface_list' %}?virtual_machine_id={{ object.virtual_machine.pk }}">{{ object.virtual_machine }}</a></li>
+  <li class="breadcrumb-item">
+    <a href="{% url 'virtualization:virtualmachine_interfaces' pk=object.virtual_machine.pk %}">{{ object.virtual_machine }}</a>
+  </li>
 {% endblock %}
 
 {% block content %}

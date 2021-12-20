@@ -1,6 +1,6 @@
 # Style Guide
 
-NetBox generally follows the [Django style guide](https://docs.djangoproject.com/en/stable/internals/contributing/writing-code/coding-style/), which is itself based on [PEP 8](https://www.python.org/dev/peps/pep-0008/). [Pycodestyle](https://github.com/pycqa/pycodestyle) is used to validate code formatting, ignoring certain violations. See `scripts/cibuild.sh`.
+NetBox generally follows the [Django style guide](https://docs.djangoproject.com/en/stable/internals/contributing/writing-code/coding-style/), which is itself based on [PEP 8](https://www.python.org/dev/peps/pep-0008/). [Pycodestyle](https://github.com/pycqa/pycodestyle) is used to validate code formatting, ignoring certain violations. See `scripts/cibuild.sh` for details.
 
 ## PEP 8 Exceptions
 
@@ -30,7 +30,7 @@ pycodestyle --ignore=W504,E501 netbox/
 
 ## Introducing New Dependencies
 
-The introduction of a new dependency is best avoided unless it is absolutely necessary. For small features, it's generally preferable to replicate functionality within the NetBox code base rather than to introduce reliance on an external project. This reduces both the burden of tracking new releases and our exposure to outside bugs and attacks.
+The introduction of a new dependency is best avoided unless it is absolutely necessary. For small features, it's generally preferable to replicate functionality within the NetBox code base rather than to introduce reliance on an external project. This reduces both the burden of tracking new releases and our exposure to outside bugs and supply chain attacks.
 
 If there's a strong case for introducing a new dependency, it must meet the following criteria:
 
@@ -43,7 +43,7 @@ When adding a new dependency, a short description of the package and the URL of 
 
 ## General Guidance
 
-* When in doubt, remain consistent: It is better to be consistently incorrect than inconsistently correct. If you notice in the course of unrelated work a pattern that should be corrected, continue to follow the pattern for now and open a bug so that the entire code base can be evaluated at a later point.
+* When in doubt, remain consistent: It is better to be consistently incorrect than inconsistently correct. If you notice in the course of unrelated work a pattern that should be corrected, continue to follow the pattern for now and submit a separate bug report so that the entire code base can be evaluated at a later point.
 
 * Prioritize readability over concision. Python is a very flexible language that typically offers several options for expressing a given piece of logic, but some may be more friendly to the reader than others. (List comprehensions are particularly vulnerable to over-optimization.) Always remain considerate of the future reader who may need to interpret your code without the benefit of the context within which you are writing it.
 

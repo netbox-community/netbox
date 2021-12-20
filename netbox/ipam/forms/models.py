@@ -462,12 +462,15 @@ class IPAddressForm(TenancyForm, CustomFieldModelForm):
         super().clean()
 
         # Handle object assignment
-        if self.cleaned_data['interface']:
-            self.instance.assigned_object = self.cleaned_data['interface']
-        elif self.cleaned_data['vminterface']:
-            self.instance.assigned_object = self.cleaned_data['vminterface']
-        elif self.cleaned_data['fhrpgroup']:
-            self.instance.assigned_object = self.cleaned_data['fhrpgroup']
+        selected_objects = [
+            field for field in ('interface', 'vminterface', 'fhrpgroup') if self.cleaned_data[field]
+        ]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError({
+                selected_objects[1]: "An IP address can only be assigned to a single object."
+            })
+        elif selected_objects:
+            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
 
         # Primary IP assignment is only available if an interface has been assigned.
         interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')

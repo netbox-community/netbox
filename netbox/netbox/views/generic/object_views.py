@@ -557,8 +557,11 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     redirect_url = request.path
 
                     # If the object has clone_fields, pre-populate a new instance of the form
-                    if hasattr(obj, 'clone_fields'):
-                        redirect_url += f"?{prepare_cloned_fields(obj)}"
+                    params = prepare_cloned_fields(obj)
+                    if 'return_url' in request.GET:
+                        params['return_url'] = request.GET.get('return_url')
+                    if params:
+                        redirect_url += f"?{params.urlencode()}"
 
                     return redirect(redirect_url)
 

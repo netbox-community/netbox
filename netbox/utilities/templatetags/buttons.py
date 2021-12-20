@@ -30,7 +30,7 @@ def clone_button(instance):
     url = reverse(_get_viewname(instance, 'add'))
 
     # Populate cloned field values
-    param_string = prepare_cloned_fields(instance)
+    param_string = prepare_cloned_fields(instance).urlencode()
     if param_string:
         url = f'{url}?{param_string}'
 

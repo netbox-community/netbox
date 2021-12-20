@@ -62,7 +62,7 @@ class ChangeLoggingMixin(models.Model):
         objectchange = ObjectChange(
             changed_object=self,
             related_object=related_object,
-            object_repr=str(self),
+            object_repr=str(self)[:200],
             action=action
         )
         if hasattr(self, '_prechange_snapshot'):

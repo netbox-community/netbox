@@ -233,7 +233,7 @@ def fgcolor(value):
     value = value.lower().strip('#')
     if not re.match('^[0-9a-f]{6}$', value):
         return ''
-    return '#{}'.format(foreground_color(value))
+    return f'#{foreground_color(value)}'
 
 
 @register.filter()

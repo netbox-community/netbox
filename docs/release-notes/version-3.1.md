@@ -1,13 +1,21 @@
 # NetBox v3.1
 
-## v3.1.2 (FUTURE)
+## v3.1.3 (FUTURE)
+
+---
+
+## v3.1.2 (2021-12-20)
 
 ### Enhancements
 
+* [#7661](https://github.com/netbox-community/netbox/issues/7661) - Remove forced styling of custom banners
 * [#7665](https://github.com/netbox-community/netbox/issues/7665) - Add toggle to show only available child prefixes
+* [#7999](https://github.com/netbox-community/netbox/issues/7999) - Add 6 GHz and 60 GHz wireless channels
 * [#8057](https://github.com/netbox-community/netbox/issues/8057) - Dynamic object tables using HTMX
 * [#8080](https://github.com/netbox-community/netbox/issues/8080) - Link to NAT IPs for device/VM primary IPs
 * [#8081](https://github.com/netbox-community/netbox/issues/8081) - Allow creating services directly from navigation menu
+* [#8083](https://github.com/netbox-community/netbox/issues/8083) - Removed "related devices" panel from device view
+* [#8108](https://github.com/netbox-community/netbox/issues/8108) - Improve breadcrumb links for device/VM components
 
 ### Bug Fixes
 
@@ -16,6 +24,11 @@
 * [#8077](https://github.com/netbox-community/netbox/issues/8077) - Fix exception when attaching image to location, circuit, or power panel
 * [#8078](https://github.com/netbox-community/netbox/issues/8078) - Add missing wireless models to `lsmodels()` in `nbshell`
 * [#8079](https://github.com/netbox-community/netbox/issues/8079) - Fix validation of LLDP neighbors when connected device has an asset tag
+* [#8088](https://github.com/netbox-community/netbox/issues/8088) - Improve legibility of text in labels with light-colored backgrounds
+* [#8092](https://github.com/netbox-community/netbox/issues/8092) - Rack elevations should not include device asset tags
+* [#8096](https://github.com/netbox-community/netbox/issues/8096) - Fix DataError during change logging of objects with very long string representations
+* [#8101](https://github.com/netbox-community/netbox/issues/8101) - Preserve return URL when using "create and add another" button
+* [#8102](https://github.com/netbox-community/netbox/issues/8102) - Raise validation error when attempting to assign an IP address to multiple objects
 
 ---
 

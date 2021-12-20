@@ -35,6 +35,8 @@ The NetBox project utilizes three persistent git branches to track work:
 
 Typically, you'll base pull requests off of the `develop` branch, or off of `feature` if you're working on a new major release. **Never** merge pull requests into the `master` branch, which receives merged only from the `develop` branch.
 
+For example, assume that the current NetBox release is v3.1.1. Work applied to the `develop` branch will appear in v3.1.2, and work done under the `feature` branch will be included in the next minor release (v3.2.0).
+
 ### Enable Pre-Commit Hooks
 
 NetBox ships with a [git pre-commit hook](https://githooks.com/) script that automatically checks for style compliance and missing database migrations prior to committing changes. This helps avoid erroneous commits that result in CI test failures. You are encouraged to enable it by creating a link to `scripts/git-hooks/pre-commit`:
@@ -46,7 +48,7 @@ $ ln -s ../../scripts/git-hooks/pre-commit
 
 ### Create a Python Virtual Environment
 
-A [virtual environment](https://docs.python.org/3/tutorial/venv.html) is like a container for a set of Python packages. They allow you to build environments suited to specific projects without interfering with system packages or other projects. When installed per the documentation, NetBox uses a virtual environment in production.
+A [virtual environment](https://docs.python.org/3/tutorial/venv.html) (or "venv" for short) is like a container for a set of Python packages. These allow you to build environments suited to specific projects without interfering with system packages or other projects. When installed per the documentation, NetBox uses a virtual environment in production.
 
 Create a virtual environment using the `venv` Python module:
 
@@ -57,8 +59,8 @@ $ python3 -m venv ~/.venv/netbox
 
 This will create a directory named `.venv/netbox/` in your home directory, which houses a virtual copy of the Python executable and its related libraries and tooling. When running NetBox for development, it will be run using the Python binary at `~/.venv/netbox/bin/python`.
 
-!!! info
-    Keeping virtual environments in `~/.venv/` is a common convention but entirely optional: Virtual environments can be created wherever you please.
+!!! info "Where to Create Your Virtual Environments"
+    Keeping virtual environments in `~/.venv/` is a common convention but entirely optional: Virtual environments can be created almost wherever you please.
 
 Once created, activate the virtual environment:
 
@@ -94,7 +96,7 @@ Within the `netbox/netbox/` directory, copy `configuration.example.py` to `confi
 
 ### Start the Development Server
 
-Django provides a lightweight, auto-updating HTTP/WSGI server for development use. NetBox extends this slightly to automatically import models and other utilities. Run the NetBox development server with the `nbshell` management command:
+Django provides a lightweight, auto-updating HTTP/WSGI server for development use. It is started with the `runserver` management command:
 
 ```no-highlight
 $ python netbox/manage.py runserver
@@ -109,9 +111,12 @@ Quit the server with CONTROL-C.
 
 This ensures that your development environment is now complete and operational. Any changes you make to the code base will be automatically adapted by the development server.
 
+!!! info "IDE Integration"
+    Some IDEs, such as PyCharm, will integrate with Django's development server and allow you to run it directly within the IDE. This is strongly encouraged as it makes for a much more convenient development environment.
+
 ## Running Tests
 
-Throughout the course of development, it's a good idea to occasionally run NetBox's test suite to catch any potential errors. Tests are run using the `test` management command:
+Prior to committing any substantial changes to the code base, be sure to run NetBox's test suite to catch any potential errors. Tests are run using the `test` management command. Remember to ensure the Python virtual environment is active before running this command.
 
 ```no-highlight
 $ python netbox/manage.py test
@@ -123,9 +128,15 @@ In cases where you haven't made any changes to the database (which is most of th
 $ python netbox/manage.py test --keepdb
 ```
 
+You can also limit the command to running only a specific subset of tests. For example, to run only IPAM and DCIM view tests:
+
+```no-highlight
+$ python netbox/manage.py test dcim.tests.test_views ipam.tests.test_views
+```
+
 ## Submitting Pull Requests
 
-Once you're happy with your work and have verified that all tests pass, commit your changes and push it upstream to your fork. Always provide descriptive (but not excessively verbose) commit messages. When working on a specific issue, be sure to reference it.
+Once you're happy with your work and have verified that all tests pass, commit your changes and push it upstream to your fork. Always provide descriptive (but not excessively verbose) commit messages. When working on a specific issue, be sure to prefix your commit message with the word "Fixes" or "Closes" and the issue number (with a hash mark). This tells GitHub to automatically close the referenced issue once the commit has been merged.
 
 ```no-highlight
 $ git commit -m "Closes #1234: Add IPv5 support"
@@ -136,5 +147,5 @@ Once your fork has the new commit, submit a [pull request](https://github.com/ne
 
 Once submitted, a maintainer will review your pull request and either merge it or request changes. If changes are needed, you can make them via new commits to your fork: The pull request will update automatically.
 
-!!! note
-    Remember, pull requests are entertained only for **accepted** issues. If an issue you want to work on hasn't been approved by a maintainer yet, it's best to avoid risking your time and effort on a change that might not be accepted.
+!!! note "Remember to Open an Issue First"
+    Remember, pull requests are permitted only for **accepted** issues. If an issue you want to work on hasn't been approved by a maintainer yet, it's best to avoid risking your time and effort on a change that might not be accepted. (The one exception to this is trivial changes to the documentation or other non-critical resources.)

@@ -1491,19 +1491,9 @@ class DeviceView(generic.ObjectView):
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=instance)
 
-        # Find up to ten devices in the same site with the same functional role for quick reference.
-        related_devices = Device.objects.restrict(request.user, 'view').filter(
-            site=instance.site, device_role=instance.device_role
-        ).exclude(
-            pk=instance.pk
-        ).prefetch_related(
-            'rack', 'device_type__manufacturer'
-        )[:10]
-
         return {
             'services': services,
             'vc_members': vc_members,
-            'related_devices': related_devices,
             'active_tab': 'device',
         }
 

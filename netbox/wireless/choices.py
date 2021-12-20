@@ -84,6 +84,140 @@ class WirelessChannelChoices(ChoiceSet):
     CHANNEL_5G_175 = '5g-175-5875-40'
     CHANNEL_5G_177 = '5g-177-5885-20'
 
+    # 6 GHz
+    CHANNEL_6G_1 = '6g-1-5955-20'
+    CHANNEL_6G_3 = '6g-3-5965-40'
+    CHANNEL_6G_5 = '6g-5-5975-20'
+    CHANNEL_6G_7 = '6g-7-5985-80'
+    CHANNEL_6G_9 = '6g-9-5995-20'
+    CHANNEL_6G_11 = '6g-11-6005-40'
+    CHANNEL_6G_13 = '6g-13-6015-20'
+    CHANNEL_6G_15 = '6g-15-6025-160'
+    CHANNEL_6G_17 = '6g-17-6035-20'
+    CHANNEL_6G_19 = '6g-19-6045-40'
+    CHANNEL_6G_21 = '6g-21-6055-20'
+    CHANNEL_6G_23 = '6g-23-6065-80'
+    CHANNEL_6G_25 = '6g-25-6075-20'
+    CHANNEL_6G_27 = '6g-27-6085-40'
+    CHANNEL_6G_29 = '6g-29-6095-20'
+    CHANNEL_6G_31 = '6g-31-6105-320'
+    CHANNEL_6G_33 = '6g-33-6115-20'
+    CHANNEL_6G_35 = '6g-35-6125-40'
+    CHANNEL_6G_37 = '6g-37-6135-20'
+    CHANNEL_6G_39 = '6g-39-6145-80'
+    CHANNEL_6G_41 = '6g-41-6155-20'
+    CHANNEL_6G_43 = '6g-43-6165-40'
+    CHANNEL_6G_45 = '6g-45-6175-20'
+    CHANNEL_6G_47 = '6g-47-6185-160'
+    CHANNEL_6G_49 = '6g-49-6195-20'
+    CHANNEL_6G_51 = '6g-51-6205-40'
+    CHANNEL_6G_53 = '6g-53-6215-20'
+    CHANNEL_6G_55 = '6g-55-6225-80'
+    CHANNEL_6G_57 = '6g-57-6235-20'
+    CHANNEL_6G_59 = '6g-59-6245-40'
+    CHANNEL_6G_61 = '6g-61-6255-20'
+    CHANNEL_6G_65 = '6g-65-6275-20'
+    CHANNEL_6G_67 = '6g-67-6285-40'
+    CHANNEL_6G_69 = '6g-69-6295-20'
+    CHANNEL_6G_71 = '6g-71-6305-80'
+    CHANNEL_6G_73 = '6g-73-6315-20'
+    CHANNEL_6G_75 = '6g-75-6325-40'
+    CHANNEL_6G_77 = '6g-77-6335-20'
+    CHANNEL_6G_79 = '6g-79-6345-160'
+    CHANNEL_6G_81 = '6g-81-6355-20'
+    CHANNEL_6G_83 = '6g-83-6365-40'
+    CHANNEL_6G_85 = '6g-85-6375-20'
+    CHANNEL_6G_87 = '6g-87-6385-80'
+    CHANNEL_6G_89 = '6g-89-6395-20'
+    CHANNEL_6G_91 = '6g-91-6405-40'
+    CHANNEL_6G_93 = '6g-93-6415-20'
+    CHANNEL_6G_95 = '6g-95-6425-320'
+    CHANNEL_6G_97 = '6g-97-6435-20'
+    CHANNEL_6G_99 = '6g-99-6445-40'
+    CHANNEL_6G_101 = '6g-101-6455-20'
+    CHANNEL_6G_103 = '6g-103-6465-80'
+    CHANNEL_6G_105 = '6g-105-6475-20'
+    CHANNEL_6G_107 = '6g-107-6485-40'
+    CHANNEL_6G_109 = '6g-109-6495-20'
+    CHANNEL_6G_111 = '6g-111-6505-160'
+    CHANNEL_6G_113 = '6g-113-6515-20'
+    CHANNEL_6G_115 = '6g-115-6525-40'
+    CHANNEL_6G_117 = '6g-117-6535-20'
+    CHANNEL_6G_119 = '6g-119-6545-80'
+    CHANNEL_6G_121 = '6g-121-6555-20'
+    CHANNEL_6G_123 = '6g-123-6565-40'
+    CHANNEL_6G_125 = '6g-125-6575-20'
+    CHANNEL_6G_129 = '6g-129-6595-20'
+    CHANNEL_6G_131 = '6g-131-6605-40'
+    CHANNEL_6G_133 = '6g-133-6615-20'
+    CHANNEL_6G_135 = '6g-135-6625-80'
+    CHANNEL_6G_137 = '6g-137-6635-20'
+    CHANNEL_6G_139 = '6g-139-6645-40'
+    CHANNEL_6G_141 = '6g-141-6655-20'
+    CHANNEL_6G_143 = '6g-143-6665-160'
+    CHANNEL_6G_145 = '6g-145-6675-20'
+    CHANNEL_6G_147 = '6g-147-6685-40'
+    CHANNEL_6G_149 = '6g-149-6695-20'
+    CHANNEL_6G_151 = '6g-151-6705-80'
+    CHANNEL_6G_153 = '6g-153-6715-20'
+    CHANNEL_6G_155 = '6g-155-6725-40'
+    CHANNEL_6G_157 = '6g-157-6735-20'
+    CHANNEL_6G_159 = '6g-159-6745-320'
+    CHANNEL_6G_161 = '6g-161-6755-20'
+    CHANNEL_6G_163 = '6g-163-6765-40'
+    CHANNEL_6G_165 = '6g-165-6775-20'
+    CHANNEL_6G_167 = '6g-167-6785-80'
+    CHANNEL_6G_169 = '6g-169-6795-20'
+    CHANNEL_6G_171 = '6g-171-6805-40'
+    CHANNEL_6G_173 = '6g-173-6815-20'
+    CHANNEL_6G_175 = '6g-175-6825-160'
+    CHANNEL_6G_177 = '6g-177-6835-20'
+    CHANNEL_6G_179 = '6g-179-6845-40'
+    CHANNEL_6G_181 = '6g-181-6855-20'
+    CHANNEL_6G_183 = '6g-183-6865-80'
+    CHANNEL_6G_185 = '6g-185-6875-20'
+    CHANNEL_6G_187 = '6g-187-6885-40'
+    CHANNEL_6G_189 = '6g-189-6895-20'
+    CHANNEL_6G_193 = '6g-193-6915-20'
+    CHANNEL_6G_195 = '6g-195-6925-40'
+    CHANNEL_6G_197 = '6g-197-6935-20'
+    CHANNEL_6G_199 = '6g-199-6945-80'
+    CHANNEL_6G_201 = '6g-201-6955-20'
+    CHANNEL_6G_203 = '6g-203-6965-40'
+    CHANNEL_6G_205 = '6g-205-6975-20'
+    CHANNEL_6G_207 = '6g-207-6985-160'
+    CHANNEL_6G_209 = '6g-209-6995-20'
+    CHANNEL_6G_211 = '6g-211-7005-40'
+    CHANNEL_6G_213 = '6g-213-7015-20'
+    CHANNEL_6G_215 = '6g-215-7025-80'
+    CHANNEL_6G_217 = '6g-217-7035-20'
+    CHANNEL_6G_219 = '6g-219-7045-40'
+    CHANNEL_6G_221 = '6g-221-7055-20'
+    CHANNEL_6G_225 = '6g-225-7075-20'
+    CHANNEL_6G_227 = '6g-227-7085-40'
+    CHANNEL_6G_229 = '6g-229-7095-20'
+    CHANNEL_6G_233 = '6g-233-7115-20'
+
+    # 60 GHz
+    CHANNEL_60G_1 = '60g-1-58320-2160'
+    CHANNEL_60G_2 = '60g-2-60480-2160'
+    CHANNEL_60G_3 = '60g-3-62640-2160'
+    CHANNEL_60G_4 = '60g-4-64800-2160'
+    CHANNEL_60G_5 = '60g-5-66960-2160'
+    CHANNEL_60G_6 = '60g-6-69120-2160'
+    CHANNEL_60G_9 = '60g-9-59400-4320'
+    CHANNEL_60G_10 = '60g-10-61560-4320'
+    CHANNEL_60G_11 = '60g-11-63720-4320'
+    CHANNEL_60G_12 = '60g-12-65880-4320'
+    CHANNEL_60G_13 = '60g-13-68040-4320'
+    CHANNEL_60G_17 = '60g-17-60480-6480'
+    CHANNEL_60G_18 = '60g-18-62640-6480'
+    CHANNEL_60G_19 = '60g-19-64800-6480'
+    CHANNEL_60G_20 = '60g-20-66960-6480'
+    CHANNEL_60G_25 = '60g-25-61560-6480'
+    CHANNEL_60G_26 = '60g-26-63720-6480'
+    CHANNEL_60G_27 = '60g-27-65880-6480'
+
     CHOICES = (
         (
             '2.4 GHz (802.11b/g/n/ax)',
@@ -160,6 +294,146 @@ class WirelessChannelChoices(ChoiceSet):
                 (CHANNEL_5G_173, '173 (5865/20 MHz)'),
                 (CHANNEL_5G_175, '175 (5875/40 MHz)'),
                 (CHANNEL_5G_177, '177 (5885/20 MHz)'),
+            )
+        ),
+        (
+            '6 GHz (802.11ax)',
+            (
+                (CHANNEL_6G_1, '1 (5955/20 MHz)'),
+                (CHANNEL_6G_3, '3 (5965/40 MHz)'),
+                (CHANNEL_6G_5, '5 (5975/20 MHz)'),
+                (CHANNEL_6G_7, '7 (5985/80 MHz)'),
+                (CHANNEL_6G_9, '9 (5995/20 MHz)'),
+                (CHANNEL_6G_11, '11 (6005/40 MHz)'),
+                (CHANNEL_6G_13, '13 (6015/20 MHz)'),
+                (CHANNEL_6G_15, '15 (6025/160 MHz)'),
+                (CHANNEL_6G_17, '17 (6035/20 MHz)'),
+                (CHANNEL_6G_19, '19 (6045/40 MHz)'),
+                (CHANNEL_6G_21, '21 (6055/20 MHz)'),
+                (CHANNEL_6G_23, '23 (6065/80 MHz)'),
+                (CHANNEL_6G_25, '25 (6075/20 MHz)'),
+                (CHANNEL_6G_27, '27 (6085/40 MHz)'),
+                (CHANNEL_6G_29, '29 (6095/20 MHz)'),
+                (CHANNEL_6G_31, '31 (6105/320 MHz)'),
+                (CHANNEL_6G_33, '33 (6115/20 MHz)'),
+                (CHANNEL_6G_35, '35 (6125/40 MHz)'),
+                (CHANNEL_6G_37, '37 (6135/20 MHz)'),
+                (CHANNEL_6G_39, '39 (6145/80 MHz)'),
+                (CHANNEL_6G_41, '41 (6155/20 MHz)'),
+                (CHANNEL_6G_43, '43 (6165/40 MHz)'),
+                (CHANNEL_6G_45, '45 (6175/20 MHz)'),
+                (CHANNEL_6G_47, '47 (6185/160 MHz)'),
+                (CHANNEL_6G_49, '49 (6195/20 MHz)'),
+                (CHANNEL_6G_51, '51 (6205/40 MHz)'),
+                (CHANNEL_6G_53, '53 (6215/20 MHz)'),
+                (CHANNEL_6G_55, '55 (6225/80 MHz)'),
+                (CHANNEL_6G_57, '57 (6235/20 MHz)'),
+                (CHANNEL_6G_59, '59 (6245/40 MHz)'),
+                (CHANNEL_6G_61, '61 (6255/20 MHz)'),
+                (CHANNEL_6G_65, '65 (6275/20 MHz)'),
+                (CHANNEL_6G_67, '67 (6285/40 MHz)'),
+                (CHANNEL_6G_69, '69 (6295/20 MHz)'),
+                (CHANNEL_6G_71, '71 (6305/80 MHz)'),
+                (CHANNEL_6G_73, '73 (6315/20 MHz)'),
+                (CHANNEL_6G_75, '75 (6325/40 MHz)'),
+                (CHANNEL_6G_77, '77 (6335/20 MHz)'),
+                (CHANNEL_6G_79, '79 (6345/160 MHz)'),
+                (CHANNEL_6G_81, '81 (6355/20 MHz)'),
+                (CHANNEL_6G_83, '83 (6365/40 MHz)'),
+                (CHANNEL_6G_85, '85 (6375/20 MHz)'),
+                (CHANNEL_6G_87, '87 (6385/80 MHz)'),
+                (CHANNEL_6G_89, '89 (6395/20 MHz)'),
+                (CHANNEL_6G_91, '91 (6405/40 MHz)'),
+                (CHANNEL_6G_93, '93 (6415/20 MHz)'),
+                (CHANNEL_6G_95, '95 (6425/320 MHz)'),
+                (CHANNEL_6G_97, '97 (6435/20 MHz)'),
+                (CHANNEL_6G_99, '99 (6445/40 MHz)'),
+                (CHANNEL_6G_101, '101 (6455/20 MHz)'),
+                (CHANNEL_6G_103, '103 (6465/80 MHz)'),
+                (CHANNEL_6G_105, '105 (6475/20 MHz)'),
+                (CHANNEL_6G_107, '107 (6485/40 MHz)'),
+                (CHANNEL_6G_109, '109 (6495/20 MHz)'),
+                (CHANNEL_6G_111, '111 (6505/160 MHz)'),
+                (CHANNEL_6G_113, '113 (6515/20 MHz)'),
+                (CHANNEL_6G_115, '115 (6525/40 MHz)'),
+                (CHANNEL_6G_117, '117 (6535/20 MHz)'),
+                (CHANNEL_6G_119, '119 (6545/80 MHz)'),
+                (CHANNEL_6G_121, '121 (6555/20 MHz)'),
+                (CHANNEL_6G_123, '123 (6565/40 MHz)'),
+                (CHANNEL_6G_125, '125 (6575/20 MHz)'),
+                (CHANNEL_6G_129, '129 (6595/20 MHz)'),
+                (CHANNEL_6G_131, '131 (6605/40 MHz)'),
+                (CHANNEL_6G_133, '133 (6615/20 MHz)'),
+                (CHANNEL_6G_135, '135 (6625/80 MHz)'),
+                (CHANNEL_6G_137, '137 (6635/20 MHz)'),
+                (CHANNEL_6G_139, '139 (6645/40 MHz)'),
+                (CHANNEL_6G_141, '141 (6655/20 MHz)'),
+                (CHANNEL_6G_143, '143 (6665/160 MHz)'),
+                (CHANNEL_6G_145, '145 (6675/20 MHz)'),
+                (CHANNEL_6G_147, '147 (6685/40 MHz)'),
+                (CHANNEL_6G_149, '149 (6695/20 MHz)'),
+                (CHANNEL_6G_151, '151 (6705/80 MHz)'),
+                (CHANNEL_6G_153, '153 (6715/20 MHz)'),
+                (CHANNEL_6G_155, '155 (6725/40 MHz)'),
+                (CHANNEL_6G_157, '157 (6735/20 MHz)'),
+                (CHANNEL_6G_159, '159 (6745/320 MHz)'),
+                (CHANNEL_6G_161, '161 (6755/20 MHz)'),
+                (CHANNEL_6G_163, '163 (6765/40 MHz)'),
+                (CHANNEL_6G_165, '165 (6775/20 MHz)'),
+                (CHANNEL_6G_167, '167 (6785/80 MHz)'),
+                (CHANNEL_6G_169, '169 (6795/20 MHz)'),
+                (CHANNEL_6G_171, '171 (6805/40 MHz)'),
+                (CHANNEL_6G_173, '173 (6815/20 MHz)'),
+                (CHANNEL_6G_175, '175 (6825/160 MHz)'),
+                (CHANNEL_6G_177, '177 (6835/20 MHz)'),
+                (CHANNEL_6G_179, '179 (6845/40 MHz)'),
+                (CHANNEL_6G_181, '181 (6855/20 MHz)'),
+                (CHANNEL_6G_183, '183 (6865/80 MHz)'),
+                (CHANNEL_6G_185, '185 (6875/20 MHz)'),
+                (CHANNEL_6G_187, '187 (6885/40 MHz)'),
+                (CHANNEL_6G_189, '189 (6895/20 MHz)'),
+                (CHANNEL_6G_193, '193 (6915/20 MHz)'),
+                (CHANNEL_6G_195, '195 (6925/40 MHz)'),
+                (CHANNEL_6G_197, '197 (6935/20 MHz)'),
+                (CHANNEL_6G_199, '199 (6945/80 MHz)'),
+                (CHANNEL_6G_201, '201 (6955/20 MHz)'),
+                (CHANNEL_6G_203, '203 (6965/40 MHz)'),
+                (CHANNEL_6G_205, '205 (6975/20 MHz)'),
+                (CHANNEL_6G_207, '207 (6985/160 MHz)'),
+                (CHANNEL_6G_209, '209 (6995/20 MHz)'),
+                (CHANNEL_6G_211, '211 (7005/40 MHz)'),
+                (CHANNEL_6G_213, '213 (7015/20 MHz)'),
+                (CHANNEL_6G_215, '215 (7025/80 MHz)'),
+                (CHANNEL_6G_217, '217 (7035/20 MHz)'),
+                (CHANNEL_6G_219, '219 (7045/40 MHz)'),
+                (CHANNEL_6G_221, '221 (7055/20 MHz)'),
+                (CHANNEL_6G_225, '225 (7075/20 MHz)'),
+                (CHANNEL_6G_227, '227 (7085/40 MHz)'),
+                (CHANNEL_6G_229, '229 (7095/20 MHz)'),
+                (CHANNEL_6G_233, '233 (7115/20 MHz)'),
+            )
+        ),
+        (
+            '60 GHz (802.11ad/ay)',
+            (
+                (CHANNEL_60G_1, '1 (58.32/2.16 GHz)'),
+                (CHANNEL_60G_2, '2 (60.48/2.16 GHz)'),
+                (CHANNEL_60G_3, '3 (62.64/2.16 GHz)'),
+                (CHANNEL_60G_4, '4 (64.80/2.16 GHz)'),
+                (CHANNEL_60G_5, '5 (66.96/2.16 GHz)'),
+                (CHANNEL_60G_6, '6 (69.12/2.16 GHz)'),
+                (CHANNEL_60G_9, '9 (59.40/4.32 GHz)'),
+                (CHANNEL_60G_10, '10 (61.56/4.32 GHz)'),
+                (CHANNEL_60G_11, '11 (63.72/4.32 GHz)'),
+                (CHANNEL_60G_12, '12 (65.88/4.32 GHz)'),
+                (CHANNEL_60G_13, '13 (68.04/4.32 GHz)'),
+                (CHANNEL_60G_17, '17 (60.48/6.48 GHz)'),
+                (CHANNEL_60G_18, '18 (62.64/6.48 GHz)'),
+                (CHANNEL_60G_19, '19 (64.80/6.48 GHz)'),
+                (CHANNEL_60G_20, '20 (66.96/6.48 GHz)'),
+                (CHANNEL_60G_25, '25 (61.56/8.64 GHz)'),
+                (CHANNEL_60G_26, '26 (63.72/8.64 GHz)'),
+                (CHANNEL_60G_27, '27 (65.88/8.64 GHz)'),
             )
         ),
     )
