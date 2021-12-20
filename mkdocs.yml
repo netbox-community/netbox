@@ -59,6 +59,7 @@ nav:
         - Sites and Racks: 'core-functionality/sites-and-racks.md'
         - Devices and Cabling: 'core-functionality/devices.md'
         - Device Types: 'core-functionality/device-types.md'
+        - Modules: 'core-functionality/modules.md'
         - Virtualization: 'core-functionality/virtualization.md'
         - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
