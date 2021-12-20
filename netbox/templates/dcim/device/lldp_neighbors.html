@@ -31,12 +31,12 @@
                 <tbody>
                     {% for iface in interfaces %}
                         <tr id="{{ iface.name }}">
-                            <td class="font-monospace">{{ iface }}</td>
+                            <td>{{ iface }}</td>
                             {% if iface.connected_endpoint.device %}
-                                <td class="configured_device" data="{{ iface.connected_endpoint.device }}" data-chassis="{{ iface.connected_endpoint.device.virtual_chassis.name }}">
+                                <td class="configured_device" data="{{ iface.connected_endpoint.device.name }}" data-chassis="{{ iface.connected_endpoint.device.virtual_chassis.name }}">
                                     <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
                                 </td>
-                                <td class="configured_interface" data="{{ iface.connected_endpoint }}">
+                                <td class="configured_interface" data="{{ iface.connected_endpoint.name }}">
                                     <span title="{{ iface.connected_endpoint.get_type_display }}">{{ iface.connected_endpoint }}</span>
                                 </td>
                             {% elif iface.connected_endpoint.circuit %}

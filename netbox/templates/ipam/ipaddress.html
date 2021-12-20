@@ -87,7 +87,7 @@
                         <th scope="row">NAT (inside)</th>
                         <td>
                             {% if object.nat_inside %}
-                                <a href="{% url 'ipam:ipaddress' pk=object.nat_inside.pk %}">{{ object.nat_inside }}</a>
+                                <a href="{{ object.nat_inside.get_absolute_url }}">{{ object.nat_inside }}</a>
                                 {% if object.nat_inside.assigned_object %}
                                     (<a href="{{ object.nat_inside.assigned_object.parent_object.get_absolute_url }}">{{ object.nat_inside.assigned_object.parent_object }}</a>)
                                 {% endif %}
@@ -100,7 +100,7 @@
                         <th scope="row">NAT (outside)</th>
                         <td>
                             {% if object.nat_outside %}
-                                <a href="{% url 'ipam:ipaddress' pk=object.nat_outside.pk %}">{{ object.nat_outside }}</a>
+                                <a href="{{ object.nat_outside.get_absolute_url }}">{{ object.nat_outside }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
@@ -133,8 +133,8 @@
                       </div>
                     {% endif %}
                 </h5>
-                <div class="card-body">
-                {% render_table duplicate_ips_table 'inc/table.html' %}
+                <div class="card-body table-responsive">
+                  {% render_table duplicate_ips_table 'inc/table.html' %}
                 </div>
             </div>
         {% endif %}

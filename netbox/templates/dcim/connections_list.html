@@ -8,19 +8,14 @@
 {% block content-wrapper %}
   <div class="tab-content">
 
-    {# Conncetions list #}
+    {# Connections list #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
-      {% include 'inc/table_controls.html' %}
-
+      {% include 'inc/table_controls_htmx.html' %}
       <div class="card">
-        <div class="card-body">
-          <div class="table-responsive">
-            {% render_table table 'inc/table.html' %}
-          </div>
+        <div class="card-body" id="object_list">
+          {% include 'htmx/table.html' %}
         </div>
       </div>
-
-      {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
 
     {# Filter form #}

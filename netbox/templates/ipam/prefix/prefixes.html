@@ -1,11 +1,10 @@
 {% extends 'ipam/prefix/base.html' %}
 {% load helpers %}
-{% load static %}
 
 {% block extra_controls %}
   {% include 'ipam/inc/toggle_available.html' %}
   {% if perms.ipam.add_prefix and first_available_prefix %}
-    <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ object.vrf.pk }}&site={{ object.site.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-sm btn-success">
+    <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ object.vrf.pk }}&site={{ object.site.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-sm btn-primary">
       <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Prefix
     </a>
   {% endif %}
@@ -13,11 +12,30 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col col-md-12">
-      {% include 'inc/table_controls.html' with table_modal="PrefixTable_config" %}
-      {% include 'utilities/obj_table.html' with heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' parent=prefix %}
+  <form method="post">
+    {% csrf_token %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="PrefixTable_config" %}
+
+    <div class="card">
+      <div class="card-body" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
     </div>
-  </div>
-  {% table_config_form table table_name="PrefixTable" %}
+
+    <div class="noprint bulk-buttons">
+      <div class="bulk-button-group">
+        {% if perms.ipam.change_prefix %}
+          <button type="submit" name="_edit" formaction="{% url 'ipam:prefix_bulk_edit' %}?return_url={% url 'ipam:prefix_prefixes' pk=object.pk %}" class="btn btn-warning btn-sm">
+            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+          </button>
+        {% endif %}
+        {% if perms.ipam.delete_prefix %}
+          <button type="submit" name="_delete" formaction="{% url 'ipam:prefix_bulk_delete' %}?return_url={% url 'ipam:prefix_prefixes' pk=object.pk %}" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+  {% table_config_form table %}
 {% endblock %}

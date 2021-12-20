@@ -1,9 +1,0 @@
-{% extends 'generic/object.html' %}
-{% load helpers %}
-{% load perms %}
-{% load plugins %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}?device_id={{ object.device.pk }}">{{ object.device }}</a></li>
-{% endblock %}

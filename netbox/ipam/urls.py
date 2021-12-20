@@ -61,6 +61,7 @@ urlpatterns = [
     path('aggregates/edit/', views.AggregateBulkEditView.as_view(), name='aggregate_bulk_edit'),
     path('aggregates/delete/', views.AggregateBulkDeleteView.as_view(), name='aggregate_bulk_delete'),
     path('aggregates/<int:pk>/', views.AggregateView.as_view(), name='aggregate'),
+    path('aggregates/<int:pk>/prefixes/', views.AggregatePrefixesView.as_view(), name='aggregate_prefixes'),
     path('aggregates/<int:pk>/edit/', views.AggregateEditView.as_view(), name='aggregate_edit'),
     path('aggregates/<int:pk>/delete/', views.AggregateDeleteView.as_view(), name='aggregate_delete'),
     path('aggregates/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='aggregate_changelog', kwargs={'model': Aggregate}),
@@ -163,6 +164,7 @@ urlpatterns = [
 
     # Services
     path('services/', views.ServiceListView.as_view(), name='service_list'),
+    path('services/add/', views.ServiceEditView.as_view(), name='service_add'),
     path('services/import/', views.ServiceBulkImportView.as_view(), name='service_import'),
     path('services/edit/', views.ServiceBulkEditView.as_view(), name='service_bulk_edit'),
     path('services/delete/', views.ServiceBulkDeleteView.as_view(), name='service_bulk_delete'),

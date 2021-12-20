@@ -1,7 +1,6 @@
 from django.urls import path
 
 from extras.views import ObjectChangeLogView, ObjectJournalView
-from ipam.views import ServiceEditView
 from utilities.views import SlugRedirectView
 from . import views
 from .models import *
@@ -233,7 +232,6 @@ urlpatterns = [
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
-    path('devices/<int:device>/services/assign/', ServiceEditView.as_view(), name='device_service_assign'),
 
     # Console ports
     path('console-ports/', views.ConsolePortListView.as_view(), name='consoleport_list'),

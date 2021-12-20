@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Tuple
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
+from django.http import QueryDict
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -53,9 +54,10 @@ def foreground_color(bg_color, dark='000000', light='ffffff'):
     :param dark: RBG color code for dark text
     :param light: RBG color code for light text
     """
+    THRESHOLD = 150
     bg_color = bg_color.strip('#')
     r, g, b = [int(bg_color[c:c + 2], 16) for c in (0, 2, 4)]
-    if r * 0.299 + g * 0.587 + b * 0.114 > 186:
+    if r * 0.299 + g * 0.587 + b * 0.114 > THRESHOLD:
         return dark
     else:
         return light
@@ -248,10 +250,8 @@ def prepare_cloned_fields(instance):
         for tag in instance.tags.all():
             params.append(('tags', tag.pk))
 
-    # Concatenate parameters into a URL query string
-    param_string = '&'.join([f'{k}={v}' for k, v in params])
-
-    return param_string
+    # Return a QueryDict with the parameters
+    return QueryDict('&'.join([f'{k}={v}' for k, v in params]), mutable=True)
 
 
 def shallow_compare_dict(source_dict, destination_dict, exclude=None):

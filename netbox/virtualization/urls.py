@@ -1,7 +1,6 @@
 from django.urls import path
 
 from extras.views import ObjectChangeLogView, ObjectJournalView
-from ipam.views import ServiceEditView
 from . import views
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -59,7 +58,6 @@ urlpatterns = [
     path('virtual-machines/<int:pk>/config-context/', views.VirtualMachineConfigContextView.as_view(), name='virtualmachine_configcontext'),
     path('virtual-machines/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='virtualmachine_changelog', kwargs={'model': VirtualMachine}),
     path('virtual-machines/<int:pk>/journal/', ObjectJournalView.as_view(), name='virtualmachine_journal', kwargs={'model': VirtualMachine}),
-    path('virtual-machines/<int:virtualmachine>/services/assign/', ServiceEditView.as_view(), name='virtualmachine_service_assign'),
 
     # VM interfaces
     path('interfaces/', views.VMInterfaceListView.as_view(), name='vminterface_list'),

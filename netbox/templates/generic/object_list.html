@@ -87,7 +87,7 @@
       {% endif %}
 
       {# Object table controls #}
-      {% include 'inc/table_controls.html' with table_modal="ObjectTable_config" %}
+      {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
 
       <form method="post" class="form form-horizontal">
         {% csrf_token %}
@@ -95,10 +95,8 @@
 
         {# Object table #}
         <div class="card">
-          <div class="card-body">
-            <div class="table-responsive">
-              {% render_table table 'inc/table.html' %}
-            </div>
+          <div class="card-body" id="object_list">
+            {% include 'htmx/table.html' %}
           </div>
         </div>
 
@@ -125,8 +123,6 @@
 
       </form>
 
-      {# Paginator #}
-      {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
 
     {# Filter form #}

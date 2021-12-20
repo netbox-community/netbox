@@ -2,6 +2,7 @@
 {% load static %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -9,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row mb-3">
 	  <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
@@ -43,22 +44,16 @@
         {% plugin_right_page object %}
     </div>
 </div>
-<div class="row">
-    <div class="col col-md-12">
-        <div class="card">
-            <h5 class="card-header">
-                Circuits
-            </h5>
-            <div class="card-body">
-                {% include 'inc/table.html' with table=circuits_table %}
-            </div>
-        </div>
+<div class="row mb-3">
+  <div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">Circuits</h5>
+      <div class="card-body table-responsive">
+        {% render_table circuits_table 'inc/table.html' %}
         {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
+      </div>
     </div>
-</div>
-<div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
-    </div>
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

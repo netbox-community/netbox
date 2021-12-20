@@ -59,31 +59,31 @@
                     <tr>
                         <th scope="row">Primary IPv4</th>
                         <td>
-                            {% if object.primary_ip4 %}
-                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
-                                {% if object.primary_ip4.nat_inside %}
-                                    <span>(NAT for {{ object.primary_ip4.nat_inside.address.ip }})</span>
-                                {% elif object.primary_ip4.nat_outside %}
-                                    <span>(NAT: {{ object.primary_ip4.nat_outside.address.ip }})</span>
-                                {% endif %}
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
+                          {% if object.primary_ip4 %}
+                            <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}">{{ object.primary_ip4.address.ip }}</a>
+                            {% if object.primary_ip4.nat_inside %}
+                              (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
+                            {% elif object.primary_ip4.nat_outside %}
+                              (NAT: <a href="{{ object.primary_ip4.nat_outside.get_absolute_url }}">{{ object.primary_ip4.nat_outside.address.ip }}</a>)
                             {% endif %}
+                          {% else %}
+                            <span class="text-muted">&mdash;</span>
+                          {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">Primary IPv6</th>
                         <td>
-                            {% if object.primary_ip6 %}
-                                <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
-                                {% if object.primary_ip6.nat_inside %}
-                                    <span>(NAT for {{ object.primary_ip6.nat_inside.address.ip }})</span>
-                                {% elif object.primary_ip6.nat_outside %}
-                                    <span>(NAT: {{ object.primary_ip6.nat_outside.address.ip }})</span>
-                                {% endif %}
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
+                          {% if object.primary_ip6 %}
+                            <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}">{{ object.primary_ip6.address.ip }}</a>
+                            {% if object.primary_ip6.nat_inside %}
+                              (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
+                            {% elif object.primary_ip6.nat_outside %}
+                              (NAT: <a href="{{ object.primary_ip6.nat_outside.get_absolute_url }}">{{ object.primary_ip6.nat_outside.address.ip }}</a>)
                             {% endif %}
+                          {% else %}
+                            <span class="text-muted">&mdash;</span>
+                          {% endif %}
                         </td>
                     </tr>
                 </table>
@@ -167,7 +167,7 @@
             </div>
             {% if perms.ipam.add_service %}
                 <div class="card-footer text-end noprint">
-                    <a href="{% url 'virtualization:virtualmachine_service_assign' virtualmachine=object.pk %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-sm btn-primary">
                         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Service
                     </a>
                 </div>

@@ -737,10 +737,6 @@ nav.breadcrumb-container {
   }
 }
 
-div.paginator > form > div.input-group {
-  width: fit-content;
-}
-
 label.required {
   font-weight: $font-weight-bold;
 
@@ -898,14 +894,6 @@ div.card-overlay {
     flex: 1 0 auto;
     font-size: $font-size-sm;
   }
-}
-
-// Right-align the paginator element.
-.paginator {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: $spacer 0;
 }
 
 // Tabbed content

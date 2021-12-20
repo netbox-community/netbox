@@ -75,19 +75,15 @@
       {% plugin_right_page object %}
     </div>
   </div>
-  <div class="row">
+  <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">Assignments</h5>
-        <div class="card-body">
-          {% if assignments_table.rows %}
-            {% render_table assignments_table 'inc/table.html' %}
-          {% else %}
-            <div class="text-muted">None</div>
-          {% endif %}
+        <div class="card-body table-responsive">
+          {% render_table assignments_table 'inc/table.html' %}
+          {% include 'inc/paginator.html' with paginator=assignments_table.paginator page=assignments_table.page %}
         </div>
       </div>
-      {% include 'inc/paginator.html' with paginator=assignments_table.paginator page=assignments_table.page %}
       {% plugin_full_width_page object %}
     </div>
   </div>

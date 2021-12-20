@@ -36,26 +36,15 @@ from .models import (
 )
 
 
-class DeviceComponentsView(generic.ObjectView):
+class DeviceComponentsView(generic.ObjectChildrenView):
     queryset = Device.objects.all()
-    model = None
-    table = None
 
-    def get_components(self, request, instance):
-        return self.model.objects.restrict(request.user, 'view').filter(device=instance)
+    def get_children(self, request, parent):
+        return self.child_model.objects.restrict(request.user, 'view').filter(device=parent)
 
     def get_extra_context(self, request, instance):
-        components = self.get_components(request, instance)
-        table = self.table(data=components, user=request.user)
-        change_perm = f'{self.model._meta.app_label}.change_{self.model._meta.model_name}'
-        delete_perm = f'{self.model._meta.app_label}.delete_{self.model._meta.model_name}'
-        if request.user.has_perm(change_perm) or request.user.has_perm(delete_perm):
-            table.columns.show('pk')
-        paginate_table(table, request)
-
         return {
-            'table': table,
-            'active_tab': f"{self.model._meta.verbose_name_plural.replace(' ', '-')}",
+            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '-')}",
         }
 
 
@@ -63,8 +52,8 @@ class DeviceTypeComponentsView(DeviceComponentsView):
     queryset = DeviceType.objects.all()
     template_name = 'dcim/devicetype/component_templates.html'
 
-    def get_components(self, request, instance):
-        return self.model.objects.restrict(request.user, 'view').filter(device_type=instance)
+    def get_children(self, request, parent):
+        return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -806,43 +795,51 @@ class DeviceTypeView(generic.ObjectView):
 
 
 class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
-    model = ConsolePortTemplate
+    child_model = ConsolePortTemplate
     table = tables.ConsolePortTemplateTable
+    filterset = filtersets.ConsolePortTemplateFilterSet
 
 
 class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
-    model = ConsoleServerPortTemplate
+    child_model = ConsoleServerPortTemplate
     table = tables.ConsoleServerPortTemplateTable
+    filterset = filtersets.ConsoleServerPortTemplateFilterSet
 
 
 class DeviceTypePowerPortsView(DeviceTypeComponentsView):
-    model = PowerPortTemplate
+    child_model = PowerPortTemplate
     table = tables.PowerPortTemplateTable
+    filterset = filtersets.PowerPortTemplateFilterSet
 
 
 class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
-    model = PowerOutletTemplate
+    child_model = PowerOutletTemplate
     table = tables.PowerOutletTemplateTable
+    filterset = filtersets.PowerOutletTemplateFilterSet
 
 
 class DeviceTypeInterfacesView(DeviceTypeComponentsView):
-    model = InterfaceTemplate
+    child_model = InterfaceTemplate
     table = tables.InterfaceTemplateTable
+    filterset = filtersets.InterfaceTemplateFilterSet
 
 
 class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
-    model = FrontPortTemplate
+    child_model = FrontPortTemplate
     table = tables.FrontPortTemplateTable
+    filterset = filtersets.FrontPortTemplateFilterSet
 
 
 class DeviceTypeRearPortsView(DeviceTypeComponentsView):
-    model = RearPortTemplate
+    child_model = RearPortTemplate
     table = tables.RearPortTemplateTable
+    filterset = filtersets.RearPortTemplateFilterSet
 
 
 class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
-    model = DeviceBayTemplate
+    child_model = DeviceBayTemplate
     table = tables.DeviceBayTemplateTable
+    filterset = filtersets.DeviceBayTemplateFilterSet
 
 
 class DeviceTypeEditView(generic.ObjectEditView):
@@ -1319,80 +1316,79 @@ class DeviceView(generic.ObjectView):
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=instance)
 
-        # Find up to ten devices in the same site with the same functional role for quick reference.
-        related_devices = Device.objects.restrict(request.user, 'view').filter(
-            site=instance.site, device_role=instance.device_role
-        ).exclude(
-            pk=instance.pk
-        ).prefetch_related(
-            'rack', 'device_type__manufacturer'
-        )[:10]
-
         return {
             'services': services,
             'vc_members': vc_members,
-            'related_devices': related_devices,
             'active_tab': 'device',
         }
 
 
 class DeviceConsolePortsView(DeviceComponentsView):
-    model = ConsolePort
+    child_model = ConsolePort
     table = tables.DeviceConsolePortTable
+    filterset = filtersets.ConsolePortFilterSet
     template_name = 'dcim/device/consoleports.html'
 
 
 class DeviceConsoleServerPortsView(DeviceComponentsView):
-    model = ConsoleServerPort
+    child_model = ConsoleServerPort
     table = tables.DeviceConsoleServerPortTable
+    filterset = filtersets.ConsoleServerPortFilterSet
     template_name = 'dcim/device/consoleserverports.html'
 
 
 class DevicePowerPortsView(DeviceComponentsView):
-    model = PowerPort
+    child_model = PowerPort
     table = tables.DevicePowerPortTable
+    filterset = filtersets.PowerPortFilterSet
     template_name = 'dcim/device/powerports.html'
 
 
 class DevicePowerOutletsView(DeviceComponentsView):
-    model = PowerOutlet
+    child_model = PowerOutlet
     table = tables.DevicePowerOutletTable
+    filterset = filtersets.PowerOutletFilterSet
     template_name = 'dcim/device/poweroutlets.html'
 
 
 class DeviceInterfacesView(DeviceComponentsView):
-    model = Interface
+    child_model = Interface
     table = tables.DeviceInterfaceTable
+    filterset = filtersets.InterfaceFilterSet
     template_name = 'dcim/device/interfaces.html'
 
-    def get_components(self, request, instance):
-        return instance.vc_interfaces().restrict(request.user, 'view').prefetch_related(
+    def get_children(self, request, parent):
+        return parent.vc_interfaces().restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user))
         )
 
 
 class DeviceFrontPortsView(DeviceComponentsView):
-    model = FrontPort
+    child_model = FrontPort
     table = tables.DeviceFrontPortTable
+    filterset = filtersets.FrontPortFilterSet
     template_name = 'dcim/device/frontports.html'
 
 
 class DeviceRearPortsView(DeviceComponentsView):
-    model = RearPort
+    child_model = RearPort
     table = tables.DeviceRearPortTable
+    filterset = filtersets.RearPortFilterSet
     template_name = 'dcim/device/rearports.html'
 
 
 class DeviceDeviceBaysView(DeviceComponentsView):
-    model = DeviceBay
+    child_model = DeviceBay
     table = tables.DeviceDeviceBayTable
+    filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
 
 
 class DeviceInventoryView(DeviceComponentsView):
-    model = InventoryItem
+    child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
+    filterset = filtersets.InventoryItemFilterSet
     template_name = 'dcim/device/inventory.html'
 
 

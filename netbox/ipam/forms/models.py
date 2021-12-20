@@ -462,12 +462,15 @@ class IPAddressForm(TenancyForm, CustomFieldModelForm):
         super().clean()
 
         # Handle object assignment
-        if self.cleaned_data['interface']:
-            self.instance.assigned_object = self.cleaned_data['interface']
-        elif self.cleaned_data['vminterface']:
-            self.instance.assigned_object = self.cleaned_data['vminterface']
-        elif self.cleaned_data['fhrpgroup']:
-            self.instance.assigned_object = self.cleaned_data['fhrpgroup']
+        selected_objects = [
+            field for field in ('interface', 'vminterface', 'fhrpgroup') if self.cleaned_data[field]
+        ]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError({
+                selected_objects[1]: "An IP address can only be assigned to a single object."
+            })
+        elif selected_objects:
+            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
 
         # Primary IP assignment is only available if an interface has been assigned.
         interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
@@ -809,12 +812,29 @@ class VLANForm(TenancyForm, CustomFieldModelForm):
 
 
 class ServiceForm(CustomFieldModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False
+    )
+    virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False
+    )
     ports = NumericArrayField(
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN,
             max_value=SERVICE_PORT_MAX
         ),
         help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
+    )
+    ipaddresses = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label='IP Addresses',
+        query_params={
+            'device_id': '$device',
+            'virtual_machine_id': '$virtual_machine',
+        }
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -824,7 +844,7 @@ class ServiceForm(CustomFieldModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'tags',
+            'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses', 'description', 'tags',
         ]
         help_texts = {
             'ipaddresses': "IP address assignment is optional. If no IPs are selected, the service is assumed to be "
@@ -834,18 +854,3 @@ class ServiceForm(CustomFieldModelForm):
             'protocol': StaticSelect(),
             'ipaddresses': StaticSelectMultiple(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit IP address choices to those assigned to interfaces of the parent device/VM
-        if self.instance.device:
-            self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                interface__in=self.instance.device.vc_interfaces().values_list('id', flat=True)
-            )
-        elif self.instance.virtual_machine:
-            self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                vminterface__in=self.instance.virtual_machine.interfaces.values_list('id', flat=True)
-            )
-        else:
-            self.fields['ipaddresses'].choices = []
