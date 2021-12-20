@@ -22,6 +22,7 @@
 * [#8088](https://github.com/netbox-community/netbox/issues/8088) - Improve legibility of text in labels with light-colored backgrounds
 * [#8092](https://github.com/netbox-community/netbox/issues/8092) - Rack elevations should not include device asset tags
 * [#8096](https://github.com/netbox-community/netbox/issues/8096) - Fix DataError during change logging of objects with very long string representations
+* [#8102](https://github.com/netbox-community/netbox/issues/8102) - Cause validation error when editing IPAddress when more than one object is selected for assignment 
 
 ---
 
