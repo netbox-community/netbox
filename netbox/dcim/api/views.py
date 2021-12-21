@@ -501,7 +501,7 @@ class DeviceViewSet(ConfigContextQuerySetMixin, CustomFieldModelViewSet):
                 response[method] = {'error': 'Only get_* NAPALM methods are supported'}
                 continue
             try:
-                response[method] = decode_dict(getattr(d, method)())
+                response[method] = getattr(d, method)()
             except NotImplementedError:
                 response[method] = {'error': 'Method {} not implemented for NAPALM driver {}'.format(method, driver)}
             except Exception as e:
