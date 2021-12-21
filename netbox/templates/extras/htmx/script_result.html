@@ -1,13 +1,14 @@
 {% load helpers %}
 {% load log_levels %}
 
+<p>
+  Initiated: <strong>{{ result.created|annotated_date }}</strong>
+  {% if result.completed %}
+    Duration: <strong>{{ result.duration }}</strong>
+  {% endif %}
+  <span id="pending-result-label">{% include 'extras/inc/job_label.html' %}</span>
+</p>
 {% if result.completed %}
-  <p>
-    Run: <strong>{{ result.created|annotated_date }}</strong>
-    {% if result.completed %}
-      Duration: <strong>{{ result.duration }}</strong>
-    {% endif %}
-  </p>
   <div class="card mb-3">
     <h5 class="card-header">Script Log</h5>
     <div class="card-body">
@@ -45,8 +46,5 @@
     <p class="text-muted">None</p>
   {% endif %}
 {% else %}
-  <div class="spinner-border" id="spinner" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-  <h3>Results pending...</h3>
+  {% include 'extras/inc/result_pending.html' %}
 {% endif %}
