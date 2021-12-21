@@ -2,6 +2,10 @@
 
 ## v3.1.3 (FUTURE)
 
+### Enhancements
+
+* [#8100](https://github.com/netbox-community/netbox/issues/8100) - Add "other" choice for FHRP group protocol
+
 ### Bug Fixes
 
 * [#7246](https://github.com/netbox-community/netbox/issues/7246) - Don't attempt to URL-decode NAPALM response payloads
