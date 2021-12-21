@@ -1,0 +1,50 @@
+{% load helpers %}
+{% load log_levels %}
+
+<p>
+  Initiated: <strong>{{ result.created|annotated_date }}</strong>
+  {% if result.completed %}
+    Duration: <strong>{{ result.duration }}</strong>
+  {% endif %}
+  <span id="pending-result-label">{% include 'extras/inc/job_label.html' %}</span>
+</p>
+{% if result.completed %}
+  <div class="card mb-3">
+    <h5 class="card-header">Script Log</h5>
+    <div class="card-body">
+      <table class="table table-hover panel-body">
+        <tr>
+          <th>Line</th>
+          <th>Level</th>
+          <th>Message</th>
+        </tr>
+        {% for log in result.data.log %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{% log_level log.status %}</td>
+            <td class="rendered-markdown">{{ log.message|render_markdown }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" class="text-center text-muted">
+              No log output
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% if execution_time %}
+      <div class="card-footer text-end text-muted">
+        <small>Exec Time: {{ execution_time|floatformat:3 }}s</small>
+      </div>
+    {% endif %}
+  </div>
+  <h4>Output</h4>
+  {% if result.data.output %}
+    <pre class="block">{{ result.data.output }}</pre>
+  {% else %}
+    <p class="text-muted">None</p>
+  {% endif %}
+{% else %}
+  {% include 'extras/inc/result_pending.html' %}
+{% endif %}
