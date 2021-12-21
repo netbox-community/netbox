@@ -190,7 +190,8 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 class RearPortTemplateTable(ComponentTemplateTable):
     color = ColorColumn()
     actions = ButtonsColumn(
-        model=RearPortTemplate
+        model=RearPortTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
