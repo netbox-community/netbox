@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#8100](https://github.com/netbox-community/netbox/issues/8100) - Add "other" choice for FHRP group protocol
+* [#8134](https://github.com/netbox-community/netbox/issues/8134) - Fix issue where HTMX-swapped UI elements needed to be reinitialized
 
 ### Bug Fixes
 
