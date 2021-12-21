@@ -24,8 +24,6 @@
       </div>
     </div>
     <div class="tab-content p-0 border-0">
-    {{ form.initial.device }}
-    {{ form.initial.virtual_machine }}
       <div class="tab-pane {% if not form.initial.virtual_machine %}active{% endif %}" id="device" role="tabpanel" aria-labeled-by="device_tab">
         {% render_field form.device %}
       </div>

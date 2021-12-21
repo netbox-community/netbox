@@ -1,11 +1,21 @@
 # NetBox v3.1
 
-## v3.1.2 (FUTURE)
+## v3.1.3 (FUTURE)
+
+### Bug Fixes
+
+* [#7962](https://github.com/netbox-community/netbox/issues/7962) - Fix user menu under report/script result view
+* [#8131](https://github.com/netbox-community/netbox/issues/8131) - Restore annotation of available IPs under prefix IPs view
+
+---
+
+## v3.1.2 (2021-12-20)
 
 ### Enhancements
 
 * [#7661](https://github.com/netbox-community/netbox/issues/7661) - Remove forced styling of custom banners
 * [#7665](https://github.com/netbox-community/netbox/issues/7665) - Add toggle to show only available child prefixes
+* [#7999](https://github.com/netbox-community/netbox/issues/7999) - Add 6 GHz and 60 GHz wireless channels
 * [#8057](https://github.com/netbox-community/netbox/issues/8057) - Dynamic object tables using HTMX
 * [#8080](https://github.com/netbox-community/netbox/issues/8080) - Link to NAT IPs for device/VM primary IPs
 * [#8081](https://github.com/netbox-community/netbox/issues/8081) - Allow creating services directly from navigation menu
