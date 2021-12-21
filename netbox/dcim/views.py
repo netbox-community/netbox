@@ -27,13 +27,7 @@ from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
-from .models import (
-    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, PathEndpoint, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    PowerPort, PowerPortTemplate, Rack, Location, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    SiteGroup, VirtualChassis,
-)
+from .models import *
 
 
 class DeviceComponentsView(generic.ObjectChildrenView):
