@@ -5,7 +5,7 @@
 {% block content %}
   <form method="post">
     {% csrf_token %}
-    {% include 'inc/table_controls_htmx.html' with table_modal="VMInterfaceTable_config" %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="VirtualMachineVMInterfaceTable_config" %}
 
     <div class="card">
       <div class="card-body" id="object_list">
