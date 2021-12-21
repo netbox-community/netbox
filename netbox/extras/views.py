@@ -694,16 +694,26 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
 
     def get(self, request, job_result_pk):
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        jobresult = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
+        result = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
 
         # Retrieve the Report and attach the JobResult to it
-        module, report_name = jobresult.name.split('.')
+        module, report_name = result.name.split('.')
         report = get_report(module, report_name)
-        report.result = jobresult
+        report.result = result
+
+        # If this is an HTMX request, return only the result HTML
+        if is_htmx(request):
+            response = render(request, 'extras/htmx/report_result.html', {
+                'report': report,
+                'result': result,
+            })
+            if result.completed:
+                response.status_code = 286
+            return response
 
         return render(request, 'extras/report_result.html', {
             'report': report,
-            'result': jobresult,
+            'result': result,
         })
 
 
@@ -821,7 +831,7 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
 
         script = self._get_script(result.name)
 
-        # If this is an HTMX request, return only the rendered table HTML
+        # If this is an HTMX request, return only the result HTML
         if is_htmx(request):
             response = render(request, 'extras/htmx/script_result.html', {
                 'script': script,
