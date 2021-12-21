@@ -51,9 +51,20 @@ class DeviceComponentsView(generic.ObjectChildrenView):
 class DeviceTypeComponentsView(DeviceComponentsView):
     queryset = DeviceType.objects.all()
     template_name = 'dcim/devicetype/component_templates.html'
+    viewname = None  # Used for return_url resolution
 
     def get_children(self, request, parent):
         return self.child_model.objects.restrict(request.user, 'view').filter(device_type=parent)
+
+    def get_extra_context(self, request, instance):
+        if self.viewname:
+            return_url = reverse(self.viewname, kwargs={'pk': instance.pk})
+        else:
+            return_url = instance.get_absolute_url()
+        return {
+            'active_tab': f"{self.child_model._meta.verbose_name_plural.replace(' ', '-')}",
+            'return_url': return_url,
+        }
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -798,48 +809,56 @@ class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
     child_model = ConsolePortTemplate
     table = tables.ConsolePortTemplateTable
     filterset = filtersets.ConsolePortTemplateFilterSet
+    viewname = 'dcim:devicetype_consoleports'
 
 
 class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
     child_model = ConsoleServerPortTemplate
     table = tables.ConsoleServerPortTemplateTable
     filterset = filtersets.ConsoleServerPortTemplateFilterSet
+    viewname = 'dcim:devicetype_consoleserverports'
 
 
 class DeviceTypePowerPortsView(DeviceTypeComponentsView):
     child_model = PowerPortTemplate
     table = tables.PowerPortTemplateTable
     filterset = filtersets.PowerPortTemplateFilterSet
+    viewname = 'dcim:devicetype_powerports'
 
 
 class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
     child_model = PowerOutletTemplate
     table = tables.PowerOutletTemplateTable
     filterset = filtersets.PowerOutletTemplateFilterSet
+    viewname = 'dcim:devicetype_poweroutlets'
 
 
 class DeviceTypeInterfacesView(DeviceTypeComponentsView):
     child_model = InterfaceTemplate
     table = tables.InterfaceTemplateTable
     filterset = filtersets.InterfaceTemplateFilterSet
+    viewname = 'dcim:devicetype_interfaces'
 
 
 class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
     child_model = FrontPortTemplate
     table = tables.FrontPortTemplateTable
     filterset = filtersets.FrontPortTemplateFilterSet
+    viewname = 'dcim:devicetype_frontports'
 
 
 class DeviceTypeRearPortsView(DeviceTypeComponentsView):
     child_model = RearPortTemplate
     table = tables.RearPortTemplateTable
     filterset = filtersets.RearPortTemplateFilterSet
+    viewname = 'dcim:devicetype_rearports'
 
 
 class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
     child_model = DeviceBayTemplate
     table = tables.DeviceBayTemplateTable
     filterset = filtersets.DeviceBayTemplateFilterSet
+    viewname = 'dcim:devicetype_devicebays'
 
 
 class DeviceTypeEditView(generic.ObjectEditView):
