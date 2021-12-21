@@ -10,6 +10,7 @@ from rq import Worker
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
+from utilities.htmx import is_htmx
 from utilities.tables import paginate_table
 from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
@@ -819,6 +820,16 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
             raise Http404
 
         script = self._get_script(result.name)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            response = render(request, 'extras/htmx/script_result.html', {
+                'script': script,
+                'result': result,
+            })
+            if result.completed:
+                response.status_code = 286
+            return response
 
         return render(request, 'extras/script_result.html', {
             'script': script,
