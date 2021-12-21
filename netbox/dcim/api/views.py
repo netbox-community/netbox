@@ -15,14 +15,14 @@ from circuits.models import Circuit
 from dcim import filtersets
 from dcim.models import *
 from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
-from ipam.models import Prefix, VLAN, ASN
+from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.views import ModelViewSet
 from netbox.config import get_config
 from utilities.api import get_serializer_for_model
-from utilities.utils import count_related, decode_dict
+from utilities.utils import count_related
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException

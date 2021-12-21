@@ -4,7 +4,9 @@
 
 ### Bug Fixes
 
+* [#7246](https://github.com/netbox-community/netbox/issues/7246) - Don't attempt to URL-decode NAPALM response payloads
 * [#7962](https://github.com/netbox-community/netbox/issues/7962) - Fix user menu under report/script result view
+* [#8097](https://github.com/netbox-community/netbox/issues/8097) - Fix styling of Markdown tables
 * [#8131](https://github.com/netbox-community/netbox/issues/8131) - Restore annotation of available IPs under prefix IPs view
 
 ---
