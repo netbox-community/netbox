@@ -10,6 +10,7 @@
 
 * [#7246](https://github.com/netbox-community/netbox/issues/7246) - Don't attempt to URL-decode NAPALM response payloads
 * [#7962](https://github.com/netbox-community/netbox/issues/7962) - Fix user menu under report/script result view
+* [#7972](https://github.com/netbox-community/netbox/issues/7972) - Standardize name of `RemoteUserBackend` logger
 * [#8097](https://github.com/netbox-community/netbox/issues/8097) - Fix styling of Markdown tables
 * [#8127](https://github.com/netbox-community/netbox/issues/8127) - Fix disassociation of interface under IP address edit view
 * [#8131](https://github.com/netbox-community/netbox/issues/8131) - Restore annotation of available IPs under prefix IPs view
