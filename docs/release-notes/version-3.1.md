@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#7962](https://github.com/netbox-community/netbox/issues/7962) - Fix user menu under report/script result view
+* [#8131](https://github.com/netbox-community/netbox/issues/8131) - Restore annotation of available IPs under prefix IPs view
 
 ---
 
