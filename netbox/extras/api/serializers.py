@@ -5,10 +5,10 @@ from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from dcim.api.nested_serializers import (
-    NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedPlatformSerializer,
-    NestedRackSerializer, NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
+    NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedPlatformSerializer, NestedRegionSerializer,
+    NestedSiteSerializer, NestedSiteGroupSerializer,
 )
-from dcim.models import Device, DeviceRole, DeviceType, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery

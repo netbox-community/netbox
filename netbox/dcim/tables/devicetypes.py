@@ -112,8 +112,7 @@ class ComponentTemplateTable(BaseTable):
 class ConsolePortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=ConsolePortTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_consoleports'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -125,8 +124,7 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=ConsoleServerPortTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_consoleserverports'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -138,8 +136,7 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 class PowerPortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=PowerPortTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_powerports'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -151,8 +148,7 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 class PowerOutletTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=PowerOutletTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_poweroutlets'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -167,8 +163,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
     )
     actions = ButtonsColumn(
         model=InterfaceTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_interfaces'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -184,8 +179,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     color = ColorColumn()
     actions = ButtonsColumn(
         model=FrontPortTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_frontports'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -198,8 +192,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
     color = ColorColumn()
     actions = ButtonsColumn(
         model=RearPortTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_rearports'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -211,8 +204,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
 class ModuleBayTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=ModuleBayTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_modulebays'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -224,8 +216,7 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
 class DeviceBayTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=DeviceBayTemplate,
-        buttons=('edit', 'delete'),
-        return_url_extra='%23tab_devicebays'
+        buttons=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
