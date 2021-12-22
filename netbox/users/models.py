@@ -82,9 +82,9 @@ class UserConfig(models.Model):
         # Iterate down the hierarchy, returning the default value if any invalid key is encountered
         try:
             for key in keys:
-                d = d.get(key)
+                d = d[key]
             return d
-        except (AttributeError, KeyError):
+        except (TypeError, KeyError):
             pass
 
         # If the key is not found in the user's config, check for an application-wide default
@@ -92,9 +92,9 @@ class UserConfig(models.Model):
         d = config.DEFAULT_USER_PREFERENCES
         try:
             for key in keys:
-                d = d.get(key)
+                d = d[key]
             return d
-        except (AttributeError, KeyError):
+        except (TypeError, KeyError):
             pass
 
         # Finally, return the specified default value (if any)
