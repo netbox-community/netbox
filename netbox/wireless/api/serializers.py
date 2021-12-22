@@ -40,6 +40,7 @@ class WirelessLANSerializer(PrimaryModelSerializer):
         model = WirelessLAN
         fields = [
             'id', 'url', 'display', 'ssid', 'description', 'group', 'vlan', 'auth_type', 'auth_cipher', 'auth_psk',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -55,5 +56,5 @@ class WirelessLinkSerializer(PrimaryModelSerializer):
         model = WirelessLink
         fields = [
             'id', 'url', 'display', 'interface_a', 'interface_b', 'ssid', 'status', 'description', 'auth_type',
-            'auth_cipher', 'auth_psk',
+            'auth_cipher', 'auth_psk', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]

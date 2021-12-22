@@ -16,6 +16,7 @@
 * [#8131](https://github.com/netbox-community/netbox/issues/8131) - Restore annotation of available IPs under prefix IPs view
 * [#8134](https://github.com/netbox-community/netbox/issues/8134) - Fix bulk editing of objects within dynamic tables
 * [#8139](https://github.com/netbox-community/netbox/issues/8139) - Fix rendering of table configuration form under VM interfaces view
+* [#8140](https://github.com/netbox-community/netbox/issues/8140) - Restore missing fields on wireless LAN & link REST API serializers
 
 ---
 
