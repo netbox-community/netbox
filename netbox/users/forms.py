@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
 
-from utilities.forms import BootstrapMixin, DateTimePicker
+from utilities.forms import BootstrapMixin, DateTimePicker, StaticSelect
 from utilities.utils import flatten_dict
 from .models import Token, UserConfig
 from .preferences import PREFERENCES
@@ -28,6 +28,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
                 'help_text': preference.description,
                 'coerce': preference.coerce,
                 'required': False,
+                'widget': StaticSelect,
             }
             preference_fields[field_name] = forms.TypedChoiceField(**field_kwargs)
         attrs.update(preference_fields)
