@@ -66,6 +66,22 @@ CUSTOM_VALIDATORS = {
 
 ---
 
+## DEFAULT_USER_PREFERENCES
+
+This is a dictionary defining the default preferences to be set for newly-created user accounts. For example, to set the default page size for all users to 100, define the following:
+
+```python
+DEFAULT_USER_PREFERENCES = {
+    "pagination": {
+        "per_page": 100
+    }
+}
+```
+
+For a complete list of available preferences, log into NetBox and navigate to `/user/preferences/`. A period in a preference name indicates a level of nesting in the JSON data. The example above maps to `pagination.per_page`.
+
+---
+
 ## ENFORCE_GLOBAL_UNIQUE
 
 Default: False

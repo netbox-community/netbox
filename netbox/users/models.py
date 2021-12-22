@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from netbox.config import get_config
 from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
@@ -166,7 +167,8 @@ def create_userconfig(instance, created, **kwargs):
     Automatically create a new UserConfig when a new User is created.
     """
     if created:
-        UserConfig(user=instance).save()
+        config = get_config()
+        UserConfig(user=instance, data=config.DEFAULT_USER_PREFERENCES).save()
 
 
 #

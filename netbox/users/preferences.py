@@ -31,6 +31,7 @@ PREFERENCES = {
     'pagination.per_page': UserPreference(
         label='Page length',
         choices=get_page_lengths(),
+        description='The number of objects to display per page',
         coerce=lambda x: int(x)
     ),
 

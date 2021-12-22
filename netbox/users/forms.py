@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
+from django.utils.html import mark_safe
 
 from utilities.forms import BootstrapMixin, DateTimePicker, StaticSelect
 from utilities.utils import flatten_dict
@@ -22,10 +23,12 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
         # Emulate a declared field for each supported user preference
         preference_fields = {}
         for field_name, preference in PREFERENCES.items():
+            description = f'{preference.description}<br />' if preference.description else ''
+            help_text = f'{description}<code>{field_name}</code>'
             field_kwargs = {
                 'label': preference.label,
                 'choices': preference.choices,
-                'help_text': preference.description,
+                'help_text': mark_safe(help_text),
                 'coerce': preference.coerce,
                 'required': False,
                 'widget': StaticSelect,
