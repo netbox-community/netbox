@@ -282,7 +282,7 @@ def flatten_dict(d, prefix='', separator='.'):
     for k, v in d.items():
         key = separator.join([prefix, k]) if prefix else k
         if type(v) is dict:
-            ret.update(flatten_dict(v, prefix=key))
+            ret.update(flatten_dict(v, prefix=key, separator=separator))
         else:
             ret[key] = v
     return ret

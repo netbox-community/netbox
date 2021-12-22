@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from netbox.config import get_config
 from netbox.models import BigIDModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
@@ -79,13 +80,25 @@ class UserConfig(models.Model):
         keys = path.split('.')
 
         # Iterate down the hierarchy, returning the default value if any invalid key is encountered
-        for key in keys:
-            if type(d) is dict and key in d:
-                d = d.get(key)
-            else:
-                return default
+        try:
+            for key in keys:
+                d = d[key]
+            return d
+        except (TypeError, KeyError):
+            pass
 
-        return d
+        # If the key is not found in the user's config, check for an application-wide default
+        config = get_config()
+        d = config.DEFAULT_USER_PREFERENCES
+        try:
+            for key in keys:
+                d = d[key]
+            return d
+        except (TypeError, KeyError):
+            pass
+
+        # Finally, return the specified default value (if any)
+        return default
 
     def all(self):
         """
@@ -166,7 +179,8 @@ def create_userconfig(instance, created, **kwargs):
     Automatically create a new UserConfig when a new User is created.
     """
     if created:
-        UserConfig(user=instance).save()
+        config = get_config()
+        UserConfig(user=instance, data=config.DEFAULT_USER_PREFERENCES).save()
 
 
 #

@@ -131,6 +131,15 @@ PARAMS = (
         field=forms.JSONField
     ),
 
+    # User preferences
+    ConfigParam(
+        name='DEFAULT_USER_PREFERENCES',
+        label='Default preferences',
+        default={},
+        description="Default preferences for new users",
+        field=forms.JSONField
+    ),
+
     # Miscellaneous
     ConfigParam(
         name='MAINTENANCE_MODE',

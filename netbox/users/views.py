@@ -19,7 +19,7 @@ from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
 from netbox.config import get_config
 from utilities.forms import ConfirmationForm
-from .forms import LoginForm, PasswordChangeForm, TokenForm
+from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
 from .models import Token
 
 
@@ -137,32 +137,28 @@ class UserConfigView(LoginRequiredMixin, View):
     template_name = 'users/preferences.html'
 
     def get(self, request):
+        userconfig = request.user.config
+        form = UserConfigForm(instance=userconfig)
 
         return render(request, self.template_name, {
-            'preferences': request.user.config.all(),
+            'form': form,
             'active_tab': 'preferences',
         })
 
     def post(self, request):
         userconfig = request.user.config
-        data = userconfig.all()
+        form = UserConfigForm(request.POST, instance=userconfig)
 
-        # Delete selected preferences
-        if "_delete" in request.POST:
-            for key in request.POST.getlist('pk'):
-                if key in data:
-                    userconfig.clear(key)
-        # Update specific values
-        elif "_update" in request.POST:
-            for key in request.POST:
-                if not key.startswith('_') and not key.startswith('csrf'):
-                    for value in request.POST.getlist(key):
-                        userconfig.set(key, value)
+        if form.is_valid():
+            form.save()
 
-        userconfig.save()
-        messages.success(request, "Your preferences have been updated.")
+            messages.success(request, "Your preferences have been updated.")
+            return redirect('user:preferences')
 
-        return redirect('user:preferences')
+        return render(request, self.template_name, {
+            'form': form,
+            'active_tab': 'preferences',
+        })
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
