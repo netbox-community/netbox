@@ -8,20 +8,29 @@
   <form method="post" action="" id="preferences-update">
     {% csrf_token %}
 
-    {% comment %}
     {% for group, fields in form.Meta.fieldsets %}
       <div class="field-group my-5">
         <div class="row mb-2">
           <h5 class="offset-sm-3">{{ group }}</h5>
         </div>
         {% for name in fields %}
-            {% render_field form|getfield:name %}
+          {% render_field form|getfield:name %}
         {% endfor %}
       </div>
     {% endfor %}
-    {% endcomment %}
 
-    {% render_form form %}
+    {% with plugin_fields=form.plugin_fields %}
+      {% if plugin_fields %}
+        <div class="field-group my-5">
+          <div class="row mb-2">
+            <h5 class="offset-sm-3">Plugins</h5>
+          </div>
+          {% for name in plugin_fields %}
+            {% render_field form|getfield:name %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
     <div class="text-end my-3">
       <a class="btn btn-outline-secondary" href="{% url 'user:preferences' %}">Cancel</a>

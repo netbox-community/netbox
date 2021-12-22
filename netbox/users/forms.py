@@ -44,6 +44,15 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
     class Meta:
         model = UserConfig
         fields = ()
+        fieldsets = (
+            ('User Interface', (
+                'pagination.per_page',
+                'ui.colormode',
+            )),
+            ('Miscellaneous', (
+                'data_format',
+            )),
+        )
 
     def __init__(self, *args, instance=None, **kwargs):
 
@@ -60,6 +69,12 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
             self.instance.set(pref_name, value, commit=False)
 
         return super().save(*args, **kwargs)
+
+    @property
+    def plugin_fields(self):
+        return [
+            name for name in self.fields.keys() if name.startswith('plugins.')
+        ]
 
 
 class TokenForm(BootstrapMixin, forms.ModelForm):
