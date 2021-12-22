@@ -8,6 +8,7 @@
   <form method="post" action="" id="preferences-update">
     {% csrf_token %}
 
+    {% comment %}
     {% for group, fields in form.Meta.fieldsets %}
       <div class="field-group my-5">
         <div class="row mb-2">
@@ -18,6 +19,9 @@
         {% endfor %}
       </div>
     {% endfor %}
+    {% endcomment %}
+
+    {% render_form form %}
 
     <div class="text-end my-3">
       <a class="btn btn-outline-secondary" href="{% url 'user:preferences' %}">Cancel</a>

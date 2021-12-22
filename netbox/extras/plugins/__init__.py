@@ -15,6 +15,7 @@ from extras.plugins.utils import import_object
 # Initialize plugin registry stores
 registry['plugin_template_extensions'] = collections.defaultdict(list)
 registry['plugin_menu_items'] = {}
+registry['plugin_preferences'] = {}
 
 
 #
@@ -54,6 +55,7 @@ class PluginConfig(AppConfig):
     # integrated components.
     template_extensions = 'template_content.template_extensions'
     menu_items = 'navigation.menu_items'
+    user_preferences = 'preferences.preferences'
 
     def ready(self):
 
@@ -66,6 +68,12 @@ class PluginConfig(AppConfig):
         menu_items = import_object(f"{self.__module__}.{self.menu_items}")
         if menu_items is not None:
             register_menu_items(self.verbose_name, menu_items)
+
+        # Register user preferences
+        user_preferences = import_object(f"{self.__module__}.{self.user_preferences}")
+        if user_preferences is not None:
+            plugin_name = self.name.rsplit('.', 1)[1]
+            register_user_preferences(plugin_name, user_preferences)
 
     @classmethod
     def validate(cls, user_config, netbox_version):
@@ -242,3 +250,14 @@ def register_menu_items(section_name, class_list):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
     registry['plugin_menu_items'][section_name] = class_list
+
+
+#
+# User preferences
+#
+
+def register_user_preferences(plugin_name, preferences):
+    """
+    Register a list of user preferences defined by a plugin.
+    """
+    registry['plugin_preferences'][plugin_name] = preferences

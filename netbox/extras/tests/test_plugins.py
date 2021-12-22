@@ -74,6 +74,15 @@ class PluginTest(TestCase):
 
         self.assertIn(SiteContent, registry['plugin_template_extensions']['dcim.site'])
 
+    def test_user_preferences(self):
+        """
+        Check that plugin UserPreferences are registered.
+        """
+        self.assertIn('dummy_plugin', registry['plugin_preferences'])
+        user_preferences = registry['plugin_preferences']['dummy_plugin']
+        self.assertEqual(type(user_preferences), dict)
+        self.assertEqual(list(user_preferences.keys()), ['pref1', 'pref2'])
+
     def test_middleware(self):
         """
         Check that plugin middleware is registered.

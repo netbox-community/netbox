@@ -2,10 +2,10 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
 from django.utils.html import mark_safe
 
+from netbox.preferences import PREFERENCES
 from utilities.forms import BootstrapMixin, DateTimePicker, StaticSelect
 from utilities.utils import flatten_dict
 from .models import Token, UserConfig
-from .preferences import PREFERENCES
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):
@@ -44,15 +44,6 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
     class Meta:
         model = UserConfig
         fields = ()
-        fieldsets = (
-            ('User Interface', (
-                'pagination.per_page',
-                'ui.colormode',
-            )),
-            ('Miscellaneous', (
-                'data_format',
-            )),
-        )
 
     def __init__(self, *args, instance=None, **kwargs):
 
