@@ -80,13 +80,25 @@ class UserConfig(models.Model):
         keys = path.split('.')
 
         # Iterate down the hierarchy, returning the default value if any invalid key is encountered
-        for key in keys:
-            if type(d) is dict and key in d:
+        try:
+            for key in keys:
                 d = d.get(key)
-            else:
-                return default
+            return d
+        except (AttributeError, KeyError):
+            pass
 
-        return d
+        # If the key is not found in the user's config, check for an application-wide default
+        config = get_config()
+        d = config.DEFAULT_USER_PREFERENCES
+        try:
+            for key in keys:
+                d = d.get(key)
+            return d
+        except (AttributeError, KeyError):
+            pass
+
+        # Finally, return the specified default value (if any)
+        return default
 
     def all(self):
         """
