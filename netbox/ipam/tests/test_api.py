@@ -699,7 +699,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of all available VLANs within a group.
         """
-        self.add_permissions('ipam.view_vlan')
+        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan')
         vlangroup = VLANGroup.objects.first()
 
         vlans = (
@@ -722,7 +722,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         """
         Test the creation of a single available VLAN.
         """
-        self.add_permissions('ipam.view_vlan', 'ipam.add_vlan')
+        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan', 'ipam.add_vlan')
         vlangroup = VLANGroup.objects.first()
         VLAN.objects.create(vid=1, name='VLAN 1', group=vlangroup)
 
@@ -741,7 +741,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         """
         Test the creation of multiple available VLANs.
         """
-        self.add_permissions('ipam.view_vlan', 'ipam.add_vlan')
+        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan', 'ipam.add_vlan')
         vlangroup = VLANGroup.objects.first()
 
         vlans = (
