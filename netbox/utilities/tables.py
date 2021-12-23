@@ -12,7 +12,7 @@ from django_tables2.data import TableQuerysetData
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
-from extras.models import CustomField
+from extras.models import CustomField, CustomLink
 from .utils import content_type_identifier, content_type_name
 from .paginator import EnhancedPaginator, get_paginate_count
 
@@ -34,15 +34,18 @@ class BaseTable(tables.Table):
         }
 
     def __init__(self, *args, user=None, extra_columns=None, **kwargs):
+        if extra_columns is None:
+            extra_columns = []
+
         # Add custom field columns
         obj_type = ContentType.objects.get_for_model(self._meta.model)
         cf_columns = [
             (f'cf_{cf.name}', CustomFieldColumn(cf)) for cf in CustomField.objects.filter(content_types=obj_type)
         ]
-        if extra_columns is not None:
-            extra_columns.extend(cf_columns)
-        else:
-            extra_columns = cf_columns
+        cl_columns = [
+            (f'cl_{cl.name}', CustomLinkColumn(cl)) for cl in CustomLink.objects.filter(content_type=obj_type)
+        ]
+        extra_columns.extend([*cf_columns, *cl_columns])
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
@@ -416,6 +419,37 @@ class CustomFieldColumn(tables.Column):
         if value is not None:
             return value
         return self.default
+
+
+class CustomLinkColumn(tables.Column):
+    """
+    Render a custom links as a table column.
+    """
+    def __init__(self, customlink, *args, **kwargs):
+        self.customlink = customlink
+        kwargs['accessor'] = Accessor('pk')
+        if 'verbose_name' not in kwargs:
+            kwargs['verbose_name'] = customlink.name
+
+        super().__init__(*args, **kwargs)
+
+    def render(self, record):
+        try:
+            rendered = self.customlink.render({'obj': record})
+            if rendered:
+                return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
+        except Exception as e:
+            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> Error</span>')
+        return ''
+
+    def value(self, record):
+        try:
+            rendered = self.customlink.render({'obj': record})
+            if rendered:
+                return rendered['link']
+        except Exception:
+            pass
+        return None
 
 
 class MPTTColumn(tables.TemplateColumn):

@@ -55,3 +55,7 @@ The link will only appear when viewing a device with a manufacturer name of "Cis
 ## Link Groups
 
 Group names can be specified to organize links into groups. Links with the same group name will render as a dropdown menu beneath a single button bearing the name of the group.
+
+## Table Columns
+
+Custom links can also be included in object tables by selecting the desired links from the table configuration form. When displayed, each link will render as a hyperlink for its corresponding object. When exported (e.g. as CSV data), each link render only its URL.

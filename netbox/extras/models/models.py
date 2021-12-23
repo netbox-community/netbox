@@ -229,6 +229,24 @@ class CustomLink(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse('extras:customlink', args=[self.pk])
 
+    def render(self, context):
+        """
+        Render the CustomLink given the provided context, and return the text, link, and link_target.
+
+        :param context: The context passed to Jinja2
+        """
+        text = render_jinja2(self.link_text, context)
+        if not text:
+            return {}
+        link = render_jinja2(self.link_url, context)
+        link_target = ' target="_blank"' if self.new_window else ''
+
+        return {
+            'text': text,
+            'link': link,
+            'link_target': link_target,
+        }
+
 
 @extras_features('webhooks', 'export_templates')
 class ExportTemplate(ChangeLoggedModel):
