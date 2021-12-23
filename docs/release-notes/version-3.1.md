@@ -2,10 +2,23 @@
 
 ## v3.1.3 (FUTURE)
 
+### Enhancements
+
+* [#6782](https://github.com/netbox-community/netbox/issues/6782) - Enable the inclusion of custom links in tables
+* [#8100](https://github.com/netbox-community/netbox/issues/8100) - Add "other" choice for FHRP group protocol
+
 ### Bug Fixes
 
+* [#7246](https://github.com/netbox-community/netbox/issues/7246) - Don't attempt to URL-decode NAPALM response payloads
+* [#7887](https://github.com/netbox-community/netbox/issues/7887) - Forward `HTTP_X_FORWARDED_FOR` to custom scripts
 * [#7962](https://github.com/netbox-community/netbox/issues/7962) - Fix user menu under report/script result view
+* [#7972](https://github.com/netbox-community/netbox/issues/7972) - Standardize name of `RemoteUserBackend` logger
+* [#8097](https://github.com/netbox-community/netbox/issues/8097) - Fix styling of Markdown tables
+* [#8127](https://github.com/netbox-community/netbox/issues/8127) - Fix disassociation of interface under IP address edit view
 * [#8131](https://github.com/netbox-community/netbox/issues/8131) - Restore annotation of available IPs under prefix IPs view
+* [#8134](https://github.com/netbox-community/netbox/issues/8134) - Fix bulk editing of objects within dynamic tables
+* [#8139](https://github.com/netbox-community/netbox/issues/8139) - Fix rendering of table configuration form under VM interfaces view
+* [#8140](https://github.com/netbox-community/netbox/issues/8140) - Restore missing fields on wireless LAN & link REST API serializers
 
 ---
 

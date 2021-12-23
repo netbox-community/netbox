@@ -8,7 +8,7 @@ from netbox.navigation_menu import MENUS
 register = template.Library()
 
 
-@register.inclusion_tag("navigation/nav_items.html", takes_context=True)
+@register.inclusion_tag("navigation/menu.html", takes_context=True)
 def nav(context: Context) -> Dict:
     """
     Render the navigation menu.

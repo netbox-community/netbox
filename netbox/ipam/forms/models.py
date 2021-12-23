@@ -471,6 +471,8 @@ class IPAddressForm(TenancyForm, CustomFieldModelForm):
             })
         elif selected_objects:
             self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
+        else:
+            self.instance.assigned_object = None
 
         # Primary IP assignment is only available if an interface has been assigned.
         interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')

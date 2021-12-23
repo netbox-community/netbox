@@ -59,6 +59,10 @@ def render_markdown(value):
     # Render Markdown
     html = markdown(value, extensions=['fenced_code', 'tables', StrikethroughExtension()])
 
+    # If the string is not empty wrap it in rendered-markdown to style tables
+    if html:
+        html = f'<div class="rendered-markdown">{html}</div>'
+
     return mark_safe(html)
 
 
@@ -380,7 +384,7 @@ def querystring(request, **kwargs):
         return ''
 
 
-@register.inclusion_tag('utilities/templatetags/utilization_graph.html')
+@register.inclusion_tag('helpers/utilization_graph.html')
 def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     """
     Display a horizontal bar graph indicating a percentage of utilization.
@@ -399,7 +403,7 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     }
 
 
-@register.inclusion_tag('utilities/templatetags/tag.html')
+@register.inclusion_tag('helpers/tag.html')
 def tag(tag, url_name=None):
     """
     Display a tag, optionally linked to a filtered list of objects.
@@ -410,7 +414,7 @@ def tag(tag, url_name=None):
     }
 
 
-@register.inclusion_tag('utilities/templatetags/badge.html')
+@register.inclusion_tag('helpers/badge.html')
 def badge(value, bg_class='secondary', show_empty=False):
     """
     Display the specified number as a badge.
@@ -422,7 +426,7 @@ def badge(value, bg_class='secondary', show_empty=False):
     }
 
 
-@register.inclusion_tag('utilities/templatetags/table_config_form.html')
+@register.inclusion_tag('helpers/table_config_form.html')
 def table_config_form(table, table_name=None):
     return {
         'table_name': table_name or table.__class__.__name__,
@@ -430,7 +434,7 @@ def table_config_form(table, table_name=None):
     }
 
 
-@register.inclusion_tag('utilities/templatetags/applied_filters.html')
+@register.inclusion_tag('helpers/applied_filters.html')
 def applied_filters(form, query_params):
     """
     Display the active filters for a given filter form.
