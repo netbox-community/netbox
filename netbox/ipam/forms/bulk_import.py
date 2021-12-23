@@ -332,10 +332,22 @@ class VLANGroupCSVForm(CustomFieldModelCSVForm):
         required=False,
         label='Scope type (app & model)'
     )
+    min_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
+        required=False,
+        label=f'Minimum child VLAN VID (default: {VLAN_VID_MIN})'
+    )
+    max_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
+        required=False,
+        label=f'Maximum child VLAN VID (default: {VLAN_VID_MIN})'
+    )
 
     class Meta:
         model = VLANGroup
-        fields = ('name', 'slug', 'scope_type', 'scope_id', 'description')
+        fields = ('name', 'slug', 'scope_type', 'scope_id', 'min_vid', 'max_vid', 'description')
         labels = {
             'scope_id': 'Scope ID',
         }

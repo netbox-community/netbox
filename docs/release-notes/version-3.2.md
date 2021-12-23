@@ -41,6 +41,7 @@ FIELD_CHOICES = {
 ### Enhancements
 
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
+* [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
 
 ### Other Changes
 
@@ -53,3 +54,6 @@ FIELD_CHOICES = {
 
 * dcim.Site
     * Removed the `asn`, `contact_name`, `contact_phone`, and `contact_email` fields
+* ipam.VLANGroup
+    * Added the `/availables-vlans/` endpoint
+    * Added the `min_vid` and `max_vid` fields

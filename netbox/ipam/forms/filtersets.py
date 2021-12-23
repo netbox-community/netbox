@@ -370,7 +370,8 @@ class FHRPGroupFilterForm(CustomFieldModelFilterForm):
 class VLANGroupFilterForm(CustomFieldModelFilterForm):
     field_groups = [
         ['q', 'tag'],
-        ['region', 'sitegroup', 'site', 'location', 'rack']
+        ['region', 'sitegroup', 'site', 'location', 'rack'],
+        ['min_vid', 'max_vid'],
     ]
     model = VLANGroup
     region = DynamicModelMultipleChoiceField(
@@ -402,6 +403,14 @@ class VLANGroupFilterForm(CustomFieldModelFilterForm):
         required=False,
         label=_('Rack'),
         fetch_trigger='open'
+    )
+    min_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
+    )
+    max_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
     )
     tag = TagFilterField(model)
 

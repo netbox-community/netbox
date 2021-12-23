@@ -700,10 +700,11 @@ class VLANGroupForm(CustomFieldModelForm):
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster', 'tags',
+            'clustergroup', 'cluster', 'min_vid', 'max_vid', 'tags',
         ]
         fieldsets = (
             ('VLAN Group', ('name', 'slug', 'description', 'tags')),
+            ('Child VLANs', ('min_vid', 'max_vid')),
             ('Scope', ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
         )
         widgets = {

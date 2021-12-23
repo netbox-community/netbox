@@ -182,8 +182,8 @@ class VLANGroupSerializer(PrimaryModelSerializer):
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated', 'vlan_count',
+            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'min_vid', 'max_vid',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count',
         ]
         validators = []
 

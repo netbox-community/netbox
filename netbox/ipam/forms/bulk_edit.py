@@ -359,6 +359,18 @@ class VLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         queryset=Site.objects.all(),
         required=False
     )
+    min_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
+        required=False,
+        label='Minimum child VLAN VID'
+    )
+    max_vid = forms.IntegerField(
+        min_value=VLAN_VID_MIN,
+        max_value=VLAN_VID_MAX,
+        required=False,
+        label='Maximum child VLAN VID'
+    )
     description = forms.CharField(
         max_length=200,
         required=False

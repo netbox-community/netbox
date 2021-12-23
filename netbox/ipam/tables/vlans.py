@@ -84,7 +84,10 @@ class VLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'id', 'name', 'scope_type', 'scope', 'vlan_count', 'slug', 'description', 'tags', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'scope_type', 'scope', 'min_vid', 'max_vid', 'vlan_count', 'slug', 'description',
+            'tags', 'actions',
+        )
         default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description', 'actions')
 
 
