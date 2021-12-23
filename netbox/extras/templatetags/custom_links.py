@@ -62,16 +62,14 @@ def custom_links(context, obj):
         # Add non-grouped links
         else:
             try:
-                text_rendered = render_jinja2(cl.link_text, link_context)
-                if text_rendered:
-                    link_rendered = render_jinja2(cl.link_url, link_context)
-                    link_target = ' target="_blank"' if cl.new_window else ''
+                rendered = cl.render(link_context)
+                if rendered:
                     template_code += LINK_BUTTON.format(
-                        link_rendered, link_target, cl.button_class, text_rendered
+                        rendered['link'], rendered['link_target'], cl.button_class, rendered['text']
                     )
             except Exception as e:
-                template_code += '<a class="btn btn-sm btn-outline-dark" disabled="disabled" title="{}">' \
-                                 '<i class="mdi mdi-alert"></i> {}</a>\n'.format(e, cl.name)
+                template_code += f'<a class="btn btn-sm btn-outline-dark" disabled="disabled" title="{e}">' \
+                                 f'<i class="mdi mdi-alert"></i> {cl.name}</a>\n'
 
     # Add grouped links to template
     for group, links in group_names.items():
@@ -80,17 +78,15 @@ def custom_links(context, obj):
 
         for cl in links:
             try:
-                text_rendered = render_jinja2(cl.link_text, link_context)
-                if text_rendered:
-                    link_target = ' target="_blank"' if cl.new_window else ''
-                    link_rendered = render_jinja2(cl.link_url, link_context)
+                rendered = cl.render(link_context)
+                if rendered:
                     links_rendered.append(
-                        GROUP_LINK.format(link_rendered, link_target, text_rendered)
+                        GROUP_LINK.format(rendered['link'], rendered['link_target'], rendered['text'])
                     )
             except Exception as e:
                 links_rendered.append(
-                    '<li><a class="dropdown-item" disabled="disabled" title="{}"><span class="text-muted">'
-                    '<i class="mdi mdi-alert"></i> {}</span></a></li>'.format(e, cl.name)
+                    f'<li><a class="dropdown-item" disabled="disabled" title="{e}"><span class="text-muted">'
+                    f'<i class="mdi mdi-alert"></i> {cl.name}</span></a></li>'
                 )
 
         if links_rendered:
