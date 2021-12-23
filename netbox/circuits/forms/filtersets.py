@@ -64,6 +64,10 @@ class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
         label=_('Provider'),
         fetch_trigger='open'
     )
+    service_id = forms.CharField(
+        max_length=100,
+        required=False
+    )
     tag = TagFilterField(model)
 
 

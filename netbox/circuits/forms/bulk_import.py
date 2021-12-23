@@ -32,7 +32,7 @@ class ProviderNetworkCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = ProviderNetwork
         fields = [
-            'provider', 'name', 'description', 'comments',
+            'provider', 'name', 'service_id', 'description', 'comments',
         ]
 
 

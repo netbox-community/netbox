@@ -69,8 +69,8 @@ class ProviderNetworkTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ProviderNetwork
-        fields = ('pk', 'id', 'name', 'provider', 'description', 'comments', 'tags')
-        default_columns = ('pk', 'name', 'provider', 'description')
+        fields = ('pk', 'id', 'name', 'provider', 'service_id', 'description', 'comments', 'tags')
+        default_columns = ('pk', 'name', 'provider', 'service_id', 'description')
 
 
 #

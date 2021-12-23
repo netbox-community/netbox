@@ -41,6 +41,7 @@ FIELD_CHOICES = {
 ### Enhancements
 
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
+* [#7681](https://github.com/netbox-community/netbox/issues/7681) - Add `service_id` field for provider networks
 * [#7759](https://github.com/netbox-community/netbox/issues/7759) - Improved the user preferences form
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
 
@@ -58,6 +59,8 @@ FIELD_CHOICES = {
     * `/api/dcim/module-bays/`
     * `/api/dcim/module-bay-templates/`
     * `/api/dcim/module-types/`
+* circuits.ProviderNetwork
+    * Added `service_id` field
 * dcim.ConsolePort
     * Added `module` field
 * dcim.ConsoleServerPort

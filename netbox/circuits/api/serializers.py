@@ -37,8 +37,8 @@ class ProviderNetworkSerializer(PrimaryModelSerializer):
     class Meta:
         model = ProviderNetwork
         fields = [
-            'id', 'url', 'display', 'provider', 'name', 'description', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'provider', 'name', 'service_id', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 

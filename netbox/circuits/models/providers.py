@@ -5,7 +5,6 @@ from django.urls import reverse
 from dcim.fields import ASNField
 from extras.utils import extras_features
 from netbox.models import PrimaryModel
-from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'ProviderNetwork',
@@ -86,6 +85,11 @@ class ProviderNetwork(PrimaryModel):
         to='circuits.Provider',
         on_delete=models.PROTECT,
         related_name='networks'
+    )
+    service_id = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Service ID'
     )
     description = models.CharField(
         max_length=200,

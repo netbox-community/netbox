@@ -98,13 +98,14 @@ class ProviderNetworkFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = ProviderNetwork
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'service_id']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(service_id__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()

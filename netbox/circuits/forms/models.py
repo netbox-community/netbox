@@ -66,10 +66,10 @@ class ProviderNetworkForm(CustomFieldModelForm):
     class Meta:
         model = ProviderNetwork
         fields = [
-            'provider', 'name', 'description', 'comments', 'tags',
+            'provider', 'name', 'service_id', 'description', 'comments', 'tags',
         ]
         fieldsets = (
-            ('Provider Network', ('provider', 'name', 'description', 'tags')),
+            ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
         )
 
 

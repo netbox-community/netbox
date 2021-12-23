@@ -62,8 +62,12 @@ class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditFor
         queryset=Provider.objects.all(),
         required=False
     )
-    description = forms.CharField(
+    service_id = forms.CharField(
         max_length=100,
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
         required=False
     )
     comments = CommentField(
@@ -73,7 +77,7 @@ class ProviderNetworkBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditFor
 
     class Meta:
         nullable_fields = [
-            'description', 'comments',
+            'service_id', 'description', 'comments',
         ]
 
 
