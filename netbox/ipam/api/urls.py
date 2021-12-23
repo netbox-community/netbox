@@ -62,6 +62,11 @@ urlpatterns = [
         views.PrefixAvailableIPAddressesView.as_view(),
         name='prefix-available-ips'
     ),
+    path(
+        'vlan-groups/<int:pk>/available-vlans/',
+        views.AvailableVLANsView.as_view(),
+        name='vlangroup-available-vlans'
+    ),
 ]
 
 urlpatterns += router.urls

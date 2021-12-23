@@ -75,6 +75,16 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError("Cannot set scope_id without scope_type.")
 
+    def get_available_vids(self):
+        """
+        Return all available VLANs within this group.
+        """
+        available_vlans = {vid for vid in range(VLAN_VID_MIN, VLAN_VID_MAX + 1)}
+        available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
+
+        # TODO: Check ordering
+        return list(available_vlans)
+
     def get_next_available_vid(self):
         """
         Return the first available VLAN ID (1-4094) in the group.

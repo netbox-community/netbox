@@ -327,3 +327,75 @@ class IPRangeAvailableIPAddressesView(AvailableIPAddressesView):
 
     def get_parent(self, request, pk):
         return get_object_or_404(IPRange.objects.restrict(request.user), pk=pk)
+
+
+class AvailableVLANsView(ObjectValidationMixin, APIView):
+    queryset = VLAN.objects.all()
+
+    @swagger_auto_schema(responses={200: serializers.AvailableVLANSerializer(many=True)})
+    def get(self, request, pk):
+        vlangroup = get_object_or_404(VLANGroup.objects.restrict(request.user), pk=pk)
+        available_vlans = vlangroup.get_available_vids()
+
+        serializer = serializers.AvailableVLANSerializer(available_vlans, many=True, context={
+            'request': request,
+            'group': vlangroup,
+        })
+
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=serializers.CreateAvailableVLANSerializer,
+        responses={201: serializers.VLANSerializer(many=True)}
+    )
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-vlans'])
+    def post(self, request, pk):
+        self.queryset = self.queryset.restrict(request.user, 'add')
+        vlangroup = get_object_or_404(VLANGroup.objects.restrict(request.user), pk=pk)
+        available_vlans = vlangroup.get_available_vids()
+        many = isinstance(request.data, list)
+
+        # Validate requested VLANs
+        serializer = serializers.CreateAvailableVLANSerializer(
+            data=request.data if many else [request.data],
+            many=True,
+            context={
+                'request': request,
+                'group': vlangroup,
+            }
+        )
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        requested_vlans = serializer.validated_data
+
+        for i, requested_vlan in enumerate(requested_vlans):
+            try:
+                requested_vlan['vid'] = available_vlans.pop(0)
+                requested_vlan['group'] = vlangroup.pk
+            except IndexError:
+                return Response({
+                    "detail": "The requested number of VLANs is not available"
+                }, status=status.HTTP_409_CONFLICT)
+
+        # Initialize the serializer with a list or a single object depending on what was requested
+        context = {'request': request}
+        if many:
+            serializer = serializers.VLANSerializer(data=requested_vlans, many=True, context=context)
+        else:
+            serializer = serializers.VLANSerializer(data=requested_vlans[0], context=context)
+
+        # Create the new VLAN(s)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    created = serializer.save()
+                    self._validate_objects(created)
+            except ObjectDoesNotExist:
+                raise PermissionDenied()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

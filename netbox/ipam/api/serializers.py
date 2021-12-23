@@ -213,6 +213,40 @@ class VLANSerializer(PrimaryModelSerializer):
         ]
 
 
+class AvailableVLANSerializer(serializers.Serializer):
+    """
+    Representation of a VLAN which does not exist in the database.
+    """
+    vid = serializers.IntegerField(read_only=True)
+    group = NestedVLANGroupSerializer(read_only=True)
+
+    def to_representation(self, instance):
+        return OrderedDict([
+            ('vid', instance),
+            ('group', NestedVLANGroupSerializer(
+                self.context['group'],
+                context={'request': self.context['request']}
+            ).data),
+        ])
+
+
+class CreateAvailableVLANSerializer(PrimaryModelSerializer):
+    site = NestedSiteSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=VLANStatusChoices, required=False)
+    role = NestedRoleSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = VLAN
+        fields = [
+            'name', 'site', 'tenant', 'status', 'role', 'description', 'tags', 'custom_fields',
+        ]
+
+    def validate(self, data):
+        # Bypass model validation since we don't have a VID yet
+        return data
+
+
 #
 # Prefixes
 #
