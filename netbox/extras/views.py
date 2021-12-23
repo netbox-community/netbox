@@ -285,6 +285,7 @@ class ConfigContextView(generic.ObjectView):
             ('Device Types', instance.device_types.all),
             ('Roles', instance.roles.all),
             ('Platforms', instance.platforms.all),
+            ('Cluster Types', instance.cluster_types.all),
             ('Cluster Groups', instance.cluster_groups.all),
             ('Clusters', instance.clusters.all),
             ('Tenant Groups', instance.tenant_groups.all),

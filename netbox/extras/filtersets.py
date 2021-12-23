@@ -7,7 +7,7 @@ from dcim.models import DeviceRole, DeviceType, Platform, Region, Site, SiteGrou
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
 from .models import *
 
@@ -278,6 +278,17 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
+    )
+    cluster_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster_types',
+        queryset=ClusterType.objects.all(),
+        label='Cluster type',
+    )
+    cluster_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster_types__slug',
+        queryset=ClusterType.objects.all(),
+        to_field_name='slug',
+        label='Cluster type (slug)',
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_groups',

@@ -19,8 +19,10 @@ from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantG
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
-from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.api.nested_serializers import (
+    NestedClusterGroupSerializer, NestedClusterSerializer, NestedClusterTypeSerializer,
+)
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .nested_serializers import *
 
 __all__ = (
@@ -267,6 +269,12 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    cluster_types = SerializedPKRelatedField(
+        queryset=ClusterType.objects.all(),
+        serializer=NestedClusterTypeSerializer,
+        required=False,
+        many=True
+    )
     cluster_groups = SerializedPKRelatedField(
         queryset=ClusterGroup.objects.all(),
         serializer=NestedClusterGroupSerializer,
@@ -302,8 +310,8 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         model = ConfigContext
         fields = [
             'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
-            'device_types', 'roles', 'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags',
-            'data', 'created', 'last_updated',
+            'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
+            'tenants', 'tags', 'data', 'created', 'last_updated',
         ]
 
 

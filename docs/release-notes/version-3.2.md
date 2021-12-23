@@ -43,6 +43,7 @@ FIELD_CHOICES = {
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
 * [#7681](https://github.com/netbox-community/netbox/issues/7681) - Add `service_id` field for provider networks
 * [#7759](https://github.com/netbox-community/netbox/issues/7759) - Improved the user preferences form
+* [#7784](https://github.com/netbox-community/netbox/issues/7784) - Support cluster type assignment for config contexts
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
 
 ### Other Changes
@@ -77,6 +78,8 @@ FIELD_CHOICES = {
     * Added `module` field
 * dcim.Site
     * Removed the `asn`, `contact_name`, `contact_phone`, and `contact_email` fields
+* extras.ConfigContext
+    * Add `cluster_types` field
 * ipam.VLANGroup
     * Added the `/availables-vlans/` endpoint
     * Added the `min_vid` and `max_vid` fields

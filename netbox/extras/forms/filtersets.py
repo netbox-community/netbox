@@ -12,7 +12,7 @@ from utilities.forms import (
     add_blank_choice, APISelectMultiple, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DateTimePicker,
     DynamicModelMultipleChoiceField, FilterForm, StaticSelect, StaticSelectMultiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
     'ConfigContextFilterForm',
@@ -158,7 +158,7 @@ class ConfigContextFilterForm(FilterForm):
         ['q', 'tag'],
         ['region_id', 'site_group_id', 'site_id'],
         ['device_type_id', 'platform_id', 'role_id'],
-        ['cluster_group_id', 'cluster_id'],
+        ['cluster_type_id', 'cluster_group_id', 'cluster_id'],
         ['tenant_group_id', 'tenant_id']
     ]
     region_id = DynamicModelMultipleChoiceField(
@@ -195,6 +195,12 @@ class ConfigContextFilterForm(FilterForm):
         queryset=Platform.objects.all(),
         required=False,
         label=_('Platforms'),
+        fetch_trigger='open'
+    )
+    cluster_type_id = DynamicModelMultipleChoiceField(
+        queryset=ClusterType.objects.all(),
+        required=False,
+        label=_('Cluster types'),
         fetch_trigger='open'
     )
     cluster_group_id = DynamicModelMultipleChoiceField(

@@ -399,6 +399,13 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Platform.objects.bulk_create(platforms)
 
+        cluster_types = (
+            ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
+            ClusterType(name='Cluster Type 2', slug='cluster-type-2'),
+            ClusterType(name='Cluster Type 3', slug='cluster-type-3'),
+        )
+        ClusterType.objects.bulk_create(cluster_types)
+
         cluster_groups = (
             ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
             ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
@@ -406,11 +413,10 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ClusterGroup.objects.bulk_create(cluster_groups)
 
-        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_type),
-            Cluster(name='Cluster 2', type=cluster_type),
-            Cluster(name='Cluster 3', type=cluster_type),
+            Cluster(name='Cluster 1', type=cluster_types[0]),
+            Cluster(name='Cluster 2', type=cluster_types[1]),
+            Cluster(name='Cluster 3', type=cluster_types[2]),
         )
         Cluster.objects.bulk_create(clusters)
 
@@ -442,6 +448,7 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             c.device_types.set([device_types[i]])
             c.roles.set([device_roles[i]])
             c.platforms.set([platforms[i]])
+            c.cluster_types.set([cluster_types[i]])
             c.cluster_groups.set([cluster_groups[i]])
             c.clusters.set([clusters[i]])
             c.tenant_groups.set([tenant_groups[i]])
@@ -502,6 +509,13 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'cluster_group_id': [cluster_groups[0].pk, cluster_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cluster_group': [cluster_groups[0].slug, cluster_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cluster_type(self):
+        cluster_types = ClusterType.objects.all()[:2]
+        params = {'cluster_type_id': [cluster_types[0].pk, cluster_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cluster_type': [cluster_types[0].slug, cluster_types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster(self):

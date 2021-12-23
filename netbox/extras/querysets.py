@@ -22,8 +22,9 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         # Device type assignment is relevant only for Devices
         device_type = getattr(obj, 'device_type', None)
 
-        # Get assigned Cluster and ClusterGroup, if any
+        # Get assigned cluster, group, and type (if any)
         cluster = getattr(obj, 'cluster', None)
+        cluster_type = getattr(cluster, 'type', None)
         cluster_group = getattr(cluster, 'group', None)
 
         # Get the group of the assigned tenant, if any
@@ -44,6 +45,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
             Q(device_types=device_type) | Q(device_types=None),
             Q(roles=role) | Q(roles=None),
             Q(platforms=obj.platform) | Q(platforms=None),
+            Q(cluster_types=cluster_type) | Q(cluster_types=None),
             Q(cluster_groups=cluster_group) | Q(cluster_groups=None),
             Q(clusters=cluster) | Q(clusters=None),
             Q(tenant_groups=tenant_group) | Q(tenant_groups=None),
@@ -93,6 +95,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         }
         base_query = Q(
             Q(platforms=OuterRef('platform')) | Q(platforms=None),
+            Q(cluster_types=OuterRef('cluster__type')) | Q(cluster_types=None),
             Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None),
             Q(clusters=OuterRef('cluster')) | Q(clusters=None),
             Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),

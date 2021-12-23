@@ -71,6 +71,11 @@ class ConfigContext(ChangeLoggedModel):
         related_name='+',
         blank=True
     )
+    cluster_types = models.ManyToManyField(
+        to='virtualization.ClusterType',
+        related_name='+',
+        blank=True
+    )
     cluster_groups = models.ManyToManyField(
         to='virtualization.ClusterGroup',
         related_name='+',

@@ -10,7 +10,7 @@ from utilities.forms import (
     add_blank_choice, BootstrapMixin, CommentField, ContentTypeChoiceField,
     ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField, StaticSelect,
 )
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
     'AddRemoveTagsForm',
@@ -165,6 +165,10 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Platform.objects.all(),
         required=False
     )
+    cluster_types = DynamicModelMultipleChoiceField(
+        queryset=ClusterType.objects.all(),
+        required=False
+    )
     cluster_groups = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False
@@ -193,7 +197,7 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         model = ConfigContext
         fields = (
             'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites', 'roles', 'device_types',
-            'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
+            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
         )
 
 
