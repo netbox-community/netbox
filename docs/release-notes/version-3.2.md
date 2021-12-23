@@ -41,6 +41,7 @@ FIELD_CHOICES = {
 ### Enhancements
 
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
+* [#7759](https://github.com/netbox-community/netbox/issues/7759) - Improved the user preferences form
 * [#8168](https://github.com/netbox-community/netbox/issues/8168) - Add `min_vid` and `max_vid` fields to VLAN group
 
 ### Other Changes
@@ -52,6 +53,25 @@ FIELD_CHOICES = {
 
 ### REST API Changes
 
+* Added the following endpoints for modules & module types:
+    * `/api/dcim/modules/`
+    * `/api/dcim/module-bays/`
+    * `/api/dcim/module-bay-templates/`
+    * `/api/dcim/module-types/`
+* dcim.ConsolePort
+    * Added `module` field
+* dcim.ConsoleServerPort
+    * Added `module` field
+* dcim.FrontPort
+    * Added `module` field
+* dcim.Interface
+    * Added `module` field
+* dcim.PowerPort
+    * Added `module` field
+* dcim.PowerOutlet
+    * Added `module` field
+* dcim.RearPort
+    * Added `module` field
 * dcim.Site
     * Removed the `asn`, `contact_name`, `contact_phone`, and `contact_email` fields
 * ipam.VLANGroup
