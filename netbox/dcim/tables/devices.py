@@ -774,6 +774,9 @@ class InventoryItemTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
+    role = tables.Column(
+        linkify=True
+    )
     manufacturer = tables.Column(
         linkify=True
     )
@@ -786,10 +789,33 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(BaseTable.Meta):
         model = InventoryItem
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
-            'discovered', 'tags',
+            'pk', 'id', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'description', 'discovered', 'tags',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+        default_columns = ('pk', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+
+
+class DeviceInventoryItemTable(InventoryItemTable):
+    name = tables.TemplateColumn(
+        template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
+                      '{{ value }}</a>',
+        order_by=Accessor('_name'),
+        attrs={'td': {'class': 'text-nowrap'}}
+    )
+    actions = ButtonsColumn(
+        model=InventoryItem,
+        buttons=('edit', 'delete')
+    )
+
+    class Meta(BaseTable.Meta):
+        model = InventoryItem
+        fields = (
+            'pk', 'id', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
+            'discovered', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'actions',
+        )
 
 
 class InventoryItemRoleTable(BaseTable):
@@ -814,30 +840,6 @@ class InventoryItemRoleTable(BaseTable):
             'pk', 'id', 'name', 'inventoryitem_count', 'color', 'description', 'slug', 'tags', 'actions',
         )
         default_columns = ('pk', 'name', 'inventoryitem_count', 'color', 'description', 'actions')
-
-
-class DeviceInventoryItemTable(InventoryItemTable):
-    name = tables.TemplateColumn(
-        template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
-                      '{{ value }}</a>',
-        order_by=Accessor('_name'),
-        attrs={'td': {'class': 'text-nowrap'}}
-    )
-    actions = ButtonsColumn(
-        model=InventoryItem,
-        buttons=('edit', 'delete')
-    )
-
-    class Meta(BaseTable.Meta):
-        model = InventoryItem
-        fields = (
-            'pk', 'id', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered',
-            'tags', 'actions',
-        )
-        default_columns = (
-            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered',
-            'actions',
-        )
 
 
 #

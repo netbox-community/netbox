@@ -2949,7 +2949,6 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
@@ -2998,10 +2997,17 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
         inventory_items = (
-            InventoryItem(device=devices[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First'),
-            InventoryItem(device=devices[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
-            InventoryItem(device=devices[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
+            InventoryItem(device=devices[0], role=roles[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First'),
+            InventoryItem(device=devices[1], role=roles[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
+            InventoryItem(device=devices[2], role=roles[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
         )
         for i in inventory_items:
             i.save()
@@ -3075,6 +3081,13 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_parent_id(self):
         parent_items = InventoryItem.objects.filter(parent__isnull=True)[:2]
         params = {'parent_id': [parent_items[0].pk, parent_items[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_role(self):
+        roles = InventoryItemRole.objects.all()[:2]
+        params = {'role_id': [roles[0].pk, roles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'role': [roles[0].slug, roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_manufacturer(self):

@@ -1100,6 +1100,12 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         ['name', 'label', 'manufacturer_id', 'serial', 'asset_tag', 'discovered'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False,
+        label=_('Role'),
+        fetch_trigger='open'
+    )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,

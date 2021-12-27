@@ -2412,7 +2412,7 @@ class InventoryItemBulkImportView(generic.BulkImportView):
 
 
 class InventoryItemBulkEditView(generic.BulkEditView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
     form = forms.InventoryItemBulkEditForm
@@ -2423,7 +2423,7 @@ class InventoryItemBulkRenameView(generic.BulkRenameView):
 
 
 class InventoryItemBulkDeleteView(generic.BulkDeleteView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
 

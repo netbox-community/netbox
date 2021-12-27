@@ -994,6 +994,13 @@ class InventoryItem(MPTTModel, ComponentModel):
         null=True,
         db_index=True
     )
+    role = models.ForeignKey(
+        to='dcim.InventoryItemRole',
+        on_delete=models.PROTECT,
+        related_name='inventory_items',
+        blank=True,
+        null=True
+    )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
         on_delete=models.PROTECT,
@@ -1006,13 +1013,6 @@ class InventoryItem(MPTTModel, ComponentModel):
         verbose_name='Part ID',
         blank=True,
         help_text='Manufacturer-assigned part identifier'
-    )
-    role = models.ForeignKey(
-        to='dcim.InventoryItemRole',
-        on_delete=models.PROTECT,
-        related_name='inventory_items',
-        blank=True,
-        null=True
     )
     serial = models.CharField(
         max_length=50,
@@ -1034,7 +1034,7 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     objects = TreeManager()
 
-    clone_fields = ['device', 'parent', 'manufacturer', 'part_id', 'role']
+    clone_fields = ['device', 'parent', 'role', 'manufacturer', 'part_id']
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')

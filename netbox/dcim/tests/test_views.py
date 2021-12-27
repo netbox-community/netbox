@@ -2331,14 +2331,21 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         device = create_test_device('Device 1')
         manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
 
-        InventoryItem.objects.create(device=device, name='Inventory Item 1')
-        InventoryItem.objects.create(device=device, name='Inventory Item 2')
-        InventoryItem.objects.create(device=device, name='Inventory Item 3')
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
+            'role': roles[1].pk,
             'manufacturer': manufacturer.pk,
             'name': 'Inventory Item X',
             'parent': None,
@@ -2353,6 +2360,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name_pattern': 'Inventory Item [4-6]',
+            'role': roles[1].pk,
             'manufacturer': manufacturer.pk,
             'parent': None,
             'discovered': False,
@@ -2363,6 +2371,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
+            'role': roles[1].pk,
             'part_id': '123456',
             'description': 'New description',
         }

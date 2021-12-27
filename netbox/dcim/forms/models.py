@@ -1368,6 +1368,10 @@ class InventoryItemForm(CustomFieldModelForm):
             'device_id': '$device'
         }
     )
+    role = DynamicModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False
+    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -1380,8 +1384,8 @@ class InventoryItemForm(CustomFieldModelForm):
     class Meta:
         model = InventoryItem
         fields = [
-            'device', 'parent', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
-            'tags',
+            'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'description', 'tags',
         ]
 
 

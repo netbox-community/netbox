@@ -1626,24 +1626,33 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
         devicerole = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, device_role=devicerole, name='Device 1', site=site)
 
-        InventoryItem.objects.create(device=device, name='Inventory Item 1', manufacturer=manufacturer)
-        InventoryItem.objects.create(device=device, name='Inventory Item 2', manufacturer=manufacturer)
-        InventoryItem.objects.create(device=device, name='Inventory Item 3', manufacturer=manufacturer)
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
 
         cls.create_data = [
             {
                 'device': device.pk,
                 'name': 'Inventory Item 4',
+                'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
             },
             {
                 'device': device.pk,
                 'name': 'Inventory Item 5',
+                'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
             },
             {
                 'device': device.pk,
                 'name': 'Inventory Item 6',
+                'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
             },
         ]

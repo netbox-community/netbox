@@ -1172,7 +1172,7 @@ class DeviceBayBulkEditForm(
 
 
 class InventoryItemBulkEditForm(
-    form_from_model(InventoryItem, ['label', 'manufacturer', 'part_id', 'description']),
+    form_from_model(InventoryItem, ['label', 'role', 'manufacturer', 'part_id', 'description']),
     AddRemoveTagsForm,
     CustomFieldModelBulkEditForm
 ):
@@ -1180,13 +1180,17 @@ class InventoryItemBulkEditForm(
         queryset=InventoryItem.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    role = DynamicModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False
+    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
     )
 
     class Meta:
-        nullable_fields = ['label', 'manufacturer', 'part_id', 'description']
+        nullable_fields = ['label', 'role', 'manufacturer', 'part_id', 'description']
 
 
 #
