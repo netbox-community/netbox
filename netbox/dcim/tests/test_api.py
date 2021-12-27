@@ -1632,9 +1632,16 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
         )
         InventoryItemRole.objects.bulk_create(roles)
 
-        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
-        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
-        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
+        interfaces = (
+            Interface(device=device, name='Interface 1'),
+            Interface(device=device, name='Interface 2'),
+            Interface(device=device, name='Interface 3'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer, component=interfaces[0])
+        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer, component=interfaces[1])
+        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer, component=interfaces[2])
 
         cls.create_data = [
             {
@@ -1642,18 +1649,24 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Inventory Item 4',
                 'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
+                'component_type': 'dcim.interface',
+                'component_id': interfaces[0].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Inventory Item 5',
                 'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
+                'component_type': 'dcim.interface',
+                'component_id': interfaces[1].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Inventory Item 6',
                 'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
+                'component_type': 'dcim.interface',
+                'component_id': interfaces[2].pk,
             },
         ]
 

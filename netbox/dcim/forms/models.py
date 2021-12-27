@@ -12,8 +12,8 @@ from extras.models import Tag
 from ipam.models import IPAddress, VLAN, VLANGroup, ASN
 from tenancy.forms import TenancyForm
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK, SmallTextarea,
+    APISelect, add_blank_choice, BootstrapMixin, ClearableFileInput, CommentField, ContentTypeChoiceField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SelectWithPK, SmallTextarea,
     SlugField, StaticSelect,
 )
 from virtualization.models import Cluster, ClusterGroup
@@ -1376,6 +1376,15 @@ class InventoryItemForm(CustomFieldModelForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    component_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=MODULAR_COMPONENT_MODELS,
+        required=False,
+        widget=StaticSelect
+    )
+    component_id = forms.IntegerField(
+        required=False
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1385,8 +1394,13 @@ class InventoryItemForm(CustomFieldModelForm):
         model = InventoryItem
         fields = [
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'description', 'tags',
+            'description', 'component_type', 'component_id', 'tags',
         ]
+        fieldsets = (
+            ('Inventory Item', ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
+            ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
+            ('Component', ('component_type', 'component_id')),
+        )
 
 
 #

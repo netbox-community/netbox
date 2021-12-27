@@ -1294,6 +1294,8 @@ class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
+    component_type = ContentTypeFilter()
+    component_id = MultiValueNumberFilter()
     serial = django_filters.CharFilter(
         lookup_expr='iexact'
     )

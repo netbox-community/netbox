@@ -50,14 +50,29 @@ NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
 
 
 #
-# PowerFeeds
+# Power feeds
 #
 
 POWERFEED_VOLTAGE_DEFAULT = 120
-
 POWERFEED_AMPERAGE_DEFAULT = 20
-
 POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
+
+
+#
+# Device components
+#
+
+MODULAR_COMPONENT_MODELS = Q(
+    app_label='dcim',
+    model__in=(
+        'consoleport',
+        'consoleserverport',
+        'frontport',
+        'interface',
+        'poweroutlet',
+        'powerport',
+        'rearport',
+    ))
 
 
 #

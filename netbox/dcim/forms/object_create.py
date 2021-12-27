@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
 from dcim.choices import *
 from dcim.constants import *
@@ -7,8 +8,8 @@ from extras.forms import CustomFieldModelForm, CustomFieldsMixin
 from extras.models import Tag
 from ipam.models import VLAN
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    ExpandableNameField, StaticSelect,
+    add_blank_choice, BootstrapMixin, ColorField, ContentTypeChoiceField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, ExpandableNameField, StaticSelect,
 )
 from wireless.choices import *
 from .common import InterfaceCommonForm
@@ -680,7 +681,16 @@ class InventoryItemCreateForm(ComponentCreateForm):
         max_length=50,
         required=False,
     )
+    component_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=MODULAR_COMPONENT_MODELS,
+        required=False,
+        widget=StaticSelect
+    )
+    component_id = forms.IntegerField(
+        required=False
+    )
     field_order = (
         'device', 'parent', 'name_pattern', 'label_pattern', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-        'description', 'tags',
+        'description', 'component_type', 'component_id', 'tags',
     )

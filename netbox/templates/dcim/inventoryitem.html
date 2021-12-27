@@ -51,6 +51,16 @@
                             </td>
                         </tr>
                         <tr>
+                            <th scope="row">Component</th>
+                            <td>
+                                {% if object.component %}
+                                    <a href="{{ object.component.get_absolute_url }}">{{ object.component }}</a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th scope="row">Manufacturer</th>
                             <td>
                                 {% if object.manufacturer %}
