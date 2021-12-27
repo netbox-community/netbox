@@ -25,6 +25,7 @@ __all__ = (
     'InterfaceType',
     'InterfaceTemplateType',
     'InventoryItemType',
+    'InventoryItemRoleType',
     'LocationType',
     'ManufacturerType',
     'ModuleType',
@@ -240,6 +241,14 @@ class InventoryItemType(ComponentObjectType):
         model = models.InventoryItem
         fields = '__all__'
         filterset_class = filtersets.InventoryItemFilterSet
+
+
+class InventoryItemRoleType(OrganizationalObjectType):
+
+    class Meta:
+        model = models.InventoryItemRole
+        fields = '__all__'
+        filterset_class = filtersets.InventoryItemRoleFilterSet
 
 
 class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, OrganizationalObjectType):

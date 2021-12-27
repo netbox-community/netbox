@@ -3091,6 +3091,33 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
+class InventoryItemRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = InventoryItemRole.objects.all()
+    filterset = InventoryItemRoleFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1', color='ff0000'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2', color='00ff00'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3', color='0000ff'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+    def test_name(self):
+        params = {'name': ['Inventory Item Role 1', 'Inventory Item Role 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['inventory-item-role-1', 'inventory-item-role-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': ['ff0000', '00ff00']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VirtualChassis.objects.all()
     filterset = VirtualChassisFilterSet

@@ -37,6 +37,7 @@ __all__ = (
     'InterfaceForm',
     'InterfaceTemplateForm',
     'InventoryItemForm',
+    'InventoryItemRoleForm',
     'LocationForm',
     'ManufacturerForm',
     'ModuleForm',
@@ -1381,4 +1382,22 @@ class InventoryItemForm(CustomFieldModelForm):
         fields = [
             'device', 'parent', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
             'tags',
+        ]
+
+
+#
+# Device component roles
+#
+
+class InventoryItemRoleForm(CustomFieldModelForm):
+    slug = SlugField()
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = InventoryItemRole
+        fields = [
+            'name', 'slug', 'color', 'description', 'tags',
         ]

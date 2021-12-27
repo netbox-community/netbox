@@ -30,6 +30,7 @@ __all__ = (
     'InterfaceBulkEditForm',
     'InterfaceTemplateBulkEditForm',
     'InventoryItemBulkEditForm',
+    'InventoryItemRoleBulkEditForm',
     'LocationBulkEditForm',
     'ManufacturerBulkEditForm',
     'ModuleBulkEditForm',
@@ -1186,3 +1187,24 @@ class InventoryItemBulkEditForm(
 
     class Meta:
         nullable_fields = ['label', 'manufacturer', 'part_id', 'description']
+
+
+#
+# Device component roles
+#
+
+class InventoryItemRoleBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    color = ColorField(
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['color', 'description']

@@ -1649,6 +1649,41 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class InventoryItemRoleTest(APIViewTestCases.APIViewTestCase):
+    model = InventoryItemRole
+    brief_fields = ['display', 'id', 'inventoryitem_count', 'name', 'slug', 'url']
+    create_data = [
+        {
+            'name': 'Inventory Item Role 4',
+            'slug': 'inventory-item-role-4',
+            'color': 'ffff00',
+        },
+        {
+            'name': 'Inventory Item Role 5',
+            'slug': 'inventory-item-role-5',
+            'color': 'ffff00',
+        },
+        {
+            'name': 'Inventory Item Role 6',
+            'slug': 'inventory-item-role-6',
+            'color': 'ffff00',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1', color='ff0000'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2', color='00ff00'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3', color='0000ff'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+
 class CableTest(APIViewTestCases.APIViewTestCase):
     model = Cable
     brief_fields = ['display', 'id', 'label', 'url']

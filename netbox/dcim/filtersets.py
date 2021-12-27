@@ -39,6 +39,7 @@ __all__ = (
     'InterfaceFilterSet',
     'InterfaceTemplateFilterSet',
     'InventoryItemFilterSet',
+    'InventoryItemRoleFilterSet',
     'LocationFilterSet',
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
@@ -1302,6 +1303,14 @@ class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
+
+
+class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
+
+    class Meta:
+        model = InventoryItemRole
+        fields = ['id', 'name', 'slug', 'color']
 
 
 class VirtualChassisFilterSet(PrimaryModelFilterSet):

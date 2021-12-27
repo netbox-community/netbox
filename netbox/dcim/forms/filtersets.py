@@ -27,6 +27,7 @@ __all__ = (
     'InterfaceConnectionFilterForm',
     'InterfaceFilterForm',
     'InventoryItemFilterForm',
+    'InventoryItemRoleFilterForm',
     'LocationFilterForm',
     'ManufacturerFilterForm',
     'ModuleFilterForm',
@@ -1117,6 +1118,15 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
+
+
+#
+# Device component roles
+#
+
+class InventoryItemRoleFilterForm(CustomFieldModelFilterForm):
+    model = InventoryItemRole
     tag = TagFilterField(model)
 
 

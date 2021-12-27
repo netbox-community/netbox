@@ -24,6 +24,7 @@ __all__ = (
     'FrontPortCSVForm',
     'InterfaceCSVForm',
     'InventoryItemCSVForm',
+    'InventoryItemRoleCSVForm',
     'LocationCSVForm',
     'ManufacturerCSVForm',
     'ModuleCSVForm',
@@ -805,6 +806,25 @@ class InventoryItemCSVForm(CustomFieldModelCSVForm):
             self.fields['parent'].queryset = InventoryItem.objects.none()
 
 
+#
+# Device component roles
+#
+
+class InventoryItemRoleCSVForm(CustomFieldModelCSVForm):
+    slug = SlugField()
+
+    class Meta:
+        model = InventoryItemRole
+        fields = ('name', 'slug', 'color', 'description')
+        help_texts = {
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+        }
+
+
+#
+# Cables
+#
+
 class CableCSVForm(CustomFieldModelCSVForm):
     # Termination A
     side_a_device = CSVModelChoiceField(
@@ -906,6 +926,10 @@ class CableCSVForm(CustomFieldModelCSVForm):
         return length_unit if length_unit is not None else ''
 
 
+#
+# Virtual chassis
+#
+
 class VirtualChassisCSVForm(CustomFieldModelCSVForm):
     master = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -918,6 +942,10 @@ class VirtualChassisCSVForm(CustomFieldModelCSVForm):
         model = VirtualChassis
         fields = ('name', 'domain', 'master')
 
+
+#
+# Power
+#
 
 class PowerPanelCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(

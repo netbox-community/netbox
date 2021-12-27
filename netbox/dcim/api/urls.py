@@ -50,6 +50,9 @@ router.register('module-bays', views.ModuleBayViewSet)
 router.register('device-bays', views.DeviceBayViewSet)
 router.register('inventory-items', views.InventoryItemViewSet)
 
+# Device component roles
+router.register('inventory-item-roles', views.InventoryItemRoleViewSet)
+
 # Cables
 router.register('cables', views.CableViewSet)
 

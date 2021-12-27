@@ -2,8 +2,8 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem, ModuleBay,
-    Platform, PowerOutlet, PowerPort, RearPort, VirtualChassis,
+    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, FrontPort, Interface, InventoryItem,
+    InventoryItemRole, ModuleBay, Platform, PowerOutlet, PowerPort, RearPort, VirtualChassis,
 )
 from tenancy.tables import TenantColumn
 from utilities.tables import (
@@ -33,6 +33,7 @@ __all__ = (
     'DeviceTable',
     'FrontPortTable',
     'InterfaceTable',
+    'InventoryItemRoleTable',
     'InventoryItemTable',
     'ModuleBayTable',
     'PlatformTable',
@@ -68,10 +69,10 @@ def get_interface_state_attribute(record):
     else:
         return "disabled"
 
+
 #
 # Device roles
 #
-
 
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
@@ -789,6 +790,30 @@ class InventoryItemTable(DeviceComponentTable):
             'discovered', 'tags',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+
+
+class InventoryItemRoleTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(
+        linkify=True
+    )
+    inventoryitem_count = LinkedCountColumn(
+        viewname='dcim:inventoryitem_list',
+        url_params={'role_id': 'pk'},
+        verbose_name='Items'
+    )
+    color = ColorColumn()
+    tags = TagColumn(
+        url_name='dcim:inventoryitemrole_list'
+    )
+    actions = ButtonsColumn(InventoryItemRole)
+
+    class Meta(BaseTable.Meta):
+        model = InventoryItemRole
+        fields = (
+            'pk', 'id', 'name', 'inventoryitem_count', 'color', 'description', 'slug', 'tags', 'actions',
+        )
+        default_columns = ('pk', 'name', 'inventoryitem_count', 'color', 'description', 'actions')
 
 
 class DeviceInventoryItemTable(InventoryItemTable):

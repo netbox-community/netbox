@@ -806,10 +806,6 @@ class DeviceBaySerializer(PrimaryModelSerializer):
         ]
 
 
-#
-# Inventory items
-#
-
 class InventoryItemSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitem-detail')
     device = NestedDeviceSerializer()
@@ -822,6 +818,22 @@ class InventoryItemSerializer(PrimaryModelSerializer):
         fields = [
             'id', 'url', 'display', 'device', 'parent', 'name', 'label', 'manufacturer', 'part_id', 'serial',
             'asset_tag', 'discovered', 'description', 'tags', 'custom_fields', 'created', 'last_updated', '_depth',
+        ]
+
+
+#
+# Device component roles
+#
+
+class InventoryItemRoleSerializer(PrimaryModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemrole-detail')
+    inventoryitem_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = InventoryItemRole
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'inventoryitem_count',
         ]
 
 
