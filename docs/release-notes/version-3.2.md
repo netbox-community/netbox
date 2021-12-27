@@ -18,6 +18,10 @@
 
 A new REST API endpoint has been added at `/api/ipam/vlan-groups/<pk>/available-vlans/`. A GET request to this endpoint will return a list of available VLANs within the group. A POST request can be made to this endpoint specifying the name(s) of one or more VLANs to create within the group, and their VLAN IDs will be assigned automatically.
 
+#### Inventory Item Roles ([#3087](https://github.com/netbox-community/netbox/issues/3087))
+
+A new model has been introduced to represent function roles for inventory items, similar to device roles. The assignment of roles to inventory items is optional.
+
 #### Modules & Module Types ([#7844](https://github.com/netbox-community/netbox/issues/7844))
 
 Several new models have been added to support field-replaceable device modules, such as those within a chassis-based switch or router. Similar to devices, each module is instantiated from a user-defined module type, and can have components associated with it. These components become available to the parent device once the module has been installed within a module bay. This makes it very convenient to replicate the addition and deletion of device components as modules are installed and removed. 
@@ -55,7 +59,8 @@ FIELD_CHOICES = {
 
 ### REST API Changes
 
-* Added the following endpoints for modules & module types:
+* Added the following endpoints:
+    * `/api/dcim/inventory-item-roles/`
     * `/api/dcim/modules/`
     * `/api/dcim/module-bays/`
     * `/api/dcim/module-bay-templates/`
@@ -70,6 +75,8 @@ FIELD_CHOICES = {
     * Added `module` field
 * dcim.Interface
     * Added `module` field
+* dcim.InventoryItem
+    * Added `role` field
 * dcim.PowerPort
     * Added `module` field
 * dcim.PowerOutlet
