@@ -27,6 +27,7 @@ __all__ = (
     'InterfaceConnectionFilterForm',
     'InterfaceFilterForm',
     'InventoryItemFilterForm',
+    'InventoryItemRoleFilterForm',
     'LocationFilterForm',
     'ManufacturerFilterForm',
     'ModuleFilterForm',
@@ -1099,6 +1100,12 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         ['name', 'label', 'manufacturer_id', 'serial', 'asset_tag', 'discovered'],
         ['region_id', 'site_group_id', 'site_id', 'location_id', 'virtual_chassis_id', 'device_id'],
     ]
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False,
+        label=_('Role'),
+        fetch_trigger='open'
+    )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
@@ -1117,6 +1124,15 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
+
+
+#
+# Device component roles
+#
+
+class InventoryItemRoleFilterForm(CustomFieldModelFilterForm):
+    model = InventoryItemRole
     tag = TagFilterField(model)
 
 

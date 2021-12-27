@@ -1408,7 +1408,7 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'name': 'Devie Role X',
+            'name': 'Device Role X',
             'slug': 'device-role-x',
             'color': 'c0c0c0',
             'vm_role': False,
@@ -2331,14 +2331,21 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         device = create_test_device('Device 1')
         manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
 
-        InventoryItem.objects.create(device=device, name='Inventory Item 1')
-        InventoryItem.objects.create(device=device, name='Inventory Item 2')
-        InventoryItem.objects.create(device=device, name='Inventory Item 3')
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'device': device.pk,
+            'role': roles[1].pk,
             'manufacturer': manufacturer.pk,
             'name': 'Inventory Item X',
             'parent': None,
@@ -2353,6 +2360,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name_pattern': 'Inventory Item [4-6]',
+            'role': roles[1].pk,
             'manufacturer': manufacturer.pk,
             'parent': None,
             'discovered': False,
@@ -2363,6 +2371,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
+            'role': roles[1].pk,
             'part_id': '123456',
             'description': 'New description',
         }
@@ -2373,6 +2382,41 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             "Device 1,Inventory Item 5,Inventory Item 2",
             "Device 1,Inventory Item 6,Inventory Item 3",
         )
+
+
+class InventoryItemRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = InventoryItemRole
+
+    @classmethod
+    def setUpTestData(cls):
+
+        InventoryItemRole.objects.bulk_create([
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3'),
+        ])
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Inventory Item Role X',
+            'slug': 'inventory-item-role-x',
+            'color': 'c0c0c0',
+            'description': 'New inventory item role',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug,color",
+            "Inventory Item Role 4,inventory-item-role-4,ff0000",
+            "Inventory Item Role 5,inventory-item-role-5,00ff00",
+            "Inventory Item Role 6,inventory-item-role-6,0000ff",
+        )
+
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+            'description': 'New description',
+        }
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase

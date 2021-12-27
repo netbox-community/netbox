@@ -2412,7 +2412,7 @@ class InventoryItemBulkImportView(generic.BulkImportView):
 
 
 class InventoryItemBulkEditView(generic.BulkEditView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
     form = forms.InventoryItemBulkEditForm
@@ -2423,9 +2423,62 @@ class InventoryItemBulkRenameView(generic.BulkRenameView):
 
 
 class InventoryItemBulkDeleteView(generic.BulkDeleteView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'role')
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
+
+
+#
+# Inventory item roles
+#
+
+class InventoryItemRoleListView(generic.ObjectListView):
+    queryset = InventoryItemRole.objects.annotate(
+        inventoryitem_count=count_related(InventoryItem, 'role'),
+    )
+    filterset = filtersets.InventoryItemRoleFilterSet
+    filterset_form = forms.InventoryItemRoleFilterForm
+    table = tables.InventoryItemRoleTable
+
+
+class InventoryItemRoleView(generic.ObjectView):
+    queryset = InventoryItemRole.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'inventoryitem_count': InventoryItem.objects.filter(role=instance).count(),
+        }
+
+
+class InventoryItemRoleEditView(generic.ObjectEditView):
+    queryset = InventoryItemRole.objects.all()
+    model_form = forms.InventoryItemRoleForm
+
+
+class InventoryItemRoleDeleteView(generic.ObjectDeleteView):
+    queryset = InventoryItemRole.objects.all()
+
+
+class InventoryItemRoleBulkImportView(generic.BulkImportView):
+    queryset = InventoryItemRole.objects.all()
+    model_form = forms.InventoryItemRoleCSVForm
+    table = tables.InventoryItemRoleTable
+
+
+class InventoryItemRoleBulkEditView(generic.BulkEditView):
+    queryset = InventoryItemRole.objects.annotate(
+        inventoryitem_count=count_related(InventoryItem, 'role'),
+    )
+    filterset = filtersets.InventoryItemRoleFilterSet
+    table = tables.InventoryItemRoleTable
+    form = forms.InventoryItemRoleBulkEditForm
+
+
+class InventoryItemRoleBulkDeleteView(generic.BulkDeleteView):
+    queryset = InventoryItemRole.objects.annotate(
+        inventoryitem_count=count_related(InventoryItem, 'role'),
+    )
+    table = tables.InventoryItemRoleTable
 
 
 #

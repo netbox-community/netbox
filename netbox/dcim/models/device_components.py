@@ -12,7 +12,8 @@ from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
 from dcim.svg import CableTraceSVG
 from extras.utils import extras_features
-from netbox.models import PrimaryModel
+from netbox.models import OrganizationalModel, PrimaryModel
+from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -30,6 +31,7 @@ __all__ = (
     'FrontPort',
     'Interface',
     'InventoryItem',
+    'InventoryItemRole',
     'ModuleBay',
     'PathEndpoint',
     'PowerOutlet',
@@ -946,6 +948,38 @@ class DeviceBay(ComponentModel):
 # Inventory items
 #
 
+
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
+class InventoryItemRole(OrganizationalModel):
+    """
+    Inventory items may optionally be assigned a functional role.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True
+    )
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True,
+    )
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:inventoryitemrole', args=[self.pk])
+
+
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class InventoryItem(MPTTModel, ComponentModel):
     """
@@ -959,6 +993,13 @@ class InventoryItem(MPTTModel, ComponentModel):
         blank=True,
         null=True,
         db_index=True
+    )
+    role = models.ForeignKey(
+        to='dcim.InventoryItemRole',
+        on_delete=models.PROTECT,
+        related_name='inventory_items',
+        blank=True,
+        null=True
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
@@ -993,7 +1034,7 @@ class InventoryItem(MPTTModel, ComponentModel):
 
     objects = TreeManager()
 
-    clone_fields = ['device', 'parent', 'manufacturer', 'part_id']
+    clone_fields = ['device', 'parent', 'role', 'manufacturer', 'part_id']
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')

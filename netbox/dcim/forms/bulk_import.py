@@ -24,6 +24,7 @@ __all__ = (
     'FrontPortCSVForm',
     'InterfaceCSVForm',
     'InventoryItemCSVForm',
+    'InventoryItemRoleCSVForm',
     'LocationCSVForm',
     'ManufacturerCSVForm',
     'ModuleCSVForm',
@@ -771,6 +772,11 @@ class InventoryItemCSVForm(CustomFieldModelCSVForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
+    role = CSVModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        to_field_name='name',
+        required=False
+    )
     manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
@@ -786,7 +792,8 @@ class InventoryItemCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = InventoryItem
         fields = (
-            'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
+            'device', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
+            'description',
         )
 
     def __init__(self, *args, **kwargs):
@@ -804,6 +811,25 @@ class InventoryItemCSVForm(CustomFieldModelCSVForm):
         else:
             self.fields['parent'].queryset = InventoryItem.objects.none()
 
+
+#
+# Device component roles
+#
+
+class InventoryItemRoleCSVForm(CustomFieldModelCSVForm):
+    slug = SlugField()
+
+    class Meta:
+        model = InventoryItemRole
+        fields = ('name', 'slug', 'color', 'description')
+        help_texts = {
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+        }
+
+
+#
+# Cables
+#
 
 class CableCSVForm(CustomFieldModelCSVForm):
     # Termination A
@@ -906,6 +932,10 @@ class CableCSVForm(CustomFieldModelCSVForm):
         return length_unit if length_unit is not None else ''
 
 
+#
+# Virtual chassis
+#
+
 class VirtualChassisCSVForm(CustomFieldModelCSVForm):
     master = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -918,6 +948,10 @@ class VirtualChassisCSVForm(CustomFieldModelCSVForm):
         model = VirtualChassis
         fields = ('name', 'domain', 'master')
 
+
+#
+# Power
+#
 
 class PowerPanelCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(

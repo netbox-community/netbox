@@ -166,6 +166,7 @@ DEVICES_MENU = Menu(
                 get_model_item('dcim', 'modulebay', 'Module Bays', actions=['import']),
                 get_model_item('dcim', 'devicebay', 'Device Bays', actions=['import']),
                 get_model_item('dcim', 'inventoryitem', 'Inventory Items', actions=['import']),
+                get_model_item('dcim', 'inventoryitemrole', 'Inventory Item Roles'),
             ),
         ),
     ),

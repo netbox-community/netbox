@@ -652,16 +652,20 @@ class DeviceBayCreateForm(ComponentCreateForm):
 
 class InventoryItemCreateForm(ComponentCreateForm):
     model = InventoryItem
-    manufacturer = DynamicModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=False
-    )
     parent = DynamicModelChoiceField(
         queryset=InventoryItem.objects.all(),
         required=False,
         query_params={
             'device_id': '$device'
         }
+    )
+    role = DynamicModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
     )
     part_id = forms.CharField(
         max_length=50,
@@ -677,6 +681,6 @@ class InventoryItemCreateForm(ComponentCreateForm):
         required=False,
     )
     field_order = (
-        'device', 'parent', 'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+        'device', 'parent', 'name_pattern', 'label_pattern', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
         'description', 'tags',
     )

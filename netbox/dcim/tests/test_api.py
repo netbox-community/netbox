@@ -1626,27 +1626,71 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
         devicerole = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, device_role=devicerole, name='Device 1', site=site)
 
-        InventoryItem.objects.create(device=device, name='Inventory Item 1', manufacturer=manufacturer)
-        InventoryItem.objects.create(device=device, name='Inventory Item 2', manufacturer=manufacturer)
-        InventoryItem.objects.create(device=device, name='Inventory Item 3', manufacturer=manufacturer)
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
 
         cls.create_data = [
             {
                 'device': device.pk,
                 'name': 'Inventory Item 4',
+                'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
             },
             {
                 'device': device.pk,
                 'name': 'Inventory Item 5',
+                'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
             },
             {
                 'device': device.pk,
                 'name': 'Inventory Item 6',
+                'role': roles[1].pk,
                 'manufacturer': manufacturer.pk,
             },
         ]
+
+
+class InventoryItemRoleTest(APIViewTestCases.APIViewTestCase):
+    model = InventoryItemRole
+    brief_fields = ['display', 'id', 'inventoryitem_count', 'name', 'slug', 'url']
+    create_data = [
+        {
+            'name': 'Inventory Item Role 4',
+            'slug': 'inventory-item-role-4',
+            'color': 'ffff00',
+        },
+        {
+            'name': 'Inventory Item Role 5',
+            'slug': 'inventory-item-role-5',
+            'color': 'ffff00',
+        },
+        {
+            'name': 'Inventory Item Role 6',
+            'slug': 'inventory-item-role-6',
+            'color': 'ffff00',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1', color='ff0000'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2', color='00ff00'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3', color='0000ff'),
+        )
+        InventoryItemRole.objects.bulk_create(roles)
 
 
 class CableTest(APIViewTestCases.APIViewTestCase):

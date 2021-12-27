@@ -39,6 +39,7 @@ __all__ = (
     'InterfaceFilterSet',
     'InterfaceTemplateFilterSet',
     'InventoryItemFilterSet',
+    'InventoryItemRoleFilterSet',
     'LocationFilterSet',
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
@@ -1283,6 +1284,16 @@ class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=InventoryItemRole.objects.all(),
+        label='Role (ID)',
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=InventoryItemRole.objects.all(),
+        to_field_name='slug',
+        label='Role (slug)',
+    )
     serial = django_filters.CharFilter(
         lookup_expr='iexact'
     )
@@ -1302,6 +1313,14 @@ class InventoryItemFilterSet(PrimaryModelFilterSet, DeviceComponentFilterSet):
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
+
+
+class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
+    tag = TagFilter()
+
+    class Meta:
+        model = InventoryItemRole
+        fields = ['id', 'name', 'slug', 'color']
 
 
 class VirtualChassisFilterSet(PrimaryModelFilterSet):

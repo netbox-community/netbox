@@ -624,6 +624,18 @@ class InventoryItemViewSet(ModelViewSet):
 
 
 #
+# Device component roles
+#
+
+class InventoryItemRoleViewSet(CustomFieldModelViewSet):
+    queryset = InventoryItemRole.objects.prefetch_related('tags').annotate(
+        inventoryitem_count=count_related(InventoryItem, 'role')
+    )
+    serializer_class = serializers.InventoryItemRoleSerializer
+    filterset_class = filtersets.InventoryItemRoleFilterSet
+
+
+#
 # Cables
 #
 

@@ -20,6 +20,7 @@ __all__ = [
     'NestedInterfaceSerializer',
     'NestedInterfaceTemplateSerializer',
     'NestedInventoryItemSerializer',
+    'NestedInventoryItemRoleSerializer',
     'NestedManufacturerSerializer',
     'NestedModuleBaySerializer',
     'NestedModuleBayTemplateSerializer',
@@ -382,6 +383,15 @@ class NestedInventoryItemSerializer(WritableNestedSerializer):
     class Meta:
         model = models.InventoryItem
         fields = ['id', 'url', 'display', 'device', 'name', '_depth']
+
+
+class NestedInventoryItemRoleSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemrole-detail')
+    inventoryitem_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = models.InventoryItemRole
+        fields = ['id', 'url', 'display', 'name', 'slug', 'inventoryitem_count']
 
 
 #

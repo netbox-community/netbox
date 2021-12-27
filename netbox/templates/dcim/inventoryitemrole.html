@@ -1,0 +1,53 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'dcim:inventoryitemrole_list' %}">Inventory Item Roles</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+	<div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Inventory Item Role</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Color</th>
+            <td>
+              <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Inventory Items</th>
+            <td>
+              <a href="{% url 'dcim:inventoryitem_list' %}?role_id={{ object.pk }}">{{ inventoryitem_count }}</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% include 'inc/panels/tags.html' %}
+    {% plugin_left_page object %}
+	</div>
+	<div class="col col-md-6">
+    {% include 'inc/panels/custom_fields.html' %}
+    {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row mb-3">
+	<div class="col col-md-12">
+    {% plugin_full_width_page object %}
+  </div>
+</div>
+{% endblock %}

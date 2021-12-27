@@ -425,6 +425,17 @@ urlpatterns = [
     path('inventory-items/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitem_changelog', kwargs={'model': InventoryItem}),
     path('devices/inventory-items/add/', views.DeviceBulkAddInventoryItemView.as_view(), name='device_bulk_add_inventoryitem'),
 
+    # Device roles
+    path('inventory-item-roles/', views.InventoryItemRoleListView.as_view(), name='inventoryitemrole_list'),
+    path('inventory-item-roles/add/', views.InventoryItemRoleEditView.as_view(), name='inventoryitemrole_add'),
+    path('inventory-item-roles/import/', views.InventoryItemRoleBulkImportView.as_view(), name='inventoryitemrole_import'),
+    path('inventory-item-roles/edit/', views.InventoryItemRoleBulkEditView.as_view(), name='inventoryitemrole_bulk_edit'),
+    path('inventory-item-roles/delete/', views.InventoryItemRoleBulkDeleteView.as_view(), name='inventoryitemrole_bulk_delete'),
+    path('inventory-item-roles/<int:pk>/', views.InventoryItemRoleView.as_view(), name='inventoryitemrole'),
+    path('inventory-item-roles/<int:pk>/edit/', views.InventoryItemRoleEditView.as_view(), name='inventoryitemrole_edit'),
+    path('inventory-item-roles/<int:pk>/delete/', views.InventoryItemRoleDeleteView.as_view(), name='inventoryitemrole_delete'),
+    path('inventory-item-roles/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitemrole_changelog', kwargs={'model': InventoryItemRole}),
+
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),
     path('cables/import/', views.CableBulkImportView.as_view(), name='cable_import'),

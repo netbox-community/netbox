@@ -107,11 +107,11 @@ class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):
 
 
 class InventoryItemBulkCreateForm(
-    form_from_model(InventoryItem, ['manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered']),
+    form_from_model(InventoryItem, ['role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered']),
     DeviceBulkAddComponentForm
 ):
     model = InventoryItem
     field_order = (
-        'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
-        'tags',
+        'name_pattern', 'label_pattern', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
+        'description', 'tags',
     )
