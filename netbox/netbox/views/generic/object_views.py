@@ -681,7 +681,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
     queryset = None
-    form = ComponentCreateForm
+    form = None
     model_form = None
     template_name = 'dcim/component_create.html'
     patterned_fields = ('name', 'label')

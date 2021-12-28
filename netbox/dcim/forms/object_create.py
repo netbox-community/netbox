@@ -8,7 +8,8 @@ from utilities.forms import (
 )
 
 __all__ = (
-    'ComponentCreateForm',
+    'DeviceComponentCreateForm',
+    'DeviceTypeComponentCreateForm',
     'FrontPortCreateForm',
     'FrontPortTemplateCreateForm',
     'VirtualChassisCreateForm',
@@ -43,14 +44,28 @@ class ComponentCreateForm(BootstrapMixin, forms.Form):
                 }, code='label_pattern_mismatch')
 
 
-class FrontPortTemplateCreateForm(ComponentCreateForm):
+class DeviceTypeComponentCreateForm(ComponentCreateForm):
+    device_type = DynamicModelChoiceField(
+        queryset=DeviceType.objects.all(),
+    )
+    field_order = ('device_type', 'name_pattern', 'label_pattern')
+
+
+class DeviceComponentCreateForm(ComponentCreateForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
+    field_order = ('device', 'name_pattern', 'label_pattern')
+
+
+class FrontPortTemplateCreateForm(DeviceTypeComponentCreateForm):
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
     field_order = (
-        'name_pattern', 'label_pattern', 'rear_port_set',
+        'device_type', 'name_pattern', 'label_pattern', 'rear_port_set',
     )
 
     def __init__(self, *args, **kwargs):
@@ -88,14 +103,14 @@ class FrontPortTemplateCreateForm(ComponentCreateForm):
         }
 
 
-class FrontPortCreateForm(ComponentCreateForm):
+class FrontPortCreateForm(DeviceComponentCreateForm):
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
     field_order = (
-        'name_pattern', 'label_pattern', 'rear_port_set',
+        'device', 'name_pattern', 'label_pattern', 'rear_port_set',
     )
 
     def __init__(self, *args, **kwargs):
