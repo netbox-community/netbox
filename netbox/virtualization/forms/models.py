@@ -275,12 +275,18 @@ class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        label='Parent interface'
+        label='Parent interface',
+        query_params={
+            'virtual_machine_id': '$virtual_machine',
+        }
     )
     bridge = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        label='Bridged interface'
+        label='Bridged interface',
+        query_params={
+            'virtual_machine_id': '$virtual_machine',
+        }
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -293,6 +299,7 @@ class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         label='Untagged VLAN',
         query_params={
             'group_id': '$vlan_group',
+            'available_on_virtualmachine': '$virtual_machine',
         }
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -301,6 +308,7 @@ class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         label='Tagged VLANs',
         query_params={
             'group_id': '$vlan_group',
+            'available_on_virtualmachine': '$virtual_machine',
         }
     )
     tags = DynamicModelMultipleChoiceField(
@@ -324,15 +332,3 @@ class VMInterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        vm_id = self.initial.get('virtual_machine') or self.data.get('virtual_machine')
-
-        # Restrict parent interface assignment by VM
-        self.fields['parent'].widget.add_query_param('virtual_machine_id', vm_id)
-        self.fields['bridge'].widget.add_query_param('virtual_machine_id', vm_id)
-
-        # Limit VLAN choices by virtual machine
-        self.fields['untagged_vlan'].widget.add_query_param('available_on_virtualmachine', vm_id)
-        self.fields['tagged_vlans'].widget.add_query_param('available_on_virtualmachine', vm_id)

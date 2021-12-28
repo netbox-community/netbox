@@ -957,6 +957,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'device_type': forms.HiddenInput(),
             'module_type': forms.HiddenInput(),
+            'type': StaticSelect,
         }
 
 
@@ -969,6 +970,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'device_type': forms.HiddenInput(),
             'module_type': forms.HiddenInput(),
+            'type': StaticSelect,
         }
 
 
@@ -981,10 +983,19 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'device_type': forms.HiddenInput(),
             'module_type': forms.HiddenInput(),
+            'type': StaticSelect(),
         }
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
+    power_port = DynamicModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        required=False,
+        query_params={
+            'devicetype_id': '$device_type',
+        }
+    )
+
     class Meta:
         model = PowerOutletTemplate
         fields = [
@@ -993,17 +1004,9 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'device_type': forms.HiddenInput(),
             'module_type': forms.HiddenInput(),
+            'type': StaticSelect(),
+            'feed_leg': StaticSelect(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit power_port choices to current DeviceType/ModuleType
-        if self.instance.pk:
-            self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
-                device_type=self.instance.device_type,
-                module_type=self.instance.module_type
-            )
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1020,6 +1023,14 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
+    rear_port = DynamicModelChoiceField(
+        queryset=RearPortTemplate.objects.all(),
+        required=False,
+        query_params={
+            'devicetype_id': '$device_type',
+        }
+    )
+
     class Meta:
         model = FrontPortTemplate
         fields = [
@@ -1029,18 +1040,8 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'device_type': forms.HiddenInput(),
             'module_type': forms.HiddenInput(),
-            'rear_port': StaticSelect(),
+            'type': StaticSelect(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit rear_port choices to current DeviceType/ModuleType
-        if self.instance.pk:
-            self.fields['rear_port'].queryset = RearPortTemplate.objects.filter(
-                device_type=self.instance.device_type,
-                module_type=self.instance.module_type
-            )
 
 
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1095,6 +1096,7 @@ class ConsolePortForm(CustomFieldModelForm):
         ]
         widgets = {
             'device': forms.HiddenInput(),
+            'type': StaticSelect(),
         }
 
 
@@ -1111,6 +1113,7 @@ class ConsoleServerPortForm(CustomFieldModelForm):
         ]
         widgets = {
             'device': forms.HiddenInput(),
+            'type': StaticSelect(),
         }
 
 
@@ -1128,13 +1131,17 @@ class PowerPortForm(CustomFieldModelForm):
         ]
         widgets = {
             'device': forms.HiddenInput(),
+            'type': StaticSelect(),
         }
 
 
 class PowerOutletForm(CustomFieldModelForm):
-    power_port = forms.ModelChoiceField(
+    power_port = DynamicModelChoiceField(
         queryset=PowerPort.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -1148,34 +1155,34 @@ class PowerOutletForm(CustomFieldModelForm):
         ]
         widgets = {
             'device': forms.HiddenInput(),
+            'type': StaticSelect(),
+            'feed_leg': StaticSelect(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit power_port choices to the local device
-        if hasattr(self.instance, 'device'):
-            self.fields['power_port'].queryset = PowerPort.objects.filter(
-                device=self.instance.device
-            )
 
 
 class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
     parent = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label='Parent interface'
+        label='Parent interface',
+        query_params={
+            'device_id': '$device',
+        }
     )
     bridge = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label='Bridged interface'
+        label='Bridged interface',
+        query_params={
+            'device_id': '$device',
+        }
     )
     lag = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         label='LAG interface',
         query_params={
+            'device_id': '$device',
             'type': 'lag',
         }
     )
@@ -1203,6 +1210,7 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         label='Untagged VLAN',
         query_params={
             'group_id': '$vlan_group',
+            'available_on_device': '$device',
         }
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -1211,6 +1219,7 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
         label='Tagged VLANs',
         query_params={
             'group_id': '$vlan_group',
+            'available_on_device': '$device',
         }
     )
     tags = DynamicModelMultipleChoiceField(
@@ -1241,26 +1250,15 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
             'rf_channel_width': "Populated by selected channel (if set)",
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        device = Device.objects.get(pk=self.data['device']) if self.is_bound else self.instance.device
-
-        # Restrict parent/bridge/LAG interface assignment by device/VC
-        self.fields['parent'].widget.add_query_param('device_id', device.pk)
-        self.fields['bridge'].widget.add_query_param('device_id', device.pk)
-        self.fields['lag'].widget.add_query_param('device_id', device.pk)
-        if device.virtual_chassis and device.virtual_chassis.master:
-            self.fields['parent'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-            self.fields['bridge'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-            self.fields['lag'].widget.add_query_param('device_id', device.virtual_chassis.master.pk)
-
-        # Limit VLAN choices by device
-        self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)
-        self.fields['tagged_vlans'].widget.add_query_param('available_on_device', device.pk)
-
 
 class FrontPortForm(CustomFieldModelForm):
+    rear_port = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -1275,17 +1273,7 @@ class FrontPortForm(CustomFieldModelForm):
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
-            'rear_port': StaticSelect(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit RearPort choices to the local device
-        if hasattr(self.instance, 'device'):
-            self.fields['rear_port'].queryset = self.fields['rear_port'].queryset.filter(
-                device=self.instance.device
-            )
 
 
 class RearPortForm(CustomFieldModelForm):
