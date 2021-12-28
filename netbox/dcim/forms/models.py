@@ -1097,6 +1097,7 @@ class ConsolePortForm(CustomFieldModelForm):
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
+            'speed': StaticSelect(),
         }
 
 
@@ -1114,6 +1115,7 @@ class ConsoleServerPortForm(CustomFieldModelForm):
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
+            'speed': StaticSelect(),
         }
 
 
@@ -1234,6 +1236,17 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
             'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
+        # fieldsets = (
+        #     ('Interface', ('device', 'name', 'type', 'label', 'description', 'tags')),
+        #     ('Addressing', ('mac_address', 'wwn')),
+        #     ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
+        #     ('Related Interfaces', ('parent', 'bridge', 'lag')),
+        #     ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
+        #     ('Wireless', (
+        #         'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group',
+        #         'wireless_lans',
+        #     )),
+        # )
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),

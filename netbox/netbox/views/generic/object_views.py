@@ -707,8 +707,8 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
 
         return render(request, self.template_name, {
             'obj_type': self.queryset.model._meta.verbose_name,
-            'form': form,
-            'model_form': model_form,
+            'replication_form': form,
+            'form': model_form,
             'return_url': self.get_return_url(request),
         })
 
@@ -725,8 +725,8 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
 
         return render(request, self.template_name, {
             'obj_type': self.queryset.model._meta.verbose_name,
-            'form': form,
-            'model_form': model_form,
+            'replication_form': form,
+            'form': model_form,
             'return_url': self.get_return_url(request),
         })
 

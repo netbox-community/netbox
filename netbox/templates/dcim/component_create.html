@@ -2,6 +2,6 @@
 {% load form_helpers %}
 
 {% block form %}
-  {% render_form form %}
-  {% render_form model_form %}
+  {% render_form replication_form %}
+  {{ block.super }}
 {% endblock form %}
