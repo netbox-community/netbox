@@ -1054,7 +1054,6 @@ class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
 
 class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsolePortTemplate.objects.all()
-    form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
 
 
@@ -1088,7 +1087,6 @@ class ConsolePortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPortTemplate.objects.all()
-    form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
 
 
@@ -1122,7 +1120,6 @@ class ConsoleServerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerPortTemplate.objects.all()
-    form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
 
 
@@ -1156,7 +1153,6 @@ class PowerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerOutletTemplate.objects.all()
-    form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
 
 
@@ -1190,7 +1186,6 @@ class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InterfaceTemplateCreateView(generic.ComponentCreateView):
     queryset = InterfaceTemplate.objects.all()
-    form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
 
 
@@ -1224,7 +1219,6 @@ class InterfaceTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class FrontPortTemplateCreateView(generic.ComponentCreateView):
     queryset = FrontPortTemplate.objects.all()
-    form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
 
 
@@ -1258,7 +1252,6 @@ class FrontPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class RearPortTemplateCreateView(generic.ComponentCreateView):
     queryset = RearPortTemplate.objects.all()
-    form = forms.RearPortTemplateCreateForm
     model_form = forms.RearPortTemplateForm
 
 
@@ -1292,7 +1285,6 @@ class RearPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     queryset = ModuleBayTemplate.objects.all()
-    form = forms.ModuleBayTemplateCreateForm
     model_form = forms.ModuleBayTemplateForm
 
 
@@ -1326,7 +1318,6 @@ class ModuleBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceBayTemplateCreateView(generic.ComponentCreateView):
     queryset = DeviceBayTemplate.objects.all()
-    form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
 
 
@@ -1741,7 +1732,6 @@ class ConsolePortView(generic.ObjectView):
 
 class ConsolePortCreateView(generic.ComponentCreateView):
     queryset = ConsolePort.objects.all()
-    form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
 
 
@@ -1800,7 +1790,6 @@ class ConsoleServerPortView(generic.ObjectView):
 
 class ConsoleServerPortCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPort.objects.all()
-    form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
 
 
@@ -1859,7 +1848,6 @@ class PowerPortView(generic.ObjectView):
 
 class PowerPortCreateView(generic.ComponentCreateView):
     queryset = PowerPort.objects.all()
-    form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
 
 
@@ -1918,7 +1906,6 @@ class PowerOutletView(generic.ObjectView):
 
 class PowerOutletCreateView(generic.ComponentCreateView):
     queryset = PowerOutlet.objects.all()
-    form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
 
 
@@ -2012,7 +1999,6 @@ class InterfaceView(generic.ObjectView):
 
 class InterfaceCreateView(generic.ComponentCreateView):
     queryset = Interface.objects.all()
-    form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
     template_name = 'dcim/interface_create.html'
 
@@ -2098,7 +2084,6 @@ class FrontPortView(generic.ObjectView):
 
 class FrontPortCreateView(generic.ComponentCreateView):
     queryset = FrontPort.objects.all()
-    form = forms.FrontPortCreateForm
     model_form = forms.FrontPortForm
 
 
@@ -2157,7 +2142,6 @@ class RearPortView(generic.ObjectView):
 
 class RearPortCreateView(generic.ComponentCreateView):
     queryset = RearPort.objects.all()
-    form = forms.RearPortCreateForm
     model_form = forms.RearPortForm
 
 
@@ -2216,7 +2200,6 @@ class ModuleBayView(generic.ObjectView):
 
 class ModuleBayCreateView(generic.ComponentCreateView):
     queryset = ModuleBay.objects.all()
-    form = forms.ModuleBayCreateForm
     model_form = forms.ModuleBayForm
 
 
@@ -2271,7 +2254,6 @@ class DeviceBayView(generic.ObjectView):
 
 class DeviceBayCreateView(generic.ComponentCreateView):
     queryset = DeviceBay.objects.all()
-    form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
 
 
@@ -2397,7 +2379,6 @@ class InventoryItemEditView(generic.ObjectEditView):
 
 class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
-    form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
 
 

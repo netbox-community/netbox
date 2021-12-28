@@ -4,7 +4,7 @@ from dcim.models import *
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
 from utilities.forms import DynamicModelMultipleChoiceField, form_from_model
-from .object_create import ComponentForm
+from .object_create import ComponentCreateForm
 
 __all__ = (
     'ConsolePortBulkCreateForm',
@@ -24,7 +24,7 @@ __all__ = (
 # Device components
 #
 
-class DeviceBulkAddComponentForm(CustomFieldsMixin, ComponentForm):
+class DeviceBulkAddComponentForm(CustomFieldsMixin, ComponentCreateForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()

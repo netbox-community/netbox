@@ -118,41 +118,27 @@ class DeviceTestCase(TestCase):
 
 class LabelTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        site = Site.objects.create(name='Site 2', slug='site-2')
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 2', slug='manufacturer-2')
-        cls.device_type = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Device Type 2', slug='device-type-2', u_height=1
-        )
-        device_role = DeviceRole.objects.create(
-            name='Device Role 2', slug='device-role-2', color='ffff00'
-        )
-        cls.device = Device.objects.create(
-            name='Device 2', device_type=cls.device_type, device_role=device_role, site=site
-        )
-
     def test_interface_label_count_valid(self):
-        """Test that a `label` can be generated for each generated `name` from `name_pattern` on InterfaceCreateForm"""
+        """
+        Test that generating an equal number of names and labels passes form validation.
+        """
         interface_data = {
-            'device': self.device.pk,
             'name_pattern': 'eth[0-9]',
             'label_pattern': 'Interface[0-9]',
-            'type': InterfaceTypeChoices.TYPE_100ME_FIXED,
         }
-        form = InterfaceCreateForm(interface_data)
+        form = ComponentCreateForm(interface_data)
 
         self.assertTrue(form.is_valid())
 
     def test_interface_label_count_mismatch(self):
-        """Test that a `label` cannot be generated for each generated `name` from `name_pattern` due to invalid `label_pattern` on InterfaceCreateForm"""
+        """
+        Check that attempting to generate a differing number of names and labels results in a validation error.
+        """
         bad_interface_data = {
-            'device': self.device.pk,
             'name_pattern': 'eth[0-9]',
             'label_pattern': 'Interface[0-1]',
-            'type': InterfaceTypeChoices.TYPE_100ME_FIXED,
         }
-        form = InterfaceCreateForm(bad_interface_data)
+        form = ComponentCreateForm(bad_interface_data)
 
         self.assertFalse(form.is_valid())
         self.assertIn('label_pattern', form.errors)
