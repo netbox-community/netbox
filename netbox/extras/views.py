@@ -472,6 +472,7 @@ class ObjectChangeLogView(View):
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
+    template_name = 'extras/imageattachment_edit.html'
 
     def alter_obj(self, instance, request, args, kwargs):
         if not instance.pk:
