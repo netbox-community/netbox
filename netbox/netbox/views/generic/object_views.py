@@ -735,7 +735,6 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         Validate form values and set errors on the form object as they are detected. If
         no errors are found, signal success messages.
         """
-
         logger = logging.getLogger('netbox.views.ComponentCreateView')
         if form.is_valid():
             new_components = []
@@ -749,8 +748,8 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                 data['name'] = name
                 data['label'] = label
 
-                # if hasattr(form, 'get_iterative_data'):
-                #     data.update(form.get_iterative_data(i))
+                if hasattr(form, 'get_iterative_data'):
+                    data.update(form.get_iterative_data(i))
 
                 component_form = self.model_form(data)
 

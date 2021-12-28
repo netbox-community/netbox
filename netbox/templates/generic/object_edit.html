@@ -31,12 +31,14 @@
 
       <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
         {% csrf_token %}
-        {% for field in form.hidden_fields %}
-          {{ field }}
-        {% endfor %}
 
         {% block form %}
           {% if form.Meta.fieldsets %}
+
+            {# Render hidden fields #}
+            {% for field in form.hidden_fields %}
+              {{ field }}
+            {% endfor %}
 
             {# Render grouped fields according to Form #}
             {% for group, fields in form.Meta.fieldsets %}

@@ -1219,7 +1219,16 @@ class InterfaceTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class FrontPortTemplateCreateView(generic.ComponentCreateView):
     queryset = FrontPortTemplate.objects.all()
+    form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
+
+    def initialize_forms(self, request):
+        form, model_form = super().initialize_forms(request)
+
+        model_form.fields.pop('rear_port')
+        model_form.fields.pop('rear_port_position')
+
+        return form, model_form
 
 
 class FrontPortTemplateEditView(generic.ObjectEditView):
@@ -2085,7 +2094,16 @@ class FrontPortView(generic.ObjectView):
 
 class FrontPortCreateView(generic.ComponentCreateView):
     queryset = FrontPort.objects.all()
+    form = forms.FrontPortCreateForm
     model_form = forms.FrontPortForm
+
+    def initialize_forms(self, request):
+        form, model_form = super().initialize_forms(request)
+
+        model_form.fields.pop('rear_port')
+        model_form.fields.pop('rear_port_position')
+
+        return form, model_form
 
 
 class FrontPortEditView(generic.ObjectEditView):

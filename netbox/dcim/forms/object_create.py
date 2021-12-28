@@ -9,6 +9,8 @@ from utilities.forms import (
 
 __all__ = (
     'ComponentCreateForm',
+    'FrontPortCreateForm',
+    'FrontPortTemplateCreateForm',
     'VirtualChassisCreateForm',
 )
 
@@ -39,6 +41,97 @@ class ComponentCreateForm(BootstrapMixin, forms.Form):
                     'label_pattern': f'The provided name pattern will create {name_pattern_count} components, however '
                                      f'{label_pattern_count} labels will be generated. These counts must match.'
                 }, code='label_pattern_mismatch')
+
+
+class FrontPortTemplateCreateForm(ComponentCreateForm):
+    rear_port_set = forms.MultipleChoiceField(
+        choices=[],
+        label='Rear ports',
+        help_text='Select one rear port assignment for each front port being created.',
+    )
+    field_order = (
+        'name_pattern', 'label_pattern', 'rear_port_set',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        device_type = DeviceType.objects.get(
+            pk=self.initial.get('device_type') or self.data.get('device_type')
+        )
+
+        # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
+        occupied_port_positions = [
+            (front_port.rear_port_id, front_port.rear_port_position)
+            for front_port in device_type.frontporttemplates.all()
+        ]
+
+        # Populate rear port choices
+        choices = []
+        rear_ports = RearPortTemplate.objects.filter(device_type=device_type)
+        for rear_port in rear_ports:
+            for i in range(1, rear_port.positions + 1):
+                if (rear_port.pk, i) not in occupied_port_positions:
+                    choices.append(
+                        ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
+                    )
+        self.fields['rear_port_set'].choices = choices
+
+    def get_iterative_data(self, iteration):
+
+        # Assign rear port and position from selected set
+        rear_port, position = self.cleaned_data['rear_port_set'][iteration].split(':')
+
+        return {
+            'rear_port': int(rear_port),
+            'rear_port_position': int(position),
+        }
+
+
+class FrontPortCreateForm(ComponentCreateForm):
+    rear_port_set = forms.MultipleChoiceField(
+        choices=[],
+        label='Rear ports',
+        help_text='Select one rear port assignment for each front port being created.',
+    )
+    field_order = (
+        'name_pattern', 'label_pattern', 'rear_port_set',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        device = Device.objects.get(
+            pk=self.initial.get('device') or self.data.get('device')
+        )
+
+        # Determine which rear port positions are occupied. These will be excluded from the list of available
+        # mappings.
+        occupied_port_positions = [
+            (front_port.rear_port_id, front_port.rear_port_position)
+            for front_port in device.frontports.all()
+        ]
+
+        # Populate rear port choices
+        choices = []
+        rear_ports = RearPort.objects.filter(device=device)
+        for rear_port in rear_ports:
+            for i in range(1, rear_port.positions + 1):
+                if (rear_port.pk, i) not in occupied_port_positions:
+                    choices.append(
+                        ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
+                    )
+        self.fields['rear_port_set'].choices = choices
+
+    def get_iterative_data(self, iteration):
+
+        # Assign rear port and position from selected set
+        rear_port, position = self.cleaned_data['rear_port_set'][iteration].split(':')
+
+        return {
+            'rear_port': int(rear_port),
+            'rear_port_position': int(position),
+        }
 
 
 class VirtualChassisCreateForm(CustomFieldModelForm):

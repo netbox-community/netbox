@@ -1267,7 +1267,6 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
 class FrontPortForm(CustomFieldModelForm):
     rear_port = DynamicModelChoiceField(
         queryset=RearPort.objects.all(),
-        required=False,
         query_params={
             'device_id': '$device',
         }
