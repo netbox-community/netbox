@@ -346,11 +346,7 @@ class ExpandableNameField(forms.CharField):
         if not self.help_text:
             self.help_text = """
                 Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range
-                are not supported. Examples:
-                <ul>
-                    <li><code>[ge,xe]-0/0/[0-9]</code></li>
-                    <li><code>e[0-3][a-d,f]</code></li>
-                </ul>
+                are not supported. Example: <code>[ge,xe]-0/0/[0-9]</code>
                 """
 
     def to_python(self, value):

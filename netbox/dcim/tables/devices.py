@@ -780,6 +780,9 @@ class InventoryItemTable(DeviceComponentTable):
     manufacturer = tables.Column(
         linkify=True
     )
+    component = tables.Column(
+        linkify=True
+    )
     discovered = BooleanColumn()
     tags = TagColumn(
         url_name='dcim:inventoryitem_list'
@@ -790,9 +793,11 @@ class InventoryItemTable(DeviceComponentTable):
         model = InventoryItem
         fields = (
             'pk', 'id', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'description', 'discovered', 'tags',
+            'component', 'description', 'discovered', 'tags',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+        default_columns = (
+            'pk', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+        )
 
 
 class DeviceInventoryItemTable(InventoryItemTable):
@@ -810,11 +815,11 @@ class DeviceInventoryItemTable(InventoryItemTable):
     class Meta(BaseTable.Meta):
         model = InventoryItem
         fields = (
-            'pk', 'id', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
-            'discovered', 'tags', 'actions',
+            'pk', 'id', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',
+            'description', 'discovered', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'actions',
+            'pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component', 'actions',
         )
 
 

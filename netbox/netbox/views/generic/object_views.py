@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
+from django.forms.widgets import HiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
@@ -14,6 +15,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2.export import TableExport
 
+from dcim.forms.object_create import ComponentCreateForm
 from extras.models import ExportTemplate
 from extras.signals import clear_webhooks
 from utilities.error_handlers import handle_protectederror
@@ -674,33 +676,46 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 # Device/VirtualMachine components
 #
 
-# TODO: Replace with BulkCreateView
 class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
     queryset = None
-    form = None
+    form = ComponentCreateForm
     model_form = None
-    template_name = 'generic/object_edit.html'
+    template_name = 'dcim/component_create.html'
+    patterned_fields = ('name', 'label')
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
 
-    def get(self, request):
+    def initialize_forms(self, request):
+        data = request.POST if request.method == 'POST' else None
+        initial_data = normalize_querydict(request.GET)
 
-        form = self.form(initial=request.GET)
+        form = self.form(data=data, initial=request.GET)
+        model_form = self.model_form(data=data, initial=initial_data)
+
+        # These fields will be set from the pattern values
+        for field_name in self.patterned_fields:
+            model_form.fields[field_name].widget = HiddenInput()
+
+        return form, model_form
+
+    def get(self, request):
+        form, model_form = self.initialize_forms(request)
 
         return render(request, self.template_name, {
-            'obj': self.queryset.model(),
+            'obj': self.queryset.model,
             'obj_type': self.queryset.model._meta.verbose_name,
-            'form': form,
+            'replication_form': form,
+            'form': model_form,
             'return_url': self.get_return_url(request),
         })
 
     def post(self, request):
-        logger = logging.getLogger('netbox.views.ComponentCreateView')
-        form = self.form(request.POST, initial=request.GET)
+        form, model_form = self.initialize_forms(request)
+
         self.validate_form(request, form)
 
         if form.is_valid() and not form.errors:
@@ -710,8 +725,10 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                 return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
+            'obj': self.queryset.model,
             'obj_type': self.queryset.model._meta.verbose_name,
-            'form': form,
+            'replication_form': form,
+            'form': model_form,
             'return_url': self.get_return_url(request),
         })
 
@@ -720,7 +737,6 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         Validate form values and set errors on the form object as they are detected. If
         no errors are found, signal success messages.
         """
-
         logger = logging.getLogger('netbox.views.ComponentCreateView')
         if form.is_valid():
             new_components = []

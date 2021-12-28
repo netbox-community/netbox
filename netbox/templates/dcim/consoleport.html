@@ -58,91 +58,92 @@
                 </h5>
                 <div class="card-body">
                     {% if object.mark_connected %}
-                    <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
+                        <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
                     {% elif object.cable %}
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">Cable</th>
-                            <td>
-                                <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
-                                <a href="{% url 'dcim:consoleport_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
-                                    <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% if object.connected_endpoint %}
+                        <table class="table table-hover attr-table">
                             <tr>
-                                <th scope="row">Device</th>
+                                <th scope="row">Cable</th>
                                 <td>
-                                    <a href="{{ object.connected_endpoint.device.get_absolute_url }}">{{ object.connected_endpoint.device }}</a>
+                                    <a href="{{ object.cable.get_absolute_url }}">{{ object.cable }}</a>
+                                    <a href="{% url 'dcim:consoleport_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
+                                        <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+                                    </a>
                                 </td>
                             </tr>
-                            <tr>
-                                <th scope="row">Name</th>
-                                <td>
-                                    <a href="{{ object.connected_endpoint.get_absolute_url }}">{{ object.connected_endpoint.name }}</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Type</th>
-                                <td>{{ object.connected_endpoint.get_type_display|placeholder }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Description</th>
-                                <td>{{ object.connected_endpoint.description|placeholder }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Path Status</th>
-                                <td>
-                                    {% if object.path.is_active %}
-                                        <span class="badge bg-success">Reachable</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">Not Reachable</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </table>
-                {% else %}
-                    <div class="text-muted">
-                        Not Connected
-                        {% if perms.dcim.add_cable %}
-                            <div class="dropdown float-end">
-                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a
-                                            class="dropdown-item"
-                                            href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='console-server-port' %}?return_url={{ object.get_absolute_url }}"
-                                        >
-                                            Console Server Port
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            class="dropdown-item"
-                                            href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='front-port' %}?return_url={{ object.get_absolute_url }}"
-                                        >
-                                            Front Port
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            class="dropdown-item"
-                                            href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='rear-port' %}?return_url={{ object.get_absolute_url }}"
-                                        >
-                                            Rear Port
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endif %}
+                            {% if object.connected_endpoint %}
+                                <tr>
+                                    <th scope="row">Device</th>
+                                    <td>
+                                        <a href="{{ object.connected_endpoint.device.get_absolute_url }}">{{ object.connected_endpoint.device }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Name</th>
+                                    <td>
+                                        <a href="{{ object.connected_endpoint.get_absolute_url }}">{{ object.connected_endpoint.name }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Type</th>
+                                    <td>{{ object.connected_endpoint.get_type_display|placeholder }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Description</th>
+                                    <td>{{ object.connected_endpoint.description|placeholder }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Path Status</th>
+                                    <td>
+                                        {% if object.path.is_active %}
+                                            <span class="badge bg-success">Reachable</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Reachable</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </table>
+                    {% else %}
+                        <div class="text-muted">
+                            Not Connected
+                            {% if perms.dcim.add_cable %}
+                                <div class="dropdown float-end">
+                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a
+                                                class="dropdown-item"
+                                                href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='console-server-port' %}?return_url={{ object.get_absolute_url }}"
+                                            >
+                                                Console Server Port
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                class="dropdown-item"
+                                                href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='front-port' %}?return_url={{ object.get_absolute_url }}"
+                                            >
+                                                Front Port
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                class="dropdown-item"
+                                                href="{% url 'dcim:consoleport_connect' termination_a_id=object.pk termination_b_type='rear-port' %}?return_url={{ object.get_absolute_url }}"
+                                            >
+                                                Rear Port
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-            </div>
+            {% include 'dcim/inc/panels/inventory_items.html' %}
             {% plugin_right_page object %}
         </div>
     </div>

@@ -447,11 +447,11 @@ class VMInterfaceView(generic.ObjectView):
         }
 
 
-# TODO: This should not use ComponentCreateView
 class VMInterfaceCreateView(generic.ComponentCreateView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceCreateForm
     model_form = forms.VMInterfaceForm
+    patterned_fields = ('name',)
 
 
 class VMInterfaceEditView(generic.ObjectEditView):

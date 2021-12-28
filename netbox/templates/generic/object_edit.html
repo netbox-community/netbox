@@ -29,29 +29,35 @@
         </div>
       {% endif %}
 
-      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
+      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit mt-5">
         {% csrf_token %}
-        {% for field in form.hidden_fields %}
-          {{ field }}
-        {% endfor %}
 
         {% block form %}
           {% if form.Meta.fieldsets %}
 
+            {# Render hidden fields #}
+            {% for field in form.hidden_fields %}
+              {{ field }}
+            {% endfor %}
+
             {# Render grouped fields according to Form #}
             {% for group, fields in form.Meta.fieldsets %}
-              <div class="field-group my-5">
+              <div class="field-group mb-5">
                 <div class="row mb-2">
                   <h5 class="offset-sm-3">{{ group }}</h5>
                 </div>
                 {% for name in fields %}
-                    {% render_field form|getfield:name %}
+                  {% with field=form|getfield:name %}
+                    {% if not field.field.widget.is_hidden %}
+                      {% render_field field %}
+                    {% endif %}
+                  {% endwith %}
                 {% endfor %}
               </div>
             {% endfor %}
 
             {% if form.custom_fields %}
-              <div class="field-group my-5">
+              <div class="field-group mb-5">
                 <div class="row mb-2">
                   <h5 class="offset-sm-3">Custom Fields</h5>
                 </div>
@@ -60,7 +66,7 @@
             {% endif %}
 
             {% if form.comments %}
-              <div class="field-group my-5">
+              <div class="field-group mb-5">
                 <h5 class="text-center">Comments</h5>
                 {% render_field form.comments %}
               </div>
@@ -68,7 +74,7 @@
 
           {% else %}
             {# Render all fields in a single group #}
-            <div class="field-group my-5">
+            <div class="field-group mb-5">
               {% block form_fields %}{% render_form form %}{% endblock %}
             </div>
           {% endif %}

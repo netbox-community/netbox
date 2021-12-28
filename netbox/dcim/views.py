@@ -1054,7 +1054,6 @@ class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
 
 class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsolePortTemplate.objects.all()
-    form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
 
 
@@ -1088,7 +1087,6 @@ class ConsolePortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPortTemplate.objects.all()
-    form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
 
 
@@ -1122,7 +1120,6 @@ class ConsoleServerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerPortTemplate.objects.all()
-    form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
 
 
@@ -1156,7 +1153,6 @@ class PowerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerOutletTemplate.objects.all()
-    form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
 
 
@@ -1190,7 +1186,6 @@ class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class InterfaceTemplateCreateView(generic.ComponentCreateView):
     queryset = InterfaceTemplate.objects.all()
-    form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
 
 
@@ -1227,6 +1222,14 @@ class FrontPortTemplateCreateView(generic.ComponentCreateView):
     form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
 
+    def initialize_forms(self, request):
+        form, model_form = super().initialize_forms(request)
+
+        model_form.fields.pop('rear_port')
+        model_form.fields.pop('rear_port_position')
+
+        return form, model_form
+
 
 class FrontPortTemplateEditView(generic.ObjectEditView):
     queryset = FrontPortTemplate.objects.all()
@@ -1258,7 +1261,6 @@ class FrontPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class RearPortTemplateCreateView(generic.ComponentCreateView):
     queryset = RearPortTemplate.objects.all()
-    form = forms.RearPortTemplateCreateForm
     model_form = forms.RearPortTemplateForm
 
 
@@ -1292,7 +1294,6 @@ class RearPortTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     queryset = ModuleBayTemplate.objects.all()
-    form = forms.ModuleBayTemplateCreateForm
     model_form = forms.ModuleBayTemplateForm
 
 
@@ -1326,7 +1327,6 @@ class ModuleBayTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceBayTemplateCreateView(generic.ComponentCreateView):
     queryset = DeviceBayTemplate.objects.all()
-    form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
 
 
@@ -1741,7 +1741,6 @@ class ConsolePortView(generic.ObjectView):
 
 class ConsolePortCreateView(generic.ComponentCreateView):
     queryset = ConsolePort.objects.all()
-    form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
 
 
@@ -1800,7 +1799,6 @@ class ConsoleServerPortView(generic.ObjectView):
 
 class ConsoleServerPortCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPort.objects.all()
-    form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
 
 
@@ -1859,7 +1857,6 @@ class PowerPortView(generic.ObjectView):
 
 class PowerPortCreateView(generic.ComponentCreateView):
     queryset = PowerPort.objects.all()
-    form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
 
 
@@ -1918,7 +1915,6 @@ class PowerOutletView(generic.ObjectView):
 
 class PowerOutletCreateView(generic.ComponentCreateView):
     queryset = PowerOutlet.objects.all()
-    form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
 
 
@@ -2012,35 +2008,35 @@ class InterfaceView(generic.ObjectView):
 
 class InterfaceCreateView(generic.ComponentCreateView):
     queryset = Interface.objects.all()
-    form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
-    template_name = 'dcim/interface_create.html'
+    # template_name = 'dcim/interface_create.html'
 
-    def post(self, request):
-        """
-        Override inherited post() method to handle request to assign newly created
-        interface objects (first object) to an IP Address object.
-        """
-        form = self.form(request.POST, initial=request.GET)
-        new_objs = self.validate_form(request, form)
-
-        if form.is_valid() and not form.errors:
-            if '_addanother' in request.POST:
-                return redirect(request.get_full_path())
-            elif new_objs is not None and '_assignip' in request.POST and len(new_objs) >= 1 and \
-                    request.user.has_perm('ipam.add_ipaddress'):
-                first_obj = new_objs[0].pk
-                return redirect(
-                    f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}'
-                )
-            else:
-                return redirect(self.get_return_url(request))
-
-        return render(request, self.template_name, {
-            'obj_type': self.queryset.model._meta.verbose_name,
-            'form': form,
-            'return_url': self.get_return_url(request),
-        })
+    # TODO: Figure out what to do with this
+    # def post(self, request):
+    #     """
+    #     Override inherited post() method to handle request to assign newly created
+    #     interface objects (first object) to an IP Address object.
+    #     """
+    #     form = self.form(request.POST, initial=request.GET)
+    #     new_objs = self.validate_form(request, form)
+    #
+    #     if form.is_valid() and not form.errors:
+    #         if '_addanother' in request.POST:
+    #             return redirect(request.get_full_path())
+    #         elif new_objs is not None and '_assignip' in request.POST and len(new_objs) >= 1 and \
+    #                 request.user.has_perm('ipam.add_ipaddress'):
+    #             first_obj = new_objs[0].pk
+    #             return redirect(
+    #                 f'/ipam/ip-addresses/add/?interface={first_obj}&return_url={self.get_return_url(request)}'
+    #             )
+    #         else:
+    #             return redirect(self.get_return_url(request))
+    #
+    #     return render(request, self.template_name, {
+    #         'obj_type': self.queryset.model._meta.verbose_name,
+    #         'form': form,
+    #         'return_url': self.get_return_url(request),
+    #     })
 
 
 class InterfaceEditView(generic.ObjectEditView):
@@ -2101,6 +2097,14 @@ class FrontPortCreateView(generic.ComponentCreateView):
     form = forms.FrontPortCreateForm
     model_form = forms.FrontPortForm
 
+    def initialize_forms(self, request):
+        form, model_form = super().initialize_forms(request)
+
+        model_form.fields.pop('rear_port')
+        model_form.fields.pop('rear_port_position')
+
+        return form, model_form
+
 
 class FrontPortEditView(generic.ObjectEditView):
     queryset = FrontPort.objects.all()
@@ -2157,7 +2161,6 @@ class RearPortView(generic.ObjectView):
 
 class RearPortCreateView(generic.ComponentCreateView):
     queryset = RearPort.objects.all()
-    form = forms.RearPortCreateForm
     model_form = forms.RearPortForm
 
 
@@ -2216,7 +2219,6 @@ class ModuleBayView(generic.ObjectView):
 
 class ModuleBayCreateView(generic.ComponentCreateView):
     queryset = ModuleBay.objects.all()
-    form = forms.ModuleBayCreateForm
     model_form = forms.ModuleBayForm
 
 
@@ -2271,7 +2273,6 @@ class DeviceBayView(generic.ObjectView):
 
 class DeviceBayCreateView(generic.ComponentCreateView):
     queryset = DeviceBay.objects.all()
-    form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
 
 
@@ -2397,7 +2398,6 @@ class InventoryItemEditView(generic.ObjectEditView):
 
 class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
-    form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
 
 

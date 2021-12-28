@@ -1,0 +1,7 @@
+{% extends 'generic/object_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+  {% render_form replication_form %}
+  {{ block.super }}
+{% endblock form %}

@@ -3004,10 +3004,16 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         InventoryItemRole.objects.bulk_create(roles)
 
+        components = (
+            Interface.objects.create(device=devices[0], name='Interface 1'),
+            ConsolePort.objects.create(device=devices[1], name='Console Port 1'),
+            ConsoleServerPort.objects.create(device=devices[2], name='Console Server Port 1'),
+        )
+
         inventory_items = (
-            InventoryItem(device=devices[0], role=roles[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First'),
-            InventoryItem(device=devices[1], role=roles[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
-            InventoryItem(device=devices[2], role=roles[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
+            InventoryItem(device=devices[0], role=roles[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First', component=components[0]),
+            InventoryItem(device=devices[1], role=roles[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second', component=components[1]),
+            InventoryItem(device=devices[2], role=roles[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third', component=components[2]),
         )
         for i in inventory_items:
             i.save()
@@ -3101,6 +3107,10 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'serial': 'ABC'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'serial': 'abc'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_component_type(self):
+        params = {'component_type': 'dcim.interface'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
