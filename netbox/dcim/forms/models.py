@@ -1236,17 +1236,17 @@ class InterfaceForm(InterfaceCommonForm, CustomFieldModelForm):
             'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
-        # fieldsets = (
-        #     ('Interface', ('device', 'name', 'type', 'label', 'description', 'tags')),
-        #     ('Addressing', ('mac_address', 'wwn')),
-        #     ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
-        #     ('Related Interfaces', ('parent', 'bridge', 'lag')),
-        #     ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
-        #     ('Wireless', (
-        #         'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group',
-        #         'wireless_lans',
-        #     )),
-        # )
+        fieldsets = (
+            ('Interface', ('device', 'name', 'type', 'label', 'description', 'tags')),
+            ('Addressing', ('mac_address', 'wwn')),
+            ('Operation', ('mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
+            ('Related Interfaces', ('parent', 'bridge', 'lag')),
+            ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
+            ('Wireless', (
+                'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group',
+                'wireless_lans',
+            )),
+        )
         widgets = {
             'device': forms.HiddenInput(),
             'type': StaticSelect(),
@@ -1358,9 +1358,6 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
 
 class InventoryItemForm(CustomFieldModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
-    )
     parent = DynamicModelChoiceField(
         queryset=InventoryItem.objects.all(),
         required=False,
@@ -1401,6 +1398,9 @@ class InventoryItemForm(CustomFieldModelForm):
             ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
             ('Component', ('component_type', 'component_id')),
         )
+        widgets = {
+            'device': forms.HiddenInput(),
+        }
 
 
 #

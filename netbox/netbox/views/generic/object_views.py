@@ -706,6 +706,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         form, model_form = self.initialize_forms(request)
 
         return render(request, self.template_name, {
+            'obj': self.queryset.model,
             'obj_type': self.queryset.model._meta.verbose_name,
             'replication_form': form,
             'form': model_form,
@@ -724,6 +725,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                 return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
+            'obj': self.queryset.model,
             'obj_type': self.queryset.model._meta.verbose_name,
             'replication_form': form,
             'form': model_form,

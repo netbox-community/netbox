@@ -29,7 +29,7 @@
         </div>
       {% endif %}
 
-      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
+      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit mt-5">
         {% csrf_token %}
 
         {% block form %}
@@ -47,7 +47,11 @@
                   <h5 class="offset-sm-3">{{ group }}</h5>
                 </div>
                 {% for name in fields %}
-                    {% render_field form|getfield:name %}
+                  {% with field=form|getfield:name %}
+                    {% if not field.field.widget.is_hidden %}
+                      {% render_field field %}
+                    {% endif %}
+                  {% endwith %}
                 {% endfor %}
               </div>
             {% endfor %}
