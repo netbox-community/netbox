@@ -689,6 +689,9 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
 
+    def alter_object(self, instance, request):
+        return instance
+
     def initialize_forms(self, request):
         data = request.POST if request.method == 'POST' else None
         initial_data = normalize_querydict(request.GET)
@@ -704,9 +707,10 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
 
     def get(self, request):
         form, model_form = self.initialize_forms(request)
+        instance = self.alter_object(self.queryset.model, request)
 
         return render(request, self.template_name, {
-            'obj': self.queryset.model,
+            'obj': instance,
             'obj_type': self.queryset.model._meta.verbose_name,
             'replication_form': form,
             'form': model_form,
@@ -715,6 +719,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
 
     def post(self, request):
         form, model_form = self.initialize_forms(request)
+        instance = self.alter_object(self.queryset.model, request)
 
         self.validate_form(request, form)
 
@@ -725,7 +730,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                 return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
-            'obj': self.queryset.model,
+            'obj': instance,
             'obj_type': self.queryset.model._meta.verbose_name,
             'replication_form': form,
             'form': model_form,

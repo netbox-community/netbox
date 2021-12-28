@@ -781,6 +781,8 @@ class InventoryItemTable(DeviceComponentTable):
         linkify=True
     )
     component = tables.Column(
+        accessor=Accessor('component'),
+        orderable=False,
         linkify=True
     )
     discovered = BooleanColumn()
@@ -792,8 +794,8 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(BaseTable.Meta):
         model = InventoryItem
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'component', 'description', 'discovered', 'tags',
+            'pk', 'id', 'name', 'device', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
+            'asset_tag', 'description', 'discovered', 'tags',
         )
         default_columns = (
             'pk', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',

@@ -1,0 +1,18 @@
+{% extends 'dcim/component_create.html' %}
+{% load helpers %}
+
+{% block form %}
+  {% if obj.component %}
+    <div class="row mb-3">
+      <label class="col-sm-3 col-form-label text-lg-end required">
+        {{ obj.component|meta:"verbose_name"|bettertitle }}
+      </label>
+      <div class="col-sm-9">
+        <div class="form-control-plaintext">
+          <a href="{{ obj.component.get_absolute_url }}" class="">{{ obj.component }}</a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

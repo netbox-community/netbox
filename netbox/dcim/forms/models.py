@@ -1377,10 +1377,11 @@ class InventoryItemForm(CustomFieldModelForm):
         queryset=ContentType.objects.all(),
         limit_choices_to=MODULAR_COMPONENT_MODELS,
         required=False,
-        widget=StaticSelect
+        widget=forms.HiddenInput
     )
     component_id = forms.IntegerField(
-        required=False
+        required=False,
+        widget=forms.HiddenInput
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -1396,7 +1397,6 @@ class InventoryItemForm(CustomFieldModelForm):
         fieldsets = (
             ('Inventory Item', ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
             ('Hardware', ('manufacturer', 'part_id', 'serial', 'asset_tag')),
-            ('Component', ('component_type', 'component_id')),
         )
         widgets = {
             'device': forms.HiddenInput(),
