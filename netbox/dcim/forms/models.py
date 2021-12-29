@@ -1092,7 +1092,7 @@ class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
     )
     component_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=MODULAR_COMPONENT_MODELS,
+        limit_choices_to=MODULAR_COMPONENT_TEMPLATE_MODELS,
         required=False,
         widget=forms.HiddenInput
     )

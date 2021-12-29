@@ -8,6 +8,7 @@ from dcim.models import (
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
 )
+from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS
 
 __all__ = (
     'ConsolePortTemplateTable',
@@ -114,7 +115,8 @@ class ComponentTemplateTable(BaseTable):
 class ConsolePortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=ConsolePortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -126,7 +128,8 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=ConsoleServerPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -138,7 +141,8 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 class PowerPortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=PowerPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -150,7 +154,8 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 class PowerOutletTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=PowerOutletTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -165,7 +170,8 @@ class InterfaceTemplateTable(ComponentTemplateTable):
     )
     actions = ButtonsColumn(
         model=InterfaceTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -181,7 +187,8 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     color = ColorColumn()
     actions = ButtonsColumn(
         model=FrontPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):
@@ -194,7 +201,8 @@ class RearPortTemplateTable(ComponentTemplateTable):
     color = ColorColumn()
     actions = ButtonsColumn(
         model=RearPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        prepend_template=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
 
     class Meta(ComponentTemplateTable.Meta):

@@ -94,6 +94,19 @@ LOCATION_ELEVATIONS = """
 """
 
 #
+# Device component templatebuttons
+#
+
+MODULAR_COMPONENT_TEMPLATE_BUTTONS = """
+{% load helpers %}
+{% if perms.dcim.add_invnetoryitemtemplate %}
+<a href="{% url 'dcim:inventoryitemtemplate_add' %}?device_type={{ record.device_type.pk }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={{ request.path }}" title="Add inventory item" class="btn btn-primary btn-sm">
+  <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+</a>
+{% endif %}
+"""
+
+#
 # Device component buttons
 #
 
