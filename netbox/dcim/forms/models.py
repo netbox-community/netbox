@@ -300,16 +300,14 @@ class RackReservationForm(TenancyForm, CustomFieldModelForm):
         required=False,
         initial_params={
             'sites': '$site'
-        },
-        fetch_trigger='open'
+        }
     )
     site_group = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
         initial_params={
             'sites': '$site'
-        },
-        fetch_trigger='open'
+        }
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -317,24 +315,21 @@ class RackReservationForm(TenancyForm, CustomFieldModelForm):
         query_params={
             'region_id': '$region',
             'group_id': '$site_group',
-        },
-        fetch_trigger='open'
+        }
     )
     location = DynamicModelChoiceField(
         queryset=Location.objects.all(),
         required=False,
         query_params={
             'site_id': '$site'
-        },
-        fetch_trigger='open'
+        }
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         query_params={
             'site_id': '$site',
             'location_id': '$location',
-        },
-        fetch_trigger='open'
+        }
     )
     units = NumericArrayField(
         base_field=forms.IntegerField(),
@@ -348,8 +343,7 @@ class RackReservationForm(TenancyForm, CustomFieldModelForm):
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
-        required=False,
-        fetch_trigger='open'
+        required=False
     )
 
     class Meta:

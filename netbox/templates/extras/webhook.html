@@ -17,13 +17,7 @@
           </tr>
           <tr>
             <th scope="row">Enabled</th>
-            <td>
-              {% if object.enabled %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.enabled %}</td>
           </tr>
         </table>
       </div>
@@ -36,33 +30,15 @@
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">Create</th>
-            <td>
-              {% if object.type_create %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.type_create %}</td>
           </tr>
           <tr>
             <th scope="row">Update</th>
-            <td>
-              {% if object.type_update %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.type_update %}</td>
           </tr>
           <tr>
             <th scope="row">Delete</th>
-            <td>
-              {% if object.type_delete %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.type_delete %}</td>
           </tr>
         </table>
       </div>
@@ -100,13 +76,7 @@
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">SSL Verification</th>
-            <td>
-              {% if object.ssl_verification %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.ssl_verification %}</td>
           </tr>
           <tr>
             <th scope="row">CA File Path</th>

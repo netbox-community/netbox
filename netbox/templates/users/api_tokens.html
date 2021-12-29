@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col col-md-12">
+        <div class="col col-md-10 offset-md-1">
             {% for token in tokens %}
                 <div class="card{% if token.is_expired %} bg-danger{% endif %}">
                     <div class="card-header">
@@ -49,7 +49,8 @@
                     </div>
                 </div>
             {% empty %}
-                <p>You do not have any API tokens.</p>
+              <h6><i class="mdi mdi-information"></i> You do not have any API tokens.</h6>
+              <p>Tokens are used to authenticate REST and GraphQL API requests.</p>
             {% endfor %}
             <div class="text-end">
               <a href="{% url 'user:token_add' %}" class="btn btn-sm btn-primary my-3">

@@ -251,7 +251,7 @@ export class APISelect {
     } else if (collapse !== null) {
       this.trigger = 'collapse';
     } else {
-      this.trigger = 'load';
+      this.trigger = 'open';
     }
 
     switch (this.trigger) {

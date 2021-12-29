@@ -426,6 +426,23 @@ def badge(value, bg_class='secondary', show_empty=False):
     }
 
 
+@register.inclusion_tag('helpers/checkmark.html')
+def checkmark(value, show_false=True, true='Yes', false='No'):
+    """
+    Display either a green checkmark or red X to indicate a boolean value.
+
+    :param show_false: Display a red X if the value is False
+    :param true: Text label for true value
+    :param false: Text label for false value
+    """
+    return {
+        'value': bool(value),
+        'show_false': show_false,
+        'true_label': true,
+        'false_label': false,
+    }
+
+
 @register.inclusion_tag('helpers/table_config_form.html')
 def table_config_form(table, table_name=None):
     return {

@@ -1,16 +1,23 @@
 # NetBox v3.1
 
-## v3.1.3 (FUTURE)
+## v3.1.4 (FUTURE)
+
+---
+
+## v3.1.3 (2021-12-29)
 
 ### Enhancements
 
 * [#6782](https://github.com/netbox-community/netbox/issues/6782) - Enable the inclusion of custom links in tables
+* [#7600](https://github.com/netbox-community/netbox/issues/7600) - Include count of available IPs on prefix view
+* [#8034](https://github.com/netbox-community/netbox/issues/8034) - Enable specifying custom field validators during CSV import
 * [#8100](https://github.com/netbox-community/netbox/issues/8100) - Add "other" choice for FHRP group protocol
 * [#8175](https://github.com/netbox-community/netbox/issues/8175) - Display parent object when attaching an image
 
 ### Bug Fixes
 
 * [#7246](https://github.com/netbox-community/netbox/issues/7246) - Don't attempt to URL-decode NAPALM response payloads
+* [#7290](https://github.com/netbox-community/netbox/issues/7290) - Defer loading API-backed form fields
 * [#7887](https://github.com/netbox-community/netbox/issues/7887) - Forward `HTTP_X_FORWARDED_FOR` to custom scripts
 * [#7962](https://github.com/netbox-community/netbox/issues/7962) - Fix user menu under report/script result view
 * [#7972](https://github.com/netbox-community/netbox/issues/7972) - Standardize name of `RemoteUserBackend` logger

@@ -66,7 +66,7 @@
                                             </td>
                                             <td>
                                                 {% if field.required %}
-                                                    <i class="mdi mdi-check-bold text-success" title="Required"></i>
+                                                    {% checkmark True true="Required" %}
                                                 {% else %}
                                                     <span class="text-muted">&mdash;</span>
                                                 {% endif %}

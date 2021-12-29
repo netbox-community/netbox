@@ -33,13 +33,7 @@
                         </tr>
                         <tr>
                             <td>Full Depth</td>
-                            <td>
-                                {% if object.is_full_depth %}
-                                    <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-                                {% else %}
-                                    <i class="mdi mdi-close-thick text-danger" title="No"></i>
-                                {% endif %}
-                            </td>
+                            <td>{% checkmark object.is_full_depth %}</td>
                         </tr>
                         <tr>
                             <td>Parent/Child</td>

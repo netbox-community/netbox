@@ -40,13 +40,7 @@
           </tr>
           <tr>
             <th scope="row">Attachment</th>
-            <td>
-              {% if object.as_attachment %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.as_attachment %}</td>
           </tr>
         </table>
       </div>

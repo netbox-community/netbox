@@ -39,10 +39,10 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'name,label,type,content_types,weight,filter_logic,choices',
-            'field4,Field 4,text,dcim.site,100,exact,',
-            'field5,Field 5,integer,dcim.site,100,exact,',
-            'field6,Field 6,select,dcim.site,100,exact,"A,B,C"',
+            'name,label,type,content_types,weight,filter_logic,choices,validation_minimum,validation_maximum,validation_regex',
+            'field4,Field 4,text,dcim.site,100,exact,,,,[a-z]{3}',
+            'field5,Field 5,integer,dcim.site,100,exact,,1,100,',
+            'field6,Field 6,select,dcim.site,100,exact,"A,B,C",,,',
         )
 
         cls.bulk_edit_data = {

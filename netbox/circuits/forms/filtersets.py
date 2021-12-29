@@ -26,14 +26,12 @@ class ProviderFilterForm(CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -42,8 +40,7 @@ class ProviderFilterForm(CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'site_group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     asn = forms.IntegerField(
         required=False,
@@ -61,8 +58,7 @@ class ProviderNetworkFilterForm(CustomFieldModelFilterForm):
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
-        label=_('Provider'),
-        fetch_trigger='open'
+        label=_('Provider')
     )
     service_id = forms.CharField(
         max_length=100,
@@ -88,14 +84,12 @@ class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,
-        label=_('Type'),
-        fetch_trigger='open'
+        label=_('Type')
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         required=False,
-        label=_('Provider'),
-        fetch_trigger='open'
+        label=_('Provider')
     )
     provider_network_id = DynamicModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
@@ -103,8 +97,7 @@ class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         query_params={
             'provider_id': '$provider_id'
         },
-        label=_('Provider network'),
-        fetch_trigger='open'
+        label=_('Provider network')
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
@@ -114,14 +107,12 @@ class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -130,8 +121,7 @@ class CircuitFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'site_group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     commit_rate = forms.IntegerField(
         required=False,

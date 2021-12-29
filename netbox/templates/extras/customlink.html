@@ -33,13 +33,7 @@
           </tr>
           <tr>
             <th scope="row">New Window</th>
-            <td>
-              {% if object.new_window %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.new_window %}</td>
           </tr>
         </table>
       </div>

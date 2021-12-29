@@ -35,23 +35,11 @@
             </tr>
             <tr>
               <th scope="row">Superuser</th>
-              <td>
-                {% if request.user.is_superuser %}
-                  <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-                {% else %}
-                  <i class="mdi mdi-close-thick text-danger" title="No"></i>
-                {% endif %}
-              </td>
+              <td>{% checkmark request.user.is_superuser %}</td>
             </tr>
             <tr>
               <th scope="row">Admin Access</th>
-              <td>
-                {% if request.user.is_staff %}
-                  <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-                {% else %}
-                  <i class="mdi mdi-close-thick text-danger" title="No"></i>
-                {% endif %}
-              </td>
+              <td>{% checkmark request.user.is_staff %}</td>
             </tr>
           </table>
         </div>

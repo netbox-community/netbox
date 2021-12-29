@@ -418,7 +418,7 @@ class PrefixView(generic.ObjectView):
         ).filter(
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(
-            'site', 'role'
+            'site', 'role', 'tenant'
         )
         parent_prefix_table = tables.PrefixTable(
             list(parent_prefixes),
