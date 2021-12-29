@@ -30,13 +30,7 @@
                   </tr>
                   <tr>
                       <th scope="row">Unique IP Space</th>
-                      <td>
-                          {% if object.enforce_unique %}
-                              <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-                          {% else %}
-                              <i class="mdi mdi-close-thick text-danger" title="No"></i>
-                          {% endif %}
-                      </td>
+                      <td>{% checkmark object.enforce_unique %}</td>
                   </tr>
                   <tr>
                       <th scope="row">Description</th>

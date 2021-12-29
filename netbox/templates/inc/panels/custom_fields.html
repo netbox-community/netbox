@@ -15,9 +15,9 @@
                                 {% if field.type == 'longtext' and value %}
                                     {{ value|render_markdown }}
                                 {% elif field.type == 'boolean' and value == True %}
-                                    <i class="mdi mdi-check-bold text-success" title="True"></i>
+                                    {% checkmark value true="True" %}
                                 {% elif field.type == 'boolean' and value == False %}
-                                    <i class="mdi mdi-close-thick text-danger" title="False"></i>
+                                    {% checkmark value false="False" %}
                                 {% elif field.type == 'url' and value %}
                                     <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
                                 {% elif field.type == 'json' and value %}
