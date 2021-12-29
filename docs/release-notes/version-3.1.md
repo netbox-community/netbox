@@ -6,6 +6,7 @@
 
 * [#6782](https://github.com/netbox-community/netbox/issues/6782) - Enable the inclusion of custom links in tables
 * [#7600](https://github.com/netbox-community/netbox/issues/7600) - Include count of available IPs on prefix view
+* [#8034](https://github.com/netbox-community/netbox/issues/8034) - Enable specifying custom field validators during CSV import
 * [#8100](https://github.com/netbox-community/netbox/issues/8100) - Add "other" choice for FHRP group protocol
 * [#8175](https://github.com/netbox-community/netbox/issues/8175) - Display parent object when attaching an image
 
