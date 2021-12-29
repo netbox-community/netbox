@@ -19,8 +19,7 @@ class WirelessLANGroupFilterForm(CustomFieldModelFilterForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
-        label=_('Parent group'),
-        fetch_trigger='open'
+        label=_('Parent group')
     )
     tag = TagFilterField(model)
 
@@ -39,8 +38,7 @@ class WirelessLANFilterForm(CustomFieldModelFilterForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group'),
-        fetch_trigger='open'
+        label=_('Group')
     )
     auth_type = forms.ChoiceField(
         required=False,

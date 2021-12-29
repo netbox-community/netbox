@@ -11,6 +11,7 @@
 ### Bug Fixes
 
 * [#7246](https://github.com/netbox-community/netbox/issues/7246) - Don't attempt to URL-decode NAPALM response payloads
+* [#7290](https://github.com/netbox-community/netbox/issues/7290) - Defer loading API-backed form fields
 * [#7887](https://github.com/netbox-community/netbox/issues/7887) - Forward `HTTP_X_FORWARDED_FOR` to custom scripts
 * [#7962](https://github.com/netbox-community/netbox/issues/7962) - Fix user menu under report/script result view
 * [#7972](https://github.com/netbox-community/netbox/issues/7972) - Standardize name of `RemoteUserBackend` logger
