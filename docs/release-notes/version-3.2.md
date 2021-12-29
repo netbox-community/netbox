@@ -42,6 +42,12 @@ FIELD_CHOICES = {
 }
 ```
 
+#### Inventory Item Templates ([#8118](https://github.com/netbox-community/netbox/issues/8118))
+
+Inventory items can now be templatized on a device type similar to the other component types. This enables users to better pre-model fixed hardware components.
+
+Inventory item templates can be arranged hierarchically within a device type, and may be assigned to other components. These relationships will be mirrored when instantiating inventory items on a newly-created device.
+
 ### Enhancements
 
 * [#7650](https://github.com/netbox-community/netbox/issues/7650) - Add support for local account password validation
@@ -62,6 +68,7 @@ FIELD_CHOICES = {
 
 * Added the following endpoints:
     * `/api/dcim/inventory-item-roles/`
+    * `/api/dcim/inventory-item-templates/`
     * `/api/dcim/modules/`
     * `/api/dcim/module-bays/`
     * `/api/dcim/module-bay-templates/`
