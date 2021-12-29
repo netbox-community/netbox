@@ -18,28 +18,28 @@
       </button>
       <ul class="dropdown-menu">
         {% if perms.dcim.add_consoleporttemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_consoleports' pk=object.pk %}">Console Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_consoleserverporttemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_consoleserverports' pk=object.pk %}">Console Server Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_powerporttemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_powerports' pk=object.pk %}">Power Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_poweroutlettemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_poweroutlets' pk=object.pk %}">Power Outlets</a></li>
         {% endif %}
         {% if perms.dcim.add_interfacetemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_interfaces' pk=object.pk %}">Interfaces</a></li>
         {% endif %}
         {% if perms.dcim.add_frontporttemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_frontports' pk=object.pk %}">Front Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_rearporttemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_rearports' pk=object.pk %}">Rear Ports</a></li>
         {% endif %}
         {% if perms.dcim.add_devicebaytemplate %}
-          <li><a class="dropdown-item" href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={{ object.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_devicebays' pk=object.pk %}">Device Bays</a></li>
         {% endif %}
       </ul>
     </div>
@@ -53,66 +53,66 @@
         </a>
     </li>
 
-    {% with interface_count=object.interfacetemplates.count %}
-        {% if interface_count %}
+    {% with tab_name='interface-templates' interface_count=object.interfacetemplates.count %}
+        {% if active_tab == tab_name or interface_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'interface-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_interfaces' pk=object.pk %}">Interfaces {% badge interface_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
 
-    {% with frontport_count=object.frontporttemplates.count %}
-        {% if frontport_count %}
+    {% with tab_name='front-port-templates' frontport_count=object.frontporttemplates.count %}
+        {% if active_tab == tab_name or frontport_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'front-port-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_frontports' pk=object.pk %}">Front Ports {% badge frontport_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_frontports' pk=object.pk %}">Front Ports {% badge frontport_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
 
-    {% with rearport_count=object.rearporttemplates.count %}
-        {% if rearport_count %}
+    {% with tab_name='rear-port-templates' rearport_count=object.rearporttemplates.count %}
+        {% if active_tab == tab_name or rearport_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'rear-port-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_rearports' pk=object.pk %}">Rear Ports {% badge rearport_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_rearports' pk=object.pk %}">Rear Ports {% badge rearport_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
 
-    {% with consoleport_count=object.consoleporttemplates.count %}
-        {% if consoleport_count %}
+    {% with tab_name='console-port-templates' consoleport_count=object.consoleporttemplates.count %}
+        {% if active_tab == tab_name or consoleport_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'console-port-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_consoleports' pk=object.pk %}">Console Ports {% badge consoleport_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_consoleports' pk=object.pk %}">Console Ports {% badge consoleport_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
 
-    {% with consoleserverport_count=object.consoleserverporttemplates.count %}
-        {% if consoleserverport_count %}
+    {% with tab_name='console-server-port-templates' consoleserverport_count=object.consoleserverporttemplates.count %}
+        {% if active_tab == tab_name or consoleserverport_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'console-server-port-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_consoleserverports' pk=object.pk %}">Console Server Ports {% badge consoleserverport_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_consoleserverports' pk=object.pk %}">Console Server Ports {% badge consoleserverport_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
 
-    {% with powerport_count=object.powerporttemplates.count %}
-        {% if powerport_count %}
+    {% with tab_name='power-port-templates' powerport_count=object.powerporttemplates.count %}
+        {% if active_tab == tab_name or powerport_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'power-port-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_powerports' pk=object.pk %}">Power Ports {% badge powerport_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_powerports' pk=object.pk %}">Power Ports {% badge powerport_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
 
-    {% with poweroutlet_count=object.poweroutlettemplates.count %}
-        {% if poweroutlet_count %}
+    {% with tab_name='power-outlet-templates' poweroutlet_count=object.poweroutlettemplates.count %}
+        {% if active_tab == tab_name or poweroutlet_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'power-outlet-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_poweroutlets' pk=object.pk %}">Power Outlets {% badge poweroutlet_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_poweroutlets' pk=object.pk %}">Power Outlets {% badge poweroutlet_count %}</a>
             </li>
         {% endif %}
     {% endwith %}
 
-    {% with devicebay_count=object.devicebaytemplates.count %}
-        {% if devicebay_count %}
+    {% with tab_name='device-bay-templates' devicebay_count=object.devicebaytemplates.count %}
+        {% if active_tab == tab_name or devicebay_count %}
             <li role="presentation" class="nav-item">
-                <a class="nav-link {% if active_tab == 'device-bay-templates' %} active{% endif %}" href="{% url 'dcim:devicetype_devicebays' pk=object.pk %}">Device Bays {% badge devicebay_count %}</a>
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_devicebays' pk=object.pk %}">Device Bays {% badge devicebay_count %}</a>
             </li>
         {% endif %}
     {% endwith %}

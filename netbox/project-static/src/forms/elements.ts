@@ -35,11 +35,6 @@ function handleFormSubmit(event: Event, form: HTMLFormElement): void {
   for (const element of form.querySelectorAll<FormControls>('*[name]')) {
     if (!element.validity.valid) {
       invalids.add(element.name);
-
-      // If the field is invalid, but contains the .is-valid class, remove it.
-      if (element.classList.contains('is-valid')) {
-        element.classList.remove('is-valid');
-      }
       // If the field is invalid, but doesn't contain the .is-invalid class, add it.
       if (!element.classList.contains('is-invalid')) {
         element.classList.add('is-invalid');
@@ -48,10 +43,6 @@ function handleFormSubmit(event: Event, form: HTMLFormElement): void {
       // If the field is valid, but contains the .is-invalid class, remove it.
       if (element.classList.contains('is-invalid')) {
         element.classList.remove('is-invalid');
-      }
-      // If the field is valid, but doesn't contain the .is-valid class, add it.
-      if (!element.classList.contains('is-valid')) {
-        element.classList.add('is-valid');
       }
     }
   }

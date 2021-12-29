@@ -1,5 +1,4 @@
 {% extends 'base/layout.html' %}
-{% load get_status %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
 
@@ -24,7 +23,7 @@
 {% block title %}Home{% endblock %}
 
 {% block content-wrapper %}
-  <div class="p-3">
+  <div class="px-3">
     {# General stats #}
     <div class="row masonry">
       {% for section, items, icon in stats %}

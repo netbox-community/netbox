@@ -12,6 +12,7 @@ import { initInterfaceTable } from './tables';
 import { initSideNav } from './sidenav';
 import { initRackElevation } from './racks';
 import { initLinks } from './links';
+import { initHtmx } from './htmx';
 
 function initDocument(): void {
   for (const init of [
@@ -29,6 +30,7 @@ function initDocument(): void {
     initSideNav,
     initRackElevation,
     initLinks,
+    initHtmx,
   ]) {
     init();
   }

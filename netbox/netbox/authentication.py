@@ -105,7 +105,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         return settings.REMOTE_AUTH_AUTO_CREATE_USER
 
     def configure_groups(self, user, remote_groups):
-        logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
+        logger = logging.getLogger('netbox.auth.RemoteUserBackend')
 
         # Assign default groups to the user
         group_list = []
@@ -141,7 +141,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         Return None if ``create_unknown_user`` is ``False`` and a ``User``
         object with the given username is not found in the database.
         """
-        logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
+        logger = logging.getLogger('netbox.auth.RemoteUserBackend')
         logger.debug(
             f"trying to authenticate {remote_user} with groups {remote_groups}")
         if not remote_user:
@@ -173,7 +173,7 @@ class RemoteUserBackend(_RemoteUserBackend):
             return None
 
     def _is_superuser(self, user):
-        logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
+        logger = logging.getLogger('netbox.auth.RemoteUserBackend')
         superuser_groups = settings.REMOTE_AUTH_SUPERUSER_GROUPS
         logger.debug(f"Superuser Groups: {superuser_groups}")
         superusers = settings.REMOTE_AUTH_SUPERUSERS
@@ -189,7 +189,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         return bool(result)
 
     def _is_staff(self, user):
-        logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
+        logger = logging.getLogger('netbox.auth.RemoteUserBackend')
         staff_groups = settings.REMOTE_AUTH_STAFF_GROUPS
         logger.debug(f"Superuser Groups: {staff_groups}")
         staff_users = settings.REMOTE_AUTH_STAFF_USERS
@@ -204,7 +204,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         return bool(result)
 
     def configure_user(self, request, user):
-        logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
+        logger = logging.getLogger('netbox.auth.RemoteUserBackend')
         if not settings.REMOTE_AUTH_GROUP_SYNC_ENABLED:
             # Assign default groups to the user
             group_list = []

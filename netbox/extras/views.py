@@ -10,6 +10,7 @@ from rq import Worker
 
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
+from utilities.htmx import is_htmx
 from utilities.tables import paginate_table
 from utilities.utils import copy_safe_request, count_related, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin
@@ -471,6 +472,7 @@ class ObjectChangeLogView(View):
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
+    template_name = 'extras/imageattachment_edit.html'
 
     def alter_obj(self, instance, request, args, kwargs):
         if not instance.pk:
@@ -693,16 +695,26 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
 
     def get(self, request, job_result_pk):
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        jobresult = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
+        result = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
 
         # Retrieve the Report and attach the JobResult to it
-        module, report_name = jobresult.name.split('.')
+        module, report_name = result.name.split('.')
         report = get_report(module, report_name)
-        report.result = jobresult
+        report.result = result
+
+        # If this is an HTMX request, return only the result HTML
+        if is_htmx(request):
+            response = render(request, 'extras/htmx/report_result.html', {
+                'report': report,
+                'result': result,
+            })
+            if result.completed:
+                response.status_code = 286
+            return response
 
         return render(request, 'extras/report_result.html', {
             'report': report,
-            'result': jobresult,
+            'result': result,
         })
 
 
@@ -819,6 +831,16 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View)
             raise Http404
 
         script = self._get_script(result.name)
+
+        # If this is an HTMX request, return only the result HTML
+        if is_htmx(request):
+            response = render(request, 'extras/htmx/script_result.html', {
+                'script': script,
+                'result': result,
+            })
+            if result.completed:
+                response.status_code = 286
+            return response
 
         return render(request, 'extras/script_result.html', {
             'script': script,

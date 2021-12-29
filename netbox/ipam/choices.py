@@ -135,6 +135,7 @@ class FHRPGroupProtocolChoices(ChoiceSet):
     PROTOCOL_HSRP = 'hsrp'
     PROTOCOL_GLBP = 'glbp'
     PROTOCOL_CARP = 'carp'
+    PROTOCOL_OTHER = 'other'
 
     CHOICES = (
         (PROTOCOL_VRRP2, 'VRRPv2'),
@@ -142,6 +143,7 @@ class FHRPGroupProtocolChoices(ChoiceSet):
         (PROTOCOL_HSRP, 'HSRP'),
         (PROTOCOL_GLBP, 'GLBP'),
         (PROTOCOL_CARP, 'CARP'),
+        (PROTOCOL_OTHER, 'Other'),
     )
 
 

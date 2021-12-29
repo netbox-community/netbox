@@ -40,20 +40,17 @@ class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
-        label=_('Type'),
-        fetch_trigger='open'
+        label=_('Type')
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -63,15 +60,13 @@ class ClusterFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'site_group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group'),
-        fetch_trigger='open'
+        label=_('Group')
     )
     tag = TagFilterField(model)
 
@@ -89,33 +84,28 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
         queryset=ClusterGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster group'),
-        fetch_trigger='open'
+        label=_('Cluster group')
     )
     cluster_type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster type'),
-        fetch_trigger='open'
+        label=_('Cluster type')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label=_('Cluster'),
-        fetch_trigger='open'
+        label=_('Cluster')
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -125,8 +115,7 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
             'region_id': '$region_id',
             'group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -135,8 +124,7 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
         query_params={
             'vm_role': "True"
         },
-        label=_('Role'),
-        fetch_trigger='open'
+        label=_('Role')
     )
     status = forms.MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
@@ -147,8 +135,7 @@ class VirtualMachineFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, 
         queryset=Platform.objects.all(),
         required=False,
         null_option='None',
-        label=_('Platform'),
-        fetch_trigger='open'
+        label=_('Platform')
     )
     mac_address = forms.CharField(
         required=False,
@@ -174,8 +161,7 @@ class VMInterfaceFilterForm(CustomFieldModelFilterForm):
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label=_('Cluster'),
-        fetch_trigger='open'
+        label=_('Cluster')
     )
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
@@ -183,8 +169,7 @@ class VMInterfaceFilterForm(CustomFieldModelFilterForm):
         query_params={
             'cluster_id': '$cluster_id'
         },
-        label=_('Virtual machine'),
-        fetch_trigger='open'
+        label=_('Virtual machine')
     )
     enabled = forms.NullBooleanField(
         required=False,

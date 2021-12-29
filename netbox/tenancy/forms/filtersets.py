@@ -22,8 +22,7 @@ class TenantGroupFilterForm(CustomFieldModelFilterForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        label=_('Parent group'),
-        fetch_trigger='open'
+        label=_('Parent group')
     )
     tag = TagFilterField(model)
 
@@ -38,8 +37,7 @@ class TenantFilterForm(CustomFieldModelFilterForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group'),
-        fetch_trigger='open'
+        label=_('Group')
     )
     tag = TagFilterField(model)
 
@@ -53,8 +51,7 @@ class ContactGroupFilterForm(CustomFieldModelFilterForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
-        label=_('Parent group'),
-        fetch_trigger='open'
+        label=_('Parent group')
     )
     tag = TagFilterField(model)
 
@@ -74,7 +71,6 @@ class ContactFilterForm(CustomFieldModelFilterForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group'),
-        fetch_trigger='open'
+        label=_('Group')
     )
     tag = TagFilterField(model)

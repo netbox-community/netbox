@@ -3,9 +3,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 
+from extras.choices import CustomFieldTypeChoices
 from extras.models import *
 from extras.utils import FeatureQuery
-from utilities.forms import CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
+from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
 
 __all__ = (
     'CustomFieldCSVForm',
@@ -22,6 +23,10 @@ class CustomFieldCSVForm(CSVModelForm):
         limit_choices_to=FeatureQuery('custom_fields'),
         help_text="One or more assigned object types"
     )
+    type = CSVChoiceField(
+        choices=CustomFieldTypeChoices,
+        help_text='Field data type (e.g. text, integer, etc.)'
+    )
     choices = SimpleArrayField(
         base_field=forms.CharField(),
         required=False,
@@ -32,7 +37,7 @@ class CustomFieldCSVForm(CSVModelForm):
         model = CustomField
         fields = (
             'name', 'label', 'type', 'content_types', 'required', 'description', 'weight', 'filter_logic', 'default',
-            'choices', 'weight',
+            'choices', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
         )
 
 

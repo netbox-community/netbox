@@ -1,8 +1,7 @@
 {# Base layout for the core NetBox UI w/navbar and page content #}
 {% extends 'base/base.html' %}
 {% load helpers %}
-{% load nav %}
-{% load search_options %}
+{% load search %}
 {% load static %}
 
 {% block layout %}
@@ -21,7 +20,7 @@
         </div>
 
         {# Top bar #}
-        <nav class="navbar navbar-light sticky-top flex-md-nowrap ps-6 p-3 search container-fluid noprint">
+        <nav class="navbar navbar-light sticky-top flex-md-nowrap p-1 mb-3 search container-fluid border-bottom noprint">
 
             {# Mobile Navigation #}
             <div class="nav-mobile">

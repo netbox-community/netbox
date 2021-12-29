@@ -4,127 +4,154 @@
 
 {% block content %}
 <div class="row">
-    <div class="col col-md-6">
-        <div class="card">
-            <h5 class="card-header">
-              Prefix
-            </h5>
-            <div class="card-body">
-              <table class="table table-hover attr-table">
-                <tr>
-                    <th scope="row">Family</th>
-                    <td>IPv{{ object.family }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">VRF</th>
-                    <td>
-                        {% if object.vrf %}
-                            <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a> ({{ object.vrf.rd }})
-                        {% else %}
-                            <span>Global</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Tenant</th>
-                    <td>
-                        {% if object.tenant %}
-                            {% if object.tenant.group %}
-                                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
-                            {% endif %}
-                            <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Aggregate</th>
-                    <td>
-                        {% if aggregate %}
-                            <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
-                        {% else %}
-                            <span class="text-warning">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Site</th>
-                    <td>
-                        {% if object.site %}
-                            {% if object.site.region %}
-                                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
-                            {% endif %}
-                            <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">VLAN</th>
-                    <td>
-                        {% if object.vlan %}
-                            {% if object.vlan.group %}
-                                <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
-                            {% endif %}
-                            <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Status</th>
-                    <td>
-                      <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Role</th>
-                    <td>
-                        {% if object.role %}
-                            <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Description</th>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">Is a pool</th>
-                    <td>
-                        {% if object.is_pool %}
-                            <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-                        {% else %}
-                            <i class="mdi mdi-close-thick text-danger" title="No"></i>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Utilization</th>
-                    <td>
-                      {% if object.mark_utilized %}
-                        {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
-                        <small>(Marked fully utilized)</small>
-                      {% else %}
-                        {% utilization_graph object.get_utilization %}
-                      {% endif %}
-                    </td>
-                </tr>
-              </table>
-            </div>
-        </div>
-        {% plugin_left_page object %}
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Prefix</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Family</th>
+            <td>IPv{{ object.family }}</td>
+          </tr>
+          <tr>
+            <th scope="row">VRF</th>
+            <td>
+              {% if object.vrf %}
+                <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a> ({{ object.vrf.rd }})
+              {% else %}
+                <span>Global</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tenant</th>
+            <td>
+              {% if object.tenant %}
+                {% if object.tenant.group %}
+                  <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                {% endif %}
+                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Aggregate</th>
+            <td>
+              {% if aggregate %}
+                <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
+              {% else %}
+                <span class="text-warning">None</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Site</th>
+            <td>
+              {% if object.site %}
+                {% if object.site.region %}
+                  <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
+                {% endif %}
+                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">VLAN</th>
+            <td>
+              {% if object.vlan %}
+                {% if object.vlan.group %}
+                  <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
+                {% endif %}
+                <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan }}</a>
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Status</th>
+            <td>
+              <span class="badge bg-{{ object.get_status_class }}">{{ object.get_status_display }}</span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Role</th>
+            <td>
+              {% if object.role %}
+                <a href="{{ object.role.get_absolute_url }}">{{ object.role }}</a>
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Is a pool</th>
+            <td>{% checkmark object.is_pool %}</td>
+          </tr>
+        </table>
+      </div>
     </div>
-    <div class="col col-md-6">
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
-        {% plugin_right_page object %}
+      {% plugin_left_page object %}
+  </div>
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Addressing</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Utilization</th>
+            <td>
+              {% if object.mark_utilized %}
+                {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
+                <small>(Marked fully utilized)</small>
+              {% else %}
+                {% utilization_graph object.get_utilization %}
+              {% endif %}
+            </td>
+          </tr>
+          {% with child_ip_count=object.get_child_ips.count %}
+            <tr>
+              <th scope="row">Child IPs</th>
+              <td>
+                <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">{{ child_ip_count }}</a>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Available IPs</th>
+              <td>{{ object.get_available_ips|length }}</td>
+            </tr>
+          {% endwith %}
+          <tr>
+            <td>First available IP</td>
+            <td>
+              {% with first_available_ip=object.get_first_available_ip %}
+                {% if first_available_ip %}
+                  {% if perms.ipam.add_ipaddress %}
+                    <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}">{{ first_available_ip }}</a>
+                  {% else %}
+                    {{ first_available_ip }}
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted">None</span>
+                {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
+    {% include 'inc/panels/custom_fields.html' %}
+    {% include 'inc/panels/tags.html' %}
+    {% plugin_right_page object %}
+  </div>
 </div>
 <div class="row">
     <div class="col col-md-12">

@@ -1,0 +1,5 @@
+{% if value %}
+  <i class="mdi mdi-check-bold text-success" title="{{ true_label }}"></i>
+{% elif show_false %}
+  <i class="mdi mdi-close-thick text-danger" title="{{ false_label }}"></i>
+{% endif %}

@@ -30,13 +30,7 @@
           </tr>
           <tr>
             <th scope="row">Private</th>
-            <td>
-              {% if object.is_private %}
-                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
-              {% else %}
-                <i class="mdi mdi-close-thick text-danger" title="No"></i>
-              {% endif %}
-            </td>
+            <td>{% checkmark object.is_private %}</td>
           </tr>
           <tr>
             <th scope="row">Aggregates</th>

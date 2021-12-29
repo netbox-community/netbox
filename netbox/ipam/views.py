@@ -5,18 +5,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from dcim.filtersets import InterfaceFilterSet
-from dcim.models import Device, Interface, Site
+from dcim.models import Interface, Site
 from dcim.tables import SiteTable
 from netbox.views import generic
 from utilities.tables import paginate_table
 from utilities.utils import count_related
 from virtualization.filtersets import VMInterfaceFilterSet
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import VMInterface
 from . import filtersets, forms, tables
 from .constants import *
 from .models import *
 from .models import ASN
-from .utils import add_requested_prefixes, add_available_vlans
+from .utils import add_requested_prefixes, add_available_ipaddresses, add_available_vlans
 
 
 #
@@ -418,7 +418,7 @@ class PrefixView(generic.ObjectView):
         ).filter(
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(
-            'site', 'role'
+            'site', 'role', 'tenant'
         )
         parent_prefix_table = tables.PrefixTable(
             list(parent_prefixes),
@@ -501,6 +501,13 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_ips().restrict(request.user, 'view')
+
+    def prep_table_data(self, request, queryset, parent):
+        show_available = bool(request.GET.get('show_available', 'true') == 'true')
+        if show_available:
+            return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
+
+        return queryset
 
     def get_extra_context(self, request, instance):
         return {

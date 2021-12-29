@@ -57,14 +57,12 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -73,8 +71,7 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -82,14 +79,12 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
         query_params={
             'site_id': '$site_id',
         },
-        label=_('Location'),
-        fetch_trigger='open'
+        label=_('Location')
     )
     virtual_chassis_id = DynamicModelMultipleChoiceField(
         queryset=VirtualChassis.objects.all(),
         required=False,
-        label=_('Virtual Chassis'),
-        fetch_trigger='open'
+        label=_('Virtual Chassis')
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -99,8 +94,7 @@ class DeviceComponentFilterForm(CustomFieldModelFilterForm):
             'location_id': '$location_id',
             'virtual_chassis_id': '$virtual_chassis_id'
         },
-        label=_('Device'),
-        fetch_trigger='open'
+        label=_('Device')
     )
 
 
@@ -109,8 +103,7 @@ class RegionFilterForm(CustomFieldModelFilterForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Parent region'),
-        fetch_trigger='open'
+        label=_('Parent region')
     )
     tag = TagFilterField(model)
 
@@ -120,8 +113,7 @@ class SiteGroupFilterForm(CustomFieldModelFilterForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Parent group'),
-        fetch_trigger='open'
+        label=_('Parent group')
     )
     tag = TagFilterField(model)
 
@@ -142,20 +134,17 @@ class SiteFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     asn_id = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         required=False,
-        label=_('ASNs'),
-        fetch_trigger='open'
+        label=_('ASNs')
     )
     tag = TagFilterField(model)
 
@@ -170,14 +159,12 @@ class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -186,8 +173,7 @@ class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -196,8 +182,7 @@ class LocationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'site_id': '$site_id',
         },
-        label=_('Parent'),
-        fetch_trigger='open'
+        label=_('Parent')
     )
     tag = TagFilterField(model)
 
@@ -219,8 +204,7 @@ class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -228,8 +212,7 @@ class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -238,8 +221,7 @@ class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Location'),
-        fetch_trigger='open'
+        label=_('Location')
     )
     status = forms.MultipleChoiceField(
         choices=RackStatusChoices,
@@ -260,8 +242,7 @@ class RackFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         queryset=RackRole.objects.all(),
         required=False,
         null_option='None',
-        label=_('Role'),
-        fetch_trigger='open'
+        label=_('Role')
     )
     serial = forms.CharField(
         required=False
@@ -280,8 +261,7 @@ class RackElevationFilterForm(RackFilterForm):
         query_params={
             'site_id': '$site_id',
             'location_id': '$location_id',
-        },
-        fetch_trigger='open'
+        }
     )
 
 
@@ -296,8 +276,7 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -305,15 +284,13 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.prefetch_related('site'),
         required=False,
         label=_('Location'),
-        null_option='None',
-        fetch_trigger='open'
+        null_option='None'
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
@@ -321,8 +298,7 @@ class RackReservationFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         label=_('User'),
         widget=APISelectMultiple(
             api_url='/api/users/users/',
-        ),
-        fetch_trigger='open'
+        )
     )
     tag = TagFilterField(model)
 
@@ -342,8 +318,7 @@ class DeviceTypeFilterForm(CustomFieldModelFilterForm):
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
-        label=_('Manufacturer'),
-        fetch_trigger='open'
+        label=_('Manufacturer')
     )
     subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
@@ -410,8 +385,7 @@ class PlatformFilterForm(CustomFieldModelFilterForm):
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
-        label=_('Manufacturer'),
-        fetch_trigger='open'
+        label=_('Manufacturer')
     )
     tag = TagFilterField(model)
 
@@ -432,14 +406,12 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -448,8 +420,7 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
             'region_id': '$region_id',
             'group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -458,8 +429,7 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Location'),
-        fetch_trigger='open'
+        label=_('Location')
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
@@ -469,20 +439,17 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
             'site_id': '$site_id',
             'location_id': '$location_id',
         },
-        label=_('Rack'),
-        fetch_trigger='open'
+        label=_('Rack')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
-        label=_('Role'),
-        fetch_trigger='open'
+        label=_('Role')
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
-        label=_('Manufacturer'),
-        fetch_trigger='open'
+        label=_('Manufacturer')
     )
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
@@ -490,15 +457,13 @@ class DeviceFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, CustomFi
         query_params={
             'manufacturer_id': '$manufacturer_id'
         },
-        label=_('Model'),
-        fetch_trigger='open'
+        label=_('Model')
     )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         null_option='None',
-        label=_('Platform'),
-        fetch_trigger='open'
+        label=_('Platform')
     )
     status = forms.MultipleChoiceField(
         choices=DeviceStatusChoices,
@@ -589,14 +554,12 @@ class VirtualChassisFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -605,8 +568,7 @@ class VirtualChassisFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     tag = TagFilterField(model)
 
@@ -622,8 +584,7 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -631,8 +592,7 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
@@ -641,8 +601,7 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
         null_option='None',
         query_params={
             'site_id': '$site_id'
-        },
-        fetch_trigger='open'
+        }
     )
     type = forms.MultipleChoiceField(
         choices=add_blank_choice(CableTypeChoices),
@@ -665,8 +624,7 @@ class CableFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
             'tenant_id': '$tenant_id',
             'rack_id': '$rack_id',
         },
-        label=_('Device'),
-        fetch_trigger='open'
+        label=_('Device')
     )
     tag = TagFilterField(model)
 
@@ -680,14 +638,12 @@ class PowerPanelFilterForm(CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -696,8 +652,7 @@ class PowerPanelFilterForm(CustomFieldModelFilterForm):
             'region_id': '$region_id',
             'group_id': '$site_group_id',
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -706,8 +661,7 @@ class PowerPanelFilterForm(CustomFieldModelFilterForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Location'),
-        fetch_trigger='open'
+        label=_('Location')
     )
     tag = TagFilterField(model)
 
@@ -723,14 +677,12 @@ class PowerFeedFilterForm(CustomFieldModelFilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group'),
-        fetch_trigger='open'
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -738,8 +690,7 @@ class PowerFeedFilterForm(CustomFieldModelFilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     power_panel_id = DynamicModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
@@ -748,8 +699,7 @@ class PowerFeedFilterForm(CustomFieldModelFilterForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Power panel'),
-        fetch_trigger='open'
+        label=_('Power panel')
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
@@ -758,8 +708,7 @@ class PowerFeedFilterForm(CustomFieldModelFilterForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Rack'),
-        fetch_trigger='open'
+        label=_('Rack')
     )
     status = forms.MultipleChoiceField(
         choices=PowerFeedStatusChoices,
@@ -990,8 +939,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
-        label=_('Manufacturer'),
-        fetch_trigger='open'
+        label=_('Manufacturer')
     )
     serial = forms.CharField(
         required=False
@@ -1016,8 +964,7 @@ class ConsoleConnectionFilterForm(FilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1025,8 +972,7 @@ class ConsoleConnectionFilterForm(FilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -1034,8 +980,7 @@ class ConsoleConnectionFilterForm(FilterForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Device'),
-        fetch_trigger='open'
+        label=_('Device')
     )
 
 
@@ -1043,8 +988,7 @@ class PowerConnectionFilterForm(FilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1052,8 +996,7 @@ class PowerConnectionFilterForm(FilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -1061,8 +1004,7 @@ class PowerConnectionFilterForm(FilterForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Device'),
-        fetch_trigger='open'
+        label=_('Device')
     )
 
 
@@ -1070,8 +1012,7 @@ class InterfaceConnectionFilterForm(FilterForm):
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Region'),
-        fetch_trigger='open'
+        label=_('Region')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1079,8 +1020,7 @@ class InterfaceConnectionFilterForm(FilterForm):
         query_params={
             'region_id': '$region_id'
         },
-        label=_('Site'),
-        fetch_trigger='open'
+        label=_('Site')
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -1088,6 +1028,5 @@ class InterfaceConnectionFilterForm(FilterForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Device'),
-        fetch_trigger='open'
+        label=_('Device')
     )
