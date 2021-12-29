@@ -25,10 +25,10 @@ class PrefixStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_CONTAINER, 'Container', 'secondary'),
-        (STATUS_ACTIVE, 'Active', 'primary'),
-        (STATUS_RESERVED, 'Reserved', 'info'),
-        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
+        (STATUS_CONTAINER, 'Container', 'gray'),
+        (STATUS_ACTIVE, 'Active', 'blue'),
+        (STATUS_RESERVED, 'Reserved', 'cyan'),
+        (STATUS_DEPRECATED, 'Deprecated', 'red'),
     ]
 
 
@@ -44,9 +44,9 @@ class IPRangeStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active', 'primary'),
-        (STATUS_RESERVED, 'Reserved', 'info'),
-        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
+        (STATUS_ACTIVE, 'Active', 'blue'),
+        (STATUS_RESERVED, 'Reserved', 'cyan'),
+        (STATUS_DEPRECATED, 'Deprecated', 'red'),
     ]
 
 
@@ -64,11 +64,11 @@ class IPAddressStatusChoices(ChoiceSet):
     STATUS_SLAAC = 'slaac'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active', 'primary'),
-        (STATUS_RESERVED, 'Reserved', 'info'),
-        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
-        (STATUS_DHCP, 'DHCP', 'success'),
-        (STATUS_SLAAC, 'SLAAC', 'success'),
+        (STATUS_ACTIVE, 'Active', 'blue'),
+        (STATUS_RESERVED, 'Reserved', 'cyan'),
+        (STATUS_DEPRECATED, 'Deprecated', 'red'),
+        (STATUS_DHCP, 'DHCP', 'green'),
+        (STATUS_SLAAC, 'SLAAC', 'purple'),
     ]
 
 
@@ -84,14 +84,14 @@ class IPAddressRoleChoices(ChoiceSet):
     ROLE_CARP = 'carp'
 
     CHOICES = (
-        (ROLE_LOOPBACK, 'Loopback', 'secondary'),
-        (ROLE_SECONDARY, 'Secondary', 'primary'),
-        (ROLE_ANYCAST, 'Anycast', 'warning'),
-        (ROLE_VIP, 'VIP'),
-        (ROLE_VRRP, 'VRRP', 'success'),
-        (ROLE_HSRP, 'HSRP', 'success'),
-        (ROLE_GLBP, 'GLBP', 'success'),
-        (ROLE_CARP, 'CARP'), 'success',
+        (ROLE_LOOPBACK, 'Loopback', 'gray'),
+        (ROLE_SECONDARY, 'Secondary', 'blue'),
+        (ROLE_ANYCAST, 'Anycast', 'yellow'),
+        (ROLE_VIP, 'VIP', 'purple'),
+        (ROLE_VRRP, 'VRRP', 'green'),
+        (ROLE_HSRP, 'HSRP', 'green'),
+        (ROLE_GLBP, 'GLBP', 'green'),
+        (ROLE_CARP, 'CARP'), 'green',
     )
 
 
@@ -141,9 +141,9 @@ class VLANStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active', 'primary'),
-        (STATUS_RESERVED, 'Reserved', 'info'),
-        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
+        (STATUS_ACTIVE, 'Active', 'blue'),
+        (STATUS_RESERVED, 'Reserved', 'cyan'),
+        (STATUS_DEPRECATED, 'Deprecated', 'red'),
     ]
 
 

@@ -161,16 +161,16 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 Default: Empty dictionary
 
-Some static choice fields on models can be configured with custom values. This is done by defining `FIELD_CHOICES` as a dictionary mapping model fields to their choices list. Each choice in the list must have a database value and a human-friendly label, and may optionally specify a color.
+Some static choice fields on models can be configured with custom values. This is done by defining `FIELD_CHOICES` as a dictionary mapping model fields to their choices list. Each choice in the list must have a database value and a human-friendly label, and may optionally specify a color. (A list of available colors is provided below.)
 
 For example, to specify a custom set of choices for the site status field:
 
 ```python
 FIELD_CHOICES = {
     'dcim.Site.status': (
-        ('foo', 'Foo'),
-        ('bar', 'Bar'),
-        ('baz', 'Baz'),
+        ('foo', 'Foo', 'red'),
+        ('bar', 'Bar', 'green'),
+        ('baz', 'Baz', 'blue'),
     )
 }
 ```
@@ -189,6 +189,22 @@ The following model field support configurable choices:
 * `ipam.Prefix.status`
 * `ipam.VLAN.status`
 * `virtualization.VirtualMachine.status`
+
+The following colors are supported:
+
+* `blue`
+* `indigo`
+* `purple`
+* `pink`
+* `red`
+* `orange`
+* `yellow`
+* `green`
+* `teal`
+* `cyan`
+* `gray`
+* `black`
+* `white`
 
 ---
 

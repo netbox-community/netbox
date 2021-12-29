@@ -91,9 +91,9 @@ class ObjectChangeActionChoices(ChoiceSet):
     ACTION_DELETE = 'delete'
 
     CHOICES = (
-        (ACTION_CREATE, 'Created', 'success'),
-        (ACTION_UPDATE, 'Updated', 'primary'),
-        (ACTION_DELETE, 'Deleted', 'danger'),
+        (ACTION_CREATE, 'Created', 'green'),
+        (ACTION_UPDATE, 'Updated', 'blue'),
+        (ACTION_DELETE, 'Deleted', 'red'),
     )
 
 
@@ -109,10 +109,10 @@ class JournalEntryKindChoices(ChoiceSet):
     KIND_DANGER = 'danger'
 
     CHOICES = (
-        (KIND_INFO, 'Info', 'info'),
-        (KIND_SUCCESS, 'Success', 'success'),
-        (KIND_WARNING, 'Warning', 'warning'),
-        (KIND_DANGER, 'Danger', 'danger'),
+        (KIND_INFO, 'Info', 'cyan'),
+        (KIND_SUCCESS, 'Success', 'green'),
+        (KIND_WARNING, 'Warning', 'yellow'),
+        (KIND_DANGER, 'Danger', 'red'),
     )
 
 
@@ -129,11 +129,11 @@ class LogLevelChoices(ChoiceSet):
     LOG_FAILURE = 'failure'
 
     CHOICES = (
-        (LOG_DEFAULT, 'Default', 'secondary'),
-        (LOG_SUCCESS, 'Success', 'success'),
-        (LOG_INFO, 'Info', 'info'),
-        (LOG_WARNING, 'Warning', 'warning'),
-        (LOG_FAILURE, 'Failure', 'danger'),
+        (LOG_DEFAULT, 'Default', 'gray'),
+        (LOG_SUCCESS, 'Success', 'green'),
+        (LOG_INFO, 'Info', 'cyan'),
+        (LOG_WARNING, 'Warning', 'yellow'),
+        (LOG_FAILURE, 'Failure', 'red'),
     )
 
 
