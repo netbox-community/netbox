@@ -53,6 +53,9 @@ class DCIMQuery(graphene.ObjectType):
     inventory_item_role = ObjectField(InventoryItemRoleType)
     inventory_item_role_list = ObjectListField(InventoryItemRoleType)
 
+    inventory_item_template = ObjectField(InventoryItemTemplateType)
+    inventory_item_template_list = ObjectListField(InventoryItemTemplateType)
+
     location = ObjectField(LocationType)
     location_list = ObjectListField(LocationType)
 

@@ -350,6 +350,12 @@ class DeviceBayTemplateViewSet(ModelViewSet):
     filterset_class = filtersets.DeviceBayTemplateFilterSet
 
 
+class InventoryItemTemplateViewSet(ModelViewSet):
+    queryset = InventoryItemTemplate.objects.prefetch_related('device_type__manufacturer', 'role')
+    serializer_class = serializers.InventoryItemTemplateSerializer
+    filterset_class = filtersets.InventoryItemTemplateFilterSet
+
+
 #
 # Device roles
 #

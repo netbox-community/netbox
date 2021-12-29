@@ -44,6 +44,9 @@
         {% if perms.dcim.add_devicebaytemplate %}
           <li><a class="dropdown-item" href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_devicebays' pk=object.pk %}">Device Bays</a></li>
         {% endif %}
+        {% if perms.dcim.add_inventoryitemtemplate %}
+          <li><a class="dropdown-item" href="{% url 'dcim:inventoryitemtemplate_add' %}?device_type={{ object.pk }}&return_url={% url 'dcim:devicetype_inventoryitems' pk=object.pk %}">Inventory Items</a></li>
+        {% endif %}
       </ul>
     </div>
   {% endif %}
@@ -124,6 +127,14 @@
         {% if active_tab == tab_name or poweroutlet_count %}
             <li role="presentation" class="nav-item">
                 <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_poweroutlets' pk=object.pk %}">Power Outlets {% badge poweroutlet_count %}</a>
+            </li>
+        {% endif %}
+    {% endwith %}
+
+    {% with tab_name='inventory-item-templates' inventoryitem_count=object.inventoryitemtemplates.count %}
+        {% if active_tab == tab_name or inventoryitem_count %}
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if active_tab == tab_name %} active{% endif %}" href="{% url 'dcim:devicetype_inventoryitems' pk=object.pk %}">Inventory Items {% badge inventoryitem_count %}</a>
             </li>
         {% endif %}
     {% endwith %}

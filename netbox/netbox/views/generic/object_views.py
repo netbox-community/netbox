@@ -737,6 +737,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
             'return_url': self.get_return_url(request),
         })
 
+    # TODO: Refactor this method for clarity & better error reporting
     def validate_form(self, request, form):
         """
         Validate form values and set errors on the form object as they are detected. If
@@ -763,17 +764,7 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                 if component_form.is_valid():
                     new_components.append(component_form)
 
-                else:
-                    for field, errors in component_form.errors.as_data().items():
-                        # Assign errors on the child form's name/label field to name_pattern/label_pattern on the parent form
-                        if field == 'name':
-                            field = 'name_pattern'
-                        elif field == 'label':
-                            field = 'label_pattern'
-                        for e in errors:
-                            form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
-
-            if not form.errors:
+            if not form.errors and not component_form.errors:
                 try:
                     with transaction.atomic():
                         # Create the new components

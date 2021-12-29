@@ -933,6 +933,9 @@ class Device(PrimaryModel, ConfigContextModel):
             DeviceBay.objects.bulk_create(
                 [x.instantiate(device=self) for x in self.device_type.devicebaytemplates.all()]
             )
+            # Avoid bulk_create to handle MPTT
+            for x in self.device_type.inventoryitemtemplates.all():
+                x.instantiate(device=self).save()
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)

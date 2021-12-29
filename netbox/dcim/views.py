@@ -869,6 +869,13 @@ class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_devicebays'
 
 
+class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
+    child_model = InventoryItemTemplate
+    table = tables.InventoryItemTemplateTable
+    filterset = filtersets.InventoryItemTemplateFilterSet
+    viewname = 'dcim:devicetype_inventoryitems'
+
+
 class DeviceTypeEditView(generic.ObjectEditView):
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeForm
@@ -890,6 +897,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
         'dcim.add_rearporttemplate',
         'dcim.add_modulebaytemplate',
         'dcim.add_devicebaytemplate',
+        'dcim.add_inventoryitemtemplate',
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
@@ -903,6 +911,7 @@ class DeviceTypeImportView(generic.ObjectImportView):
         ('front-ports', forms.FrontPortTemplateImportForm),
         ('module-bays', forms.ModuleBayTemplateImportForm),
         ('device-bays', forms.DeviceBayTemplateImportForm),
+        ('inventory-items', forms.InventoryItemTemplateImportForm),
     ))
 
     def prep_related_object_data(self, parent, data):
@@ -1360,6 +1369,52 @@ class DeviceBayTemplateBulkRenameView(generic.BulkRenameView):
 class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceBayTemplate.objects.all()
     table = tables.DeviceBayTemplateTable
+
+
+#
+# Inventory item templates
+#
+
+class InventoryItemTemplateCreateView(generic.ComponentCreateView):
+    queryset = InventoryItemTemplate.objects.all()
+    form = forms.DeviceTypeComponentCreateForm
+    model_form = forms.InventoryItemTemplateForm
+    template_name = 'dcim/inventoryitem_create.html'
+
+    def alter_object(self, instance, request):
+        # Set component (if any)
+        component_type = request.GET.get('component_type')
+        component_id = request.GET.get('component_id')
+
+        if component_type and component_id:
+            content_type = get_object_or_404(ContentType, pk=component_type)
+            instance.component = get_object_or_404(content_type.model_class(), pk=component_id)
+
+        return instance
+
+
+class InventoryItemTemplateEditView(generic.ObjectEditView):
+    queryset = InventoryItemTemplate.objects.all()
+    model_form = forms.InventoryItemTemplateForm
+
+
+class InventoryItemTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = InventoryItemTemplate.objects.all()
+
+
+class InventoryItemTemplateBulkEditView(generic.BulkEditView):
+    queryset = InventoryItemTemplate.objects.all()
+    table = tables.InventoryItemTemplateTable
+    form = forms.InventoryItemTemplateBulkEditForm
+
+
+class InventoryItemTemplateBulkRenameView(generic.BulkRenameView):
+    queryset = InventoryItemTemplate.objects.all()
+
+
+class InventoryItemTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = InventoryItemTemplate.objects.all()
+    table = tables.InventoryItemTemplateTable
 
 
 #

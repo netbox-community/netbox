@@ -447,6 +447,40 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
         fields = ['id', 'url', 'display', 'device_type', 'name', 'label', 'description', 'created', 'last_updated']
 
 
+class InventoryItemTemplateSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemtemplate-detail')
+    device_type = NestedDeviceTypeSerializer()
+    parent = serializers.PrimaryKeyRelatedField(
+        queryset=InventoryItemTemplate.objects.all(),
+        allow_null=True,
+        default=None
+    )
+    role = NestedInventoryItemRoleSerializer(required=False, allow_null=True)
+    manufacturer = NestedManufacturerSerializer(required=False, allow_null=True, default=None)
+    component_type = ContentTypeField(
+        queryset=ContentType.objects.filter(MODULAR_COMPONENT_TEMPLATE_MODELS),
+        required=False,
+        allow_null=True
+    )
+    component = serializers.SerializerMethodField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
+
+    class Meta:
+        model = InventoryItemTemplate
+        fields = [
+            'id', 'url', 'display', 'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id',
+            'description', 'component_type', 'component_id', 'component', 'created', 'last_updated', '_depth',
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_component(self, obj):
+        if obj.component is None:
+            return None
+        serializer = get_serializer_for_model(obj.component, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.component, context=context).data
+
+
 #
 # Devices
 #

@@ -581,6 +581,20 @@ class DeviceTypeTestCase(
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_devicetype_inventoryitems(self):
+        devicetype = DeviceType.objects.first()
+        inventory_items = (
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 1'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 2'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay 3'),
+        )
+        for inventory_item in inventory_items:
+            inventory_item.save()
+
+        url = reverse('dcim:devicetype_inventoryitems', kwargs={'pk': devicetype.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
         """
         Custom import test for YAML-based imports (versus CSV)
@@ -659,6 +673,13 @@ device-bays:
   - name: Device Bay 1
   - name: Device Bay 2
   - name: Device Bay 3
+inventory-items:
+  - name: Inventory Item 1
+    manufacturer: Generic
+  - name: Inventory Item 2
+    manufacturer: Generic
+  - name: Inventory Item 3
+    manufacturer: Generic
 """
 
         # Create the manufacturer
@@ -677,6 +698,7 @@ device-bays:
             'dcim.add_rearporttemplate',
             'dcim.add_modulebaytemplate',
             'dcim.add_devicebaytemplate',
+            'dcim.add_inventoryitemtemplate',
         )
 
         form_data = {
@@ -729,12 +751,16 @@ device-bays:
         self.assertEqual(fp1.rear_port_position, 1)
 
         self.assertEqual(device_type.modulebaytemplates.count(), 3)
-        db1 = ModuleBayTemplate.objects.first()
-        self.assertEqual(db1.name, 'Module Bay 1')
+        mb1 = ModuleBayTemplate.objects.first()
+        self.assertEqual(mb1.name, 'Module Bay 1')
 
         self.assertEqual(device_type.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
+
+        self.assertEqual(device_type.inventoryitemtemplates.count(), 3)
+        ii1 = InventoryItemTemplate.objects.first()
+        self.assertEqual(ii1.name, 'Inventory Item 1')
 
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')
@@ -1386,6 +1412,48 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
             'name_pattern': 'Device Bay Template [4-6]',
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'Foo bar',
+        }
+
+
+class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = InventoryItemTemplate
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        devicetypes = (
+            DeviceType(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturers[0], model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        inventory_item_templates = (
+            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 1', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 2', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(device_type=devicetypes[0], name='Inventory Item Template 3', manufacturer=manufacturers[0]),
+        )
+        for item in inventory_item_templates:
+            item.save()
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Inventory Item Template X',
+            'manufacturer': manufacturers[1].pk,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Inventory Item Template [4-6]',
+            'manufacturer': manufacturers[1].pk,
         }
 
         cls.bulk_edit_data = {

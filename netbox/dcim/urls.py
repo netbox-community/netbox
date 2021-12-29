@@ -115,6 +115,7 @@ urlpatterns = [
     path('device-types/<int:pk>/rear-ports/', views.DeviceTypeRearPortsView.as_view(), name='devicetype_rearports'),
     path('device-types/<int:pk>/module-bays/', views.DeviceTypeModuleBaysView.as_view(), name='devicetype_modulebays'),
     path('device-types/<int:pk>/device-bays/', views.DeviceTypeDeviceBaysView.as_view(), name='devicetype_devicebays'),
+    path('device-types/<int:pk>/inventory-items/', views.DeviceTypeInventoryItemsView.as_view(), name='devicetype_inventoryitems'),
     path('device-types/<int:pk>/edit/', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     path('device-types/<int:pk>/delete/', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
     path('device-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
@@ -203,13 +204,21 @@ urlpatterns = [
     path('device-bay-templates/<int:pk>/edit/', views.DeviceBayTemplateEditView.as_view(), name='devicebaytemplate_edit'),
     path('device-bay-templates/<int:pk>/delete/', views.DeviceBayTemplateDeleteView.as_view(), name='devicebaytemplate_delete'),
 
-    # Device bay templates
+    # Module bay templates
     path('module-bay-templates/add/', views.ModuleBayTemplateCreateView.as_view(), name='modulebaytemplate_add'),
     path('module-bay-templates/edit/', views.ModuleBayTemplateBulkEditView.as_view(), name='modulebaytemplate_bulk_edit'),
     path('module-bay-templates/rename/', views.ModuleBayTemplateBulkRenameView.as_view(), name='modulebaytemplate_bulk_rename'),
     path('module-bay-templates/delete/', views.ModuleBayTemplateBulkDeleteView.as_view(), name='modulebaytemplate_bulk_delete'),
     path('module-bay-templates/<int:pk>/edit/', views.ModuleBayTemplateEditView.as_view(), name='modulebaytemplate_edit'),
     path('module-bay-templates/<int:pk>/delete/', views.ModuleBayTemplateDeleteView.as_view(), name='modulebaytemplate_delete'),
+
+    # Inventory item templates
+    path('inventory-item-templates/add/', views.InventoryItemTemplateCreateView.as_view(), name='inventoryitemtemplate_add'),
+    path('inventory-item-templates/edit/', views.InventoryItemTemplateBulkEditView.as_view(), name='inventoryitemtemplate_bulk_edit'),
+    path('inventory-item-templates/rename/', views.InventoryItemTemplateBulkRenameView.as_view(), name='inventoryitemtemplate_bulk_rename'),
+    path('inventory-item-templates/delete/', views.InventoryItemTemplateBulkDeleteView.as_view(), name='inventoryitemtemplate_bulk_delete'),
+    path('inventory-item-templates/<int:pk>/edit/', views.InventoryItemTemplateEditView.as_view(), name='inventoryitemtemplate_edit'),
+    path('inventory-item-templates/<int:pk>/delete/', views.InventoryItemTemplateDeleteView.as_view(), name='inventoryitemtemplate_delete'),
 
     # Device roles
     path('device-roles/', views.DeviceRoleListView.as_view(), name='devicerole_list'),

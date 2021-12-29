@@ -26,6 +26,7 @@ __all__ = (
     'InterfaceTemplateType',
     'InventoryItemType',
     'InventoryItemRoleType',
+    'InventoryItemTemplateType',
     'LocationType',
     'ManufacturerType',
     'ModuleType',
@@ -170,6 +171,14 @@ class DeviceBayTemplateType(ComponentTemplateObjectType):
         model = models.DeviceBayTemplate
         fields = '__all__'
         filterset_class = filtersets.DeviceBayTemplateFilterSet
+
+
+class InventoryItemTemplateType(ComponentTemplateObjectType):
+
+    class Meta:
+        model = models.InventoryItemTemplate
+        fields = '__all__'
+        filterset_class = filtersets.InventoryItemTemplateFilterSet
 
 
 class DeviceRoleType(OrganizationalObjectType):

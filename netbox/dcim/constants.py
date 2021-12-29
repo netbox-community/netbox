@@ -62,6 +62,18 @@ POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 # Device components
 #
 
+MODULAR_COMPONENT_TEMPLATE_MODELS = Q(
+    app_label='dcim',
+    model__in=(
+        'consoleporttemplate',
+        'consoleserverporttemplate',
+        'frontporttemplate',
+        'interfacetemplate',
+        'poweroutlettemplate',
+        'powerporttemplate',
+        'rearporttemplate',
+    ))
+
 MODULAR_COMPONENT_MODELS = Q(
     app_label='dcim',
     model__in=(
