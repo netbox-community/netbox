@@ -1,8 +1,9 @@
 import django_tables2 as tables
+from django_tables2.utils import Accessor
 
 from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
-    Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
+    InventoryItemTemplate, Manufacturer, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, LinkedCountColumn, MarkdownColumn, TagColumn, ToggleColumn,
@@ -15,6 +16,7 @@ __all__ = (
     'DeviceTypeTable',
     'FrontPortTemplateTable',
     'InterfaceTemplateTable',
+    'InventoryItemTemplateTable',
     'ManufacturerTable',
     'ModuleBayTemplateTable',
     'PowerOutletTemplateTable',
@@ -222,4 +224,26 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = DeviceBayTemplate
         fields = ('pk', 'name', 'label', 'description', 'actions')
+        empty_text = "None"
+
+
+class InventoryItemTemplateTable(ComponentTemplateTable):
+    actions = ButtonsColumn(
+        model=InventoryItemTemplate,
+        buttons=('edit', 'delete')
+    )
+    role = tables.Column(
+        linkify=True
+    )
+    manufacturer = tables.Column(
+        linkify=True
+    )
+    component = tables.Column(
+        accessor=Accessor('component'),
+        orderable=False
+    )
+
+    class Meta(ComponentTemplateTable.Meta):
+        model = InventoryItemTemplate
+        fields = ('pk', 'name', 'label', 'role', 'manufacturer', 'part_id', 'component', 'description', 'actions')
         empty_text = "None"

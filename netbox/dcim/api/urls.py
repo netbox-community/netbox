@@ -31,6 +31,7 @@ router.register('front-port-templates', views.FrontPortTemplateViewSet)
 router.register('rear-port-templates', views.RearPortTemplateViewSet)
 router.register('module-bay-templates', views.ModuleBayTemplateViewSet)
 router.register('device-bay-templates', views.DeviceBayTemplateViewSet)
+router.register('inventory-item-templates', views.InventoryItemTemplateViewSet)
 
 # Device/modules
 router.register('device-roles', views.DeviceRoleViewSet)

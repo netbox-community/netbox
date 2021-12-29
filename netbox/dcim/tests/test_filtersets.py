@@ -1214,6 +1214,86 @@ class DeviceBayTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class InventoryItemTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = InventoryItemTemplate.objects.all()
+    filterset = InventoryItemTemplateFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        device_types = (
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturers[0], model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturers[0], model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        inventory_item_roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3'),
+        )
+        InventoryItemRole.objects.bulk_create(inventory_item_roles)
+
+        inventory_item_templates = (
+            InventoryItemTemplate(device_type=device_types[0], name='Inventory Item 1', label='A', role=inventory_item_roles[0], manufacturer=manufacturers[0], part_id='1001'),
+            InventoryItemTemplate(device_type=device_types[1], name='Inventory Item 2', label='B', role=inventory_item_roles[1], manufacturer=manufacturers[1], part_id='1002'),
+            InventoryItemTemplate(device_type=device_types[2], name='Inventory Item 3', label='C', role=inventory_item_roles[2], manufacturer=manufacturers[2], part_id='1003'),
+        )
+        for item in inventory_item_templates:
+            item.save()
+
+        child_inventory_item_templates = (
+            InventoryItemTemplate(device_type=device_types[0], name='Inventory Item 1A', parent=inventory_item_templates[0]),
+            InventoryItemTemplate(device_type=device_types[1], name='Inventory Item 2A', parent=inventory_item_templates[1]),
+            InventoryItemTemplate(device_type=device_types[2], name='Inventory Item 3A', parent=inventory_item_templates[2]),
+        )
+        for item in child_inventory_item_templates:
+            item.save()
+
+    def test_name(self):
+        params = {'name': ['Inventory Item 1', 'Inventory Item 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_label(self):
+        params = {'label': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_part_id(self):
+        params = {'part_id': ['1001', '1002']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent_id(self):
+        parent_items = InventoryItemTemplate.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [parent_items[0].pk, parent_items[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_role(self):
+        roles = InventoryItemRole.objects.all()[:2]
+        params = {'role_id': [roles[0].pk, roles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'role': [roles[0].slug, roles[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DeviceRole.objects.all()
     filterset = DeviceRoleFilterSet

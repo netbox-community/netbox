@@ -31,6 +31,7 @@ __all__ = (
     'InterfaceTemplateBulkEditForm',
     'InventoryItemBulkEditForm',
     'InventoryItemRoleBulkEditForm',
+    'InventoryItemTemplateBulkEditForm',
     'LocationBulkEditForm',
     'ManufacturerBulkEditForm',
     'ModuleBulkEditForm',
@@ -905,6 +906,31 @@ class DeviceBayTemplateBulkEditForm(BulkEditForm):
 
     class Meta:
         nullable_fields = ('label', 'description')
+
+
+class InventoryItemTemplateBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=InventoryItemTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
+    description = forms.CharField(
+        required=False
+    )
+    role = DynamicModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['label', 'role', 'manufacturer', 'part_id', 'description']
 
 
 #

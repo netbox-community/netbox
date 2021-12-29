@@ -38,6 +38,7 @@ __all__ = (
     'InterfaceTemplateForm',
     'InventoryItemForm',
     'InventoryItemRoleForm',
+    'InventoryItemTemplateForm',
     'LocationForm',
     'ManufacturerForm',
     'ModuleForm',
@@ -1068,6 +1069,48 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'device_type', 'name', 'label', 'description',
         ]
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
+class InventoryItemTemplateForm(BootstrapMixin, forms.ModelForm):
+    parent = DynamicModelChoiceField(
+        queryset=InventoryItem.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        }
+    )
+    role = DynamicModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    component_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=MODULAR_COMPONENT_MODELS,
+        required=False,
+        widget=forms.HiddenInput
+    )
+    component_id = forms.IntegerField(
+        required=False,
+        widget=forms.HiddenInput
+    )
+
+    class Meta:
+        model = InventoryItemTemplate
+        fields = [
+            'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
+            'component_type', 'component_id',
+        ]
+        fieldsets = (
+            ('Inventory Item', ('device_type', 'parent', 'name', 'label', 'role', 'description')),
+            ('Hardware', ('manufacturer', 'part_id')),
+        )
         widgets = {
             'device_type': forms.HiddenInput(),
         }

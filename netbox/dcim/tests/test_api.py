@@ -897,6 +897,57 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
+    model = InventoryItemTemplate
+    brief_fields = ['_depth', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Device Type 1',
+            slug='device-type-1'
+        )
+        role = InventoryItemRole.objects.create(name='Inventory Item Role 1', slug='inventory-item-role-1')
+
+        inventory_item_templates = (
+            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturer, role=role),
+            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturer, role=role),
+            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturer, role=role),
+            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 4', manufacturer=manufacturer, role=role),
+        )
+        for item in inventory_item_templates:
+            item.save()
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Inventory Item Template 5',
+                'manufacturer': manufacturer.pk,
+                'role': role.pk,
+                'parent': inventory_item_templates[3].pk,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Inventory Item Template 6',
+                'manufacturer': manufacturer.pk,
+                'role': role.pk,
+                'parent': inventory_item_templates[3].pk,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Inventory Item Template 7',
+                'manufacturer': manufacturer.pk,
+                'role': role.pk,
+                'parent': inventory_item_templates[3].pk,
+            },
+        ]
+
+
 class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
     brief_fields = ['device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']

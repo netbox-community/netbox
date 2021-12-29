@@ -1,15 +1,20 @@
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
 from extras.utils import extras_features
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
+from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from .device_components import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, ModuleBay, PowerOutlet, PowerPort, RearPort,
+    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
+    RearPort,
 )
 
 
@@ -19,6 +24,7 @@ __all__ = (
     'DeviceBayTemplate',
     'FrontPortTemplate',
     'InterfaceTemplate',
+    'InventoryItemTemplate',
     'ModuleBayTemplate',
     'PowerOutletTemplate',
     'PowerPortTemplate',
@@ -140,6 +146,8 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
         blank=True
     )
 
+    component_model = ConsolePort
+
     class Meta:
         ordering = ('device_type', 'module_type', '_name')
         unique_together = (
@@ -148,7 +156,7 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
         )
 
     def instantiate(self, **kwargs):
-        return ConsolePort(
+        return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
@@ -167,6 +175,8 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
         blank=True
     )
 
+    component_model = ConsoleServerPort
+
     class Meta:
         ordering = ('device_type', 'module_type', '_name')
         unique_together = (
@@ -175,7 +185,7 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
         )
 
     def instantiate(self, **kwargs):
-        return ConsoleServerPort(
+        return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
@@ -206,6 +216,8 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         help_text="Allocated power draw (watts)"
     )
 
+    component_model = PowerPort
+
     class Meta:
         ordering = ('device_type', 'module_type', '_name')
         unique_together = (
@@ -214,7 +226,7 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         )
 
     def instantiate(self, **kwargs):
-        return PowerPort(
+        return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
@@ -257,6 +269,8 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         help_text="Phase (for three-phase feeds)"
     )
 
+    component_model = PowerOutlet
+
     class Meta:
         ordering = ('device_type', 'module_type', '_name')
         unique_together = (
@@ -283,7 +297,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             power_port = PowerPort.objects.get(name=self.power_port.name, **kwargs)
         else:
             power_port = None
-        return PowerOutlet(
+        return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
@@ -314,6 +328,8 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         verbose_name='Management only'
     )
 
+    component_model = Interface
+
     class Meta:
         ordering = ('device_type', 'module_type', '_name')
         unique_together = (
@@ -322,7 +338,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         )
 
     def instantiate(self, **kwargs):
-        return Interface(
+        return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
@@ -355,6 +371,8 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             MaxValueValidator(REARPORT_POSITIONS_MAX)
         ]
     )
+
+    component_model = FrontPort
 
     class Meta:
         ordering = ('device_type', 'module_type', '_name')
@@ -391,7 +409,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             rear_port = RearPort.objects.get(name=self.rear_port.name, **kwargs)
         else:
             rear_port = None
-        return FrontPort(
+        return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
@@ -422,6 +440,8 @@ class RearPortTemplate(ModularComponentTemplateModel):
         ]
     )
 
+    component_model = RearPort
+
     class Meta:
         ordering = ('device_type', 'module_type', '_name')
         unique_together = (
@@ -430,7 +450,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
         )
 
     def instantiate(self, **kwargs):
-        return RearPort(
+        return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.label,
             type=self.type,
@@ -451,12 +471,14 @@ class ModuleBayTemplate(ComponentTemplateModel):
         help_text='Identifier to reference when renaming installed components'
     )
 
+    component_model = ModuleBay
+
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
     def instantiate(self, device):
-        return ModuleBay(
+        return self.component_model(
             device=device,
             name=self.name,
             label=self.label,
@@ -469,12 +491,14 @@ class DeviceBayTemplate(ComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
+    component_model = DeviceBay
+
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
     def instantiate(self, device):
-        return DeviceBay(
+        return self.component_model(
             device=device,
             name=self.name,
             label=self.label
@@ -485,3 +509,79 @@ class DeviceBayTemplate(ComponentTemplateModel):
             raise ValidationError(
                 f"Subdevice role of device type ({self.device_type}) must be set to \"parent\" to allow device bays."
             )
+
+
+@extras_features('webhooks')
+class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
+    """
+    A template for an InventoryItem to be created for a new parent Device.
+    """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='child_items',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    component_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to=MODULAR_COMPONENT_TEMPLATE_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    component_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    component = GenericForeignKey(
+        ct_field='component_type',
+        fk_field='component_id'
+    )
+    role = models.ForeignKey(
+        to='dcim.InventoryItemRole',
+        on_delete=models.PROTECT,
+        related_name='inventory_item_templates',
+        blank=True,
+        null=True
+    )
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='inventory_item_templates',
+        blank=True,
+        null=True
+    )
+    part_id = models.CharField(
+        max_length=50,
+        verbose_name='Part ID',
+        blank=True,
+        help_text='Manufacturer-assigned part identifier'
+    )
+
+    objects = TreeManager()
+    component_model = InventoryItem
+
+    class Meta:
+        ordering = ('device_type__id', 'parent__id', '_name')
+        unique_together = ('device_type', 'parent', 'name')
+
+    def instantiate(self, **kwargs):
+        parent = InventoryItemTemplate.objects.get(name=self.parent.name, **kwargs) if self.parent else None
+        if self.component:
+            model = self.component.component_model
+            component = model.objects.get(name=self.component.name, **kwargs)
+        else:
+            component = None
+        return self.component_model(
+            parent=parent,
+            name=self.name,
+            label=self.label,
+            component=component,
+            role=self.role,
+            manufacturer=self.manufacturer,
+            part_id=self.part_id,
+            **kwargs
+        )

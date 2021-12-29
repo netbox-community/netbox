@@ -40,6 +40,7 @@ __all__ = (
     'InterfaceTemplateFilterSet',
     'InventoryItemFilterSet',
     'InventoryItemRoleFilterSet',
+    'InventoryItemTemplateFilterSet',
     'LocationFilterSet',
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
@@ -685,6 +686,49 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
     class Meta:
         model = DeviceBayTemplate
         fields = ['id', 'name']
+
+
+class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=InventoryItemTemplate.objects.all(),
+        label='Parent inventory item (ID)',
+    )
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer (ID)',
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label='Manufacturer (slug)',
+    )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=InventoryItemRole.objects.all(),
+        label='Role (ID)',
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=InventoryItemRole.objects.all(),
+        to_field_name='slug',
+        label='Role (slug)',
+    )
+    component_type = ContentTypeFilter()
+    component_id = MultiValueNumberFilter()
+
+    class Meta:
+        model = InventoryItemTemplate
+        fields = ['id', 'name', 'label', 'part_id']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(part_id__icontains=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
 
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
