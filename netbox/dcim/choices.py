@@ -15,11 +15,11 @@ class SiteStatusChoices(ChoiceSet):
     STATUS_RETIRED = 'retired'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'info'),
-        (STATUS_STAGING, 'Staging', 'primary'),
-        (STATUS_ACTIVE, 'Active', 'primary'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'warning'),
-        (STATUS_RETIRED, 'Retired', 'danger'),
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_STAGING, 'Staging', 'blue'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_RETIRED, 'Retired', 'red'),
     ]
 
 
@@ -69,11 +69,11 @@ class RackStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_RESERVED, 'Reserved', 'warning'),
-        (STATUS_AVAILABLE, 'Available', 'success'),
-        (STATUS_PLANNED, 'Planned', 'info'),
-        (STATUS_ACTIVE, 'Active', 'primary'),
-        (STATUS_DEPRECATED, 'Deprecated', 'danger'),
+        (STATUS_RESERVED, 'Reserved', 'yellow'),
+        (STATUS_AVAILABLE, 'Available', 'green'),
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_ACTIVE, 'Active', 'blue'),
+        (STATUS_DEPRECATED, 'Deprecated', 'red'),
     ]
 
 
@@ -141,13 +141,13 @@ class DeviceStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline', 'warning'),
-        (STATUS_ACTIVE, 'Active', 'success'),
-        (STATUS_PLANNED, 'Planned', 'info'),
-        (STATUS_STAGED, 'Staged', 'primary'),
-        (STATUS_FAILED, 'Failed', 'danger'),
-        (STATUS_INVENTORY, 'Inventory', 'secondary'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'warning'),
+        (STATUS_OFFLINE, 'Offline', 'gray'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_STAGED, 'Staged', 'blue'),
+        (STATUS_FAILED, 'Failed', 'red'),
+        (STATUS_INVENTORY, 'Inventory', 'purple'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
     ]
 
 
@@ -1121,9 +1121,9 @@ class LinkStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = (
-        (STATUS_CONNECTED, 'Connected', 'success'),
-        (STATUS_PLANNED, 'Planned', 'info'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'warning'),
+        (STATUS_CONNECTED, 'Connected', 'green'),
+        (STATUS_PLANNED, 'Planned', 'blue'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
     )
 
 
@@ -1162,10 +1162,10 @@ class PowerFeedStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline', 'warning'),
-        (STATUS_ACTIVE, 'Active', 'success'),
-        (STATUS_PLANNED, 'Planned', 'info'),
-        (STATUS_FAILED, 'Failed', 'danger'),
+        (STATUS_OFFLINE, 'Offline', 'gray'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_PLANNED, 'Planned', 'blue'),
+        (STATUS_FAILED, 'Failed', 'red'),
     ]
 
 
@@ -1175,8 +1175,8 @@ class PowerFeedTypeChoices(ChoiceSet):
     TYPE_REDUNDANT = 'redundant'
 
     CHOICES = (
-        (TYPE_PRIMARY, 'Primary', 'success'),
-        (TYPE_REDUNDANT, 'Redundant', 'info'),
+        (TYPE_PRIMARY, 'Primary', 'green'),
+        (TYPE_REDUNDANT, 'Redundant', 'cyan'),
     )
 
 

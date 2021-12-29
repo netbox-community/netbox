@@ -16,12 +16,12 @@ class CircuitStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONED = 'decommissioned'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'info'),
-        (STATUS_PROVISIONING, 'Provisioning', 'primary'),
-        (STATUS_ACTIVE, 'Active', 'success'),
-        (STATUS_OFFLINE, 'Offline', 'danger'),
-        (STATUS_DEPROVISIONING, 'Deprovisioning', 'warning'),
-        (STATUS_DECOMMISSIONED, 'Decommissioned', 'secondary'),
+        (STATUS_PLANNED, 'Planned', 'cyan'),
+        (STATUS_PROVISIONING, 'Provisioning', 'blue'),
+        (STATUS_ACTIVE, 'Active', 'green'),
+        (STATUS_OFFLINE, 'Offline', 'red'),
+        (STATUS_DEPROVISIONING, 'Deprovisioning', 'yellow'),
+        (STATUS_DECOMMISSIONED, 'Decommissioned', 'gray'),
     ]
 
 
