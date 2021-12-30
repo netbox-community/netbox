@@ -382,7 +382,7 @@ class TagColumn(tables.TemplateColumn):
     """
     template_code = """
     {% for tag in value.all %}
-        {% include 'utilities/templatetags/tag.html' %}
+        {% include 'helpers/tag.html' %}
     {% empty %}
         <span class="text-muted">&mdash;</span>
     {% endfor %}
