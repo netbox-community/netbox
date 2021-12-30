@@ -5,10 +5,45 @@
 ![Master branch build status](https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master)
 
 NetBox is an infrastructure resource modeling (IRM) tool designed to empower
-network automation. Initially conceived by the network engineering team at
+network automation, used by thousands of organizations around the world.
+Initially conceived by the network engineering team at
 [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically
 to address the needs of network and infrastructure engineers. It is intended to
 function as a domain-specific source of truth for network operations.
+
+Myriad infrastructure components can be modeled in NetBox, including:
+
+* Hierarchical regions, site groups, sites, and locations
+* Racks, devices, and device components
+* Cables and wireless connections
+* Power distribution
+* Data circuits and providers
+* Virtual machines and clusters
+* IP prefixes, ranges, and addresses
+* VRFs and route targets
+* FHRP groups (VRRP, HSRP, etc.)
+* AS numbers
+* VLANs and scoped VLAN groups
+* Organizational tenants and contacts
+
+In addition to its extensive built-in models and functionality, NetBox can be
+customized and extended through the use of:
+
+* Custom fields
+* Custom links
+* Configuration contexts
+* Custom model validation rules
+* Reports
+* Custom scripts
+* Export templates
+* Conditional webhooks
+* Plugins
+* Single sign-on (SSO) authentication
+* NAPALM integration
+* Detailed change logging
+
+NetBox also features a complete REST API as well as a GraphQL API for easily
+integrating with other tools and systems.
 
 NetBox runs as a web application atop the [Django](https://www.djangoproject.com/)
 Python framework with a [PostgreSQL](https://www.postgresql.org/) database. For a
