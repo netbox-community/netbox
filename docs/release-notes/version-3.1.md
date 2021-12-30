@@ -2,6 +2,10 @@
 
 ## v3.1.4 (FUTURE)
 
+### Enhancements
+
+* [#8192](https://github.com/netbox-community/netbox/issues/8192) - Add "add prefix" button to aggregate child prefixes view
+
 ### Bug Fixes
 
 * [#8191](https://github.com/netbox-community/netbox/issues/8191) - Fix return URL when adding IP addresses to VM interfaces

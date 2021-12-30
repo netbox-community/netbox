@@ -299,6 +299,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
         return {
             'bulk_querystring': f'within={instance.prefix}',
             'active_tab': 'prefixes',
+            'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
