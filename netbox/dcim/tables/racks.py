@@ -92,7 +92,7 @@ class RackTable(BaseTable):
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
-            'get_utilization', 'get_power_utilization',
+            'get_utilization',
         )
 
 
