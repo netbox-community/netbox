@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.models import Group, User
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, ValidationError
 from django.db.models import Q
@@ -8,9 +10,37 @@ from users.models import ObjectPermission, Token
 from utilities.forms.fields import ContentTypeMultipleChoiceField
 
 __all__ = (
+    'GroupAdminForm',
     'ObjectPermissionForm',
     'TokenAdminForm',
 )
+
+
+class GroupAdminForm(forms.ModelForm):
+    users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        widget=FilteredSelectMultiple('users', False)
+    )
+
+    class Meta:
+        model = Group
+        fields = ('name', 'users')
+
+    def __init__(self, *args, **kwargs):
+        super(GroupAdminForm, self).__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            self.fields['users'].initial = self.instance.user_set.all()
+
+    def save_m2m(self):
+        self.instance.user_set.set(self.cleaned_data['users'])
+
+    def save(self, *args, **kwargs):
+        instance = super(GroupAdminForm, self).save()
+        self.save_m2m()
+
+        return instance
 
 
 class TokenAdminForm(forms.ModelForm):

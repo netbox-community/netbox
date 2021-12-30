@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#8192](https://github.com/netbox-community/netbox/issues/8192) - Add "add prefix" button to aggregate child prefixes view
+* [#8194](https://github.com/netbox-community/netbox/issues/8194) - Enable bulk user assignment to groups under admin UI
 
 ### Bug Fixes
 

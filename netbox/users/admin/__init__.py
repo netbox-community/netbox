@@ -17,7 +17,7 @@ admin.site.unregister(User)
 
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    fields = ('name',)
+    form = forms.GroupAdminForm
     list_display = ('name', 'user_count')
     ordering = ('name',)
     search_fields = ('name',)
