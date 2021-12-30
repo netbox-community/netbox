@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#8191](https://github.com/netbox-community/netbox/issues/8191) - Fix return URL when adding IP addresses to VM interfaces
 * [#8187](https://github.com/netbox-community/netbox/issues/8187) - Fix rendering of tags column in object tables
 
 ---
