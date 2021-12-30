@@ -68,7 +68,7 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Custom Link X',
             'content_type': site_ct.pk,
             'weight': 100,
-            'button_class': CustomLinkButtonClassChoices.CLASS_DEFAULT,
+            'button_class': CustomLinkButtonClassChoices.DEFAULT,
             'link_text': 'Link X',
             'link_url': 'http://example.com/?x'
         }
@@ -81,7 +81,7 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'button_class': CustomLinkButtonClassChoices.CLASS_CYAN,
+            'button_class': CustomLinkButtonClassChoices.CYAN,
             'weight': 200,
         }
 
