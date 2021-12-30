@@ -1,4 +1,4 @@
-from utilities.choices import ChoiceSet
+from utilities.choices import ButtonColorChoices, ChoiceSet
 
 
 #
@@ -47,36 +47,13 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
 # CustomLinks
 #
 
-class CustomLinkButtonClassChoices(ChoiceSet):
+class CustomLinkButtonClassChoices(ButtonColorChoices):
 
-    CLASS_DEFAULT = 'outline-dark'
-    CLASS_LINK = 'ghost-dark'
-    CLASS_BLUE = 'blue'
-    CLASS_INDIGO = 'indigo'
-    CLASS_PURPLE = 'purple'
-    CLASS_PINK = 'pink'
-    CLASS_RED = 'red'
-    CLASS_ORANGE = 'orange'
-    CLASS_YELLOW = 'yellow'
-    CLASS_GREEN = 'green'
-    CLASS_TEAL = 'teal'
-    CLASS_CYAN = 'cyan'
-    CLASS_GRAY = 'secondary'
+    LINK = 'ghost-dark'
 
     CHOICES = (
-        (CLASS_DEFAULT, 'Default'),
-        (CLASS_LINK, 'Link'),
-        (CLASS_BLUE, 'Blue'),
-        (CLASS_INDIGO, 'Indigo'),
-        (CLASS_PURPLE, 'Purple'),
-        (CLASS_PINK, 'Pink'),
-        (CLASS_RED, 'Red'),
-        (CLASS_ORANGE, 'Orange'),
-        (CLASS_YELLOW, 'Yellow'),
-        (CLASS_GREEN, 'Green'),
-        (CLASS_TEAL, 'Teal'),
-        (CLASS_CYAN, 'Cyan'),
-        (CLASS_GRAY, 'Gray'),
+        *ButtonColorChoices.CHOICES,
+        (LINK, 'Link'),
     )
 
 #

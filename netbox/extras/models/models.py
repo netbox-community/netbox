@@ -212,7 +212,7 @@ class CustomLink(ChangeLoggedModel):
     button_class = models.CharField(
         max_length=30,
         choices=CustomLinkButtonClassChoices,
-        default=CustomLinkButtonClassChoices.CLASS_DEFAULT,
+        default=CustomLinkButtonClassChoices.DEFAULT,
         help_text="The class of the first link in a group will be used for the dropdown button"
     )
     new_window = models.BooleanField(

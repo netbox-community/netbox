@@ -161,21 +161,34 @@ class ButtonColorChoices(ChoiceSet):
     Map standard button color choices to Bootstrap 3 button classes
     """
     DEFAULT = 'outline-dark'
-    BLUE = 'primary'
-    CYAN = 'info'
-    GREEN = 'success'
-    RED = 'danger'
-    YELLOW = 'warning'
-    GREY = 'secondary'
-    BLACK = 'dark'
+    BLUE = 'blue'
+    INDIGO = 'indigo'
+    PURPLE = 'purple'
+    PINK = 'pink'
+    RED = 'red'
+    ORANGE = 'orange'
+    YELLOW = 'yellow'
+    GREEN = 'green'
+    TEAL = 'teal'
+    CYAN = 'cyan'
+    GRAY = 'gray'
+    GREY = 'gray'  # Backward compatability for <3.2
+    BLACK = 'black'
+    WHITE = 'white'
 
     CHOICES = (
         (DEFAULT, 'Default'),
         (BLUE, 'Blue'),
-        (CYAN, 'Cyan'),
-        (GREEN, 'Green'),
+        (INDIGO, 'Indigo'),
+        (PURPLE, 'Purple'),
+        (PINK, 'Pink'),
         (RED, 'Red'),
+        (ORANGE, 'Orange'),
         (YELLOW, 'Yellow'),
-        (GREY, 'Grey'),
-        (BLACK, 'Black')
+        (GREEN, 'Green'),
+        (TEAL, 'Teal'),
+        (CYAN, 'Cyan'),
+        (GRAY, 'Gray'),
+        (BLACK, 'Black'),
+        (WHITE, 'White'),
     )
