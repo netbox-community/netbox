@@ -1,5 +1,4 @@
 import logging
-from collections import OrderedDict
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.serializers.json import DjangoJSONEncoder
@@ -99,16 +98,20 @@ class CustomFieldsMixin(models.Model):
         """
         from extras.models import CustomField
 
-        fields = CustomField.objects.get_for_model(self)
-        return OrderedDict([
-            (field, self.custom_field_data.get(field.name)) for field in fields
-        ])
+        data = {}
+        for field in CustomField.objects.get_for_model(self):
+            value = self.custom_field_data.get(field.name)
+            data[field] = field.deserialize(value)
+
+        return data
 
     def clean(self):
         super().clean()
         from extras.models import CustomField
 
-        custom_fields = {cf.name: cf for cf in CustomField.objects.get_for_model(self)}
+        custom_fields = {
+            cf.name: cf for cf in CustomField.objects.get_for_model(self)
+        }
 
         # Validate all field values
         for field_name, value in self.custom_field_data.items():

@@ -35,7 +35,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         model = CustomField
         fields = '__all__'
         fieldsets = (
-            ('Custom Field', ('name', 'label', 'type', 'weight', 'required', 'description')),
+            ('Custom Field', ('name', 'label', 'type', 'object_type', 'weight', 'required', 'description')),
             ('Assigned Models', ('content_types',)),
             ('Behavior', ('filter_logic',)),
             ('Values', ('default', 'choices')),

@@ -16,7 +16,8 @@ from extras.utils import FeatureQuery, extras_features
 from netbox.models import ChangeLoggedModel
 from utilities import filters
 from utilities.forms import (
-    CSVChoiceField, DatePicker, LaxURLField, StaticSelectMultiple, StaticSelect, add_blank_choice,
+    CSVChoiceField, DatePicker, DynamicModelChoiceField, LaxURLField, StaticSelectMultiple, StaticSelect,
+    add_blank_choice,
 )
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
@@ -50,8 +51,17 @@ class CustomField(ChangeLoggedModel):
     type = models.CharField(
         max_length=50,
         choices=CustomFieldTypeChoices,
-        default=CustomFieldTypeChoices.TYPE_TEXT
+        default=CustomFieldTypeChoices.TYPE_TEXT,
+        help_text='The type of data this custom field holds'
     )
+    object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        help_text='The type of NetBox object this field maps to (for object fields)'
+    )
+
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -122,7 +132,6 @@ class CustomField(ChangeLoggedModel):
         null=True,
         help_text='Comma-separated list of available choices (for selection fields)'
     )
-
     objects = CustomFieldManager()
 
     class Meta:
@@ -234,6 +243,23 @@ class CustomField(ChangeLoggedModel):
                 'default': f"The specified default value ({self.default}) is not listed as an available choice."
             })
 
+    def serialize(self, value):
+        """
+        Prepare a value for storage as JSON data.
+        """
+        if self.type == CustomFieldTypeChoices.TYPE_OBJECT and value is not None:
+            return value.pk
+        return value
+
+    def deserialize(self, value):
+        """
+        Convert JSON data to a Python object suitable for the field type.
+        """
+        if self.type == CustomFieldTypeChoices.TYPE_OBJECT and value is not None:
+            model = self.object_type.model_class()
+            return model.objects.filter(pk=value).first()
+        return value
+
     def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
         """
         Return a form field suitable for setting a CustomField's value for an object.
@@ -299,6 +325,15 @@ class CustomField(ChangeLoggedModel):
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
             field = forms.JSONField(required=required, initial=initial)
+
+        # Object
+        elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
+            model = self.object_type.model_class()
+            field = DynamicModelChoiceField(
+                queryset=model.objects.all(),
+                required=required,
+                initial=initial
+            )
 
         # Text
         else:

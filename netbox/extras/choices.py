@@ -16,6 +16,7 @@ class CustomFieldTypeChoices(ChoiceSet):
     TYPE_JSON = 'json'
     TYPE_SELECT = 'select'
     TYPE_MULTISELECT = 'multiselect'
+    TYPE_OBJECT = 'object'
 
     CHOICES = (
         (TYPE_TEXT, 'Text'),
@@ -27,6 +28,7 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_JSON, 'JSON'),
         (TYPE_SELECT, 'Selection'),
         (TYPE_MULTISELECT, 'Multiple selection'),
+        (TYPE_OBJECT, 'NetBox object'),
     )
 
 
