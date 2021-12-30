@@ -2,6 +2,10 @@
 
 ## v3.1.4 (FUTURE)
 
+### Bug Fixes
+
+* [#8187](https://github.com/netbox-community/netbox/issues/8187) - Fix rendering of tags column in object tables
+
 ---
 
 ## v3.1.3 (2021-12-29)
