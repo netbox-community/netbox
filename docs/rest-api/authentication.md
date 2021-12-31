@@ -42,7 +42,7 @@ $ curl -X POST \
 https://netbox/api/users/tokens/provision/ \
 --data '{
     "username": "hankhill",
-    "password: "I<3C3H8",
+    "password": "I<3C3H8",
 }'
 ```
 
