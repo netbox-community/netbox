@@ -37,23 +37,32 @@ Most models will need view classes created in `views.py` to serve the following 
 
 Add the relevant URL path for each view created in the previous step to `urls.py`.
 
-## 6. Create the FilterSet
+## 6. Add relevant forms
+
+Depending on the type of model being added, you may need to define several types of form classes. These include:
+
+* A base model form (for creating/editing individual objects)
+* A bulk edit form
+* A bulk import form (for CSV-based import)
+* A filterset form (for filtering the object list view)
+
+## 7. Create the FilterSet
 
 Each model should have a corresponding FilterSet class defined. This is used to filter UI and API queries. Subclass the appropriate class from `netbox.filtersets` that matches the model's parent class.
 
-## 7. Create the table class
+## 8. Create the table class
 
 Create a table class for the model in `tables.py` by subclassing `utilities.tables.BaseTable`. Under the table's `Meta` class, be sure to list both the fields and default columns.
 
-## 8. Create the object template
+## 9. Create the object template
 
 Create the HTML template for the object view. (The other views each typically employ a generic template.) This template should extend `generic/object.html`.
 
-## 9. Add the model to the navigation menu
+## 10. Add the model to the navigation menu
 
 Add the relevant navigation menu items in `netbox/netbox/navigation_menu.py`.
 
-## 10. REST API components
+## 11. REST API components
 
 Create the following for each model:
 
@@ -62,13 +71,13 @@ Create the following for each model:
 * API view in `api/views.py`
 * Endpoint route in `api/urls.py`
 
-## 11. GraphQL API components
+## 12. GraphQL API components
 
 Create a Graphene object type for the model in `graphql/types.py` by subclassing the appropriate class from `netbox.graphql.types`.
 
 Also extend the schema class defined in `graphql/schema.py` with the individual object and object list fields per the established convention.
 
-## 12. Add tests
+## 13. Add tests
 
 Add tests for the following:
 
@@ -76,7 +85,7 @@ Add tests for the following:
 * API views
 * Filter sets
 
-## 13. Documentation
+## 14. Documentation
 
 Create a new documentation page for the model in `docs/models/<app_label>/<model_name>.md`. Include this file under the "features" documentation where appropriate.
 

@@ -1,5 +1,23 @@
 # NetBox v3.1
 
+## v3.1.4 (2022-01-03)
+
+### Enhancements
+
+* [#8192](https://github.com/netbox-community/netbox/issues/8192) - Add "add prefix" button to aggregate child prefixes view
+* [#8194](https://github.com/netbox-community/netbox/issues/8194) - Enable bulk user assignment to groups under admin UI
+* [#8197](https://github.com/netbox-community/netbox/issues/8197) - Allow filtering sites by group when connecting a cable
+* [#8210](https://github.com/netbox-community/netbox/issues/8210) - Establish `netbox/local/` as a path for local resources
+
+### Bug Fixes
+
+* [#8187](https://github.com/netbox-community/netbox/issues/8187) - Fix rendering of tags column in object tables
+* [#8191](https://github.com/netbox-community/netbox/issues/8191) - Fix return URL when adding IP addresses to VM interfaces
+* [#8196](https://github.com/netbox-community/netbox/issues/8196) - Fix IndexError exception when viewing large IPv6 prefixes in UI
+* [#8201](https://github.com/netbox-community/netbox/issues/8201) - Custom integer fields should allow negative integers as minimum/maximum values
+
+---
+
 ## v3.1.3 (2021-12-29)
 
 ### Enhancements

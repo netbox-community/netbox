@@ -18,7 +18,7 @@ __all__ = (
 
 VMINTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-sm btn-success" title="Add IP Address">
+    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" class="btn btn-sm btn-success" title="Add IP Address">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
     </a>
 {% endif %}

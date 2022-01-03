@@ -299,6 +299,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
         return {
             'bulk_querystring': f'within={instance.prefix}',
             'active_tab': 'prefixes',
+            'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
@@ -455,7 +456,9 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     template_name = 'ipam/prefix/prefixes.html'
 
     def get_children(self, request, parent):
-        return parent.get_child_prefixes().restrict(request.user, 'view')
+        return parent.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
+            'site', 'vrf', 'vlan', 'role', 'tenant',
+        )
 
     def prep_table_data(self, request, queryset, parent):
         # Determine whether to show assigned prefixes, available prefixes, or both
@@ -482,7 +485,9 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
     template_name = 'ipam/prefix/ip_ranges.html'
 
     def get_children(self, request, parent):
-        return parent.get_child_ranges().restrict(request.user, 'view')
+        return parent.get_child_ranges().restrict(request.user, 'view').prefetch_related(
+            'vrf', 'role', 'tenant',
+        )
 
     def get_extra_context(self, request, instance):
         return {
@@ -500,7 +505,9 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     template_name = 'ipam/prefix/ip_addresses.html'
 
     def get_children(self, request, parent):
-        return parent.get_child_ips().restrict(request.user, 'view')
+        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
+            'vrf', 'role', 'tenant',
+        )
 
     def prep_table_data(self, request, queryset, parent):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
@@ -569,7 +576,9 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
     template_name = 'ipam/iprange/ip_addresses.html'
 
     def get_children(self, request, parent):
-        return parent.get_child_ips().restrict(request.user, 'view')
+        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related(
+            'vrf', 'role', 'tenant',
+        )
 
     def get_extra_context(self, request, instance):
         return {

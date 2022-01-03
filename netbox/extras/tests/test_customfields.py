@@ -25,49 +25,68 @@ class CustomFieldTest(TestCase):
     def test_simple_fields(self):
         DATA = (
             {
-                'field_type': CustomFieldTypeChoices.TYPE_TEXT,
-                'field_value': 'Foobar!',
-                'empty_value': '',
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_TEXT,
+                },
+                'value': 'Foobar!',
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_LONGTEXT,
-                'field_value': 'Text with **Markdown**',
-                'empty_value': '',
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_LONGTEXT,
+                },
+                'value': 'Text with **Markdown**',
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_INTEGER,
-                'field_value': 0,
-                'empty_value': None,
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_INTEGER,
+                },
+                'value': 0,
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_INTEGER,
-                'field_value': 42,
-                'empty_value': None,
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_INTEGER,
+                    'validation_minimum': 1,
+                    'validation_maximum': 100,
+                },
+                'value': 42,
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN,
-                'field_value': True,
-                'empty_value': None,
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_INTEGER,
+                    'validation_minimum': -100,
+                    'validation_maximum': -1,
+                },
+                'value': -42,
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN,
-                'field_value': False,
-                'empty_value': None,
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_BOOLEAN,
+                },
+                'value': True,
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_DATE,
-                'field_value': '2016-06-23',
-                'empty_value': None,
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_BOOLEAN,
+                },
+                'value': False,
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_URL,
-                'field_value': 'http://example.com/',
-                'empty_value': '',
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_DATE,
+                },
+                'value': '2016-06-23',
             },
             {
-                'field_type': CustomFieldTypeChoices.TYPE_JSON,
-                'field_value': '{"foo": 1, "bar": 2}',
-                'empty_value': 'null',
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_URL,
+                },
+                'value': 'http://example.com/',
+            },
+            {
+                'field': {
+                    'type': CustomFieldTypeChoices.TYPE_JSON,
+                },
+                'value': '{"foo": 1, "bar": 2}',
             },
         )
 
@@ -76,7 +95,7 @@ class CustomFieldTest(TestCase):
         for data in DATA:
 
             # Create a custom field
-            cf = CustomField(type=data['field_type'], name='my_field', required=False)
+            cf = CustomField(name='my_field', required=False, **data['field'])
             cf.save()
             cf.content_types.set([obj_type])
 
@@ -85,12 +104,12 @@ class CustomFieldTest(TestCase):
             self.assertIsNone(site.custom_field_data[cf.name])
 
             # Assign a value to the first Site
-            site.custom_field_data[cf.name] = data['field_value']
+            site.custom_field_data[cf.name] = data['value']
             site.save()
 
             # Retrieve the stored value
             site.refresh_from_db()
-            self.assertEqual(site.custom_field_data[cf.name], data['field_value'])
+            self.assertEqual(site.custom_field_data[cf.name], data['value'])
 
             # Delete the stored value
             site.custom_field_data.pop(cf.name)

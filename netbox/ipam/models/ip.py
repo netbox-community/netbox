@@ -32,6 +32,28 @@ __all__ = (
 )
 
 
+class GetAvailablePrefixesMixin:
+
+    def get_available_prefixes(self):
+        """
+        Return all available Prefixes within this aggregate as an IPSet.
+        """
+        prefix = netaddr.IPSet(self.prefix)
+        child_prefixes = netaddr.IPSet([child.prefix for child in self.get_child_prefixes()])
+        available_prefixes = prefix - child_prefixes
+
+        return available_prefixes
+
+    def get_first_available_prefix(self):
+        """
+        Return the first available child prefix within the prefix (or None).
+        """
+        available_prefixes = self.get_available_prefixes()
+        if not available_prefixes:
+            return None
+        return available_prefixes.iter_cidrs()[0]
+
+
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
 class RIR(OrganizationalModel):
     """
@@ -110,7 +132,7 @@ class ASN(PrimaryModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Aggregate(PrimaryModel):
+class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
@@ -245,7 +267,7 @@ class Role(OrganizationalModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'tags', 'webhooks')
-class Prefix(PrimaryModel):
+class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
     VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
@@ -458,16 +480,6 @@ class Prefix(PrimaryModel):
         else:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
-    def get_available_prefixes(self):
-        """
-        Return all available Prefixes within this prefix as an IPSet.
-        """
-        prefix = netaddr.IPSet(self.prefix)
-        child_prefixes = netaddr.IPSet([child.prefix for child in self.get_child_prefixes()])
-        available_prefixes = prefix - child_prefixes
-
-        return available_prefixes
-
     def get_available_ips(self):
         """
         Return all available IPs within this prefix as an IPSet.
@@ -493,15 +505,6 @@ class Prefix(PrimaryModel):
         ])
 
         return available_ips
-
-    def get_first_available_prefix(self):
-        """
-        Return the first available child prefix within the prefix (or None).
-        """
-        available_prefixes = self.get_available_prefixes()
-        if not available_prefixes:
-            return None
-        return available_prefixes.iter_cidrs()[0]
 
     def get_first_available_ip(self):
         """

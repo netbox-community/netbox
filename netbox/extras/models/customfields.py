@@ -96,13 +96,13 @@ class CustomField(ChangeLoggedModel):
         default=100,
         help_text='Fields with higher weights appear lower in a form.'
     )
-    validation_minimum = models.PositiveIntegerField(
+    validation_minimum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Minimum value',
         help_text='Minimum allowed value (for numeric fields)'
     )
-    validation_maximum = models.PositiveIntegerField(
+    validation_maximum = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='Maximum value',
