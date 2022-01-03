@@ -176,7 +176,7 @@ CONNECTIONS_MENU = Menu(
             label='Connections',
             items=(
                 get_model_item('dcim', 'cable', 'Cables', actions=['import']),
-                get_model_item('wireless', 'wirelesslink', 'Wirelesss Links', actions=['import']),
+                get_model_item('wireless', 'wirelesslink', 'Wireless Links', actions=['import']),
                 MenuItem(
                     link='dcim:interface_connections_list',
                     link_text='Interface Connections',
