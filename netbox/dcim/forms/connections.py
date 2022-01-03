@@ -27,7 +27,7 @@ class ConnectCableToDeviceForm(TenancyForm, CustomFieldModelForm):
         label='Region',
         required=False
     )
-    termination_b_site_group = DynamicModelChoiceField(
+    termination_b_sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         label='Site group',
         required=False
@@ -38,7 +38,7 @@ class ConnectCableToDeviceForm(TenancyForm, CustomFieldModelForm):
         required=False,
         query_params={
             'region_id': '$termination_b_region',
-            'group_id': '$termination_b_site_group',
+            'group_id': '$termination_b_sitegroup',
         }
     )
     termination_b_location = DynamicModelChoiceField(
@@ -78,9 +78,9 @@ class ConnectCableToDeviceForm(TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Cable
         fields = [
-            'termination_b_region', 'termination_b_site', 'termination_b_rack', 'termination_b_device',
-            'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit',
-            'tags',
+            'termination_b_region', 'termination_b_sitegroup', 'termination_b_site', 'termination_b_rack',
+            'termination_b_device', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
+            'length', 'length_unit', 'tags',
         ]
         widgets = {
             'status': StaticSelect,
@@ -182,7 +182,7 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
         label='Region',
         required=False
     )
-    termination_b_site_group = DynamicModelChoiceField(
+    termination_b_sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         label='Site group',
         required=False
@@ -193,7 +193,7 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
         required=False,
         query_params={
             'region_id': '$termination_b_region',
-            'group_id': '$termination_b_site_group',
+            'group_id': '$termination_b_sitegroup',
         }
     )
     termination_b_circuit = DynamicModelChoiceField(
@@ -219,9 +219,9 @@ class ConnectCableToCircuitTerminationForm(TenancyForm, CustomFieldModelForm):
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
-            'termination_b_provider', 'termination_b_region', 'termination_b_site', 'termination_b_circuit',
-            'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit',
-            'tags',
+            'termination_b_provider', 'termination_b_region', 'termination_b_sitegroup', 'termination_b_site',
+            'termination_b_circuit', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
+            'length', 'length_unit', 'tags',
         ]
 
     def clean_termination_b_id(self):
@@ -235,7 +235,7 @@ class ConnectCableToPowerFeedForm(TenancyForm, CustomFieldModelForm):
         label='Region',
         required=False
     )
-    termination_b_site_group = DynamicModelChoiceField(
+    termination_b_sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         label='Site group',
         required=False
@@ -246,7 +246,7 @@ class ConnectCableToPowerFeedForm(TenancyForm, CustomFieldModelForm):
         required=False,
         query_params={
             'region_id': '$termination_b_region',
-            'group_id': '$termination_b_site_group',
+            'group_id': '$termination_b_sitegroup',
         }
     )
     termination_b_location = DynamicModelChoiceField(
@@ -281,8 +281,9 @@ class ConnectCableToPowerFeedForm(TenancyForm, CustomFieldModelForm):
 
     class Meta(ConnectCableToDeviceForm.Meta):
         fields = [
-            'termination_b_location', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'tenant_group',
-            'tenant', 'label', 'color', 'length', 'length_unit', 'tags',
+            'termination_b_region', 'termination_b_sitegroup', 'termination_b_site', 'termination_b_location',
+            'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'tenant_group', 'tenant', 'label',
+            'color', 'length', 'length_unit', 'tags',
         ]
 
     def clean_termination_b_id(self):

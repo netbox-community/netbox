@@ -36,6 +36,12 @@
                               </div>
                           </div>
                           <div class="row mb-3">
+                              <label class="col-sm-3 col-form-label text-lg-end">Site Group</label>
+                              <div class="col">
+                                  <input class="form-control" value="{{ termination_a.device.site.group }}" disabled />
+                              </div>
+                          </div>
+                          <div class="row mb-3">
                               <label class="col-sm-3 col-form-label text-lg-end">Site</label>
                               <div class="col">
                                   <input class="form-control" value="{{ termination_a.device.site }}" disabled />
@@ -122,6 +128,9 @@
                       {% endif %}
                       {% if 'termination_b_region' in form.fields %}
                           {% render_field form.termination_b_region %}
+                      {% endif %}
+                      {% if 'termination_b_sitegroup' in form.fields %}
+                          {% render_field form.termination_b_sitegroup %}
                       {% endif %}
                       {% if 'termination_b_site' in form.fields %}
                           {% render_field form.termination_b_site %}
